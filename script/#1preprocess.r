@@ -33,7 +33,7 @@ giving_price <- function(
       dplyr::select(pid, year, income.var)
 
     cal <- function(y, t) {
-        cutdt <- subset(price.dt, year == t-1)
+        cutdt <- subset(price.dt, year == t)
         
         cutdt$ind <- 1*(cutdt[,2] <= y)
         t <- with(subset(cutdt, ind == 1), max(MTR))
