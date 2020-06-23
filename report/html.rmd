@@ -1,0 +1,7 @@
+---
+title: "Project NaSTaB: Giving Motivated by Loss Aversion of Refund"
+author:
+  - Hiroki Kato
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+output: html_document
+---
