@@ -91,3 +91,20 @@ ggplot(plotdt, aes(x = pca228)) +
   geom_density() +
   labs(x = "Amount of Tax Deduction", caption = sprintf("N = %3.0f", length(na.omit(plotdt$pca226)))) + 
   my_theme
+
+## ---- deductive_credit_amount
+benefit13 <- nastab %>% 
+  filter(year == 2013 & pca226 > 0) %>%
+  select(pid, pca226)
+
+benefit14 <- nastab %>% 
+  filter(year == 2014 & !is.na(pca228)) %>%
+  select(pid, pca228)
+
+benefitdt <- benefit13 %>% left_join(benefit14, by = "pid") %>% 
+  mutate(diff = pca226 - pca228)
+
+ggplot(benefitdt, aes(x = diff)) +
+  geom_density() + 
+  labs(x = "Amount of Tax Deduction - Amount of Tax Credit", caption = sprintf("N = %3.0f", length(na.omit(benefitdt$diff)))) +
+  my_theme
