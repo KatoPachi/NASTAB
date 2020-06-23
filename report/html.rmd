@@ -1,7 +1,16 @@
 ---
-title: "Project NaSTaB: Giving Motivated by Loss Aversion of Refund"
+title: "Project NaSTaB: Manipulation of Tax Refund by Monetary Giving"
 author:
   - Hiroki Kato
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
 output: html_document
 ---
+
+## 研究のモチベーション
+
+- 経済学における金銭的寄付のモチベーション：利他性
+  - 無条件の利他性： 純粋な利他性 (Becker, 1974 JPE), warm glow (Andreoni, 1989 JPE)
+  - 条件つき利他性： 不平等回避 (Fehr and Schdmit, 1999 QJE), Distributional preference (Charness and Rabin, 2002 QJE) 
+- 寄付に関する税制優遇措置があるとき，個人はrefundを得るために寄付をするのではないだろうか？（利己的なモチベーション）
+  - bunching at refund-maximization point (Mortenson and Whitten, forthcoming AEJEP)
+- 韓国の寄付税制が所得控除から税額控除に変更したときに生じるtax refundの損失を用いて，refundの調整をモチベーションに寄付していることを示したい．
