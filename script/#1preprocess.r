@@ -99,6 +99,8 @@ shape.nastab <- nastab %>%
   dplyr::mutate_at(
     c("pca225", "pca227"), list(~ifelse(. == -9, NA, .))) %>%
   dplyr::mutate_at(
+    c("pca226", "pca228"), list(~ifelse(. == -9, NA, .))) %>%
+  dplyr::mutate_at(
     c("pca225", "pca227", "hcr001"), list(~ifelse(. == 1, 1, 0)))
 
 give.price <- giving_price(i = "inc_bb1") %>% 
