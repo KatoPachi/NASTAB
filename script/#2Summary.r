@@ -58,7 +58,7 @@ deduction <- nastab %>%
 ggplot(deduction, aes(x = factor(year), y = mean)) +
   geom_bar(aes(fill = system), stat = "identity", position = "dodge", color = "black") + 
   geom_hline(aes(yintercept = 0)) +
-  labs(x = "Year", y = "Frequency of Deduction")
+  labs(x = "Year", y = "Frequency of Deduction") +
   my_theme
 
 ## ---- MTR
@@ -74,4 +74,20 @@ ggplot(mtrdt, aes(x = income, y = mtr)) +
   geom_step(aes(color = year), size = 1) +
   labs(x = "Labor income", y = "Marginal Tax Rate", caption = "Black dashed line is tax credit rate") +
   geom_hline(aes(yintercept = 0.15), color = "black", linetype = 2, size = 1) +
+  my_theme
+
+## ---- deductive_amount
+plotdt <- nastab %>% filter(year == 2013 & pca225 == 1)
+
+ggplot(plotdt, aes(x = pca226)) +
+  geom_density() +
+  labs(x = "Amount of Tax Deduction", caption = sprintf("N = %3.0f", length(na.omit(plotdt$pca226)))) + 
+  my_theme
+
+## ---- credit_amount
+plotdt <- nastab %>% filter(year == 2014 & pca227 == 1)
+
+ggplot(plotdt, aes(x = pca228)) +
+  geom_density() +
+  labs(x = "Amount of Tax Deduction", caption = sprintf("N = %3.0f", length(na.omit(plotdt$pca226)))) + 
   my_theme
