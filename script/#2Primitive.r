@@ -103,5 +103,70 @@ ggplot(benefitdt, aes(x = Var1, y = Freq)) +
   geom_point() +
   geom_line(group = 1) +
   geom_vline(aes(xintercept = 0), linetype = 2) +
-  labs(x = "Amount of Tax Deduction - Amount of Tax Credit", caption = sprintf("N = %3.0f", sum(benefitdt$Freq))) +
+  labs(
+    x = "Tax Refund in 2013 - Tax Refund in 2014",
+    y = "Count", 
+    caption = sprintf("N = %3.0f. Bin width is 20.", sum(benefitdt$Freq))) +
+  my_theme
+
+## ---- deductive_credit_amount_imputed
+impute.benefit13 <- nastab %>% 
+  filter(year == 2013 & deductive.price != 1 - 0.15) %>% 
+  mutate(
+    impute_refund13 = total.g*(1 - deductive.price),
+    refund13 = pca225
+  ) %>% 
+  select(pid, impute_refund13, refund13, deductive.price)
+
+impute.benefit14 <- nastab %>% 
+  filter(year == 2014) %>% 
+  mutate(
+    impute_refund14 = total.g*0.15,
+    refund14 = pca227
+  ) %>%
+  select(pid, impute_refund14, refund14)
+
+impute.benefitdt <- left_join(impute.benefit13, impute.benefit14, by = "pid") %>% 
+  mutate(diff = impute_refund13 - impute_refund14)
+
+bounds <- seq(-930, 650, 20)
+bounds.median <- NULL
+for (i in 1:length(bounds) - 1) {
+  bounds.median[i] <- bounds[i] + (bounds[i+1] - bounds[i])/2
+}
+
+impute.benefit.y <- impute.benefitdt %>% 
+  filter(refund13 == 1) %>% 
+  with(table(cut(diff, breaks = bounds, labels = bounds.median))) %>% 
+  data.frame() %>% 
+  mutate(
+    Var1 = as.numeric(as.character(Var1)),
+    refund13 = 1
+  )
+
+impute.benefit.n <- impute.benefitdt %>% 
+  filter(refund13 == 0 & refund14 == 0) %>% 
+  with(table(cut(diff, breaks = bounds, labels = bounds.median))) %>% 
+  data.frame() %>% 
+  mutate(
+    Var1 = as.numeric(as.character(Var1)),
+    refund13 = 0
+  )
+
+impute.benefit.count <- bind_rows(impute.benefit.y, impute.benefit.n) %>% 
+  filter(-400 <= Var1 & Var1 <= 400)
+
+ggplot(impute.benefit.count, aes(x = Var1, y = Freq, color = factor(refund13))) +
+  geom_point(aes(color = factor(refund13))) +
+  geom_line(aes(group = factor(refund13))) +
+  geom_vline(aes(xintercept = 0), linetype = 2) +
+  labs(
+    x = "Imputed Tax Refund in 2013 - Imputed Tax Refund in 2014",
+    y = "Count", 
+    caption = "Bin width is 20.") +
+  scale_color_manual(
+    values = c("grey50", "red"),
+    labels = c("No", "Yes"),
+    name = "Refund in 2013"
+  ) +
   my_theme
