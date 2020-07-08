@@ -30,6 +30,8 @@ my_theme <- theme_minimal() +
   theme(
     panel.border = element_blank(), 
     panel.grid = element_line(color = "grey80"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
     axis.line = element_line(),
     plot.background = element_rect(fill="#87CEEB50"),
     panel.background = element_rect(),   
@@ -76,23 +78,13 @@ ggplot(mtrdt, aes(x = income, y = mtr)) +
   geom_hline(aes(yintercept = 0.15), color = "black", linetype = 2, size = 1) +
   my_theme
 
-## ---- deductive_amount
-plotdt <- nastab %>% filter(year == 2013 & pca225 == 1)
-
-ggplot(plotdt, aes(x = pca226)) +
-  geom_density() +
-  labs(x = "Amount of Tax Deduction", caption = sprintf("N = %3.0f", length(na.omit(plotdt$pca226)))) + 
-  my_theme
-
-## ---- credit_amount
-plotdt <- nastab %>% filter(year == 2014 & pca227 == 1)
-
-ggplot(plotdt, aes(x = pca228)) +
-  geom_density() +
-  labs(x = "Amount of Tax Deduction", caption = sprintf("N = %3.0f", length(na.omit(plotdt$pca226)))) + 
-  my_theme
-
 ## ---- deductive_credit_amount
+bounds <- seq(-110, 1050, 20)
+bounds.median <- NULL
+for (i in 1:length(bounds) - 1) {
+  bounds.median[i] <- bounds[i] + (bounds[i+1] - bounds[i])/2
+}
+
 benefit13 <- nastab %>% 
   filter(year == 2013 & pca226 > 0) %>%
   select(pid, pca226)
@@ -102,9 +94,14 @@ benefit14 <- nastab %>%
   select(pid, pca228)
 
 benefitdt <- benefit13 %>% left_join(benefit14, by = "pid") %>% 
-  mutate(diff = pca226 - pca228)
+  mutate(diff = pca226 - pca228) %>% 
+  with(table(cut(diff, breaks = bounds, labels = bounds.median))) %>% 
+  data.frame() %>% 
+  mutate(Var1 = as.numeric(as.character(Var1)))
 
-ggplot(benefitdt, aes(x = diff)) +
-  geom_density() + 
-  labs(x = "Amount of Tax Deduction - Amount of Tax Credit", caption = sprintf("N = %3.0f", length(na.omit(benefitdt$diff)))) +
+ggplot(benefitdt, aes(x = Var1, y = Freq)) +
+  geom_point() +
+  geom_line(group = 1) +
+  geom_vline(aes(xintercept = 0), linetype = 2) +
+  labs(x = "Amount of Tax Deduction - Amount of Tax Credit", caption = sprintf("N = %3.0f", sum(benefitdt$Freq))) +
   my_theme
