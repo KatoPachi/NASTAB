@@ -79,7 +79,7 @@ ggplot(mtrdt, aes(x = income, y = mtr)) +
   my_theme
 
 ## ---- deductive_credit_amount
-bounds <- seq(-127.5, 1057.5, 5)
+bounds <- seq(-1057.5, 127.5, 5)
 bounds.median <- NULL
 for (i in 1:length(bounds) - 1) {
   bounds.median[i] <- bounds[i] + (bounds[i+1] - bounds[i])/2
@@ -93,25 +93,25 @@ benefit14 <- nastab %>%
   filter(year == 2014 & !is.na(pca228)) %>%
   select(pid, pca228)
 
-benefitdt <- benefit13 %>% left_join(benefit14, by = "pid") %>% 
-  mutate(diff = pca226 - pca228) %>% 
+benefitdt <- benefit13 %>% inner_join(benefit14, by = "pid") %>% 
+  mutate(diff = pca228 - pca226) %>% 
   with(table(cut(diff, breaks = bounds, labels = bounds.median))) %>% 
   data.frame() %>% 
   mutate(Var1 = as.numeric(as.character(Var1)))
 
-ggplot(filter(benefitdt, Var1 < 500), aes(x = Var1, y = Freq)) +
+ggplot(filter(benefitdt, Var1 > -500), aes(x = Var1, y = Freq)) +
   geom_point() +
   geom_line(group = 1) +
   geom_vline(aes(xintercept = 0), linetype = 2) +
   labs(
-    x = "Tax Refund in 2013 - Tax Refund in 2014",
+    x = "Tax Refund in 2014 - Tax Refund in 2013",
     y = "Count", 
     caption = sprintf("N = %3.0f. Bin width is 10.", sum(benefitdt$Freq))) +
   my_theme
 
 ## ---- deductive_credit_amount_imputed
 impute.benefit13 <- nastab %>% 
-  filter(year == 2013 & deductive.price != 1 - 0.15) %>% 
+  filter(year == 2013  & total.g > 0) %>% 
   mutate(
     impute_refund13 = total.g*(1 - deductive.price),
     refund13 = pca225
@@ -126,10 +126,10 @@ impute.benefit14 <- nastab %>%
   ) %>%
   select(pid, impute_refund14, refund14)
 
-impute.benefitdt <- left_join(impute.benefit13, impute.benefit14, by = "pid") %>% 
-  mutate(diff = impute_refund13 - impute_refund14)
+impute.benefitdt <- inner_join(impute.benefit13, impute.benefit14, by = "pid") %>% 
+  mutate(diff = impute_refund14 - impute_refund13)
 
-bounds <- seq(-917.5, 627.5, 5)
+bounds <- seq(-627.5, 917.5, 5)
 bounds.median <- NULL
 for (i in 1:length(bounds) - 1) {
   bounds.median[i] <- bounds[i] + (bounds[i+1] - bounds[i])/2
@@ -145,7 +145,7 @@ impute.benefit.y <- impute.benefitdt %>%
   )
 
 impute.benefit.n <- impute.benefitdt %>% 
-  filter(refund13 == 0 & refund14 == 0) %>% 
+  filter(refund13 == 0) %>% 
   with(table(cut(diff, breaks = bounds, labels = bounds.median))) %>% 
   data.frame() %>% 
   mutate(
@@ -156,13 +156,13 @@ impute.benefit.n <- impute.benefitdt %>%
 impute.benefit.count <- bind_rows(impute.benefit.y, impute.benefit.n)
 
 ggplot(
-  filter(impute.benefit.count, -127.5 <= Var1 & Var1 <= 500), 
+  filter(impute.benefit.count, 127.5 >= Var1 & Var1 >= -500), 
   aes(x = Var1, y = Freq, color = factor(refund13))) +
   geom_point(aes(color = factor(refund13))) +
   geom_line(aes(group = factor(refund13))) +
   geom_vline(aes(xintercept = 0), linetype = 2) +
   labs(
-    x = "Imputed Tax Refund in 2013 - Imputed Tax Refund in 2014",
+    x = "Imputed Tax Refund in 2014 - Imputed Tax Refund in 2013",
     y = "Count", 
     caption = "Bin width is 5.") +
   scale_color_manual(
