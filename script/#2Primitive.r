@@ -79,7 +79,7 @@ ggplot(mtrdt, aes(x = income, y = mtr)) +
   my_theme
 
 ## ---- deductive_credit_amount
-bounds <- seq(-110, 1050, 20)
+bounds <- seq(-127.5, 1057.5, 5)
 bounds.median <- NULL
 for (i in 1:length(bounds) - 1) {
   bounds.median[i] <- bounds[i] + (bounds[i+1] - bounds[i])/2
@@ -99,14 +99,14 @@ benefitdt <- benefit13 %>% left_join(benefit14, by = "pid") %>%
   data.frame() %>% 
   mutate(Var1 = as.numeric(as.character(Var1)))
 
-ggplot(benefitdt, aes(x = Var1, y = Freq)) +
+ggplot(filter(benefitdt, Var1 < 500), aes(x = Var1, y = Freq)) +
   geom_point() +
   geom_line(group = 1) +
   geom_vline(aes(xintercept = 0), linetype = 2) +
   labs(
     x = "Tax Refund in 2013 - Tax Refund in 2014",
     y = "Count", 
-    caption = sprintf("N = %3.0f. Bin width is 20.", sum(benefitdt$Freq))) +
+    caption = sprintf("N = %3.0f. Bin width is 10.", sum(benefitdt$Freq))) +
   my_theme
 
 ## ---- deductive_credit_amount_imputed
@@ -129,7 +129,7 @@ impute.benefit14 <- nastab %>%
 impute.benefitdt <- left_join(impute.benefit13, impute.benefit14, by = "pid") %>% 
   mutate(diff = impute_refund13 - impute_refund14)
 
-bounds <- seq(-930, 650, 20)
+bounds <- seq(-917.5, 627.5, 5)
 bounds.median <- NULL
 for (i in 1:length(bounds) - 1) {
   bounds.median[i] <- bounds[i] + (bounds[i+1] - bounds[i])/2
@@ -153,17 +153,18 @@ impute.benefit.n <- impute.benefitdt %>%
     refund13 = 0
   )
 
-impute.benefit.count <- bind_rows(impute.benefit.y, impute.benefit.n) %>% 
-  filter(-400 <= Var1 & Var1 <= 400)
+impute.benefit.count <- bind_rows(impute.benefit.y, impute.benefit.n)
 
-ggplot(impute.benefit.count, aes(x = Var1, y = Freq, color = factor(refund13))) +
+ggplot(
+  filter(impute.benefit.count, -127.5 <= Var1 & Var1 <= 500), 
+  aes(x = Var1, y = Freq, color = factor(refund13))) +
   geom_point(aes(color = factor(refund13))) +
   geom_line(aes(group = factor(refund13))) +
   geom_vline(aes(xintercept = 0), linetype = 2) +
   labs(
     x = "Imputed Tax Refund in 2013 - Imputed Tax Refund in 2014",
     y = "Count", 
-    caption = "Bin width is 20.") +
+    caption = "Bin width is 5.") +
   scale_color_manual(
     values = c("grey50", "red"),
     labels = c("No", "Yes"),
