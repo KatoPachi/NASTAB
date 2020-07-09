@@ -13,6 +13,9 @@ package_load <- function(pkg.name){
 package_load("tidyverse")
 package_load("stargazer")
 
+devtools::install_github("KatoPachi/FlextableLikeStar")
+library(FlextableLikeStar)
+
 ## ---- function
 se <- function(x, na.rm=FALSE) {
   if (na.rm) x <- na.omit(x)
@@ -26,6 +29,7 @@ mtrcal <- function(y, t) {
   return(t)    
 }
 
+## ---- ggplot
 my_theme <- theme_minimal() +
   theme(
     panel.border = element_blank(), 
@@ -44,6 +48,28 @@ my_theme <- theme_minimal() +
     legend.key.size = unit(0.5,"cm"),
     legend.background = element_rect(color = "black"), 
     legend.position = "bottom"
+  )
+
+## ---- ggplot_report
+my_theme <- theme_minimal() +
+  theme(
+    panel.border = element_blank(), 
+    panel.grid = element_line(color = "grey80", size = 0.1),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.line = element_line(size = 0.1),
+    plot.background = element_rect(fill="#87CEEB50", color = "white"),
+    panel.background = element_rect(size = 0.1),   
+    plot.title = element_text(hjust=0.5,size=20),       
+    plot.caption = element_text(size=16),       
+    axis.text = element_text(color="black",size=16),    
+    axis.title = element_text(size=18),                 
+    legend.title = element_text(size=18),               
+    legend.text = element_text(size=18),                
+    legend.key.size = unit(1,"cm"),
+    legend.background = element_rect(color = "black", size = 0.1), 
+    legend.position = "bottom",
+    strip.text.x = element_text(size = 18)
   )
 
 ## ---- data
@@ -203,7 +229,7 @@ cut.data13 <- data13 %>%
   ) %>% 
   select(pid, prop, give13, mtr, inc13)
 
-nastab %>% 
+est.giving.reg <- nastab %>% 
   filter(year == 2014) %>% 
   left_join(cut.data13, by = "pid") %>%
   mutate(
@@ -211,5 +237,21 @@ nastab %>%
     loss = if_else(mtr > 0.151, 1, 0),
     gain = if_else(mtr < 0.15, 1, 0)
   ) %>% 
-  lm(giving.reg, data = .) %>% 
-  summary()
+  lm(giving.reg, data = .)
+
+reg.flextable(
+  list(est.giving.reg),
+  keep = c("loss", "gain", "prop", "(Intercept)"),
+  order = c(1, 2, 3, 5, 6, 4),
+  covariate.labels = c(
+    "(Intercept)",
+    "Gain: MTR < Credit Rate",
+    "Loss: MTR > Credit Rate",
+    "P-Score",
+    "Gain X P-Score",
+    "Loss X P-Score"
+  ),
+  keep.stat = c("n", "adj.rsq"),
+  df = FALSE, digits = 3, font.size = 14,
+  covariate.width = 3
+)
