@@ -33,7 +33,7 @@ giving_price <- function(
       dplyr::select(pid, year, income.var)
 
     cal <- function(y, t) {
-        cutdt <- subset(price.dt, year == t-1)
+        cutdt <- subset(price.dt, year == t)
         
         cutdt$ind <- 1*(cutdt[,2] <= y)
         t <- with(subset(cutdt, ind == 1), max(MTR))
@@ -99,7 +99,13 @@ shape.nastab <- nastab %>%
   dplyr::mutate_at(
     c("pca225", "pca227"), list(~ifelse(. == -9, NA, .))) %>%
   dplyr::mutate_at(
-    c("pca225", "pca227", "hcr001"), list(~ifelse(. == 1, 1, 0)))
+    c("pca225", "pca227", "hcr001"), list(~ifelse(. == 1, 1, 0))) %>%
+  dplyr::mutate(
+    pca226 = case_when(pca225 == 0 ~ 0,
+                       pca226 != -9 ~ pca226),
+    pca228 = case_when(pca227 == 0 ~ 0,
+                       pca228 != -9 ~ pca228)
+  )
 
 give.price <- giving_price(i = "inc_bb1") %>% 
   rename(deductive.price = price)
