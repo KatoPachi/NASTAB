@@ -9,8 +9,8 @@ options(repo = "https://cran.rstudio.com/")
 #'
 #+ Rmd File to Output
 rmarkdown::render(
-    input = "./report/html.Rmd",
-    output_file = "Ongoing.html",
+    input = "./report/powerpoint.Rmd",
+    output_file = "200710Meeting.pptx",
     output_dir = "./Report",
     clean = TRUE,
     encoding = "utf8"
