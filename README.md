@@ -2,7 +2,7 @@
 
 Researchers
 - Hiroki Kato (Osaka University): Data Analyst and Project manager
-- Takeshi Goto (Chiba University): Literature Reviewer and Advisor of data analysis 
+- Tsuyoshi Goto (Chiba University): Literature Reviewer and Advisor of data analysis 
 - Yong-Rok Kim (Kobe University): Institution Reviewer
 
 ## Our Research Project
