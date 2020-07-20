@@ -134,3 +134,4 @@ shape.nastab <- shape.nastab %>%
 #'
 #+ save dataset
 write_rds(shape.nastab, "./data/shapedt.rds")
+write.dta(shape.nastab, "./data/shapedt.dta")
