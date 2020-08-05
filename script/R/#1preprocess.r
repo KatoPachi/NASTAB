@@ -148,6 +148,12 @@ treat_status <- shape.nastab %>%
 shape.nastab <- shape.nastab %>% 
   left_join(treat_status, by = "pid")
 
+## ---- report
+shape.nastab <- shape.nastab %>% 
+  mutate(
+    report = if_else(year < 2014, pca225, pca227)
+  )
+
 #'
 #+ save dataset
 write_rds(shape.nastab, "./data/shapedt.rds")
