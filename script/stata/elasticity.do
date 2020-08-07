@@ -59,6 +59,6 @@ xtreg log_total_g log_price log_pinc_all i.year ///
 
 * Extensive margin 
 xtreg extensive log_price log_pinc_all i.year ///
-	if 2015 > year & year > 2013, fe vce(cluster pid)
+	if 2015 > year & year > 2012, fe vce(cluster pid)
 
 
