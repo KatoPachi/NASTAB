@@ -39,7 +39,7 @@ giving_price <- function(
         t <- with(subset(cutdt, ind == 1), max(MTR))
         p <- 1 - t
 
-        return(p)    
+        return(t)    
     }
     
     income.dt$price <- with(income.dt, mapply(cal, get(income.var), year))
@@ -108,7 +108,7 @@ shape.nastab <- nastab %>%
   )
 
 give.price <- giving_price(i = "inc_bb1") %>% 
-  rename(deductive.price = price)
+  rename(mtr = price)
 
 total.donate <- total_giving(c(1, 2, 3, 4, 5, 6, 7)) %>% 
   rename(total.g = total_giving)
@@ -131,6 +131,30 @@ shape.nastab <- shape.nastab %>%
     list(~ifelse(hcr001 == 0, 0, .))) %>% 
   dplyr::filter(hcr001 == 1*(total.g > 0))
 
+## ---- 2014 tax reform
+treat_status <- shape.nastab %>% 
+  filter(year == 2013) %>% 
+  select(pid, mtr) %>% 
+  mutate(
+    treat = case_when(mtr < 0.15 ~ "increase",
+                      mtr > 0.15 ~ "decrease",
+                      mtr == 0.15 ~ "nuetral"),
+    treat_higher = if_else(treat == "increase", 1, 0),
+    treat_lower = if_else(treat == "decrease", 1, 0),
+    treat_neutral = if_else(treat == "nuetral", 1, 0)
+  ) %>% 
+  select(-mtr)
+
+shape.nastab <- shape.nastab %>% 
+  left_join(treat_status, by = "pid")
+
+## ---- report
+shape.nastab <- shape.nastab %>% 
+  mutate(
+    report = if_else(year < 2014, pca225, pca227)
+  )
+
 #'
 #+ save dataset
 write_rds(shape.nastab, "./data/shapedt.rds")
+write.dta(shape.nastab, "./data/shapedt.dta")
