@@ -71,17 +71,24 @@ replace trust_politician = 6 - trust_politician   //5:high trust ~ 1:low trust
 replace welfare_level =  . if welfare_level == -9
 replace welfare_level = 6 - welfare_level   //5:very high ~ 1:very low
 
+* extract income data (This uses tax calculation in shapedt_tax.do)
+frame copy default inc
+frame inc {
+    keep hhid pid year tincome lincome
+}
+
+frame inc: save "data\shape\inc.dta", replace
+
 * extract socio-economic data
 frame copy default ses
 frame ses {
     keep hhid pid year living_area age educ gender ///
 		ext_deduct_lincome krw_deduct_lincome ///
 		ext_deduct_giving krw_deduct_giving   ///
-		ext_credit_giving krw_credit_giving   ///
-		tincome lincome
+		ext_credit_giving krw_credit_giving   
 }
 
-frame ses: save "data\shape\ses.dta"
+frame ses: save "data\shape\ses.dta", replace
 
 * extract tax-attitude data
 frame copy default tax_attitude
@@ -94,10 +101,11 @@ frame tax_attitude {
 		addtax welfare_level
 }
 
-frame tax_attitude: save "data\shape\tax_attitude.dta"
+frame tax_attitude: save "data\shape\tax_attitude.dta", replace
 
 * clear environment
 frame change default
+frame drop inc
 frame drop ses
 frame drop tax_attitude
 
@@ -106,7 +114,7 @@ use "data\shape\ses.dta", clear
 merge m:1 hhid pid using "data\shape\tax_attitude.dta"
 drop _merge
 
-save "data\shape\ses_attitude.dta"
+save "data\shape\ses_attitude.dta", replace
 
 
 
