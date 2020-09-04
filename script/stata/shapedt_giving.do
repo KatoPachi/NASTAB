@@ -50,3 +50,25 @@ frame change default
 frame drop i_giving_purpose
 frame drop i_giving_amount
 frame drop i_giving_others
+
+* merge purpose and amount data
+use "data\shape\i_giving_purpose.dta", clear
+merge 1:1 hhid pid year key using "data\shape\i_giving_amount.dta", keepus(amount)
+drop _merge key
+
+* merge other giving data
+merge m:1 hhid pid year using "data\shape\i_giving_others.dta", keepus(h_total_giving i_ext_giving)
+drop _merge
+elabel drop (i_ext_giving) 
+replace i_ext_giving = 0 if i_ext_giving == 2
+
+
+
+
+
+
+
+
+
+
+
