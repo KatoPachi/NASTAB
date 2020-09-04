@@ -35,12 +35,12 @@ frame i_giving_amount {
 
 frame i_giving_amount: save "data\shape\i_giving_amount.dta", replace
 
-* save household giving data and extensive margin variables
+* save household giving data
 frame copy default i_giving_others
 frame i_giving_others: keep hhid pid year h_exp_cr hcr001
 frame i_giving_others {
     rename h_exp_cr h_total_giving
-	rename hcr001 i_ext_giving
+	rename hcr001 h_ext_giving
 }
 
 frame i_giving_others: save "data\shape\i_giving_others.dta", replace
@@ -57,18 +57,22 @@ merge 1:1 hhid pid year key using "data\shape\i_giving_amount.dta", keepus(amoun
 drop _merge key
 
 * merge other giving data
-merge m:1 hhid pid year using "data\shape\i_giving_others.dta", keepus(h_total_giving i_ext_giving)
+merge m:1 hhid pid year using "data\shape\i_giving_others.dta", keepus(h_total_giving h_ext_giving)
 drop _merge
-elabel drop (i_ext_giving) 
-replace i_ext_giving = 0 if i_ext_giving == 2
+elabel drop (h_ext_giving)   //install package "elabel"
+replace h_ext_giving = 0 if h_ext_giving == 2
 
+* calculate individual giving data
+replace amount = 0 if amount == . | amount == -9
+bysort hhid pid year: egen i_total_giving = sum(amount)
 
+gen i_ext_giving = .
+replace i_ext_giving = 1 if i_total_giving > 0
+replace i_ext_giving = 0 if i_total_giving == 0
 
+drop purpose amount
+duplicates drop
 
-
-
-
-
-
-
+* save giving data
+save "data\shape\giving.dta"
 
