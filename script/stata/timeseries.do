@@ -1,38 +1,41 @@
 
-* directory
-cd "C:\Users\vge00\Desktop\nastab"
+cd "C:\Users\vge00\Desktop\nastab"  //root path
 
-* call shaped data.
-* This data is made by R. I will replace latter.
-use "data\shapedt.dta", clear
+* call data
+use "data\shaped.dta", clear
 
 * variables
+gen treat = .
+replace treat = 1 if credit_benefit == 1
+replace treat = 2 if credit_neutral == 1
+replace treat = 3 if credit_loss == 1
+
 egen treat_year = group(treat year)
 
-gen extensive = .
-replace extensive = 1 if total_g > 0
-replace extensive = 0 if total_g == 0
+gen report = .
+replace report = ext_deduct_giving if year < 2014
+replace report = ext_credit_giving if 2013 < year
 
 /*
 total donation
 */
 
-bysort year: summarize total_g if treat_neutral == 1
-bysort year: summarize total_g if treat_higher == 1
-bysort year: summarize total_g if treat_lower == 1
+bysort year: summarize i_total_giving if credit_neutral == 1
+bysort year: summarize i_total_giving if credit_benefit == 1
+bysort year: summarize i_total_giving if credit_loss == 1
 
-bysort treat_year: egen avg = mean(total_g)
+bysort treat_year: egen avg = mean(i_total_giving)
 bysort treat: gen avg13 = avg if year == 2013
 bysort treat (avg13): replace avg13 = avg13[1]
 gen norm_avg = avg/avg13
 
-bysort year: summarize norm_avg if treat_neutral == 1
-bysort year: summarize norm_avg if treat_higher == 1
-bysort year: summarize norm_avg if treat_lower == 1
+bysort year: summarize norm_avg if credit_neutral == 1
+bysort year: summarize norm_avg if credit_benefit == 1
+bysort year: summarize norm_avg if credit_loss == 1
 
-graph twoway (scatter norm_avg year if treat_neutral == 1, msymbol(o) connect(l)) ///
-			 (scatter norm_avg year if treat_higher == 1, msymbol(o) connect(l)) ///
-			 (scatter norm_avg year if treat_lower == 1, msymbol(o) connect(l)), ///
+graph twoway (scatter norm_avg year if credit_neutral == 1, msymbol(o) connect(l)) ///
+			 (scatter norm_avg year if credit_benefit == 1, msymbol(o) connect(l)) ///
+			 (scatter norm_avg year if credit_loss == 1, msymbol(o) connect(l)), ///
 			 xline(2013.5)  ///
 			 xlabel(2008(1)2017) xtitle("Year")  ///
 			 ylabel(.6(.2)1.4) ytitle("Normalized Average Donations")  ///
@@ -47,47 +50,46 @@ graph export "_assets\stata\timeseries_average.png", replace
 extentive and intensive margin
 */
 
-bysort year: summarize extensive if treat_neutral == 1
-bysort year: summarize extensive if treat_higher == 1
-bysort year: summarize extensive if treat_lower == 1
+bysort year: summarize i_ext_giving if credit_neutral == 1
+bysort year: summarize i_ext_giving if credit_benefit == 1
+bysort year: summarize i_ext_giving if credit_loss == 1
 
-bysort treat_year: egen ext = mean(extensive)
+bysort treat_year: egen ext = mean(i_ext_giving)
 
-line ext year if treat_neutral == 1 ///
-|| line ext year if treat_higher == 1 ///
-|| line ext year if treat_lower == 1  ///
-|| , ///
-xline(2014, lcolor("black") lpattern("dash")) ///
-ylabel(0(0.2)1) ytitle("Extensive margin of donations")  ///
-xtitle("Year")  ///
-title("Time series of extensive margin of donations")  ///
-legend(label(1 "t = z") label(2 "t < z") label(3 "t > z")) ///
-note("t is the marginal tax rate at 2013 based on labor income"  ///
-	 "z is the tax credit rate (= 0.15)")
+graph twoway (scatter ext year if credit_neutral == 1, msymbol(o) connect(l)) ///
+			 (scatter ext year if credit_benefit == 1, msymbol(o) connect(l)) ///
+			 (scatter ext year if credit_loss == 1, msymbol(o) connect(l)), ///
+			 xline(2013.5)  ///
+			 xlabel(2008(1)2017) xtitle("Year")  ///
+			 ylabel(0(.1).6) ytitle("Prob(Donations > 0)")  ///
+			 legend(label(1 "t = z") label(2 "t < z") label(3 "t > z")) ///
+			 title("Time seiries of extensive margin by treatment")  ///
+			 note("t is the marginal tax rate at 2013 based on labor income"  ///
+				  "z is the tax credit rate (= 0.15)")
 
-graph export "_assets\stata\timeseries_extensive.png"
+graph export "_assets\stata\timeseries_extensive.png", replace
 
 frame copy default intensive
-frame intensive: drop if extensive == 0
+frame intensive: drop if i_ext_giving == 0
 frame intensive {
-	bysort year: summarize total_g if treat_neutral == 1
-	bysort year: summarize total_g if treat_higher == 1
-	bysort year: summarize total_g if treat_lower == 1
+	bysort year: summarize i_total_giving if credit_neutral == 1
+	bysort year: summarize i_total_giving if credit_benefit == 1
+	bysort year: summarize i_total_giving if credit_loss == 1
 	
-	bysort treat_year: egen inte = mean(total_g)
+	bysort treat_year: egen inte = mean(i_total_giving)
 	bysort treat: gen inte13 = inte if year == 2013
 	bysort treat (inte13): replace inte13 = inte13[1]
 	gen norm_inte = inte/inte13
 	
-	bysort year: summarize norm_inte if treat_neutral == 1
-	bysort year: summarize norm_inte if treat_higher == 1
-	bysort year: summarize norm_inte if treat_lower == 1
+	bysort year: summarize norm_inte if credit_neutral == 1
+	bysort year: summarize norm_inte if credit_benefit == 1
+	bysort year: summarize norm_inte if credit_loss == 1
 }
 
 frame intensive {
-    graph twoway (scatter norm_inte year if treat_neutral == 1, msymbol(o) connect(l)) ///
-			     (scatter norm_inte year if treat_higher == 1, msymbol(o) connect(l)) ///
-				 (scatter norm_inte year if treat_lower == 1, msymbol(o) connect(l)), ///
+    graph twoway (scatter norm_inte year if credit_neutral == 1, msymbol(o) connect(l)) ///
+			     (scatter norm_inte year if credit_benefit == 1, msymbol(o) connect(l)) ///
+				 (scatter norm_inte year if credit_loss == 1, msymbol(o) connect(l)), ///
 				 xline(2013.5)  ///
 				 xlabel(2008(1)2017) xtitle("Year")  ///
 				 ylabel(.6(.2)1.4) ytitle("Normalized average donations cond. on donors", size(small))  ///
@@ -104,23 +106,21 @@ frame intensive {
 Tax filing (reporting)
 */
 
-bysort year: summarize report if treat_neutral == 1
-bysort year: summarize report if treat_higher == 1
-bysort year: summarize report if treat_lower == 1
+bysort year: summarize report if credit_neutral == 1
+bysort year: summarize report if credit_benefit == 1
+bysort year: summarize report if credit_loss == 1
 
 bysort treat_year: egen avg_report = mean(report)
 
-line avg_report year if treat_neutral == 1 ///
-|| line avg_report year if treat_higher == 1 ///
-|| line avg_report year if treat_lower == 1  ///
-|| , ///
-xline(2014, lcolor("black") lpattern("dash")) ///
-ylabel(0(0.2)1) ytitle("Proportion of tax report")  ///
-xtitle("Year")  ///
-title("Time series of tax report")  ///
-legend(label(1 "t = z") label(2 "t < z") label(3 "t > z")) ///
-note("Most observations are missing values. Observed units are around 1000." ///
-	 "t is the marginal tax rate at 2013 based on labor income"  ///
-	 "z is the tax credit rate (= 0.15)")
+graph twoway (scatter avg_report year if credit_neutral == 1 & year < 2018, msymbol(o) connect(l)) ///
+			 (scatter avg_report year if credit_benefit == 1 & year < 2018, msymbol(o) connect(l)) ///
+			 (scatter avg_report year if credit_loss == 1 & year < 2018, msymbol(o) connect(l)), ///
+			 xline(2013.5)  ///
+			 xlabel(2008(1)2017) xtitle("Year")  ///
+			 ylabel(0(.1).7) ytitle("Prob(Receiving Tax Benefit)")  ///
+			 legend(label(1 "t = z") label(2 "t < z") label(3 "t > z")) ///
+			 title("Time seiries of extensive margin by treatment")  ///
+			 note("t is the marginal tax rate at 2013 based on labor income"  ///
+				  "z is the tax credit rate (= 0.15)")
 
-graph export "_assets\stata\timeseries_report.png"
+graph export "_assets\stata\timeseries_report.png", replace
