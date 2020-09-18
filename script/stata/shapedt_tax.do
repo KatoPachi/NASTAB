@@ -1,9 +1,9 @@
 
-* call ses.dta
+
 cd "C:\Users\vge00\Desktop\NaSTaB"  //root path
 
 * transform file extention csv -> dta
-import delim using "data\origin\mtrdt.csv"
+import delim using "data\origin\mtrdt.csv", clear
 save "data\origin\mtrdt.dta", replace
 
 * call and merge MTR data
@@ -19,9 +19,9 @@ keep if lincome != .
 keep if lower_income_10000won <= lincome
 
 bysort pid year: egen max_mtr = max(mtr)
-drop tincome lincome lower_income_10000won mtr
+drop lower_income_10000won mtr
 rename max_mtr mtr 
 duplicates drop
 
 * save file
-save "data\shape\i_tax.dta", replace
+save "data\shape\i_inctax.dta", replace
