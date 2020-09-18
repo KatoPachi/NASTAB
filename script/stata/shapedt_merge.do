@@ -12,4 +12,5 @@ drop _merge
 merge 1:1 hhid pid year using "data\shape\ses_attitude.dta"
 drop _merge
 
-* 
+* save file
+save "data\shaped.dta"
