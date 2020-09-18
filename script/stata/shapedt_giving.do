@@ -63,7 +63,8 @@ elabel drop (h_ext_giving)   //install package "elabel"
 replace h_ext_giving = 0 if h_ext_giving == 2
 
 * calculate individual giving data
-replace amount = 0 if amount == . | amount == -9
+replace amount = 0 if amount == .
+replace amount = . if amount == -9
 bysort hhid pid year: egen i_total_giving = sum(amount)
 
 gen i_ext_giving = .
@@ -73,6 +74,12 @@ replace i_ext_giving = 0 if i_total_giving == 0
 drop purpose amount
 duplicates drop
 
+* label 
+label variable h_total_giving "[世帯]年間寄付金支出総額（単位:10,000KRW）"
+label variable h_ext_giving "[世帯]寄付金支出の有無"
+label variable i_total_giving "[世帯員]年間寄付金支出総額（単位:10,000KRW）"
+label variable i_ext_giving "[世帯員]寄付金支出の有無"
+
 * save giving data
-save "data\shape\giving.dta"
+save "data\shape\giving.dta", replace   //Dataset 2 for final merge
 
