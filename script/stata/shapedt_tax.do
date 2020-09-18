@@ -23,5 +23,7 @@ drop lower_income_10000won mtr
 rename max_mtr mtr 
 duplicates drop
 
+label variable mtr "[世帯員]年間労働所得ベースの限界所得税率"
+
 * save file
 save "data\shape\i_inctax.dta", replace
