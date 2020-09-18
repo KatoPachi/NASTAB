@@ -12,5 +12,7 @@ drop _merge
 merge 1:1 hhid pid year using "data\shape\ses_attitude.dta"
 drop _merge
 
+label variable year "年度（調査年度の前年）"
+
 * save file
-save "data\shaped.dta"
+save "data\shaped.dta", replace
