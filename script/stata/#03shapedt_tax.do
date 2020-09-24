@@ -42,7 +42,7 @@ frame treat {
 	label variable credit_benefit "[世帯員]税制改正の利益：2013年MTR < 0.15"
 	label variable credit_loss "[世帯員]税制改正の利益：2013年MTR > 0.15"
 }
-frame treat: save "data\shape\i_taxreform.dta"
+frame treat: save "data\shape\i_taxreform.dta", replace
 
 * merge 
 frame change default
