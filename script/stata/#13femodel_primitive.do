@@ -17,58 +17,42 @@ gen bin_welfare_level = .
 replace bin_welfare_level = 1 if welfare_level > 3
 replace bin_welfare_level = 0 if welfare_level <= 3
 
-gen int_welfare_price = bin_welfare_level * log_price
+gen bin_trust = .
+replace bin_trust = 1 if trust_politician > 3
+replace bin_trust = 0 if trust_politician <= 3
+replace bin_trust = . if trust_politician == .
 
 * panel data
 xtset pid
 
 /*
-Full time length
+Welfare Level
 */
 
 * baseline
 xtreg log_total_g bin_welfare_level log_price log_pinc_all i.year, fe vce(cluster pid)
 
-xtreg log_total_g bin_welfare_level log_price int_welfare_price log_pinc_all i.year, fe vce(cluster pid)
-
 * decompose: Extensive margin
 xtreg i_ext_giving bin_welfare_level log_price log_pinc_all i.year, fe vce(cluster pid)
-
-xtreg i_ext_giving bin_welfare_level log_price int_welfare_price log_pinc_all i.year, fe vce(cluster pid)
 
 
 * decompose: Intensive margin
 xtreg log_total_g bin_welfare_level log_price log_pinc_all i.year if i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-xtreg log_total_g bin_welfare_level log_price int_welfare_price log_pinc_all i.year if i_ext_giving == 1, ///
-	fe vce(cluster pid)
-
 /*
-use data year > 2011 
-because marginal tax rate in 2012 is same as in 2013
+Political Trust
 */
 
-* Intensive margin
-xtreg log_total_g log_price log_pinc_all i.year if total_g > 0 & year > 2011, ///
-	fe vce(cluster pid)
+* baseline
+xtreg log_total_g bin_trust log_pinc_all i.year, fe vce(cluster hhid)
 
-* Extensive margin 
-xtreg extensive log_price log_pinc_all i.year if year > 2011, ///
-	fe vce(cluster pid)
+* decompose: Extensive margin
+xtreg i_ext_giving bin_trust log_pinc_all i.year, fe vce(cluster hhid)
+
+* decompose: Intensive margin
+xtreg log_total_g bin_trust log_pinc_all i.year if i_ext_giving == 1, ///
+	fe vce(cluster hhid)
 	
-
-/*
-use data year == 2013 and 2014
-Pure DID?
-*/
-
-* Intensive margin
-xtreg log_total_g log_price log_pinc_all i.year ///
-	if total_g > 0 & 2015 > year & year > 2012, fe vce(cluster pid)
-
-* Extensive margin 
-xtreg extensive log_price log_pinc_all i.year ///
-	if 2015 > year & year > 2012, fe vce(cluster pid)
 
 
