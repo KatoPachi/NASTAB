@@ -7,7 +7,7 @@ use "data\merge\merge.dta", clear
 keep hhid pid year wave p_page p_pedu p_pgen h_b10  ///
 	pca201-pca228 pinc_all inc_bb1  ///
 	pga001 pgb110 pgb120 pgb151-pgb159 pgb051-pgb058 pgb090 pgb020 ///
-	pgc007 pgc008 pea002
+	pgc007 pgc008 pea002 pga020
 	
 * make variable
 gen welfare_level = .
@@ -54,6 +54,8 @@ rename pgb090 addtax //福祉拡充のための税の追加負担の意向
 
 rename pgc007 comp_pg //政府の公共財供給で自身の納税行動が変化する
 rename pgc008 comp_trust //政府の信頼で自身の納税行動が変化する
+
+rename pga020 political_pref //1:extreme right - 5:extreme left
 
 * edit value
 elabel drop (ext_deduct_lincome)
@@ -122,7 +124,7 @@ frame tax_attitude {
 		opttax_tincome_1000 opttax_tincome_3000 opttax_tincome_5000 opttax_tincome_7000 ///
 		opttax_tincome_10000 opttax_tincome_20000 opttax_tincome_30000 ///
 		opttax_tincome_50000 opttax_tincome_100000 ///
-		addtax welfare_level
+		addtax welfare_level political_pref
 	
 	label variable avg_welfare_tax "[世帯員]税負担と福祉水準の程度（2018年調査）"
 	label variable opt_welfare_tax "[世帯員]望ましい税負担と福祉水準の程度（2018年調査）"
@@ -136,6 +138,7 @@ frame tax_attitude {
 	label variable opttax_tincome_50000 "[世帯員]年間所得500mKRWの適切な税率（2018年調査）"
 	label variable opttax_tincome_100000 "[世帯員]年間所得1000mKRWの適切な税率（2018年調査）"
 	label variable addtax "[世帯員]福祉拡充の追加課税への選好（2018年調査）"
+	label variable political_pref "[世帯員]政治的選好（left or right）"
 }
 
 frame tax_attitude: save "data\shape\tax_attitude1.dta", replace
