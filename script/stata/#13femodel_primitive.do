@@ -63,4 +63,37 @@ xtreg log_total_g bin_trust log_pinc_all i.year if i_ext_giving == 1, ///
 	fe vce(cluster hhid)
 	
 
+/*
+year >= 2013
+*/
 
+* baseline
+xtreg log_total_g high_welfare_level##c.log_price log_pinc_all i.year if year >= 2013, ///
+	fe vce(cluster pid)
+	
+* decompose: Extensive margin 
+xtreg i_ext_giving high_welfare_level##c.log_price log_pinc_all i.year if year >= 2013, ///
+	fe vce(cluster pid)
+	
+* decompose: Intensive margin
+xtreg log_total_g high_welfare_level##c.log_price log_pinc_all i.year if i_ext_giving == 1 & year >= 2013, ///
+	fe vce(cluster pid)
+	
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
