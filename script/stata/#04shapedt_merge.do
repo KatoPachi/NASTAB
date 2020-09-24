@@ -1,6 +1,10 @@
 
 cd "C:\Users\vge00\Desktop\NaSTaB"  //root path
 
+do "script\stata\#01shapedt_ses.do"
+do "script\stata\#02shapedt_giving.do"
+do "script\stata\#03shapedt_tax.do"
+
 * call giving.dta
 use "data\shape\giving.dta", clear
 
