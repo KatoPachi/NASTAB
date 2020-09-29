@@ -14,8 +14,8 @@ gen log_total_g = ln(i_total_giving + 1)
 gen log_pinc_all = ln(lincome + 100000)
 
 gen high_welfare_level = .
-replace high_welfare_level = 1 if welfare_level > 3
-replace high_welfare_level = 0 if welfare_level <= 3
+replace high_welfare_level = 1 if welfare_level >= 3
+replace high_welfare_level = 0 if welfare_level < 3
 replace high_welfare_level = . if welfare_level == .
 
 gen bin_trust = .
