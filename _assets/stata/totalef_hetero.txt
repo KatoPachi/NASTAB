@@ -1,0 +1,25 @@
+	(1)	(2)	(3)	(4)	(5)
+VARIABLES	log_total_g	log_total_g	log_total_g	log_total_g	log_total_g
+					
+1.high_welfare_level	-0.0984*	-0.0984*	-0.0999**	-0.0953*	-0.106**
+	(0.0504)	(0.0504)	(0.0505)	(0.0504)	(0.0505)
+log_price	-0.880***	-0.880***	-1.002***	-0.839***	-0.908***
+	(0.272)	(0.272)	(0.286)	(0.285)	(0.283)
+1.high_welfare_level#c.log_price	-0.496	-0.496	-0.522	-0.501	-0.584*
+	(0.326)	(0.326)	(0.328)	(0.327)	(0.327)
+log_pinc_all	5.379***	5.379***	5.234***	5.264***	5.133***
+	(0.979)	(0.979)	(0.979)	(0.978)	(0.962)
+Constant	-61.29***	-61.31***	-59.46***	-78.98***	-78.65***
+	(11.28)	(16.52)	(16.59)	(16.18)	(16.86)
+					
+Observations	52,148	52,148	52,147	52,147	52,147
+R-squared	0.010	0.010	0.010	0.012	0.021
+Number of pid	10,169	10,169	10,169	10,169	10,169
+Time FE	Y	Y	Y	Y	Y
+Individual FE	Y	Y	Y	Y	Y
+Age	N	Y	Y	Y	Y
+Education-Time FE	N	N	Y	Y	Y
+Gender-Time FE	N	N	N	Y	Y
+Living-Time FE	N	N	N	N	Y
+Robust standard errors in parentheses					
+*** p<0.01, ** p<0.05, * p<0.1					
