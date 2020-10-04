@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
   cache = FALSE,
   include = FALSE,
   fig.width = 15, fig.height = 10)
-knitr::opts_knit$set(root.dir = "C:/Users/vge00/Desktop/NaSTaB")
+knitr::opts_knit$set(root.dir = "C:/Users/katoo/Desktop/NaSTaB")
 ```
 
 ```{r source_code_Summary}
-knitr::read_chunk("script/#2Primitive.r")
+knitr::read_chunk("script/R/#2Primitive.r")
 ```
 
 ```{r library}
