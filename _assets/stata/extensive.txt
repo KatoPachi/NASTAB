@@ -19,5 +19,3 @@ Age	N	Y	Y	Y	Y
 Education-Time FE	N	N	Y	Y	Y
 Gender-Time FE	N	N	N	Y	Y
 Living-Time FE	N	N	N	N	Y
-Robust standard errors in parentheses					
-*** p<0.01, ** p<0.05, * p<0.1					

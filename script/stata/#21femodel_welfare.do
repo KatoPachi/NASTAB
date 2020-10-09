@@ -13,9 +13,9 @@ gen log_price = ln(price)
 gen log_total_g = ln(i_total_giving + 1)
 gen log_pinc_all = ln(lincome + 100000)
 
-gen welfare_level = .
-replace welfare_level = 1 if welfare_level > 3
-replace welfare_level = 0 if welfare_level <= 3
+gen high_welfare_level = .
+replace high_welfare_level = 1 if welfare_level > 3
+replace high_welfare_level = 0 if welfare_level <= 3
 
 gen low_welfare_level = .
 replace low_welfare_level = 1 if welfare_level < 3
@@ -45,7 +45,8 @@ xtreg log_total_g welfare_level log_price log_pinc_all i.year ///
 
 outreg2 using "_assets/stata/totalef.txt", replace ///
 	keep(welfare_level log_price log_pinc_all) ///
-	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
+	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
+	nonot
 
 * robustness 1: + age
 xtreg log_total_g welfare_level log_price log_pinc_all age i.year ///
@@ -54,7 +55,8 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year ///
 
 outreg2 using "_assets/stata/totalef.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
-	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
+	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)  
+	
 	
 * robustness 2: + education-time FE
 xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.educ ///
@@ -90,7 +92,8 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all i.year ///
 
 outreg2 using "_assets/stata/totalef_hetero.txt", replace ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
-	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
+	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)  ///
+	nonot
 
 * robust hetero 1: + age
 xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year ///
@@ -141,7 +144,8 @@ xtreg i_ext_giving welfare_level log_price log_pinc_all i.year ///
 
 outreg2 using "_assets/stata/extensive.txt", replace ///
 	keep(welfare_level log_price log_pinc_all) ///
-	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
+	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
+	nonot
 
 * robustness 1: + age
 xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year ///
@@ -186,7 +190,8 @@ xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all i.year ///
 
 outreg2 using "_assets/stata/extensive_hetero.txt", replace ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
-	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
+	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
+	nonot
 
 * robust hetero 1: + age
 xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year ///
@@ -238,7 +243,8 @@ xtreg log_total_g welfare_level log_price log_pinc_all i.year ///
 
 outreg2 using "_assets/stata/intensive.txt", replace ///
 	keep(welfare_level log_price log_pinc_all) ///
-	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
+	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
+	nonot
 
 * robustness 1: + age
 xtreg log_total_g welfare_level log_price log_pinc_all age i.year ///
@@ -283,7 +289,8 @@ xtreg log_total_g c.welfare_leve##c.log_price log_pinc_all i.year ///
 
 outreg2 using "_assets/stata/intensive_hetero.txt", replace ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
-	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
+	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
+	nonot
 
 * robust hetero 1: + age
 xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year ///
