@@ -29,13 +29,3 @@ label variable PPP_healthbdg "一人当たり保健分野予算"
 
 * save file
 save "data\shape\public_bdg.dta", replace
-
-* call shaped.dta 
-use "data\shaped.dta", clear
-
-* merge 
-merge m:1 year living_area using "data\shape\public_bdg.dta"
-drop _merge
-
-* save file 
-save "data\shaped.dta", replace
