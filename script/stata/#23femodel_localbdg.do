@@ -35,7 +35,7 @@ Baseline 1: for public services (2FE)
 xtreg log_total_g log_PPP_pubbdg  log_price log_pinc_all i.year, ///
 	fe vce(cluster pid)
 
-outreg2 using main_pubbdg.txt, replace ///
+outreg2 using "_assets/stata/main_pubbdg.txt", replace ///
 	keep(log_PPP_pubbdg log_price log_pinc_all) ///
 	ctitle(Overall) ///
 	addtext(Individual FE, Yes, Year FE, Yes)
@@ -43,7 +43,7 @@ outreg2 using main_pubbdg.txt, replace ///
 xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all i.year, ///
 	fe vce(cluster pid)	
 
-outreg2 using main_pubbdg.txt, append ///
+outreg2 using "_assets/stata/main_pubbdg.txt", append ///
 	keep(log_PPP_pubbdg log_price log_pinc_all) ///
 	ctitle(Extensive Margin) ///
 	addtext(Individual FE, Yes, Year FE, Yes)
@@ -51,7 +51,7 @@ outreg2 using main_pubbdg.txt, append ///
 xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all i.year if i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using main_pubbdg.txt, append ///
+outreg2 using "_assets/stata/main_pubbdg.txt", append ///
 	keep(log_PPP_pubbdg log_price log_pinc_all) ///
 	ctitle(Intensive Margin) ///
 	addtext(Individual FE, Yes, Year FE, Yes)
@@ -63,7 +63,7 @@ Baseline 2: for health services (2FE)
 xtreg log_total_g log_PPP_healthbdg  log_price log_pinc_all i.year, ///
 	fe vce(cluster pid)
 
-outreg2 using main_healthbdg.txt, replace ///
+outreg2 using "_assets/stata/main_healthbdg.txt", replace ///
 	keep(log_PPP_healthbdg log_price log_pinc_all) ///
 	ctitle(Overall) ///
 	addtext(Individual FE, Yes, Year FE, Yes)
@@ -71,7 +71,7 @@ outreg2 using main_healthbdg.txt, replace ///
 xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all i.year, ///
 	fe vce(cluster pid)	
 
-outreg2 using main_healthbdg.txt, append ///
+outreg2 using "_assets/stata/main_healthbdg.txt", append ///
 	keep(log_PPP_healthbdg log_price log_pinc_all) ///
 	ctitle(Extensive Margin) ///
 	addtext(Individual FE, Yes, Year FE, Yes)
@@ -79,7 +79,7 @@ outreg2 using main_healthbdg.txt, append ///
 xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year if i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using main_healthbdg.txt, append ///
+outreg2 using "_assets/stata/main_healthbdg.txt", append ///
 	keep(log_PPP_healthbdg log_price log_pinc_all) ///
 	ctitle(Intensive Margin) ///
 	addtext(Individual FE, Yes, Year FE, Yes)
