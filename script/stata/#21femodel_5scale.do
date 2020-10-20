@@ -43,7 +43,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", replace ///
+outreg2 using "_assets/stata/totalef_5scale.txt", replace ///
 	keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
@@ -53,7 +53,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", ///
+outreg2 using "_assets/stata/totalef_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)  
 	
@@ -63,7 +63,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", ///
+outreg2 using "_assets/stata/totalef_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 	
@@ -72,7 +72,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.gender i.ye
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", ///
+outreg2 using "_assets/stata/totalef_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 
@@ -81,7 +81,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.gender i.ye
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", ///
+outreg2 using "_assets/stata/totalef_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 
@@ -90,7 +90,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef_hetero.txt", replace ///
+outreg2 using "_assets/stata/totalef_hetero_5scale.txt", replace ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)  ///
 	nonot
@@ -100,7 +100,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef_hetero.txt", append ///
+outreg2 using "_assets/stata/totalef_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 
@@ -109,7 +109,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.educ /
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef_hetero.txt", append ///
+outreg2 using "_assets/stata/totalef_hetero_5scale.txt", append ///
 	keep(c.welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 
@@ -118,7 +118,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.gender
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef_hetero.txt", append ///
+outreg2 using "_assets/stata/totalef_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 	
@@ -127,7 +127,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.gender
 	if year >= 2012, ///
 	fe vce(cluster pid)
 	
-outreg2 using "_assets/stata/totalef_hetero.txt", append ///
+outreg2 using "_assets/stata/totalef_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 	
@@ -142,7 +142,7 @@ xtreg i_ext_giving welfare_level log_price log_pinc_all i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", replace ///
+outreg2 using "_assets/stata/extensive_5scale.txt", replace ///
 	keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
@@ -152,7 +152,7 @@ xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", ///
+outreg2 using "_assets/stata/extensive_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 	
@@ -161,7 +161,7 @@ xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", ///
+outreg2 using "_assets/stata/extensive_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 	
@@ -170,7 +170,7 @@ xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year##i.gender i.y
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", ///
+outreg2 using "_assets/stata/extensive_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 
@@ -179,7 +179,7 @@ xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year##i.gender i.y
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", ///
+outreg2 using "_assets/stata/extensive_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 
@@ -188,7 +188,7 @@ xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive_hetero.txt", replace ///
+outreg2 using "_assets/stata/extensive_hetero_5scale.txt", replace ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
@@ -198,7 +198,7 @@ xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive_hetero.txt", append ///
+outreg2 using "_assets/stata/extensive_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 
@@ -207,7 +207,7 @@ xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year##i.educ 
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive_hetero.txt", append ///
+outreg2 using "_assets/stata/extensive_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 
@@ -216,7 +216,7 @@ xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year##i.gende
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive_hetero.txt", append ///
+outreg2 using "_assets/stata/extensive_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 	
@@ -225,7 +225,7 @@ xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year##i.gende
 	if year >= 2012, ///
 	fe vce(cluster pid)
 	
-outreg2 using "_assets/stata/extensive_hetero.txt", append ///
+outreg2 using "_assets/stata/extensive_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 	
@@ -241,7 +241,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all i.year ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", replace ///
+outreg2 using "_assets/stata/intensive_5scale.txt", replace ///
 	keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
@@ -251,7 +251,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", ///
+outreg2 using "_assets/stata/intensive_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 	
@@ -260,7 +260,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", ///
+outreg2 using "_assets/stata/intensive_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 	
@@ -269,7 +269,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.gender i.ye
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", ///
+outreg2 using "_assets/stata/intensive_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 
@@ -278,7 +278,7 @@ xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.gender i.ye
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", ///
+outreg2 using "_assets/stata/intensive_5scale.txt", ///
 	append keep(welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 
@@ -287,7 +287,7 @@ xtreg log_total_g c.welfare_leve##c.log_price log_pinc_all i.year ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive_hetero.txt", replace ///
+outreg2 using "_assets/stata/intensive_hetero_5scale.txt", replace ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
@@ -297,7 +297,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive_hetero.txt", append ///
+outreg2 using "_assets/stata/intensive_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 
@@ -306,7 +306,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.educ /
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive_hetero.txt", append ///
+outreg2 using "_assets/stata/intensive_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 
@@ -315,7 +315,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.gender
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive_hetero.txt", append ///
+outreg2 using "_assets/stata/intensive_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 	
@@ -324,7 +324,7 @@ xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.gender
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 	
-outreg2 using "_assets/stata/intensive_hetero.txt", append ///
+outreg2 using "_assets/stata/intensive_hetero_5scale.txt", append ///
 	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)	
 	
