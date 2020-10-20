@@ -29,7 +29,7 @@ outreg2flex <- function(file_path, cnames = NULL, vnames = NULL, nrow_foot = 2) 
   
   if (nrow_foot > 0) {
     foot <- tail(dt, n=nrow_foot)[,1]
-    start_foot <- nrow(dt) - nrow_foot
+    start_foot <- nrow(dt) - (nrow_foot - 1)
     end_foot <- nrow(dt)
     body <- dt[-c(1, 2, start_foot:end_foot),]
   } else {
