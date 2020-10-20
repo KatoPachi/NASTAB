@@ -30,7 +30,7 @@ xtset pid
 
 /***************
 
-Use original scale of perceived welfare level (5-Likert Scale)
+Use original scale of perceived welfare level (aggregated categorical vars)
 
 ***************/
 
@@ -39,96 +39,99 @@ Total effect during year >=2012
 */
 
 * baseline: individual FE and time FE
-xtreg log_total_g welfare_level log_price log_pinc_all i.year ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", replace ///
-	keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_3scale.txt", replace ///
+	keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
 
 * robustness 1: + age
-xtreg log_total_g welfare_level log_price log_pinc_all age i.year ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all age i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)  
 	
 	
 * robustness 2: + education-time FE
-xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.educ ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 	
 * robustness 3: + gender-time FE	
-xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 
 * robustness 4: + living-time FE	
-xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 
+	
+/* Heterogeneity */	
+	
 * heterogeneity: individual FE and time FE
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all i.year ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef_hetero.txt", replace ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_hetero_3scale.txt", replace ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)  ///
 	nonot
 
 * robust hetero 1: + age
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 
 * robust hetero 2: + education-time FE
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef_hetero.txt", append ///
-	keep(c.welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 
 * robust hetero 3: + gender-time FE	
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/totalef_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 	
 * robust hetero 4: + living-time FE	
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 	
-outreg2 using "_assets/stata/totalef_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/totalef_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 	
 
@@ -138,95 +141,98 @@ Extensive margin during year >=2012
 */
 
 * baseline: individual FE and time FE
-xtreg i_ext_giving welfare_level log_price log_pinc_all i.year ///
+xtreg i_ext_giving high_welfare_level low_welfare_level log_price log_pinc_all i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", replace ///
-	keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_3scale.txt", replace ///
+	keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
 
 * robustness 1: + age
-xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year ///
+xtreg i_ext_giving high_welfare_level low_welfare_level log_price log_pinc_all age i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 	
 * robustness 2: + education-time FE
-xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year##i.educ ///
+xtreg i_ext_giving high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 	
 * robustness 3: + gender-time FE	
-xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+xtreg i_ext_giving high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 
 * robustness 4: + living-time FE	
-xtreg i_ext_giving welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+xtreg i_ext_giving high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 
+	
+/* Heterogeneity */
+	
 * heterogeneity: individual FE and time FE
-xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all i.year ///
+xtreg i_ext_giving high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive_hetero.txt", replace ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_hetero_3scale.txt", replace ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
 
 * robust hetero 1: + age
-xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year ///
+xtreg i_ext_giving high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 
 * robust hetero 2: + education-time FE
-xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
+xtreg i_ext_giving high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 
 * robust hetero 3: + gender-time FE	
-xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+xtreg i_ext_giving high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/extensive_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 	
 * robust hetero 4: + living-time FE	
-xtreg i_ext_giving c.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+xtreg i_ext_giving high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
 	if year >= 2012, ///
 	fe vce(cluster pid)
 	
-outreg2 using "_assets/stata/extensive_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/extensive_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 	
 	
@@ -237,95 +243,98 @@ Intensive margin during year >=2012
 */
 
 * baseline: individual FE and time FE
-xtreg log_total_g welfare_level log_price log_pinc_all i.year ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all i.year ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", replace ///
-	keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_3scale.txt", replace ///
+	keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
 
 * robustness 1: + age
-xtreg log_total_g welfare_level log_price log_pinc_all age i.year ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all age i.year ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 	
 * robustness 2: + education-time FE
-xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.educ ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 	
 * robustness 3: + gender-time FE	
-xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 
 * robustness 4: + living-time FE	
-xtreg log_total_g welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+xtreg log_total_g high_welfare_level low_welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive.txt", ///
-	append keep(welfare_level log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_3scale.txt", ///
+	append keep(high_welfare_level low_welfare_level log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)
 
+	
+/* Heterogeneity */
+
 * heterogeneity: individual FE and time FE
-xtreg log_total_g c.welfare_leve##c.log_price log_pinc_all i.year ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all i.year ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive_hetero.txt", replace ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_hetero_3scale.txt", replace ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, N, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N) ///
 	nonot
 
 * robust hetero 1: + age
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, N, Gender-Time FE, N, Living-Time FE, N)
 
 * robust hetero 2: + education-time FE
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, N, Living-Time FE, N)
 
 * robust hetero 3: + gender-time FE	
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 
-outreg2 using "_assets/stata/intensive_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, N)
 	
 * robust hetero 4: + living-time FE	
-xtreg log_total_g c.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+xtreg log_total_g high_welfare_level##c.log_price low_welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
 	if year >= 2012 & i_ext_giving == 1, ///
 	fe vce(cluster pid)
 	
-outreg2 using "_assets/stata/intensive_hetero.txt", append ///
-	keep(welfare_level log_price c.welfare_level##c.log_price log_pinc_all) ///
+outreg2 using "_assets/stata/intensive_hetero_3scale.txt", append ///
+	keep(high_welfare_level low_welfare_level log_price 1.high_welfare_level##c.log_price 1.low_welfare_level##c.log_price log_pinc_all) ///
 	addtext(Time FE, Y, Individual FE, Y, Age, Y, Education-Time FE, Y, Gender-Time FE, Y, Living-Time FE, Y)	
 	
 	
