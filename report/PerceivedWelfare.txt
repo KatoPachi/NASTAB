@@ -4,9 +4,8 @@
 # 主観的福祉水準と寄付行動の関係
 
 NaSTaBデータより「現在の税金に対して福祉水準はどの程度か」という質問の回答を主観的な福祉水準として定義して、
-主観的な福祉水準と寄付行動の関係を分析する。
-この質問の回答は5段階である。
-その回答をそのまま使った分析と3段階（Low, Neutral, High）にまとめたものを用いた分析を行った。
+主観的な福祉水準（`welfare_level`）、寄付価格（`log_price`）と寄付行動（`log_total_g`）の関係を分析する。
+以下のコードはデータセットの呼び出し、変数の定義とパネルデータ化した。
 
 ~~~~
 <<dd_do: noout>>
@@ -28,9 +27,27 @@ gen welfare_level_3scale = .
 replace welfare_level_3scale = 1 if welfare_level < 3
 replace welfare_level_3scale = 2 if welfare_level == 3
 replace welfare_level_3scale = 3 if welfare_level > 3
+replace welfare_level_3scale = . if welfare_level == .
 
 * panel data
 xtset pid
+<</dd_do>>
+~~~~
+
+主観的福祉水準は5段階で回答する（1:低い～5:高い）。
+これをそのまま使用した分析と3段階にまとめたもの（`welfare_level_3scale`）で分析した。
+3段階にまとめた福祉水準は以下のように定義した。
+
+- `welfare_level_3scale = 1` (Low): 質問に1もしくは2と回答した人
+- `welfare_level_3scale = 2` (Newutral): 質問に3と回答した人
+- `welfare_level_3scale = 3` (High): 質問に4もしくは5と回答した人
+
+以下は二つの主観的な福祉水準の記述統計である。
+
+~~~~
+<<dd_do>>
+table year welfare_level
+table year welfare_level_3scale
 <</dd_do>>
 ~~~~
 
