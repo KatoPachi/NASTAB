@@ -1,0 +1,177 @@
+
+主観的福祉水準と寄付行動の関係
+============================
+
+NaSTaBデータより「現在の税金に対して福祉水準はどの程度か」という質問の回答を主観的な福祉水準として定義して、
+主観的な福祉水準と寄付行動の関係を分析する。
+この質問の回答は5段階である。
+その回答をそのまま使った分析と3段階（Low, Neutral, High）にまとめたものを用いた分析を行った。
+
+~~~~
+<<dd_do: qui>>
+cd "C:\Users\vge00\Desktop\nastab"  //root path
+
+* call data
+use "data\shaped.dta", clear
+
+* variables
+gen price = .
+replace price = 1 - mtr if year < 2014
+replace price = 1 - 0.15 if year >= 2014
+
+gen log_price = ln(price)
+gen log_total_g = ln(i_total_giving + 1)
+gen log_pinc_all = ln(lincome + 100000)
+
+* panel data
+xtset pid
+<</dd_do>>
+~~~~
+
+5段階の主観的福祉水準
+-------------------
+
+はじめに、福祉水準を説明変数に入れて、福祉水準と寄付行動の相関を確認する。
+
+~~~~
+<<dd_do: qui>>
+* baseline: individual FE and time FE
+xtreg log_total_g i.welfare_level log_price log_pinc_all i.year ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store twoFE
+
+* robustness 1: + age
+xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store Add_Age
+	
+* robustness 2: + education-time FE
+xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store Add_EductationTimeFE
+	
+* robustness 3: + gender-time FE	
+xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store Add_GenderTimeFE
+	
+* robustness 4: + living-time FE	
+xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store Add_LivingTimeFE
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: nocom>>
+estimates table twoFE Add_Age Add_GenderTimeFE Add_LivingTimeFE, ///
+	keep(i.welfare_level log_price log_pinc_all) ///
+	b(%9.3f) se(%9.3f) p(%9.3f) stats(N r2) ///
+	title("Intensive + Extensive Margin")  ///
+	modelwidth(18) varwidth(15)
+estimates clear
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: qui>>
+/*
+Extensive Margin during year >=2012
+*/
+
+* baseline: individual FE and time FE
+xtreg i_ext_giving i.welfare_level log_price log_pinc_all i.year ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store twoFE
+
+* robustness 1: + age
+xtreg i_ext_giving i.welfare_level log_price log_pinc_all age i.year ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store Add_Age
+	
+* robustness 2: + education-time FE
+xtreg i_ext_giving i.welfare_level log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store Add_EductationTimeFE
+	
+* robustness 3: + gender-time FE	
+xtreg i_ext_giving i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store Add_GenderTimeFE
+	
+* robustness 4: + living-time FE	
+xtreg i_ext_giving i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+	if year >= 2012, ///
+	fe vce(cluster pid)
+estimates store Add_LivingTimeFE
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: nocom>>
+estimates table twoFE Add_Age Add_GenderTimeFE Add_LivingTimeFE, ///
+	keep(i.welfare_level log_price log_pinc_all) ///
+	b(%9.3f) se(%9.3f) p(%9.3f) stats(N r2) ///
+	title("Extensive Margin")  ///
+	modelwidth(18) varwidth(15)
+estimates clear
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: qui>>
+/*
+Intensive Margin during year >=2012
+*/
+
+* baseline: individual FE and time FE
+xtreg log_total_g i.welfare_level log_price log_pinc_all i.year ///
+	if year >= 2012 & i_ext_giving == 1, ///
+	fe vce(cluster pid)
+estimates store twoFE
+
+* robustness 1: + age
+xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year ///
+	if year >= 2012 & i_ext_giving == 1, ///
+	fe vce(cluster pid)
+estimates store Add_Age
+	
+* robustness 2: + education-time FE
+xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012 & i_ext_giving == 1, ///
+	fe vce(cluster pid)
+estimates store Add_EductationTimeFE
+	
+* robustness 3: + gender-time FE	
+xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012 & i_ext_giving == 1, ///
+	fe vce(cluster pid)
+estimates store Add_GenderTimeFE
+	
+* robustness 4: + living-time FE	
+xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+	if year >= 2012 & i_ext_giving == 1, ///
+	fe vce(cluster pid)
+estimates store Add_LivingTimeFE
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: nocom>>
+estimates table twoFE Add_Age Add_GenderTimeFE Add_LivingTimeFE, ///
+	keep(i.welfare_level log_price log_pinc_all) ///
+	b(%9.3f) se(%9.3f) p(%9.3f) stats(N r2) ///
+	title("Intensive Margin")  ///
+	modelwidth(18) varwidth(15)
+estimates clear
+<</dd_do>>
+~~~~
