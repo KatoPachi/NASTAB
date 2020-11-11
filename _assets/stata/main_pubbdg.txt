@@ -1,0 +1,19 @@
+	(1)	(2)	(3)
+VARIABLES	Overall	Extensive Margin	Intensive Margin
+			
+log_PPP_pubbdg	-0.0228	-0.00677*	0.00367
+	(0.0147)	(0.00353)	(0.0203)
+log_price	-0.362**	-0.0503	-0.584***
+	(0.169)	(0.0379)	(0.177)
+log_pinc_all	7.702***	1.748***	3.440***
+	(0.839)	(0.192)	(0.643)
+Constant	-87.74***	-19.88***	-35.83***
+	(9.665)	(2.210)	(7.421)
+			
+Observations	83,428	83,428	17,485
+R-squared	0.010	0.009	0.010
+Number of pid	12,032	12,032	5,117
+Individual FE	Yes	Yes	Yes
+Year FE	Yes	Yes	Yes
+Robust standard errors in parentheses			
+*** p<0.01, ** p<0.05, * p<0.1			
