@@ -17,6 +17,7 @@ gen welfare_level_3scale = .
 replace welfare_level_3scale = 1 if welfare_level < 3
 replace welfare_level_3scale = 2 if welfare_level == 3
 replace welfare_level_3scale = 3 if welfare_level > 3
+replace welfare_level_3scale = . if welfare_level == .
 
 * panel data
 xtset pid
