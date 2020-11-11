@@ -1,0 +1,659 @@
+<head>
+  <link rel="stylesheet" type="text/css" href="stmarkdown.css">
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+</head>
+<h1><a href="#主観的福祉水準と寄付行動の関係" id="主観的福祉水準と寄付行動の関係">主観的福祉水準と寄付行動の関係</a></h1>
+<p>NaSTaBデータより「現在の税金に対して福祉水準はどの程度か」という質問の回答を主観的な福祉水準として定義して、 主観的な福祉水準と寄付行動の関係を分析する。 この質問の回答は5段階である。 その回答をそのまま使った分析と3段階（Low, Neutral, High）にまとめたものを用いた分析を行った。</p>
+<pre><code>. cd &quot;C:\Users\vge00\Desktop\nastab&quot;  //root path
+
+. 
+. * call data
+. use &quot;data\shaped.dta&quot;, clear
+
+. 
+. * variables
+. gen price = .
+
+. replace price = 1 - mtr if year &lt; 2014
+
+. replace price = 1 - 0.15 if year &gt;= 2014
+
+. 
+. gen log_price = ln(price)
+
+. gen log_total_g = ln(i_total_giving + 1)
+
+. gen log_pinc_all = ln(lincome + 100000)
+
+. 
+. * panel data
+. xtset pid
+
+</code></pre>
+<h2><a href="#5段階の主観的福祉水準" id="5段階の主観的福祉水準">5段階の主観的福祉水準</a></h2>
+<h3><a href="#主観的福祉水準と寄付行動の相関" id="主観的福祉水準と寄付行動の相関">主観的福祉水準と寄付行動の相関</a></h3>
+<p>Extensive + Intenstive、Extensive、Intensiveに分けて分析した結果である。 各カラムのラベルは以下の要素をコントロールしていることを意味している</p>
+<ul>
+<li><code>twoFE</code>: Two-way fixed effect model</li>
+<li><code>Add_Age</code>: Two-way fixed effect model + 年齢</li>
+<li><code>Add_EducT</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー</li>
+<li><code>Add_GenderT</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー</li>
+<li><code>Add_LivingT</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー + 居住地・時間ペアのダミー</li>
+</ul>
+<pre><code>. * baseline: individual FE and time FE
+. xtreg log_total_g i.welfare_level log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store twoFE
+
+. 
+. * robustness 1: + age
+. xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_Age
+
+.         
+. * robustness 2: + education-time FE
+. xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_EducT
+
+.         
+. * robustness 3: + gender-time FE        
+. xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_GenderT
+
+.         
+. * robustness 4: + living-time FE        
+. xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_LivingT
+
+</code></pre>
+<pre><code>
+Intensive + Extensive Margin
+
+--------------------------------------------------------------------------------------------
+       Variable |    twoFE         Add_Age       Add_EducT     Add_GenderT    Add_LivingT   
+----------------+---------------------------------------------------------------------------
+  welfare_level |
+             2  |        0.030          0.030          0.031          0.031          0.011  
+                |        0.025          0.025          0.025          0.025          0.025  
+                |        0.232          0.232          0.220          0.218          0.652  
+             3  |        0.001          0.001          0.004          0.005         -0.007  
+                |        0.026          0.026          0.026          0.026          0.026  
+                |        0.975          0.975          0.880          0.839          0.786  
+             4  |        0.008          0.008          0.011          0.013         -0.007  
+                |        0.031          0.031          0.031          0.031          0.031  
+                |        0.794          0.794          0.733          0.679          0.826  
+             5  |       -0.127         -0.127         -0.124         -0.123         -0.101  
+                |        0.070          0.070          0.070          0.070          0.073  
+                |        0.072          0.072          0.079          0.081          0.166  
+                |
+      log_price |       -1.121         -1.121         -1.250         -1.077         -1.186  
+                |        0.203          0.203          0.229          0.228          0.225  
+                |        0.000          0.000          0.000          0.000          0.000  
+   log_pinc_all |        5.346          5.346          5.204          5.234          5.105  
+                |        0.979          0.979          0.979          0.978          0.962  
+                |        0.000          0.000          0.000          0.000          0.000  
+----------------+---------------------------------------------------------------------------
+              N |        52148          52148          52147          52147          52147  
+             r2 |        0.010          0.010          0.010          0.012          0.021  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
+<pre><code>. /*
+&gt; Extensive Margin during year &gt;=2012
+&gt; */
+. 
+. * baseline: individual FE and time FE
+. xtreg i_ext_giving i.welfare_level log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store twoFE
+
+. 
+. * robustness 1: + age
+. xtreg i_ext_giving i.welfare_level log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_Age
+
+.         
+. * robustness 2: + education-time FE
+. xtreg i_ext_giving i.welfare_level log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_EducT
+
+.         
+. * robustness 3: + gender-time FE        
+. xtreg i_ext_giving i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_GenderT
+
+.         
+. * robustness 4: + living-time FE        
+. xtreg i_ext_giving i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_LivingT
+
+</code></pre>
+<pre><code>
+Extensive Margin
+
+--------------------------------------------------------------------------------------------
+       Variable |    twoFE         Add_Age       Add_EducT     Add_GenderT    Add_LivingT   
+----------------+---------------------------------------------------------------------------
+  welfare_level |
+             2  |        0.005          0.005          0.005          0.005         -0.000  
+                |        0.006          0.006          0.006          0.006          0.006  
+                |        0.420          0.420          0.420          0.418          0.984  
+             3  |       -0.003         -0.003         -0.003         -0.002         -0.005  
+                |        0.006          0.006          0.006          0.006          0.006  
+                |        0.687          0.687          0.691          0.725          0.421  
+             4  |       -0.004         -0.004         -0.004         -0.003         -0.008  
+                |        0.008          0.008          0.008          0.008          0.008  
+                |        0.602          0.603          0.599          0.646          0.293  
+             5  |       -0.038         -0.038         -0.038         -0.038         -0.032  
+                |        0.017          0.017          0.017          0.017          0.017  
+                |        0.021          0.021          0.022          0.022          0.065  
+                |
+      log_price |       -0.273         -0.273         -0.267         -0.233         -0.258  
+                |        0.046          0.046          0.052          0.052          0.051  
+                |        0.000          0.000          0.000          0.000          0.000  
+   log_pinc_all |        1.156          1.156          1.153          1.159          1.131  
+                |        0.225          0.225          0.226          0.226          0.222  
+                |        0.000          0.000          0.000          0.000          0.000  
+----------------+---------------------------------------------------------------------------
+              N |        52148          52148          52147          52147          52147  
+             r2 |        0.009          0.009          0.009          0.011          0.020  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
+<pre><code>. /*
+&gt; Intensive Margin during year &gt;=2012
+&gt; */
+. 
+. * baseline: individual FE and time FE
+. xtreg log_total_g i.welfare_level log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store twoFE
+
+. 
+. * robustness 1: + age
+. xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_Age
+
+.         
+. * robustness 2: + education-time FE
+. xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_EducT
+
+.         
+. * robustness 3: + gender-time FE        
+. xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_GenderT
+
+.         
+. * robustness 4: + living-time FE        
+. xtreg log_total_g i.welfare_level log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_LivingT
+
+</code></pre>
+<pre><code>
+Intensive Margin
+
+--------------------------------------------------------------------------------------------
+       Variable |    twoFE         Add_Age       Add_EducT     Add_GenderT    Add_LivingT   
+----------------+---------------------------------------------------------------------------
+  welfare_level |
+             2  |        0.026          0.026          0.028          0.030          0.026  
+                |        0.032          0.032          0.032          0.032          0.032  
+                |        0.411          0.411          0.377          0.351          0.423  
+             3  |        0.057          0.057          0.060          0.062          0.059  
+                |        0.033          0.033          0.034          0.034          0.034  
+                |        0.087          0.087          0.074          0.063          0.082  
+             4  |        0.076          0.076          0.079          0.083          0.082  
+                |        0.046          0.046          0.046          0.046          0.046  
+                |        0.097          0.097          0.086          0.070          0.074  
+             5  |        0.080          0.080          0.086          0.087          0.084  
+                |        0.116          0.116          0.117          0.115          0.116  
+                |        0.493          0.493          0.459          0.452          0.473  
+                |
+      log_price |       -0.565         -0.565         -0.866         -0.696         -0.713  
+                |        0.204          0.204          0.231          0.239          0.245  
+                |        0.006          0.006          0.000          0.004          0.004  
+   log_pinc_all |        2.042          2.042          1.850          1.934          1.936  
+                |        0.678          0.678          0.663          0.666          0.659  
+                |        0.003          0.003          0.005          0.004          0.003  
+----------------+---------------------------------------------------------------------------
+              N |        11520          11520          11520          11520          11520  
+             r2 |        0.008          0.008          0.010          0.012          0.034  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
+<h3><a href="#主観的福祉水準に関する寄付価格の異質性サブサンプル分析" id="主観的福祉水準に関する寄付価格の異質性サブサンプル分析">主観的福祉水準に関する寄付価格の異質性（サブサンプル分析）</a></h3>
+<p>各福祉水準のグループに分けて寄付価格の弾力性を推定する。 先ほどと同様に、Extensive + Intensive、Extensive、Intensiveの三つに分けて分析する。</p>
+<pre><code>. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Lowest
+
+. 
+. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 2, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Lower
+
+. 
+. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 3, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Neutral
+
+. 
+. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 4, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Higher
+
+. 
+. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 5, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Highest
+
+</code></pre>
+<pre><code>
+Intensive + Extensive Margin Grouped by Perceived Welfare Level
+
+--------------------------------------------------------------------------------------------
+       Variable |    Lowest         Lower         Neutral         Higher        Highest     
+----------------+---------------------------------------------------------------------------
+      log_price |       -0.872         -0.704         -1.790         -2.610        -10.195  
+                |        0.806          0.382          0.388          0.854          5.125  
+                |        0.280          0.066          0.000          0.002          0.047  
+   log_pinc_all |        5.500          1.646          7.447          2.494          8.659  
+                |        2.326          1.285          1.804          4.571         10.627  
+                |        0.018          0.200          0.000          0.585          0.416  
+----------------+---------------------------------------------------------------------------
+              N |         5943          16933          22666           6233            373  
+             r2 |        0.007          0.010          0.011          0.015          0.374  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
+<pre><code>. xtreg i_ext_giving log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Lowest
+
+. 
+. xtreg i_ext_giving log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 2, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Lower
+
+. 
+. xtreg i_ext_giving log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 3, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Neutral
+
+. 
+. xtreg i_ext_giving log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 4, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Higher
+
+. 
+. xtreg i_ext_giving log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 5, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Highest
+
+</code></pre>
+<pre><code>
+Extensive Margin Grouped by Perceived Welfare Level
+
+--------------------------------------------------------------------------------------------
+       Variable |    Lowest         Lower         Neutral         Higher        Highest     
+----------------+---------------------------------------------------------------------------
+      log_price |       -0.138         -0.185         -0.472         -0.691         -2.521  
+                |        0.172          0.087          0.087          0.187          1.358  
+                |        0.421          0.033          0.000          0.000          0.064  
+   log_pinc_all |        1.103          0.289          1.609          0.608          2.296  
+                |        0.502          0.295          0.378          1.066          2.807  
+                |        0.028          0.327          0.000          0.568          0.414  
+----------------+---------------------------------------------------------------------------
+              N |         5943          16933          22666           6233            373  
+             r2 |        0.007          0.009          0.011          0.018          0.373  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
+<pre><code>. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 1 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Lowest
+
+. 
+. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 2 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Lower
+
+. 
+. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 3 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Neutral
+
+. 
+. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 4 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Higher
+
+. 
+. xtreg log_total_g log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; welfare_level == 5 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Highest
+
+</code></pre>
+<pre><code>
+Intensive Margin Grouped by Perceived Welfare Level
+
+--------------------------------------------------------------------------------------------
+       Variable |    Lowest         Lower         Neutral         Higher        Highest     
+----------------+---------------------------------------------------------------------------
+      log_price |       -1.380         -0.629         -0.077         -0.569        -17.479  
+                |        0.674          0.363          0.435          0.792              .  
+                |        0.041          0.084          0.859          0.472              .  
+   log_pinc_all |        4.181          1.020          3.348         10.359      (omitted)  
+                |        1.598          1.062          1.838          7.347                 
+                |        0.009          0.337          0.069          0.159                 
+----------------+---------------------------------------------------------------------------
+              N |         1476           4138           4626           1214             66  
+             r2 |        0.023          0.013          0.006          0.023          0.983  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
+<h3><a href="#主観的福祉水準に関する寄付価格の異質性交差項モデル" id="主観的福祉水準に関する寄付価格の異質性交差項モデル">主観的福祉水準に関する寄付価格の異質性（交差項モデル）</a></h3>
+<p>価格弾力性が福祉水準によって異なっているので、 これが有意な差かどうかを交差項モデルにて確認した。</p>
+<pre><code>. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store twoFE
+
+. 
+. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_Age
+
+.         
+. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_EducT
+
+.         
+. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_GenderT
+
+.         
+. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_LivingT
+
+</code></pre>
+<pre><code>
+Heterogenous Effect of Logged Price: Intensive + Extensive Margin
+
+--------------------------------------------------------------------------------------------
+       Variable |    twoFE         Add_Age       Add_EducT     Add_GenderT    Add_LivingT   
+----------------+---------------------------------------------------------------------------
+      log_price |       -0.627         -0.627         -0.762         -0.577         -0.467  
+                |        0.469          0.469          0.478          0.476          0.476  
+                |        0.181          0.181          0.111          0.225          0.327  
+                |
+  welfare_level#|
+    c.log_price |
+             2  |       -0.341         -0.341         -0.322         -0.353         -0.614  
+                |        0.523          0.523          0.524          0.522          0.524  
+                |        0.514          0.514          0.538          0.499          0.241  
+             3  |       -0.642         -0.642         -0.662         -0.661         -0.869  
+                |        0.521          0.521          0.522          0.520          0.524  
+                |        0.218          0.218          0.204          0.204          0.098  
+             4  |       -1.118         -1.118         -1.110         -1.110         -1.523  
+                |        0.633          0.633          0.633          0.632          0.633  
+                |        0.077          0.077          0.079          0.079          0.016  
+             5  |        0.648          0.648          0.603          0.528          0.359  
+                |        1.204          1.204          1.202          1.203          1.242  
+                |        0.590          0.590          0.616          0.661          0.773  
+                |
+   log_pinc_all |        5.366          5.366          5.220          5.249          5.121  
+                |        0.979          0.979          0.979          0.979          0.963  
+                |        0.000          0.000          0.000          0.000          0.000  
+----------------+---------------------------------------------------------------------------
+              N |        52148          52148          52147          52147          52147  
+             r2 |        0.010          0.010          0.011          0.012          0.021  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
+<pre><code>. xtreg i_ext_giving i.welfare_level##c.log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store twoFE
+
+. 
+. xtreg i_ext_giving i.welfare_level##c.log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_Age
+
+.         
+. xtreg i_ext_giving i.welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_EducT
+
+.         
+. xtreg i_ext_giving i.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_GenderT
+
+.         
+. xtreg i_ext_giving i.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+&gt;         if year &gt;= 2012, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_LivingT
+
+</code></pre>
+<pre><code>
+Heterogenous Effect of Logged Price: Extensive Margin
+
+--------------------------------------------------------------------------------------------
+       Variable |    twoFE         Add_Age       Add_EducT     Add_GenderT    Add_LivingT   
+----------------+---------------------------------------------------------------------------
+      log_price |       -0.173         -0.173         -0.171         -0.135         -0.114  
+                |        0.108          0.108          0.110          0.109          0.109  
+                |        0.107          0.107          0.118          0.216          0.294  
+                |
+  welfare_level#|
+    c.log_price |
+             2  |       -0.077         -0.077         -0.074         -0.080         -0.135  
+                |        0.120          0.120          0.120          0.120          0.120  
+                |        0.525          0.525          0.537          0.503          0.261  
+             3  |       -0.141         -0.141         -0.138         -0.138         -0.179  
+                |        0.121          0.121          0.121          0.120          0.121  
+                |        0.241          0.241          0.252          0.253          0.141  
+             4  |       -0.174         -0.174         -0.169         -0.169         -0.259  
+                |        0.144          0.144          0.144          0.144          0.144  
+                |        0.226          0.226          0.240          0.241          0.073  
+             5  |        0.148          0.148          0.146          0.129          0.089  
+                |        0.258          0.258          0.258          0.258          0.263  
+                |        0.567          0.567          0.572          0.616          0.736  
+                |
+   log_pinc_all |        1.159          1.159          1.155          1.160          1.133  
+                |        0.225          0.225          0.226          0.226          0.222  
+                |        0.000          0.000          0.000          0.000          0.000  
+----------------+---------------------------------------------------------------------------
+              N |        52148          52148          52147          52147          52147  
+             r2 |        0.009          0.009          0.009          0.011          0.020  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
+<pre><code>. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store twoFE
+
+. 
+. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_Age
+
+.         
+. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_EducT
+
+.         
+. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_GenderT
+
+.         
+. xtreg log_total_g i.welfare_level##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ i.year##i.living_area ///
+&gt;         if year &gt;= 2012 &amp; i_ext_giving == 1, ///
+&gt;         fe vce(cluster pid)
+
+. estimates store Add_LivingT
+
+</code></pre>
+<pre><code>
+Heterogenous Effect of Logged Price: Intensive Margin
+
+--------------------------------------------------------------------------------------------
+       Variable |    twoFE         Add_Age       Add_EducT     Add_GenderT    Add_LivingT   
+----------------+---------------------------------------------------------------------------
+      log_price |       -0.397         -0.397         -0.719         -0.557         -0.542  
+                |        0.427          0.427          0.439          0.441          0.438  
+                |        0.353          0.353          0.101          0.206          0.216  
+                |
+  welfare_level#|
+    c.log_price |
+             2  |        0.157          0.157          0.203          0.222          0.196  
+                |        0.493          0.493          0.492          0.491          0.496  
+                |        0.750          0.750          0.680          0.652          0.692  
+             3  |       -0.207         -0.207         -0.217         -0.214         -0.261  
+                |        0.539          0.539          0.539          0.538          0.541  
+                |        0.700          0.700          0.687          0.692          0.629  
+             4  |       -1.038         -1.038         -0.974         -0.945         -1.050  
+                |        0.631          0.631          0.633          0.637          0.651  
+                |        0.100          0.100          0.124          0.138          0.107  
+             5  |       -1.688         -1.688         -1.557         -1.674         -1.685  
+                |        1.365          1.365          1.370          1.355          1.325  
+                |        0.216          0.216          0.256          0.217          0.204  
+                |
+   log_pinc_all |        2.083          2.083          1.889          1.974          1.984  
+                |        0.687          0.687          0.671          0.674          0.664  
+                |        0.002          0.002          0.005          0.003          0.003  
+----------------+---------------------------------------------------------------------------
+              N |        11520          11520          11520          11520          11520  
+             r2 |        0.008          0.008          0.011          0.013          0.035  
+--------------------------------------------------------------------------------------------
+                                                                              legend: b/se/p
+
+
+</code></pre>
