@@ -1,0 +1,505 @@
+<head>
+  <link rel="stylesheet" type="text/css" href="stmarkdown.css">
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+</head>
+<h1><a href="#地方政府予算と寄付行動の関係" id="地方政府予算と寄付行動の関係">地方政府予算と寄付行動の関係</a></h1>
+<p>地方政府予算のデータをNaSTaBのデータにマージさせて、地方政府予算と寄付行動の関係を調べた。</p>
+<pre><code>. cd &quot;C:\Users\vge00\Desktop\nastab&quot;  //root path
+
+. 
+. * call data
+. use &quot;data\shaped.dta&quot;, clear
+
+. 
+. * variables
+. gen price = .
+
+. replace price = 1 - mtr if year &lt; 2014
+
+. replace price = 1 - 0.15 if year &gt;= 2014
+
+. 
+. gen log_price = ln(price)
+
+. gen log_total_g = ln(i_total_giving + 1)
+
+. gen log_pinc_all = ln(lincome + 100000)
+
+. gen log_PPP_pubbdg = ln(pubbdg + 1)
+
+. gen sqlog_PPP_pubpdg = log_PPP_pubbdg^2
+
+. gen log_PPP_healthbdg = ln(healthbdg + 1)
+
+. gen sqlog_PPP_healthpdg = log_PPP_healthbdg^2
+
+. gen welfarebdg = pubbdg + healthbdg
+
+. gen PPP_welfarebdg = welfarebdg/pop
+
+. gen log_PPP_welfarebdg = ln(PPP_welfarebdg + 1)
+
+. 
+. * panel data
+. xtset pid
+
+</code></pre>
+<h2><a href="#社会福祉予算の分析結果" id="社会福祉予算の分析結果">社会福祉予算の分析結果</a></h2>
+<h3><a href="#社会福祉予算と寄付行動の相関" id="社会福祉予算と寄付行動の相関">社会福祉予算と寄付行動の相関</a></h3>
+<p>Extensive + Intenstive、Extensive、Intensiveに分けて分析した結果である。 各カラムのラベルは以下の要素をコントロールしていることを意味している</p>
+<ul>
+<li><code>twoFE</code>: Two-way fixed effect model</li>
+<li><code>AddAge</code>: Two-way fixed effect model + 年齢</li>
+<li><code>AddEduc</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー</li>
+<li><code>AddGender1</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー</li>
+<li><code>AddGender2</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー</li>
+</ul>
+<p>アウトカムは寄付額の対数値（<code>log_total_g</code>）である。 全てのモデルに寄付価格の対数値（<code>log_price</code>）、所得の対数値（<code>log_pinc_all</code>）と一人当たりの社会福祉予算の対数値（<code>log_PPP_pubbdg</code>）を加えている。 また、<code>AddGender2</code>は社会福祉予算の対数値の二乗項（<code>sqlog_PPP_pubpdg</code>）を加えている。 二乗項を入れたとき、弾性値は <code>_b[log_PPP_pubbdg] + 2 * _b[sqlog_PPP_pubpdg] * log_PPP_pubbdg</code> で計算できる。</p>
+<pre><code>. * intensive + extensive margin (public services)
+. 
+. * model 1: baseline
+. xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store twoFE
+
+. 
+. * model 2: + age
+. xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddAge
+
+. 
+. * model 3: + education-time dummies
+. xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddEduc
+
+. 
+. * model 4: + gender-time dummies
+. xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender1
+
+. 
+. * model 5: + squared logged government budge
+. xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
+&gt;         age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender2
+
+. 
+. gen pred_e_pub = _b[log_PPP_pubbdg] + 2 * _b[sqlog_PPP_pubpdg] * log_PPP_pubbdg
+
+</code></pre>
+<pre><code>
+(33,476 real changes made)
+
+(32,204 real changes made)
+
+
+</code></pre>
+<p><img src="Graph2.svg" ></p>
+<pre><code>
+Intensive + Extensive Margin
+
+-----------------------------------------------------------------------------------------------
+          Variable |    twoFE          AddAge        AddEduc       AddGender1     AddGender2   
+-------------------+---------------------------------------------------------------------------
+    log_PPP_pubbdg |       -0.019         -0.019         -0.015         -0.015         -1.091  
+                   |        0.014          0.014          0.014          0.014          0.348  
+                   |        0.176          0.176          0.290          0.284          0.002  
+  sqlog_PPP_pubpdg |                                                                    0.035  
+                   |                                                                    0.011  
+                   |                                                                    0.002  
+         log_price |       -1.075         -1.075         -1.230         -1.061         -1.066  
+                   |        0.201          0.201          0.227          0.226          0.226  
+                   |        0.000          0.000          0.000          0.000          0.000  
+      log_pinc_all |        5.390          5.390          5.220          5.241          5.233  
+                   |        0.958          0.958          0.958          0.956          0.955  
+                   |        0.000          0.000          0.000          0.000          0.000  
+-------------------+---------------------------------------------------------------------------
+                 N |        54213          54213          54211          54211          54211  
+                r2 |        0.009          0.009          0.010          0.011          0.012  
+-----------------------------------------------------------------------------------------------
+                                                                                 legend: b/se/p
+
+
+</code></pre>
+<pre><code>. * extensive margin (public services)
+. 
+. * model 1: baseline
+. xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store twoFE
+
+. 
+. * model 2: + age
+. xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddAge
+
+. 
+. * model 3: + education-time dummies
+. xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddEduc
+
+. 
+. * model 4: + gender-time dummies
+. xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender1
+
+. 
+. * model 5: + squared logged government budge
+. xtreg i_ext_giving log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
+&gt;         age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender2
+
+</code></pre>
+<pre><code>
+Extensive Margin
+
+-----------------------------------------------------------------------------------------------
+          Variable |    twoFE          AddAge        AddEduc       AddGender1     AddGender2   
+-------------------+---------------------------------------------------------------------------
+    log_PPP_pubbdg |       -0.007         -0.007         -0.006         -0.006         -0.270  
+                   |        0.003          0.003          0.003          0.003          0.084  
+                   |        0.058          0.058          0.095          0.093          0.001  
+  sqlog_PPP_pubpdg |                                                                    0.009  
+                   |                                                                    0.003  
+                   |                                                                    0.002  
+         log_price |       -0.259         -0.259         -0.260         -0.226         -0.227  
+                   |        0.046          0.046          0.051          0.051          0.051  
+                   |        0.000          0.000          0.000          0.000          0.000  
+      log_pinc_all |        1.173          1.173          1.163          1.167          1.165  
+                   |        0.221          0.221          0.222          0.222          0.221  
+                   |        0.000          0.000          0.000          0.000          0.000  
+-------------------+---------------------------------------------------------------------------
+                 N |        54213          54213          54211          54211          54211  
+                r2 |        0.009          0.009          0.009          0.010          0.010  
+-----------------------------------------------------------------------------------------------
+                                                                                 legend: b/se/p
+
+
+</code></pre>
+<pre><code>. * intensive margin (public services)
+. 
+. * model 1: baseline
+. xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all i.year ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store twoFE
+
+. 
+. * model 2: + age
+. xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddAge
+
+. 
+. * model 3: + education-time dummies
+. xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddEduc
+
+. 
+. * model 4: + gender-time dummies
+. xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender1
+
+. 
+. * model 5: + squared logged government budge
+. xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
+&gt;         age i.year##i.gender i.year##i.educ ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender2
+
+</code></pre>
+<pre><code>
+Intensive Margin
+
+-----------------------------------------------------------------------------------------------
+          Variable |    twoFE          AddAge        AddEduc       AddGender1     AddGender2   
+-------------------+---------------------------------------------------------------------------
+    log_PPP_pubbdg |       -0.003         -0.003         -0.004         -0.002          0.129  
+                   |        0.020          0.020          0.021          0.021          0.487  
+                   |        0.891          0.891          0.858          0.909          0.791  
+  sqlog_PPP_pubpdg |                                                                   -0.004  
+                   |                                                                    0.016  
+                   |                                                                    0.787  
+         log_price |       -0.594         -0.594         -0.899         -0.732         -0.732  
+                   |        0.202          0.202          0.230          0.238          0.238  
+                   |        0.003          0.003          0.000          0.002          0.002  
+      log_pinc_all |        2.034          2.034          1.828          1.907          1.902  
+                   |        0.675          0.675          0.661          0.665          0.665  
+                   |        0.003          0.003          0.006          0.004          0.004  
+-------------------+---------------------------------------------------------------------------
+                 N |        11704          11704          11704          11704          11704  
+                r2 |        0.006          0.006          0.009          0.011          0.011  
+-----------------------------------------------------------------------------------------------
+                                                                                 legend: b/se/p
+
+
+</code></pre>
+<h2><a href="#保健分野予算の分析結果" id="保健分野予算の分析結果">保健分野予算の分析結果</a></h2>
+<h3><a href="#保健分野予算と寄付行動の相関" id="保健分野予算と寄付行動の相関">保健分野予算と寄付行動の相関</a></h3>
+<p>Extensive + Intenstive、Extensive、Intensiveに分けて分析した結果である。 各カラムのラベルは以下の要素をコントロールしていることを意味している</p>
+<ul>
+<li><code>twoFE</code>: Two-way fixed effect model</li>
+<li><code>AddAge</code>: Two-way fixed effect model + 年齢</li>
+<li><code>AddEduc</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー</li>
+<li><code>AddGender1</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー</li>
+<li><code>AddGender2</code>: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー</li>
+</ul>
+<p>アウトカムは寄付したことを示すダミー変数（<code>i_ext_giving</code>）である。 全てのモデルに寄付価格の対数値（<code>log_price</code>）、所得の対数値（<code>log_pinc_all</code>）と一人当たりの保健分野予算の対数値（<code>log_PPP_healthbdg</code>）を加えている。 また、<code>AddGender2</code>は社会福祉予算の対数値の二乗項（<code>sqlog_PPP_healthpdg</code>）を加えている。 二乗項を入れたとき、弾性値は <code>_b[log_PPP_healthbdg] + 2 * _b[sqlog_PPP_healthpdg] * log_PPP_healthbdg</code> で計算できる。</p>
+<pre><code>. * intensive + extensive margin (healthcare services)
+. 
+. * model 1: baseline
+. xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store twoFE
+
+. 
+. * model 2: + age
+. xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddAge
+
+. 
+. * model 3: + education-time dummies
+. xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddEduc
+
+. 
+. * model 4: + gender-time dummies
+. xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender1
+
+. 
+. * model 5: + squared logged government budge
+. xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
+&gt;         age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender2
+
+. 
+. gen pred_e_health = _b[log_PPP_healthbdg] + 2 * _b[sqlog_PPP_healthpdg] * log_PPP_healthbdg
+
+</code></pre>
+<pre><code>
+</code></pre>
+<p><img src="Graph3.svg" ></p>
+<pre><code>
+Intensive + Extensive Margin
+
+-------------------------------------------------------------------------------------------------
+            Variable |    twoFE          AddAge        AddEduc       AddGender1     AddGender2   
+---------------------+---------------------------------------------------------------------------
+   log_PPP_healthbdg |       -0.010         -0.010         -0.006         -0.006         -1.186  
+                     |        0.015          0.015          0.015          0.015          0.325  
+                     |        0.495          0.495          0.686          0.666          0.000  
+ sqlog_PPP_healthpdg |                                                                    0.046  
+                     |                                                                    0.013  
+                     |                                                                    0.000  
+           log_price |       -1.073         -1.073         -1.229         -1.060         -1.066  
+                     |        0.201          0.201          0.227          0.226          0.226  
+                     |        0.000          0.000          0.000          0.000          0.000  
+        log_pinc_all |        5.393          5.393          5.221          5.242          5.226  
+                     |        0.959          0.959          0.958          0.957          0.955  
+                     |        0.000          0.000          0.000          0.000          0.000  
+---------------------+---------------------------------------------------------------------------
+                   N |        54213          54213          54211          54211          54211  
+                  r2 |        0.009          0.009          0.010          0.011          0.012  
+-------------------------------------------------------------------------------------------------
+                                                                                   legend: b/se/p
+
+
+</code></pre>
+<pre><code>. * extensive margin (healthcare services)
+. 
+. * model 1: baseline
+. xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all i.year ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store twoFE
+
+. 
+. * model 2: + age
+. xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddAge
+
+. 
+. * model 3: + education-time dummies
+. xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddEduc
+
+. 
+. * model 4: + gender-time dummies
+. xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender1
+
+. 
+. * model 5: + squared logged government budge
+. xtreg i_ext_giving log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
+&gt;         age i.year##i.gender i.year##i.educ ///
+&gt;         if year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender2
+
+. 
+</code></pre>
+<pre><code>
+Extensive Margin
+
+-------------------------------------------------------------------------------------------------
+            Variable |    twoFE          AddAge        AddEduc       AddGender1     AddGender2   
+---------------------+---------------------------------------------------------------------------
+   log_PPP_healthbdg |       -0.004         -0.004         -0.003         -0.003         -0.286  
+                     |        0.004          0.004          0.004          0.004          0.079  
+                     |        0.240          0.240          0.342          0.333          0.000  
+ sqlog_PPP_healthpdg |                                                                    0.011  
+                     |                                                                    0.003  
+                     |                                                                    0.000  
+           log_price |       -0.259         -0.259         -0.260         -0.226         -0.227  
+                     |        0.046          0.046          0.051          0.051          0.051  
+                     |        0.000          0.000          0.000          0.000          0.000  
+        log_pinc_all |        1.174          1.174          1.163          1.167          1.163  
+                     |        0.221          0.221          0.222          0.222          0.221  
+                     |        0.000          0.000          0.000          0.000          0.000  
+---------------------+---------------------------------------------------------------------------
+                   N |        54213          54213          54211          54211          54211  
+                  r2 |        0.009          0.009          0.009          0.010          0.010  
+-------------------------------------------------------------------------------------------------
+                                                                                   legend: b/se/p
+
+
+</code></pre>
+<pre><code>. * intensive margin (healthcare services)
+. 
+. * model 1: baseline
+. xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store twoFE
+
+. 
+. * model 2: + age
+. xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddAge
+
+. 
+. * model 3: + education-time dummies
+. xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddEduc
+
+. 
+. * model 4: + gender-time dummies
+. xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender1
+
+. 
+. * model 5: + squared logged government budge
+. xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
+&gt;         age i.year##i.gender i.year##i.educ ///
+&gt;         if i_ext_giving == 1 &amp; year &gt;= 2012, fe vce(cluster pid)
+
+. 
+. estimates store AddGender2
+
+</code></pre>
+<pre><code>
+Intensive Margin
+
+-----------------------------------------------------------------------------------------------
+          Variable |    twoFE          AddAge        AddEduc       AddGender1     AddGender2   
+-------------------+---------------------------------------------------------------------------
+ log_PPP_healthbdg |        0.004          0.004          0.003          0.004          0.332  
+                   |        0.020          0.020          0.021          0.021          0.470  
+                   |        0.852          0.852          0.888          0.849          0.480  
+sqlog_PPP_health~g |                                                                   -0.013  
+                   |                                                                    0.018  
+                   |                                                                    0.485  
+         log_price |       -0.592         -0.592         -0.898         -0.731         -0.732  
+                   |        0.202          0.202          0.230          0.238          0.238  
+                   |        0.003          0.003          0.000          0.002          0.002  
+      log_pinc_all |        2.037          2.037          1.830          1.909          1.897  
+                   |        0.675          0.675          0.661          0.665          0.665  
+                   |        0.003          0.003          0.006          0.004          0.004  
+-------------------+---------------------------------------------------------------------------
+                 N |        11704          11704          11704          11704          11704  
+                r2 |        0.006          0.006          0.009          0.011          0.011  
+-----------------------------------------------------------------------------------------------
+                                                                                 legend: b/se/p
+
+
+</code></pre>
