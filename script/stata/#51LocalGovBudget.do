@@ -30,36 +30,36 @@ xtset pid
 
 *******************************************************************************/
 
-* intensive + extensive margin
+* intensive + extensive margin (public services)
 
-* model 1: baseline (public services)
-xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all i.year, ///
-	fe vce(cluster pid)
+* model 1: baseline
+xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store twoFE
 
-* model 2: + age (public services)
-xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year, ///
-	fe vce(cluster pid)
+* model 2: + age
+xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddAge
 
-* model 3: + education-time dummies (public services)
-xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ, ///
-	fe vce(cluster pid)
+* model 3: + education-time dummies
+xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddEduc
 
-* model 4: + gender-time dummies (public services)
-xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
+* model 4: + gender-time dummies
+xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender1
 
-* model 5: + squared logged government budge (public services)
+* model 5: + squared logged government budge
 xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
-	age i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender2
 
@@ -70,36 +70,36 @@ estimates table twoFE AddAge AddEduc AddGender1 AddGender2, ///
 	modelwidth(12) varwidth(18)
 estimates clear
 
-* extensive margin
+* extensive margin (public services)
 
-* model 1: baseline (public services)
-xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all i.year, ///
-	fe vce(cluster pid)
+* model 1: baseline
+xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store twoFE
 
-* model 2: + age (public services)
-xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year, ///
-	fe vce(cluster pid)
+* model 2: + age
+xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddAge
 
-* model 3: + education-time dummies (public services)
-xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ, ///
-	fe vce(cluster pid)
+* model 3: + education-time dummies
+xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddEduc
 
-* model 4: + gender-time dummies (public services)
-xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
+* model 4: + gender-time dummies
+xtreg i_ext_giving log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender1
 
-* model 5: + squared logged government budge (public services)
+* model 5: + squared logged government budge
 xtreg i_ext_giving log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
-	age i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender2
 
@@ -110,36 +110,36 @@ estimates table twoFE AddAge AddEduc AddGender1 AddGender2, ///
 	modelwidth(12) varwidth(18)
 estimates clear
 
-* intensive margin
+* intensive margin (public services)
 
-* model 1: baseline (public services)
+* model 1: baseline
 xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all i.year ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store twoFE
 
-* model 2: + age (public services)
+* model 2: + age
 xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store AddAge
 
-* model 3: + education-time dummies (public services)
+* model 3: + education-time dummies
 xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store AddEduc
 
-* model 4: + gender-time dummies (public services)
+* model 4: + gender-time dummies
 xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender1
 
-* model 5: + squared logged government budge (public services)
+* model 5: + squared logged government budge
 xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
 	age i.year##i.gender i.year##i.educ ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender2
 
@@ -154,33 +154,33 @@ estimates clear
 * intensive + extensive margin (healthcare services)
 
 * model 1: baseline
-xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year, ///
-	fe vce(cluster pid)
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store twoFE
 
 * model 2: + age
-xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year, ///
-	fe vce(cluster pid)
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddAge
 
 * model 3: + education-time dummies
-xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ, ///
-	fe vce(cluster pid)
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddEduc
 
 * model 4: + gender-time dummies
-xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender1
 
 * model 5: + squared logged government budge
 xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
-	age i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender2
 
@@ -194,33 +194,33 @@ estimates clear
 * intensive margin (healthcare services)
 
 * model 1: baseline
-xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all i.year, ///
-	fe vce(cluster pid)
+xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store twoFE
 
 * model 2: + age
-xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year, ///
-	fe vce(cluster pid)
+xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddAge
 
 * model 3: + education-time dummies
-xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ, ///
-	fe vce(cluster pid)
+xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddEduc
 
 * model 4: + gender-time dummies
-xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
+xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender1
 
 * model 5: + squared logged government budge
 xtreg i_ext_giving log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
-	age i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender2
 
@@ -235,32 +235,32 @@ estimates clear
 
 * model 1: baseline
 xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store twoFE
 
 * model 2: + age
 xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store AddAge
 
 * model 3: + education-time dummies
 xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store AddEduc
 
 * model 4: + gender-time dummies
 xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender1
 
 * model 5: + squared logged government budge
 xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
 	age i.year##i.gender i.year##i.educ ///
-	if i_ext_giving == 1, fe vce(cluster pid)
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
 
 estimates store AddGender2
 
