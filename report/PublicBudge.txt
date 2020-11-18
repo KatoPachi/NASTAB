@@ -46,15 +46,12 @@ Extensive + Intenstive、Extensive、Intensiveに分けて分析した結果で�
 - `AddGender1`: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー
 - `AddGender2`: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー
 
+アウトカムは寄付額の対数値（`log_total_g`）である。
 全てのモデルに寄付価格の対数値（`log_price`）、所得の対数値（`log_pinc_all`）と一人当たりの社会福祉予算の対数値（`log_PPP_pubbdg`）を加えている。
 また、`AddGender2`は社会福祉予算の対数値の二乗項（`sqlog_PPP_pubpdg`）を加えている。
-二乗項を入れたとき、弾性値$\epsilon_{jt}$は以下のように計算される。
-
-$$
-\hat{\epsilon}_{jt} = \hat{\beta}_1 + 2 \hat{\beta}_2 \text{log_PPP_pubbdg}_{jt}
-$$
-
-ここで、$\beta_1$は`log_PPP_pubbdg`の係数で、$\beta_2$は`sqlog_PPP_pubpdg`の係数である。
+二乗項を入れたとき、弾性値は
+`_b[log_PPP_pubbdg] + 2 * _b[sqlog_PPP_pubpdg] * log_PPP_pubbdg`
+で計算できる。
 
 ~~~~
 <<dd_do: noout>>
@@ -94,6 +91,25 @@ estimates store AddGender2
 gen pred_e_pub = _b[log_PPP_pubbdg] + 2 * _b[sqlog_PPP_pubpdg] * log_PPP_pubbdg
 <</dd_do>>
 ~~~~
+
+~~~~
+<<dd_do: nocom>>
+gen special_area = 3
+replace special_area = 1 if living_area == 11
+replace special_area = 2 if living_area == 31 
+
+twoway  (scatter pred_e_pub PPP_pubbdg if year >= 2012 & special_area == 1) ///
+	    (scatter pred_e_pub PPP_pubbdg if year >= 2012 & special_area == 2) ///
+	    (scatter pred_e_pub PPP_pubbdg if year >= 2012 & special_area == 3), ///
+		yline(0, lpattern(dash) lcolor(red)) ///
+		legend(label(1 "living area = 11") label(2 "living area = 31") label(3 "Other living areas")) ///
+		xtitle("Social Welfare Budget per capita")  ///
+		ytitle("Predicted Elasticity")  ///
+		title("Predicted Budget-Elasticity of Donations")  
+<</dd_do>>
+~~~~
+<<dd_graph: >>
+
 
 ~~~~
 <<dd_do: nocom>>
@@ -203,3 +219,183 @@ estimates clear
 <</dd_do>>
 ~~~~
 
+## 保健分野予算の分析結果
+
+### 保健分野予算と寄付行動の相関
+
+Extensive + Intenstive、Extensive、Intensiveに分けて分析した結果である。
+各カラムのラベルは以下の要素をコントロールしていることを意味している
+
+- `twoFE`: Two-way fixed effect model
+- `AddAge`: Two-way fixed effect model + 年齢
+- `AddEduc`: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー
+- `AddGender1`: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー
+- `AddGender2`: Two-way fixed effect model + 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー
+
+アウトカムは寄付したことを示すダミー変数（`i_ext_giving`）である。
+全てのモデルに寄付価格の対数値（`log_price`）、所得の対数値（`log_pinc_all`）と一人当たりの保健分野予算の対数値（`log_PPP_healthbdg`）を加えている。
+また、`AddGender2`は社会福祉予算の対数値の二乗項（`sqlog_PPP_healthpdg`）を加えている。
+二乗項を入れたとき、弾性値は
+`_b[log_PPP_healthbdg] + 2 * _b[sqlog_PPP_healthpdg] * log_PPP_healthbdg`
+で計算できる。
+
+~~~~
+<<dd_do: noout>>
+* intensive + extensive margin (healthcare services)
+
+* model 1: baseline
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store twoFE
+
+* model 2: + age
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store AddAge
+
+* model 3: + education-time dummies
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store AddEduc
+
+* model 4: + gender-time dummies
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store AddGender1
+
+* model 5: + squared logged government budge
+xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store AddGender2
+
+gen pred_e_health = _b[log_PPP_healthbdg] + 2 * _b[sqlog_PPP_healthpdg] * log_PPP_healthbdg
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: nocom>>
+twoway  (scatter pred_e_health PPP_healthbdg if year >= 2012 & special_area == 1)  ///
+		(scatter pred_e_health PPP_healthbdg if year >= 2012 & special_area == 2)  ///
+		(scatter pred_e_health PPP_healthbdg if year >= 2012 & special_area == 3), ///
+		yline(0, lpattern(dash) lcolor(red))  ///
+		legend(label(1 "living area = 11") label(2 "living area = 31") label(3 "Other living areas")) ///
+		xtitle("Healthcare Budget per capita")  ///
+		ytitle("Predicted Elasticity")  ///
+		title("Predicted Budget-Elasticity of Donations")  
+<</dd_do>>
+~~~~
+<<dd_graph: >>
+
+~~~~
+<<dd_do: nocom>>
+estimates table twoFE AddAge AddEduc AddGender1 AddGender2, ///
+	keep(log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all) ///
+	b(%9.3f) se(%9.3f) p(%9.3f) stats(N r2) ///
+	title("Intensive + Extensive Margin")  ///
+	modelwidth(12) varwidth(20)
+estimates clear
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: noout>>
+* extensive margin (healthcare services)
+
+* model 1: baseline
+xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store twoFE
+
+* model 2: + age
+xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store AddAge
+
+* model 3: + education-time dummies
+xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store AddEduc
+
+* model 4: + gender-time dummies
+xtreg i_ext_giving log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store AddGender1
+
+* model 5: + squared logged government budge
+xtreg i_ext_giving log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+estimates store AddGender2
+
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: nocom>>
+estimates table twoFE AddAge AddEduc AddGender1 AddGender2, ///
+	keep(log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all) ///
+	b(%9.3f) se(%9.3f) p(%9.3f) stats(N r2) ///
+	title("Extensive Margin")  ///
+	modelwidth(12) varwidth(20)
+estimates clear
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: noout>>
+* intensive margin (healthcare services)
+
+* model 1: baseline
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year ///
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
+
+estimates store twoFE
+
+* model 2: + age
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year ///
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
+
+estimates store AddAge
+
+* model 3: + education-time dummies
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
+
+estimates store AddEduc
+
+* model 4: + gender-time dummies
+xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
+
+estimates store AddGender1
+
+* model 5: + squared logged government budge
+xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
+	age i.year##i.gender i.year##i.educ ///
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
+
+estimates store AddGender2
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do: nocom>>
+estimates table twoFE AddAge AddEduc AddGender1 AddGender2, ///
+	keep(log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all) ///
+	b(%9.3f) se(%9.3f) p(%9.3f) stats(N r2) ///
+	title("Intensive Margin")  ///
+	modelwidth(12) varwidth(18)
+estimates clear
+<</dd_do>>
+~~~~
