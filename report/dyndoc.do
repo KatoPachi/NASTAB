@@ -1,3 +1,3 @@
 
 cd "C:\Users\vge00\Desktop\nastab"
-dyndoc "report/PerceivedWelfare.txt", saving("report/PerceivedWelfare.html") replace
+dyndoc "report/PublicBudge.txt", saving("report/PublicBudge.html") replace
