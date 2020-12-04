@@ -62,6 +62,35 @@ gen sqlog_PPP_pubpdg = log_PPP_pubbdg^2
 gen log_PPP_healthbdg = ln(PPP_healthbdg + 1)
 gen sqlog_PPP_healthpdg = log_PPP_healthbdg^2
 
+gen welfare_level_3scale = .
+replace welfare_level_3scale = 1 if welfare_level < 3
+replace welfare_level_3scale = 2 if welfare_level == 3
+replace welfare_level_3scale = 3 if welfare_level > 3
+replace welfare_level_3scale = . if welfare_level == .
+
+egen group_id = group(living_area)
+
+gen PPP_pub_j = .
+forvalues i = 2007(1)2018 {
+	forvalues j = 1(1)17{
+		qui sum PPP_pubbdg if year == `i' & group_id != `j'
+		replace PPP_pub_j = r(mean) if year == `i' & group_id == `j'
+	}
+}
+
+gen PPP_health_j = .
+forvalues i = 2007(1)2018 {
+	forvalues j = 1(1)17{
+		qui sum PPP_healthbdg if year == `i' & group_id != `j'
+		replace PPP_health_j = r(mean) if year == `i' & group_id == `j'
+	}
+}
+
+gen log_PPP_pub_j = log(PPP_pub_j + 1)
+gen log_PPP_health_j = log(PPP_health_j + 1)
+gen sqlog_PPP_pub_j = log_PPP_pub_j^2
+gen sqlog_PPP_health_j = log_PPP_health_j^2
+
 xtset pid
 ```
 
@@ -228,3 +257,83 @@ graph export "_assets\baseline2.png", width(700) replace
 ```{r, echo = FALSE, out.width="100%", fig.cap="保健分野予算と弾力性の散布図"}
 knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline2.png")
 ```
+
+
+## Robustness: 主観的福祉水準と政府支出の関係
+
+地方政府の一人当たり支出がその地域の公共財のサイズに貢献していると認識しているかどうかを確かめる。
+そのために、主観的な福祉水準と地方政府支出の関係を調べる。
+
+はじめに、主観的な福祉水準を5段階から3段階（`Small`, `Nuetral`, `Large`）にまとめて、
+それぞれのグループで政府支出の時系列変化を示す。
+三つのグループで政府支出に大きな差はなかった。
+
+```{stata plot robustness1, results = "hide"}
+* plot
+bysort year welfare_level_3scale: egen meanpub = mean(PPP_pubbdg)
+bysort year welfare_level_3scale: egen meanhealth = mean(PPP_healthbdg)
+keep year welfare_level_3scale meanpub meanhealth
+keep if welfare_level_3scale != .
+duplicates drop
+
+* plot: Social welfare budget
+twoway 	(connected meanpub year if welfare_level == 1)  ///
+		(connected meanpub year if welfare_level == 2)  ///
+		(connected meanpub year if welfare_level == 3),  ///
+		legend(label(1 "Small") label(2 "Neutral") label(3 "Large") ///
+		subtitle("Perceived Welfare Size") rows(1))  ///
+		xtitle("Year") ytitle("Social Welfare Budget per capita") ///
+		title("Time-series of Local Governement Budget")
+
+graph export "_assets/robust1.png", width(700) replace
+
+* plot: Healthcare budget
+twoway 	(connected meanhealth year if welfare_level == 1)  ///
+		(connected meanhealth year if welfare_level == 2)  ///
+		(connected meanhealth year if welfare_level == 3),  ///
+		legend(label(1 "Small") label(2 "Neutral") label(3 "Large") ///
+		subtitle("Perceived Welfare Size") rows(1))  ///
+		xtitle("Year") ytitle("Healthcare Budget per capita") ///
+		title("Time-series of Local Governement Budget")
+	
+graph export "_assets/robust2.png", width(700) replace
+```
+
+```{r, echo = FALSE, out.width="100%", fig.cap="社会福祉分野支出の時系列プロット"}
+knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/robust1.png")
+```
+
+```{r, echo = FALSE, out.width="100%", fig.cap="保健分野支出の時系列プロット"}
+knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/robust2.png")
+```
+
+
+つぎに、two-way fixed effectモデルを用いて、
+主観的福祉水準と地方政府支出の相関を確かめた。
+その結果、二つの変数は負の相関をしていた。
+
+```{stata robustness1, results = "hide"}
+* two-way FE
+eststo: xtreg welfare_level_3scale log_PPP_pubbdg i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+eststo: xtreg welfare_level_3scale log_PPP_pubbdg i.year i.living_area ///
+	if year >= 2012, fe vce(cluster pid)
+
+eststo: xtreg welfare_level_3scale log_PPP_healthbdg i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+eststo: xtreg welfare_level_3scale log_PPP_healthbdg i.year i.living_area ///
+	if year >= 2012, fe vce(cluster pid)
+
+esttab 	using "_assets/robustreg1.html",  ///
+		replace se ///
+		keep(log_PPP_pubbdg log_PPP_healthbdg) ///
+		order(log_PPP_pubbdg log_PPP_healthbdg) ///
+		title("Corrleration between local governement budget and perceived welfare size")
+```
+
+```{r, echo = FALSE}
+htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/robustreg1.html")
+```
+
