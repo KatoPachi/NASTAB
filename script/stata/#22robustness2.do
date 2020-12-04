@@ -55,7 +55,7 @@ eststo: xtreg log_total_g log_PPP_pub_j log_price log_pinc_all age i.year##i.gen
 eststo: xtreg log_total_g log_PPP_pub_j sqlog_PPP_pub_j sqlog_PPP_healthpdg log_price log_pinc_all ///
 	age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, fe vce(cluster pid)
-
+	
 * model 3: log_total_g ~ log_PPP_health_j + cov
 eststo: xtreg log_total_g log_PPP_health_j log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, fe vce(cluster pid)
@@ -65,8 +65,8 @@ eststo: xtreg log_total_g log_PPP_health_j sqlog_PPP_health_j sqlog_PPP_healthpd
 	age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, fe vce(cluster pid)	
 
+* estimation table
 esttab	using "_assets/robustreg2.html", ///
 		se replace ///
 		keep(log_PPP_pub_j sqlog_PPP_pub_j log_PPP_health_j sqlog_PPP_health_j log_price log_pinc_all) ///
 		order(log_PPP_pub_j sqlog_PPP_pub_j log_PPP_health_j sqlog_PPP_health_j log_price log_pinc_all)
-	
