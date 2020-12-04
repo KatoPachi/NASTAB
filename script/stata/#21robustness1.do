@@ -38,9 +38,9 @@ keep if welfare_level_3scale != .
 duplicates drop
 
 * Social welfare budget
-twoway 	(line meanpub year if welfare_level == 1)  ///
-		(line meanpub year if welfare_level == 2)  ///
-		(line meanpub year if welfare_level == 3),  ///
+twoway 	(connected meanpub year if welfare_level == 1)  ///
+		(connected meanpub year if welfare_level == 2)  ///
+		(connected meanpub year if welfare_level == 3),  ///
 		legend(label(1 "Small") label(2 "Neutral") label(3 "Large") ///
 		subtitle("Perceived Welfare Size") rows(1))  ///
 		xtitle("Year") ytitle("Social Welfare Budget per capita") ///
@@ -49,9 +49,9 @@ twoway 	(line meanpub year if welfare_level == 1)  ///
 graph export "_assets/robust1.png", width(700) replace
 
 * Healthcare budget
-twoway 	(line meanhealth year if welfare_level == 1)  ///
-		(line meanhealth year if welfare_level == 2)  ///
-		(line meanhealth year if welfare_level == 3),  ///
+twoway 	(connected meanhealth year if welfare_level == 1)  ///
+		(connected meanhealth year if welfare_level == 2)  ///
+		(connected meanhealth year if welfare_level == 3),  ///
 		legend(label(1 "Small") label(2 "Neutral") label(3 "Large") ///
 		subtitle("Perceived Welfare Size") rows(1))  ///
 		xtitle("Year") ytitle("Healthcare Budget per capita") ///
