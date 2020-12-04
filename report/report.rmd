@@ -1,0 +1,230 @@
+---
+title: "Monetary Donations, Government Expenditure, and Giving Prices (Tentative)"
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+<style>
+
+table, td, th {
+  border: none;
+  padding-left: 1em;
+  padding-right: 1em;
+  min-width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+</style>
+
+
+
+# Crowding-out Effect of Governement Expenditure
+
+地方政府が住民の利益になるような政策を実施することをその地域での公共財投資とみなして、
+地方政府の支出の増加による金銭的寄付のクラウディングアウトの程度を分析する。
+
+## データと分析手法
+
+NaSTaBより、我々は時点$t$において地域$j$に住む個人$i$の寄付行動を観察することができる。
+そこで、個人の寄付額の対数値（`log_total_g`）を$\log D_{ijt}$とする。
+年間の労働所得の対数値（`log_pinc_all`）を$\log I_{ijt}$とする。
+労働所得に基づいた所得税の限界税率（`mtr`）を計算できるので、
+2014年以前は1から限界税率を差し引いた値を寄付価格とし、2014年以降は0.85が共通の寄付価格となる。
+寄付価格の対数値は$\log P_{ijt}$とする。
+
+また、時点$t$における地域$j$を統治する政府の支出のデータを持っている（**Sourceはどこ？**）。
+地方政府の支出の対数値を$\log G_{jt}$とする。
+政府支出は社会福祉分野（`log_PPP_pubbdg`）と保健分野（`log_PPP_healthbdg`）に分けられる。
+この二つの分野の違いは以下の通りである。
+
+- 社会福祉分野：基礎生活保障、脆弱階層支援、保育·家族及び女性、老人·青少年、労働、報勲、住宅、社会福祉一般
+- 保健分野：保健医療、食品医薬安全
+
+```{stata dataset, collectcode=TRUE, echo = TRUE, results = "hide"}
+cd "C:\Users\vge00\Desktop\nastab"  //root path
+use "data\shaped.dta", clear
+
+gen price = .
+replace price = 1 - mtr if year < 2014
+replace price = 1 - 0.15 if year >= 2014
+
+gen log_price = ln(price)
+gen log_total_g = ln(i_total_giving + 1)
+gen log_pinc_all = ln(lincome + 100000)
+gen log_PPP_pubbdg = ln(PPP_pubbdg + 1)
+gen sqlog_PPP_pubpdg = log_PPP_pubbdg^2
+gen log_PPP_healthbdg = ln(PPP_healthbdg + 1)
+gen sqlog_PPP_healthpdg = log_PPP_healthbdg^2
+
+xtset pid
+```
+
+Two-way fixed effect modelを使用する。
+
+$$ \log D_{ijt} = \beta_0 + \beta_1 \log G_{jt} + \beta_2 (\log G_{jt})^2 + \gamma_1 \log I_{ijt} + \gamma_2 \log P_{ijt} + \delta X_{ijt} + \mu_i + \lambda_t + \epsilon_{ijt}. $$
+
+ここで、$\mu_i$と$\lambda_t$は個人$i$と時点$t$の固定効果であり、$\epsilon_{ijt}$は誤差項である。
+$X_{ijt}$は個人の共変量であり、以下の五つのモデルで異なるものを加えている。
+
+- `twoFE`: なし
+- `AddAge`: 年齢
+- `AddEduc`: 年齢 + 教育年数・時間ペアのダミー
+- `AddGender1`と`AddGender2`: 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー
+
+よって、寄付の政府支出に対する弾力性$\eta$は次のように計算される。
+
+$$ \eta = \beta_1 + 2 \beta_2 \log G_{jt}. $$
+
+$\log G_{jt}$は社会福祉分野と保健分野でそれぞれ推定を行う。
+さらに、Extensive marginとintensive marginへの影響を区別したいので、
+アウトカムを寄付したら1を取るダミー変数`i_ext_giving`にしたモデルの推定と
+寄付者に限定した推定を行う。
+
+## Baseline Results
+
+はじめに、社会福祉分野の政府支出を説明変数にしたモデルの結果を示す。
+Two-way fixed effectを行うために、`xtreg`を用いた。
+回帰分析の結果を以下にまとめた。
+地域ダミーを加えていないモデル（１）～（４）において、`log_PPP_pubbdg`の係数は統計的に非有意である
+（もしくは10\%水準で統計的に有意）。
+地域ダミーを加えたモデル（5）では、この係数が正の方向で統計的に有意である。
+すなわち、政府支出の増加は市民の寄付を増やしている。
+しかしながら、この弾力性の異質性は大きい。
+二乗項を加えたとき、`log_PPP_pubbdg`と`sqlog_PPP_pubpdg`の係数は統計的に有意であった。
+したがって、弾力性は以下のように予測される。
+
+$$ \hat{\eta} = 7.729 - 2 * 0.529 * \log G_{jt}. $$
+
+
+```{stata baseline1, results = "hide"}
+* intensive + extensive margin (public services)
+
+* model 1: baseline
+eststo: xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 2: + age
+eststo: xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 3: + education-time dummies
+eststo: xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 4: + gender-time dummies
+eststo: xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 5: + living_area
+eststo: xtreg log_total_g log_PPP_pubbdg log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 6: + squared logged government budge
+eststo: xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+esttab using "_assets\baseline1.html", ///
+	replace se keep(log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all)  ///
+  order(log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all) ///
+	title("Social Welfare Expenditure and Monetary Donations") 
+```
+
+```{r, echo = FALSE}
+htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/baseline1.html")
+```
+
+この予測値と政府支出の関係を示した図を以下に示す。
+政府支出の増加に伴い、寄付の弾力性はマイナス方向に向かう。
+すなわち、**政府支出の増大に伴い、金銭的寄付はクラウドインからクラウドアウトに向かう**。
+
+```{stata plot baseline1, echo = FALSE, results = "hide"}
+xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+gen pred_e_pub = _b[log_PPP_pubbdg] + 2 * _b[sqlog_PPP_pubpdg] * log_PPP_pubbdg
+keep pred_e_pub PPP_pubbdg year
+keep if year >= 2012
+duplicates drop
+
+twoway	(scatter pred_e_pub PPP_pubbdg, mcolor(%30)), ///
+        yline(0, lpattern(dash) lcolor(red)) ///
+        xtitle("Social Welfare Budget per capita")  ///
+        ytitle("Predicted Elasticity")  ///
+        title("Predicted Budget-Elasticity of Donations")  
+graph export "_assets\baseline1.png", width(700) replace
+```
+
+```{r, echo = FALSE, out.width="100%", fig.cap="社会福祉予算と弾力性の散布図"}
+knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline1.png")
+```
+
+保健分野の政府支出を説明変数に用いたとき、
+同様の結果が得られた。
+
+```{stata baseline2, results = "hide"}
+* intensive + extensive margin (healthcare services)
+
+* model 1: baseline
+eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 2: + age
+eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 3: + education-time dummies
+eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 4: + gender-time dummies
+eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 5: + living_area dummies
+eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 6: + squared logged government budge
+eststo: xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+esttab using "_assets\baseline2.html", ///
+	replace se keep(log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all)  ///
+  order(log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all) ///
+	title("Public Health Expenditure and Monetary Donations") 
+```
+
+```{r, echo = FALSE}
+htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/baseline2.html")
+```
+
+```{stata plot baseline2, echo = FALSE, results = "hide"}
+xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+gen pred_e_health = _b[log_PPP_healthbdg] + 2 * _b[sqlog_PPP_healthpdg] * log_PPP_healthbdg
+keep pred_e_health PPP_healthbdg year
+keep if year >= 2012
+duplicates drop
+
+twoway	(scatter pred_e_health PPP_healthbdg, mcolor(%30)), ///
+        yline(0, lpattern(dash) lcolor(red)) ///
+        xtitle("Healthcare Budget per capita")  ///
+        ytitle("Predicted Elasticity")  ///
+        title("Predicted Budget-Elasticity of Donations")  
+graph export "_assets\baseline2.png", width(700) replace
+```
+
+```{r, echo = FALSE, out.width="100%", fig.cap="保健分野予算と弾力性の散布図"}
+knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline2.png")
+```
