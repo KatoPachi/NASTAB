@@ -37,6 +37,10 @@ NaSTaBより、我々は時点$t$において地域$j$に住む個人$i$の寄�
 労働所得に基づいた所得税の限界税率（`mtr`）を計算できるので、
 2014年以前は1から限界税率を差し引いた値を寄付価格とし、2014年以降は0.85が共通の寄付価格となる。
 寄付価格の対数値は$\log P_{ijt}$とする。
+さらに、このデータセットから、「いまの納税に対して政府の公共政策の規模は十分か」という質問に対する
+5段階評価（`welfare_level`）を用いる。
+サンプルサイズの確保のために、これを三段階（`welfare_level_3scale`）に集約する。
+この変数はロバスト分析に使用する。
 
 また、時点$t$における地域$j$を統治する政府の支出のデータを持っている（**Sourceはどこ？**）。
 地方政府の支出の対数値を$\log G_{jt}$とする。
@@ -46,7 +50,10 @@ NaSTaBより、我々は時点$t$において地域$j$に住む個人$i$の寄�
 - 社会福祉分野：基礎生活保障、脆弱階層支援、保育·家族及び女性、老人·青少年、労働、報勲、住宅、社会福祉一般
 - 保健分野：保健医療、食品医薬安全
 
-```{stata dataset, collectcode=TRUE, echo = TRUE, results = "hide"}
+さらに、このデータを用いて、自身の居住地域以外の政府支出（`PPP_pub_j`と`PPP_helath_j`）を計算する。
+この変数はロバスト分析に使用する。
+
+```{stata dataset, collectcode=TRUE, results = "hide", eval = FALSE}
 cd "C:\Users\vge00\Desktop\nastab"  //root path
 use "data\shaped.dta", clear
 
@@ -122,7 +129,7 @@ Two-way fixed effectを行うために、`xtreg`を用いた。
 回帰分析の結果を以下にまとめた。
 地域ダミーを加えていないモデル（１）～（４）において、`log_PPP_pubbdg`の係数は統計的に非有意である
 （もしくは10\%水準で統計的に有意）。
-地域ダミーを加えたモデル（5）では、この係数が正の方向で統計的に有意である。
+地域ダミーを加えたモデル（５）では、この係数が正の方向で統計的に有意である。
 すなわち、政府支出の増加は市民の寄付を増やしている。
 しかしながら、この弾力性の異質性は大きい。
 二乗項を加えたとき、`log_PPP_pubbdg`と`sqlog_PPP_pubpdg`の係数は統計的に有意であった。
@@ -131,7 +138,7 @@ Two-way fixed effectを行うために、`xtreg`を用いた。
 $$ \hat{\eta} = 7.729 - 2 * 0.529 * \log G_{jt}. $$
 
 
-```{stata baseline1, results = "hide"}
+```{stata baseline1, results = "hide", eval = FALSE}
 * intensive + extensive margin (public services)
 
 * model 1: baseline
@@ -173,7 +180,7 @@ htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/baseline1.html")
 政府支出の増加に伴い、寄付の弾力性はマイナス方向に向かう。
 すなわち、**政府支出の増大に伴い、金銭的寄付はクラウドインからクラウドアウトに向かう**。
 
-```{stata plot baseline1, echo = FALSE, results = "hide"}
+```{stata plot baseline1, echo = FALSE, results = "hide", eval = FALSE}
 xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
 	age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, fe vce(cluster pid)
@@ -197,8 +204,16 @@ knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline1.png")
 
 保健分野の政府支出を説明変数に用いたとき、
 同様の結果が得られた。
+列（５）より弾力性は以下のように計算される。
 
-```{stata baseline2, results = "hide"}
+$$
+	\hat{\eta}_{health} = 3.142 - 2 * 0.333 * \log G_{jt}
+$$
+
+予測した弾性値と一人当たり政府支出の関係を示した散布図を以下に示す。
+その結果、社会福祉分野支出の弾性値と比べて、絶対値の値は小さい（比較的に非弾力的）である。
+
+```{stata baseline2, results = "hide", eval = FALSE}
 * intensive + extensive margin (healthcare services)
 
 * model 1: baseline
@@ -236,7 +251,7 @@ esttab using "_assets\baseline2.html", ///
 htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/baseline2.html")
 ```
 
-```{stata plot baseline2, echo = FALSE, results = "hide"}
+```{stata plot baseline2, echo = FALSE, results = "hide", eval = FALSE}
 xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
 	age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, fe vce(cluster pid)
@@ -264,11 +279,10 @@ knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline2.png")
 地方政府の一人当たり支出がその地域の公共財のサイズに貢献していると認識しているかどうかを確かめる。
 そのために、主観的な福祉水準と地方政府支出の関係を調べる。
 
-はじめに、主観的な福祉水準を5段階から3段階（`Small`, `Nuetral`, `Large`）にまとめて、
-それぞれのグループで政府支出の時系列変化を示す。
+はじめに、`welfare_level_3scale`でグループ分けをして、政府支出の時系列変化を示す。
 三つのグループで政府支出に大きな差はなかった。
 
-```{stata plot robustness1, results = "hide"}
+```{stata plot robustness1, results = "hide", echo = FALSE, eval = FALSE}
 * plot
 bysort year welfare_level_3scale: egen meanpub = mean(PPP_pubbdg)
 bysort year welfare_level_3scale: egen meanhealth = mean(PPP_healthbdg)
@@ -310,9 +324,15 @@ knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/robust2.png")
 
 つぎに、two-way fixed effectモデルを用いて、
 主観的福祉水準と地方政府支出の相関を確かめた。
+推定モデルは以下の通りである。
+
+$$
+\text{welfare_level_3scale}_{ijt} = \alpha + \beta \cdot \text{log_PPP_pubbdg}_{jt} + \gamma X_{ijt} + \mu_i + \lambda_t + \theta_j + \epsilon_{ijt}.
+$$
+
 その結果、二つの変数は負の相関をしていた。
 
-```{stata robustness1, results = "hide"}
+```{stata robustness1, results = "hide", eval = FALSE}
 * two-way FE
 eststo: xtreg welfare_level_3scale log_PPP_pubbdg i.year ///
 	if year >= 2012, fe vce(cluster pid)
@@ -337,9 +357,9 @@ esttab 	using "_assets/robustreg1.html",  ///
 htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/robustreg1.html")
 ```
 
-## Robustness Check: 居住地域以外の政府支出との相関
+## Robustness: 居住地域以外の政府支出との相関
 
-```{stata robustness2, results = "hide"}
+```{stata robustness2, results = "hide", eval = FALSE}
 * model 1: log_total_g ~ log_PPP_pub_j + cov
 eststo: xtreg log_total_g log_PPP_pub_j log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, fe vce(cluster pid)
