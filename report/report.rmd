@@ -31,27 +31,28 @@ table, td, th {
 
 ## データと分析手法
 
-NaSTaBより、我々は時点$t$において地域$j$に住む個人$i$の寄付行動を観察することができる。
-そこで、個人の寄付額の対数値（`log_total_g`）を$\log D_{ijt}$とする。
-年間の労働所得の対数値（`log_pinc_all`）を$\log I_{ijt}$とする。
-労働所得に基づいた所得税の限界税率（`mtr`）を計算できるので、
-2014年以前は1から限界税率を差し引いた値を寄付価格とし、2014年以降は0.85が共通の寄付価格となる。
-寄付価格の対数値は$\log P_{ijt}$とする。
-さらに、このデータセットから、「いまの納税に対して政府の公共政策の規模は十分か」という質問に対する
-5段階評価（`welfare_level`）を用いる。
-サンプルサイズの確保のために、これを三段階（`welfare_level_3scale`）に集約する。
-この変数はロバスト分析に使用する。
+**National Survey of Tax and Benefit (NaSTaB)**：ある年$t$において地域$j$に住む個人$i$
 
-また、時点$t$における地域$j$を統治する政府の支出のデータを持っている（**Sourceはどこ？**）。
-地方政府の支出の対数値を$\log G_{jt}$とする。
-政府支出は社会福祉分野（`log_PPP_pubbdg`）と保健分野（`log_PPP_healthbdg`）に分けられる。
-この二つの分野の違いは以下の通りである。
+- `log_total_g`：個人$i$の寄付総額の対数値（$\log D_{ijt}$）
+- `log_pinc_all`：個人$i$の$t$年の労働所得の対数値（$\log I_{ijt}$）
+- `log_price`：個人$i$の$t$年の寄付価格の対数値（$\log P_{ijt}$）
+    - 2014年以前は1から年間労働所得で計算した限界所得税率（`mtr`）を引いた値（所得控除制度）
+	- 2014年以降は1から共通の税額控除率（15\%）を引いた値（税額控除制度）
+- `welfare_level_3scale`：$t$年調査の「今の納税に対して政府の公共政策は十分か」という質問に対する5段階の回答を3段階に集約する
 
-- 社会福祉分野：基礎生活保障、脆弱階層支援、保育·家族及び女性、老人·青少年、労働、報勲、住宅、社会福祉一般
-- 保健分野：保健医療、食品医薬安全
+**ソースはどこ？**：ある年$t$における地域$j$の地方政府統計
 
-さらに、このデータを用いて、自身の居住地域以外の政府支出（`PPP_pub_j`と`PPP_helath_j`）を計算する。
-この変数はロバスト分析に使用する。
+- `log_PPP_pubbdg`：$t$年における地方政府$j$の社会福祉分野に関する一人当たり支出の対数値（$\log G_{jt}$）
+	- 社会福祉分野：基礎生活保障、脆弱階層支援、保育·家族及び女性、老人·青少年、労働、報勲、住宅、社会福祉一般
+	- `sqlog_PPP_pubpdg`：この変数の二乗項、$(\log G_{jt})^2$
+- `log_PPP_healthbdg`：$t$年における地方政府$j$の保健分野に関する一人当たり支出の対数値（$\log G_{jt}$）
+	- 保健分野：保健医療、食品医薬安全
+	- `sqlog_PPP_healthpdg`：この変数の二乗項、$(\log G_{jt})^2$
+- `log_PPP_pub_j`：$t$年における地域$j$以外の地方政府の社会福祉分野に関する一人当たり平均支出の対数値（$\log G_{-jt}$）
+	- `sqlog_PPP_pub_j`：この変数の二乗項、$(\log G_{-jt})^2$
+- `log_PPP_health_j`：$t$年における地域$j$以外の地方政府の保健分野に関する一人当たり平均支出の対数値（$\log G_{-jt}$）
+	- `sqlog_PPP_health_j`：この変数の二乗項、$(\log G_{-jt})^2$
+
 
 ```{stata dataset, collectcode=TRUE, results = "hide", eval = FALSE}
 cd "C:\Users\vge00\Desktop\nastab"  //root path
@@ -101,41 +102,31 @@ gen sqlog_PPP_health_j = log_PPP_health_j^2
 xtset pid
 ```
 
-Two-way fixed effect modelを使用する。
+**Two-way fixed effect model**
 
-$$ \log D_{ijt} = \beta_0 + \beta_1 \log G_{jt} + \beta_2 (\log G_{jt})^2 + \gamma_1 \log I_{ijt} + \gamma_2 \log P_{ijt} + \delta X_{ijt} + \mu_i + \lambda_t + \epsilon_{ijt}. $$
+$$ 
+	\log D_{ijt} = \beta_0 + \beta_1 \log G_{jt} + \beta_2 (\log G_{jt})^2 + \gamma_1 \log I_{ijt} + \gamma_2 \log P_{ijt} + \delta X_{ijt} + \mu_i + \lambda_t + \epsilon_{ijt}. 
+$$
 
-ここで、$\mu_i$と$\lambda_t$は個人$i$と時点$t$の固定効果であり、$\epsilon_{ijt}$は誤差項である。
-$X_{ijt}$は個人の共変量であり、以下の五つのモデルで異なるものを加えている。
+- $(\mu_i, \lambda_t)$：個人$i$と時点$t$の固定効果
+- $\epsilon_{ijt}$：誤差項
+- $X_{ijt}$：個人$i$の共変量
+	- `age`：$t$年における個人$i$の年齢
+	- `i.year##i.educ`：個人$i$の教育年数と$t$年ダミーの交差項
+	- `i.year##i.gender`：個人$i$の性別と$t$年ダミーの交差項
+	- `i.living_area`：$t$年における個人$i$の居住地域$j$のダミー変数
 
-- `twoFE`: なし
-- `AddAge`: 年齢
-- `AddEduc`: 年齢 + 教育年数・時間ペアのダミー
-- `AddGender1`と`AddGender2`: 年齢 + 教育年数・時間ペアのダミー + 性別・時間ペアのダミー
+このモデルから、寄付の政府支出に対する弾力性$\eta_{GD}$は次のように計算される。
 
-よって、寄付の政府支出に対する弾力性$\eta$は次のように計算される。
-
-$$ \eta = \beta_1 + 2 \beta_2 \log G_{jt}. $$
-
-$\log G_{jt}$は社会福祉分野と保健分野でそれぞれ推定を行う。
-さらに、Extensive marginとintensive marginへの影響を区別したいので、
-アウトカムを寄付したら1を取るダミー変数`i_ext_giving`にしたモデルの推定と
-寄付者に限定した推定を行う。
+$$ \eta_{GD} = \beta_1 + 2 \beta_2 \log G_{jt}. $$
 
 ## Baseline Results
 
-はじめに、社会福祉分野の政府支出を説明変数にしたモデルの結果を示す。
-Two-way fixed effectを行うために、`xtreg`を用いた。
-回帰分析の結果を以下にまとめた。
-地域ダミーを加えていないモデル（１）～（４）において、`log_PPP_pubbdg`の係数は統計的に非有意である
-（もしくは10\%水準で統計的に有意）。
-地域ダミーを加えたモデル（５）では、この係数が正の方向で統計的に有意である。
-すなわち、政府支出の増加は市民の寄付を増やしている。
-しかしながら、この弾力性の異質性は大きい。
-二乗項を加えたとき、`log_PPP_pubbdg`と`sqlog_PPP_pubpdg`の係数は統計的に有意であった。
-したがって、弾力性は以下のように予測される。
+ベースラインの結果として、$\log G_{jt}$に社会福祉分野の政府支出を用いた結果を示す。
 
-$$ \hat{\eta} = 7.729 - 2 * 0.529 * \log G_{jt}. $$
+- モデル(1)～(4)：地域ダミー`i.living_area`を加えていないとき、弾性値（`log_PPP_pubbdg`の係数）は約0.1\%であるが、統計的に非有意である（もしくは10\%水準で統計的に有意）。
+- モデル(5)：弾性値は0.839\%であり、統計的に有意である。すなわち、政府支出の増加は市民の寄付を増やす（**クラウドイン**）。
+- モデル（６）：弾力性に異質性があることを示している。弾力性の予測値は$$ \hat{\eta}_{DG} = 7.729 - 2 * 0.529 * \log G_{jt} $$で得られる。
 
 
 ```{stata baseline1, results = "hide", eval = FALSE}
@@ -173,12 +164,11 @@ esttab using "_assets\baseline1.html", ///
 ```
 
 ```{r, echo = FALSE}
-htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/baseline1.html")
+htmltools::includeHTML("C:/Users/katoo/Desktop/nastab/_assets/baseline1.html")
 ```
 
-この予測値と政府支出の関係を示した図を以下に示す。
-政府支出の増加に伴い、寄付の弾力性はマイナス方向に向かう。
-すなわち、**政府支出の増大に伴い、金銭的寄付はクラウドインからクラウドアウトに向かう**。
+- 弾性値の予測値と一人当たり政府支出の関係を示した図を以下に示した。
+	- 政府支出の増加に伴い、寄付の弾力性はマイナス方向に向かう。すなわち、**政府支出の増大に伴い、金銭的寄付はクラウドインからクラウドアウトに向かう**。
 
 ```{stata plot baseline1, echo = FALSE, results = "hide", eval = FALSE}
 xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
@@ -198,20 +188,18 @@ twoway	(scatter pred_e_pub PPP_pubbdg, mcolor(%30)), ///
 graph export "_assets\baseline1.png", width(700) replace
 ```
 
-```{r, echo = FALSE, out.width="100%", fig.cap="社会福祉予算と弾力性の散布図"}
-knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline1.png")
+```{r, echo = FALSE, out.width="80%", fig.cap="社会福祉予算と弾力性の散布図"}
+knitr::include_graphics("C:/Users/katoo/Desktop/nastab/_assets/baseline1.png")
 ```
 
-保健分野の政府支出を説明変数に用いたとき、
-同様の結果が得られた。
-列（５）より弾力性は以下のように計算される。
 
-$$
-	\hat{\eta}_{health} = 3.142 - 2 * 0.333 * \log G_{jt}
-$$
+## Robustness: 保健分野支出の結果
 
-予測した弾性値と一人当たり政府支出の関係を示した散布図を以下に示す。
-その結果、社会福祉分野支出の弾性値と比べて、絶対値の値は小さい（比較的に非弾力的）である。
+ロバスト分析として、$\log G_{jt}$に保健分野に関する政府支出を用いた結果を示す。
+
+- モデル(1)～(4)：地域ダミー`i.living_area`を入れていないとき、弾性値は約0.1\%となり、統計的に有意である
+- モデル(5)：地域ダミー`i.living_area`を加えたとき、弾性値は0.372\%となり、統計的に有意である
+- モデル(6)：弾力性に異質性があることを示している。弾力性の予測値は$$ \hat{\eta}_{DG} = 3.142 - 2 * 0.333 * \log G_{jt} $$で得られる。
 
 ```{stata baseline2, results = "hide", eval = FALSE}
 * intensive + extensive margin (healthcare services)
@@ -248,8 +236,13 @@ esttab using "_assets\baseline2.html", ///
 ```
 
 ```{r, echo = FALSE}
-htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/baseline2.html")
+htmltools::includeHTML("C:/Users/katoo/Desktop/nastab/_assets/baseline2.html")
 ```
+
+
+- 弾性値の予測値と一人当たり政府支出の関係を示した図を以下に示した。
+	- 政府支出の増加に伴い、寄付の弾力性はマイナス方向に向かう。すなわち、**政府支出の増大に伴い、金銭的寄付はクラウドインからクラウドアウトに向かう**。
+	- ベースラインの結果と比較して、弾性値の異質性は大きくない。社会福祉分野支出を用いるとき、弾性値はおおよそ$[-0.5, 1.5]$の中に入る。その一方で、保健分野支出を用いるとき、弾性値はおおよそ$[-0.4, 0.6]$の中に入る。
 
 ```{stata plot baseline2, echo = FALSE, results = "hide", eval = FALSE}
 xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
@@ -269,19 +262,18 @@ twoway	(scatter pred_e_health PPP_healthbdg, mcolor(%30)), ///
 graph export "_assets\baseline2.png", width(700) replace
 ```
 
-```{r, echo = FALSE, out.width="100%", fig.cap="保健分野予算と弾力性の散布図"}
-knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline2.png")
+```{r, echo = FALSE, out.width="80%", fig.cap="保健分野予算と弾力性の散布図"}
+knitr::include_graphics("C:/Users/katoo/Desktop/nastab/_assets/baseline2.png")
 ```
 
 
 ## Robustness: 主観的福祉水準と政府支出の関係
 
-地方政府の一人当たり支出がその地域の公共財のサイズに貢献していると認識しているかどうかを確かめる。
-そのために、主観的な福祉水準と地方政府支出の関係を調べる。
+ロバスト分析として、地方政府の一人当たり支出がその地域の公共財のサイズに貢献していると認識しているかどうかを確かめる。
 
-はじめに、`welfare_level_3scale`でグループ分けをして、政府支出の時系列変化を示す。
-三つのグループで政府支出に大きな差はなかった。
-
+- $t$年の`welfare_level_3scale`でグループ分けをして、政府支出の時系列変化を示した
+	- グループ間で政府支出の水準に大きな差がなく、地方政府一人当たり支出が公共財供給のvariationとして使えるのかが怪しい
+	
 ```{stata plot robustness1, results = "hide", echo = FALSE, eval = FALSE}
 * plot
 bysort year welfare_level_3scale: egen meanpub = mean(PPP_pubbdg)
@@ -313,24 +305,18 @@ twoway 	(connected meanhealth year if welfare_level == 1)  ///
 graph export "_assets/robust2.png", width(700) replace
 ```
 
-```{r, echo = FALSE, out.width="100%", fig.cap="社会福祉分野支出の時系列プロット"}
-knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/robust1.png")
+```{r, echo = FALSE, out.width="80%", fig.cap="社会福祉分野支出の時系列プロット"}
+knitr::include_graphics("C:/Users/katoo/Desktop/nastab/_assets/robust1.png")
 ```
 
-```{r, echo = FALSE, out.width="100%", fig.cap="保健分野支出の時系列プロット"}
-knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/robust2.png")
+```{r, echo = FALSE, out.width="80%", fig.cap="保健分野支出の時系列プロット"}
+knitr::include_graphics("C:/Users/katoo/Desktop/nastab/_assets/robust2.png")
 ```
 
 
-つぎに、two-way fixed effectモデルを用いて、
-主観的福祉水準と地方政府支出の相関を確かめた。
-推定モデルは以下の通りである。
-
-$$
-\text{welfare_level_3scale}_{ijt} = \alpha + \beta \cdot \text{log_PPP_pubbdg}_{jt} + \gamma X_{ijt} + \mu_i + \lambda_t + \theta_j + \epsilon_{ijt}.
-$$
-
-その結果、二つの変数は負の相関をしていた。
+- Two-way fixed effectモデルを用いて、主観的福祉水準と地方政府支出の相関を確かめた。$$ \text{welfare_level_3scale}_{ijt} = \alpha + \beta \cdot \text{log_PPP_pubbdg}_{jt} + \delta X_{ijt} + \mu_i + \lambda_t + \epsilon_{ijt}.$$
+- その結果、二つの変数は負の相関をしていた。
+	- この結果からも地方政府の一人当たり支出が公共財供給としてみなされているかどうかが怪しい
 
 ```{stata robustness1, results = "hide", eval = FALSE}
 * two-way FE
@@ -354,10 +340,21 @@ esttab 	using "_assets/robustreg1.html",  ///
 ```
 
 ```{r, echo = FALSE}
-htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/robustreg1.html")
+htmltools::includeHTML("C:/Users/katoo/Desktop/nastab/_assets/robustreg1.html")
 ```
 
 ## Robustness: 居住地域以外の政府支出との相関
+
+ロバスト分析として、回答者の寄付行動が居住地域の慈善団体に対して行われているものかどうかを確かめた。
+もしそうならば、回答者の寄付行動と他地域の政府支出に相関はないはずである。
+これを確かめるために、以下のモデルを用いて分析した。
+
+$$ 
+	\log D_{ijt} = \beta_0 + \beta_1 \log G_{-jt} + \beta_2 (\log G_{-jt})^2 + \gamma_1 \log I_{ijt} + \gamma_2 \log P_{ijt} + \delta X_{ijt} + \mu_i + \lambda_t + \epsilon_{ijt}. 
+$$
+
+その結果、**他地域の一人当たり政府支出の平均と寄付額は負の相関をしていた**。
+すなわち、他地域の一人当たり政府支出が上昇すると、自身の寄付額を減らす（クラウドアウトと言っていいのか？）。
 
 ```{stata robustness2, results = "hide", eval = FALSE}
 * model 1: log_total_g ~ log_PPP_pub_j + cov
@@ -386,5 +383,5 @@ esttab	using "_assets/robustreg2.html", ///
 ```
 
 ```{r, echo = FALSE}
-htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/robustreg2.html")
+htmltools::includeHTML("C:/Users/katoo/Desktop/nastab/_assets/robustreg2.html")
 ```
