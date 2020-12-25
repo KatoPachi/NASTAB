@@ -53,8 +53,10 @@ NaSTaBより、我々は時点$t$において地域$j$に住む個人$i$の寄�
 さらに、このデータを用いて、自身の居住地域以外の政府支出（`PPP_pub_j`と`PPP_helath_j`）を計算する。
 この変数はロバスト分析に使用する。
 
-```{stata dataset, collectcode=TRUE, results = "hide", eval = FALSE}
+```{stata dataset, collectcode=TRUE, results = "hide", eval = TRUE}
 cd "C:\Users\vge00\Desktop\nastab"  //root path
+
+eststo clear
 use "data\shaped.dta", clear
 
 gen price = .
@@ -68,35 +70,6 @@ gen log_PPP_pubbdg = ln(PPP_pubbdg + 1)
 gen sqlog_PPP_pubpdg = log_PPP_pubbdg^2
 gen log_PPP_healthbdg = ln(PPP_healthbdg + 1)
 gen sqlog_PPP_healthpdg = log_PPP_healthbdg^2
-
-gen welfare_level_3scale = .
-replace welfare_level_3scale = 1 if welfare_level < 3
-replace welfare_level_3scale = 2 if welfare_level == 3
-replace welfare_level_3scale = 3 if welfare_level > 3
-replace welfare_level_3scale = . if welfare_level == .
-
-egen group_id = group(living_area)
-
-gen PPP_pub_j = .
-forvalues i = 2007(1)2018 {
-	forvalues j = 1(1)17{
-		qui sum PPP_pubbdg if year == `i' & group_id != `j'
-		replace PPP_pub_j = r(mean) if year == `i' & group_id == `j'
-	}
-}
-
-gen PPP_health_j = .
-forvalues i = 2007(1)2018 {
-	forvalues j = 1(1)17{
-		qui sum PPP_healthbdg if year == `i' & group_id != `j'
-		replace PPP_health_j = r(mean) if year == `i' & group_id == `j'
-	}
-}
-
-gen log_PPP_pub_j = log(PPP_pub_j + 1)
-gen log_PPP_health_j = log(PPP_health_j + 1)
-gen sqlog_PPP_pub_j = log_PPP_pub_j^2
-gen sqlog_PPP_health_j = log_PPP_health_j^2
 
 xtset pid
 ```
@@ -138,7 +111,13 @@ Two-way fixed effectを行うために、`xtreg`を用いた。
 $$ \hat{\eta} = 7.729 - 2 * 0.529 * \log G_{jt}. $$
 
 
-```{stata baseline1, results = "hide", eval = FALSE}
+```{stata baseline1, results = "hide", eval = TRUE}
+/*******************************************************************************
+
+Baseline results using budge for social welfare
+
+*******************************************************************************/
+
 * intensive + extensive margin (public services)
 
 * model 1: baseline
@@ -166,26 +145,32 @@ eststo: xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all
 	age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, fe vce(cluster pid)
 
+gen pred_e_pub = _b[log_PPP_pubbdg] + 2 * _b[sqlog_PPP_pubpdg] * log_PPP_pubbdg
+
 esttab using "_assets\baseline1.html", ///
 	replace se keep(log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all)  ///
-  order(log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all) ///
+	order(log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all) ///
 	title("Social Welfare Expenditure and Monetary Donations") 
+eststo clear
 ```
 
 ```{r, echo = FALSE}
-htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/baseline1.html")
+library(here)
+htmltools::includeHTML(paste(here(), "_assets/baseline1.html", sep= "/"))
 ```
 
 この予測値と政府支出の関係を示した図を以下に示す。
 政府支出の増加に伴い、寄付の弾力性はマイナス方向に向かう。
 すなわち、**政府支出の増大に伴い、金銭的寄付はクラウドインからクラウドアウトに向かう**。
 
-```{stata plot baseline1, echo = FALSE, results = "hide", eval = FALSE}
-xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
+```{stata plot baseline1, results = "hide", eval = TRUE}
+* model 6: + squared logged government budge
+eststo: xtreg log_total_g log_PPP_pubbdg sqlog_PPP_pubpdg log_price log_pinc_all ///
 	age i.year##i.gender i.year##i.educ ///
 	if year >= 2012, fe vce(cluster pid)
 
 gen pred_e_pub = _b[log_PPP_pubbdg] + 2 * _b[sqlog_PPP_pubpdg] * log_PPP_pubbdg
+
 keep pred_e_pub PPP_pubbdg year
 keep if year >= 2012
 duplicates drop
@@ -199,192 +184,96 @@ graph export "_assets\baseline1.png", width(700) replace
 ```
 
 ```{r, echo = FALSE, out.width="100%", fig.cap="社会福祉予算と弾力性の散布図"}
-knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline1.png")
+knitr::include_graphics(paste(here(), "_assets/baseline1.png", sep= "/"))
 ```
 
-保健分野の政府支出を説明変数に用いたとき、
-同様の結果が得られた。
-列（５）より弾力性は以下のように計算される。
+## Government Trust and Crowding-in effect
 
-$$
-	\hat{\eta}_{health} = 3.142 - 2 * 0.333 * \log G_{jt}
-$$
+政府支出の規模が小さいほど、寄付のクラウドインが生じるという結果を**政治家への信頼**で説明することを試みる。
 
-予測した弾性値と一人当たり政府支出の関係を示した散布図を以下に示す。
-その結果、社会福祉分野支出の弾性値と比べて、絶対値の値は小さい（比較的に非弾力的）である。
+**メカニズム**：政府支出の規模が小さいとき、個人は政府規模の増大に伴い、自身の寄付を増やそうと協力的な行動をとろうとする。しかし、政府支出が十分に大きいとき、政府規模が増大しても、個人は協力的な行動をとるインセンティブがない。よって、クラウドアウトが顕著に現れる。
 
-```{stata baseline2, results = "hide", eval = FALSE}
-* intensive + extensive margin (healthcare services)
+このメカニズムを検討するために、政治家への信頼度`trust_politician`（`year >= 2015`で調査されている）を用いる。
+政治家への信頼が薄いならば、政府の社会福祉政策に協力しようという気が起きないので、
+標準的な理論通りの結果が得られる（政府支出の増大に伴い、金銭的寄付はクラウドアウトから漸近的にゼロクラウドアウトに向かう）。
+しかしながら、政治家への信頼が強いならば、政府の社会福祉政策に協力しようという気が起きるので、
+政府支出の増大に伴い、金銭的寄付はクラウドインから漸近的にゼロクラウドインに向かう。
 
-* model 1: baseline
-eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all i.year ///
-	if year >= 2012, fe vce(cluster pid)
+推計式は
 
-* model 2: + age
-eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year ///
-	if year >= 2012, fe vce(cluster pid)
+$$ \log D_{ijt} = \beta_0 + \beta_1 \log G_{jt} * \mathrm{Trust}_{it} + \beta_2 (\log G_{jt})^2 * \mathrm{Trust}_{it} + \gamma_1 \log I_{ijt} + \gamma_2 \log P_{ijt} + \delta X_{ijt} + \mu_i + \lambda_t + \epsilon_{ijt}. $$
 
-* model 3: + education-time dummies
-eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)
+```{stata trust_elast, results = "hide", eval = TRUE}
+/*******************************************************************************
 
-* model 4: + gender-time dummies
-eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)
+Government Trust and Crowd-in
+Since trust for politicians can be observed if year >= 2015
+We omit price of charitable giving
 
-* model 5: + living_area dummies
-eststo: xtreg log_total_g log_PPP_healthbdg log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)
+*******************************************************************************/
 
-* model 6: + squared logged government budge
-eststo: xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
-	age i.year##i.gender i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)
+* intensive + extensive margin (public services)
 
-esttab using "_assets\baseline2.html", ///
-	replace se keep(log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all)  ///
-  order(log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all) ///
-	title("Public Health Expenditure and Monetary Donations") 
+eststo: xtreg log_total_g c.log_PPP_pubbdg##i.trust_politician c.sqlog_PPP_pubpdg##i.trust_politician ///
+	log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2015, fe vce(cluster pid)
+
+esttab using "_assets\trust_elast.html", ///
+	replace se ///
+	keep(log_PPP_pubbdg sqlog_PPP_pubpdg ///
+	2.trust_politician#c.log_PPP_pubbdg ///
+	3.trust_politician#c.log_PPP_pubbdg ///
+	4.trust_politician#c.log_PPP_pubbdg ///
+	5.trust_politician#c.log_PPP_pubbdg ///
+	2.trust_politician#c.sqlog_PPP_pubpdg ///
+	3.trust_politician#c.sqlog_PPP_pubpdg ///
+	4.trust_politician#c.sqlog_PPP_pubpdg ///
+	5.trust_politician#c.sqlog_PPP_pubpdg)  ///
+	title("Political Trust and Crowd-in") ///
+	label star(* 0.1 ** 0.05 *** 0.01)
+eststo clear
 ```
 
 ```{r, echo = FALSE}
-htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/baseline2.html")
+htmltools::includeHTML(paste(here(), "_assets/trust_elast.html", sep= "/"))
 ```
 
-```{stata plot baseline2, echo = FALSE, results = "hide", eval = FALSE}
-xtreg log_total_g log_PPP_healthbdg sqlog_PPP_healthpdg log_price log_pinc_all ///
-	age i.year##i.gender i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)
+交差項が統計的に10\%水準以下で有意である`trust_politician = 1, 2, 3`についての弾力性の予測性を以下にプロットした。
 
-gen pred_e_health = _b[log_PPP_healthbdg] + 2 * _b[sqlog_PPP_healthpdg] * log_PPP_healthbdg
-keep pred_e_health PPP_healthbdg year
+- 政治家への信頼が全くないグループ（`Lowest trust`）について、政府支出の増大に伴い、クラウドアウトからクラウドインに向かう
+- 政治家への信頼が若干にあるグループ（`Lower trust`）とニュートラルなグループ（`Nuetral`）について、政府支出の増大に伴い、クラウドインからクラウドアウトに向かう
+
+おそらく、**政治家への信頼に基づく政府に対する協力度が強いほど、標準的な理論から外れる行動を取る**
+
+```{stata plot trust_elast, results = "hide"}
+eststo: xtreg log_total_g c.log_PPP_pubbdg##i.trust_politician c.sqlog_PPP_pubpdg##i.trust_politician ///
+	log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2015, fe vce(cluster pid)
+
+gen pred_e_pub_sep = .
+replace pred_e_pub_sep = _b[log_PPP_pubbdg] + 2 * _b[sqlog_PPP_pubpdg] * log_PPP_pubbdg if trust_politician == 1
+replace pred_e_pub_sep = (_b[log_PPP_pubbdg] + _b[2.trust_politician#c.log_PPP_pubbdg]) + ///
+	2 * (_b[sqlog_PPP_pubpdg] + _b[2.trust_politician#c.sqlog_PPP_pubpdg]) * log_PPP_pubbdg if trust_politician == 2
+replace pred_e_pub_sep = (_b[log_PPP_pubbdg] + _b[3.trust_politician#c.log_PPP_pubbdg]) + ///
+	2 * (_b[sqlog_PPP_pubpdg] + _b[3.trust_politician#c.sqlog_PPP_pubpdg]) * log_PPP_pubbdg if trust_politician == 3
+
+keep pred_e_pub pred_e_pub_sep trust_politician PPP_pubbdg year
 keep if year >= 2012
 duplicates drop
 
-twoway	(scatter pred_e_health PPP_healthbdg, mcolor(%30)), ///
-        yline(0, lpattern(dash) lcolor(red)) ///
-        xtitle("Healthcare Budget per capita")  ///
-        ytitle("Predicted Elasticity")  ///
-        title("Predicted Budget-Elasticity of Donations")  
-graph export "_assets\baseline2.png", width(700) replace
+* Predicted elasiticity of donations grouped by political trust
+twoway (scatter pred_e_pub_sep PPP_pubbdg if year >= 2015 & trust_politician == 1, mcolor(%30))   ///
+	   (scatter pred_e_pub_sep PPP_pubbdg if year >= 2015 & trust_politician == 2, mcolor(%30))  ///
+	   (scatter pred_e_pub_sep PPP_pubbdg if year >= 2015 & trust_politician == 3, mcolor(%30)),  ///
+	   yline(0, lpattern(dash) lcolor(red))  ///
+	   xtitle("Social Welfare Budge per capita") ///
+	   ytitle("Predicted Elasticity")  ///
+	   legend(lab(1 "Lowest trust") lab(2 "Lower trust") lab(3 "Neutral") ///
+	   title("Trust for Politicians", size(medium)))  ///
+	   title("Predicted Budget-Elasticity of Donations Grouped by Trust")  
+graph export "_assets\trust_elast.png", width(700) replace
 ```
 
-```{r, echo = FALSE, out.width="100%", fig.cap="保健分野予算と弾力性の散布図"}
-knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/baseline2.png")
-```
-
-
-## Robustness: 主観的福祉水準と政府支出の関係
-
-地方政府の一人当たり支出がその地域の公共財のサイズに貢献していると認識しているかどうかを確かめる。
-そのために、主観的な福祉水準と地方政府支出の関係を調べる。
-
-はじめに、`welfare_level_3scale`でグループ分けをして、政府支出の時系列変化を示す。
-三つのグループで政府支出に大きな差はなかった。
-
-```{stata plot robustness1, results = "hide", echo = FALSE, eval = FALSE}
-* plot
-bysort year welfare_level_3scale: egen meanpub = mean(PPP_pubbdg)
-bysort year welfare_level_3scale: egen meanhealth = mean(PPP_healthbdg)
-keep year welfare_level_3scale meanpub meanhealth
-keep if welfare_level_3scale != .
-duplicates drop
-
-* plot: Social welfare budget
-twoway 	(connected meanpub year if welfare_level == 1)  ///
-		(connected meanpub year if welfare_level == 2)  ///
-		(connected meanpub year if welfare_level == 3),  ///
-		legend(label(1 "Small") label(2 "Neutral") label(3 "Large") ///
-		subtitle("Perceived Welfare Size") rows(1))  ///
-		xtitle("Year") ytitle("Social Welfare Budget per capita") ///
-		title("Time-series of Local Governement Budget")
-
-graph export "_assets/robust1.png", width(700) replace
-
-* plot: Healthcare budget
-twoway 	(connected meanhealth year if welfare_level == 1)  ///
-		(connected meanhealth year if welfare_level == 2)  ///
-		(connected meanhealth year if welfare_level == 3),  ///
-		legend(label(1 "Small") label(2 "Neutral") label(3 "Large") ///
-		subtitle("Perceived Welfare Size") rows(1))  ///
-		xtitle("Year") ytitle("Healthcare Budget per capita") ///
-		title("Time-series of Local Governement Budget")
-	
-graph export "_assets/robust2.png", width(700) replace
-```
-
-```{r, echo = FALSE, out.width="100%", fig.cap="社会福祉分野支出の時系列プロット"}
-knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/robust1.png")
-```
-
-```{r, echo = FALSE, out.width="100%", fig.cap="保健分野支出の時系列プロット"}
-knitr::include_graphics("C:/Users/vge00/Desktop/nastab/_assets/robust2.png")
-```
-
-
-つぎに、two-way fixed effectモデルを用いて、
-主観的福祉水準と地方政府支出の相関を確かめた。
-推定モデルは以下の通りである。
-
-$$
-\text{welfare_level_3scale}_{ijt} = \alpha + \beta \cdot \text{log_PPP_pubbdg}_{jt} + \gamma X_{ijt} + \mu_i + \lambda_t + \theta_j + \epsilon_{ijt}.
-$$
-
-その結果、二つの変数は負の相関をしていた。
-
-```{stata robustness1, results = "hide", eval = FALSE}
-* two-way FE
-eststo: xtreg welfare_level_3scale log_PPP_pubbdg i.year ///
-	if year >= 2012, fe vce(cluster pid)
-
-eststo: xtreg welfare_level_3scale log_PPP_pubbdg i.year i.living_area ///
-	if year >= 2012, fe vce(cluster pid)
-
-eststo: xtreg welfare_level_3scale log_PPP_healthbdg i.year ///
-	if year >= 2012, fe vce(cluster pid)
-
-eststo: xtreg welfare_level_3scale log_PPP_healthbdg i.year i.living_area ///
-	if year >= 2012, fe vce(cluster pid)
-
-esttab 	using "_assets/robustreg1.html",  ///
-		replace se ///
-		keep(log_PPP_pubbdg log_PPP_healthbdg) ///
-		order(log_PPP_pubbdg log_PPP_healthbdg) ///
-		title("Corrleration between local governement budget and perceived welfare size")
-```
-
-```{r, echo = FALSE}
-htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/robustreg1.html")
-```
-
-## Robustness: 居住地域以外の政府支出との相関
-
-```{stata robustness2, results = "hide", eval = FALSE}
-* model 1: log_total_g ~ log_PPP_pub_j + cov
-eststo: xtreg log_total_g log_PPP_pub_j log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)
-
-* model 2: + sq_log_PPP_pub_j + cov
-eststo: xtreg log_total_g log_PPP_pub_j sqlog_PPP_pub_j sqlog_PPP_healthpdg log_price log_pinc_all ///
-	age i.year##i.gender i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)
-	
-* model 3: log_total_g ~ log_PPP_health_j + cov
-eststo: xtreg log_total_g log_PPP_health_j log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)
-
-* model 4: + sq_log_PPP_health_j + cov
-eststo: xtreg log_total_g log_PPP_health_j sqlog_PPP_health_j sqlog_PPP_healthpdg log_price log_pinc_all ///
-	age i.year##i.gender i.year##i.educ ///
-	if year >= 2012, fe vce(cluster pid)	
-
-* estimation table
-esttab	using "_assets/robustreg2.html", ///
-		se replace ///
-		keep(log_PPP_pub_j sqlog_PPP_pub_j log_PPP_health_j sqlog_PPP_health_j log_price log_pinc_all) ///
-		order(log_PPP_pub_j sqlog_PPP_pub_j log_PPP_health_j sqlog_PPP_health_j log_price log_pinc_all)
-```
-
-```{r, echo = FALSE}
-htmltools::includeHTML("C:/Users/vge00/Desktop/nastab/_assets/robustreg2.html")
+```{r, echo = FALSE, out.width="100%", fig.cap="政治家への信頼と寄付の弾力性"}
+knitr::include_graphics(paste(here(), "_assets/trust_elast.png", sep= "/"))
 ```
