@@ -277,3 +277,59 @@ graph export "_assets\trust_elast.png", width(700) replace
 ```{r, echo = FALSE, out.width="100%", fig.cap="政治家への信頼と寄付の弾力性"}
 knitr::include_graphics(paste(here(), "_assets/trust_elast.png", sep= "/"))
 ```
+
+## Interaction between Giving Prices and Government Expenditure
+
+最後に、政府の寄付税制政策に基づく寄付価格と政府支出の交互作用を推計する。
+推計式は、
+
+$$ \log D_{ijt} = \beta_0 + \beta_1 \log G_{jt}*\log P_{ijt} + \beta_2 (\log G_{jt})^2*\log P_{ijt} + \gamma_1 \log I_{ijt} + \gamma_2 \log P_{ijt} + \delta X_{ijt} + \mu_i + \lambda_t + \epsilon_{ijt}. $$
+
+結果として、**寄付価格と政府支出の交互作用は統計的に有意な影響を持っていなかった**
+
+```{stata price_expenditure, results = "hide", eval = TRUE}
+/*******************************************************************************
+
+Interactions b/w giving prices and government expenditure
+
+*******************************************************************************/
+
+* intensive + extensive margin (public services)
+
+* model 1: baseline
+eststo: xtreg log_total_g c.log_PPP_pubbdg##c.log_price log_pinc_all i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 2: + age
+eststo: xtreg log_total_g c.log_PPP_pubbdg##c.log_price log_pinc_all age i.year ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 3: + education-time dummies
+eststo: xtreg log_total_g c.log_PPP_pubbdg##c.log_price log_pinc_all age i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 4: + gender-time dummies
+eststo: xtreg log_total_g c.log_PPP_pubbdg##c.log_price log_pinc_all age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 5: + living_area
+eststo: xtreg log_total_g c.log_PPP_pubbdg##c.log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+* model 6: + squared logged government budge
+eststo: xtreg log_total_g c.log_PPP_pubbdg##c.log_price sqlog_PPP_pubpdg c.sqlog_PPP_pubpdg#c.log_price log_pinc_all ///
+	age i.year##i.gender i.year##i.educ ///
+	if year >= 2012, fe vce(cluster pid)
+
+esttab using "_assets\price_expenditure.html", ///
+	replace se ///
+	keep(log_PPP_pubbdg sqlog_PPP_pubpdg log_price ///
+	c.log_PPP_pubbdg#c.log_price c.sqlog_PPP_pubpdg#c.log_price log_pinc_all)  ///
+	order(log_PPP_pubbdg sqlog_PPP_pubpdg log_price ///
+	c.log_PPP_pubbdg#c.log_price c.sqlog_PPP_pubpdg#c.log_price log_pinc_all) ///
+	title("Interactions between Giving Prices and Government Expenditure") 
+```
+
+```{r, echo = FALSE}
+htmltools::includeHTML(paste(here(), "_assets/price_expenditure.html", sep= "/"))
+```
