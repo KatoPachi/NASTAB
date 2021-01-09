@@ -300,7 +300,7 @@ hetero2reg <- plm(reg, data = subset(estdf, year >= 2012), model = "within", ind
 rob.hetero2reg <- hetero2reg %>% coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group"))
 n.hetero2reg <- sprintf("%1d", nobs(hetero2reg))
 
-## ---- TabTrustHeteroReg
+## ---- TabTrustHetero2Reg
 keep <- c("PPP_pubbdg", "log_price") %>% paste(collapse = "|")
 varlist <- exprs(
   str_detect(vars, "I[[:punct:]]trustid.2[[:punct:]]") ~ "X Squared trust index",
