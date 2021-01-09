@@ -1,0 +1,10 @@
+---
+title: "Untitled"
+author: "Hiroki Kato"
+date: "2020/12/7"
+output: 
+  beamer_presentation:
+    latex_engine: xelatex
+    includes:
+      in_header: template/header.tex
+---
