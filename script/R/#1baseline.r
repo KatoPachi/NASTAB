@@ -339,3 +339,35 @@ select(-starts_with("order"))
 tab.hetero2reg <- as.matrix(coef.hetero2reg) %>% 
   rbind(c("Obs", n.hetero2reg, "")) %>% 
   data.frame()
+
+## ---- PlotPredictedElast
+b_bdg <- rob.hetero2reg %>% .[str_detect(rownames(.), "PPP"),1]
+b_price <- rob.heteroreg %>% .[str_detect(rownames(.), "price"),1]
+
+plotdf <- estdf %>% 
+  mutate(
+    eBudget = b_bdg[1] + b_bdg[2] * trustid + b_bdg[3] * trustid^2,
+    ePrice = b_price[1] + b_price[2] * trustid
+  )
+
+plotdt1 <- plotdf %>% 
+  select(trustid, eBudget) %>% 
+  distinct(.keep_all = TRUE) %>% 
+  mutate(var = "Budget for Social Welfare") %>% 
+  rename(y = eBudget)
+
+plotdt2 <- plotdf %>% 
+  select(trustid, ePrice) %>% 
+  distinct(.keep_all = TRUE) %>% 
+  mutate(var = "Giving Price") %>% 
+  rename(y = ePrice)
+
+plotdt <- rbind(plotdt1, plotdt2) %>% drop_na()
+
+ggplot(plotdt, aes(x = trustid, y = y)) +
+  geom_point(aes(shape = var), size = 2) +
+  geom_line(aes(group = var, color = var), size = 1) +
+  geom_hline(aes(yintercept = 0), size = 1, color = "red", linetype = 2) +
+  scale_shape_manual(values = c(1, 2)) +
+  labs(x = "Trust Index", y = "Predicted Elasticity") +
+  my_theme
