@@ -243,3 +243,49 @@ coef.trustreg <- rob.trustreg %>%
   select(-stat, -order)
 
 tab.trustreg <- rbind(as.matrix(coef.trustreg), c("Obs", n.trustreg)) %>% data.frame()
+
+## ---- TrustHeteroReg
+reg <- log_total_g ~ log_PPP_pubbdg*trustid + log_price*trustid + log_pinc_all + 
+  age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
+
+heteroreg <- plm(reg, data = subset(estdf, year >= 2012), model = "within", index = c("pid", "year"))
+rob.heteroreg <- heteroreg %>% coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group"))
+n.heteroreg <- sprintf("%1d", nobs(heteroreg))
+
+## ---- TabTrustHeteroReg
+keep <- c("PPP_pubbdg", "log_price") %>% paste(collapse = "|")
+varlist <- exprs(
+  str_detect(vars, "trustid") ~ "X Trust index",
+  vars == "log_PPP_pubbdg" ~ "ln(Social Welfare+1)",
+  vars == "log_price" ~ "ln(giving price)"
+)
+varorder1 <- exprs(
+  str_detect(vars, "PPP") ~ 1,
+  str_detect(vars, "price") ~ 2
+)
+varorder2 <- exprs(
+  str_detect(vars, "trustid") ~ 1,
+  TRUE ~ 0
+)
+
+coef.heteroreg <- data.frame(
+  vars = rownames(rob.heteroreg),
+  coef = apply(matrix(rob.heteroreg[,4], ncol = 1), MARGIN = 2,
+    FUN = function(y) case_when(
+      y <= .01 ~ sprintf("%1.3f***", rob.heteroreg[,1]),
+      y <= .05 ~ sprintf("%1.3f**", rob.heteroreg[,1]),
+      y <= .1 ~ sprintf("%1.3f*", rob.heteroreg[,1]),
+      TRUE ~ sprintf("%1.3f", rob.heteroreg[,1])
+    )
+  ),
+  se = sprintf("(%1.3f)", rob.heteroreg[,2]),
+  stringsAsFactors = FALSE
+) %>% 
+.[str_detect(.$vars, keep),] %>% 
+mutate(order1 = case_when(!!!varorder1), order2 = case_when(!!!varorder2), vars = case_when(!!!varlist)) %>% 
+.[with(., order(order1, order2)),] %>% 
+select(-starts_with("order"))
+
+tab.heteroreg <- as.matrix(coef.heteroreg) %>% 
+  rbind(c("Obs", n.heteroreg, "")) %>% 
+  data.frame()
