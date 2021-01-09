@@ -289,3 +289,53 @@ select(-starts_with("order"))
 tab.heteroreg <- as.matrix(coef.heteroreg) %>% 
   rbind(c("Obs", n.heteroreg, "")) %>% 
   data.frame()
+
+## ---- TrustHetero2Reg
+reg <- log_total_g ~ log_PPP_pubbdg*trustid + log_PPP_pubbdg*I(trustid^2) + 
+  log_price*trustid + log_price*I(trustid^2) + 
+  log_pinc_all + 
+  age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
+
+hetero2reg <- plm(reg, data = subset(estdf, year >= 2012), model = "within", index = c("pid", "year"))
+rob.hetero2reg <- hetero2reg %>% coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group"))
+n.hetero2reg <- sprintf("%1d", nobs(hetero2reg))
+
+## ---- TabTrustHeteroReg
+keep <- c("PPP_pubbdg", "log_price") %>% paste(collapse = "|")
+varlist <- exprs(
+  str_detect(vars, "I[[:punct:]]trustid.2[[:punct:]]") ~ "X Squared trust index",
+  str_detect(vars, "trustid") ~ "X Trust index",
+  vars == "log_PPP_pubbdg" ~ "ln(Social Welfare+1)",
+  vars == "log_price" ~ "ln(giving price)"
+)
+varorder1 <- exprs(
+  str_detect(vars, "PPP") ~ 1,
+  str_detect(vars, "price") ~ 2
+)
+varorder2 <- exprs(
+  str_detect(vars, "I[[:punct:]]trustid.2[[:punct:]]") ~ 2,
+  str_detect(vars, "trustid") ~ 1,
+  TRUE ~ 0
+)
+
+coef.hetero2reg <- data.frame(
+  vars = rownames(rob.hetero2reg),
+  coef = apply(matrix(rob.hetero2reg[,4], ncol = 1), MARGIN = 2,
+    FUN = function(y) case_when(
+      y <= .01 ~ sprintf("%1.3f***", rob.hetero2reg[,1]),
+      y <= .05 ~ sprintf("%1.3f**", rob.hetero2reg[,1]),
+      y <= .1 ~ sprintf("%1.3f*", rob.hetero2reg[,1]),
+      TRUE ~ sprintf("%1.3f", rob.hetero2reg[,1])
+    )
+  ),
+  se = sprintf("(%1.3f)", rob.hetero2reg[,2]),
+  stringsAsFactors = FALSE
+) %>% 
+.[str_detect(.$vars, keep),] %>% 
+mutate(order1 = case_when(!!!varorder1), order2 = case_when(!!!varorder2), vars = case_when(!!!varlist)) %>% 
+.[with(., order(order1, order2)),] %>% 
+select(-starts_with("order"))
+
+tab.hetero2reg <- as.matrix(coef.hetero2reg) %>% 
+  rbind(c("Obs", n.hetero2reg, "")) %>% 
+  data.frame()
