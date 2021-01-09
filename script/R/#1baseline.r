@@ -148,7 +148,7 @@ varorder <- exprs(
   vars == "log_price" ~ 3
 )
 
-coef.basereg <- list(rob.basereg$base, rob.basereg$living, rob.basereg$sqlog) %>% 
+coef.basereg <- rob.basereg %>% 
 	purrr::map(function(x)
     data.frame(
       vars = rownames(x),
@@ -172,12 +172,12 @@ coef.basereg <- list(rob.basereg$base, rob.basereg$living, rob.basereg$sqlog) %>
   select(-stat, -order)
 
 addline <- rbind(
-  c("Logarithm of income", "Y", "Y", "Y"),
-  c("Age", "N", "Y", "Y"),
-  c("Year X Educ", "N", "Y", "Y"),
-  c("Year X Gender", "N", "Y", "Y"),
-  c("Living Dummy", "N", "Y", "Y"),
-  c("Obs", n.basereg[c(1, 5, 6)])
+  c("Logarithm of income", "Y", "Y", "Y", "Y", "Y", "Y"),
+  c("Age", "N", "Y", "Y", "Y", "Y", "Y"),
+  c("Year X Educ", "N", "N", "Y", "Y", "Y", "Y"),
+  c("Year X Gender", "N", "N", "N", "Y", "Y", "Y"),
+  c("Living Dummy", "N", "N", "N", "N", "Y", "Y"),
+  c("Obs", n.basereg)
 )
 
 tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
@@ -344,30 +344,44 @@ tab.hetero2reg <- as.matrix(coef.hetero2reg) %>%
 b_bdg <- rob.hetero2reg %>% .[str_detect(rownames(.), "PPP"),1]
 b_price <- rob.heteroreg %>% .[str_detect(rownames(.), "price"),1]
 
-plotdf <- estdf %>% 
-  mutate(
-    eBudget = b_bdg[1] + b_bdg[2] * trustid + b_bdg[3] * trustid^2,
-    ePrice = b_price[1] + b_price[2] * trustid
-  )
+vcov_bdg <- vcov(hetero2reg) %>% .[str_detect(rownames(.), "PPP"), str_detect(colnames(.), "PPP")]
+vcov_price <- vcov(heteroreg) %>% .[str_detect(rownames(.), "price"), str_detect(colnames(.), "price")]
 
-plotdt1 <- plotdf %>% 
-  select(trustid, eBudget) %>% 
-  distinct(.keep_all = TRUE) %>% 
-  mutate(var = "Budget for Social Welfare") %>% 
-  rename(y = eBudget)
+newdf <- data.frame(
+  int = 1,
+  trustid = unique(indexdf$trustid),
+  trustid2 = unique(indexdf$trustid)^2
+) %>% as.matrix()
 
-plotdt2 <- plotdf %>% 
-  select(trustid, ePrice) %>% 
-  distinct(.keep_all = TRUE) %>% 
-  mutate(var = "Giving Price") %>% 
-  rename(y = ePrice)
+se_bdg <- sqrt(diag(newdf %*% vcov_bdg %*% t(newdf)))
+se_price <- sqrt(diag(newdf[,1:2] %*% vcov_price %*% t(newdf[,1:2])))
+
+plotdt1 <- data.frame(
+  x = newdf[,2],
+  y = newdf %*% matrix(b_bdg, ncol = 1),
+  se = se_bdg,
+  var = "Budget for Social Welfare"
+)
+
+plotdt2 <- data.frame(
+  x = newdf[,2],
+  y = newdf[,1:2] %*% matrix(b_price, ncol = 1),
+  se = se_price,
+  var = "Giving Price"
+)
 
 plotdt <- rbind(plotdt1, plotdt2) %>% drop_na()
 
-ggplot(plotdt, aes(x = trustid, y = y)) +
-  geom_point(aes(shape = var), size = 2) +
+ggplot(plotdt, aes(x = x, y = y)) +
+  geom_ribbon(
+    aes(ymin = y - 1.96*se, ymax = y + 1.96*se, group = var, color = var), 
+    fill = "white", alpha = 0, linetype = 2
+  ) +
   geom_line(aes(group = var, color = var), size = 1) +
-  geom_hline(aes(yintercept = 0), size = 1, color = "red", linetype = 2) +
-  scale_shape_manual(values = c(1, 2)) +
-  labs(x = "Trust Index", y = "Predicted Elasticity") +
+  geom_hline(aes(yintercept = 0), size = 1, color = "black", linetype = 2) +
+  scale_y_continuous(breaks = seq(-5, 2, 1)) +
+  labs(
+    x = "Trust Index", y = "Estimated Elasticity",
+    caption = "Dashed lines represent 95% CI of linear combination of parameter estimates"
+  ) +
   my_theme
