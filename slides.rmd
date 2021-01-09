@@ -1,10 +1,254 @@
 ---
-title: "Untitled"
-author: "Hiroki Kato"
-date: "2020/12/7"
+title: "Giving Price, Governement Expenditure, and Political Trust"
+author: 
+    - Hiroki Kato (Osaka University)
+    - Tsuyoshi Goto (Chiba University)
+    - Yong-Rok Kim (Kobe University)
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
 output: 
   beamer_presentation:
     latex_engine: xelatex
     includes:
       in_header: template/header.tex
 ---
+
+<!-- Not Render Here -->
+```{r setup, include = FALSE, echo = FALSE}
+library(here)
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  echo = FALSE, 
+  cache = FALSE,
+  include = FALSE,
+  fig.width = 10, fig.height = 6
+)
+knitr::opts_knit$set(root.dir = here())
+
+library(kableExtra)
+options(knitr.kable.NA = "")
+```
+<!-- Not Render Here -->
+
+```{r CallR}
+knitr::read_chunk("script/R/#1baseline.r")
+```
+
+```{r library}
+
+```
+
+```{r GGTemp}
+
+```
+
+```{r ReadData}
+
+```
+
+## Trust Index
+
+The trust for politicans is time-varying variable because it depends on governments' policies.
+We make time-invarying trust index using the fixed effect model.
+
+$$
+    \text{Trust}_{ijt} = \text{Trustid}_i + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
+$$
+
+- $\text{Trust}_{ijt}$: trust for politicians (5-Likert scale)
+- $\text{Trustid}_i$: individual fixed effect (**Trust index**)
+- $c_j \cdot \lambda_t$ captures local governments' policies effect
+- $\lambda_t$ captures the central government policies effect
+
+We rescale the trust index to an interval $[0,1]$.
+
+## Histrogram of Trust Index
+
+```{r TrustIndex, include = TRUE, fig.cap = "Histogram of Trust Index"}
+
+```
+
+## Regression of Trust Index
+
+```{r TrustReg}
+
+```
+
+```{r TabTrustReg}
+
+```
+
+```{r kableTabTrustReg, include = TRUE}
+knitr::kable(
+    tab.indexreg,
+    format = "latex",
+    caption = "Regression of Trust Index (Year = 2018)",
+    col.names = c("Variables", "Coefficients", "S.E."),
+    row.names = FALSE,
+    align = "lcc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+## Baseline Regressions
+
+Our baseline regression equation is 
+
+\begin{align*}
+    \log(\text{Giving}_{ijt}) = 
+    &\alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Expend}_{jt}) \\
+    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+\end{align*}
+
+- $\log(\text{Giving}_{ijt})$ is logarithm of individual $i$'s charitable giving in year $t$.
+- $\log(\text{Price}_{ijt})$ is logarithm of individual $i$'s giving price in year $t$.
+- $\log(\text{Expend}_{jt})$ is local government $j$'s expenditure for social welfare in year $t$.
+- $\beta_1$ represents the price elasticity of giving.
+- $\beta_2$ represents the local government expenditure elasticity of giving.
+- $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
+
+```{r BaseReg}
+
+```
+
+## Result of Baseline Regressions
+
+```{r TabBaseReg}
+
+```
+
+```{r kableTabBaseReg, include=TRUE}
+knitr::kable(
+    tab.basereg,
+    format = "latex",
+    caption = "Baseline Regressions",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+## Interpretations of Baseline Regression
+
+- We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease)
+- We found the **crowd-in effect** of local government expenditure (1\% expenditure increase leads to 0.8\% increase giving)
+    - This effect is heterogenous by the level of government expenditure. As local government expenditure increases, the crowd-in effect vanish, and the crowd-out effect emerges.
+
+## Subgroup Regressions
+
+We estimate the baseline regression equation,
+using sample grouped by the trust index.
+
+- Lowest: 0 ~ 20\% quantile of trust index
+- Lower: 20 ~ 40\% quantile of trust index
+- Neutral: 40 ~ 60\% quantile of trust index
+- Higher: 60 ~ 80\% quantile of trust index
+- Highest: 80 ~ 100\% quantile of trust index
+
+We include the logarithm of income, age, interactions b/w year and education,
+interactions b/w year and gender, and living are dummy into covariates.
+
+```{r TrustGroupReg}
+
+```
+
+## Results of Subgroup Regressions
+
+```{r TabTrustGroupReg}
+
+```
+
+```{r kableTabTrustGroupReg, include = TRUE}
+knitr::kable(
+    tab.trustreg,
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "Lowest", "Lower", "Neutral", "Higher", "Highest"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+## Interpretations of Subgroup Regressions
+
+- We could **NOT** find the crowd-in (crowd-out) effect for respondents whose trust is very low and very high.
+    - We found the crowd-in effect for middle group.
+    - If the trust for politicians is low, respondents have a willingness to provide public goods without governement help.
+    - If the trust for politicians is very high, respondents take a strategy of free-rides.
+- We cound **NOT** find the price effect for respondents whose trust is very low.
+    - If the trust is very low, respondents do not want to use a tax benefit policies.
+
+## Heterogenity By Political Trust
+
+To capture heterogeneity precisely,
+we estimate the following regression equations:
+
+\begin{align*}
+    \log(\text{Giving}_{ijt}) = 
+    &\alpha_i + \beta_0 \text{Trust}_{ij} \\
+    &+ \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trust}_{ij} \\
+    &+ \beta_3 \log(\text{Expend}_{jt}) + \beta_4 \log(\text{Expend}_{ijt})\cdot\text{Trust}_{ij}\\
+    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+\end{align*}
+
+- Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
+- Governement expenditure elasticity is obtained by $\beta_3 + \beta_4\cdot\text{Trust}_{ij}$.
+
+```{r TrustHeteroReg}
+
+```
+
+```{r TrustHetero2Reg}
+
+```
+
+## Result of Heterogeneity By Political Trust (1)
+
+```{r TabTrustHeteroReg}
+
+```
+
+```{r kableTabTrustHeteroReg, include=TRUE}
+knitr::kable(
+    tab.heteroreg,
+    format = "latex",
+    caption = "Heterogeneity of Political Trust",
+    col.names = c("Variables", "Coefficients", "S.E."),
+    row.names = FALSE,
+    align = "lcc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling() %>% 
+add_indent(c(2, 4))
+```
+
+## Result of Heterogeneity of Political Trust (2)
+
+```{r TabTrustHetero2Reg}
+
+```
+
+```{r kableTabTrustHetero2Reg, include=TRUE}
+knitr::kable(
+    tab.hetero2reg,
+    format = "latex",
+    caption = "Heterogeneity of Political Trust (include squared term)",
+    col.names = c("Variables", "Coefficients", "S.E."),
+    row.names = FALSE,
+    align = "lcc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling() %>% 
+add_indent(c(2,3,5,6))
+```
+
+## Graphical Representation of Heterogeneity Effect
+
+```{r PlotPredictedElast, include=TRUE, fig.cap="Relationship between Trust Index and Predicted Elasticity"}
+
+```
