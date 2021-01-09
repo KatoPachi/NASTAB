@@ -148,7 +148,7 @@ varorder <- exprs(
   vars == "log_price" ~ 3
 )
 
-coef.basereg <- list(rob.basereg$base, rob.basereg$living, rob.basereg$sqlog) %>% 
+coef.basereg <- rob.basereg %>% 
 	purrr::map(function(x)
     data.frame(
       vars = rownames(x),
@@ -172,12 +172,12 @@ coef.basereg <- list(rob.basereg$base, rob.basereg$living, rob.basereg$sqlog) %>
   select(-stat, -order)
 
 addline <- rbind(
-  c("Logarithm of income", "Y", "Y", "Y"),
-  c("Age", "N", "Y", "Y"),
-  c("Year X Educ", "N", "Y", "Y"),
-  c("Year X Gender", "N", "Y", "Y"),
-  c("Living Dummy", "N", "Y", "Y"),
-  c("Obs", n.basereg[c(1, 5, 6)])
+  c("Logarithm of income", "Y", "Y", "Y", "Y", "Y", "Y"),
+  c("Age", "N", "Y", "Y", "Y", "Y", "Y"),
+  c("Year X Educ", "N", "N", "Y", "Y", "Y", "Y"),
+  c("Year X Gender", "N", "N", "N", "Y", "Y", "Y"),
+  c("Living Dummy", "N", "N", "N", "N", "Y", "Y"),
+  c("Obs", n.basereg)
 )
 
 tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
