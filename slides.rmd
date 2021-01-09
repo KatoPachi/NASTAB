@@ -1,18 +1,23 @@
 ---
 title: "Giving Price, Governement Expenditure, and Political Trust"
 author: 
-    - Hiroki Kato (Osaka University)
-    - Tsuyoshi Goto (Chiba University)
-    - Yong-Rok Kim (Kobe University)
+    - Hiroki Kato$^1$
+    - Tsuyoshi Goto$^2$
+    - Yong-Rok Kim$^3$
+institute:
+    - $^1$Osaka University
+    - $^2$Chiba University
+    - $^3$Kobe University
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
 output: 
   beamer_presentation:
     latex_engine: xelatex
+    keep_tex: true
+    toc: false
     includes:
       in_header: template/header.tex
 ---
 
-<!-- Not Render Here -->
 ```{r setup, include = FALSE, echo = FALSE}
 library(here)
 knitr::opts_chunk$set(
@@ -28,9 +33,9 @@ knitr::opts_knit$set(root.dir = here())
 library(kableExtra)
 options(knitr.kable.NA = "")
 ```
-<!-- Not Render Here -->
 
-# Research Questions
+# Introduction
+## Price Effect of Tax Policy
 
 # Data
 
@@ -114,7 +119,7 @@ Our baseline regression equation is
 - $\beta_2$ represents the local government expenditure elasticity of giving.
 - $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
 
-```{r BaseReg}
+```{r BaseReg, cache = TRUE}
 
 ```
 
@@ -126,7 +131,7 @@ Our baseline regression equation is
 
 ```{r kableTabBaseReg, include=TRUE}
 knitr::kable(
-    tab.basereg,
+    tab.basereg[-c(3:4),c(1,2,5,6)],
     format = "latex",
     caption = "Baseline Regressions",
     col.names = c("", "(1)", "(2)", "(3)"),
@@ -157,7 +162,7 @@ using sample grouped by the trust index.
 We include the logarithm of income, age, interactions b/w year and education,
 interactions b/w year and gender, and living are dummy into covariates.
 
-```{r TrustGroupReg}
+```{r TrustGroupReg, cache = TRUE}
 
 ```
 
@@ -205,11 +210,11 @@ we estimate the following regression equations:
 - Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
 - Governement expenditure elasticity is obtained by $\beta_3 + \beta_4\cdot\text{Trust}_{ij}$.
 
-```{r TrustHeteroReg}
+```{r TrustHeteroReg, cache = TRUE}
 
 ```
 
-```{r TrustHetero2Reg}
+```{r TrustHetero2Reg, cache = TRUE}
 
 ```
 
