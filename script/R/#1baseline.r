@@ -181,3 +181,65 @@ addline <- rbind(
 )
 
 tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
+
+## ---- TrustGroupReg
+reg <- log_total_g ~ log_PPP_pubbdg + log_price + log_pinc_all + 
+  age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
+
+estdf <- df %>% 
+  left_join(indexdf, by = "pid") %>% 
+  mutate(
+    trusted = case_when(
+      trustid < quantile(indexdf$trustid, prob = .2) ~ 1,
+      trustid < quantile(indexdf$trustid, prob = .4) ~ 2,
+      trustid < quantile(indexdf$trustid, prob = .6) ~ 3,
+      trustid < quantile(indexdf$trustid, prob = .8) ~ 4,
+      TRUE ~ 5
+    )
+  )
+
+trustreg <- 1:5 %>% 
+  purrr::map(
+    ~plm(reg, data = subset(estdf, year >= 2012 & trusted == .), model = "within", index = c("pid", "year")))
+
+rob.trustreg <- trustreg %>% purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group")))
+n.trustreg <- trustreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+
+## ---- TabTrustGroupReg
+keep <- c("PPP_pubbdg", "log_price") %>% paste(collapse = "|")
+varlist <- exprs(
+  stat == "se" ~ "",
+  vars == "log_PPP_pubbdg" ~ "ln(Social Welfare+1)",
+  vars == "sqlog_PPP_pubbdg" ~ "ln(Social Welfare+1)^2",
+  vars == "log_price" ~ "ln(giving price)"
+)
+varorder <- exprs(
+  vars == "log_PPP_pubbdg" ~ 1,
+  vars == "sqlog_PPP_pubbdg" ~ 2,
+  vars == "log_price" ~ 3
+)
+
+coef.trustreg <- rob.trustreg %>% 
+  purrr::map(function(x)
+    data.frame(
+      vars = rownames(x),
+      coef = apply(matrix(x[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", x[,1]),
+          y <= .05 ~ sprintf("%1.3f**", x[,1]),
+          y <= .1 ~ sprintf("%1.3f*", x[,1]),
+          TRUE ~ sprintf("%1.3f", x[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", x[,2]),
+      stringsAsFactors = FALSE
+    )
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(order = case_when(!!!varorder), vars = case_when(!!!varlist)) %>% 
+  .[with(., order(order)),] %>% 
+  select(-stat, -order)
+
+tab.trustreg <- rbind(as.matrix(coef.trustreg), c("Obs", n.trustreg)) %>% data.frame()
