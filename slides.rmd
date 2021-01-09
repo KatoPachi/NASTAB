@@ -30,6 +30,10 @@ options(knitr.kable.NA = "")
 ```
 <!-- Not Render Here -->
 
+# Research Questions
+
+# Data
+
 ```{r CallR}
 knitr::read_chunk("script/R/#1baseline.r")
 ```
@@ -45,6 +49,8 @@ knitr::read_chunk("script/R/#1baseline.r")
 ```{r ReadData}
 
 ```
+
+# Results
 
 ## Trust Index
 
@@ -252,3 +258,7 @@ add_indent(c(2,3,5,6))
 ```{r PlotPredictedElast, include=TRUE, fig.cap="Relationship between Trust Index and Predicted Elasticity"}
 
 ```
+
+# Conclusions
+
+## Conclusions
