@@ -135,11 +135,17 @@ rob.basereg <- basereg %>% purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0"
 n.basereg <- basereg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
 
 ## --- TabBaseReg
-keep <- c("PPP_pubbdg") %>% paste(collapse = "|")
+keep <- c("PPP_pubbdg", "log_price") %>% paste(collapse = "|")
 varlist <- exprs(
-    stat == "se" ~ "",
-    vars == "log_PPP_pubbdg" ~ "log(Social Welfare)",
-    vars == "sqlog_PPP_pubbdg" ~ "log(Social Welfare)^2"
+  stat == "se" ~ "",
+  vars == "log_PPP_pubbdg" ~ "ln(Social Welfare+1)",
+  vars == "sqlog_PPP_pubbdg" ~ "ln(Social Welfare+1)^2",
+  vars == "log_price" ~ "ln(giving price)"
+)
+varorder <- exprs(
+  vars == "log_PPP_pubbdg" ~ 1,
+  vars == "sqlog_PPP_pubbdg" ~ 2,
+  vars == "log_price" ~ 3
 )
 
 coef.basereg <- list(rob.basereg$base, rob.basereg$living, rob.basereg$sqlog) %>% 
@@ -161,17 +167,17 @@ coef.basereg <- list(rob.basereg$base, rob.basereg$living, rob.basereg$sqlog) %>
   purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
   purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
 	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
-	mutate(vars = case_when(!!!varlist)) %>% 
-  select(-stat)
+	mutate(order = case_when(!!!varorder), vars = case_when(!!!varlist)) %>% 
+  .[with(., order(order)),] %>% 
+  select(-stat, -order)
 
 addline <- rbind(
-    c("Giving Price", "Y", "Y", "Y"),
-    c("logarithm of income", "Y", "Y", "Y"),
-    c("Age", "N", "Y", "Y"),
-    c("Year X Educ", "N", "Y", "Y"),
-    c("Year X Gender", "N", "Y", "Y"),
-    c("Living Dummy", "N", "Y", "Y"),
-    c("Obs", n.basereg[c(1, 5, 6)])
+  c("Logarithm of income", "Y", "Y", "Y"),
+  c("Age", "N", "Y", "Y"),
+  c("Year X Educ", "N", "Y", "Y"),
+  c("Year X Gender", "N", "Y", "Y"),
+  c("Living Dummy", "N", "Y", "Y"),
+  c("Obs", n.basereg[c(1, 5, 6)])
 )
 
 tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
