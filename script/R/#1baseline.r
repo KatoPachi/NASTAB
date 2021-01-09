@@ -378,7 +378,7 @@ ggplot(plotdt, aes(x = x, y = y)) +
     fill = "white", alpha = 0, linetype = 2
   ) +
   geom_line(aes(group = var, color = var), size = 1) +
-  geom_hline(aes(yintercept = 0), size = 1, color = "red", linetype = 2) +
+  geom_hline(aes(yintercept = 0), size = 1, color = "black", linetype = 2) +
   scale_y_continuous(breaks = seq(-5, 2, 1)) +
   labs(
     x = "Trust Index", y = "Estimated Elasticity",
