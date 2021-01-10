@@ -35,7 +35,34 @@ options(knitr.kable.NA = "")
 ```
 
 # Introduction
-## Price Effect of Tax Policy
+## Charitable Giving and Governement Policy
+
+There are huge literatures to investigate relationship bewteen chariable giving and governement policies
+
+1. price elasticity of charitable giving using the tax benefit
+1. the crowd-out effect of government expenditure
+
+Even though tax benefits directly affect government expenditure,
+there is no literature to try to connect the tax benefit with governement expenditure as far as we know.
+
+We investigate the price effect and the crowd-out effect simultaneously,
+and connect two effects through political trust.
+
+## Why Political Trust?
+
+We conjecture that the political trust is key driver to determine the price effect and the crowd-out effect 
+
+- Price effect: If people untrust politicians, then they may also suspect the system of tax banefit. If people trust politicians sufficiently, then they may try to send money to government. Thus, they do not use the tax benefit which decreases governement's revenue.
+- Crowd-out effect: If people untrust politicians, then they may expect that governement does not invest the public goods. This is related with the strategic uncertainty.
+
+## Background of South Korea Tax Reform
+
+To investigate the price effect, we use the 2014 tax reform in the South Korea.
+
+- Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
+- After 2014, tax credit have been adopted.
+
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer’s marginal tax rate, which increases with gross income
 
 # Data
 ## Data Source
@@ -61,7 +88,7 @@ To construct dataset, we use two surveys:
 - Using the population data, we calculate the local governement expenditure per capita and use this variable as main explanatory variable.
 - Since the NaSTab includes residence area of respondents, it merges with the data on local governement finance. 
 
-## Variable of Price Giving
+## Variable of Giving Price
 
 In the South Korea, the tax policy about charitable giving drastically changed in 2014.
 Before 2014, the **tax deduction** adpoted.
@@ -74,9 +101,6 @@ Under two systems, the giving price is
 $\tau$ is the marginal income tax rate calculated by annual taxable income reported in the NaSTaB, and
 $r$ is the tax credit rate determined exogeneity.
 In the South Korea, $r = 0.15$.
-
-Since we use data after 2013 and the tax policy about income tax rate unchanged from 2012 to 2013,
-the price variation across time comes from this policy change.
 
 ```{r CallR}
 knitr::read_chunk("script/R/#1baseline.r")
