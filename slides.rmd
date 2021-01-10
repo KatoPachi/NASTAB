@@ -182,7 +182,7 @@ Our baseline regression equation is
 - $\beta_2$ represents the local government expenditure elasticity of giving.
 - $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
 
-```{r BaseReg, cache = TRUE}
+```{r BaseReg}
 
 ```
 
@@ -194,7 +194,7 @@ Our baseline regression equation is
 
 ```{r kableTabBaseReg, include=TRUE}
 knitr::kable(
-    tab.basereg[-c(3:4),c(1,2,5,6)],
+    tab.basereg[,c(1,2,5,6)],
     format = "latex",
     caption = "Baseline Regressions",
     col.names = c("", "(1)", "(2)", "(3)"),
@@ -225,7 +225,7 @@ using sample grouped by the trust index.
 We include the logarithm of income, age, interactions b/w year and education,
 interactions b/w year and gender, and living are dummy into covariates.
 
-```{r TrustGroupReg, cache = TRUE}
+```{r TrustGroupReg}
 
 ```
 
@@ -273,11 +273,11 @@ we estimate the following regression equations:
 - Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
 - Governement expenditure elasticity is obtained by $\beta_3 + \beta_4\cdot\text{Trust}_{ij}$.
 
-```{r TrustHeteroReg, cache = TRUE}
+```{r TrustHeteroReg}
 
 ```
 
-```{r TrustHetero2Reg, cache = TRUE}
+```{r TrustHetero2Reg}
 
 ```
 
@@ -298,7 +298,7 @@ knitr::kable(
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
 kable_styling() %>% 
-add_indent(c(2, 4))
+add_indent(2)
 ```
 
 ## Result of Heterogeneity of Political Trust (2)
@@ -318,7 +318,7 @@ knitr::kable(
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
 kable_styling() %>% 
-add_indent(c(2,3,5,6))
+add_indent(c(2,3))
 ```
 
 ## Graphical Representation of Heterogeneity Effect
