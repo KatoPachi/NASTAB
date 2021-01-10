@@ -38,6 +38,45 @@ options(knitr.kable.NA = "")
 ## Price Effect of Tax Policy
 
 # Data
+## Data Source
+
+To construct dataset, we use two surveys:
+
+1. National Survey of Tax and Benefit (NaSTaB)
+1. Data on local government finance from Ministry of the Interior and Safety (MIS data)
+
+## National Survey of Tax and Benefit (NaSTaB)
+
+- The Korea Institute of Taxation and Finance implements the financial panel survey to study the tax burden of households and the benefits that households receive from goverment.
+- The subjects of this survey are general household and household members living in 15 cities and provinces nationwide.
+- This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
+- Survey items: Annual taxable income (last year), charitable donations (last year), trust for politicians (5-Likert scale), and other covariates (age, education, gender etc.).
+- Survey period: 2008 ~ 2019
+    - We use survey data after 2013 to focus on tax policy change in 2014.
+
+## MIS data
+
+- MIS of South Korean collects data on local governement finance.
+- From this data, we obtain infomation about tax revenue and expenditure for social welfare.
+- Using the population data, we calculate the local governement expenditure per capita and use this variable as main explanatory variable.
+- Since the NaSTab includes residence area of respondents, it merges with the data on local governement finance. 
+
+## Variable of Price Giving
+
+In the South Korea, the tax policy about charitable giving drastically changed in 2014.
+Before 2014, the **tax deduction** adpoted.
+After 2014, the **tax credit** adopted.
+Under two systems, the giving price is 
+
+- tax deduction: $\text{Price} = 1 - \tau$
+- tax credit: $\text{Price} = 1 - r$
+
+$\tau$ is the marginal income tax rate calculated by annual taxable income reported in the NaSTaB, and
+$r$ is the tax credit rate determined exogeneity.
+In the South Korea, $r = 0.15$.
+
+Since we use data after 2013 and the tax policy about income tax rate unchanged from 2012 to 2013,
+the price variation across time comes from this policy change.
 
 ```{r CallR}
 knitr::read_chunk("script/R/#1baseline.r")
