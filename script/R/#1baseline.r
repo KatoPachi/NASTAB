@@ -298,10 +298,10 @@ tab.heteroreg <- as.matrix(coef.heteroreg) %>%
   data.frame()
 
 ## ---- PlotPredictedElast
-b_price <- rob.heteroreg %>% .[str_detect(rownames(.), "price"),1]
-b_price2 <- rob.hetero2reg %>% .[str_detect(rownames(.), "price"),1]
-vcov_price <- vcov(heteroreg) %>% .[str_detect(rownames(.), "price"), str_detect(colnames(.), "price")]
-vcov_price2 <- vcov(hetero2reg) %>% .[str_detect(rownames(.), "price"), str_detect(colnames(.), "price")]
+b_price <- rob.heteroreg[[1]] %>% .[str_detect(rownames(.), "price"),1]
+b_price2 <- rob.heteroreg[[2]] %>% .[str_detect(rownames(.), "price"),1]
+vcov_price <- vcov(heteroreg[[1]]) %>% .[str_detect(rownames(.), "price"), str_detect(colnames(.), "price")]
+vcov_price2 <- vcov(heteroreg[[2]]) %>% .[str_detect(rownames(.), "price"), str_detect(colnames(.), "price")]
 
 newdf <- data.frame(
   int = 1,
