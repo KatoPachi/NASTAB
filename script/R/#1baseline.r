@@ -63,7 +63,8 @@ df <- data.frame(df) %>%
         log_PPP_pubbdg = log(PPP_pubbdg + 1),
         sqlog_PPP_pubbdg = log_PPP_pubbdg^2,
         log_PPP_healthbdg = log(PPP_healthbdg + 1),
-        sqlog_PPP_healthbdg = log_PPP_healthbdg^2
+        sqlog_PPP_healthbdg = log_PPP_healthbdg^2,
+        political_pref = factor(political_pref, level = c(3, 1, 2, 4, 5))
     )
 
 ## ---- TrustIndex
@@ -73,7 +74,7 @@ feval <- fixef(indexreg)
 
 indexdf <- data.frame(
   pid = as.numeric(attr(feval, "names")),
-  trustid = (c(feval) - min(feval))/(max(feval) - min(feval))
+  trustid = scale(c(feval))
 )
 
 ggplot(indexdf, aes(x = trustid)) + 
@@ -81,7 +82,7 @@ ggplot(indexdf, aes(x = trustid)) +
   my_theme
 
 ## ---- TrustReg
-indexreg <- trustid ~ gender + age + I((age/100)^2) + factor(educ) + factor(political_pref)
+indexreg <- trustid ~ gender + log_pinc_all + age + I(age^2/100) + factor(educ) + political_pref
 
 estdf <- df %>% left_join(indexdf, by = "pid") 
 est.indexreg <- lm(indexreg, data = subset(estdf, year == 2018))
@@ -90,7 +91,20 @@ N <- nobs(est.indexreg)
 r2 <- summary(est.indexreg)$adj.r.squared
 
 ## ---- TabTrustReg
-keep <- c("gender", "age", "educ", "political") %>% paste(collapse = "|")
+keep <- c("gender", "pinc", "age", "educ", "political") %>% paste(collapse = "|")
+
+varlist <- exprs(
+  vars == "gender" ~ "female",
+  vars == "log_pinc_all" ~ "Logarithm of income",
+  vars == "age" ~ "age",
+  vars == "I(age^2/100)" ~ "squared age/100",
+  vars == "factor(educ)2" ~ "High school graduate",
+  vars == "factor(educ)3" ~ "University graduate",
+  vars == "political_pref1" ~ "Extreme right wing",
+  vars == "political_pref2" ~ "Right wing",
+  vars == "political_pref4" ~ "Left wing",
+  vars == "political_pref5" ~ "Extreme left wing"
+)
 
 coef.indexreg <- data.frame(
   vars = rownames(summary(est.indexreg)$coefficients),
@@ -105,12 +119,12 @@ coef.indexreg <- data.frame(
   se = sprintf("(%1.3f)", summary(est.indexreg)$coefficients[,2]),
   stringsAsFactors = FALSE
 ) %>% 
-.[str_detect(.$vars, keep),]
+.[str_detect(.$vars, keep),] %>% 
+mutate(vars = case_when(!!!varlist))
 
 tab.indexreg <- as.matrix(coef.indexreg) %>% 
   rbind(rbind(
-    c("Obs", sprintf("%1d", N), ""), 
-    c("Adjusted R-sq", sprintf("%1.4f", r2, ""), "")
+    c("Obs", sprintf("%1d", N), "")
   )) %>% 
   data.frame()
 
@@ -230,84 +244,57 @@ tab.trustreg <- rbind(as.matrix(coef.trustreg), c("Obs", n.trustreg)) %>% data.f
 reg <- log_total_g ~ log_price*trustid + log_pinc_all + 
   age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
 
-heteroreg <- plm(reg, data = subset(estdf, year >= 2012), model = "within", index = c("pid", "year"))
-rob.heteroreg <- heteroreg %>% coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group"))
-n.heteroreg <- sprintf("%1d", nobs(heteroreg))
-
-## ---- TabTrustHeteroReg
-keep <- c("log_price") %>% paste(collapse = "|")
-varlist <- exprs(
-  str_detect(vars, "trustid") ~ "X Trust index",
-  vars == "log_price" ~ "ln(giving price)"
-)
-varorder2 <- exprs(
-  str_detect(vars, "trustid") ~ 1,
-  TRUE ~ 0
+setreg <- list(
+  base = . ~ .,
+  squared = . ~ . + log_price*I(trustid^2)
 )
 
-coef.heteroreg <- data.frame(
-  vars = rownames(rob.heteroreg),
-  coef = apply(matrix(rob.heteroreg[,4], ncol = 1), MARGIN = 2,
-    FUN = function(y) case_when(
-      y <= .01 ~ sprintf("%1.3f***", rob.heteroreg[,1]),
-      y <= .05 ~ sprintf("%1.3f**", rob.heteroreg[,1]),
-      y <= .1 ~ sprintf("%1.3f*", rob.heteroreg[,1]),
-      TRUE ~ sprintf("%1.3f", rob.heteroreg[,1])
-    )
-  ),
-  se = sprintf("(%1.3f)", rob.heteroreg[,2]),
-  stringsAsFactors = FALSE
-) %>% 
-.[str_detect(.$vars, keep),] %>% 
-mutate(order2 = case_when(!!!varorder2), vars = case_when(!!!varlist)) %>% 
-.[with(., order(order2)),] %>% 
-select(-starts_with("order"))
-
-tab.heteroreg <- as.matrix(coef.heteroreg) %>% 
-  rbind(c("Obs", n.heteroreg, "")) %>% 
-  data.frame()
-
-## ---- TrustHetero2Reg
-reg <- log_total_g ~ log_price*trustid + log_price*I(trustid^2) + log_pinc_all + 
-  age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
-
-hetero2reg <- plm(reg, data = subset(estdf, year >= 2012), model = "within", index = c("pid", "year"))
-rob.hetero2reg <- hetero2reg %>% coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group"))
-n.hetero2reg <- sprintf("%1d", nobs(hetero2reg))
+heteroreg <- setreg %>% 
+  purrr::map(~plm(update(reg, .), data = subset(estdf, year >= 2012), model = "within", index = c("pid", "year")))
+rob.heteroreg <- heteroreg %>% 
+  purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group")))
+n.heteroreg <- heteroreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+r2.heteroreg <- heteroreg %>% purrr::map(~sprintf("%1.4f", plm::r.squared(.))) %>% as_vector()
 
 ## ---- TabTrustHetero2Reg
 keep <- c("log_price") %>% paste(collapse = "|")
 varlist <- exprs(
+  stat == "se" ~ "",
   str_detect(vars, "I[[:punct:]]trustid.2[[:punct:]]") ~ "X Squared trust index",
   str_detect(vars, "trustid") ~ "X Trust index",
   vars == "log_price" ~ "ln(giving price)"
 )
-varorder2 <- exprs(
+varorder <- exprs(
   str_detect(vars, "I[[:punct:]]trustid.2[[:punct:]]") ~ 2,
   str_detect(vars, "trustid") ~ 1,
   TRUE ~ 0
 )
 
-coef.hetero2reg <- data.frame(
-  vars = rownames(rob.hetero2reg),
-  coef = apply(matrix(rob.hetero2reg[,4], ncol = 1), MARGIN = 2,
-    FUN = function(y) case_when(
-      y <= .01 ~ sprintf("%1.3f***", rob.hetero2reg[,1]),
-      y <= .05 ~ sprintf("%1.3f**", rob.hetero2reg[,1]),
-      y <= .1 ~ sprintf("%1.3f*", rob.hetero2reg[,1]),
-      TRUE ~ sprintf("%1.3f", rob.hetero2reg[,1])
+coef.heteroreg <- rob.heteroreg %>% 
+  purrr::map(function(x)
+    data.frame(
+      vars = rownames(x),
+      coef = apply(matrix(x[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", x[,1]),
+          y <= .05 ~ sprintf("%1.3f**", x[,1]),
+          y <= .1 ~ sprintf("%1.3f*", x[,1]),
+          TRUE ~ sprintf("%1.3f", x[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", x[,2]),
+      stringsAsFactors = FALSE
     )
-  ),
-  se = sprintf("(%1.3f)", rob.hetero2reg[,2]),
-  stringsAsFactors = FALSE
-) %>% 
-.[str_detect(.$vars, keep),] %>% 
-mutate(order2 = case_when(!!!varorder2), vars = case_when(!!!varlist)) %>% 
-.[with(., order(order2)),] %>% 
-select(-starts_with("order"))
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(order = case_when(!!!varorder), vars = case_when(!!!varlist)) %>%
+  .[with(., order(order)),] %>% 
+  select(-stat, -order)
 
-tab.hetero2reg <- as.matrix(coef.hetero2reg) %>% 
-  rbind(c("Obs", n.hetero2reg, "")) %>% 
+tab.heteroreg <- as.matrix(coef.heteroreg) %>% 
+  rbind(rbind(c("Obs", n.heteroreg), c("R-aq", r2.heteroreg))) %>% 
   data.frame()
 
 ## ---- PlotPredictedElast
@@ -346,9 +333,9 @@ ggplot(plotdt, aes(x = x, y = y)) +
   geom_line(size = 1, color = "blue") +
   geom_hline(aes(yintercept = 0), size = 1, color = "red", linetype = 2) +
   scale_y_continuous(breaks = seq(-5, 6, 1)) +
-  scale_x_continuous(breaks = seq(0, 1, .2)) +
+  scale_x_continuous(breaks = seq(-5, 6, 1)) +
   labs(
-    x = "Trust Index", y = "Estimated Elasticity",
+    x = "Standarized trust Index", y = "Estimated Elasticity",
     caption = "Dashed lines represent 95% CI of linear combination of parameter estimates"
   ) +
   facet_wrap(~label) +
