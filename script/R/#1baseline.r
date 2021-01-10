@@ -73,7 +73,7 @@ feval <- fixef(indexreg)
 
 indexdf <- data.frame(
   pid = as.numeric(attr(feval, "names")),
-  trustid = (c(feval) - min(feval))/(max(feval) - min(feval))
+  trustid = scale(c(feval))
 )
 
 ggplot(indexdf, aes(x = trustid)) + 
@@ -346,9 +346,9 @@ ggplot(plotdt, aes(x = x, y = y)) +
   geom_line(size = 1, color = "blue") +
   geom_hline(aes(yintercept = 0), size = 1, color = "red", linetype = 2) +
   scale_y_continuous(breaks = seq(-5, 6, 1)) +
-  scale_x_continuous(breaks = seq(0, 1, .2)) +
+  scale_x_continuous(breaks = seq(-5, 6, 1)) +
   labs(
-    x = "Trust Index", y = "Estimated Elasticity",
+    x = "Standarized trust Index", y = "Estimated Elasticity",
     caption = "Dashed lines represent 95% CI of linear combination of parameter estimates"
   ) +
   facet_wrap(~label) +
