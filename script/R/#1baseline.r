@@ -63,7 +63,8 @@ df <- data.frame(df) %>%
         log_PPP_pubbdg = log(PPP_pubbdg + 1),
         sqlog_PPP_pubbdg = log_PPP_pubbdg^2,
         log_PPP_healthbdg = log(PPP_healthbdg + 1),
-        sqlog_PPP_healthbdg = log_PPP_healthbdg^2
+        sqlog_PPP_healthbdg = log_PPP_healthbdg^2,
+        political_pref = factor(political_pref, level = c(3, 1, 2, 4, 5))
     )
 
 ## ---- TrustIndex
@@ -81,7 +82,7 @@ ggplot(indexdf, aes(x = trustid)) +
   my_theme
 
 ## ---- TrustReg
-indexreg <- trustid ~ gender + age + I((age/100)^2) + factor(educ) + factor(political_pref)
+indexreg <- trustid ~ gender + log_pinc_all + age + I(age^2/100) + factor(educ) + political_pref
 
 estdf <- df %>% left_join(indexdf, by = "pid") 
 est.indexreg <- lm(indexreg, data = subset(estdf, year == 2018))
@@ -90,7 +91,20 @@ N <- nobs(est.indexreg)
 r2 <- summary(est.indexreg)$adj.r.squared
 
 ## ---- TabTrustReg
-keep <- c("gender", "age", "educ", "political") %>% paste(collapse = "|")
+keep <- c("gender", "pinc", "age", "educ", "political") %>% paste(collapse = "|")
+
+varlist <- exprs(
+  vars == "gender" ~ "female",
+  vars == "log_pinc_all" ~ "Logarithm of income",
+  vars == "age" ~ "age",
+  vars == "I(age^2/100)" ~ "squared age/100",
+  vars == "factor(educ)2" ~ "High school graduate",
+  vars == "factor(educ)3" ~ "University graduate",
+  vars == "political_pref1" ~ "Extreme right wing",
+  vars == "political_pref2" ~ "Right wing",
+  vars == "political_pref4" ~ "Left wing",
+  vars == "political_pref5" ~ "Extreme left wing"
+)
 
 coef.indexreg <- data.frame(
   vars = rownames(summary(est.indexreg)$coefficients),
@@ -105,12 +119,12 @@ coef.indexreg <- data.frame(
   se = sprintf("(%1.3f)", summary(est.indexreg)$coefficients[,2]),
   stringsAsFactors = FALSE
 ) %>% 
-.[str_detect(.$vars, keep),]
+.[str_detect(.$vars, keep),] %>% 
+mutate(vars = case_when(!!!varlist))
 
 tab.indexreg <- as.matrix(coef.indexreg) %>% 
   rbind(rbind(
-    c("Obs", sprintf("%1d", N), ""), 
-    c("Adjusted R-sq", sprintf("%1.4f", r2, ""), "")
+    c("Obs", sprintf("%1d", N), "")
   )) %>% 
   data.frame()
 
