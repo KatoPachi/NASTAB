@@ -230,84 +230,57 @@ tab.trustreg <- rbind(as.matrix(coef.trustreg), c("Obs", n.trustreg)) %>% data.f
 reg <- log_total_g ~ log_price*trustid + log_pinc_all + 
   age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
 
-heteroreg <- plm(reg, data = subset(estdf, year >= 2012), model = "within", index = c("pid", "year"))
-rob.heteroreg <- heteroreg %>% coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group"))
-n.heteroreg <- sprintf("%1d", nobs(heteroreg))
+setreg <- list(
+  base = . ~ .,
+  squared = . ~ . + log_price*I(trustid^2)
+)
+
+heteroreg <- setreg %>% 
+  purrr::map(~plm(update(reg, .), data = subset(estdf, year >= 2012), model = "within", index = c("pid", "year")))
+rob.heteroreg <- heteroreg %>% 
+  purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group")))
+n.heteroreg <- heteroreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+r2.heteroreg <- heteroreg %>% purrr::map(~sprintf("%1.4f", plm::r.squared(.))) %>% as_vector()
 
 ## ---- TabTrustHeteroReg
 keep <- c("log_price") %>% paste(collapse = "|")
 varlist <- exprs(
-  str_detect(vars, "trustid") ~ "X Trust index",
-  vars == "log_price" ~ "ln(giving price)"
-)
-varorder2 <- exprs(
-  str_detect(vars, "trustid") ~ 1,
-  TRUE ~ 0
-)
-
-coef.heteroreg <- data.frame(
-  vars = rownames(rob.heteroreg),
-  coef = apply(matrix(rob.heteroreg[,4], ncol = 1), MARGIN = 2,
-    FUN = function(y) case_when(
-      y <= .01 ~ sprintf("%1.3f***", rob.heteroreg[,1]),
-      y <= .05 ~ sprintf("%1.3f**", rob.heteroreg[,1]),
-      y <= .1 ~ sprintf("%1.3f*", rob.heteroreg[,1]),
-      TRUE ~ sprintf("%1.3f", rob.heteroreg[,1])
-    )
-  ),
-  se = sprintf("(%1.3f)", rob.heteroreg[,2]),
-  stringsAsFactors = FALSE
-) %>% 
-.[str_detect(.$vars, keep),] %>% 
-mutate(order2 = case_when(!!!varorder2), vars = case_when(!!!varlist)) %>% 
-.[with(., order(order2)),] %>% 
-select(-starts_with("order"))
-
-tab.heteroreg <- as.matrix(coef.heteroreg) %>% 
-  rbind(c("Obs", n.heteroreg, "")) %>% 
-  data.frame()
-
-## ---- TrustHetero2Reg
-reg <- log_total_g ~ log_price*trustid + log_price*I(trustid^2) + log_pinc_all + 
-  age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
-
-hetero2reg <- plm(reg, data = subset(estdf, year >= 2012), model = "within", index = c("pid", "year"))
-rob.hetero2reg <- hetero2reg %>% coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group"))
-n.hetero2reg <- sprintf("%1d", nobs(hetero2reg))
-
-## ---- TabTrustHetero2Reg
-keep <- c("log_price") %>% paste(collapse = "|")
-varlist <- exprs(
+  stat == "se" ~ "",
   str_detect(vars, "I[[:punct:]]trustid.2[[:punct:]]") ~ "X Squared trust index",
   str_detect(vars, "trustid") ~ "X Trust index",
   vars == "log_price" ~ "ln(giving price)"
 )
-varorder2 <- exprs(
+varorder <- exprs(
   str_detect(vars, "I[[:punct:]]trustid.2[[:punct:]]") ~ 2,
   str_detect(vars, "trustid") ~ 1,
   TRUE ~ 0
 )
 
-coef.hetero2reg <- data.frame(
-  vars = rownames(rob.hetero2reg),
-  coef = apply(matrix(rob.hetero2reg[,4], ncol = 1), MARGIN = 2,
-    FUN = function(y) case_when(
-      y <= .01 ~ sprintf("%1.3f***", rob.hetero2reg[,1]),
-      y <= .05 ~ sprintf("%1.3f**", rob.hetero2reg[,1]),
-      y <= .1 ~ sprintf("%1.3f*", rob.hetero2reg[,1]),
-      TRUE ~ sprintf("%1.3f", rob.hetero2reg[,1])
+coef.heteroreg <- rob.heteroreg %>% 
+  purrr::map(function(x)
+    data.frame(
+      vars = rownames(x),
+      coef = apply(matrix(x[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", x[,1]),
+          y <= .05 ~ sprintf("%1.3f**", x[,1]),
+          y <= .1 ~ sprintf("%1.3f*", x[,1]),
+          TRUE ~ sprintf("%1.3f", x[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", x[,2]),
+      stringsAsFactors = FALSE
     )
-  ),
-  se = sprintf("(%1.3f)", rob.hetero2reg[,2]),
-  stringsAsFactors = FALSE
-) %>% 
-.[str_detect(.$vars, keep),] %>% 
-mutate(order2 = case_when(!!!varorder2), vars = case_when(!!!varlist)) %>% 
-.[with(., order(order2)),] %>% 
-select(-starts_with("order"))
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(order = case_when(!!!varorder), vars = case_when(!!!varlist)) %>%
+  .[with(., order(order)),] %>% 
+  select(-stat, -order)
 
-tab.hetero2reg <- as.matrix(coef.hetero2reg) %>% 
-  rbind(c("Obs", n.hetero2reg, "")) %>% 
+tab.heteroreg <- as.matrix(coef.heteroreg) %>% 
+  rbind(rbind(c("Obs", n.heteroreg), c("R-aq", r2.heteroreg))) %>% 
   data.frame()
 
 ## ---- PlotPredictedElast
