@@ -75,7 +75,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={Giving Price, Governement Expenditure, and Political Trust},
+  pdftitle={Charitable Giving, Tax Reform, and Political Trust},
   pdfauthor={Hiroki Kato\^{}1; Tsuyoshi Goto\^{}2; Yong-Rok Kim\^{}3},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
@@ -111,7 +111,7 @@
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
-\title{Giving Price, Governement Expenditure, and Political Trust}
+\title{Charitable Giving, Tax Reform, and Political Trust}
 \author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
 Kim\(^3\)}
 \date{2021/01/10}
@@ -123,46 +123,6 @@ University \and \(^3\)Kobe University}
 
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
-
-\begin{frame}{Charitable Giving and Governement Policy}
-\protect\hypertarget{charitable-giving-and-governement-policy}{}
-There are huge literatures to investigate relationship bewteen chariable
-giving and governement policies
-
-\begin{enumerate}
-\tightlist
-\item
-  price elasticity of charitable giving using the tax benefit
-\item
-  the crowd-out effect of government expenditure
-\end{enumerate}
-
-Even though tax benefits directly affect government expenditure, there
-is no literature to try to connect the tax benefit with governement
-expenditure as far as we know.
-
-We investigate the price effect and the crowd-out effect simultaneously,
-and connect two effects through political trust.
-\end{frame}
-
-\begin{frame}{Why Political Trust?}
-\protect\hypertarget{why-political-trust}{}
-We conjecture that the political trust is key driver to determine the
-price effect and the crowd-out effect
-
-\begin{itemize}
-\tightlist
-\item
-  Price effect: If people untrust politicians, then they may also
-  suspect the system of tax banefit. If people trust politicians
-  sufficiently, then they may try to send money to government. Thus,
-  they do not use the tax benefit which decreases governement's revenue.
-\item
-  Crowd-out effect: If people untrust politicians, then they may expect
-  that governement does not invest the public goods. This is related
-  with the strategic uncertainty.
-\end{itemize}
-\end{frame}
 
 \begin{frame}{Background of South Korea Tax Reform}
 \protect\hypertarget{background-of-south-korea-tax-reform}{}
@@ -185,20 +145,6 @@ marginal tax rate, which increases with gross income
 
 \hypertarget{data}{%
 \section{Data}\label{data}}
-
-\begin{frame}{Data Source}
-\protect\hypertarget{data-source}{}
-To construct dataset, we use two surveys:
-
-\begin{enumerate}
-\tightlist
-\item
-  National Survey of Tax and Benefit (NaSTaB)
-\item
-  Data on local government finance from Ministry of the Interior and
-  Safety (MIS data)
-\end{enumerate}
-\end{frame}
 
 \begin{frame}{National Survey of Tax and Benefit (NaSTaB)}
 \protect\hypertarget{national-survey-of-tax-and-benefit-nastab}{}
@@ -227,25 +173,6 @@ To construct dataset, we use two surveys:
   \item
     We use survey data after 2013 to focus on tax policy change in 2014.
   \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{MIS data}
-\protect\hypertarget{mis-data}{}
-\begin{itemize}
-\tightlist
-\item
-  MIS of South Korean collects data on local governement finance.
-\item
-  From this data, we obtain infomation about tax revenue and expenditure
-  for social welfare.
-\item
-  Using the population data, we calculate the local governement
-  expenditure per capita and use this variable as main explanatory
-  variable.
-\item
-  Since the NaSTab includes residence area of respondents, it merges
-  with the data on local governement finance.
 \end{itemize}
 \end{frame}
 
@@ -336,11 +263,10 @@ Adjusted R-sq & 0.0316 & \\
 \protect\hypertarget{baseline-regressions}{}
 Our baseline regression equation is
 
-\begin{align*}
+\[
     \log(\text{Giving}_{ijt}) = 
-    &\alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Expend}_{jt}) \\
-    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-\end{align*}
+    \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+\]
 
 \begin{itemize}
 \tightlist
@@ -351,13 +277,7 @@ Our baseline regression equation is
   \(\log(\text{Price}_{ijt})\) is logarithm of individual \(i\)'s giving
   price in year \(t\).
 \item
-  \(\log(\text{Expend}_{jt})\) is local government \(j\)'s expenditure
-  for social welfare in year \(t\).
-\item
   \(\beta_1\) represents the price elasticity of giving.
-\item
-  \(\beta_2\) represents the local government expenditure elasticity of
-  giving.
 \item
   \(\alpha_i\) and \(\lambda_t\) are individual and time fixed effect,
   respectively.
@@ -366,6 +286,9 @@ Our baseline regression equation is
 
 \begin{frame}{Result of Baseline Regressions}
 \protect\hypertarget{result-of-baseline-regressions}{}
+We found the \textbf{price effect} of giving (1\% price increase leads
+to about 1.1\% giving decrease)
+
 \begin{table}
 
 \caption{\label{tab:kableTabBaseReg}Baseline Regressions}
@@ -376,6 +299,8 @@ Our baseline regression equation is
 \midrule
 ln(giving price) & -1.071*** & -1.059*** & -1.062***\\
  & (0.201) & (0.226) & (0.226)\\
+Logarithm of income & Y & Y & Y\\
+Age & N & Y & Y\\
 Year X Educ & N & Y & Y\\
 Year X Gender & N & Y & Y\\
 Living Dummy & N & N & Y\\
@@ -383,27 +308,6 @@ Obs & 54213 & 54211 & 54211\\
 \bottomrule
 \end{tabular}
 \end{table}
-\end{frame}
-
-\begin{frame}{Interpretations of Baseline Regression}
-\protect\hypertarget{interpretations-of-baseline-regression}{}
-\begin{itemize}
-\tightlist
-\item
-  We found the \textbf{price effect} of giving (1\% price increase leads
-  to about 1.1\% giving decrease)
-\item
-  We found the \textbf{crowd-in effect} of local government expenditure
-  (1\% expenditure increase leads to 0.8\% increase giving)
-
-  \begin{itemize}
-  \tightlist
-  \item
-    This effect is heterogenous by the level of government expenditure.
-    As local government expenditure increases, the crowd-in effect
-    vanish, and the crowd-out effect emerges.
-  \end{itemize}
-\end{itemize}
 \end{frame}
 
 \begin{frame}{Subgroup Regressions}
@@ -432,6 +336,9 @@ covariates.
 
 \begin{frame}{Results of Subgroup Regressions}
 \protect\hypertarget{results-of-subgroup-regressions}{}
+We cound \textbf{NOT} find the price effect for respondents whose trust
+is very low.
+
 \begin{table}
 
 \caption{\label{tab:kableTabTrustGroupReg}Subgroup Regressions}
@@ -449,38 +356,6 @@ Obs & 10239 & 10358 & 10367 & 10368 & 12879\\
 \end{table}
 \end{frame}
 
-\begin{frame}{Interpretations of Subgroup Regressions}
-\protect\hypertarget{interpretations-of-subgroup-regressions}{}
-\begin{itemize}
-\tightlist
-\item
-  We could \textbf{NOT} find the crowd-in (crowd-out) effect for
-  respondents whose trust is very low and very high.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    We found the crowd-in effect for middle group.
-  \item
-    If the trust for politicians is low, respondents have a willingness
-    to provide public goods without governement help.
-  \item
-    If the trust for politicians is very high, respondents take a
-    strategy of free-rides.
-  \end{itemize}
-\item
-  We cound \textbf{NOT} find the price effect for respondents whose
-  trust is very low.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    If the trust is very low, respondents do not want to use a tax
-    benefit policies.
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
 \begin{frame}{Heterogenity By Political Trust}
 \protect\hypertarget{heterogenity-by-political-trust}{}
 To capture heterogeneity precisely, we estimate the following regression
@@ -490,19 +365,11 @@ equations:
     \log(\text{Giving}_{ijt}) = 
     &\alpha_i + \beta_0 \text{Trust}_{ij} \\
     &+ \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trust}_{ij} \\
-    &+ \beta_3 \log(\text{Expend}_{jt}) + \beta_4 \log(\text{Expend}_{ijt})\cdot\text{Trust}_{ij}\\
     &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
 \end{align*}
 
-\begin{itemize}
-\tightlist
-\item
-  Price elasticity is obtained by
-  \(\beta_1 + \beta_2\cdot\text{Trust}_{ij}\).
-\item
-  Governement expenditure elasticity is obtained by
-  \(\beta_3 + \beta_4\cdot\text{Trust}_{ij}\).
-\end{itemize}
+Price elasticity is obtained by
+\(\beta_1 + \beta_2\cdot\text{Trust}_{ij}\).
 \end{frame}
 
 \begin{frame}{Result of Heterogeneity By Political Trust (1)}
@@ -556,48 +423,6 @@ Obs & 51306 & \\
 
 \begin{frame}{Conclusions}
 \protect\hypertarget{conclusions-1}{}
-Our primitive result can be summarized as follows:
-
-\begin{itemize}
-\tightlist
-\item
-  Low trust: Since people untrust governement's behavior, they act
-  regardless of governement's policies (expenditure and tax benefit)
-\item
-  Middle trust: Since people have strategic uncertainty, they take a
-  strategy of conditional cooperation. That is, they increase donations
-  and use tax benefit to boost their giving if a local governement
-  increases expenditures.
-\item
-  High trust (very weak evidence): Since people believe that governement
-  contributes to social welfare, they send money to governement (not
-  charities). Thus, they hestitate to use a tax benefit compared with
-  those whose trust is middle level.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Avenue of Our Research}
-\protect\hypertarget{avenue-of-our-research}{}
-Our primitive results have several serious problem.
-
-\begin{enumerate}
-\tightlist
-\item
-  Endogeneity of giving price. The giving price includes decision-making
-  of use of tax benefit.
-\item
-  Does charitable giving contributes to local social welfare? To examine
-  the crowd-out effect of local government expenditure, we need to
-  assume that peole send money to charities which work for local social
-  welfare.
-\item
-  Does people believe that a tax benefit decreases the \textbf{local}
-  governement's revenue? To interpret our primitive results, we assume
-  that people believe that a tax benefit decreases the budget of local
-  governement.
-\end{enumerate}
-
-In future, we need to solve these problems.
 \end{frame}
 
 \end{document}
