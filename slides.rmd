@@ -123,7 +123,7 @@ The trust for politicans is time-varying variable because it depends on governme
 We make time-invarying trust index using the fixed effect model.
 
 $$
-    \text{Trust}_{ijt} = \text{Trustid}_i + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
+    \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
 $$
 
 - $\text{Trust}_{ijt}$: trust for politicians (5-Likert scale)
@@ -131,7 +131,7 @@ $$
 - $c_j \cdot \lambda_t$ captures local governments' policies effect
 - $\lambda_t$ captures the central government policies effect
 
-We rescale the trust index to an interval $[0,1]$.
+We use the standarized trust index with mean 0 and standard deviation 1.
 
 ## Histrogram of Trust Index
 
@@ -247,8 +247,7 @@ we estimate the following regression equations:
 
 \begin{align*}
     \log(\text{Giving}_{ijt}) = 
-    &\alpha_i + \beta_0 \text{Trust}_{ij} \\
-    &+ \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trust}_{ij} \\
+    &\alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trustid}_{ij} \\
     &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
 \end{align*}
 
@@ -258,31 +257,10 @@ Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
 
 ```
 
-```{r TrustHetero2Reg}
+## Result of Heterogeneity of Political Trust
 
-```
-
-## Result of Heterogeneity By Political Trust (1)
-
-```{r TabTrustHeteroReg}
-
-```
-
-```{r kableTabTrustHeteroReg, include=TRUE}
-knitr::kable(
-    tab.heteroreg,
-    format = "latex",
-    caption = "Heterogeneity of Political Trust",
-    col.names = c("Variables", "Coefficients", "S.E."),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-add_indent(2)
-```
-
-## Result of Heterogeneity of Political Trust (2)
+The price elasticity is **convex** in the trust index.
+Those whose trust index is low and high do not respond to the price incentive.
 
 ```{r TabTrustHetero2Reg}
 
@@ -290,16 +268,16 @@ add_indent(2)
 
 ```{r kableTabTrustHetero2Reg, include=TRUE}
 knitr::kable(
-    tab.hetero2reg,
+    tab.heteroreg,
     format = "latex",
-    caption = "Heterogeneity of Political Trust (include squared term)",
-    col.names = c("Variables", "Coefficients", "S.E."),
+    caption = "Heterogeneity of Political Trust",
+    col.names = c("", "(1)", "(2)"),
     row.names = FALSE,
     align = "lcc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
 kable_styling() %>% 
-add_indent(c(2,3))
+add_indent(c(3,5))
 ```
 
 ## Graphical Representation of Heterogeneity Effect

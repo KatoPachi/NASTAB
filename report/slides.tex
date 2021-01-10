@@ -206,7 +206,7 @@ governments' policies. We make time-invarying trust index using the
 fixed effect model.
 
 \[
-    \text{Trust}_{ijt} = \text{Trustid}_i + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
+    \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
 \]
 
 \begin{itemize}
@@ -221,7 +221,7 @@ fixed effect model.
   \(\lambda_t\) captures the central government policies effect
 \end{itemize}
 
-We rescale the trust index to an interval \([0,1]\).
+We use the standarized trust index with mean 0 and standard deviation 1.
 \end{frame}
 
 \begin{frame}{Histrogram of Trust Index}
@@ -243,17 +243,17 @@ We rescale the trust index to an interval \([0,1]\).
 \toprule
 Variables & Coefficients & S.E.\\
 \midrule
-gender & 0.007** & (0.003)\\
-age & -0.003*** & (0.001)\\
-I((age/100)\textasciicircum{}2) & 0.311*** & (0.055)\\
-factor(educ)2 & 0.004 & (0.005)\\
-factor(educ)3 & 0.003 & (0.006)\\
-factor(political\_pref)2 & 0.027** & (0.013)\\
-factor(political\_pref)3 & 0.033*** & (0.012)\\
-factor(political\_pref)4 & 0.021* & (0.013)\\
-factor(political\_pref)5 & -0.065*** & (0.014)\\
+female & 0.056** & (0.023)\\
+Logarithm of income & 0.828* & (0.440)\\
+age & -0.022*** & (0.004)\\
+squared age/100 & 0.022*** & (0.004)\\
+High school graduate & 0.029 & (0.035)\\
+University graduate & 0.010 & (0.038)\\
+Extreme right wing & -0.224*** & (0.085)\\
+Right wing & -0.036 & (0.028)\\
+Left wing & -0.078*** & (0.028)\\
+Extreme left wing & -0.663*** & (0.046)\\
 Obs & 7697 & \\
-Adjusted R-sq & 0.0316 & \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -363,8 +363,7 @@ equations:
 
 \begin{align*}
     \log(\text{Giving}_{ijt}) = 
-    &\alpha_i + \beta_0 \text{Trust}_{ij} \\
-    &+ \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trust}_{ij} \\
+    &\alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trustid}_{ij} \\
     &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
 \end{align*}
 
@@ -372,38 +371,27 @@ Price elasticity is obtained by
 \(\beta_1 + \beta_2\cdot\text{Trust}_{ij}\).
 \end{frame}
 
-\begin{frame}{Result of Heterogeneity By Political Trust (1)}
-\protect\hypertarget{result-of-heterogeneity-by-political-trust-1}{}
+\begin{frame}{Result of Heterogeneity of Political Trust}
+\protect\hypertarget{result-of-heterogeneity-of-political-trust}{}
+The price elasticity is \textbf{convex} in the trust index. Those whose
+trust index is low and high do not respond to the price incentive.
+
 \begin{table}
 
-\caption{\label{tab:kableTabTrustHeteroReg}Heterogeneity of Political Trust}
+\caption{\label{tab:kableTabTrustHetero2Reg}Heterogeneity of Political Trust}
 \centering
 \begin{tabular}[t]{lcc}
 \toprule
-Variables & Coefficients & S.E.\\
+ & (1) & (2)\\
 \midrule
-ln(giving price) & -0.251 & (0.453)\\
-\hspace{1em}X Trust index & -2.551** & (1.167)\\
-Obs & 51306 & \\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Result of Heterogeneity of Political Trust (2)}
-\protect\hypertarget{result-of-heterogeneity-of-political-trust-2}{}
-\begin{table}
-
-\caption{\label{tab:kableTabTrustHetero2Reg}Heterogeneity of Political Trust (include squared term)}
-\centering
-\begin{tabular}[t]{lcc}
-\toprule
-Variables & Coefficients & S.E.\\
-\midrule
-ln(giving price) & 0.840 & (0.752)\\
-\hspace{1em}X Trust index & -10.002** & (3.985)\\
-\hspace{1em}X Squared trust index & 10.687** & (5.172)\\
-Obs & 51306 & \\
+ln(giving price) & -1.108*** & -1.314***\\
+ & (0.230) & (0.249)\\
+\hspace{1em}X Trust index & -0.373** & -0.412**\\
+ & (0.171) & (0.175)\\
+\hspace{1em}X Squared trust index &  & 0.229**\\
+ &  & (0.111)\\
+Obs & 51306 & 51306\\
+R-aq & 0.0120 & 0.0121\\
 \bottomrule
 \end{tabular}
 \end{table}
