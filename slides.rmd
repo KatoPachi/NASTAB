@@ -1,0 +1,309 @@
+---
+title: "Charitable Giving, Tax Reform, and Political Trust"
+author: 
+    - Hiroki Kato$^1$
+    - Tsuyoshi Goto$^2$
+    - Yong-Rok Kim$^3$
+institute:
+    - $^1$Osaka University
+    - $^2$Chiba University
+    - $^3$Kobe University
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+output: 
+  beamer_presentation:
+    latex_engine: xelatex
+    keep_tex: true
+    toc: false
+    includes:
+      in_header: template/header.tex
+---
+
+```{r setup, include = FALSE, echo = FALSE}
+library(here)
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  echo = FALSE, 
+  cache = FALSE,
+  include = FALSE,
+  fig.width = 10, fig.height = 6
+)
+knitr::opts_knit$set(root.dir = here())
+
+library(kableExtra)
+options(knitr.kable.NA = "")
+```
+
+# Introduction
+## Background of South Korea Tax Reform
+
+To investigate the price effect, we use the 2014 tax reform in the South Korea.
+
+- Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
+- After 2014, tax credit have been adopted.
+
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer’s marginal tax rate, which increases with gross income
+
+<!--
+## Charitable Giving and Governement Policy
+
+There are huge literatures to investigate relationship bewteen chariable giving and governement policies
+
+1. price elasticity of charitable giving using the tax benefit
+1. the crowd-out effect of government expenditure
+
+Even though tax benefits directly affect government expenditure,
+there is no literature to try to connect the tax benefit with governement expenditure as far as we know.
+
+We investigate the price effect and the crowd-out effect simultaneously,
+and connect two effects through political trust.
+
+## Why Political Trust?
+
+We conjecture that the political trust is key driver to determine the price effect and the crowd-out effect 
+
+- Price effect: If people untrust politicians, then they may also suspect the system of tax banefit. If people trust politicians sufficiently, then they may try to send money to government. Thus, they do not use the tax benefit which decreases governement's revenue.
+- Crowd-out effect: If people untrust politicians, then they may expect that governement does not invest the public goods. This is related with the strategic uncertainty.
+-->
+
+# Data
+## National Survey of Tax and Benefit (NaSTaB)
+
+- The Korea Institute of Taxation and Finance implements the financial panel survey to study the tax burden of households and the benefits that households receive from goverment.
+- The subjects of this survey are general household and household members living in 15 cities and provinces nationwide.
+- This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
+- Survey items: Annual taxable income (last year), charitable donations (last year), trust for politicians (5-Likert scale), and other covariates (age, education, gender etc.).
+- Survey period: 2008 ~ 2019
+    - We use survey data after 2013 to focus on tax policy change in 2014.
+
+<!--
+## MIS data
+
+- MIS of South Korean collects data on local governement finance.
+- From this data, we obtain infomation about tax revenue and expenditure for social welfare.
+- Using the population data, we calculate the local governement expenditure per capita and use this variable as main explanatory variable.
+- Since the NaSTab includes residence area of respondents, it merges with the data on local governement finance. 
+-->
+
+## Variable of Giving Price
+
+In the South Korea, the tax policy about charitable giving drastically changed in 2014.
+Before 2014, the **tax deduction** adpoted.
+After 2014, the **tax credit** adopted.
+Under two systems, the giving price is 
+
+- tax deduction: $\text{Price} = 1 - \tau$
+- tax credit: $\text{Price} = 1 - r$
+
+$\tau$ is the marginal income tax rate calculated by annual taxable income reported in the NaSTaB, and
+$r$ is the tax credit rate determined exogeneity.
+In the South Korea, $r = 0.15$.
+
+```{r CallR}
+knitr::read_chunk("script/R/#1baseline.r")
+```
+
+```{r library}
+
+```
+
+```{r GGTemp}
+
+```
+
+```{r ReadData}
+
+```
+
+# Results
+
+## Trust Index
+
+The trust for politicans is time-varying variable because it depends on governments' policies.
+We make time-invarying trust index using the fixed effect model.
+
+$$
+    \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
+$$
+
+- $\text{Trust}_{ijt}$: trust for politicians (5-Likert scale)
+- $\text{Trustid}_i$: individual fixed effect (**Trust index**)
+- $c_j \cdot \lambda_t$ captures local governments' policies effect
+- $\lambda_t$ captures the central government policies effect
+
+We use the standarized trust index with mean 0 and standard deviation 1.
+
+## Histrogram of Trust Index
+
+```{r TrustIndex, include = TRUE, fig.cap = "Histogram of Trust Index"}
+
+```
+
+## Regression of Trust Index
+
+```{r TrustReg}
+
+```
+
+```{r TabTrustReg}
+
+```
+
+```{r kableTabTrustReg, include = TRUE}
+knitr::kable(
+    tab.indexreg,
+    format = "latex",
+    caption = "Regression of Trust Index (Year = 2018)",
+    col.names = c("Variables", "Coefficients", "S.E."),
+    row.names = FALSE,
+    align = "lcc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+## Baseline Regressions
+
+Our baseline regression equation is 
+
+$$
+    \log(\text{Giving}_{ijt}) = 
+    \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+$$
+
+- $\log(\text{Giving}_{ijt})$ is logarithm of individual $i$'s charitable giving in year $t$.
+- $\log(\text{Price}_{ijt})$ is logarithm of individual $i$'s giving price in year $t$.
+- $\beta_1$ represents the price elasticity of giving.
+- $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
+
+```{r BaseReg}
+
+```
+
+## Result of Baseline Regressions
+
+```{r TabBaseReg}
+
+```
+
+We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease)
+
+```{r kableTabBaseReg, include=TRUE}
+knitr::kable(
+    tab.basereg[,c(1,2,5,6)],
+    format = "latex",
+    caption = "Baseline Regressions",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+## Subgroup Regressions
+
+We estimate the baseline regression equation,
+using sample grouped by the trust index.
+
+- Lowest: 0 ~ 20\% quantile of trust index
+- Lower: 20 ~ 40\% quantile of trust index
+- Neutral: 40 ~ 60\% quantile of trust index
+- Higher: 60 ~ 80\% quantile of trust index
+- Highest: 80 ~ 100\% quantile of trust index
+
+We include the logarithm of income, age, interactions b/w year and education,
+interactions b/w year and gender, and living are dummy into covariates.
+
+```{r TrustGroupReg}
+
+```
+
+## Results of Subgroup Regressions
+
+```{r TabTrustGroupReg}
+
+```
+
+We cound **NOT** find the price effect for respondents whose trust is very low.
+
+```{r kableTabTrustGroupReg, include = TRUE}
+knitr::kable(
+    tab.trustreg,
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "Lowest", "Lower", "Neutral", "Higher", "Highest"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+## Heterogenity By Political Trust
+
+To capture heterogeneity precisely,
+we estimate the following regression equations:
+
+\begin{align*}
+    \log(\text{Giving}_{ijt}) = 
+    &\alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trustid}_{ij} \\
+    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+\end{align*}
+
+Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
+
+```{r TrustHeteroReg}
+
+```
+
+## Result of Heterogeneity of Political Trust
+
+The price elasticity is **convex** in the trust index.
+Those whose trust index is low and high do not respond to the price incentive.
+
+```{r TabTrustHetero2Reg}
+
+```
+
+```{r kableTabTrustHetero2Reg, include=TRUE}
+knitr::kable(
+    tab.heteroreg,
+    format = "latex",
+    caption = "Heterogeneity of Political Trust",
+    col.names = c("", "(1)", "(2)"),
+    row.names = FALSE,
+    align = "lcc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling() %>% 
+add_indent(c(3,5))
+```
+
+## Graphical Representation of Heterogeneity Effect
+
+```{r PlotPredictedElast, include=TRUE, fig.cap="Relationship between Trust Index and Predicted Elasticity"}
+
+```
+
+# Conclusions
+
+## Conclusions
+
+<!--
+Our primitive result can be summarized as follows:
+
+- Low trust: Since people untrust governement's behavior, they act regardless of governement's policies (expenditure and tax benefit)
+- Middle trust: Since people have strategic uncertainty, they take a strategy of conditional cooperation. That is, they increase donations and use tax benefit to boost their giving if a local governement increases expenditures.
+- High trust (very weak evidence): Since people believe that governement contributes to social welfare, they send money to governement (not charities). Thus, they hestitate to use a tax benefit compared with those whose trust is middle level. 
+
+## Avenue of Our Research
+
+Our primitive results have several serious problem.
+
+1. Endogeneity of giving price. The giving price includes decision-making of use of tax benefit.
+1. Does charitable giving contributes to local social welfare? To examine the crowd-out effect of local government expenditure, we need to assume that peole send money to charities which work for local social welfare.
+1. Does people believe that a tax benefit decreases the **local** governement's revenue? To interpret our primitive results, we assume that people believe that a tax benefit decreases the budget of local governement.
+
+In future, we need to solve these problems.
+-->
