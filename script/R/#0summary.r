@@ -123,6 +123,28 @@ sumN <- df %>%
 
 tabsum <- rbind(sumcov, sumedu) %>% rbind(sumN)
 
+## ---- SummaryPriceChange
+sump <- df %>% 
+	filter(year == 2012) %>% 
+	select(lincome, price) %>% 
+	distinct(.keep_all = TRUE) %>% 
+	drop_na() %>% 
+	group_by(price) %>% 
+	filter(lincome == min(lincome))
+
+ggplot(subset(df, year == 2013), aes(x = lincome)) + 
+	geom_histogram(aes(y = ..count../3000), color = "black", fill = "grey90", bins = 100) +
+	geom_step(data = sump, aes(x = lincome, y = price), color = "blue", size = 1) +
+	geom_hline(aes(yintercept = 1 - .15), size = 1, color = "red", linetype = 2) +
+	geom_vline(aes(xintercept = 1200), color = "black", linetype = 2) +
+	geom_vline(aes(xintercept = 4600), color = "black", linetype = 2) +
+	scale_x_continuous(breaks = sump$lincome) +
+	scale_y_continuous(sec.axis = sec_axis(~ .*3000, name = "Count")) +
+	labs(x = "Annual taxable income (Year = 2013)", y = "Giving Price", 
+		caption = "Blue line represents the giving price in 2013. 
+		Red dashed line represents the giving price after 2014") +
+	my_theme
+
 ## ---- TrustIndex
 reg <- trust_politician ~ factor(year)*factor(living_area) + factor(year)
 indexreg <- plm(reg, data = subset(df, year >= 2015), model = "within", index = c("pid", "year"))
