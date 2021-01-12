@@ -95,7 +95,9 @@ sumcov <- df %>%
 	summarize_at(vars(gender, age, lincome), list(~mean(., na.rm = TRUE))) %>% 
 	mutate(year = sprintf("Y%1d", year)) %>%
 	pivot_longer(-year, names_to = "vars", values_to = "value") %>% 
-	pivot_wider(names_from = "year", values_from = "value")
+	pivot_wider(names_from = "year", values_from = "value") %>% 
+	mutate_at(vars(starts_with("Y")), list(~sprintf("%1.2f", .))) %>% 
+	mutate(vars = recode(vars, "gender" = "Female", "age" = "Age", "lincome" = "Annual Taxable Income"))
 
 sumedu <- df %>% 
 	filter(!is.na(educ)) %>%
@@ -112,14 +114,17 @@ sumedu <- df %>%
 		year = sprintf("Y%1d", year)
 	) %>% 
 	pivot_wider(names_from = "year", values_from = "prop") %>% 
-	rename(vars = educ)
+	rename(vars = educ) %>% 
+	mutate_at(vars(starts_with("Y")), list(~sprintf("%1.2f", .)))
 
 sumN <- df %>% 
 	group_by(year) %>% 
 	summarize_at(vars(pid, hhid), list(~length(unique(.)))) %>% 
 	mutate(year = sprintf("Y%1d", year)) %>%
 	pivot_longer(-year, names_to = "vars", values_to = "N") %>% 
-	pivot_wider(names_from = "year", values_from = "N")
+	pivot_wider(names_from = "year", values_from = "N") %>% 
+	mutate_at(vars(starts_with("Y")), list(~sprintf("%1d", .))) %>% 
+	mutate(vars = recode(vars, "pid" = "#.Respondents", "hhid" = "#.Households"))
 
 tabsum <- rbind(sumcov, sumedu) %>% rbind(sumN)
 
