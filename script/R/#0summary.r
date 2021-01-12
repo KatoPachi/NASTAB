@@ -88,3 +88,37 @@ ggplot(avgext, aes(x = year, y = mu)) +
 	labs(x = "Year", y = "Proportion of Donors") +
 	my_theme
 
+## ---- SummaryCovariate
+sumcov <- df %>% 
+	mutate(gender = gender - 1) %>% 
+	group_by(year) %>% 
+	summarize_at(vars(gender, age, lincome), list(~mean(., na.rm = TRUE))) %>% 
+	mutate(year = sprintf("Y%1d", year)) %>%
+	pivot_longer(-year, names_to = "vars", values_to = "value") %>% 
+	pivot_wider(names_from = "year", values_from = "value")
+
+sumedu <- df %>% 
+	filter(!is.na(educ)) %>%
+	group_by(year, educ) %>% 
+	summarize(N = n()) %>% 
+	group_by(year) %>% 
+	mutate(prop = N/sum(N)) %>% 
+	select(-N) %>% 
+	mutate(
+		educ = case_when(
+			educ == 1 ~ "Junior High School Graduate", 
+			educ == 2 ~ "High School Graduate", 
+			TRUE ~ "University Graduate"),
+		year = sprintf("Y%1d", year)
+	) %>% 
+	pivot_wider(names_from = "year", values_from = "prop") %>% 
+	rename(vars = educ)
+
+sumN <- df %>% 
+	group_by(year) %>% 
+	summarize_at(vars(pid, hhid), list(~length(unique(.)))) %>% 
+	mutate(year = sprintf("Y%1d", year)) %>%
+	pivot_longer(-year, names_to = "vars", values_to = "N") %>% 
+	pivot_wider(names_from = "year", values_from = "N")
+
+tabsum <- rbind(sumcov, sumedu) %>% rbind(sumN)
