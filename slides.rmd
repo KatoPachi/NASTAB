@@ -191,6 +191,18 @@ We use the standarized trust index with mean 0 and standard deviation 1.
 
 ```
 
+## Relationship between Donations and Trust Index 
+
+```{r CorrDonationsTrust, include=TRUE, fig.cap="Scatter Plot between Donations and Trust Index"}
+
+```
+
+## Relationship between Receving Tax Benefit and Trust Index
+
+```{r CorrTaxBenefitTrust, include=TRUE, fig.cap="Box Plot of Trust Index Grouped By Tax Benefit"}
+
+```
+
 ## Regression of Trust Index
 
 ```{r TrustReg}
