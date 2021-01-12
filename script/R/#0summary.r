@@ -68,4 +68,23 @@ df <- data.frame(df) %>%
     ) %>% 
     filter(year >= 2012)
 
+## ---- SummaryOutcome
+avgext <- df %>% 
+	group_by(year) %>% 
+	summarize_at(vars(i_ext_giving), list(mu=~mean(., na.rm = TRUE))) 
+
+avgint <- df %>% 
+	filter(i_ext_giving == 1) %>% 
+	group_by(year) %>% 
+	summarize_at(vars(i_total_giving), list(mu=~mean(., na.rm = TRUE)))
+
+ggplot(avgext, aes(x = year, y = mu)) +
+	geom_bar(stat = "identity", fill = "grey80", color = "black") +
+	geom_point(data = avgint, aes(x = year, y = mu/1000), size = 2, color = "blue") +
+	geom_line(data = avgint, aes(x = year, y = mu/1000), size = 1, color = "blue") +
+	geom_vline(aes(xintercept = 2013.5), color = "red", linetype = 2, size = 1) +
+	scale_y_continuous(sec.axis = sec_axis(~.*1000, name = "Average Donations (Intensive Margin)")) +
+	scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+	labs(x = "Year", y = "Proportion of Donors") +
+	my_theme
 
