@@ -128,6 +128,35 @@ tab.indexreg <- as.matrix(coef.indexreg) %>%
   )) %>% 
   data.frame()
 
+## ---- CorrDonationsTrust
+avgdonate <- estdf %>% 
+	group_by(pid) %>% 
+	summarize_at(vars(i_total_giving), list(~mean(., na.rm = TRUE)))
+
+plotdt <- left_join(avgdonate, indexdf, by = "pid")
+
+ggplot(plotdt, aes(x = trustid, y = i_total_giving)) + 
+	geom_point(size = 1.5, alpha = 0.5) +
+  labs(x = "Trust Index", y = "Individual Average Donations across Time") +
+	my_theme
+
+## ---- CorrTaxBenefitTrust
+avgbenefit <- estdf %>% 
+	mutate(receive_benefit = if_else(year < 2014, ext_deduct_giving, ext_credit_giving)) %>%
+	group_by(pid) %>% 
+	summarize_at(vars(receive_benefit), list(~sum(., na.rm = TRUE)))
+
+plotdt <- left_join(avgbenefit, indexdf, by = "pid") 
+
+ggplot(plotdt, aes(x = factor(receive_benefit), y = trustid)) + 
+	geom_boxplot(fill = "grey90") +
+	stat_summary(fun = "mean", geom = "point", shape = 21, size = 2., fill = "white") + 
+  labs(x = "#. Receving Tax Benefit", y = "Trust Index") +
+  scale_y_continuous(breaks = seq(-3, 5, 1)) +
+  coord_flip() +
+	my_theme +
+  theme(panel.grid.major.x = element_line(), panel.grid.major.y = element_blank())
+
 ## ---- BaseReg
 reg <- log_total_g ~ log_price + log_pinc_all + factor(year)
 
