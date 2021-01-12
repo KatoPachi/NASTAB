@@ -85,22 +85,8 @@ We conjecture that the political trust is key driver to determine the price effe
 - Since the NaSTab includes residence area of respondents, it merges with the data on local governement finance. 
 -->
 
-## Variable of Giving Price
-
-In the South Korea, the tax policy about charitable giving drastically changed in 2014.
-Before 2014, the **tax deduction** adpoted.
-After 2014, the **tax credit** adopted.
-Under two systems, the giving price is 
-
-- tax deduction: $\text{Price} = 1 - \tau$
-- tax credit: $\text{Price} = 1 - r$
-
-$\tau$ is the marginal income tax rate calculated by annual taxable income reported in the NaSTaB, and
-$r$ is the tax credit rate determined exogeneity.
-In the South Korea, $r = 0.15$.
-
-```{r CallR}
-knitr::read_chunk("script/R/#1baseline.r")
+```{r CallR_summary}
+knitr::read_chunk("script/R/#0summary.r")
 ```
 
 ```{r library}
@@ -115,7 +101,73 @@ knitr::read_chunk("script/R/#1baseline.r")
 
 ```
 
+## Time Series of Chariable Giving
+
+```{r SummaryOutcome, include = TRUE, fig.cap="Proportion of Donors (bar chart) and Average Donations among Donors (blue line)"}
+
+```
+
+## Summary Statistics of Covariates
+
+```{r SummaryCovariate}
+
+```
+
+```{r kableSummaryCovariate, include=TRUE}
+knitr::kable(
+    tabsum[,1:5],
+    format = "latex",
+    caption = "Summary Statistics of Covariates",
+    col.names = c("", "2012", "2013", "2014", "2015"),
+    row.names = FALSE,
+    align = "lccccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+pack_rows("Education", 4, 6)
+```
+
+## Summary Statistics of Covariates (Cont'd)
+
+```{r kableSummaryCovariate2, include=TRUE}
+knitr::kable(
+    tabsum[,c(1,6:8)],
+    format = "latex",
+    caption = "Summary Statistics of Covariates (Continued)",
+    col.names = c("", "2016", "2017", "2018"),
+    row.names = FALSE,
+    align = "lccccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+pack_rows("Education", 4, 6)
+```
+
+## Variable of Giving Price
+
+In the South Korea, the tax policy about charitable giving drastically changed in 2014.
+Before 2014, the **tax deduction** adpoted.
+After 2014, the **tax credit** adopted.
+Under two systems, the giving price is 
+
+- tax deduction: $\text{Price} = 1 - \tau$
+- tax credit: $\text{Price} = 1 - r$
+
+$\tau$ is the marginal income tax rate calculated by annual taxable income reported in the NaSTaB, and
+$r$ is the tax credit rate determined exogeneity.
+In the South Korea, $r = 0.15$.
+
+## Income Distribution and Giving Price
+
+```{r SummaryPriceChange, include=TRUE, fig.cap="Income Distribution and Giving Price"}
+
+```
+
 # Results
+
+```{r CallR}
+knitr::read_chunk("script/R/#1baseline.r")
+```
 
 ## Trust Index
 
