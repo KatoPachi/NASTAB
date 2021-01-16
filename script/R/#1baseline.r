@@ -71,7 +71,6 @@ df <- data.frame(df) %>%
 reg <- trust_politician ~ factor(year)*factor(living_area) + factor(year)
 indexreg <- plm(reg, data = subset(df, year >= 2015), model = "within", index = c("pid", "year"))
 feval <- fixef(indexreg)
-
 indexdf <- data.frame(
   pid = as.numeric(attr(feval, "names")),
   trustid = scale(c(feval))
@@ -79,6 +78,31 @@ indexdf <- data.frame(
 
 ggplot(indexdf, aes(x = trustid)) + 
   geom_histogram(color = "black", fill = "grey50") + 
+  my_theme
+
+## ---- RobustTrustIndex
+rob.indexreg1 <- df %>% 
+  filter(year == 2015 | year == 2016) %>% 
+  plm(reg, data = ., model = "within", index = c("pid", "year")) %>% 
+  fixef() %>% 
+  data.frame(pid = as.numeric(attr(., "names")), parktrustid = scale(c(.))) %>% 
+  select(pid, parktrustid)
+
+rob.indexreg2 <- df %>% 
+  filter(year == 2017 | year == 2018) %>% 
+  plm(reg, data = ., model = "within", index = c("pid", "year")) %>% 
+  fixef() %>% 
+  data.frame(pid = as.numeric(attr(., "names")), moontrustid = scale(c(.))) %>% 
+  select(pid, moontrustid)
+
+robindexdf <- indexdf %>% 
+  full_join(rob.indexreg1, by = "pid") %>% 
+  full_join(rob.indexreg2, by = "pid") %>% 
+  drop_na()
+
+ggplot(robindexdf, aes(x = parktrustid, y = moontrustid)) +
+  geom_point(size = 2, alpha = 0.5) + 
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
   my_theme
 
 ## ---- TrustReg
