@@ -129,6 +129,62 @@ plot3 <- ggplot(robindexdf, aes(x = moontrustid, y = trustid)) +
     panel.grid.major.y = element_line(linetype = 2)
   )
 
+## ---- RegSeparateTrustIndex
+regset <- list(
+  reg1 = trustid ~ moontrustid,
+  reg2 = trustid ~ parktrustid,
+  reg3 = trustid ~ moontrustid + parktrustid
+)
+
+est.regset <- regset %>% purrr::map(~lm(., data = robindexdf))
+n.regset <- est.regset %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+r2.regset <- est.regset %>% purrr::map(~sprintf("%1.3f", summary(.)$adj.r.squared)) %>% as_vector()
+
+keep <- "trustid"
+varlist <- exprs(
+  stat == "se" ~ "",
+  str_detect(vars, "park") ~ "Trust ID (Park Geun-hye)",
+  str_detect(vars, "moon") ~ "Trust ID (Moon Jae-in)"
+)
+
+coef.regset <- est.regset %>% 
+	purrr::map(function(x)
+    data.frame(
+      vars = rownames(summary(x)$coefficients),
+      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
+          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
+          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
+          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
+      stringsAsFactors = FALSE
+    )
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(vars = case_when(!!!varlist)) %>% 
+  select(-stat)
+
+tab.regset <- as.matrix(coef.regset) %>% 
+  rbind(rbind(c("Obs", n.regset), c("Adjusted R-sq", r2.regset)))
+
+## ---- PredictSeparateTrustIndex
+robindexdf$predtrustid <- predict(est.regset$reg3, newdata = robindexdf)
+
+ggplot(robindexdf, aes(x = predtrustid, y = trustid)) +
+  geom_point(size = 2, alpha = 0.5) + 
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "Predicted value of trust index", y = "Trust Index") +
+  my_theme + 
+  theme(
+    panel.grid.major.x = element_line(linetype = 2),
+    panel.grid.major.y = element_line(linetype = 2)
+  )
+
 ## ---- TrustReg
 indexreg <- trustid ~ gender + log_pinc_all + age + I(age^2/100) + factor(educ) + political_pref
 
