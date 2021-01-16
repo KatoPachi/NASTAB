@@ -44,12 +44,13 @@
   \frame{\subsectionpage}
 }
 \usepackage{lmodern}
-\usepackage{amssymb,amsmath}
+\usepackage{amsmath}
 \usepackage{ifxetex,ifluatex}
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
+  \usepackage{amssymb}
 \else % if luatex or xetex
   \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
@@ -114,7 +115,7 @@
 \title{Charitable Giving, Tax Reform, and Political Trust}
 \author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
 Kim\(^3\)}
-\date{2021/01/12}
+\date{2021/01/17}
 \institute{\(^1\)Osaka University \and \(^2\)Chiba
 University \and \(^3\)Kobe University}
 
@@ -291,15 +292,13 @@ fixed effect model.
 \item
   \(\lambda_t\) captures the central government policies effect
 \end{itemize}
-
-We use the standarized trust index with mean 0 and standard deviation 1.
 \end{frame}
 
 \begin{frame}{Histrogram of Trust Index}
 \protect\hypertarget{histrogram-of-trust-index}{}
 \begin{figure}
 \centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/TrustIndex-1.pdf}
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/HistogramTrustid-1.pdf}
 \caption{Histogram of Trust Index}
 \end{figure}
 \end{frame}
@@ -308,7 +307,7 @@ We use the standarized trust index with mean 0 and standard deviation 1.
 \protect\hypertarget{relationship-between-donations-and-trust-index}{}
 \begin{figure}
 \centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/CorrDonationsTrust-1.pdf}
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/ScatterTrusidDonations-1.pdf}
 \caption{Scatter Plot between Donations and Trust Index}
 \end{figure}
 \end{frame}
@@ -317,7 +316,7 @@ We use the standarized trust index with mean 0 and standard deviation 1.
 \protect\hypertarget{relationship-between-receving-tax-benefit-and-trust-index}{}
 \begin{figure}
 \centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/CorrTaxBenefitTrust-1.pdf}
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/BoxpTrustidByBenefit-1.pdf}
 \caption{Box Plot of Trust Index Grouped By Tax Benefit}
 \end{figure}
 \end{frame}
@@ -326,7 +325,7 @@ We use the standarized trust index with mean 0 and standard deviation 1.
 \protect\hypertarget{regression-of-trust-index}{}
 \begin{table}
 
-\caption{\label{tab:kableTabTrustReg}Regression of Trust Index (Year = 2018)}
+\caption{\label{tab:kableRegTrustidOnCovariate}Regression of Trust Index (Year = 2018)}
 \centering
 \begin{tabular}[t]{lcc}
 \toprule
@@ -380,7 +379,7 @@ to about 1.1\% giving decrease)
 
 \begin{table}
 
-\caption{\label{tab:kableTabBaseReg}Baseline Regressions}
+\caption{\label{tab:kableEstimatePElast}Baseline Regressions}
 \centering
 \begin{tabular}[t]{lccc}
 \toprule
@@ -430,7 +429,7 @@ is very low.
 
 \begin{table}
 
-\caption{\label{tab:kableTabTrustGroupReg}Subgroup Regressions}
+\caption{\label{tab:kableEstimatePElastByTrustid}Subgroup Regressions}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccccc}
@@ -467,7 +466,7 @@ trust index is low and high do not respond to the price incentive.
 
 \begin{table}
 
-\caption{\label{tab:kableTabTrustHetero2Reg}Heterogeneity of Political Trust}
+\caption{\label{tab:kableEstimateHeteroPEstByTrusid}Heterogeneity of Political Trust}
 \centering
 \begin{tabular}[t]{lcc}
 \toprule
@@ -490,7 +489,7 @@ R-aq & 0.0120 & 0.0121\\
 \protect\hypertarget{graphical-representation-of-heterogeneity-effect}{}
 \begin{figure}
 \centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/PlotPredictedElast-1.pdf}
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/PlotHeteroPElast-1.pdf}
 \caption{Relationship between Trust Index and Predicted Elasticity}
 \end{figure}
 \end{frame}
