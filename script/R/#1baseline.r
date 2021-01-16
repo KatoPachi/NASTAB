@@ -73,37 +73,61 @@ indexreg <- plm(reg, data = subset(df, year >= 2015), model = "within", index = 
 feval <- fixef(indexreg)
 indexdf <- data.frame(
   pid = as.numeric(attr(feval, "names")),
-  trustid = scale(c(feval))
+  trustid = c(feval)
 )
 
 ggplot(indexdf, aes(x = trustid)) + 
   geom_histogram(color = "black", fill = "grey50") + 
   my_theme
 
-## ---- RobustTrustIndex
+## ---- SeparateTrustIndex
 rob.indexreg1 <- df %>% 
   filter(year == 2015 | year == 2016) %>% 
   plm(reg, data = ., model = "within", index = c("pid", "year")) %>% 
   fixef() %>% 
-  data.frame(pid = as.numeric(attr(., "names")), parktrustid = scale(c(.))) %>% 
+  data.frame(pid = as.numeric(attr(., "names")), parktrustid = c(.)) %>% 
   select(pid, parktrustid)
 
 rob.indexreg2 <- df %>% 
   filter(year == 2017 | year == 2018) %>% 
   plm(reg, data = ., model = "within", index = c("pid", "year")) %>% 
   fixef() %>% 
-  data.frame(pid = as.numeric(attr(., "names")), moontrustid = scale(c(.))) %>% 
+  data.frame(pid = as.numeric(attr(., "names")), moontrustid = c(.)) %>% 
   select(pid, moontrustid)
 
 robindexdf <- indexdf %>% 
-  full_join(rob.indexreg1, by = "pid") %>% 
-  full_join(rob.indexreg2, by = "pid") %>% 
-  drop_na()
+  inner_join(rob.indexreg1, by = "pid") %>% 
+  inner_join(rob.indexreg2, by = "pid") 
 
-ggplot(robindexdf, aes(x = parktrustid, y = moontrustid)) +
+plot1 <- ggplot(robindexdf, aes(x = parktrustid, y = moontrustid)) +
   geom_point(size = 2, alpha = 0.5) + 
   geom_smooth(method = "lm", se = FALSE, color = "red") +
-  my_theme
+  labs(x = "Trust Index under Park Geun-hye", y = "Trust Index under Moon Jae-in") +
+  my_theme + 
+  theme(
+    panel.grid.major.x = element_line(linetype = 2),
+    panel.grid.major.y = element_line(linetype = 2)
+  )
+
+plot2 <- ggplot(robindexdf, aes(x = parktrustid, y = trustid)) +
+  geom_point(size = 2, alpha = 0.5) + 
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "Trust Index under Park Geun-hye", y = "Trust Index") +
+  my_theme + 
+  theme(
+    panel.grid.major.x = element_line(linetype = 2),
+    panel.grid.major.y = element_line(linetype = 2)
+  )
+
+plot3 <- ggplot(robindexdf, aes(x = moontrustid, y = trustid)) +
+  geom_point(size = 2, alpha = 0.5) + 
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "Trust Index under Moon Jae-in", y = "Trust Index") +
+  my_theme + 
+  theme(
+    panel.grid.major.x = element_line(linetype = 2),
+    panel.grid.major.y = element_line(linetype = 2)
+  )
 
 ## ---- TrustReg
 indexreg <- trustid ~ gender + log_pinc_all + age + I(age^2/100) + factor(educ) + political_pref
