@@ -65,22 +65,19 @@ df <- data.frame(df) %>%
         log_PPP_healthbdg = log(PPP_healthbdg + 1),
         sqlog_PPP_healthbdg = log_PPP_healthbdg^2,
         political_pref = factor(political_pref, level = c(3, 1, 2, 4, 5))
-    )
+    ) %>% 
+    filter(year >= 2012)
 
-## ---- TrustIndex
+## ---- EstimateTrustIndex
 reg <- trust_politician ~ factor(year)*factor(living_area) + factor(year)
-indexreg <- plm(reg, data = subset(df, year >= 2015), model = "within", index = c("pid", "year"))
-feval <- fixef(indexreg)
-indexdf <- data.frame(
-  pid = as.numeric(attr(feval, "names")),
-  trustid = c(feval)
-)
 
-ggplot(indexdf, aes(x = trustid)) + 
-  geom_histogram(color = "black", fill = "grey50") + 
-  my_theme
+indexreg <- df %>% 
+  filter(year >= 2015) %>% 
+  plm(reg, data = ., model = "within", index = c("pid", "year")) %>% 
+  fixef() %>% 
+  data.frame(pid = as.numeric(attr(., "names")), trustid = c(.)) %>% 
+  select(pid, trustid)
 
-## ---- SeparateTrustIndex
 rob.indexreg1 <- df %>% 
   filter(year == 2015 | year == 2016) %>% 
   plm(reg, data = ., model = "within", index = c("pid", "year")) %>% 
@@ -95,11 +92,39 @@ rob.indexreg2 <- df %>%
   data.frame(pid = as.numeric(attr(., "names")), moontrustid = c(.)) %>% 
   select(pid, moontrustid)
 
-robindexdf <- indexdf %>% 
-  inner_join(rob.indexreg1, by = "pid") %>% 
-  inner_join(rob.indexreg2, by = "pid") 
+## ---- MergedWithTrustid
 
-plot1 <- ggplot(robindexdf, aes(x = parktrustid, y = moontrustid)) +
+# index data
+indexdf <- indexreg %>% 
+  left_join(rob.indexreg1, by = "pid") %>% 
+  left_join(rob.indexreg2, by = "pid")
+
+# index data for plots and regressions
+dropNAdf <- indexdf %>% drop_na()
+
+# merged data
+scaledf <- indexdf %>% 
+  mutate_at(vars(starts_with("trustid")), list(~scale(.)))
+
+estdf <- df %>% 
+  left_join(scaledf, by = "pid") %>% 
+  mutate(
+    trusted = case_when(
+      trustid < quantile(scaledf$trustid, prob = .2) ~ 1,
+      trustid < quantile(scaledf$trustid, prob = .4) ~ 2,
+      trustid < quantile(scaledf$trustid, prob = .6) ~ 3,
+      trustid < quantile(scaledf$trustid, prob = .8) ~ 4,
+      TRUE ~ 5
+    )
+  )
+
+## ---- HistogramTrustid
+ggplot(indexdf, aes(x = trustid)) + 
+  geom_histogram(color = "black", fill = "grey50") + 
+  my_theme
+
+## ---- Scatter1Trustid
+ggplot(dropNAdf, aes(x = parktrustid, y = moontrustid)) +
   geom_point(size = 2, alpha = 0.5) + 
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Trust Index under Park Geun-hye", y = "Trust Index under Moon Jae-in") +
@@ -109,7 +134,8 @@ plot1 <- ggplot(robindexdf, aes(x = parktrustid, y = moontrustid)) +
     panel.grid.major.y = element_line(linetype = 2)
   )
 
-plot2 <- ggplot(robindexdf, aes(x = parktrustid, y = trustid)) +
+## ---- Scatter2Trustid
+ggplot(dropNAdf, aes(x = parktrustid, y = trustid)) +
   geom_point(size = 2, alpha = 0.5) + 
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Trust Index under Park Geun-hye", y = "Trust Index") +
@@ -119,7 +145,8 @@ plot2 <- ggplot(robindexdf, aes(x = parktrustid, y = trustid)) +
     panel.grid.major.y = element_line(linetype = 2)
   )
 
-plot3 <- ggplot(robindexdf, aes(x = moontrustid, y = trustid)) +
+## ---- Scatter3Trustid
+ggplot(dropNAdf, aes(x = moontrustid, y = trustid)) +
   geom_point(size = 2, alpha = 0.5) + 
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Trust Index under Moon Jae-in", y = "Trust Index") +
@@ -129,14 +156,14 @@ plot3 <- ggplot(robindexdf, aes(x = moontrustid, y = trustid)) +
     panel.grid.major.y = element_line(linetype = 2)
   )
 
-## ---- RegSeparateTrustIndex
+## ---- RegTrusidonSepTrustid
 regset <- list(
   reg1 = trustid ~ moontrustid,
   reg2 = trustid ~ parktrustid,
   reg3 = trustid ~ moontrustid + parktrustid
 )
 
-est.regset <- regset %>% purrr::map(~lm(., data = robindexdf))
+est.regset <- regset %>% purrr::map(~lm(., data = dropNAdf))
 n.regset <- est.regset %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
 r2.regset <- est.regset %>% purrr::map(~sprintf("%1.3f", summary(.)$adj.r.squared)) %>% as_vector()
 
@@ -172,10 +199,10 @@ coef.regset <- est.regset %>%
 tab.regset <- as.matrix(coef.regset) %>% 
   rbind(rbind(c("Obs", n.regset), c("Adjusted R-sq", r2.regset)))
 
-## ---- PredictSeparateTrustIndex
-robindexdf$predtrustid <- predict(est.regset$reg3, newdata = robindexdf)
+## ---- PredictTrustid
+dropNAdf$predtrustid <- predict(est.regset$reg3, newdata = dropNAdf)
 
-ggplot(robindexdf, aes(x = predtrustid, y = trustid)) +
+ggplot(dropNAdf, aes(x = predtrustid, y = trustid)) +
   geom_point(size = 2, alpha = 0.5) + 
   geom_smooth(method = "lm", se = FALSE, color = "red") +
   labs(x = "Predicted value of trust index", y = "Trust Index") +
@@ -185,16 +212,13 @@ ggplot(robindexdf, aes(x = predtrustid, y = trustid)) +
     panel.grid.major.y = element_line(linetype = 2)
   )
 
-## ---- TrustReg
+## ---- RegTrustidOnCovariate
 indexreg <- trustid ~ gender + log_pinc_all + age + I(age^2/100) + factor(educ) + political_pref
 
-estdf <- df %>% left_join(indexdf, by = "pid") 
 est.indexreg <- lm(indexreg, data = subset(estdf, year == 2018))
-
 N <- nobs(est.indexreg)
 r2 <- summary(est.indexreg)$adj.r.squared
 
-## ---- TabTrustReg
 keep <- c("gender", "pinc", "age", "educ", "political") %>% paste(collapse = "|")
 
 varlist <- exprs(
@@ -232,25 +256,25 @@ tab.indexreg <- as.matrix(coef.indexreg) %>%
   )) %>% 
   data.frame()
 
-## ---- CorrDonationsTrust
+## ---- ScatterTrusidDonations
 avgdonate <- estdf %>% 
 	group_by(pid) %>% 
 	summarize_at(vars(i_total_giving), list(~mean(., na.rm = TRUE)))
 
-plotdt <- left_join(avgdonate, indexdf, by = "pid")
+plotdt <- left_join(avgdonate, scaledf, by = "pid")
 
 ggplot(plotdt, aes(x = trustid, y = i_total_giving)) + 
 	geom_point(size = 1.5, alpha = 0.5) +
   labs(x = "Trust Index", y = "Individual Average Donations across Time") +
 	my_theme
 
-## ---- CorrTaxBenefitTrust
+## ---- BoxpTrustidByBenefit
 avgbenefit <- estdf %>% 
 	mutate(receive_benefit = if_else(year < 2014, ext_deduct_giving, ext_credit_giving)) %>%
 	group_by(pid) %>% 
 	summarize_at(vars(receive_benefit), list(~sum(., na.rm = TRUE)))
 
-plotdt <- left_join(avgbenefit, indexdf, by = "pid") 
+plotdt <- left_join(avgbenefit, scaledf, by = "pid") 
 
 ggplot(plotdt, aes(x = factor(receive_benefit), y = trustid)) + 
 	geom_boxplot(fill = "grey90") +
@@ -261,7 +285,8 @@ ggplot(plotdt, aes(x = factor(receive_benefit), y = trustid)) +
 	my_theme +
   theme(panel.grid.major.x = element_line(), panel.grid.major.y = element_blank())
 
-## ---- BaseReg
+## ---- EstimatePElast
+#regressions
 reg <- log_total_g ~ log_price + log_pinc_all + factor(year)
 
 setreg <- list(
@@ -279,7 +304,7 @@ basereg <- setreg %>%
 rob.basereg <- basereg %>% purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group")))
 n.basereg <- basereg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
 
-## --- TabBaseReg
+# make tabulation
 keep <- c("log_price") %>% paste(collapse = "|")
 varlist <- exprs(
   stat == "se" ~ "",
@@ -319,21 +344,9 @@ addline <- rbind(
 
 tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
 
-## ---- TrustGroupReg
+## ---- EstimatePElastByTrustid
 reg <- log_total_g ~ log_price + log_pinc_all + 
   age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
-
-estdf <- df %>% 
-  left_join(indexdf, by = "pid") %>% 
-  mutate(
-    trusted = case_when(
-      trustid < quantile(indexdf$trustid, prob = .2) ~ 1,
-      trustid < quantile(indexdf$trustid, prob = .4) ~ 2,
-      trustid < quantile(indexdf$trustid, prob = .6) ~ 3,
-      trustid < quantile(indexdf$trustid, prob = .8) ~ 4,
-      TRUE ~ 5
-    )
-  )
 
 trustreg <- 1:5 %>% 
   purrr::map(
@@ -342,7 +355,7 @@ trustreg <- 1:5 %>%
 rob.trustreg <- trustreg %>% purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group")))
 n.trustreg <- trustreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
 
-## ---- TabTrustGroupReg
+# make tabulation
 keep <- c("log_price") %>% paste(collapse = "|")
 varlist <- exprs(
   stat == "se" ~ "",
@@ -373,7 +386,7 @@ coef.trustreg <- rob.trustreg %>%
 
 tab.trustreg <- rbind(as.matrix(coef.trustreg), c("Obs", n.trustreg)) %>% data.frame()
 
-## ---- TrustHeteroReg
+## ---- EstimateHeteroPEstByTrusid
 reg <- log_total_g ~ log_price*trustid + log_pinc_all + 
   age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
 
@@ -389,7 +402,7 @@ rob.heteroreg <- heteroreg %>%
 n.heteroreg <- heteroreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
 r2.heteroreg <- heteroreg %>% purrr::map(~sprintf("%1.4f", plm::r.squared(.))) %>% as_vector()
 
-## ---- TabTrustHeteroReg
+# make tabulation
 keep <- c("log_price") %>% paste(collapse = "|")
 varlist <- exprs(
   stat == "se" ~ "",
@@ -430,7 +443,7 @@ tab.heteroreg <- as.matrix(coef.heteroreg) %>%
   rbind(rbind(c("Obs", n.heteroreg), c("R-aq", r2.heteroreg))) %>% 
   data.frame()
 
-## ---- PlotPredictedElast
+## ---- PlotHeteroPElast
 b_price <- rob.heteroreg[[1]] %>% .[str_detect(rownames(.), "price"),1]
 b_price2 <- rob.heteroreg[[2]] %>% .[str_detect(rownames(.), "price"),1]
 vcov_price <- vcov(heteroreg[[1]]) %>% .[str_detect(rownames(.), "price"), str_detect(colnames(.), "price")]
@@ -438,8 +451,8 @@ vcov_price2 <- vcov(heteroreg[[2]]) %>% .[str_detect(rownames(.), "price"), str_
 
 newdf <- data.frame(
   int = 1,
-  trustid = unique(indexdf$trustid),
-  trustid2 = unique(indexdf$trustid)^2
+  trustid = unique(scaledf$trustid),
+  trustid2 = unique(scaledf$trustid)^2
 ) %>% as.matrix()
 
 se_price <- sqrt(diag(newdf[,1:2] %*% vcov_price %*% t(newdf[,1:2])))
