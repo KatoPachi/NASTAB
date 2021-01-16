@@ -209,7 +209,7 @@ $$
 
 ```
 
-## Regression of Trust Index
+## Regression of Trust Index on Covariates
 
 ```{r RegTrustidOnCovariate}
 
@@ -227,6 +227,57 @@ knitr::kable(
 ) %>% 
 kable_styling()
 ```
+
+## Presidential Transition and Trust Index
+
+In May 2017, South Korean president changed from Park Geun-hye to Moon Jae-in.
+This presidential transition was due to the impeachment charge against Park Geun-hye.
+People became distrustful of Park Geun-hye due to the shinking of MV Sewol (April 2014).
+
+Even though we control time fixed effect to estimate trust index, 
+we are concerned whether time fixed effect can rule out this presidential transition effect.
+
+To check it, we estimate trust index using both data in 2015 and 2016 (Park's Trust index) and 
+data in 2017 and 2018 (Moon's Trust index).
+
+## Scatter Plot b/w Park's and Moon's Trust Index
+
+```{r Scatter1Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in"}
+
+```
+
+## Scatter Plot b/w Park's Trust Index and Original One
+
+```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Original One"}
+
+```
+
+## Scatter Plot b/w Moon's Trust Index and Original One
+
+```{r Scatter3Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Moon Jae-in and Original One"}
+
+```
+
+## Regressions of Trust Index on Separated Trust Index
+
+```{r RegTrusidonSepTrustid}
+
+```
+
+```{r kableRegTrusidonSepTrustid, include = TRUE}
+knitr::kable(
+    tab.regset,
+    format = "latex",
+    caption = "Regressions of Trust Index on Park's and Moon's Trust Index",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+# Price Elasticity
 
 ## Baseline Regressions
 

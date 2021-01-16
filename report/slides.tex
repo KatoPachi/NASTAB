@@ -268,11 +268,11 @@ determined exogeneity. In the South Korea, \(r = 0.15\).
 \end{figure}
 \end{frame}
 
-\hypertarget{results}{%
-\section{Results}\label{results}}
+\hypertarget{trust-index}{%
+\section{Trust Index}\label{trust-index}}
 
-\begin{frame}{Trust Index}
-\protect\hypertarget{trust-index}{}
+\begin{frame}{Make Trust Index}
+\protect\hypertarget{make-trust-index}{}
 The trust for politicans is time-varying variable because it depends on
 governments' policies. We make time-invarying trust index using the
 fixed effect model.
@@ -321,8 +321,8 @@ fixed effect model.
 \end{figure}
 \end{frame}
 
-\begin{frame}{Regression of Trust Index}
-\protect\hypertarget{regression-of-trust-index}{}
+\begin{frame}{Regression of Trust Index on Covariates}
+\protect\hypertarget{regression-of-trust-index-on-covariates}{}
 \begin{table}
 
 \caption{\label{tab:kableRegTrustidOnCovariate}Regression of Trust Index (Year = 2018)}
@@ -346,6 +346,75 @@ Obs & 7697 & \\
 \end{tabular}
 \end{table}
 \end{frame}
+
+\begin{frame}{Presidential Transition and Trust Index}
+\protect\hypertarget{presidential-transition-and-trust-index}{}
+In May 2017, South Korean president changed from Park Geun-hye to Moon
+Jae-in. This presidential transition was due to the impeachment charge
+against Park Geun-hye. People became distrustful of Park Geun-hye due to
+the shinking of MV Sewol (April 2014).
+
+Even though we control time fixed effect to estimate trust index, we are
+concerned whether time fixed effect can rule out this presidential
+transition effect.
+
+To check it, we estimate trust index using both data in 2015 and 2016
+(Park's Trust index) and data in 2017 and 2018 (Moon's Trust index).
+\end{frame}
+
+\begin{frame}{Scatter Plot b/w Park's and Moon's Trust Index}
+\protect\hypertarget{scatter-plot-bw-parks-and-moons-trust-index}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter1Trustid-1.pdf}
+\caption{Scatter Plot between Trust Index under Park Geun-hye and Moon
+Jae-in}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Scatter Plot b/w Park's Trust Index and Original One}
+\protect\hypertarget{scatter-plot-bw-parks-trust-index-and-original-one}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter2Trustid-1.pdf}
+\caption{Scatter Plot between Trust Index under Park Geun-hye and
+Original One}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Scatter Plot b/w Moon's Trust Index and Original One}
+\protect\hypertarget{scatter-plot-bw-moons-trust-index-and-original-one}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter3Trustid-1.pdf}
+\caption{Scatter Plot between Trust Index under Moon Jae-in and Original
+One}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Regressions of Trust Index on Separated Trust Index}
+\protect\hypertarget{regressions-of-trust-index-on-separated-trust-index}{}
+\begin{table}
+
+\caption{\label{tab:kableRegTrusidonSepTrustid}Regressions of Trust Index on Park's and Moon's Trust Index}
+\centering
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+Trust ID (Moon Jae-in) & 0.723*** &  & 0.574***\\
+ & (0.005) &  & (0.003)\\
+Trust ID (Park Geun-hye) &  & 0.521*** & 0.322***\\
+ &  & (0.006) & (0.003)\\
+Obs & 7314 & 7314 & 7314\\
+Adjusted R-sq & 0.745 & 0.516 & 0.911\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\hypertarget{price-elasticity}{%
+\section{Price Elasticity}\label{price-elasticity}}
 
 \begin{frame}{Baseline Regressions}
 \protect\hypertarget{baseline-regressions}{}
