@@ -21,7 +21,10 @@ package_load("sandwich")
 my_theme <- theme_minimal() +
   theme(
     # setting: background
-    plot.background = element_rect(fill="#87CEEB50", color = "transparent"),
+    plot.background = element_rect(
+      #fill="#87CEEB50", 
+      color = "transparent"
+    ),
     
     # setting: plot
     panel.border = element_rect(color = "white", fill = NA),
