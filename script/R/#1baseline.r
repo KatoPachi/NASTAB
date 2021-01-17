@@ -21,7 +21,10 @@ package_load("sandwich")
 my_theme <- theme_minimal() +
   theme(
     # setting: background
-    plot.background = element_rect(fill="#87CEEB50", color = "transparent"),
+    plot.background = element_rect(
+      #fill="#87CEEB50", 
+      color = "transparent"
+    ),
     
     # setting: plot
     panel.border = element_rect(color = "white", fill = NA),
@@ -100,7 +103,9 @@ indexdf <- indexreg %>%
   left_join(rob.indexreg2, by = "pid")
 
 # index data for plots and regressions
-dropNAdf <- indexdf %>% drop_na()
+dropNAdf <- indexdf %>% 
+  drop_na() %>% 
+  mutate(diff = moontrustid - parktrustid)
 
 # merged data
 scaledf <- indexdf %>% 
@@ -124,10 +129,20 @@ ggplot(indexdf, aes(x = trustid)) +
   my_theme
 
 ## ---- Scatter1Trustid
+stats <- dropNAdf %>% summarize_at(vars(parktrustid, moontrustid), list(mu = ~mean(.), sd = ~sd(.)))
+difftest <- t.test(dropNAdf$moontrustid, dropNAdf$parktrustid, var.equal = TRUE)$p.value
+
+annotation1 <- sprintf("Park's Trust Index: Mean = %1.3f, Std.Dev. = %1.3f", unlist(stats)[1], unlist(stats)[3])
+annotation2 <- sprintf("Moon's Trust Index: Mean = %1.3f, Std.Dev. = %1.3f", unlist(stats)[2], unlist(stats)[4])
+annotation3 <- sprintf("t-test of difference in mean: p-value = %1.3f", difftest)
+annotation <- str_c(c(annotation1, annotation2, annotation3), collapse = "\n")
+
 ggplot(dropNAdf, aes(x = parktrustid, y = moontrustid)) +
   geom_point(size = 2, alpha = 0.5) + 
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  labs(x = "Trust Index under Park Geun-hye", y = "Trust Index under Moon Jae-in") +
+  geom_smooth(se = FALSE, color = "red") +
+  annotate("text", x = Inf, y = Inf, label = annotation, vjust = "top", hjust = "right") +
+  ylim(c(0.5, 5.5)) +
+  labs(x = "Park's Trust Index", y = "Moon's Trust Index") +
   my_theme + 
   theme(
     panel.grid.major.x = element_line(linetype = 2),
@@ -135,26 +150,59 @@ ggplot(dropNAdf, aes(x = parktrustid, y = moontrustid)) +
   )
 
 ## ---- Scatter2Trustid
-ggplot(dropNAdf, aes(x = parktrustid, y = trustid)) +
+ggplot(dropNAdf, aes(x = diff, y = trustid)) + 
   geom_point(size = 2, alpha = 0.5) + 
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  labs(x = "Trust Index under Park Geun-hye", y = "Trust Index") +
+  geom_smooth(se = FALSE, color = "red") + 
+  labs(x = "Difference b/w Moon's and Park's Trust Index", y = "Trust Index") + 
   my_theme + 
   theme(
     panel.grid.major.x = element_line(linetype = 2),
     panel.grid.major.y = element_line(linetype = 2)
   )
 
-## ---- Scatter3Trustid
-ggplot(dropNAdf, aes(x = moontrustid, y = trustid)) +
-  geom_point(size = 2, alpha = 0.5) + 
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  labs(x = "Trust Index under Moon Jae-in", y = "Trust Index") +
-  my_theme + 
-  theme(
-    panel.grid.major.x = element_line(linetype = 2),
-    panel.grid.major.y = element_line(linetype = 2)
-  )
+## ---- RegTrustidOnDiff2Trustid
+dfset <- list(
+  full = dropNAdf,
+  limit1 = dropNAdf %>% filter(abs(diff) <= 2),
+  limit2 = dropNAdf %>% filter(abs(diff) <= 1),
+  limit3 = dropNAdf %>% filter(abs(diff) <= 0.5)
+)
+
+est.dfset <- dfset %>% purrr::map(~lm(trustid ~ diff, data = .))
+n.dfset <- est.dfset %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+r2.dfset <- est.dfset %>% purrr::map(~sprintf("%1.3f", summary(.)$adj.r.squared)) %>% as_vector()
+
+# make tabulation
+keep <- "diff"
+varlist <- exprs(
+  stat == "se" ~ "",
+  vars == "diff" ~ "Moon's trust - Park's trust"
+)
+
+coef.dfset <- est.dfset %>% 
+	purrr::map(function(x)
+    data.frame(
+      vars = rownames(summary(x)$coefficients),
+      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
+          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
+          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
+          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
+      stringsAsFactors = FALSE
+    )
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(vars = case_when(!!!varlist)) %>% 
+  select(-stat)
+
+tab.dfset <- as.matrix(coef.dfset) %>% 
+  rbind(rbind(c("Obs", n.dfset), c("Adjusted R-sq", r2.dfset)))
 
 ## ---- RegTrusidonSepTrustid
 regset <- list(
