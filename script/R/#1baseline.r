@@ -21,7 +21,10 @@ package_load("sandwich")
 my_theme <- theme_minimal() +
   theme(
     # setting: background
-    plot.background = element_rect(fill="#87CEEB50", color = "transparent"),
+    plot.background = element_rect(
+      #fill="#87CEEB50", 
+      color = "transparent"
+    ),
     
     # setting: plot
     panel.border = element_rect(color = "white", fill = NA),
@@ -124,10 +127,20 @@ ggplot(indexdf, aes(x = trustid)) +
   my_theme
 
 ## ---- Scatter1Trustid
+stats <- dropNAdf %>% summarize_at(vars(parktrustid, moontrustid), list(mu = ~mean(.), sd = ~sd(.)))
+difftest <- t.test(dropNAdf$moontrustid, dropNAdf$parktrustid, var.equal = TRUE)$p.value
+
+annotation1 <- sprintf("Park's Trust Index: Mean = %1.3f, Std.Dev. = %1.3f", unlist(stats)[1], unlist(stats)[3])
+annotation2 <- sprintf("Moon's Trust Index: Mean = %1.3f, Std.Dev. = %1.3f", unlist(stats)[2], unlist(stats)[4])
+annotation3 <- sprintf("t-test of difference in mean: p-value = %1.3f", difftest)
+annotation <- str_c(c(annotation1, annotation2, annotation3), collapse = "\n")
+
 ggplot(dropNAdf, aes(x = parktrustid, y = moontrustid)) +
   geom_point(size = 2, alpha = 0.5) + 
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  labs(x = "Trust Index under Park Geun-hye", y = "Trust Index under Moon Jae-in") +
+  geom_smooth(se = FALSE, color = "red") +
+  annotate("text", x = Inf, y = Inf, label = plottext, vjust = "top", hjust = "right") +
+  ylim(c(0.5, 5.5)) +
+  labs(x = "Park's Trust Index", y = "Moon's Trust Index") +
   my_theme + 
   theme(
     panel.grid.major.x = element_line(linetype = 2),
@@ -137,7 +150,7 @@ ggplot(dropNAdf, aes(x = parktrustid, y = moontrustid)) +
 ## ---- Scatter2Trustid
 ggplot(dropNAdf, aes(x = parktrustid, y = trustid)) +
   geom_point(size = 2, alpha = 0.5) + 
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  geom_smooth(se = FALSE, color = "red") +
   labs(x = "Trust Index under Park Geun-hye", y = "Trust Index") +
   my_theme + 
   theme(
@@ -148,7 +161,7 @@ ggplot(dropNAdf, aes(x = parktrustid, y = trustid)) +
 ## ---- Scatter3Trustid
 ggplot(dropNAdf, aes(x = moontrustid, y = trustid)) +
   geom_point(size = 2, alpha = 0.5) + 
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  geom_smooth(se = FALSE, color = "red") +
   labs(x = "Trust Index under Moon Jae-in", y = "Trust Index") +
   my_theme + 
   theme(
