@@ -176,7 +176,7 @@ r2.dfset <- est.dfset %>% purrr::map(~sprintf("%1.3f", summary(.)$adj.r.squared)
 keep <- "diff"
 varlist <- exprs(
   stat == "se" ~ "",
-  vars == "diff" ~ "Moon's trust id - Park's trust id"
+  vars == "diff" ~ "Moon's trust - Park's trust"
 )
 
 coef.dfset <- est.dfset %>% 
@@ -203,28 +203,6 @@ coef.dfset <- est.dfset %>%
 
 tab.dfset <- as.matrix(coef.dfset) %>% 
   rbind(rbind(c("Obs", n.dfset), c("Adjusted R-sq", r2.dfset)))
-
-## ---- Scatter2Trustid
-ggplot(dropNAdf, aes(x = parktrustid, y = trustid)) +
-  geom_point(size = 2, alpha = 0.5) + 
-  geom_smooth(se = FALSE, color = "red") +
-  labs(x = "Trust Index under Park Geun-hye", y = "Trust Index") +
-  my_theme + 
-  theme(
-    panel.grid.major.x = element_line(linetype = 2),
-    panel.grid.major.y = element_line(linetype = 2)
-  )
-
-## ---- Scatter3Trustid
-ggplot(dropNAdf, aes(x = moontrustid, y = trustid)) +
-  geom_point(size = 2, alpha = 0.5) + 
-  geom_smooth(se = FALSE, color = "red") +
-  labs(x = "Trust Index under Moon Jae-in", y = "Trust Index") +
-  my_theme + 
-  theme(
-    panel.grid.major.x = element_line(linetype = 2),
-    panel.grid.major.y = element_line(linetype = 2)
-  )
 
 ## ---- RegTrusidonSepTrustid
 regset <- list(
