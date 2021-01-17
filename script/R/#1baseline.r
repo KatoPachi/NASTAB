@@ -140,8 +140,8 @@ annotation <- str_c(c(annotation1, annotation2, annotation3), collapse = "\n")
 ggplot(dropNAdf, aes(x = parktrustid, y = moontrustid)) +
   geom_point(size = 2, alpha = 0.5) + 
   geom_smooth(se = FALSE, color = "red") +
-  annotate("text", x = Inf, y = Inf, label = annotation, vjust = "top", hjust = "right") +
-  ylim(c(0.5, 5.5)) +
+  annotate("text", x = 3.5, y = 5.7, label = annotation) +
+  ylim(c(0.5, 6)) +
   labs(x = "Park's Trust Index", y = "Moon's Trust Index") +
   my_theme + 
   theme(
@@ -270,9 +270,9 @@ r2 <- summary(est.indexreg)$adj.r.squared
 keep <- c("gender", "pinc", "age", "educ", "political") %>% paste(collapse = "|")
 
 varlist <- exprs(
-  vars == "gender" ~ "female",
+  vars == "gender" ~ "Female",
   vars == "log_pinc_all" ~ "Logarithm of income",
-  vars == "age" ~ "age",
+  vars == "age" ~ "Age",
   vars == "I(age^2/100)" ~ "squared age/100",
   vars == "factor(educ)2" ~ "High school graduate",
   vars == "factor(educ)3" ~ "University graduate",
@@ -313,7 +313,7 @@ plotdt <- left_join(avgdonate, scaledf, by = "pid")
 
 ggplot(plotdt, aes(x = trustid, y = i_total_giving)) + 
 	geom_point(size = 1.5, alpha = 0.5) +
-  labs(x = "Trust Index", y = "Individual Average Donations across Time") +
+  labs(x = "Standarlized trust index", y = "Individual average donations across time") +
 	my_theme
 
 ## ---- BoxpTrustidByBenefit
@@ -327,7 +327,7 @@ plotdt <- left_join(avgbenefit, scaledf, by = "pid")
 ggplot(plotdt, aes(x = factor(receive_benefit), y = trustid)) + 
 	geom_boxplot(fill = "grey90") +
 	stat_summary(fun = "mean", geom = "point", shape = 21, size = 2., fill = "white") + 
-  labs(x = "#. Receving Tax Benefit", y = "Trust Index") +
+  labs(x = "#. Receving tax benefit", y = "Standarized trust index") +
   scale_y_continuous(breaks = seq(-3, 5, 1)) +
   coord_flip() +
 	my_theme +
