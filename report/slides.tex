@@ -115,7 +115,7 @@
 \title{Charitable Giving, Tax Reform, and Political Trust}
 \author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
 Kim\(^3\)}
-\date{2021/01/17}
+\date{2021/01/18}
 \institute{\(^1\)Osaka University \and \(^2\)Chiba
 University \and \(^3\)Kobe University}
 
@@ -271,8 +271,8 @@ determined exogeneity. In the South Korea, \(r = 0.15\).
 \hypertarget{trust-index}{%
 \section{Trust Index}\label{trust-index}}
 
-\begin{frame}{Make Trust Index}
-\protect\hypertarget{make-trust-index}{}
+\begin{frame}{Estimation of Trust Index}
+\protect\hypertarget{estimation-of-trust-index}{}
 The trust for politicans is time-varying variable because it depends on
 governments' policies. We make time-invarying trust index using the
 fixed effect model.
@@ -303,8 +303,8 @@ fixed effect model.
 \end{figure}
 \end{frame}
 
-\begin{frame}{Relationship between Donations and Trust Index}
-\protect\hypertarget{relationship-between-donations-and-trust-index}{}
+\begin{frame}{Relationship b/w Donations and Trust Index}
+\protect\hypertarget{relationship-bw-donations-and-trust-index}{}
 \begin{figure}
 \centering
 \includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/ScatterTrusidDonations-1.pdf}
@@ -312,8 +312,8 @@ fixed effect model.
 \end{figure}
 \end{frame}
 
-\begin{frame}{Relationship between Receving Tax Benefit and Trust Index}
-\protect\hypertarget{relationship-between-receving-tax-benefit-and-trust-index}{}
+\begin{frame}{Relationship b/w Receving Tax Benefit and Trust Index}
+\protect\hypertarget{relationship-bw-receving-tax-benefit-and-trust-index}{}
 \begin{figure}
 \centering
 \includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/BoxpTrustidByBenefit-1.pdf}
@@ -325,15 +325,15 @@ fixed effect model.
 \protect\hypertarget{regression-of-trust-index-on-covariates}{}
 \begin{table}
 
-\caption{\label{tab:kableRegTrustidOnCovariate}Regression of Trust Index (Year = 2018)}
+\caption{\label{tab:kableRegTrustidOnCovariate}Regression of Standarized Trust Index (Year = 2018)}
 \centering
 \begin{tabular}[t]{lcc}
 \toprule
 Variables & Coefficients & S.E.\\
 \midrule
-female & 0.056** & (0.023)\\
+Female & 0.056** & (0.023)\\
 Logarithm of income & 0.828* & (0.440)\\
-age & -0.022*** & (0.004)\\
+Age & -0.022*** & (0.004)\\
 squared age/100 & 0.022*** & (0.004)\\
 High school graduate & 0.029 & (0.035)\\
 University graduate & 0.010 & (0.038)\\
@@ -357,9 +357,26 @@ the shinking of MV Sewol (April 2014).
 Even though we control time fixed effect to estimate trust index, we are
 concerned whether time fixed effect can rule out this presidential
 transition effect.
+\end{frame}
 
+\begin{frame}{How to Check Presidential Transition Effect}
+\protect\hypertarget{how-to-check-presidential-transition-effect}{}
 To check it, we estimate trust index using both data in 2015 and 2016
 (Park's Trust index) and data in 2017 and 2018 (Moon's Trust index).
+
+Then, we carry out
+
+\begin{enumerate}
+\tightlist
+\item
+  t-test of difference in means between Moon's and Park's trust index
+\item
+  regression of the original trust index on difference in separated
+  trust index
+\item
+  regression of the original trust index on Moon's and Park's trust
+  index
+\end{enumerate}
 \end{frame}
 
 \begin{frame}{Scatter Plot b/w Park's and Moon's Trust Index}
@@ -369,26 +386,6 @@ To check it, we estimate trust index using both data in 2015 and 2016
 \includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter1Trustid-1.pdf}
 \caption{Scatter Plot between Trust Index under Park Geun-hye and Moon
 Jae-in}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Scatter Plot b/w Park's Trust Index and Original One}
-\protect\hypertarget{scatter-plot-bw-parks-trust-index-and-original-one}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter2Trustid-1.pdf}
-\caption{Scatter Plot between Trust Index under Park Geun-hye and
-Original One}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Scatter Plot b/w Moon's Trust Index and Original One}
-\protect\hypertarget{scatter-plot-bw-moons-trust-index-and-original-one}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter3Trustid-1.pdf}
-\caption{Scatter Plot between Trust Index under Moon Jae-in and Original
-One}
 \end{figure}
 \end{frame}
 

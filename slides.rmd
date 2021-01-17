@@ -169,7 +169,7 @@ In the South Korea, $r = 0.15$.
 knitr::read_chunk("script/R/#1baseline.r")
 ```
 
-## Make Trust Index
+## Estimation of Trust Index
 
 The trust for politicans is time-varying variable because it depends on governments' policies.
 We make time-invarying trust index using the fixed effect model.
@@ -197,13 +197,13 @@ $$
 
 ```
 
-## Relationship between Donations and Trust Index 
+## Relationship b/w Donations and Trust Index 
 
 ```{r ScatterTrusidDonations, include=TRUE, fig.cap="Scatter Plot between Donations and Trust Index"}
 
 ```
 
-## Relationship between Receving Tax Benefit and Trust Index
+## Relationship b/w Receving Tax Benefit and Trust Index
 
 ```{r BoxpTrustidByBenefit, include=TRUE, fig.cap="Box Plot of Trust Index Grouped By Tax Benefit"}
 
@@ -219,7 +219,7 @@ $$
 knitr::kable(
     tab.indexreg,
     format = "latex",
-    caption = "Regression of Trust Index (Year = 2018)",
+    caption = "Regression of Standarized Trust Index (Year = 2018)",
     col.names = c("Variables", "Coefficients", "S.E."),
     row.names = FALSE,
     align = "lcc", 
@@ -237,8 +237,16 @@ People became distrustful of Park Geun-hye due to the shinking of MV Sewol (Apri
 Even though we control time fixed effect to estimate trust index, 
 we are concerned whether time fixed effect can rule out this presidential transition effect.
 
+## How to Check Presidential Transition Effect
+
 To check it, we estimate trust index using both data in 2015 and 2016 (Park's Trust index) and 
 data in 2017 and 2018 (Moon's Trust index).
+
+Then, we carry out
+
+1. t-test of difference in means between Moon's and Park's trust index
+1. regression of the original trust index on difference in separated trust index
+1. regression of the original trust index on Moon's and Park's trust index
 
 ## Scatter Plot b/w Park's and Moon's Trust Index
 
@@ -246,17 +254,6 @@ data in 2017 and 2018 (Moon's Trust index).
 
 ```
 
-## Scatter Plot b/w Park's Trust Index and Original One
-
-```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Original One"}
-
-```
-
-## Scatter Plot b/w Moon's Trust Index and Original One
-
-```{r Scatter3Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Moon Jae-in and Original One"}
-
-```
 
 ## Regressions of Trust Index on Separated Trust Index
 
