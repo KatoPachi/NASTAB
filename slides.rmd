@@ -239,7 +239,7 @@ we are concerned whether time fixed effect can rule out this presidential transi
 
 ## How to Check Presidential Transition Effect
 
-To check it, we estimate trust index using both data in 2015 and 2016 (Park's Trust index) and 
+To check it, we estimate trust index using both either in 2015 and 2016 (Park's Trust index) or 
 data in 2017 and 2018 (Moon's Trust index).
 
 Then, we carry out
@@ -254,8 +254,32 @@ Then, we carry out
 
 ```
 
+## Scatter Plot b/w Separated Trust Index and Original One
 
-## Regressions of Trust Index on Separated Trust Index
+```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Difference of Separated Trust Index and Original One"}
+
+```
+
+## Regressions on Difference b/w President-specific Trust
+
+```{r RegTrustidOnDiff2Trustid}
+
+```
+
+```{r kableRegTrustidOnDiff2Trustid, include = TRUE}
+knitr::kable(
+    tab.dfset,
+    format = "latex",
+    caption = "Regressions of Trust Index on President-specific Trust Index",
+    col.names = c("", "Full", "Abs < 2", "Abs < 1", "Abs < 0.5"),
+    row.names = FALSE,
+    align = "lcccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+## Regressions on Separated Trust Index
 
 ```{r RegTrusidonSepTrustid}
 
