@@ -357,26 +357,35 @@ the shinking of MV Sewol (April 2014).
 Even though we control time fixed effect to estimate trust index, we are
 concerned whether time fixed effect can rule out this presidential
 transition effect.
-\end{frame}
 
-\begin{frame}{How to Check Presidential Transition Effect}
-\protect\hypertarget{how-to-check-presidential-transition-effect}{}
 To check it, we estimate trust index using both either in 2015 and 2016
 (Park's Trust index) or data in 2017 and 2018 (Moon's Trust index).
+\end{frame}
 
-Then, we carry out
-
-\begin{enumerate}
+\begin{frame}{Difference in mean b/w Park's and Moon's Trust}
+\protect\hypertarget{difference-in-mean-bw-parks-and-moons-trust}{}
+\begin{itemize}
 \tightlist
 \item
-  t-test of difference in means between Moon's and Park's trust index
+  We made a scatter plot between president-specific trust indexs.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Large variation of Moon's trust index among those who have
+    same value of the Park's trust index.}
+  \end{itemize}
 \item
-  regression of the original trust index on difference in separated
-  trust index
-\item
-  regression of the original trust index on Moon's and Park's trust
-  index
-\end{enumerate}
+  We carried out t-test of difference in mean between president-specific
+  trust indexs.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{The average Park's trust index is lower than the average
+    Moon's trust index, which is statistically siginificant.}
+  \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Scatter Plot b/w Park's and Moon's Trust Index}
@@ -389,18 +398,54 @@ Jae-in}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Scatter Plot b/w Separated Trust Index and Original One}
-\protect\hypertarget{scatter-plot-bw-separated-trust-index-and-original-one}{}
+\begin{frame}{Regressions on Difference b/w President-specific Trust}
+\protect\hypertarget{regressions-on-difference-bw-president-specific-trust}{}
+\begin{itemize}
+\tightlist
+\item
+  We made a scatter plot between difference of president-specific trust
+  indexs and the original trust index.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{there is large variation of difference of president-specific
+    trust indexs, and there is large variation of the original trust
+    index among those who have similar value of two president-specific
+    trust indexs.}
+  \end{itemize}
+\item
+  We regress the original trust index on difference of
+  president-specific trust indexs. We restrict units whose aboslute
+  value of president-specific trust index difference is less than 2 (Abs
+  \textless{} 2), 1 (Abs \textless{} 1), and 0.5 (Abs \textless{} 0.5).
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{the positive correlations between difference of
+    president-specific trust indexs and the original one.} However,
+    \textbf{this positive correlation is statistically insignigicant if
+    we use units whose president-specific trust indexs have similar
+    values.}
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and
+Original One}
+\protect\hypertarget{scatter-plot-bw-difference-of-separated-trust-indexs-and-original-one}{}
 \begin{figure}
 \centering
 \includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter2Trustid-1.pdf}
-\caption{Scatter Plot between Difference of Separated Trust Index and
-Original One}
+\caption{Scatter Plot between Difference of President-specific Trust
+Indexs and Original One}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Regressions on Difference b/w President-specific Trust}
-\protect\hypertarget{regressions-on-difference-bw-president-specific-trust}{}
+\begin{frame}{Result of Regressions on Difference b/w President-specific
+Trust}
+\protect\hypertarget{result-of-regressions-on-difference-bw-president-specific-trust}{}
 \begin{table}
 
 \caption{\label{tab:kableRegTrustidOnDiff2Trustid}Regressions of Trust Index on President-specific Trust Index}
@@ -419,8 +464,25 @@ Adjusted R-sq & 0.001 & 0.001 & 0.000 & -0.000\\
 \end{table}
 \end{frame}
 
-\begin{frame}{Regressions on Separated Trust Index}
-\protect\hypertarget{regressions-on-separated-trust-index}{}
+\begin{frame}{Regressions on President-specific Trust Indexs}
+\protect\hypertarget{regressions-on-president-specific-trust-indexs}{}
+\begin{itemize}
+\tightlist
+\item
+  We regress the original trust index on two president-specific trust
+  indexs.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{The variation of trust index can be explained by Moon's
+    trust index largely.}
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Result of Regressions on President-specific Trust Indexs}
+\protect\hypertarget{result-of-regressions-on-president-specific-trust-indexs}{}
 \begin{table}
 
 \caption{\label{tab:kableRegTrusidonSepTrustid}Regressions of Trust Index on Park's and Moon's Trust Index}
