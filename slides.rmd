@@ -237,16 +237,15 @@ People became distrustful of Park Geun-hye due to the shinking of MV Sewol (Apri
 Even though we control time fixed effect to estimate trust index, 
 we are concerned whether time fixed effect can rule out this presidential transition effect.
 
-## How to Check Presidential Transition Effect
-
 To check it, we estimate trust index using both either in 2015 and 2016 (Park's Trust index) or 
 data in 2017 and 2018 (Moon's Trust index).
 
-Then, we carry out
+## Difference in mean b/w Park's and Moon's Trust
 
-1. t-test of difference in means between Moon's and Park's trust index
-1. regression of the original trust index on difference in separated trust index
-1. regression of the original trust index on Moon's and Park's trust index
+- We made a scatter plot between president-specific trust indexs. 
+    - **Large variation of Moon's trust index among those who have same value of the Park's trust index.**
+- We carried out t-test of difference in mean between president-specific trust indexs. 
+    - **The average Park's trust index is lower than the average Moon's trust index, which is statistically siginificant.**
 
 ## Scatter Plot b/w Park's and Moon's Trust Index
 
@@ -254,13 +253,20 @@ Then, we carry out
 
 ```
 
-## Scatter Plot b/w Separated Trust Index and Original One
+## Regressions on Difference b/w President-specific Trust
 
-```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Difference of Separated Trust Index and Original One"}
+- We made a scatter plot between difference of president-specific trust indexs and the original trust index. 
+    - **there is large variation of difference of president-specific trust indexs, and there is large variation of the original trust index among those who have similar value of two president-specific trust indexs.**
+- We regress the original trust index on difference of president-specific trust indexs. We restrict units whose aboslute value of president-specific trust index difference is less than 2 (Abs < 2), 1 (Abs < 1), and 0.5 (Abs < 0.5). 
+    - **the positive correlations between difference of president-specific trust indexs and the original one.** However, **this positive correlation is statistically insignigicant if we use units whose president-specific trust indexs have similar values.**
+
+## Scatter Plot b/w Difference of Separated Trust Indexs and Original One
+
+```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Trust Indexs and Original One"}
 
 ```
 
-## Regressions on Difference b/w President-specific Trust
+## Result of Regressions on Difference b/w President-specific Trust
 
 ```{r RegTrustidOnDiff2Trustid}
 
@@ -279,7 +285,12 @@ knitr::kable(
 kable_styling(font_size = 9)
 ```
 
-## Regressions on Separated Trust Index
+## Regressions on President-specific Trust Indexs
+
+- We regress the original trust index on two president-specific trust indexs.
+    - **The variation of trust index can be explained by Moon's trust index largely.**
+
+## Result of Regressions on President-specific Trust Indexs
 
 ```{r RegTrusidonSepTrustid}
 
