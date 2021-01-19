@@ -453,7 +453,8 @@ knitr::kable(
     align = "lcc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling()
+kable_styling() %>% 
+add_indent(c(2:5))
 ```
 
 ## Potential Concerns of Heterogenous Price Elasticity
@@ -507,6 +508,37 @@ knitr::kable(
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
 kable_styling(font_size = 9)
+```
+
+## Robustness Check of Heterogenous Price Elasticity
+
+1. Using data in 2013 and 2014, we regressed the interaction model again
+    - The president was Park Geun-hye in both 2013 and 2014. Thus, we can exclude the effect of presidential transition on donation behavior.
+1. Using the park's trust index instead, we regressed the interaction model with data in 2013 and 2014.
+    - Since the trust index represents the trust for politicians under the president Park (but scandalous period), we can rule out the effect of presidential transition on both donations and trust.
+1. Restricting to units aboslute value of president-specific trust index difference is less than 1 or 0.5, we regressed the interaction model again (year > 2011)
+    - Last method rules out the effect of presidential transition on political trust because the original trust index is not affected by presidential transition.
+ 
+```{r Robust1EstimateInteractionByTrustGroup}
+
+```
+
+## Result of Robustness Check
+
+```{r kableRobust1EstimateInteractionByTrustGroup, include=TRUE}
+knitr::kable(
+    tab.robintreg,
+    format = "latex",
+    caption = "Robustness Check of Heterogenous Price Elasticity",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)"),
+    row.names = FALSE,
+    align = "lcccc",
+    booktabs = TRUE, escape = FALSE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3:10)) %>% 
+add_header_above(c("Trust index" = 1, "Original" = 1, "Park" = 1, "Original(Abs<1)" = 1, "Original(Abs<0.5)" = 1)) %>% 
+add_header_above(c("Year" = 1, "2013 and 2014" = 2, "After 2012" = 2))
 ```
 
 <!--
