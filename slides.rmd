@@ -456,52 +456,47 @@ knitr::kable(
 kable_styling()
 ```
 
-<!--
-## Presidential Transition and Trust Index
+## Potential Concerns of Heterogenous Price Elasticity
 
-In May 2017, South Korean president changed from Park Geun-hye to Moon Jae-in.
-This presidential transition was due to the impeachment charge against Park Geun-hye.
-People became distrustful of Park Geun-hye due to the shinking of MV Sewol (April 2014).
-
-Even though we control time fixed effect to estimate trust index, 
-we are concerned whether time fixed effect can rule out this presidential transition effect.
-
-To check it, we estimate trust index using both either in 2015 and 2016 (Park's Trust index) or 
+- There is one potential concern that the presidential transition affects both donation behavior and political trust.
+    - In May 2017, South Korean president changed from Park Geun-hye to Moon Jae-in. This presidential transition was due to the impeachment charge against Park Geun-hye. People became distrustful of Park Geun-hye due to the shinking of MV Sewol (April 2014).
+- To rule out this confounder, we constructed president-specific trust indexs using either in 2015 and 2016 (Park's Trust index) or 
 data in 2017 and 2018 (Moon's Trust index).
+    - We discussed how to use these indexs later.
 
-## Difference in mean b/w Park's and Moon's Trust
+## Relationship b/w President-specific Trust Indexs
 
-- We made a scatter plot between president-specific trust indexs. 
-    - **Large variation of Moon's trust index among those who have same value of the Park's trust index.**
-- We carried out t-test of difference in mean between president-specific trust indexs. 
-    - **The average Park's trust index is lower than the average Moon's trust index, which is statistically siginificant.**
+- We made a scatter plot between Park's trust index and Moon's trust index.
+    - Large variation of Moon's trust index among those who have same value of the Park's trust index.
+- We tested the difference in mean between president-specific trust indexs.
+    - The average Park's trust index is lower than the average Moon's trust index, which is statistically siginificant.
 
-## Scatter Plot b/w Park's and Moon's Trust Index
+## Scatter Plot b/w President-specific Trust Indexs
 
-```{r Scatter1Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in", eval=FALSE}
+```{r Scatter1Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in"}
 
 ```
 
-## Regressions on Difference b/w President-specific Trust
+## Relationship among Three Trust Indexs
 
 - We made a scatter plot between difference of president-specific trust indexs and the original trust index. 
-    - **there is large variation of difference of president-specific trust indexs, and there is large variation of the original trust index among those who have similar value of two president-specific trust indexs.**
-- We regress the original trust index on difference of president-specific trust indexs. We restrict units whose aboslute value of president-specific trust index difference is less than 2 (Abs < 2), 1 (Abs < 1), and 0.5 (Abs < 0.5). 
-    - **the positive correlations between difference of president-specific trust indexs and the original one.** However, **this positive correlation is statistically insignigicant if we use units whose president-specific trust indexs have similar values.**
+    - there is large variation of difference of president-specific trust indexs, and there is large variation of the original trust index among those who have similar value of two president-specific trust indexs.
+- We regressed the original trust index on difference of president-specific trust indexs. We restrict units whose aboslute value of president-specific trust index difference is less than 2 (Abs < 2), 1 (Abs < 1), and 0.5 (Abs < 0.5). 
+    - the positive correlations between difference of president-specific trust indexs and the original one. However, this positive correlation is statistically insignigicant if we use units whose president-specific trust indexs have similar values.
 
 ## Scatter Plot b/w Difference of Separated Trust Indexs and Original One
 
-```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Trust Indexs and Original One", eval=FALSE}
+```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Trust Indexs and Original One"}
 
 ```
 
 ## Result of Regressions on Difference b/w President-specific Trust
 
-```{r RegTrustidOnDiff2Trustid, eval=FALSE}
+```{r RegTrustidOnDiff2Trustid}
 
 ```
 
-```{r kableRegTrustidOnDiff2Trustid, include = TRUE, eval=FALSE}
+```{r kableRegTrustidOnDiff2Trustid, include = TRUE}
 knitr::kable(
     tab.dfset,
     format = "latex",
@@ -514,31 +509,7 @@ knitr::kable(
 kable_styling(font_size = 9)
 ```
 
-## Regressions on President-specific Trust Indexs
-
-- We regress the original trust index on two president-specific trust indexs.
-    - **The variation of trust index can be explained by Moon's trust index largely.**
-
-## Result of Regressions on President-specific Trust Indexs
-
-```{r RegTrusidonSepTrustid, eval=FALSE}
-
-```
-
-```{r kableRegTrusidonSepTrustid, include = TRUE, eval=FALSE}
-knitr::kable(
-    tab.regset,
-    format = "latex",
-    caption = "Regressions of Trust Index on Park's and Moon's Trust Index",
-    col.names = c("", "(1)", "(2)", "(3)"),
-    row.names = FALSE,
-    align = "lccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling()
-```
-
-
+<!--
 ## Heterogenity By Political Trust
 
 To capture heterogeneity precisely,
