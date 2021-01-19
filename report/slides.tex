@@ -368,7 +368,7 @@ to about 1.1\% giving decrease)
 
 \begin{table}
 
-\caption{\label{tab:kableEstimatePElast}Baseline Regressions}
+\caption{\label{tab:kableEstimateElasticity}Baseline Regressions}
 \centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccccc}
@@ -383,6 +383,92 @@ Year X Educ & N & N & Y & Y & Y\\
 Year X Gender & N & N & N & Y & Y\\
 Resident Area & N & N & N & N & Y\\
 Obs & 54213 & 54213 & 54211 & 54211 & 54211\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check}
+\protect\hypertarget{robustness-check}{}
+We addressed the following two potential concerns:
+
+\begin{enumerate}
+\tightlist
+\item
+  Income and donations are determined simultaneously
+
+  \begin{itemize}
+  \tightlist
+  \item
+    This causes both a change of giving price and a change of an amount
+    of donations
+  \item
+    Gruber and Saez (2002) provided that we should use
+    \(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) as an
+    insturment.
+  \item
+    Following Alumina et al.~(2020), we estimated the model (5) in the
+    previous slide, using the panel IV model for \(k = 1, 2, 3, 4\).
+  \end{itemize}
+\item
+  The effect of presidential transition on donations
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The presidential transition is one of our major ommited factor to
+    affect both political trust and charitable giving.
+  \item
+    To shed light on this concern, we used data in 2013 and 2014
+    (President was Park Geun-hye in both years), and estimated the model
+    (5) in the previous slide, using the fixed effect model and the
+    panel IV model for \(k = 1, 2, 3, 4\).
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Result of Robustness Check 1}
+\protect\hypertarget{result-of-robustness-check-1}{}
+We obtained similar value of price elasticity to baseline results (1\%
+price increase leads to about 1.1\% giving decrease)
+
+\begin{table}
+
+\caption{\label{tab:kableRobust1EstimateElasticity}Panel IV Regressions}
+\centering
+\begin{tabular}[t]{lcccc}
+\toprule
+ & k = 1 & k = 2 & k = 3 & k = 4\\
+\midrule
+ln(giving price) & -1.160** & -1.088*** & -1.138*** & -0.941***\\
+ & (0.473) & (0.411) & (0.368) & (0.336)\\
+F-stat of IV & 10671.085 & 11547.015 & 11742.698 & 9585.022\\
+Obs & 51982 & 49707 & 46878 & 43651\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Result of Robustness Check 2}
+\protect\hypertarget{result-of-robustness-check-2}{}
+We obtained \textbf{stonger} price effect than baseline (1\% price
+increase leads to about 1.2 \textasciitilde{} 1.6\% giving decrease)
+
+\begin{table}
+
+\caption{\label{tab:kableRobust2EstimateElasticity}Results with data in 2013 and 2014}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{FE} & \multicolumn{4}{c}{Panel IV with FE} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-6}
+ &  & k = 1 & k = 2 & k = 3 & k = 4\\
+\midrule
+ln(giving price) & -1.466*** & -1.497*** & -1.628*** & -1.207*** & -1.331***\\
+ & (0.327) & (0.355) & (0.375) & (0.381) & (0.395)\\
+F-stat of IV &  & 7374.556 & 4635.809 & 5157.662 & 5207.029\\
+Obs & 15134 & 13870 & 13095 & 12564 & 11774\\
 \bottomrule
 \end{tabular}
 \end{table}

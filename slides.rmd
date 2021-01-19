@@ -251,6 +251,62 @@ knitr::kable(
 kable_styling(font_size = 9)
 ```
 
+## Robustness Check 
+
+We addressed the following two potential concerns:
+
+1. Income and donations are determined simultaneously
+    - This causes both a change of giving price and a change of an amount of donations
+    - Gruber and Saez (2002) provided that we should use $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ as an insturment.
+    - Following Alumina et al. (2020), we estimated the model (5) in the previous slide, using the panel IV model for $k = 1, 2, 3, 4$.
+2. The effect of presidential transition on donations 
+    - The presidential transition is one of our major ommited factor to affect both political trust and charitable giving.
+    - To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for $k = 1, 2, 3, 4$.
+
+## Result of Robustness Check 1
+
+We obtained similar value of price elasticity to baseline results (1\% price increase leads to about 1.1\% giving decrease)
+
+```{r Robust1EstimateElasticity}
+
+```
+
+```{r kableRobust1EstimateElasticity, include = TRUE}
+knitr::kable(
+    tab.pivreg,
+    format = "latex",
+    caption = "Panel IV Regressions",
+    col.names = c("", "k = 1", "k = 2", "k = 3", "k = 4"),
+    row.names = FALSE,
+    align = "lcccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+
+## Result of Robustness Check 2
+
+We obtained **stonger** price effect than baseline (1\% price increase leads to about 1.2 ~ 1.6\% giving decrease)
+
+```{r Robust2EstimateElasticity}
+
+```
+
+```{r kableRobust2EstimateElasticity, include=TRUE}
+knitr::kable(
+    tab.limitreg,
+    format = "latex",
+    caption = "Results with data in 2013 and 2014",
+    col.names = c("", "", "k = 1", "k = 2", "k = 3", "k = 4"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+add_header_above(c(" " = 1, "FE" = 1, "Panel IV with FE" = 4))
+```
+
 <!--
 # Trust Index
 
