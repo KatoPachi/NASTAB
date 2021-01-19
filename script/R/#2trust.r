@@ -423,6 +423,84 @@ tab.intreg <- as.matrix(coef.intreg) %>%
   rbind(c("Obs", n.intreg, "")) %>% 
   data.frame()
 
+## ---- Robust1EstimateInteractionByTrustGroup
+intreg <- Formula(log_total_g ~ log_price + log_pinc_all + 
+  age + factor(year):factor(educ) + factor(year):factor(gender) + factor(living_area) | pid + year)
+
+factordf <- estdf %>% 
+	mutate(
+		park5 = factor(park5, levels = c(3, 1, 2, 4, 5)),
+		original5 = factor(original5, levels = c(3, 1, 2, 4, 5))
+	)
+
+argset <- list(
+	rob1 = list(
+		reg = update(intreg, . ~ . + log_price:original5 | . | 0 | pid),
+		data = factordf %>% filter(year == 2013 | year == 2014)
+	),
+	rob2 = list(
+		reg = update(intreg, . ~ . + log_price:park5 | . | 0 | pid),
+		data = factordf %>% filter(year == 2013 | year == 2014)
+	),
+	rob3 = list(
+		reg = update(intreg, . ~ . + log_price:original5 | . | 0 | pid),
+		data = factordf %>% filter(year >= 2012, lessdiff1 == 1)
+	),
+	rob4 = list(
+		reg = update(intreg, . ~ . + log_price:original5 | . | 0 | pid),
+		data = factordf %>% filter(year >= 2012, lessdiffhalf == 1)
+	)
+)
+
+est.robintreg <- argset %>% purrr::map(~lfe::felm(.$reg, data = .$data))
+n.robintreg <- est.robintreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+
+# make tabulation
+keep <- c("log_price") %>% paste(collapse = "|")
+varlist <- exprs(
+  str_detect(vars, "51") ~ "X Lowest Trust",
+  str_detect(vars, "52") ~ "X Lower Trust",
+  str_detect(vars, "54") ~ "X Higher Trust",
+  str_detect(vars, "55") ~ "X Highest Trust",
+  vars == "log_price" ~ "ln(giving price)"
+)
+varorder <- exprs(
+  str_detect(vars, "Lowest") ~ 1,
+  str_detect(vars, "Lower") ~ 2,
+  str_detect(vars, "Higher") ~ 3,
+  str_detect(vars, "Highest") ~ 4,
+  TRUE ~ 0
+)
+
+coef.robintreg <- est.robintreg %>% 
+	purrr::map(function(x)
+    data.frame(
+      vars = rownames(summary(x)$coefficients),
+      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
+          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
+          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
+          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
+      stringsAsFactors = FALSE
+    )
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+	purrr::map(function(x) x %>% mutate(vars = case_when(!!!varlist))) %>% 
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(order = case_when(!!!varorder)) %>% 
+	.[with(., order(order)),] %>% 
+	mutate(vars = case_when(stat == "se" ~ "", TRUE ~ vars)) %>% 
+	select(-stat, -order)
+
+tab.robintreg <- as.matrix(coef.robintreg) %>% 
+  rbind(c("Obs", n.robintreg)) %>% 
+  data.frame()
+
 ## ---- EstimateHeteroPEstByTrusid
 reg <- log_total_g ~ log_price*trustid + log_pinc_all + 
   age + factor(year)*factor(educ) + factor(year)*factor(gender) + factor(living_area) + factor(year)
