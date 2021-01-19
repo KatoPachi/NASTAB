@@ -596,6 +596,102 @@ Obs & 7697 & \\
 \end{table}
 \end{frame}
 
+\begin{frame}{Subgroup Regressions}
+\protect\hypertarget{subgroup-regressions}{}
+To see the heterogenous price elasticity by political trust, We
+estimated the baseline regression model (5) (see Table
+\ref{tab:kableEstimateElasticity}), using sample grouped by the trust
+index.
+
+\begin{itemize}
+\tightlist
+\item
+  Lowest: 0 \textasciitilde{} 20\% quantile of trust index
+\item
+  Lower: 20 \textasciitilde{} 40\% quantile of trust index
+\item
+  Neutral: 40 \textasciitilde{} 60\% quantile of trust index
+\item
+  Higher: 60 \textasciitilde{} 80\% quantile of trust index
+\item
+  Highest: 80 \textasciitilde{} 100\% quantile of trust index
+\end{itemize}
+
+Covariates are the logarithm of income, age, interactions b/w year and
+education, interactions b/w year and gender, and living are dummy into
+covariates.
+\end{frame}
+
+\begin{frame}{Results of Subgroup Regressions}
+\protect\hypertarget{results-of-subgroup-regressions}{}
+We cound \textbf{NOT} find the price effect for respondents whose trust
+is very low.
+
+\begin{table}
+
+\caption{\label{tab:kableEstimateElasticityByTrustGroup}Subgroup Regressions}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+ & Lowest & Lower & Neutral & Higher & Highest\\
+\midrule
+ln(giving price) & -0.675 & -0.460 & -1.667*** & -1.186** & -1.338**\\
+ & (0.558) & (0.459) & (0.481) & (0.531) & (0.552)\\
+Obs & 10239 & 10358 & 10432 & 10303 & 9969\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Regression on Interaction Term}
+\protect\hypertarget{regression-on-interaction-term}{}
+To check whether price elasticity is statistically siginificant
+different among five trust groups, we estimated the baseline regression
+model (5) including interation term between five trust groups and giving
+price.
+
+\begin{align*}
+    \log(\text{Giving}_{ijt}) 
+    =& \alpha_i + \beta_1 \log(\text{Price}_{ijt}) \\
+    &+ \sum_g \beta_g \log(\text{Price}_{ijt}) \cdot \text{TrustGroup}_{ijg}  \\
+    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+\end{align*}
+
+\begin{itemize}
+\tightlist
+\item
+  \(\text{TrustGroup}_{ijg}\): taking 1 if individual \(i\) living in
+  \(j\) belongs to the trust group \(g\).
+\item
+  \(g \in \{ \text{Lowest}, \text{Lower}, \text{Higher}, \text{Highest} \}\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Regression Result on Interation Term}
+\protect\hypertarget{regression-result-on-interation-term}{}
+There is statistically siginificant difference on price elasticity
+between the lowest group and the nuetral group.
+
+\begin{table}
+
+\caption{\label{tab:kableEstimateInteractionByTrustGroup}Heterogenous Price Elasticity}
+\centering
+\begin{tabular}[t]{lcc}
+\toprule
+ & Coefficients & S.E.\\
+\midrule
+ln(giving price) & -1.646*** & (0.393)\\
+X Lowest Trust & 1.291** & (0.531)\\
+X Lower Trust & 0.833 & (0.514)\\
+X Higher Trust & 0.275 & (0.541)\\
+X Highest Trust & 0.372 & (0.531)\\
+Obs & 51301 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
 \hypertarget{conclusions}{%
 \section{Conclusions}\label{conclusions}}
 
