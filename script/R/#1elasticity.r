@@ -55,7 +55,7 @@ my_theme <- theme_minimal() +
   )
 
 
-## ---- ReadData
+## ---- ReadDataforElasticity
 df <- read.dta13("data/shaped.dta")
 df <- data.frame(df) %>% 
     mutate(
@@ -68,8 +68,16 @@ df <- data.frame(df) %>%
         log_PPP_healthbdg = log(PPP_healthbdg + 1),
         sqlog_PPP_healthbdg = log_PPP_healthbdg^2,
         political_pref = factor(political_pref, level = c(3, 1, 2, 4, 5))
-    ) %>% 
-    filter(year >= 2012)
+    ) 
+df <- df %>% 
+  group_by(pid) %>% 
+  mutate(
+    lag1_price = dplyr::lag(log_price, n = 1, default = NA, order_by = year),
+    lag2_price = dplyr::lag(log_price, n = 2, default = NA, order_by = year),
+    lag3_price = dplyr::lag(log_price, n = 3, default = NA, order_by = year),
+    lag4_price = dplyr::lag(log_price, n = 4, default = NA, order_by = year)
+  ) %>% 
+  ungroup()
 
 ## ---- EstimatePElast
 #regressions
