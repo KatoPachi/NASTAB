@@ -74,12 +74,20 @@ df <- data.frame(df) %>%
 df <- df %>% 
   group_by(pid) %>% 
   mutate(
-    lag1_price = dplyr::lag(log_price, n = 1, default = NA, order_by = year),
-    lag2_price = dplyr::lag(log_price, n = 2, default = NA, order_by = year),
-    lag3_price = dplyr::lag(log_price, n = 3, default = NA, order_by = year),
-    lag4_price = dplyr::lag(log_price, n = 4, default = NA, order_by = year)
+    lag1_price = dplyr::lag(price, n = 1, default = NA, order_by = year),
+    lag2_price = dplyr::lag(price, n = 2, default = NA, order_by = year),
+    lag3_price = dplyr::lag(price, n = 3, default = NA, order_by = year),
+    lag4_price = dplyr::lag(price, n = 4, default = NA, order_by = year)
   ) %>% 
   ungroup()
+df <- df %>% 
+  mutate(
+    lag1iv = log(price/lag1_price),
+    lag2iv = log(price/lag2_price),
+    lag3iv = log(price/lag3_price),
+    lag4iv = log(price/lag4_price),
+  )
+
 
 ## ---- EstimateElasticity
 #regressions
@@ -137,3 +145,60 @@ addline <- rbind(
 )
 
 tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
+
+## ---- RobustEstimateElasticity
+# regressions
+reg <- Formula(
+  log_total_g ~ log_pinc_all +age+factor(year):factor(educ)+factor(year):factor(gender)+factor(living_area)|
+  pid + year
+)
+
+setreg <- list(
+    lag1 = . ~ .  | . | (log_price ~ lag1iv) | pid,
+    lag2 = . ~ .  | . | (log_price ~ lag2iv) | pid,
+    lag3 = . ~ .  | . | (log_price ~ lag3iv) | pid,
+    lag4 = . ~ .  | . | (log_price ~ lag4iv) | pid
+)
+
+pivreg <- setreg %>% 
+    purrr::map(~as.formula(update(reg, .))) %>%
+    purrr::map(~lfe::felm(as.formula(.), data = subset(df, year >= 2012)))
+
+n.pivreg <- pivreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+f.pivreg <- pivreg %>% purrr::map(~sprintf("%1.3f", .$stage1$iv1fstat[[1]]["F"])) %>% as_vector()
+
+# tabulation
+keep <- c("log_price") %>% paste(collapse = "|")
+varlist <- exprs(
+  stat == "se" ~ "",
+  str_detect(vars, "log_price") ~ "ln(giving price)"
+)
+
+coef.pivreg <- pivreg %>% 
+	purrr::map(function(x)
+    data.frame(
+      vars = rownames(summary(x)$coefficients),
+      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
+          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
+          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
+          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
+      stringsAsFactors = FALSE
+    )
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(vars = case_when(!!!varlist)) %>% 
+  select(-stat)
+
+addline <- rbind(
+  c("F-stat of IV", f.pivreg),
+  c("Obs", n.pivreg)
+)
+
+tab.pivreg <- rbind(as.matrix(coef.pivreg), addline) %>% data.frame()
