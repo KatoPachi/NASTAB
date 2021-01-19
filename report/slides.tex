@@ -692,6 +692,137 @@ Obs & 51301 & \\
 \end{table}
 \end{frame}
 
+\begin{frame}{Potential Concerns of Heterogenous Price Elasticity}
+\protect\hypertarget{potential-concerns-of-heterogenous-price-elasticity}{}
+\begin{itemize}
+\tightlist
+\item
+  There is one potential concern that the presidential transition
+  affects both donation behavior and political trust.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In May 2017, South Korean president changed from Park Geun-hye to
+    Moon Jae-in. This presidential transition was due to the impeachment
+    charge against Park Geun-hye. People became distrustful of Park
+    Geun-hye due to the shinking of MV Sewol (April 2014).
+  \end{itemize}
+\item
+  To rule out this confounder, we constructed president-specific trust
+  indexs using either in 2015 and 2016 (Park's Trust index) or data in
+  2017 and 2018 (Moon's Trust index).
+
+  \begin{itemize}
+  \tightlist
+  \item
+    We discussed how to use these indexs later.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Relationship b/w President-specific Trust Indexs}
+\protect\hypertarget{relationship-bw-president-specific-trust-indexs}{}
+\begin{itemize}
+\tightlist
+\item
+  We made a scatter plot between Park's trust index and Moon's trust
+  index.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Large variation of Moon's trust index among those who have same
+    value of the Park's trust index.
+  \end{itemize}
+\item
+  We tested the difference in mean between president-specific trust
+  indexs.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The average Park's trust index is lower than the average Moon's
+    trust index, which is statistically siginificant.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Scatter Plot b/w President-specific Trust Indexs}
+\protect\hypertarget{scatter-plot-bw-president-specific-trust-indexs}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter1Trustid-1.pdf}
+\caption{Scatter Plot between Trust Index under Park Geun-hye and Moon
+Jae-in}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Relationship among Three Trust Indexs}
+\protect\hypertarget{relationship-among-three-trust-indexs}{}
+\begin{itemize}
+\tightlist
+\item
+  We made a scatter plot between difference of president-specific trust
+  indexs and the original trust index.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    there is large variation of difference of president-specific trust
+    indexs, and there is large variation of the original trust index
+    among those who have similar value of two president-specific trust
+    indexs.
+  \end{itemize}
+\item
+  We regressed the original trust index on difference of
+  president-specific trust indexs. We restrict units whose aboslute
+  value of president-specific trust index difference is less than 2 (Abs
+  \textless{} 2), 1 (Abs \textless{} 1), and 0.5 (Abs \textless{} 0.5).
+
+  \begin{itemize}
+  \tightlist
+  \item
+    the positive correlations between difference of president-specific
+    trust indexs and the original one. However, this positive
+    correlation is statistically insignigicant if we use units whose
+    president-specific trust indexs have similar values.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and
+Original One}
+\protect\hypertarget{scatter-plot-bw-difference-of-separated-trust-indexs-and-original-one}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter2Trustid-1.pdf}
+\caption{Scatter Plot between Difference of President-specific Trust
+Indexs and Original One}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Result of Regressions on Difference b/w President-specific
+Trust}
+\protect\hypertarget{result-of-regressions-on-difference-bw-president-specific-trust}{}
+\begin{table}
+
+\caption{\label{tab:kableRegTrustidOnDiff2Trustid}Regressions of Trust Index on President-specific Trust Index}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lcccc}
+\toprule
+ & Full & Abs < 2 & Abs < 1 & Abs < 0.5\\
+\midrule
+Moon's trust - Park's trust & 0.020** & 0.026*** & 0.031* & 0.035\\
+ & (0.008) & (0.010) & (0.016) & (0.038)\\
+Obs & 7314 & 7080 & 5666 & 3528\\
+Adjusted R-sq & 0.001 & 0.001 & 0.000 & -0.000\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
 \hypertarget{conclusions}{%
 \section{Conclusions}\label{conclusions}}
 
