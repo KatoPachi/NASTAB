@@ -44,13 +44,12 @@
   \frame{\subsectionpage}
 }
 \usepackage{lmodern}
-\usepackage{amsmath}
+\usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
-  \usepackage{amssymb}
 \else % if luatex or xetex
   \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
@@ -334,240 +333,6 @@ changed in 2014.
 \end{figure}
 \end{frame}
 
-\hypertarget{trust-index}{%
-\section{Trust Index}\label{trust-index}}
-
-\begin{frame}{Estimation of Trust Index}
-\protect\hypertarget{estimation-of-trust-index}{}
-The trust for politicans is time-varying variable because it depends on
-governments' policies. We make time-invarying trust index using the
-fixed effect model.
-
-\[
-    \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
-\]
-
-\begin{itemize}
-\tightlist
-\item
-  \(\text{Trust}_{ijt}\): trust for politicians (5-Likert scale)
-\item
-  \(\text{Trustid}_i\): individual fixed effect (\textbf{Trust index})
-\item
-  \(c_j \cdot \lambda_t\) captures local governments' policies effect
-\item
-  \(\lambda_t\) captures the central government policies effect
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Histrogram of Trust Index}
-\protect\hypertarget{histrogram-of-trust-index}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/HistogramTrustid-1.pdf}
-\caption{Histogram of Trust Index}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Relationship b/w Donations and Trust Index}
-\protect\hypertarget{relationship-bw-donations-and-trust-index}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/ScatterTrusidDonations-1.pdf}
-\caption{Scatter Plot between Donations and Trust Index}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Relationship b/w Receving Tax Benefit and Trust Index}
-\protect\hypertarget{relationship-bw-receving-tax-benefit-and-trust-index}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/BoxpTrustidByBenefit-1.pdf}
-\caption{Box Plot of Trust Index Grouped By Tax Benefit}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Regression of Trust Index on Covariates}
-\protect\hypertarget{regression-of-trust-index-on-covariates}{}
-\begin{table}
-
-\caption{\label{tab:kableRegTrustidOnCovariate}Regression of Standarized Trust Index (Year = 2018)}
-\centering
-\begin{tabular}[t]{lcc}
-\toprule
-Variables & Coefficients & S.E.\\
-\midrule
-Female & 0.056** & (0.023)\\
-Logarithm of income & 0.828* & (0.440)\\
-Age & -0.022*** & (0.004)\\
-squared age/100 & 0.022*** & (0.004)\\
-High school graduate & 0.029 & (0.035)\\
-University graduate & 0.010 & (0.038)\\
-Extreme right wing & -0.224*** & (0.085)\\
-Right wing & -0.036 & (0.028)\\
-Left wing & -0.078*** & (0.028)\\
-Extreme left wing & -0.663*** & (0.046)\\
-Obs & 7697 & \\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Presidential Transition and Trust Index}
-\protect\hypertarget{presidential-transition-and-trust-index}{}
-In May 2017, South Korean president changed from Park Geun-hye to Moon
-Jae-in. This presidential transition was due to the impeachment charge
-against Park Geun-hye. People became distrustful of Park Geun-hye due to
-the shinking of MV Sewol (April 2014).
-
-Even though we control time fixed effect to estimate trust index, we are
-concerned whether time fixed effect can rule out this presidential
-transition effect.
-
-To check it, we estimate trust index using both either in 2015 and 2016
-(Park's Trust index) or data in 2017 and 2018 (Moon's Trust index).
-\end{frame}
-
-\begin{frame}{Difference in mean b/w Park's and Moon's Trust}
-\protect\hypertarget{difference-in-mean-bw-parks-and-moons-trust}{}
-\begin{itemize}
-\tightlist
-\item
-  We made a scatter plot between president-specific trust indexs.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    \textbf{Large variation of Moon's trust index among those who have
-    same value of the Park's trust index.}
-  \end{itemize}
-\item
-  We carried out t-test of difference in mean between president-specific
-  trust indexs.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    \textbf{The average Park's trust index is lower than the average
-    Moon's trust index, which is statistically siginificant.}
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Scatter Plot b/w Park's and Moon's Trust Index}
-\protect\hypertarget{scatter-plot-bw-parks-and-moons-trust-index}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter1Trustid-1.pdf}
-\caption{Scatter Plot between Trust Index under Park Geun-hye and Moon
-Jae-in}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Regressions on Difference b/w President-specific Trust}
-\protect\hypertarget{regressions-on-difference-bw-president-specific-trust}{}
-\begin{itemize}
-\tightlist
-\item
-  We made a scatter plot between difference of president-specific trust
-  indexs and the original trust index.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    \textbf{there is large variation of difference of president-specific
-    trust indexs, and there is large variation of the original trust
-    index among those who have similar value of two president-specific
-    trust indexs.}
-  \end{itemize}
-\item
-  We regress the original trust index on difference of
-  president-specific trust indexs. We restrict units whose aboslute
-  value of president-specific trust index difference is less than 2 (Abs
-  \textless{} 2), 1 (Abs \textless{} 1), and 0.5 (Abs \textless{} 0.5).
-
-  \begin{itemize}
-  \tightlist
-  \item
-    \textbf{the positive correlations between difference of
-    president-specific trust indexs and the original one.} However,
-    \textbf{this positive correlation is statistically insignigicant if
-    we use units whose president-specific trust indexs have similar
-    values.}
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and
-Original One}
-\protect\hypertarget{scatter-plot-bw-difference-of-separated-trust-indexs-and-original-one}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/Scatter2Trustid-1.pdf}
-\caption{Scatter Plot between Difference of President-specific Trust
-Indexs and Original One}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Result of Regressions on Difference b/w President-specific
-Trust}
-\protect\hypertarget{result-of-regressions-on-difference-bw-president-specific-trust}{}
-\begin{table}
-
-\caption{\label{tab:kableRegTrustidOnDiff2Trustid}Regressions of Trust Index on President-specific Trust Index}
-\centering
-\fontsize{9}{11}\selectfont
-\begin{tabular}[t]{lcccc}
-\toprule
- & Full & Abs < 2 & Abs < 1 & Abs < 0.5\\
-\midrule
-Moon's trust - Park's trust & 0.020** & 0.026*** & 0.031* & 0.035\\
- & (0.008) & (0.010) & (0.016) & (0.038)\\
-Obs & 7314 & 7080 & 5666 & 3528\\
-Adjusted R-sq & 0.001 & 0.001 & 0.000 & -0.000\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Regressions on President-specific Trust Indexs}
-\protect\hypertarget{regressions-on-president-specific-trust-indexs}{}
-\begin{itemize}
-\tightlist
-\item
-  We regress the original trust index on two president-specific trust
-  indexs.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    \textbf{The variation of trust index can be explained by Moon's
-    trust index largely.}
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Result of Regressions on President-specific Trust Indexs}
-\protect\hypertarget{result-of-regressions-on-president-specific-trust-indexs}{}
-\begin{table}
-
-\caption{\label{tab:kableRegTrusidonSepTrustid}Regressions of Trust Index on Park's and Moon's Trust Index}
-\centering
-\begin{tabular}[t]{lccc}
-\toprule
- & (1) & (2) & (3)\\
-\midrule
-Trust ID (Moon Jae-in) & 0.723*** &  & 0.574***\\
- & (0.005) &  & (0.003)\\
-Trust ID (Park Geun-hye) &  & 0.521*** & 0.322***\\
- &  & (0.006) & (0.003)\\
-Obs & 7314 & 7314 & 7314\\
-Adjusted R-sq & 0.745 & 0.516 & 0.911\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
 \hypertarget{price-elasticity}{%
 \section{Price Elasticity}\label{price-elasticity}}
 
@@ -605,117 +370,22 @@ to about 1.1\% giving decrease)
 
 \caption{\label{tab:kableEstimatePElast}Baseline Regressions}
 \centering
-\begin{tabular}[t]{lccc}
-\toprule
- & (1) & (2) & (3)\\
-\midrule
-ln(giving price) & -1.071*** & -1.059*** & -1.062***\\
- & (0.201) & (0.226) & (0.226)\\
-Logarithm of income & Y & Y & Y\\
-Age & N & Y & Y\\
-Year X Educ & N & Y & Y\\
-Year X Gender & N & Y & Y\\
-Living Dummy & N & N & Y\\
-Obs & 54213 & 54211 & 54211\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Subgroup Regressions}
-\protect\hypertarget{subgroup-regressions}{}
-We estimate the baseline regression equation, using sample grouped by
-the trust index.
-
-\begin{itemize}
-\tightlist
-\item
-  Lowest: 0 \textasciitilde{} 20\% quantile of trust index
-\item
-  Lower: 20 \textasciitilde{} 40\% quantile of trust index
-\item
-  Neutral: 40 \textasciitilde{} 60\% quantile of trust index
-\item
-  Higher: 60 \textasciitilde{} 80\% quantile of trust index
-\item
-  Highest: 80 \textasciitilde{} 100\% quantile of trust index
-\end{itemize}
-
-We include the logarithm of income, age, interactions b/w year and
-education, interactions b/w year and gender, and living are dummy into
-covariates.
-\end{frame}
-
-\begin{frame}{Results of Subgroup Regressions}
-\protect\hypertarget{results-of-subgroup-regressions}{}
-We cound \textbf{NOT} find the price effect for respondents whose trust
-is very low.
-
-\begin{table}
-
-\caption{\label{tab:kableEstimatePElastByTrustid}Subgroup Regressions}
-\centering
 \fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
- & Lowest & Lower & Neutral & Higher & Highest\\
+ & (1) & (2) & (3) & (4) & (5)\\
 \midrule
-ln(giving price) & -0.675 & -0.460 & -1.582*** & -1.284** & -1.202**\\
- & (0.556) & (0.458) & (0.481) & (0.530) & (0.503)\\
-Obs & 10239 & 10358 & 10367 & 10368 & 12879\\
+ln(giving price) & -1.071*** & -1.071*** & -1.229*** & -1.059*** & -1.062***\\
+ & (0.201) & (0.201) & (0.227) & (0.226) & (0.226)\\
+Logged Income & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year X Educ & N & N & Y & Y & Y\\
+Year X Gender & N & N & N & Y & Y\\
+Resident Area & N & N & N & N & Y\\
+Obs & 54213 & 54213 & 54211 & 54211 & 54211\\
 \bottomrule
 \end{tabular}
 \end{table}
-\end{frame}
-
-\begin{frame}{Heterogenity By Political Trust}
-\protect\hypertarget{heterogenity-by-political-trust}{}
-To capture heterogeneity precisely, we estimate the following regression
-equations:
-
-\begin{align*}
-    \log(\text{Giving}_{ijt}) = 
-    &\alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trustid}_{ij} \\
-    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-\end{align*}
-
-Price elasticity is obtained by
-\(\beta_1 + \beta_2\cdot\text{Trust}_{ij}\).
-\end{frame}
-
-\begin{frame}{Result of Heterogeneity of Political Trust}
-\protect\hypertarget{result-of-heterogeneity-of-political-trust}{}
-The price elasticity is \textbf{convex} in the trust index. Those whose
-trust index is low and high do not respond to the price incentive.
-
-\begin{table}
-
-\caption{\label{tab:kableEstimateHeteroPEstByTrusid}Heterogeneity of Political Trust}
-\centering
-\begin{tabular}[t]{lcc}
-\toprule
- & (1) & (2)\\
-\midrule
-ln(giving price) & -1.108*** & -1.314***\\
- & (0.230) & (0.249)\\
-\hspace{1em}X Trust index & -0.373** & -0.412**\\
- & (0.171) & (0.175)\\
-\hspace{1em}X Squared trust index &  & 0.229**\\
- &  & (0.111)\\
-Obs & 51306 & 51306\\
-R-aq & 0.0120 & 0.0121\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Graphical Representation of Heterogeneity Effect}
-\protect\hypertarget{graphical-representation-of-heterogeneity-effect}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/PlotHeteroPElast-1.pdf}
-\caption{Relationship between Trust Index and Predicted Elasticity}
-\end{figure}
 \end{frame}
 
 \hypertarget{conclusions}{%
