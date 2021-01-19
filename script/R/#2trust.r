@@ -1,4 +1,4 @@
-#1baseline
+#2trust
 
 ## ---- library
 package_load <- function(pkg.name){
@@ -333,64 +333,6 @@ ggplot(plotdt, aes(x = factor(receive_benefit), y = trustid)) +
 	my_theme +
   theme(panel.grid.major.x = element_line(), panel.grid.major.y = element_blank())
 
-## ---- EstimatePElast
-#regressions
-reg <- log_total_g ~ log_price + log_pinc_all + factor(year)
-
-setreg <- list(
-    base = . ~ .,
-    age = . ~ . + age,
-    educ = . ~ .  + age + factor(year)*factor(educ),
-    gender = . ~ .  + age + factor(year)*factor(educ) + factor(year)*factor(gender),
-    living = . ~ . +age+factor(year)*factor(educ)+factor(year)*factor(gender)+factor(living_area)
-)
-
-basereg <- setreg %>% 
-    purrr::map(~update(reg, .)) %>% 
-    purrr::map(~plm(., data = subset(df, year >= 2012), model = "within", index = c("pid", "year")))
-
-rob.basereg <- basereg %>% purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group")))
-n.basereg <- basereg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
-
-# make tabulation
-keep <- c("log_price") %>% paste(collapse = "|")
-varlist <- exprs(
-  stat == "se" ~ "",
-  vars == "log_price" ~ "ln(giving price)"
-)
-
-coef.basereg <- rob.basereg %>% 
-	purrr::map(function(x)
-    data.frame(
-      vars = rownames(x),
-      coef = apply(matrix(x[,4], ncol = 1), MARGIN = 2,
-        FUN = function(y) case_when(
-          y <= .01 ~ sprintf("%1.3f***", x[,1]),
-          y <= .05 ~ sprintf("%1.3f**", x[,1]),
-          y <= .1 ~ sprintf("%1.3f*", x[,1]),
-          TRUE ~ sprintf("%1.3f", x[,1])
-        )
-      ),
-      se = sprintf("(%1.3f)", x[,2]),
-      stringsAsFactors = FALSE
-    )
-  ) %>% 
-  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
-  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
-	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
-	mutate(vars = case_when(!!!varlist)) %>% 
-  select(-stat)
-
-addline <- rbind(
-  c("Logarithm of income", "Y", "Y", "Y", "Y", "Y"),
-  c("Age", "N", "Y", "Y", "Y", "Y"),
-  c("Year X Educ", "N", "N", "Y", "Y", "Y"),
-  c("Year X Gender", "N", "N", "N", "Y", "Y"),
-  c("Living Dummy", "N", "N", "N", "N", "Y"),
-  c("Obs", n.basereg)
-)
-
-tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
 
 ## ---- EstimatePElastByTrustid
 reg <- log_total_g ~ log_price + log_pinc_all + 
