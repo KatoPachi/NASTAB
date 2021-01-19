@@ -1,4 +1,4 @@
-#1baseline
+#2trust
 
 ## ---- library
 package_load <- function(pkg.name){
@@ -140,8 +140,8 @@ annotation <- str_c(c(annotation1, annotation2, annotation3), collapse = "\n")
 ggplot(dropNAdf, aes(x = parktrustid, y = moontrustid)) +
   geom_point(size = 2, alpha = 0.5) + 
   geom_smooth(se = FALSE, color = "red") +
-  annotate("text", x = 3.5, y = 5.7, label = annotation) +
-  ylim(c(0.5, 6)) +
+  annotate("text", x = Inf, y = Inf, label = annotation, vjust = "top", hjust = "right") +
+  ylim(c(0.5, 5.5)) +
   labs(x = "Park's Trust Index", y = "Moon's Trust Index") +
   my_theme + 
   theme(
@@ -270,9 +270,9 @@ r2 <- summary(est.indexreg)$adj.r.squared
 keep <- c("gender", "pinc", "age", "educ", "political") %>% paste(collapse = "|")
 
 varlist <- exprs(
-  vars == "gender" ~ "Female",
+  vars == "gender" ~ "female",
   vars == "log_pinc_all" ~ "Logarithm of income",
-  vars == "age" ~ "Age",
+  vars == "age" ~ "age",
   vars == "I(age^2/100)" ~ "squared age/100",
   vars == "factor(educ)2" ~ "High school graduate",
   vars == "factor(educ)3" ~ "University graduate",
@@ -313,7 +313,7 @@ plotdt <- left_join(avgdonate, scaledf, by = "pid")
 
 ggplot(plotdt, aes(x = trustid, y = i_total_giving)) + 
 	geom_point(size = 1.5, alpha = 0.5) +
-  labs(x = "Standarlized trust index", y = "Individual average donations across time") +
+  labs(x = "Trust Index", y = "Individual Average Donations across Time") +
 	my_theme
 
 ## ---- BoxpTrustidByBenefit
@@ -327,70 +327,12 @@ plotdt <- left_join(avgbenefit, scaledf, by = "pid")
 ggplot(plotdt, aes(x = factor(receive_benefit), y = trustid)) + 
 	geom_boxplot(fill = "grey90") +
 	stat_summary(fun = "mean", geom = "point", shape = 21, size = 2., fill = "white") + 
-  labs(x = "#. Receving tax benefit", y = "Standarized trust index") +
+  labs(x = "#. Receving Tax Benefit", y = "Trust Index") +
   scale_y_continuous(breaks = seq(-3, 5, 1)) +
   coord_flip() +
 	my_theme +
   theme(panel.grid.major.x = element_line(), panel.grid.major.y = element_blank())
 
-## ---- EstimatePElast
-#regressions
-reg <- log_total_g ~ log_price + log_pinc_all + factor(year)
-
-setreg <- list(
-    base = . ~ .,
-    age = . ~ . + age,
-    educ = . ~ .  + age + factor(year)*factor(educ),
-    gender = . ~ .  + age + factor(year)*factor(educ) + factor(year)*factor(gender),
-    living = . ~ . +age+factor(year)*factor(educ)+factor(year)*factor(gender)+factor(living_area)
-)
-
-basereg <- setreg %>% 
-    purrr::map(~update(reg, .)) %>% 
-    purrr::map(~plm(., data = subset(df, year >= 2012), model = "within", index = c("pid", "year")))
-
-rob.basereg <- basereg %>% purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group")))
-n.basereg <- basereg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
-
-# make tabulation
-keep <- c("log_price") %>% paste(collapse = "|")
-varlist <- exprs(
-  stat == "se" ~ "",
-  vars == "log_price" ~ "ln(giving price)"
-)
-
-coef.basereg <- rob.basereg %>% 
-	purrr::map(function(x)
-    data.frame(
-      vars = rownames(x),
-      coef = apply(matrix(x[,4], ncol = 1), MARGIN = 2,
-        FUN = function(y) case_when(
-          y <= .01 ~ sprintf("%1.3f***", x[,1]),
-          y <= .05 ~ sprintf("%1.3f**", x[,1]),
-          y <= .1 ~ sprintf("%1.3f*", x[,1]),
-          TRUE ~ sprintf("%1.3f", x[,1])
-        )
-      ),
-      se = sprintf("(%1.3f)", x[,2]),
-      stringsAsFactors = FALSE
-    )
-  ) %>% 
-  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
-  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
-	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
-	mutate(vars = case_when(!!!varlist)) %>% 
-  select(-stat)
-
-addline <- rbind(
-  c("Logarithm of income", "Y", "Y", "Y", "Y", "Y"),
-  c("Age", "N", "Y", "Y", "Y", "Y"),
-  c("Year X Educ", "N", "N", "Y", "Y", "Y"),
-  c("Year X Gender", "N", "N", "N", "Y", "Y"),
-  c("Living Dummy", "N", "N", "N", "N", "Y"),
-  c("Obs", n.basereg)
-)
-
-tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
 
 ## ---- EstimatePElastByTrustid
 reg <- log_total_g ~ log_price + log_pinc_all + 
