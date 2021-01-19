@@ -136,11 +136,11 @@ coef.basereg <- basereg %>%
   select(-stat)
 
 addline <- rbind(
-  c("Logarithm of income", "Y", "Y", "Y", "Y", "Y"),
+  c("Logged Income", "Y", "Y", "Y", "Y", "Y"),
   c("Age", "N", "Y", "Y", "Y", "Y"),
   c("Year X Educ", "N", "N", "Y", "Y", "Y"),
   c("Year X Gender", "N", "N", "N", "Y", "Y"),
-  c("Living Dummy", "N", "N", "N", "N", "Y"),
+  c("Resident Area", "N", "N", "N", "N", "Y"),
   c("Obs", n.basereg)
 )
 
