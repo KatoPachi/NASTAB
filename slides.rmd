@@ -206,9 +206,55 @@ In the South Korea, the tax policy about charitable giving drastically changed i
 
 ```
 
+# Price Elasticity
+
+```{r callR_elasticity}
+knitr::read_chunk("script/R/#1elasticity.r")
+```
+
+```{r ReadDataforElasticity}
+
+```
+
+## Baseline Regressions
+
+Our baseline regression equation is 
+
+$$
+    \log(\text{Giving}_{ijt}) = 
+    \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+$$
+
+- $\log(\text{Giving}_{ijt})$ is logarithm of individual $i$'s charitable giving in year $t$.
+- $\log(\text{Price}_{ijt})$ is logarithm of individual $i$'s giving price in year $t$.
+- $\beta_1$ represents the price elasticity of giving.
+- $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
+
+```{r EstimateElasticity}
+
+```
+
+## Result of Baseline Regressions
+
+We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease)
+
+```{r kableEstimateElasticity, include=TRUE}
+knitr::kable(
+    tab.basereg,
+    format = "latex",
+    caption = "Baseline Regressions",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+<!--
 # Trust Index
 
-```{r CallR}
+```{r CallR, eval=FALSE}
 knitr::read_chunk("script/R/#1baseline.r")
 ```
 
@@ -226,39 +272,39 @@ $$
 - $c_j \cdot \lambda_t$ captures local governments' policies effect
 - $\lambda_t$ captures the central government policies effect
 
-```{r EstimateTrustIndex}
+```{r EstimateTrustIndex, eval=FALSE}
 
 ```
 
-```{r MergedWithTrustid}
+```{r MergedWithTrustid, eval=FALSE}
 
 ```
 
 ## Histrogram of Trust Index
 
-```{r HistogramTrustid, include = TRUE, fig.cap = "Histogram of Trust Index"}
+```{r HistogramTrustid, include = TRUE, fig.cap = "Histogram of Trust Index", eval=FALSE}
 
 ```
 
 ## Relationship b/w Donations and Trust Index 
 
-```{r ScatterTrusidDonations, include=TRUE, fig.cap="Scatter Plot between Donations and Trust Index"}
+```{r ScatterTrusidDonations, include=TRUE, fig.cap="Scatter Plot between Donations and Trust Index", eval=FALSE}
 
 ```
 
 ## Relationship b/w Receving Tax Benefit and Trust Index
 
-```{r BoxpTrustidByBenefit, include=TRUE, fig.cap="Box Plot of Trust Index Grouped By Tax Benefit"}
+```{r BoxpTrustidByBenefit, include=TRUE, fig.cap="Box Plot of Trust Index Grouped By Tax Benefit", eval=FALSE}
 
 ```
 
 ## Regression of Trust Index on Covariates
 
-```{r RegTrustidOnCovariate}
+```{r RegTrustidOnCovariate, eval=FALSE}
 
 ```
 
-```{r kableRegTrustidOnCovariate, include = TRUE}
+```{r kableRegTrustidOnCovariate, include = TRUE, eval=FALSE}
 knitr::kable(
     tab.indexreg,
     format = "latex",
@@ -292,7 +338,7 @@ data in 2017 and 2018 (Moon's Trust index).
 
 ## Scatter Plot b/w Park's and Moon's Trust Index
 
-```{r Scatter1Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in"}
+```{r Scatter1Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in", eval=FALSE}
 
 ```
 
@@ -305,17 +351,17 @@ data in 2017 and 2018 (Moon's Trust index).
 
 ## Scatter Plot b/w Difference of Separated Trust Indexs and Original One
 
-```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Trust Indexs and Original One"}
+```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Trust Indexs and Original One", eval=FALSE}
 
 ```
 
 ## Result of Regressions on Difference b/w President-specific Trust
 
-```{r RegTrustidOnDiff2Trustid}
+```{r RegTrustidOnDiff2Trustid, eval=FALSE}
 
 ```
 
-```{r kableRegTrustidOnDiff2Trustid, include = TRUE}
+```{r kableRegTrustidOnDiff2Trustid, include = TRUE, eval=FALSE}
 knitr::kable(
     tab.dfset,
     format = "latex",
@@ -335,11 +381,11 @@ kable_styling(font_size = 9)
 
 ## Result of Regressions on President-specific Trust Indexs
 
-```{r RegTrusidonSepTrustid}
+```{r RegTrusidonSepTrustid, eval=FALSE}
 
 ```
 
-```{r kableRegTrusidonSepTrustid, include = TRUE}
+```{r kableRegTrusidonSepTrustid, include = TRUE, eval=FALSE}
 knitr::kable(
     tab.regset,
     format = "latex",
@@ -352,42 +398,7 @@ knitr::kable(
 kable_styling()
 ```
 
-# Price Elasticity
 
-## Baseline Regressions
-
-Our baseline regression equation is 
-
-$$
-    \log(\text{Giving}_{ijt}) = 
-    \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-$$
-
-- $\log(\text{Giving}_{ijt})$ is logarithm of individual $i$'s charitable giving in year $t$.
-- $\log(\text{Price}_{ijt})$ is logarithm of individual $i$'s giving price in year $t$.
-- $\beta_1$ represents the price elasticity of giving.
-- $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
-
-```{r EstimatePElast}
-
-```
-
-## Result of Baseline Regressions
-
-We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease)
-
-```{r kableEstimatePElast, include=TRUE}
-knitr::kable(
-    tab.basereg[,c(1,2,5,6)],
-    format = "latex",
-    caption = "Baseline Regressions",
-    col.names = c("", "(1)", "(2)", "(3)"),
-    row.names = FALSE,
-    align = "lccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling()
-```
 
 ## Subgroup Regressions
 
@@ -403,7 +414,7 @@ using sample grouped by the trust index.
 We include the logarithm of income, age, interactions b/w year and education,
 interactions b/w year and gender, and living are dummy into covariates.
 
-```{r EstimatePElastByTrustid}
+```{r EstimatePElastByTrustid, eval=FALSE}
 
 ```
 
@@ -411,7 +422,7 @@ interactions b/w year and gender, and living are dummy into covariates.
 
 We cound **NOT** find the price effect for respondents whose trust is very low.
 
-```{r kableEstimatePElastByTrustid, include = TRUE}
+```{r kableEstimatePElastByTrustid, include = TRUE, eval=FALSE}
 knitr::kable(
     tab.trustreg,
     format = "latex",
@@ -437,7 +448,7 @@ we estimate the following regression equations:
 
 Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
 
-```{r EstimateHeteroPEstByTrusid}
+```{r EstimateHeteroPEstByTrusid, eval=FALSE}
 
 ```
 
@@ -446,7 +457,7 @@ Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
 The price elasticity is **convex** in the trust index.
 Those whose trust index is low and high do not respond to the price incentive.
 
-```{r kableEstimateHeteroPEstByTrusid, include=TRUE}
+```{r kableEstimateHeteroPEstByTrusid, include=TRUE, eval=FALSE}
 knitr::kable(
     tab.heteroreg,
     format = "latex",
@@ -462,9 +473,11 @@ add_indent(c(3,5))
 
 ## Graphical Representation of Heterogeneity Effect
 
-```{r PlotHeteroPElast, include=TRUE, fig.cap="Relationship between Trust Index and Predicted Elasticity"}
+```{r PlotHeteroPElast, include=TRUE, fig.cap="Relationship between Trust Index and Predicted Elasticity", eval=FALSE}
 
 ```
+
+-->
 
 # Conclusions
 
