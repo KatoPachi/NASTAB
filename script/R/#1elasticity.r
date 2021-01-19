@@ -146,7 +146,7 @@ addline <- rbind(
 
 tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
 
-## ---- RobustEstimateElasticity
+## ---- Robust1EstimateElasticity
 # regressions
 reg <- Formula(
   log_total_g ~ log_pinc_all +age+factor(year):factor(educ)+factor(year):factor(gender)+factor(living_area)|
@@ -202,3 +202,62 @@ addline <- rbind(
 )
 
 tab.pivreg <- rbind(as.matrix(coef.pivreg), addline) %>% data.frame()
+
+## ---- Robust2EstimateElasticity
+# regressions
+reg <- Formula(
+  log_total_g ~ log_pinc_all +age+factor(year):factor(educ)+factor(year):factor(gender)+factor(living_area)|
+  pid + year
+)
+
+setreg <- list(
+    base = . ~ . + log_price | . | 0 | pid,
+    lag1 = . ~ .  | . | (log_price ~ lag1iv) | pid,
+    lag2 = . ~ .  | . | (log_price ~ lag2iv) | pid,
+    lag3 = . ~ .  | . | (log_price ~ lag3iv) | pid,
+    lag4 = . ~ .  | . | (log_price ~ lag4iv) | pid
+)
+
+limitreg <- setreg %>% 
+    purrr::map(~as.formula(update(reg, .))) %>%
+    purrr::map(~lfe::felm(as.formula(.), data = subset(df, year == 2013 | year == 2014)))
+
+n.limitreg <- limitreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+f.limitreg <- limitreg %>% purrr::map(~sprintf("%1.3f", .$stage1$iv1fstat[[1]]["F"])) %>% as_vector()
+
+# tabulation
+keep <- c("log_price") %>% paste(collapse = "|")
+varlist <- exprs(
+  stat == "se" ~ "",
+  str_detect(vars, "log_price") ~ "ln(giving price)"
+)
+
+coef.limitreg <- limitreg %>% 
+	purrr::map(function(x)
+    data.frame(
+      vars = rownames(summary(x)$coefficients),
+      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
+          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
+          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
+          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
+      stringsAsFactors = FALSE
+    )
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) x %>% mutate(vars = case_when(vars == "`log_price(fit)`" ~ "log_price", TRUE ~ vars))) %>% 
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(vars = case_when(!!!varlist)) %>% 
+  select(-stat)
+
+addline <- rbind(
+  c("F-stat of IV", "",  f.limitreg),
+  c("Obs", n.limitreg)
+)
+
+tab.limitreg <- rbind(as.matrix(coef.limitreg), addline) %>% data.frame()
