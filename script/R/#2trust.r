@@ -328,9 +328,25 @@ avgdonate <- estdf %>%
 
 plotdt <- left_join(avgdonate, indexdf, by = "pid")
 
+difftest <- seq(2, 4, by = .1) %>% 
+	purrr::map(~lm(i_total_giving ~ I(trustid > .), data = plotdt)) %>% 
+	purrr::map(~summary(.)$coefficients) %>% 
+	purrr::map(~data.frame(coef = .[2,1], se = .[2,2])) %>% 
+	reduce(rbind) %>% 
+	mutate(threshold = seq(2, 4, by = .1))
+
 ggplot(plotdt, aes(x = trustid, y = i_total_giving)) + 
 	geom_point(size = 1.5, alpha = 0.5) +
-  labs(x = "Trust Index", y = "Individual Average Donations across Time") +
+	ylim(c(0, 3000)) +
+  labs(x = "Trust index", y = "Individual average donations across time") +
+	my_theme
+
+## ---- PlotDiffDonationsbwTrustGroup
+ggplot(difftest, aes(x = threshold, y = coef)) + 
+	geom_point(size = 2, color = "blue") + 
+	geom_line(color = "blue") + 
+	geom_errorbar(aes(ymin = coef - 1.96*se, ymax = coef + 1.96*se)) +
+	labs(x = "Threshold", y = "Difference in mean (+/- 1.96*se)") +
 	my_theme
 
 ## ---- EstimateElasticityByTrustGroup
