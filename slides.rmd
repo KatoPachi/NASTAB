@@ -143,19 +143,62 @@ kable_styling(font_size = 9) %>%
 pack_rows("Education", 4, 6)
 ```
 
-## Variable of Giving Price
+## What is Giving Price?
+
+Consider allocation between private consumptions ($x_i$) and charitable giving ($g_i$).
+Let $y_i$ be pre-tax total income.
+Then, the budget constraint is 
+
+$$
+    x_i + g_i = y_i - T_i(y_i, g_i),
+$$
+
+where $T_i$ is tax amount depending on the pre-tax income and charitable giving.
+
+## Determination of Tax Amount
+
+Tax deduction reduces taxable income by giving, that is,
+
+$$
+    T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
+$$
+
+where $\tau(\cdot)$ is the marginal income tax rate which is determined by $y_i - g_i$.
+
+Tax credit reduces tax amount directly, that is,
+
+$$
+    T_i = \tau(y_i)\cdot y_i - m g_i,
+$$
+
+where $m \in [0, 1]$ is the tax credit rate.
+
+## Derive Giving Price
+
+Under the tax deduction system, the budget constraint is 
+
+$$
+    x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
+$$
+
+Thus, the giving price of tax deduction system is $p_i^{d} = 1 - \tau(y_i - g_i)$.
+
+Under the tax credit system, the budget constraint is 
+
+$$
+    x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
+$$
+
+Thus, the giving price of tax credit system is $p_i^c = 1 - m$.
+
+## Construct Giving Price
 
 In the South Korea, the tax policy about charitable giving drastically changed in 2014.
-Before 2014, the **tax deduction** adpoted.
-After 2014, the **tax credit** adopted.
-Under two systems, the giving price is 
 
-- tax deduction: $\text{Price} = 1 - \tau$
-- tax credit: $\text{Price} = 1 - r$
-
-$\tau$ is the marginal income tax rate calculated by annual taxable income reported in the NaSTaB, and
-$r$ is the tax credit rate determined exogeneity.
-In the South Korea, $r = 0.15$.
+- tax deduction (before 2014): $\text{Price}_i = 1 - \tau(y_i - g_i)$
+    - the giving price is endogenous because people can manipulate $\tau(y_i - g_i)$ using the charitable giving $g_i$. Since this problem is caused by *last* donations, we use the giving price applying to the *first* donations (**first price**). The first price is calculate by $\tau(y_i)$ where $y_i$ is the annual taxable income reported in the NaSTaB.
+- tax credit (after 2014): $\text{Price}_i = 1 - m$
+    - In the South Korea, the tax credit rate determines exogeneity, $m = 0.15$.
 
 ## Income Distribution and Giving Price
 

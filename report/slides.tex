@@ -115,7 +115,7 @@
 \title{Charitable Giving, Tax Reform, and Political Trust}
 \author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
 Kim\(^3\)}
-\date{2021/01/18}
+\date{2021/01/19}
 \institute{\(^1\)Osaka University \and \(^2\)Chiba
 University \and \(^3\)Kobe University}
 
@@ -239,24 +239,90 @@ Annual Taxable Income & 1906.91 & 1951.55 & 2039.47\\
 \end{table}
 \end{frame}
 
-\begin{frame}{Variable of Giving Price}
-\protect\hypertarget{variable-of-giving-price}{}
+\begin{frame}{What is Giving Price?}
+\protect\hypertarget{what-is-giving-price}{}
+Consider allocation between private consumptions (\(x_i\)) and
+charitable giving (\(g_i\)). Let \(y_i\) be pre-tax total income. Then,
+the budget constraint is
+
+\[
+    x_i + g_i = y_i - T_i(y_i, g_i),
+\]
+
+where \(T_i\) is tax amount depending on the pre-tax income and
+charitable giving.
+\end{frame}
+
+\begin{frame}{Determination of Tax Amount}
+\protect\hypertarget{determination-of-tax-amount}{}
+Tax deduction reduces taxable income by giving, that is,
+
+\[
+    T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
+\]
+
+where \(\tau(\cdot)\) is the marginal income tax rate which is
+determined by \(y_i - g_i\).
+
+Tax credit reduces tax amount directly, that is,
+
+\[
+    T_i = \tau(y_i)\cdot y_i - m g_i,
+\]
+
+where \(m \in [0, 1]\) is the tax credit rate.
+\end{frame}
+
+\begin{frame}{Derive Giving Price}
+\protect\hypertarget{derive-giving-price}{}
+Under the tax deduction system, the budget constraint is
+
+\[
+    x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
+\]
+
+Thus, the giving price of tax deduction system is
+\(p_i^{d} = 1 - \tau(y_i - g_i)\).
+
+Under the tax credit system, the budget constraint is
+
+\[
+    x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
+\]
+
+Thus, the giving price of tax credit system is \(p_i^c = 1 - m\).
+\end{frame}
+
+\begin{frame}{Construct Giving Price}
+\protect\hypertarget{construct-giving-price}{}
 In the South Korea, the tax policy about charitable giving drastically
-changed in 2014. Before 2014, the \textbf{tax deduction} adpoted. After
-2014, the \textbf{tax credit} adopted. Under two systems, the giving
-price is
+changed in 2014.
 
 \begin{itemize}
 \tightlist
 \item
-  tax deduction: \(\text{Price} = 1 - \tau\)
-\item
-  tax credit: \(\text{Price} = 1 - r\)
-\end{itemize}
+  tax deduction (before 2014): \(\text{Price}_i = 1 - \tau(y_i - g_i)\)
 
-\(\tau\) is the marginal income tax rate calculated by annual taxable
-income reported in the NaSTaB, and \(r\) is the tax credit rate
-determined exogeneity. In the South Korea, \(r = 0.15\).
+  \begin{itemize}
+  \tightlist
+  \item
+    the giving price is endogenous because people can manipulate
+    \(\tau(y_i - g_i)\) using the charitable giving \(g_i\). Since this
+    problem is caused by \emph{last} donations, we use the giving price
+    applying to the \emph{first} donations (\textbf{first price}). The
+    first price is calculate by \(\tau(y_i)\) where \(y_i\) is the
+    annual taxable income reported in the NaSTaB.
+  \end{itemize}
+\item
+  tax credit (after 2014): \(\text{Price}_i = 1 - m\)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In the South Korea, the tax credit rate determines exogeneity,
+    \(m = 0.15\).
+  \end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Income Distribution and Giving Price}
