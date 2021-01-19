@@ -114,7 +114,7 @@
 \title{Charitable Giving, Tax Reform, and Political Trust}
 \author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
 Kim\(^3\)}
-\date{2021/01/19}
+\date{2021/01/20}
 \institute{\(^1\)Osaka University \and \(^2\)Chiba
 University \and \(^3\)Kobe University}
 
@@ -469,6 +469,128 @@ ln(giving price) & -1.466*** & -1.497*** & -1.628*** & -1.207*** & -1.331***\\
  & (0.327) & (0.355) & (0.375) & (0.381) & (0.395)\\
 F-stat of IV &  & 7374.556 & 4635.809 & 5157.662 & 5207.029\\
 Obs & 15134 & 13870 & 13095 & 12564 & 11774\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\hypertarget{political-trust-and-price-elasticity}{%
+\section{Political Trust and Price
+Elasticity}\label{political-trust-and-price-elasticity}}
+
+\begin{frame}{Estimation of Trust Index}
+\protect\hypertarget{estimation-of-trust-index}{}
+The trust for politicans is time-varying variable because it depends on
+governments' policies. We make time-invarying trust index using the
+fixed effect model.
+
+\[
+    \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(\text{Trust}_{ijt}\): trust for politicians (5-Likert scale)
+\item
+  \(\text{Trustid}_i\): individual fixed effect (\textbf{Trust index})
+\item
+  \(c_j \cdot \lambda_t\) captures local governments' policies effect
+\item
+  \(\lambda_t\) captures the central government policies effect
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Histrogram of Trust Index}
+\protect\hypertarget{histrogram-of-trust-index}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/HistogramTrustid-1.pdf}
+\caption{Histogram of Trust Index}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Relationship with Donations and Covariates}
+\protect\hypertarget{relationship-with-donations-and-covariates}{}
+\begin{itemize}
+\tightlist
+\item
+  We made a scatter plot b/w individual average donations and trust
+  index
+
+  \begin{itemize}
+  \tightlist
+  \item
+    No linear relationship
+  \end{itemize}
+\item
+  We tested difference in mean of individual average donations b/w among
+  those whose trust index above and below threshold
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The difference in mean is statistically siginificant at 5\% level if
+    threshold is \(\{2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5\}\).
+  \end{itemize}
+\item
+  We regressed trust index on covariates, using data in 2018
+
+  \begin{itemize}
+  \tightlist
+  \item
+    trust among females \textless{} trust among males
+  \item
+    the positive correlation between income and trust index
+  \item
+    trust index is concave in age
+  \item
+    Those having extreme political views have a distrust of politicians
+    rather than those having moderate political views.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Relationship b/w Donations and Trust Index}
+\protect\hypertarget{relationship-bw-donations-and-trust-index}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/ScatterTrusidDonations-1.pdf}
+\caption{Scatter Plot between Donations and Trust Index}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Difference in Mean b/w Two Trust Groups}
+\protect\hypertarget{difference-in-mean-bw-two-trust-groups}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/report/slides_files/figure-beamer/PlotDiffDonationsbwTrustGroup-1.pdf}
+\caption{Difference in Mean between Trust Group above and below
+Threshold}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Regression of Trust Index on Covariates}
+\protect\hypertarget{regression-of-trust-index-on-covariates}{}
+\begin{table}
+
+\caption{\label{tab:kableRegTrustidOnCovariate}Regression of Standarized Trust Index (Year = 2018)}
+\centering
+\begin{tabular}[t]{lcc}
+\toprule
+Variables & Coefficients & S.E.\\
+\midrule
+Female & 0.036** & (0.015)\\
+Logarithm of income & 0.529* & (0.281)\\
+Age & -0.014*** & (0.003)\\
+squared age/100 & 0.014*** & (0.002)\\
+High school graduate & 0.018 & (0.023)\\
+University graduate & 0.006 & (0.024)\\
+Extreme right wing & -0.143*** & (0.054)\\
+Right wing & -0.023 & (0.018)\\
+Left wing & -0.050*** & (0.018)\\
+Extreme left wing & -0.424*** & (0.029)\\
+Obs & 7697 & \\
 \bottomrule
 \end{tabular}
 \end{table}
