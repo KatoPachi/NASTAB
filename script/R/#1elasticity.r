@@ -16,6 +16,8 @@ package_load("rlang")
 package_load("plm")
 package_load("lmtest")
 package_load("sandwich")
+package_load("lfe")
+package_load("Formula")
 
 ## --- GGTemp
 my_theme <- theme_minimal() +
@@ -79,23 +81,21 @@ df <- df %>%
   ) %>% 
   ungroup()
 
-## ---- EstimatePElast
+## ---- EstimateElasticity
 #regressions
-reg <- log_total_g ~ log_price + log_pinc_all + factor(year)
+reg <- Formula(log_total_g ~ log_price + log_pinc_all | pid + year)
 
 setreg <- list(
-    base = . ~ .,
-    age = . ~ . + age,
-    educ = . ~ .  + age + factor(year)*factor(educ),
-    gender = . ~ .  + age + factor(year)*factor(educ) + factor(year)*factor(gender),
-    living = . ~ . +age+factor(year)*factor(educ)+factor(year)*factor(gender)+factor(living_area)
+    base = . ~ . | . | 0 | pid,
+    age = . ~ . + age | . | 0 | pid,
+    educ = . ~ .  + age + factor(year):factor(educ) | . | 0 | pid,
+    gender = . ~ .  + age + factor(year):factor(educ) + factor(year):factor(gender) | . | 0 | pid,
+    living = . ~ . +age+factor(year):factor(educ)+factor(year):factor(gender)+factor(living_area) | . | 0 | pid
 )
 
 basereg <- setreg %>% 
-    purrr::map(~update(reg, .)) %>% 
-    purrr::map(~plm(., data = subset(df, year >= 2012), model = "within", index = c("pid", "year")))
-
-rob.basereg <- basereg %>% purrr::map(~coeftest(., vcov = vcovHC(., type = "HC0", cluster = "group")))
+    purrr::map(~as.formula(update(reg, .))) %>%
+    purrr::map(~lfe::felm(as.formula(.), data = subset(df, year >= 2012)))
 n.basereg <- basereg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
 
 # make tabulation
@@ -105,19 +105,19 @@ varlist <- exprs(
   vars == "log_price" ~ "ln(giving price)"
 )
 
-coef.basereg <- rob.basereg %>% 
+coef.basereg <- basereg %>% 
 	purrr::map(function(x)
     data.frame(
-      vars = rownames(x),
-      coef = apply(matrix(x[,4], ncol = 1), MARGIN = 2,
+      vars = rownames(summary(x)$coefficients),
+      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
         FUN = function(y) case_when(
-          y <= .01 ~ sprintf("%1.3f***", x[,1]),
-          y <= .05 ~ sprintf("%1.3f**", x[,1]),
-          y <= .1 ~ sprintf("%1.3f*", x[,1]),
-          TRUE ~ sprintf("%1.3f", x[,1])
+          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
+          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
+          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
+          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
         )
       ),
-      se = sprintf("(%1.3f)", x[,2]),
+      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
       stringsAsFactors = FALSE
     )
   ) %>% 
