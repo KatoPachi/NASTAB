@@ -87,3 +87,38 @@ df <- df %>%
     lag3iv = log(price/lag3_price),
     lag4iv = log(price/lag4_price),
   )
+
+## ---- ConstructPoliticalViewID
+sdpid <- df %>% 
+  mutate(political_pref = as.numeric(as.character(political_pref))) %>% 
+  group_by(pid) %>% 
+  summarize_at(vars(political_pref), list(~sd(., na.rm = TRUE))) %>% 
+  with(summary(political_pref))
+
+politicid <- df %>% 
+  select(pid, political_pref) %>% 
+  distinct(.keep_all = TRUE) %>% 
+  rename(politicid = political_pref) %>% 
+  drop_na()
+
+estdf <- df %>% left_join(politicid, by = "pid")
+
+## ---- HistogramPoliticalViewID
+ggplot(politicid, aes(x = as.numeric(as.character(politicid)))) + 
+  geom_histogram(stat = "count", fill = "grey80", color = "black") +
+  labs(x = "Political View Index", y = "Count") +
+  my_theme
+
+## ---- ScatterDonationsPoliticalViewID
+idavgdt <- estdf %>% 
+  group_by(pid) %>% 
+  summarize_at(vars(i_total_giving), list(~mean(., na.rm = TRUE)))
+
+plotdt <- idavgdt %>% 
+  left_join(politicid, by = "pid") %>% 
+  mutate(politicid = as.numeric(as.character(politicid)))
+
+ggplot(plotdt, aes(x = politicid, y = i_total_giving)) + 
+  geom_jitter(size = 1, alpha = 0.5) +
+  labs(x = "Political View Index", y = "Individual Average Total Giving") +
+  my_theme
