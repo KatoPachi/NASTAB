@@ -79,8 +79,6 @@ df <- df %>%
     lag3_price = dplyr::lag(price, n = 3, default = NA, order_by = year),
     lag4_price = dplyr::lag(price, n = 4, default = NA, order_by = year)
   ) %>% 
-    ) %>% 
-  ) %>% 
   ungroup()
 df <- df %>% 
   mutate(
