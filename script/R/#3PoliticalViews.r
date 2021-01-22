@@ -122,3 +122,96 @@ ggplot(plotdt, aes(x = politicid, y = i_total_giving)) +
   geom_jitter(size = 1, alpha = 0.5) +
   labs(x = "Political View Index", y = "Individual Average Total Giving") +
   my_theme
+
+## ---- EstimateElasticityByPoliticalView
+reg <- log_total_g ~ log_price + log_pinc_all + 
+  age + factor(year):factor(educ) + factor(year):factor(gender) + factor(living_area) | pid + year | 0 | pid
+
+politicreg <- 1:5 %>% 
+  purrr::map(~lfe::felm(reg, data = subset(estdf, year >= 2012 & as.numeric(as.character(politicid)) == .)))
+n.politicreg <- politicreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+
+#tabulation
+keep <- c("log_price") %>% paste(collapse = "|")
+varlist <- exprs(
+  stat == "se" ~ "",
+  vars == "log_price" ~ "ln(giving price)"
+)
+
+coef.politicreg <- politicreg %>% 
+  purrr::map(function(x)
+    data.frame(
+      vars = rownames(summary(x)$coefficients),
+      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
+          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
+          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
+          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
+      stringsAsFactors = FALSE
+    )
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(vars = case_when(!!!varlist)) %>%
+  select(-stat)
+
+tab.politicreg <- rbind(as.matrix(coef.politicreg), c("Obs", n.politicreg)) %>% data.frame()
+
+## ---- EstimateInteractionByPoliticView
+intreg <- log_total_g ~ log_price + log_price:politicid + log_pinc_all + 
+  age + factor(year):factor(educ) + factor(year):factor(gender) + factor(living_area) | pid + year | 0 | pid
+
+dfset <- list(
+  base = estdf %>% filter(year >= 2012),
+  limit = estdf %>% filter(year == 2012 | year == 2013)
+)
+
+est.intreg <- dfset %>% purrr::map(~lfe::felm(intreg, data = .))
+n.intreg <- est.intreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
+
+#tabulation
+keep <- c("log_price") %>% paste(collapse = "|")
+varlist <- exprs(
+  str_detect(vars, "politicid1") ~ "X Extreme Right",
+  str_detect(vars, "politicid2") ~ "X Right",
+  str_detect(vars, "politicid4") ~ "X Left",
+  str_detect(vars, "politicid5") ~ "X Extreme Left",
+  vars == "log_price" ~ "ln(giving price)"
+)
+varorder <- exprs(
+  str_detect(vars, "politicid1") ~ 1,
+  str_detect(vars, "politicid2") ~ 2,
+  str_detect(vars, "politicid4") ~ 3,
+  str_detect(vars, "politicid5") ~ 4,
+  TRUE ~ 0
+)
+
+coef.intreg <- est.intreg %>% 
+  purrr::map(function(x)
+    data.frame(
+      vars = rownames(summary(x)$coefficients),
+      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
+        FUN = function(y) case_when(
+          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
+          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
+          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
+          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
+        )
+      ),
+      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
+      stringsAsFactors = FALSE
+    )
+  ) %>% 
+  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
+  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
+	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
+	mutate(order = case_when(!!!varorder), vars = case_when(!!!varlist)) %>%
+  .[with(., order(order)),] %>% 
+  select(-stat, -order)
+
+tab.intreg <- rbind(as.matrix(coef.intreg), c("Obs", n.intreg)) %>% data.frame()
