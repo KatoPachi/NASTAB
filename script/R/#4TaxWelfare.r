@@ -87,3 +87,66 @@ df <- df %>%
     lag3iv = log(price/lag3_price),
     lag4iv = log(price/lag4_price),
   )
+
+## ---- ConstructBalanceTaxWelfare
+estdf <- df %>% 
+	mutate(
+		ideal_welfare = case_when(
+			opt_welfare_tax <= 3 ~ 3,
+			opt_welfare_tax <= 6 ~ 2,
+			opt_welfare_tax <= 9 ~ 1
+		),
+		now_welfare = case_when(
+			avg_welfare_tax <= 3 ~ 3,
+			avg_welfare_tax <= 6 ~ 2,
+			avg_welfare_tax <= 9 ~ 1
+		),
+		ideal_tax = case_when(
+			opt_welfare_tax %in% c(3, 6, 9) ~ 3,
+			opt_welfare_tax %in% c(2, 5, 8) ~ 2,
+			opt_welfare_tax %in% c(1, 4, 7) ~ 1,
+		),
+		now_tax = case_when(
+			avg_welfare_tax %in% c(3, 6, 9) ~ 3,
+			avg_welfare_tax %in% c(2, 5, 8) ~ 2,
+			avg_welfare_tax %in% c(1, 4, 7) ~ 1,
+		),
+		ideal_balance = case_when(
+			opt_welfare_tax == 1 ~ 2,
+			opt_welfare_tax %in% c(2, 4) ~ 1,
+			opt_welfare_tax %in% c(3, 5, 7) ~ 0,
+			opt_welfare_tax %in% c(6, 8) ~ -1,
+			opt_welfare_tax == 9 ~ -2,
+		),
+		now_balance = case_when(
+			avg_welfare_tax == 1 ~ 2,
+			avg_welfare_tax %in% c(2, 4) ~ 1,
+			avg_welfare_tax %in% c(3, 5, 7) ~ 0,
+			avg_welfare_tax %in% c(6, 8) ~ -1,
+			avg_welfare_tax == 9 ~ -2,
+		),
+		
+	) %>% 
+	mutate(
+		diff_welfare = now_welfare - ideal_welfare,
+		diff_tax = now_tax - ideal_tax,
+		diff_balance = now_balance - ideal_balance
+	) %>% 
+	mutate(
+		ideal_balance3 = case_when(
+			ideal_balance < 0 ~ -1,
+			ideal_balance == 0 ~ 0,
+			ideal_balance >0 ~ 1
+		),
+		now_balance3 = case_when(
+			now_balance < 0 ~ -1,
+			now_balance == 0 ~ 0,
+			now_balance >0 ~ 1
+		),
+		diff_balance3 = case_when(
+			diff_balance < 0 ~ 1,
+			diff_balance == 0 ~ 0,
+			diff_balance > 0 ~ -1
+		)
+	)
+
