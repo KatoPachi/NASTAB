@@ -168,7 +168,7 @@ intreg <- log_total_g ~ log_price + log_price:politicid + log_pinc_all +
 
 dfset <- list(
   base = estdf %>% filter(year >= 2012),
-  limit = estdf %>% filter(year == 2012 | year == 2013)
+  limit = estdf %>% filter(year == 2013 | year == 2014)
 )
 
 est.intreg <- dfset %>% purrr::map(~lfe::felm(intreg, data = .))
