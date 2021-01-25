@@ -30,6 +30,8 @@ knitr::opts_chunk$set(
 )
 knitr::opts_knit$set(root.dir = here())
 
+library(tidyverse)
+library(readstata13)
 library(kableExtra)
 options(knitr.kable.NA = "")
 ```
@@ -85,35 +87,169 @@ We conjecture that the political trust is key driver to determine the price effe
 - Since the NaSTab includes residence area of respondents, it merges with the data on local governement finance. 
 -->
 
-```{r CallR_summary}
-knitr::read_chunk("script/R/#0summary.r")
-```
+```{stata dataset, collectcode=TRUE, results = "hide"}
+cd "C:\Users\vge00\Desktop\nastab"  //root path
 
-```{r library}
+** ---- ReadData
+use "data\shaped.dta", clear
 
-```
+gen price = .
+replace price = 1 - mtr if year < 2014
+replace price = 1 - 0.15 if year >= 2014
+gen log_price = ln(price)
+gen log_total_g = ln(i_total_giving + 1)
+gen log_pinc_all = ln(lincome + 100000)
+replace gender = gender - 1
+gen univ = (educ == 3) if !missing(educ)
+gen highschool = (educ == 2) if !missing(educ)
+gen juniorhigh = (educ == 1) if !missing(educ)
+gen sqage = age^2/100
 
-```{r GGTemp}
+** ---- LagOperation
+tsset pid year
 
-```
+gen lag1_price = l.price
+gen lag2_price = l2.price
+gen lag3_price = l3.price
+gen lag4_price = l4.price
 
-```{r ReadData}
+gen lag1iv = ln(price/lag1_price)
+gen lag2iv = ln(price/lag2_price)
+gen lag3iv = ln(price/lag3_price)
+gen lag4iv = ln(price/lag4_price)
 
+keep if year >= 2012
+
+** ---- ConstructTaxBalance
+gen now_welfare = 1
+replace now_welfare = 2 if avg_welfare_tax < 3 & avg_welfare_tax <= 6
+replace now_welfare = 3 if avg_welfare_tax <= 3
+replace now_welfare = . if missing(avg_welfare_tax)
+
+gen now_tax = 1
+replace now_tax = 2 if avg_welfare_tax == 2 | avg_welfare_tax == 5 | avg_welfare_tax == 8
+replace now_tax = 3 if avg_welfare_tax == 3 | avg_welfare_tax == 6 | avg_welfare_tax == 9
+replace now_tax = . if missing(avg_welfare_tax)
+
+gen now_balance = 0
+replace now_balance = 2 if avg_welfare_tax == 1
+replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
+replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
+replace now_balance = -2 if avg_welfare_tax == 9
+replace now_balance = . if missing(avg_welfare_tax)
+
+gen now_balance3 = 0
+replace now_balance3 = 1 if now_balance > 0
+replace now_balance3 = -1 if now_balance < 0
+replace now_balance3 = . if missing(now_balance)
 ```
 
 ## Time Series of Chariable Giving
 
-```{r SummaryOutcome, include = TRUE, fig.cap="Proportion of Donors (bar chart) and Average Donations among Donors (blue line)"}
+```{stata SummaryOutcome, results = "hide"}
+frame copy default avgdt
+frame avgdt: by year, sort: egen meanext = mean(i_ext_giving)
+frame avgdt: by year, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
+frame avgdt: keep year meanext meanint
+frame avgdt: duplicates drop
+frame avgdt: keep if meanint != .
 
+frame avgdt: {
+    twoway ///
+	(bar meanext year, color(gs10) lcolor(black) barwidth(0.9) yaxis(1)) ///
+	(connected meanint year, color(blue) yaxis(2)), ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	yscale(range(0 .) axis(1)) ///
+	yscale(range(0 .) axis(2)) ///
+	ylabel(0(.05).2, axis(1)) ///
+	ylabel(0(50)200, axis(2)) ///
+	ytitle("Proportion of donors", axis(1)) ///
+	ytitle("Average donations among donors", axis(2)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	legend(label(1 "Extensive margin") label(2 "Intensive margin")) ///
+	graphregion(fcolor(white))
+
+  graph export "_assets/SummaryOutcome.pdf", replace
+}
+```
+
+```{r, include = TRUE, out.width="90%", fig.cap="Proportion of Donors and Average Donations among Donors"}
+knitr::include_graphics(paste(here(), "_assets/SummaryOutcome.pdf", sep= "/"))
 ```
 
 ## Summary Statistics of Covariates
 
-```{r SummaryCovariate}
+```{stata SummaryCovariate, results = "hide"}
+matrix sumcov = J(7, 7, .)
 
+label variable gender "Female"
+label variable age "Age"
+label variable lincome "Annual taxable income"
+label variable univ "University graduate"
+label variable highschool "High School Graduate"
+label variable pid "#.Respondents"
+label variable hhid "#.Households"
+
+local j = 0
+foreach v in gender age lincome univ highschool {
+    local k = 1
+	local j = `++j'
+	di "j = `j'"
+	forvalues y = 2012(1)2018 {
+	    di "k = `k'"
+		summarize `v' if year == `y'
+		matrix sumcov[`j',`k'] = r(mean)
+		local k = `++k'
+	}
+}
+
+local k = 1
+forvalues y = 2012(1)2018 {
+    di = "k = `k'"
+	summarize pid if year == `y'
+	matrix sumcov[6, `k'] = r(N)
+	local k = `++k'
+}
+
+frame copy default temp
+frame temp: keep year hhid
+frame temp: duplicates drop
+local k = 1
+forvalues y = 2012(1)2018 {
+    di = "k = `k'"
+	frame temp: summarize hhid if year == `y'
+	matrix sumcov[7, `k'] = r(N)
+	local k = `++k'
+}
+
+matrix rownames sumcov = gender age lincome univ highschool pid hhid 
+xsvmat sumcov, saving(_assets/SummaryCovariate.dta) rownames(xvar)
 ```
 
 ```{r kableSummaryCovariate, include=TRUE}
+tabsum <- read.dta13("_assets/SummaryCovariate.dta") %>% data.frame()
+tabsum <- tabsum %>% 
+	mutate_at(vars(-xvar), 
+		list(
+			~case_when(
+				xvar == "pid" | xvar == "hhid" ~ sprintf("%1d", as.integer(.)),
+				TRUE ~ sprintf("%1.2f", .)
+			)
+		)
+	) %>% 
+	mutate(
+		xvar = recode(
+			xvar,
+			"gender" = "Female",
+			"age" = "Age",
+			"lincome" = "Annual taxable income",
+			"univ" = "University graduate",
+			"highschool" = "High school graduate",
+			"pid" = "#.Respondents",
+			"hhid" = "#.Households" 
+		)
+	)
+
 knitr::kable(
     tabsum[,1:5],
     format = "latex",
@@ -123,8 +259,7 @@ knitr::kable(
     align = "lccccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 9) %>% 
-pack_rows("Education", 4, 6)
+kable_styling() 
 ```
 
 ## Summary Statistics of Covariates (Cont'd)
@@ -139,9 +274,9 @@ knitr::kable(
     align = "lccccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 9) %>% 
-pack_rows("Education", 4, 6)
+kable_styling() 
 ```
+
 
 ## What is Giving Price?
 
@@ -202,408 +337,29 @@ In the South Korea, the tax policy about charitable giving drastically changed i
 
 ## Income Distribution and Giving Price
 
-```{r SummaryPriceChange, include=TRUE, fig.cap="Income Distribution and Giving Price"}
+```{stata SummaryPriceChange, results = "hide"}
+frame copy default sump
+frame sump: keep if year == 2013
+frame sump: keep lincome price
 
+frame sump: {
+    twoway ///
+	(line price lincome, yaxis(1) connect(stairstep) sort(lincome) lcolor(blue)) ///
+	(histogram lincome, freq yaxis(2) color(gs10%50) lcolor(black)), ///
+	yline(0.85, lcolor(red) lpattern(-)) ///
+	xline(1200, lcolor(black) lpattern(-))  ///
+	xline(4600, lcolor(black) lpattern(-))  ///
+	ytitle("Giving Price", axis(1)) ///
+	ytitle("Count", axis(2)) ///
+	xlabel(1200 4600 8800 30000) ///
+	xtitle("Annual taxable income (unit: 10,000KRW)")  ///
+	legend(label(1 "Giving Price in 2013")) ///
+	graphregion(fcolor(white))
+
+  graph export "_assets/SummaryPriceChange.pdf", replace
+}
 ```
 
-# Price Elasticity
-
-```{r callR_elasticity}
-knitr::read_chunk("script/R/#1elasticity.r")
+```{r, include = TRUE, out.width="90%", fig.cap="Income Distribution and Giving Price in 2013"}
+knitr::include_graphics(paste(here(), "_assets/SummaryPriceChange.pdf", sep= "/"))
 ```
-
-```{r ReadDataforElasticity}
-
-```
-
-## Baseline Regressions
-
-Our baseline regression equation is 
-
-$$
-    \log(\text{Giving}_{ijt}) = 
-    \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-$$
-
-- $\log(\text{Giving}_{ijt})$ is logarithm of individual $i$'s charitable giving in year $t$.
-- $\log(\text{Price}_{ijt})$ is logarithm of individual $i$'s giving price in year $t$.
-- $\beta_1$ represents the price elasticity of giving.
-- $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
-
-```{r EstimateElasticity}
-
-```
-
-## Result of Baseline Regressions
-
-We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease)
-
-```{r kableEstimateElasticity, include=TRUE}
-knitr::kable(
-    tab.basereg,
-    format = "latex",
-    caption = "Baseline Regressions",
-    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
-    row.names = FALSE,
-    align = "lccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9)
-```
-
-## Robustness Check 
-
-We addressed the following two potential concerns:
-
-1. Income and donations are determined simultaneously
-    - This causes both a change of giving price and a change of an amount of donations
-    - Gruber and Saez (2002) provided that we should use $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ as an insturment.
-    - Following Alumina et al. (2020), we estimated the model (5) in the previous slide, using the panel IV model for $k = 1, 2, 3, 4$.
-2. The effect of presidential transition on donations 
-    - The presidential transition is one of our major ommited factor to affect both political trust and charitable giving.
-    - To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for $k = 1, 2, 3, 4$.
-
-## Result of Robustness Check 1
-
-We obtained similar value of price elasticity to baseline results (1\% price increase leads to about 1.1\% giving decrease)
-
-```{r Robust1EstimateElasticity}
-
-```
-
-```{r kableRobust1EstimateElasticity, include = TRUE}
-knitr::kable(
-    tab.pivreg,
-    format = "latex",
-    caption = "Panel IV Regressions",
-    col.names = c("", "k = 1", "k = 2", "k = 3", "k = 4"),
-    row.names = FALSE,
-    align = "lcccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling()
-```
-
-
-## Result of Robustness Check 2
-
-We obtained **stonger** price effect than baseline (1\% price increase leads to about 1.2 ~ 1.6\% giving decrease)
-
-```{r Robust2EstimateElasticity}
-
-```
-
-```{r kableRobust2EstimateElasticity, include=TRUE}
-knitr::kable(
-    tab.limitreg,
-    format = "latex",
-    caption = "Results with data in 2013 and 2014",
-    col.names = c("", "", "k = 1", "k = 2", "k = 3", "k = 4"),
-    row.names = FALSE,
-    align = "lccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9) %>% 
-add_header_above(c(" " = 1, "FE" = 1, "Panel IV with FE" = 4))
-```
-
-# Political Trust and Price Elasticity
-
-```{r CallR_trust}
-knitr::read_chunk("script/R/#2trust.r")
-```
-
-## Estimation of Trust Index
-
-The trust for politicans is time-varying variable because it depends on governments' policies.
-We make time-invarying trust index using the fixed effect model.
-
-$$
-    \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
-$$
-
-- $\text{Trust}_{ijt}$: trust for politicians (5-Likert scale)
-- $\text{Trustid}_i$: individual fixed effect (**Trust index**)
-- $c_j \cdot \lambda_t$ captures local governments' policies effect
-- $\lambda_t$ captures the central government policies effect
-
-```{r EstimateTrustIndex}
-
-```
-
-```{r MergedWithTrustid}
-
-```
-
-## Histrogram of Trust Index
-
-```{r HistogramTrustid, include = TRUE, fig.cap = "Histogram of Trust Index"}
-
-```
-
-## Relationship with Donations and Covariates 
-
-- We made a scatter plot b/w individual average donations and trust index
-    - No linear relationship
-- We tested difference in mean of individual average donations b/w among those whose trust index above and below threshold
-    - The difference in mean is statistically siginificant at 5\% level if threshold is $\{2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5\}$.
-- We regressed trust index on covariates, using data in 2018
-    - trust among females < trust among males
-    - the positive correlation between income and trust index
-    - trust index is concave in age
-    - Those having extreme political views have a distrust of politicians rather than those having moderate political views.
-
-## Relationship b/w Donations and Trust Index 
-
-```{r ScatterTrusidDonations, include=TRUE, fig.cap="Scatter Plot between Donations and Trust Index"}
-
-```
-
-## Difference in Mean b/w Two Trust Groups
-
-```{r PlotDiffDonationsbwTrustGroup, include=TRUE, fig.cap = "Difference in Mean between Trust Group above and below Threshold"}
-
-```
-
-## Regression of Trust Index on Covariates
-
-```{r RegTrustidOnCovariate}
-
-```
-
-```{r kableRegTrustidOnCovariate, include = TRUE}
-knitr::kable(
-    tab.indexreg,
-    format = "latex",
-    caption = "Regression of Standarized Trust Index (Year = 2018)",
-    col.names = c("Variables", "Coefficients", "S.E."),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling()
-```
-
-## Subgroup Regressions
-
-To see the heterogenous price elasticity by political trust,
-We estimated the baseline regression model (5) (see Table \ref{tab:kableEstimateElasticity}),
-using sample grouped by the trust index.
-
-- Lowest: 0 ~ 20\% quantile of trust index
-- Lower: 20 ~ 40\% quantile of trust index
-- Neutral: 40 ~ 60\% quantile of trust index
-- Higher: 60 ~ 80\% quantile of trust index
-- Highest: 80 ~ 100\% quantile of trust index
-
-Covariates are the logarithm of income, age, interactions b/w year and education,
-interactions b/w year and gender, and living are dummy into covariates.
-
-```{r EstimateElasticityByTrustGroup}
-
-```
-
-## Results of Subgroup Regressions
-
-We cound **NOT** find the price effect for respondents whose trust is very low.
-
-```{r kableEstimateElasticityByTrustGroup, include = TRUE}
-knitr::kable(
-    tab.trustreg,
-    format = "latex",
-    caption = "Subgroup Regressions",
-    col.names = c("", "Lowest", "Lower", "Neutral", "Higher", "Highest"),
-    row.names = FALSE,
-    align = "lccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9)
-```
-
-## Regression on Interaction Term
-
-To check whether price elasticity is statistically siginificant different among five trust groups,
-we estimated the baseline regression model (5) including interation term between five trust groups and giving price.
-
-\begin{align*}
-    \log(\text{Giving}_{ijt}) 
-    =& \alpha_i + \beta_1 \log(\text{Price}_{ijt}) \\
-    &+ \sum_g \beta_g \log(\text{Price}_{ijt}) \cdot \text{TrustGroup}_{ijg}  \\
-    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-\end{align*}
-
-- $\text{TrustGroup}_{ijg}$: taking 1 if individual $i$ living in $j$ belongs to the trust group $g$.
-- $g \in \{ \text{Lowest}, \text{Lower}, \text{Higher}, \text{Highest} \}$.
-
-```{r EstimateInteractionByTrustGroup}
-
-```
-
-## Regression Result on Interation Term
-
-There is statistically siginificant difference on price elasticity between the lowest group and the nuetral group.
-
-```{r kableEstimateInteractionByTrustGroup, include=TRUE}
-knitr::kable(
-    tab.intreg,
-    format = "latex",
-    caption = "Heterogenous Price Elasticity",
-    col.names = c("", "Coefficients", "S.E."),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-add_indent(c(2:5))
-```
-
-## Potential Concerns of Heterogenous Price Elasticity
-
-- There is one potential concern that the presidential transition affects both donation behavior and political trust.
-    - In May 2017, South Korean president changed from Park Geun-hye to Moon Jae-in. This presidential transition was due to the impeachment charge against Park Geun-hye. People became distrustful of Park Geun-hye due to the shinking of MV Sewol (April 2014).
-- To rule out this confounder, we constructed president-specific trust indexs using either in 2015 and 2016 (Park's Trust index) or 
-data in 2017 and 2018 (Moon's Trust index).
-    - We discussed how to use these indexs later.
-
-## Relationship b/w President-specific Trust Indexs
-
-- We made a scatter plot between Park's trust index and Moon's trust index.
-    - Large variation of Moon's trust index among those who have same value of the Park's trust index.
-- We tested the difference in mean between president-specific trust indexs.
-    - The average Park's trust index is lower than the average Moon's trust index, which is statistically siginificant.
-
-## Scatter Plot b/w President-specific Trust Indexs
-
-```{r Scatter1Trustid, include=TRUE, fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in"}
-
-```
-
-## Relationship among Three Trust Indexs
-
-- We made a scatter plot between difference of president-specific trust indexs and the original trust index. 
-    - there is large variation of difference of president-specific trust indexs, and there is large variation of the original trust index among those who have similar value of two president-specific trust indexs.
-- We regressed the original trust index on difference of president-specific trust indexs. We restrict units whose aboslute value of president-specific trust index difference is less than 2 (Abs < 2), 1 (Abs < 1), and 0.5 (Abs < 0.5). 
-    - the positive correlations between difference of president-specific trust indexs and the original one. However, this positive correlation is statistically insignigicant if we use units whose president-specific trust indexs have similar values.
-
-## Scatter Plot b/w Difference of Separated Trust Indexs and Original One
-
-```{r Scatter2Trustid, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Trust Indexs and Original One"}
-
-```
-
-## Result of Regressions on Difference b/w President-specific Trust
-
-```{r RegTrustidOnDiff2Trustid}
-
-```
-
-```{r kableRegTrustidOnDiff2Trustid, include = TRUE}
-knitr::kable(
-    tab.dfset,
-    format = "latex",
-    caption = "Regressions of Trust Index on President-specific Trust Index",
-    col.names = c("", "Full", "Abs < 2", "Abs < 1", "Abs < 0.5"),
-    row.names = FALSE,
-    align = "lcccc",
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9)
-```
-
-## Robustness Check of Heterogenous Price Elasticity
-
-1. Using data in 2013 and 2014, we regressed the interaction model again
-    - The president was Park Geun-hye in both 2013 and 2014. Thus, we can exclude the effect of presidential transition on donation behavior.
-1. Using the park's trust index instead, we regressed the interaction model with data in 2013 and 2014.
-    - Since the trust index represents the trust for politicians under the president Park (but scandalous period), we can rule out the effect of presidential transition on both donations and trust.
-1. Restricting to units aboslute value of president-specific trust index difference is less than 1 or 0.5, we regressed the interaction model again (year > 2011)
-    - Last method rules out the effect of presidential transition on political trust because the original trust index is not affected by presidential transition.
- 
-```{r Robust1EstimateInteractionByTrustGroup}
-
-```
-
-## Result of Robustness Check
-
-```{r kableRobust1EstimateInteractionByTrustGroup, include=TRUE}
-knitr::kable(
-    tab.robintreg,
-    format = "latex",
-    caption = "Robustness Check of Heterogenous Price Elasticity",
-    col.names = c("", "(1)", "(2)", "(3)", "(4)"),
-    row.names = FALSE,
-    align = "lcccc",
-    booktabs = TRUE, escape = FALSE, linesep = ""
-) %>% 
-kable_styling(font_size = 8) %>% 
-add_indent(c(3:10)) %>% 
-add_header_above(c("Trust index" = 1, "Original" = 1, "Park" = 1, "Original(Abs<1)" = 1, "Original(Abs<0.5)" = 1)) %>% 
-add_header_above(c("Year" = 1, "2013 and 2014" = 2, "After 2012" = 2))
-```
-
-<!--
-## Heterogenity By Political Trust
-
-To capture heterogeneity precisely,
-we estimate the following regression equations:
-
-\begin{align*}
-    \log(\text{Giving}_{ijt}) = 
-    &\alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trustid}_{ij} \\
-    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-\end{align*}
-
-Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
-
-```{r EstimateHeteroPEstByTrusid, eval=FALSE}
-
-```
-
-## Result of Heterogeneity of Political Trust
-
-The price elasticity is **convex** in the trust index.
-Those whose trust index is low and high do not respond to the price incentive.
-
-```{r kableEstimateHeteroPEstByTrusid, include=TRUE, eval=FALSE}
-knitr::kable(
-    tab.heteroreg,
-    format = "latex",
-    caption = "Heterogeneity of Political Trust",
-    col.names = c("", "(1)", "(2)"),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-add_indent(c(3,5))
-```
-
-## Graphical Representation of Heterogeneity Effect
-
-```{r PlotHeteroPElast, include=TRUE, fig.cap="Relationship between Trust Index and Predicted Elasticity", eval=FALSE}
-
-```
-
--->
-
-# Conclusions
-
-## Conclusions
-
-<!--
-Our primitive result can be summarized as follows:
-
-- Low trust: Since people untrust governement's behavior, they act regardless of governement's policies (expenditure and tax benefit)
-- Middle trust: Since people have strategic uncertainty, they take a strategy of conditional cooperation. That is, they increase donations and use tax benefit to boost their giving if a local governement increases expenditures.
-- High trust (very weak evidence): Since people believe that governement contributes to social welfare, they send money to governement (not charities). Thus, they hestitate to use a tax benefit compared with those whose trust is middle level. 
-
-## Avenue of Our Research
-
-Our primitive results have several serious problem.
-
-1. Endogeneity of giving price. The giving price includes decision-making of use of tax benefit.
-1. Does charitable giving contributes to local social welfare? To examine the crowd-out effect of local government expenditure, we need to assume that peole send money to charities which work for local social welfare.
-1. Does people believe that a tax benefit decreases the **local** governement's revenue? To interpret our primitive results, we assume that people believe that a tax benefit decreases the budget of local governement.
-
-In future, we need to solve these problems.
--->
