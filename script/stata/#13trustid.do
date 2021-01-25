@@ -54,6 +54,16 @@ frame trustdt: duplicates drop
 frame trustdt: gen diff = moontrustid - parktrustid
 frame trustdt: xtile original5 = trustid, nq(5) 
 frame trustdt: xtile park5 = parktrustid, nq(5)
+frame trustdt: {
+	gen lessdiff1 = 0
+	replace lessdiff1 = 1 if abs(diff) < 1
+	replace lessdiff1 = . if missing(diff)
+}
+frame trustdt: {
+	gen lessdiffhalf = 0
+	replace lessdiffhalf = 1 if abs(diff) < 0.5
+	replace lessdiffhalf = . if missing(diff)
+}
 frame trustdt: save "data\shape\trustid.dta", replace
 
 merge m:1 pid using "data\shape\trustid.dta"
@@ -154,6 +164,26 @@ frame coefplotdt: {
 ** ---- RegTrustidOnCovariate
 reg trustid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
 
+** ---- EstimateElasticityByTrustGroup
+forvalues i = 1(1)6 {
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original5 == `i', fe vce(cluster pid)
+}
+
+** ---- EstimateInteractionByTrustGroup
+xtreg log_total_g c.log_price##ib3.original5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+	fe vce(cluster pid)
+	
+** ---- Robust1EstimateInteractionByTrustGroup
+xtreg log_total_g c.log_price##ib3.original5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013|year == 2014, fe vce(cluster pid)
+xtreg log_total_g c.log_price##ib3.park5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013|year == 2014, fe vce(cluster pid)	
+
+xtreg log_total_g c.log_price##ib3.original5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if lessdiff1 == 1, fe vce(cluster pid)
+xtreg log_total_g c.log_price##ib3.original5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if lessdiffhalf == 1, fe vce(cluster pid)
 
 ** ---- ClearEnv
 frame change default
