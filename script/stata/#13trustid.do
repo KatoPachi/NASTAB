@@ -13,6 +13,7 @@ replace gender = gender - 1
 gen univ = (educ == 3) if !missing(educ)
 gen highschool = (educ == 2) if !missing(educ)
 gen juniorhigh = (educ == 1) if !missing(educ)
+gen sqage = age^2/100
 
 ** ---- LagOperation
 tsset pid year
@@ -56,6 +57,60 @@ frame plotdt: {
 	graphregion(fcolor(white))
 }
 
+** ---- RegTrustidOnCovariate
+reg trustid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
+
+** ---- ScatterTrusidDonations
+bysort pid: egen meandonate = mean(i_total_giving)
+frame copy default scatter3dt
+frame scatter3dt: keep pid trustid meandonate
+frame scatter3dt: duplicates drop
+
+frame scatter3dt: {
+	twoway  ///
+	(scatter meandonate trustid, color(gs10%50)),  ///
+	xtitle("Trust index") ytitle("Individual average donations across time")  ///
+	graphregion(fcolor(white))
+}
+
+** ---- PlotDiffDonationsbwTrustGroup
+frame create coefplotdt
+frame coefplotdt: {
+	set obs 21
+	gen effect = .
+	gen se_effect = .
+	gen cutoff = .
+}
+
+frame scatter3dt: gen high = .
+local k = 1
+forvalues i = 0(.1)2.1 {
+	di "k = `k'"
+	frame scatter3dt: replace high = 0 if trustid <= `i'
+	frame scatter3dt: replace high = 1 if trustid > `i'
+	frame scatter3dt: replace high = . if missing(trustid)
+	frame scatter3dt: reg meandonate high 
+	frame coefplotdt: replace effect = _b[high] if _n == `k'
+	frame coefplotdt: replace se_effect = _se[high] if _n == `k'
+	frame coefplotdt: replace cutoff = `i' if _n == `k'
+	local k = `k' + 1
+}
+
+frame coefplotdt: gen lcoef = effect - 1.96*se_effect
+frame coefplotdt: gen hcoef = effect + 1.96*se_effect
+
+frame coefplotdt: {
+	twoway ///
+	(scatter effect cutoff, color(blue)) ///
+	(line effect cutoff, color(blue))  ///
+	(rcap hcoef lcoef cutoff, color(black)), ///
+	yline(0, lcolor(red) lpattern(-))  ///
+	xtitle("Threshold of trust index") ///
+	ytitle("Difference in mean (+/- 1.96*se)") ///
+	legend(off) ///
+	graphregion(fcolor(white))
+}
+
 ** ---- Scatter1Trustid
 frame copy default scatter1dt
 frame scatter1dt: keep pid parktrustid moontrustid
@@ -94,7 +149,27 @@ frame scatter2dt: reg trustid diff if abs(diff) < 2
 frame scatter2dt: reg trustid diff if abs(diff) < 1
 frame scatter2dt: reg trustid diff if abs(diff) < 0.5
 
+
+
 ** ---- ClearEnv
 frame change default
 frame drop plotdt
 frame drop scatter1dt
+frame drop scatter2dt
+frame drop scatter3dt
+frame drop coefplotdt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
