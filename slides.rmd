@@ -1395,7 +1395,7 @@ xsvmat park5, saving(_assets/RobustEstimateInteractionPark.dta) rownames(xvar) n
 
 ## Result of Robustness Check
 
-```{r shapeRobust1EstimateInteractionByTrustGroup, eval = FALSE}
+```{r shapeRobust1EstimateInteractionByTrustGroup}
 org.robintreg <- list(
 	read.dta13("_assets/RobustEstimateInteractionOriginal.dta") %>% data.frame(),
 	read.dta13("_assets/RobustEstimateInteractionPark.dta") %>% data.frame()
@@ -1499,6 +1499,705 @@ add_indent(c(3,5))
 ```
 
 -->
+
+# Tax-welfare Balance and Price Elasticity
+
+## Tax-welfare Balance
+
+From the 2015 survey, 
+NaSTaB asks the current and ideal balance between tax burden and welfare size.
+
+These variables provide us to investigate the relationship between price elasticity and govenrment's efficiency
+more directly.
+
+Thus, we did same excercise, using the current balance bewteen tax burden and welfare size.
+
+## Construct Tax-welfare Balance Index
+
+Questionnaire of tax-welfare balance index is
+
+![](_assets/BalanceQuestion.jpg){width=50%}
+
+To rule out government's policies, we use individual fixed effect as the **tax-welare size index**
+
+```{stata EstimateTaxBalanceIndex, results = "hide"}
+xtreg now_balance i.year##i.living_area if year >= 2015, fe
+predict orgbalanceid, u
+
+xtreg now_balance i.year##i.living_area if year == 2015 | year == 2016, fe
+predict orgparkbalanceid, u
+
+xtreg now_balance i.year##i.living_area if year == 2017 | year == 2018, fe
+predict orgmoonbalanceid, u
+
+
+
+* make trustid dataset
+frame copy default balancedt
+frame balancedt: {
+	bysort pid: egen balanceid = mean(orgbalanceid)
+	bysort pid: egen park_balanceid = mean(orgparkbalanceid) 
+	bysort pid: egen moon_balanceid = mean(orgmoonbalanceid)
+}
+frame balancedt: keep pid balanceid park_balanceid moon_balanceid
+frame balancedt: duplicates drop
+frame balancedt: gen diff_balance = moon_balanceid - park_balanceid
+frame balancedt: xtile balance5 = balanceid, nq(5) 
+frame balancedt: xtile park_balance5 = park_balanceid, nq(5)
+frame balancedt: {
+	gen lessdiff1_balance = 0
+	replace lessdiff1_balance = 1 if abs(diff_balance) < 1
+	replace lessdiff1_balance = . if missing(diff_balance)
+}
+frame balancedt: {
+	gen lessdiffhalf_balance = 0
+	replace lessdiffhalf_balance = 1 if abs(diff_balance) < 0.5
+	replace lessdiffhalf_balance = . if missing(diff_balance)
+}
+frame balancedt: save "data\shape\balanceid.dta", replace
+```
+
+## Histrogram of Trust Index
+
+```{stata HistogramTaxBalanceIndex, results = "hide"}
+frame create balancedt
+frame balancedt: use "data\shape\balanceid.dta", clear
+
+frame balancedt: {
+	twoway ///
+	(histogram balanceid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
+	xtitle("Tax-welfare balance index") ///
+	graphregion(fcolor(white))
+	
+	graph export "_assets/HistogramBalanceid.pdf", replace
+}
+```
+
+```{r, include = TRUE, out.width="90%", fig.cap="Histogram of Tax-Welfare Balance Index"}
+knitr::include_graphics(paste(here(), "_assets/HistogramBalanceid.pdf", sep= "/"))
+```
+
+## Relationship b/w Donations and Balance Index 
+
+```{stata ScatterTaxBalanceIndexDonations, results = "hide"}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+frame copy default scatdt
+frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
+frame scatdt: keep pid balanceid avgdonate
+frame scatdt: duplicates drop
+
+frame scatdt: {
+	twoway  ///
+	(scatter avgdonate balanceid, color(gs10%50)),  ///
+	xtitle("Tax-welfare balance index") ///
+	ytitle("Individual average donations across time")  ///
+	graphregion(fcolor(white))
+	
+	graph export "_assets/ScatterBalanceidDonations.pdf", replace
+}
+```
+
+```{r, include=TRUE, out.width="90%", fig.cap="Scatter Plot between Donations and Tax-Welfare Balance Index"}
+knitr::include_graphics(paste(here(), "_assets/ScatterBalanceidDonations.pdf", sep= "/"))
+```
+
+## Difference in Mean b/w Two Trust Groups
+
+```{stata PlotDiffDonationsbwBalanceGroup, results = "hide"}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+frame copy default scatdt
+frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
+frame scatdt: keep pid balanceid avgdonate
+frame scatdt: duplicates drop
+
+frame create coefplotdt
+frame coefplotdt: {
+	set obs 21
+	gen effect = .
+	gen se_effect = .
+	gen cutoff = .
+}
+
+frame scatdt: gen high = .
+local k = 1
+forvalues i = 0(.1)2.1 {
+	di "k = `k'"
+	frame scatdt: replace high = 0 if balanceid <= `i'
+	frame scatdt: replace high = 1 if balanceid > `i'
+	frame scatdt: replace high = . if missing(balanceid)
+	frame scatdt: reg avgdonate high 
+	frame coefplotdt: replace effect = _b[high] if _n == `k'
+	frame coefplotdt: replace se_effect = _se[high] if _n == `k'
+	frame coefplotdt: replace cutoff = `i' if _n == `k'
+	local k = `k' + 1
+}
+
+frame coefplotdt: gen lcoef = effect - 1.96*se_effect
+frame coefplotdt: gen hcoef = effect + 1.96*se_effect
+
+frame coefplotdt: {
+	twoway ///
+	(scatter effect cutoff, color(blue)) ///
+	(line effect cutoff, color(blue))  ///
+	(rcap hcoef lcoef cutoff, color(black)), ///
+	yline(0, lcolor(red) lpattern(-))  ///
+	xtitle("Threshold of tax-welfare balance index") ///
+	ytitle("Difference in mean (+/- 1.96*se)") ///
+	legend(off) ///
+	graphregion(fcolor(white))
+
+	graph export "_assets/PlotDiffDonationsbwBalanceGroup.pdf", replace
+}
+
+```
+
+```{r, include=TRUE, out.width="90%", fig.cap = "Difference in Mean between Group above and below Threshold"}
+knitr::include_graphics(paste(here(), "_assets/PlotDiffDonationsbwBalanceGroup.pdf", sep= "/"))
+```
+
+
+## Regression of Tax Balance Index on Covariates
+
+```{stata RegBalanceidOnCovariate, results = "hide"}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+reg balanceid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
+
+mat coef = r(table)
+mat coef = coef[.,1..12]
+mat stat = (e(N) \ e(r2_a))
+mat colnames stat = stat
+mat rownames stat = N r2a
+mat_capp model : coef stat, miss(.)
+mat model = model'
+
+xsvmat model, saving(_assets/RegBalanceidOnCovariate.dta) rownames(xvar) names(col)
+```
+
+```{r shapeRegBalanceidOnCovariate, include=TRUE}
+org.indexreg <- read.dta13("_assets/RegBalanceidOnCovariate.dta") %>% data.frame()
+
+coef.indexreg <- org.indexreg %>% 
+	filter(!is.na(se)) %>% 
+	select(xvar, b, se, pvalue) %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se)
+	) %>% 
+	select(xvar, b, se) %>% 
+	mutate(
+		xvar = recode(
+			xvar,
+			"gender" = "Female",
+			"log_pinc_all" = "Logarithm of income",
+			"age" = "Age",
+			"sqage" = "Squared age/100",
+			"2.educ" = "High school graduate",
+			"3.educ" = "University graduate",
+			"1.political_pref" = "Extreme right wing",
+			"2.political_pref" = "Right wing",
+			"4.political_pref" = "Left wing",
+			"5.political_pref" = "Extreme left wing"
+		)
+	)
+
+stat.indexreg <- org.indexreg %>% 
+	filter(xvar == "stat") %>%
+	select(xvar, N) %>% 
+	mutate(
+		xvar = recode(xvar, "stat" = "N"),
+		N = sprintf("%1d", as.integer(N))
+	) %>%
+	cbind(se = c(""))
+
+tab.indexreg <- rbind(as.matrix(coef.indexreg), as.matrix(stat.indexreg)) %>% 
+	data.frame()
+```
+
+```{r kableRegBalanceidOnCovariate, include=TRUE}
+knitr::kable(
+    tab.indexreg,
+    format = "latex",
+    caption = "Regression of Taw-Welfare Balance Index (Year = 2018)",
+    col.names = c("Variables", "Coefficients", "S.E."),
+    row.names = FALSE,
+    align = "lcc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+## Subgroup Regressions
+
+```{stata EstimateElasticityByBalanceGroup, results = "hide"}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)5 {
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance5 == `i', fe vce(cluster pid)
+	mat coef`i' = r(table)
+	mat coef`i' = coef`i'[1..rowsof(coef`i'), 1]
+	mat colnames coef`i' = group`i'
+	mat stat`i' = (e(N) \ e(r2_a))
+	mat colnames stat`i' = group`i'
+	mat rownames stat`i' = N r2a
+	mat_rapp group`i' : coef`i' stat`i'
+}
+
+mat_capp group : group1 group2, miss(.)
+mat_capp group : group group3, miss(.)
+mat_capp group : group group4, miss(.)
+mat_capp group : group group5, miss(.)
+mat group = group'
+
+xsvmat group, saving(_assets/EstimateElasticityByBalanceGroup.dta) rownames(xvar) names(col)
+```
+
+
+```{r shapeEstimateElasticityByBalanceGroup, include = TRUE}
+org.trustreg <- read.dta13("_assets/EstimateElasticityByBalanceGroup.dta") %>% data.frame()
+
+coef.trustreg <- org.trustreg %>% 
+	filter(!is.na(se)) %>% 
+	select(xvar, b, se, pvalue) %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se)
+	) %>% 
+	select(xvar, b, se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("ln(giving price)", ""), .)
+
+stat.trustreg <- org.trustreg %>% 
+	select(xvar, N) %>% 
+	mutate(N = sprintf("%1d", as.integer(N))) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("N"), .)
+
+tab.trustreg <- rbind(as.matrix(coef.trustreg), as.matrix(stat.trustreg)) %>% 
+	data.frame()
+```
+
+
+```{r kableEstimateElasticityByBalanceGroup, include = TRUE}
+knitr::kable(
+    tab.trustreg,
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "S inefficient", "Inefficient", "Balanced", "Efficient", "S efficient"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8)
+```
+
+
+## Regression on Interaction Term
+
+
+```{stata EstimateInteractionByBalanceGroup, results = "hide"}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+xtreg log_total_g c.log_price##ib3.balance5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+	fe vce(cluster pid)
+
+mat coef = r(table)
+mat coef = coef[.,1..11]
+mat stat = (e(N) \ e(r2_a))
+mat colnames stat = stat
+mat rownames stat = N r2a
+mat_capp model : coef stat, miss(.)
+mat model = model'
+
+xsvmat model, saving(_assets/EstimateInteractionByBalanceGroup.dta) rownames(xvar) names(col)
+```
+
+
+```{r shapeEstimateInteractionByBalanceGroup, include=TRUE}
+org.intreg <- read.dta13("_assets/EstimateInteractionByBalanceGroup.dta") %>% data.frame()
+
+coef.intreg <- org.intreg %>% 
+	filter(!is.na(se)) %>% 
+	select(xvar, b, se, pvalue) %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se)
+	) %>% 
+	select(xvar, b, se) %>% 
+	mutate(
+		xvar = recode(
+			xvar,
+			"log_price" = "ln(giving price)",
+			"1.balance5#c.log_price" = "X Strong inefficient",
+			"2.balance5#c.log_price" = "X Inefficient",
+			"4.balance5#c.log_price" = "X Efficient",
+			"5.balance5#c.log_price" = "X Strong Efficient"
+		)
+	)
+
+stat.intreg <- org.intreg %>% 
+	filter(xvar == "stat") %>%
+	select(xvar, N) %>% 
+	mutate(
+		xvar = recode(xvar, "stat" = "N"),
+		N = sprintf("%1d", as.integer(N))
+	) %>%
+	cbind(se = c(""))
+
+tab.intreg <- rbind(as.matrix(coef.intreg), as.matrix(stat.intreg)) %>% 
+	data.frame()
+```
+
+
+```{r kableEstimateInteractionByBalanceGroup, include=TRUE}
+knitr::kable(
+    tab.intreg,
+    format = "latex",
+    caption = "Heterogenous Price Elasticity among Tax-Welfare Balance",
+    col.names = c("", "Coefficients", "S.E."),
+    row.names = FALSE,
+    align = "lcc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling() %>% 
+add_indent(c(2:5))
+```
+
+
+## Scatter Plot b/w President-specific Balance Indexs
+
+```{stata Scatter1TaxBalanceIndex, results = "hide"}
+frame create balancedt
+frame balancedt: use "data\shape\balanceid.dta", clear
+
+frame balancedt: {
+	twoway ///
+	(scatter moon_balanceid park_balanceid, color(gs10%50)) ///
+	(fpfit moon_balanceid park_balanceid, color(red)), ///
+	xtitle("Park's tax-welfare balance index") ///
+	ytitle("Moon's tax-welfare balance index") ///
+	legend(off) ///
+	graphregion(fcolor(white))
+	
+	graph export "_assets/Scatter1Balanceid.pdf", replace
+}
+```
+
+```{r, include=TRUE, out.width="90%", fig.cap = "Scatter Plot between Balance Index under Park Geun-hye and Moon Jae-in"}
+knitr::include_graphics(paste(here(), "_assets/Scatter1Balanceid.pdf", sep= "/"))
+```
+
+## Result of Pair-wise t-test 
+
+```{stata TtestPresidentBalanceid, results = "hide"}
+frame create balancedt
+frame balancedt: use "data\shape\balanceid.dta", clear
+
+frame balancedt: ttest moon_balanceid == park_balanceid
+
+forvalues i = 1(1)2 {
+	mat group`i' = (r(mu_`i') \ r(sd_`i'))
+	mat colnames group`i' = group`i'
+	mat rownames group`i' = mean sd
+}
+
+mat diff = (group1[1,1] - group2[1,1] \ r(p))
+mat colnames diff = diff
+mat rownames diff = mu pval
+
+mat_capp tab : group1 group2
+mat_capp tab : tab diff, miss(.)
+xsvmat tab, saving(_assets/TtestPresidentBalanceid.dta) rownames(xvar) names(col)
+```
+
+```{r shapeTtestPresidentBalanceid}
+org.dfset <- read.dta13("_assets/TtestPresidentBalanceid.dta") %>% data.frame()
+
+coef.dfset <- org.dfset %>% 
+	select(-diff) %>%
+	drop_na() %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(
+				xvar == "mean" ~ sprintf("%1.3f", .),
+				xvar == "sd" ~ sprintf("(%1.3f)", .))
+		)
+	) %>% 
+	mutate(xvar = recode(xvar, "mean" = "Average", "sd" = "sd"))
+
+stat.dfset <- org.dfset %>% 
+	select(xvar, diff) %>% 
+	drop_na() %>% 
+	mutate(
+		diff = case_when(
+			xvar == "mu" ~ sprintf("%1.3f", diff),
+			xvar == "pval" ~ sprintf("[%1.3f]", diff)
+		),
+		xvar = recode(xvar, "mu" = "Average", "pval" = "sd")
+	)
+
+tab.dfset <- left_join(coef.dfset, stat.dfset, by = "xvar") %>% 
+	mutate(xvar = recode(xvar, "sd" = "", .default = xvar))
+```
+
+```{r kableTtestPresidentBalanceid, include = TRUE}
+knitr::kable(
+    tab.dfset,
+    format = "latex",
+    caption = "Pair-wise T-test",
+    col.names = c("", "Moon's balance index", "Park's balance index", "Difference"),
+    row.names = FALSE,
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+
+## Scatter Plot b/w Difference of Separated Trust Indexs and Original One
+
+```{stata Scatter2Balanceid, results = "hide"}
+frame create balancedt
+frame balancedt: use "data\shape\balanceid.dta", clear
+
+frame balancedt: {
+	twoway ///
+	(scatter balanceid diff_balance, color(gs10%50))  ///
+	(fpfit balanceid diff_balance, color(red)), ///
+	xtitle("Difference b/w president-specific tax-welfare balance index") ///
+	ytitle("Tax-welfare balance index") ///
+	legend(off)  ///
+	graphregion(fcolor(white))
+
+	graph export "_assets/Scatter2Balanceid.pdf", replace
+}
+```
+
+```{r, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Balance Indexs and Original One"}
+knitr::include_graphics(paste(here(), "_assets/Scatter2Balanceid.pdf", sep= "/"))
+```
+
+
+## Result of Regressions on Difference b/w President-specific Trust
+
+```{stata RegTrustidOnDiff2TaxBalanceIndex, results = "hide"}
+frame create balancedt
+frame balancedt: use "data\shape\balanceid.dta", clear
+
+frame balancedt: reg balanceid diff_balance
+mat coef1 = r(table)
+mat coef1 = coef1[1..9,1]
+mat colnames coef1 = model1
+mat stat1 = (e(N) \ e(r2_a))
+mat colnames stat1 = model1
+mat rownames stat1 = N r2a
+mat_rapp model1 : coef1 stat1
+
+frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 2
+mat coef2 = r(table)
+mat coef2 = coef2[1..9,1]
+mat colnames coef2 = model2
+mat stat2 = (e(N) \ e(r2_a))
+mat colnames stat2 = model2
+mat rownames stat2 = N r2a
+mat_rapp model2 : coef2 stat2
+
+frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 1
+mat coef3 = r(table)
+mat coef3 = coef3[1..9,1]
+mat colnames coef3 = model3
+mat stat3 = (e(N) \ e(r2_a))
+mat colnames stat3 = model3
+mat rownames stat3 = N r2a
+mat_rapp model3 : coef3 stat3
+
+frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 0.5
+mat coef4 = r(table)
+mat coef4 = coef4[1..9,1]
+mat colnames coef4 = model4
+mat stat4 = (e(N) \ e(r2_a))
+mat colnames stat4 = model4
+mat rownames stat4 = N r2a
+mat_rapp model4 : coef4 stat4
+
+mat_capp tab : model1 model2
+mat_capp tab : tab model3 
+mat_capp tab : tab model4
+mat tab = tab'
+
+xsvmat tab, saving(_assets/RegTrustidOnDiff2Balanceid.dta) rownames(xvar) names(col)
+```
+
+```{r shapeRegTrustidOnDiff2Balanceid}
+org.dfset <- read.dta13("_assets/RegTrustidOnDiff2Balanceid.dta") %>% data.frame()
+
+coef.dfset <- org.dfset %>% 
+	filter(!is.na(se)) %>% 
+	select(xvar, b, se, pvalue) %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se)
+	) %>% 
+	select(xvar, b, se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("Moon's index - Park's index", ""), .)
+
+stat.dfset <- org.dfset %>% 
+	select(xvar, r2a, N) %>% 
+	mutate(N = sprintf("%1d", as.integer(N)), r2a = sprintf("%1.3f", r2a)) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("Adjusted R-sq", "N"), .)
+
+tab.dfset <- rbind(as.matrix(coef.dfset), as.matrix(stat.dfset)) %>% 
+	data.frame()
+```
+
+```{r kableRegTrustidOnDiff2Balanceid, include = TRUE}
+knitr::kable(
+    tab.dfset,
+    format = "latex",
+    caption = "Regressions of Balance Index on President-specific Balance Index",
+    col.names = c("", "Full", "Abs < 2", "Abs < 1", "Abs < 0.5"),
+    row.names = FALSE,
+    align = "lcccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+
+## Robustness Check of Heterogenous Price Elasticity
+
+```{stata Robust1EstimateInteractionByTaxBalanceIndexGroup, results = "hide"}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+foreach v in balance5 park_balance5 {
+	xtreg log_total_g c.log_price##ib3.`v' log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if year == 2013|year == 2014, fe vce(cluster pid)
+	
+	mat coef = r(table)
+	mat coef = coef[.,1..11]
+	mat stat = (e(N) \ e(r2_a))
+	mat colnames stat = stat
+	mat rownames stat = N r2a
+	mat_capp `v' : coef stat, miss(.)
+	mat `v' = `v''
+}
+
+xtreg log_total_g c.log_price##ib3.balance5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if lessdiffhalf_balance == 1, fe vce(cluster pid)
+mat coef = r(table)
+mat coef = coef[.,1..11]
+mat stat = (e(N) \ e(r2_a))
+mat colnames stat = stat
+mat rownames stat = N r2a
+mat_capp diff : coef stat, miss(.)
+mat diff = diff'
+
+xsvmat balance5, saving(_assets/RobustEstimateInteractionBalance5.dta) rownames(xvar) names(col)
+xsvmat park_balance5, saving(_assets/RobustEstimateInteractionParkBalance5.dta) rownames(xvar) names(col)
+xsvmat diff, saving(_assets/RobustEstimateInteractionDiffBalance.dta) rownames(xvar) names(col)
+```
+
+
+```{r shapeRobust1EstimateInteractionByBalanceGroup}
+org.robintreg <- list(
+	read.dta13("_assets/RobustEstimateInteractionBalance5.dta") %>% data.frame(),
+	read.dta13("_assets/RobustEstimateInteractionParkBalance5.dta") %>% data.frame(),
+	read.dta13("_assets/RobustEstimateInteractionDiffBalance.dta") %>% data.frame()
+)
+
+coef.robintreg <- org.robintreg %>% 
+	purrr::map(function(x)
+		x %>% filter(!is.na(se)) %>% 
+			select(xvar, b, se, pvalue) %>% 
+			mutate(
+				b = case_when(
+					pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+					pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+					pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+					TRUE ~ sprintf("%1.3f", b)
+				),
+				se = sprintf("(%1.3f)", se)
+			) %>% 
+		select(xvar, b, se) %>% 
+		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+		mutate(
+			xvar = case_when(
+				xvar == "log_price" ~ "ln(giving price)",
+				str_detect(xvar, "1") ~ "X Strong inefficient",
+				str_detect(xvar, "2") ~ "X Inefficient",
+				str_detect(xvar, "4") ~ "X Efficient",
+				str_detect(xvar, "5") ~ "X Strong efficient"
+			)
+		)
+	) %>% 
+	reduce(left_join, by = c("xvar", "stat")) %>% 
+	mutate(xvar = case_when(stat == "se" ~ "", TRUE ~ xvar)) %>% 
+	select(-stat)
+
+stat.robintreg <- org.robintreg %>% 
+	purrr::map(function(x)
+		x %>% filter(xvar == "stat") %>% select(N) %>% mutate(N = sprintf("%1d", as.integer(N))) %>% unlist()
+	) %>% 
+	as_vector()
+
+tab.robintreg <- rbind(as.matrix(coef.robintreg), c("N", stat.robintreg)) %>% data.frame()
+```
+
+```{r kableRobust1EstimateInteractionByBalanceGroup, include = TRUE}
+knitr::kable(
+    tab.robintreg,
+    format = "latex",
+    caption = "Robustness Check of Heterogenous Price Elasticity",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccc",
+    booktabs = TRUE, escape = FALSE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3:10)) %>% 
+add_header_above(c("Tax-welfare balance index" = 1, "Original" = 1, "Park" = 1, "Original (Abs<0.5)" = 1)) %>% 
+add_header_above(c("Year" = 1, "2013 and 2014" = 2, "After 2012" = 1))
+```
+
 
 # Conclusions
 

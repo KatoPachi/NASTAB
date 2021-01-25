@@ -871,6 +871,207 @@ N & 13788 & 13440\\
 \end{table}
 \end{frame}
 
+\hypertarget{tax-welfare-balance-and-price-elasticity}{%
+\section{Tax-welfare Balance and Price
+Elasticity}\label{tax-welfare-balance-and-price-elasticity}}
+
+\begin{frame}{Tax-welfare Balance}
+\protect\hypertarget{tax-welfare-balance}{}
+From the 2015 survey, NaSTaB asks the current and ideal balance between
+tax burden and welfare size.
+
+These variables provide us to investigate the relationship between price
+elasticity and govenrment's efficiency more directly.
+
+Thus, we did same excercise, using the current balance bewteen tax
+burden and welfare size.
+\end{frame}
+
+\begin{frame}{Construct Tax-welfare Balance Index}
+\protect\hypertarget{construct-tax-welfare-balance-index}{}
+Questionnaire of tax-welfare balance index is
+
+\includegraphics[width=0.5\textwidth,height=\textheight]{_assets/BalanceQuestion.jpg}
+
+To rule out government's policies, we use individual fixed effect as the
+\textbf{tax-welare size index}
+\end{frame}
+
+\begin{frame}{Histrogram of Trust Index}
+\protect\hypertarget{histrogram-of-trust-index-1}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramBalanceid} \caption{Histogram of Tax-Welfare Balance Index}\label{fig:unnamed-chunk-8}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Relationship b/w Donations and Balance Index}
+\protect\hypertarget{relationship-bw-donations-and-balance-index}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/ScatterBalanceidDonations} \caption{Scatter Plot between Donations and Tax-Welfare Balance Index}\label{fig:unnamed-chunk-9}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Difference in Mean b/w Two Trust Groups}
+\protect\hypertarget{difference-in-mean-bw-two-trust-groups-1}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/PlotDiffDonationsbwBalanceGroup} \caption{Difference in Mean between Group above and below Threshold}\label{fig:unnamed-chunk-10}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Regression of Tax Balance Index on Covariates}
+\protect\hypertarget{regression-of-tax-balance-index-on-covariates}{}
+\begin{table}
+
+\caption{\label{tab:kableRegBalanceidOnCovariate}Regression of Taw-Welfare Balance Index (Year = 2018)}
+\centering
+\begin{tabular}[t]{lcc}
+\toprule
+Variables & Coefficients & S.E.\\
+\midrule
+Female & 0.011 & (0.015)\\
+Logarithm of income & -1.821*** & (0.285)\\
+Age & -0.005** & (0.003)\\
+Squared age/100 & 0.009*** & (0.002)\\
+High school graduate & -0.054** & (0.023)\\
+University graduate & -0.076*** & (0.025)\\
+Extreme right wing & 0.056 & (0.055)\\
+Right wing & 0.001 & (0.018)\\
+Left wing & -0.010 & (0.018)\\
+Extreme left wing & 0.015 & (0.029)\\
+N & 7697 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Subgroup Regressions}
+\protect\hypertarget{subgroup-regressions-1}{}
+\begin{table}
+
+\caption{\label{tab:kableEstimateElasticityByBalanceGroup}Subgroup Regressions}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+ & S inefficient & Inefficient & Balanced & Efficient & S efficient\\
+\midrule
+ln(giving price) & -1.281*** & -0.773 & -1.429*** & -1.021** & -0.739\\
+ & (0.492) & (0.495) & (0.543) & (0.494) & (0.544)\\
+N & 9795 & 11369 & 9561 & 10411 & 10170\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Regression on Interaction Term}
+\protect\hypertarget{regression-on-interaction-term-1}{}
+\begin{table}
+
+\caption{\label{tab:kableEstimateInteractionByBalanceGroup}Heterogenous Price Elasticity among Tax-Welfare Balance}
+\centering
+\begin{tabular}[t]{lcc}
+\toprule
+ & Coefficients & S.E.\\
+\midrule
+ln(giving price) & -1.731*** & (0.418)\\
+\hspace{1em}X Strong inefficient & 0.781 & (0.556)\\
+\hspace{1em}X Inefficient & 0.727 & (0.539)\\
+\hspace{1em}X Efficient & 0.486 & (0.529)\\
+\hspace{1em}X Strong Efficient & 1.183** & (0.511)\\
+N & 51306 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Scatter Plot b/w President-specific Balance Indexs}
+\protect\hypertarget{scatter-plot-bw-president-specific-balance-indexs}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter1Balanceid} \caption{Scatter Plot between Balance Index under Park Geun-hye and Moon Jae-in}\label{fig:unnamed-chunk-11}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Result of Pair-wise t-test}
+\protect\hypertarget{result-of-pair-wise-t-test-1}{}
+\begin{table}
+
+\caption{\label{tab:kableTtestPresidentBalanceid}Pair-wise T-test}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & Moon's balance index & Park's balance index & Difference\\
+\midrule
+Average & 0.004 & -0.006 & 0.010\\
+ & (0.719) & (0.824) & [0.353]\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and
+Original One}
+\protect\hypertarget{scatter-plot-bw-difference-of-separated-trust-indexs-and-original-one-1}{}
+\begin{figure}
+\centering
+\includegraphics{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter2Balanceid.pdf}
+\caption{Scatter Plot between Difference of President-specific Balance
+Indexs and Original One}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Result of Regressions on Difference b/w President-specific
+Trust}
+\protect\hypertarget{result-of-regressions-on-difference-bw-president-specific-trust-1}{}
+\begin{table}
+
+\caption{\label{tab:kableRegTrustidOnDiff2Balanceid}Regressions of Balance Index on President-specific Balance Index}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lcccc}
+\toprule
+ & Full & Abs < 2 & Abs < 1 & Abs < 0.5\\
+\midrule
+Moon's index - Park's index & -0.024*** & -0.034*** & -0.055*** & -0.058\\
+ & (0.008) & (0.009) & (0.016) & (0.039)\\
+Adjusted R-sq & 0.001 & 0.002 & 0.002 & 0.000\\
+N & 7314 & 7101 & 5515 & 3384\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check of Heterogenous Price Elasticity}
+\protect\hypertarget{robustness-check-of-heterogenous-price-elasticity-1}{}
+\begin{table}
+
+\caption{\label{tab:kableRobust1EstimateInteractionByBalanceGroup}Robustness Check of Heterogenous Price Elasticity}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{Year} & \multicolumn{2}{c}{2013 and 2014} & \multicolumn{1}{c}{After 2012} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-4}
+\multicolumn{1}{c}{Tax-welfare balance index} & \multicolumn{1}{c}{Original} & \multicolumn{1}{c}{Park} & \multicolumn{1}{c}{Original (Abs<0.5)} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+ln(giving price) & -2.280*** & -0.987* & -1.675***\\
+ & (0.681) & (0.560) & (0.614)\\
+\hspace{1em}X Strong inefficient & 1.254 & 0.274 & 1.016\\
+\hspace{1em} & (0.856) & (0.785) & (0.825)\\
+\hspace{1em}X Inefficient & 0.885 & -1.382* & 0.333\\
+\hspace{1em} & (0.800) & (0.740) & (0.852)\\
+\hspace{1em}X Efficient & 0.590 & -0.972 & -0.155\\
+\hspace{1em} & (0.799) & (0.750) & (0.776)\\
+\hspace{1em}X Strong efficient & 0.776 & -0.577 & 1.842**\\
+\hspace{1em} & (0.791) & (0.731) & (0.790)\\
+N & 13788 & 13440 & 21528\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
 \hypertarget{conclusions}{%
 \section{Conclusions}\label{conclusions}}
 
