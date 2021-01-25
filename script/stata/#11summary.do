@@ -89,7 +89,27 @@ frmttable, statmat(sumcov) varlabels  ///
 	sdec(2\2\2\2\2\0\0) ///
 	ctitles("", "2012", "2013", "2014", "2015", "2016", "2017", "2018")
 
+** ---- SummaryPriceChange
+frame copy default sump
+frame sump: keep if year == 2013
+frame sump: keep lincome price
+
+frame sump: {
+    twoway ///
+	(line price lincome, yaxis(1) connect(stairstep) sort(lincome) lcolor(blue)) ///
+	(histogram lincome, freq yaxis(2) color(gs10%50) lcolor(black)), ///
+	yline(0.85, lcolor(red) lpattern(-)) ///
+	xline(1200, lcolor(black) lpattern(-))  ///
+	xline(4600, lcolor(black) lpattern(-))  ///
+	ytitle("Giving Price", axis(1)) ///
+	ytitle("Count", axis(2)) ///
+	xlabel(1200 4600 8800 30000) ///
+	legend(label(1 "Giving Price in 2013") label(2 "Intensive margin")) ///
+	graphregion(fcolor(white))
+}
+
 ** ---- ClearEnv
 frame change default
 frame drop avgdt
 frame drop temp
+frame drop sump
