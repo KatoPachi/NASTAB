@@ -84,8 +84,9 @@ forvalues y = 2012(1)2018 {
 }
 
 matrix rownames sumcov = gender age lincome univ highschool pid hhid 
+xsvmat sumcov, saving(test.dta) rownames(xvar)
 
-frmttable, statmat(sumcov) varlabels  ///
+frmttable using test.csv, statmat(sumcov) varlabels  ///
 	sdec(2\2\2\2\2\0\0) ///
 	ctitles("", "2012", "2013", "2014", "2015", "2016", "2017", "2018")
 
