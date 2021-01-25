@@ -68,3 +68,61 @@ frame politicdt: save "data\shape\politicid.dta", replace
 
 merge m:1 pid using "data\shape\politicid.dta"
 drop _merge
+
+
+** ---- HistogramTrustid
+frame politicdt: {
+	twoway ///
+	(histogram politicid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
+	xtitle("Political view index") ///
+	graphregion(fcolor(white))
+}
+
+
+** ---- Scatter1Trustid
+frame politicdt: {
+	twoway ///
+	(scatter moon_politicid park_politicid, color(gs10%50)) ///
+	(fpfit moon_politicid park_politicid, color(red)), ///
+	xtitle("Park's political view index") ytitle("Moon's political view index") ///
+	legend(off) ///
+	graphregion(fcolor(white))
+}
+
+** ---- TtestPresidentTrustid
+frame politicdt: ttest moon_politicid == park_politicid
+
+** ---- Scatter2Trusid
+frame politicdt: {
+	twoway ///
+	(scatter politicid diff_politicid, color(gs10%50))  ///
+	(fpfit politicid diff, color(red)), ///
+	xtitle("Difference b/w president-specific political view index") ///
+	ytitle("Trust index") ///
+	legend(off)  ///
+	graphregion(fcolor(white))
+}
+
+** ---- RegTrustidOnDiff2Trustid
+frame politicdt: reg politicid diff
+frame politicdt: reg politicid diff if abs(diff) < 2
+frame politicdt: reg politicid diff if abs(diff) < 1
+frame politicdt: reg politicid diff if abs(diff) < 0.5
+
+
+** ---- ScatterTrusidDonations
+frame copy default scatdt
+frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
+frame scatdt: keep pid politicid avgdonate
+frame scatdt: duplicates drop
+
+frame scatdt: {
+	twoway  ///
+	(scatter avgdonate politicid, color(gs10%50)),  ///
+	xtitle("Political view index") ytitle("Individual average donations across time")  ///
+	graphregion(fcolor(white))
+}
+
+** ---- RegTrustidOnCovariate
+reg politicid gender log_pinc_all age sqage i.educ if year == 2018
+
