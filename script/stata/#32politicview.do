@@ -29,3 +29,42 @@ gen lag3iv = ln(price/lag3_price)
 gen lag4iv = ln(price/lag4_price)
 
 keep if year >= 2012
+
+** ---- EstimatePoliticalViewsIndex
+xtreg political_pref i.year##i.living_area if year >= 2015, fe
+predict orgpoliticid, u
+
+xtreg political_pref i.year##i.living_area if year == 2015 | year == 2016, fe
+predict orgparkpoliticid, u
+
+xtreg political_pref i.year##i.living_area if year == 2017 | year == 2018, fe
+predict orgmoonpoliticid, u
+
+
+
+* make trustid dataset
+frame copy default politicdt
+frame politicdt: {
+	bysort pid: egen politicid = mean(orgpoliticid)
+	bysort pid: egen park_politicid = mean(orgparkpoliticid) 
+	bysort pid: egen moon_politicid = mean(orgmoonpoliticid)
+}
+frame politicdt: keep pid politicid park_politicid moon_politicid
+frame politicdt: duplicates drop
+frame politicdt: gen diff_politicid = moon_politicid - park_politicid
+frame politicdt: xtile politic5 = politicid, nq(5) 
+frame politicdt: xtile park_politic5 = park_politicid, nq(5)
+frame politicdt: {
+	gen lessdiff1_politic = 0
+	replace lessdiff1_politic = 1 if abs(diff_politicid) < 1
+	replace lessdiff1_politic = . if missing(diff_politicid)
+}
+frame politicdt: {
+	gen lessdiffhalf_politic = 0
+	replace lessdiffhalf_politic = 1 if abs(diff_politicid) < 0.5
+	replace lessdiffhalf_politic = . if missing(diff_politicid)
+}
+frame politicdt: save "data\shape\politicid.dta", replace
+
+merge m:1 pid using "data\shape\politicid.dta"
+drop _merge
