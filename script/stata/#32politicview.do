@@ -126,3 +126,20 @@ frame scatdt: {
 ** ---- RegTrustidOnCovariate
 reg politicid gender log_pinc_all age sqage i.educ if year == 2018
 
+** ---- EstimateElasticityByTrustGroup
+forvalues i = 1(1)6 {
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if politic5 == `i', fe vce(cluster pid)
+}
+
+** ---- EstimateInteractionByTrustGroup
+xtreg log_total_g c.log_price##ib3.politic5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+	fe vce(cluster pid)
+	
+** ---- Robust1EstimateInteractionByTrustGroup
+xtreg log_total_g c.log_price##ib3.politic5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013|year == 2014, fe vce(cluster pid)
+xtreg log_total_g c.log_price##ib3.park_politic5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013|year == 2014, fe vce(cluster pid)	
+
+
