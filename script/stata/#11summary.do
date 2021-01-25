@@ -104,7 +104,7 @@ frame sump: {
 	ytitle("Giving Price", axis(1)) ///
 	ytitle("Count", axis(2)) ///
 	xlabel(1200 4600 8800 30000) ///
-	legend(label(1 "Giving Price in 2013") label(2 "Intensive margin")) ///
+	legend(label(1 "Giving Price in 2013")) ///
 	graphregion(fcolor(white))
 }
 
