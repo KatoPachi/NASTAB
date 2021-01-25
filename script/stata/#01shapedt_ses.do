@@ -83,6 +83,8 @@ replace welfare_level = 6 - welfare_level   //5:very high ~ 1:very low
 replace comp_pg = 6 - comp_pg
 replace comp_trust = 6 - comp_trust
 
+replace avg_welfare_tax = . if avg_welfare_tax == -9
+
 * extract income data (This uses tax calculation in shapedt_tax.do)
 frame copy default inc
 frame inc {
@@ -100,8 +102,10 @@ frame ses {
     keep hhid pid year living_area age educ gender ///
 		ext_deduct_lincome krw_deduct_lincome ///
 		ext_deduct_giving krw_deduct_giving   ///
-		ext_credit_giving krw_credit_giving   ///]
-		trust_politician welfare_level
+		ext_credit_giving krw_credit_giving   ///
+		trust_politician welfare_level ///
+		avg_welfare_tax opt_welfare_tax ///
+		addtax political_pref
 		
 	label variable living_area "[世帯]地域コード"
 	label variable ext_deduct_lincome "[世帯員]労働所得控除の有無"
@@ -112,6 +116,10 @@ frame ses {
 	label variable krw_credit_giving "[世帯員]寄付金税額控除額"
 	label variable trust_politician "[世帯員]政治家への信頼度"
 	label variable welfare_level "[世帯員]納税レベルに対する福祉水準"
+	label variable avg_welfare_tax "[世帯員]税負担と福祉水準の程度"
+	label variable opt_welfare_tax "[世帯員]望ましい税負担と福祉水準の程度"
+	label variable addtax "[世帯員]福祉拡充の追加課税への選好（2018年調査）"
+	label variable political_pref "[世帯員]政治的選好（left or right）"
 }
 
 frame ses: save "data\shape\ses.dta", replace
@@ -120,14 +128,11 @@ frame ses: save "data\shape\ses.dta", replace
 frame copy default tax_attitude
 frame tax_attitude: keep if year == 2018
 frame tax_attitude {
-    keep hhid pid trust_politician avg_welfare_tax opt_welfare_tax ///
+    keep hhid pid  ///
 		opttax_tincome_1000 opttax_tincome_3000 opttax_tincome_5000 opttax_tincome_7000 ///
 		opttax_tincome_10000 opttax_tincome_20000 opttax_tincome_30000 ///
-		opttax_tincome_50000 opttax_tincome_100000 ///
-		addtax welfare_level political_pref
+		opttax_tincome_50000 opttax_tincome_100000 
 	
-	label variable avg_welfare_tax "[世帯員]税負担と福祉水準の程度（2018年調査）"
-	label variable opt_welfare_tax "[世帯員]望ましい税負担と福祉水準の程度（2018年調査）"
 	label variable opttax_tincome_1000 "[世帯員]年間所得10mKRWの適切な税率（2018年調査）"
 	label variable opttax_tincome_3000 "[世帯員]年間所得30mKRWの適切な税率（2018年調査）"
 	label variable opttax_tincome_5000 "[世帯員]年間所得50mKRWの適切な税率（2018年調査）"
@@ -137,8 +142,6 @@ frame tax_attitude {
 	label variable opttax_tincome_30000 "[世帯員]年間所得300mKRWの適切な税率（2018年調査）"
 	label variable opttax_tincome_50000 "[世帯員]年間所得500mKRWの適切な税率（2018年調査）"
 	label variable opttax_tincome_100000 "[世帯員]年間所得1000mKRWの適切な税率（2018年調査）"
-	label variable addtax "[世帯員]福祉拡充の追加課税への選好（2018年調査）"
-	label variable political_pref "[世帯員]政治的選好（left or right）"
 }
 
 frame tax_attitude: save "data\shape\tax_attitude1.dta", replace
