@@ -40,35 +40,74 @@ predict orgparktrustid, u
 xtreg trust_politician i.year##i.living_area if year == 2017 | year == 2018, fe
 predict orgmoontrustid, u
 
-bysort pid: egen trustid = mean(orgtrustid)
-bysort pid: egen parktrustid = mean(orgparktrustid) 
-bysort pid: egen moontrustid = mean(orgmoontrustid)
-gen diff = moontrustid - parktrustid
+
+
+* make trustid dataset
+frame copy default trustdt
+frame trustdt: {
+	bysort pid: egen trustid = mean(orgtrustid)
+	bysort pid: egen parktrustid = mean(orgparktrustid) 
+	bysort pid: egen moontrustid = mean(orgmoontrustid)
+}
+frame trustdt: keep pid trustid parktrustid moontrustid
+frame trustdt: duplicates drop
+frame trustdt: gen diff = moontrustid - parktrustid
+frame trustdt: xtile original5 = trustid, nq(5) 
+frame trustdt: xtile park5 = parktrustid, nq(5)
+frame trustdt: save "data\shape\trustid.dta", replace
+
+merge m:1 pid using "data\shape\trustid.dta"
+drop _merge
 
 ** ---- HistogramTrustid
-frame copy default plotdt
-frame plotdt: keep pid trustid
-frame plotdt: duplicates drop
-
-frame plotdt: {
+frame trustdt: {
 	twoway ///
 	(histogram trustid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
 	xtitle("Trust index") ///
 	graphregion(fcolor(white))
 }
 
-** ---- RegTrustidOnCovariate
-reg trustid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
+
+** ---- Scatter1Trustid
+frame trustdt: {
+	twoway ///
+	(scatter moontrustid parktrustid, color(gs10%50)) ///
+	(fpfit moontrustid parktrustid, color(red)), ///
+	xtitle("Park's trust index") ytitle("Moon's trust index") ///
+	legend(off) ///
+	graphregion(fcolor(white))
+}
+
+** ---- TtestPresidentTrustid
+frame trustdt: ttest moontrustid == parktrustid
+
+** ---- Scatter2Trusid
+frame trustdt: {
+	twoway ///
+	(scatter trustid diff, color(gs10%50))  ///
+	(fpfit trustid diff, color(red)), ///
+	xtitle("Difference b/w president-specific trust index") ///
+	ytitle("Trust index") ///
+	legend(off)  ///
+	graphregion(fcolor(white))
+}
+
+** ---- RegTrustidOnDiff2Trustid
+frame trustdt: reg trustid diff
+frame trustdt: reg trustid diff if abs(diff) < 2
+frame trustdt: reg trustid diff if abs(diff) < 1
+frame trustdt: reg trustid diff if abs(diff) < 0.5
+
 
 ** ---- ScatterTrusidDonations
-bysort pid: egen meandonate = mean(i_total_giving)
-frame copy default scatter3dt
-frame scatter3dt: keep pid trustid meandonate
-frame scatter3dt: duplicates drop
+frame copy default scatdt
+frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
+frame scatdt: keep pid trustid avgdonate
+frame scatdt: duplicates drop
 
-frame scatter3dt: {
+frame scatdt: {
 	twoway  ///
-	(scatter meandonate trustid, color(gs10%50)),  ///
+	(scatter avgdonate trustid, color(gs10%50)),  ///
 	xtitle("Trust index") ytitle("Individual average donations across time")  ///
 	graphregion(fcolor(white))
 }
@@ -82,14 +121,14 @@ frame coefplotdt: {
 	gen cutoff = .
 }
 
-frame scatter3dt: gen high = .
+frame scatdt: gen high = .
 local k = 1
 forvalues i = 0(.1)2.1 {
 	di "k = `k'"
-	frame scatter3dt: replace high = 0 if trustid <= `i'
-	frame scatter3dt: replace high = 1 if trustid > `i'
-	frame scatter3dt: replace high = . if missing(trustid)
-	frame scatter3dt: reg meandonate high 
+	frame scatdt: replace high = 0 if trustid <= `i'
+	frame scatdt: replace high = 1 if trustid > `i'
+	frame scatdt: replace high = . if missing(trustid)
+	frame scatdt: reg avgdonate high 
 	frame coefplotdt: replace effect = _b[high] if _n == `k'
 	frame coefplotdt: replace se_effect = _se[high] if _n == `k'
 	frame coefplotdt: replace cutoff = `i' if _n == `k'
@@ -111,54 +150,16 @@ frame coefplotdt: {
 	graphregion(fcolor(white))
 }
 
-** ---- Scatter1Trustid
-frame copy default scatter1dt
-frame scatter1dt: keep pid parktrustid moontrustid
-frame scatter1dt: duplicates drop
 
-frame scatter1dt: {
-	twoway ///
-	(scatter moontrustid parktrustid, color(gs10%50)) ///
-	(fpfit moontrustid parktrustid, color(red)), ///
-	xtitle("Park's trust index") ytitle("Moon's trust index") ///
-	legend(off) ///
-	graphregion(fcolor(white))
-}
-
-** ---- TtestPresidentTrustid
-frame scatter1dt: ttest moontrustid == parktrustid
-
-** ---- Scatter2Trusid
-frame copy default scatter2dt
-frame scatter2dt: keep pid diff trustid
-frame scatter2dt: duplicates drop
-
-frame scatter2dt: {
-	twoway ///
-	(scatter trustid diff, color(gs10%50))  ///
-	(fpfit trustid diff, color(red)), ///
-	xtitle("Difference b/w president-specific trust index") ///
-	ytitle("Trust index") ///
-	legend(off)  ///
-	graphregion(fcolor(white))
-}
-
-** ---- RegTrustidOnDiff2Trustid
-frame scatter2dt: reg trustid diff
-frame scatter2dt: reg trustid diff if abs(diff) < 2
-frame scatter2dt: reg trustid diff if abs(diff) < 1
-frame scatter2dt: reg trustid diff if abs(diff) < 0.5
-
+** ---- RegTrustidOnCovariate
+reg trustid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
 
 
 ** ---- ClearEnv
 frame change default
-frame drop plotdt
-frame drop scatter1dt
-frame drop scatter2dt
-frame drop scatter3dt
+frame drop scatdt
 frame drop coefplotdt
-
+frame drop trustdt
 
 
 
