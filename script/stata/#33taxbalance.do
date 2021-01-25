@@ -91,3 +91,100 @@ frame balancedt: save "data\shape\balanceid.dta", replace
 
 merge m:1 pid using "data\shape\balanceid.dta"
 drop _merge
+
+** ---- HistogramTaxBalanceIndex
+frame balancedt: {
+	twoway ///
+	(histogram balanceid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
+	xtitle("Tax-welfare balance index") ///
+	graphregion(fcolor(white))
+}
+
+
+** ---- Scatter1TaxBalanceIndex
+frame balancedt: {
+	twoway ///
+	(scatter moon_balanceid park_balanceid, color(gs10%50)) ///
+	(fpfit moon_balanceid park_balanceid, color(red)), ///
+	xtitle("Park's tax-welfare balance index") ///
+	ytitle("Moon's tax-welfare balance index") ///
+	legend(off) ///
+	graphregion(fcolor(white))
+}
+
+** ---- TtestPresidentTaxBalanceIndex
+frame balancedt: ttest moon_balanceid == park_balanceid
+
+** ---- Scatter2TaxBalanceIndex
+frame balancedt: {
+	twoway ///
+	(scatter balanceid diff_balance, color(gs10%50))  ///
+	(fpfit balanceid diff_balance, color(red)), ///
+	xtitle("Difference b/w president-specific tax-welfare balance index") ///
+	ytitle("Tax-welfare balance index") ///
+	legend(off)  ///
+	graphregion(fcolor(white))
+}
+
+** ---- RegTrustidOnDiff2Trustid
+frame balancedt: reg balanceid diff_balance
+frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 2
+frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 1
+frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 0.5
+
+
+** ---- ScatterTrusidDonations
+frame copy default scatdt
+frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
+frame scatdt: keep pid balanceid avgdonate
+frame scatdt: duplicates drop
+
+frame scatdt: {
+	twoway  ///
+	(scatter avgdonate balanceid, color(gs10%50)),  ///
+	xtitle("Tax-welfare balance index") ///
+	ytitle("Individual average donations across time")  ///
+	graphregion(fcolor(white))
+}
+
+** ---- PlotDiffDonationsbwTrustGroup
+frame create coefplotdt
+frame coefplotdt: {
+	set obs 21
+	gen effect = .
+	gen se_effect = .
+	gen cutoff = .
+}
+
+frame scatdt: gen high = .
+local k = 1
+forvalues i = 0(.1)2.1 {
+	di "k = `k'"
+	frame scatdt: replace high = 0 if balanceid <= `i'
+	frame scatdt: replace high = 1 if balanceid > `i'
+	frame scatdt: replace high = . if missing(balanceid)
+	frame scatdt: reg avgdonate high 
+	frame coefplotdt: replace effect = _b[high] if _n == `k'
+	frame coefplotdt: replace se_effect = _se[high] if _n == `k'
+	frame coefplotdt: replace cutoff = `i' if _n == `k'
+	local k = `k' + 1
+}
+
+frame coefplotdt: gen lcoef = effect - 1.96*se_effect
+frame coefplotdt: gen hcoef = effect + 1.96*se_effect
+
+frame coefplotdt: {
+	twoway ///
+	(scatter effect cutoff, color(blue)) ///
+	(line effect cutoff, color(blue))  ///
+	(rcap hcoef lcoef cutoff, color(black)), ///
+	yline(0, lcolor(red) lpattern(-))  ///
+	xtitle("Threshold of tax-welfare balance index") ///
+	ytitle("Difference in mean (+/- 1.96*se)") ///
+	legend(off) ///
+	graphregion(fcolor(white))
+}
+
+
+** ---- RegTrustidOnCovariate
+reg balanceid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
