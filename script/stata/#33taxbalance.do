@@ -126,14 +126,14 @@ frame balancedt: {
 	graphregion(fcolor(white))
 }
 
-** ---- RegTrustidOnDiff2Trustid
+** ---- RegTrustidOnDiff2TaxBalanceIndex
 frame balancedt: reg balanceid diff_balance
 frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 2
 frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 1
 frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 0.5
 
 
-** ---- ScatterTrusidDonations
+** ---- ScatterTaxBalanceIndexDonations
 frame copy default scatdt
 frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
 frame scatdt: keep pid balanceid avgdonate
@@ -147,7 +147,7 @@ frame scatdt: {
 	graphregion(fcolor(white))
 }
 
-** ---- PlotDiffDonationsbwTrustGroup
+** ---- PlotDiffDonationsbwTaxBalanceIndex
 frame create coefplotdt
 frame coefplotdt: {
 	set obs 21
@@ -186,5 +186,26 @@ frame coefplotdt: {
 }
 
 
-** ---- RegTrustidOnCovariate
+** ---- RegTaxBalanceIndexOnCovariate
 reg balanceid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
+
+
+** ---- EstimateElasticityByTaxBalanceIndexGroup
+forvalues i = 1(1)6 {
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance5 == `i', fe vce(cluster pid)
+}
+
+** ---- EstimateInteractionByTaxBalanceIndexGroup
+xtreg log_total_g c.log_price##ib3.balance5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+	fe vce(cluster pid)
+	
+** ---- Robust1EstimateInteractionByTaxBalanceIndexGroup
+xtreg log_total_g c.log_price##ib3.balance5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013|year == 2014, fe vce(cluster pid)
+xtreg log_total_g c.log_price##ib3.park_balance5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013|year == 2014, fe vce(cluster pid)	
+
+
+xtreg log_total_g c.log_price##ib3.balance5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if lessdiffhalf_balance == 1, fe vce(cluster pid)
