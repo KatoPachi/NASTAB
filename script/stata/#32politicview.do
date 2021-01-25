@@ -143,3 +143,7 @@ xtreg log_total_g c.log_price##ib3.park_politic5 log_pinc_all age i.living_area 
 	if year == 2013|year == 2014, fe vce(cluster pid)	
 
 
+** ---- ClearEnv
+frame change default
+frame drop scatdt
+frame drop politicdt
