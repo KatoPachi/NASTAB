@@ -13,19 +13,18 @@ replace gender = gender - 1
 gen univ = (educ == 3) if !missing(educ)
 gen highschool = (educ == 2) if !missing(educ)
 gen juniorhigh = (educ == 1) if !missing(educ)
+gen sqage = age^2/100
 
 ** ---- LagOperation
 tsset pid year
 
-gen lag1_price = l.price
-gen lag2_price = l2.price
-gen lag3_price = l3.price
-gen lag4_price = l4.price
-
-gen lag1iv = ln(price/lag1_price)
-gen lag2iv = ln(price/lag2_price)
-gen lag3iv = ln(price/lag3_price)
-gen lag4iv = ln(price/lag4_price)
+forvalues k = 1(1)3 {
+    gen diff`k'G = log_total_g - l`k'.log_total_g
+	gen diff`k'p = log_price - l`k'.log_price
+	gen diff`k'I = log_pinc_all - l`k'.log_pinc_all
+	gen diff`k'_age = age - l`k'.age
+	gen diff`k'_sqage = sqage - l`k'.sqage
+}
 
 keep if year >= 2012
 
@@ -43,7 +42,7 @@ mat_rapp model0 : coef stat
 mat tabular = model0'
 
 * with covariates
-local cov age i.year##i.educ i.year##i.gender i.living_area
+local cov sqage i.year##i.educ i.year##i.gender i.living_area
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -53,7 +52,7 @@ foreach v of local cov {
 	local xvars `xvars' `v'
 	
 	*estimate fixed effect model
-	xtreg log_total_g log_price log_pinc_all i.year `xvars', fe vce(cluster pid)
+	xtreg log_total_g log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
 	
 	*matrix of regression result
 	mat coef = r(table)["b".."pvalue","log_price"]
@@ -99,7 +98,7 @@ mat_rapp model0 : model0 elas
 mat tabular = model0'
 
 * with covariates
-local cov age i.year##i.educ i.year##i.gender i.living_area
+local cov sqage i.year##i.educ i.year##i.gender i.living_area
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -113,7 +112,7 @@ foreach v of local cov {
 	local xvars `xvars' `v'
 	
 	*estimate fixed effect model
-	xtreg i_ext_giving log_price log_pinc_all i.year `xvars', fe vce(cluster pid)
+	xtreg i_ext_giving log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
 	
 	*matrix of regression result
 	mat coef = r(table)["b".."pvalue","log_price"]
@@ -155,7 +154,7 @@ mat_rapp model0 : coef stat
 mat tabular = model0'
 
 * with covariates
-local cov age i.year##i.educ i.year##i.gender i.living_area
+local cov sqage i.year##i.educ i.year##i.gender i.living_area
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -165,7 +164,7 @@ foreach v of local cov {
 	local xvars `xvars' `v'
 	
 	*estimate fixed effect model
-	xtreg log_total_g log_price log_pinc_all i.year `xvars' if i_ext_giving == 1, /// 
+	xtreg log_total_g log_price log_pinc_all i.year age `xvars' if i_ext_giving == 1, /// 
 		fe vce(cluster pid)
 	
 	*matrix of regression result
