@@ -205,10 +205,100 @@ mat list model
 ********************************************************************************
 
 ** ---- EstimateElasticityByTrustGroup
-forvalues i = 1(1)6 {
+forvalues i = 1(1)5 {
+    
+	* subgroup regression
 	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
 		if original5 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
 }
+
+mat list tabular
+
+** ---- EstimateElasticityExtensiveByTrustGroup
+forvalues i = 1(1)5 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original5 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if original5 == `i'
+	local mu = r(mean)
+
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`i'
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp model`i' : coef elas
+	mat_rapp model`i' : model`i' stat
+	mat model`i' = model`i''
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+** ---- EstimateElasticityIntensiveByTrustGroup
+forvalues i = 1(1)5 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original5 == `i' & i_ext_giving == 1, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
 
 ** ---- EstimateInteractionByTrustGroup
 xtreg log_total_g c.log_price##ib3.original5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
