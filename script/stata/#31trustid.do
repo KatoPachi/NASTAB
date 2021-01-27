@@ -18,15 +18,14 @@ gen sqage = age^2/100
 ** ---- LagOperation
 tsset pid year
 
-gen lag1_price = l.price
-gen lag2_price = l2.price
-gen lag3_price = l3.price
-gen lag4_price = l4.price
-
-gen lag1iv = ln(price/lag1_price)
-gen lag2iv = ln(price/lag2_price)
-gen lag3iv = ln(price/lag3_price)
-gen lag4iv = ln(price/lag4_price)
+forvalues k = 1(1)3 {
+    gen diff`k'G = log_total_g - l`k'.log_total_g
+	gen diff`k'G1 = i_ext_giving - l`k'.i_ext_giving
+	gen diff`k'p = log_price - l`k'.log_price
+	gen diff`k'I = log_pinc_all - l`k'.log_pinc_all
+	gen diff`k'_age = age - l`k'.age
+	gen diff`k'_sqage = sqage - l`k'.sqage
+}
 
 keep if year >= 2012
 
@@ -65,11 +64,23 @@ frame trustdt: {
 	replace lessdiffhalf = . if missing(diff)
 }
 frame trustdt: save "data\shape\trustid.dta", replace
+frame drop trustdt
 
+** ---- merged with trustdt
 merge m:1 pid using "data\shape\trustid.dta"
 drop _merge
 
+********************************************************************************
+* Trust index summary
+********************************************************************************
+
 ** ---- HistogramTrustid
+frame copy default trustdt
+frame trustdt {
+    keep pid trustid parktrustid moontrustid diff original5 park5 lessdiff1 lessdiffhalf
+	duplicates drop
+}
+
 frame trustdt: {
 	twoway ///
 	(histogram trustid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
@@ -90,6 +101,21 @@ frame trustdt: {
 
 ** ---- TtestPresidentTrustid
 frame trustdt: ttest moontrustid == parktrustid
+
+forvalues i = 1(1)2 {
+	mat group`i' = (r(mu_`i') \ r(sd_`i'))
+	mat colnames group`i' = group`i'
+	mat rownames group`i' = mu sd
+}
+
+mat diff = (group1[1,1] - group2[1,1] \ r(p))
+mat colnames diff = diff
+mat rownames diff = mu pval
+
+mat_capp tabular : group1 group2
+mat_capp tabular : tabular diff, miss(.)
+
+mat list tabular
 
 ** ---- Scatter2Trusid
 frame trustdt: {
@@ -163,6 +189,20 @@ frame coefplotdt: {
 
 ** ---- RegTrustidOnCovariate
 reg trustid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
+
+mat coef = r(table)
+mat coef = coef[.,1..12]
+mat stat = (e(N) \ e(r2_a))
+mat colnames stat = stat
+mat rownames stat = N r2a
+mat_capp model : coef stat, miss(.)
+mat model = model'
+
+mat list model
+
+********************************************************************************
+* Heterogenous price elasticity by trust index 
+********************************************************************************
 
 ** ---- EstimateElasticityByTrustGroup
 forvalues i = 1(1)6 {
