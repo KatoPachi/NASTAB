@@ -78,15 +78,6 @@ We conjecture that the political trust is key driver to determine the price effe
 - Survey period: 2008 ~ 2019
     - We use survey data after 2013 to focus on tax policy change in 2014.
 
-<!--
-## MIS data
-
-- MIS of South Korean collects data on local governement finance.
-- From this data, we obtain infomation about tax revenue and expenditure for social welfare.
-- Using the population data, we calculate the local governement expenditure per capita and use this variable as main explanatory variable.
-- Since the NaSTab includes residence area of respondents, it merges with the data on local governement finance. 
--->
-
 ```{stata dataset, collectcode=TRUE, results = "hide", eval = FALSE}
 cd "C:\Users\vge00\Desktop\nastab"  //root path
 
@@ -478,7 +469,15 @@ knitr::kable(
 kable_styling(font_size = 9)
 ```
 
-## Intensive Margin
+## Intensive Margin and Extensive Margin
+
+Let $D_{ijt}$ be a dummy variable taking 1 if individual $i$ whose resident area $j$ in year $t$ donate in year $t$
+
+- Intensive margin: Estiamte $\beta_1$ where outcome variable is $\log(\text{Giving}_{ijt})$, using units with $D_{ijt} = 1$.
+- Extensive margin: Estimate $\beta_1$ where outcome variable is $D_{ijt}$.
+	- Extensive-margin price elasticity can be calculated by $\beta_1/\bar{D}$ where $\bar{D}$ is the sample mean of $D_{ijt}$.
+
+Covariates in each column corresponds to a column in a previous slide.
 
 ```{stata EstimateElasticityIntensive, results = "hide", eval = FALSE}
 label variable log_price "ln(giving price)"
@@ -525,20 +524,6 @@ foreach v of local cov {
 
 xsvmat tabular, saving(_assets/EstimateElasticityIntensive.dta, replace) rownames(xvar) names(col)
 ```
-
-
-## Extensive Margin
-
-Elasticity of extensive margin can be estimated by  
-
-$$
-    D_{ijt} = \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-$$
-
-- $D_{ijt$ is a dummy variable taking 1 if individual $i$ donated in year $t$.
-
-The extensive-margin price elasticity can be calculated by $\beta_1/\bar{D}$
-where $\bar{D}$ is the sample mean of $D_{ijt}$
 
 ```{stata EstimateElasticityExtensive, results = "hide", eval = FALSE}
 label variable log_price "ln(giving price)"
@@ -610,28 +595,37 @@ foreach v of local cov {
 xsvmat tabular, saving(_assets/EstimateElasticityExtensive.dta, replace) rownames(xvar) names(col)
 ```
 
-## Result of Extensive Margin 
+## Intensive Margin and Extensive Margin: Result
 
-```{r shapeEstimateElasticityExtensive}
-org.basereg <- read.dta13("_assets/EstimateElasticityExtensive.dta") %>% data.frame()
+```{r shapeEstimateElasticityIntExt}
+org.basereg <- list(
+	intensive = read.dta13("_assets/EstimateElasticityIntensive.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/EstimateElasticityExtensive.dta") %>% data.frame()
+)
 
 coef.basereg <- org.basereg %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
+	purrr::map(function(x)
+		x %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se),
+			N = sprintf("%1d", N)
+		) %>% 
+		select(xvar, b, se, N) %>% 
+		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		select(-stat) %>% 
+		cbind(xvar = c("ln(giving price)", "", ""), .)
 	) %>% 
-	select(xvar, b, se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("ln(giving price)", ""), .)
+	reduce(rbind)
+	
 
-elas.basereg <- org.basereg %>% 
+elas.basereg <- org.basereg$extensive %>% 
 	mutate(
 		e_b = case_when(
 			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
@@ -647,24 +641,22 @@ elas.basereg <- org.basereg %>%
 	select(-stat) %>% 
 	cbind(xvar = c("Elasticity", ""), .)
 
-stat.basereg <- org.basereg %>% select(N) %>% unlist() %>% c("N", .)
-
-tab.basereg <- rbind(as.matrix(coef.basereg), as.matrix(elas.basereg)) %>% 
-	rbind(stat.basereg) %>% 
-	data.frame()
+tab.basereg <- rbind(coef.basereg[-6,], elas.basereg) %>% rbind(coef.basereg[6,])
 ```
 
-```{r kableEstimateElasticityExtensive, include = TRUE}
+```{r kableEstimateElasticityIntExt, include = TRUE}
 knitr::kable(
     tab.basereg,
     format = "latex",
-    caption = "Extensive-Margin Price Elasticity",
+    caption = "Intensive-margin and Extensive-Margin Price Elasticity",
     col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
     row.names = FALSE,
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 9)
+kable_styling(font_size = 9) %>% 
+pack_rows("Intensive Margin", 1, 3) %>% 
+pack_rows("Extensive Margin", 4, 6)
 ```
 
 
@@ -674,7 +666,8 @@ First potential concern: Income and donations are determined simultaneously
     
 - This causes both a change of giving price and a change of an amount of donations
 - Gruber and Saez (2002) provided that we should use $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ as an insturment.
-- Following Alumina et al. (2020), we estimated the model (5) in the previous slide, using the panel IV model for $k = 1, 2, 3$.
+- We estimated the model (5) in the previous slide, using the panel IV model for $k = 1, 2, 3$.
+	- Note that Alumnia (2020) took a strategy of $k$-difference model.
 
 
 ```{stata PanelIVEstimateElasticity, results = "hide", eval = FALSE}
@@ -804,11 +797,115 @@ xsvmat tabular, saving(_assets/PanelIVEstimateElasticityIntensive.dta, replace) 
 ```
 
 
-## Result of Robustness Check 1
+## Robustness Check 1: Result
 
-## Result of Robustness Check 1: Extensive Margin
+```{r shapePanelIVEstimateElasticity}
+org.pivreg <- read.dta13("_assets/PanelIVEstimateElasticity.dta") %>% data.frame()
 
-## Result of Robustness Check 1: Intensive Margin
+coef.pivreg <- org.pivreg %>% 
+	select(xvar, b, se, pvalue) %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se)
+	) %>% 
+	select(xvar, b, se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("ln(giving price)", ""), .)
+
+stat.pivreg <- org.pivreg %>% 
+	select(xvar, ivf, N) %>% 
+	mutate(ivf = sprintf("%1.2f", ivf), N = sprintf("%1d", as.integer(N))) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("F-stat of IV", "N"), .)
+
+tab.pivreg <- rbind(coef.pivreg, stat.pivreg)
+```
+
+```{r kablePanelIVEstimateElasticity, include = TRUE}
+knitr::kable(
+    tab.pivreg,
+    format = "latex",
+    caption = "Panel IV Regressions",
+    col.names = c("", "k = 1", "k = 2", "k = 3"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+## Robustness Check 1: Intensive and Extensive Margin
+
+```{r shapePanelIVEstimateElasticityIntExt}
+org.pivreg <- list(
+	intensive = read.dta13("_assets/PanelIVEstimateElasticityIntensive.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/PanelIVEstimateElasticityExtensive.dta") %>% data.frame()
+)
+
+coef.pivreg <- org.pivreg %>% 
+	purrr::map(function(x)
+		x %>% 
+		select(xvar, b, se, pvalue, ivf, N) %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.4f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.4f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.4f*", b),
+				TRUE ~ sprintf("%1.4f", b)
+			),
+			se = sprintf("(%1.4f)", se),
+			ivf = sprintf("%1.2f", ivf), N = sprintf("%1d", as.integer(N))
+		) %>% 
+		select(xvar, b, se, ivf, N) %>% 
+		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		select(-stat) %>% 
+		cbind(xvar = c("ln(giving price)", "", "F-stat of IV", "N"), .)
+	) %>% 
+	reduce(rbind)
+
+elas.pivreg <- org.pivreg$extensive %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(xvar, e_b, e_se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("Elasticity", ""), .)
+
+tab.pivreg <- rbind(coef.pivreg[1:6,], elas.pivreg) %>% rbind(coef.pivreg[7:8,])
+```
+
+```{r kablePanelIVEstimateElasticityIntExt, include = TRUE}
+knitr::kable(
+    tab.pivreg,
+    format = "latex",
+    caption = "Intensive- and Extensive-Margin Price Elasticity: Panel IV",
+    col.names = c("", "k = 1", "k = 2", "k = 3"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+pack_rows("Intensive Margin", 1, 4) %>% 
+pack_rows("Extensive Margin", 5, 10)
+```
 
 ## Robust Check 2
 
@@ -995,11 +1092,111 @@ xsvmat tabular, saving(_assets/ShortEstimateElasticityIntensive.dta, replace) ro
 ```
 
 
-## Result of Robustness Check 2
+## Robustness Check 2: Result
 
-## Result of Robustness Check 2: Extensive Margin
+```{r shapeShortEstimateElasticity}
+org.tab <- read.dta13("_assets/ShortEstimateElasticity.dta") %>% data.frame()
 
-## Result of Robustness Check 2: Intensive Margin
+shape.tab <- org.tab %>% 
+	select(xvar, b, se, pvalue, ivf, N) %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se),
+		ivf = if_else(is.na(ivf), "", sprintf("%1.2f", ivf)), 
+		N = sprintf("%1d", as.integer(N))
+	) %>% 
+	select(xvar, b, se, ivf, N) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("ln(giving price)", "", "F-stat of IV", "N"), .)
+```
+
+```{r kableShortEstimateElasticity, include=TRUE}
+knitr::kable(
+    shape.tab,
+    format = "latex",
+    caption = "Results with data in 2013 and 2014",
+    col.names = c("", "", "k = 1", "k = 2", "k = 3"),
+    row.names = FALSE,
+    align = "lcccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+add_header_above(c(" " = 1, "FE" = 1, "Panel IV with FE" = 3))
+```
+
+## Robustness Check 2: Intensive and Extensive Margin
+
+```{r shapeShortEstimateElasticityIntExt}
+org.tab <- list(
+	intensive = read.dta13("_assets/ShortEstimateElasticityIntensive.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/ShortEstimateElasticityExtensive.dta") %>% data.frame()
+)
+
+coef.tab <- org.tab %>% 
+	purrr::map(function(x)
+		x %>% 
+		select(xvar, b, se, pvalue, ivf, N) %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se),
+			ivf = if_else(is.na(ivf), "", sprintf("%1.2f", ivf)), 
+			N = sprintf("%1d", as.integer(N))
+		) %>% 
+		select(xvar, b, se, ivf, N) %>% 
+		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		select(-stat) %>% 
+		cbind(xvar = c("ln(giving price)", "", "F-stat of IV", "N"), .)
+	) %>% 
+	reduce(rbind)
+
+elas.tab <- org.tab$extensive %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(xvar, e_b, e_se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("Elasticity", ""), .)
+
+tab <- rbind(coef.tab[1:6,], elas.tab) %>% rbind(coef.tab[7:8,])
+```
+
+```{r kableShortEstimateElasticityIntExt, include=TRUE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Intensive- and Extensive-Margin Price Elasticity with Data in 2013 and 2014",
+    col.names = c("", "", "k = 1", "k = 2", "k = 3"),
+    row.names = FALSE,
+    align = "lcccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+add_header_above(c(" " = 1, "FE" = 1, "Panel IV with FE" = 3)) %>% 
+pack_rows("Intensive Margin", 1, 4) %>% 
+pack_rows("Extensive Margin", 5, 10)
+```
+
 
 # Political Trust and Price Elasticity
 
@@ -1172,6 +1369,85 @@ mat list tabular
 xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByTrustGroup.dta, replace) rownames(xvar) names(col)
 ```
 
+```{r shapeEstimateElasticityByTrustGroup, eval = FALSE}
+tabset <- list(
+	overall = read.dta13("_assets/EstimateElasticityByTrustGroup.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/EstimateElasticityIntensiveByTrustGroup.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/EstimateElasticityExtensiveByTrustGroup.dta") %>% data.frame()
+)
+
+coeftab <- tabset %>% 
+	purrr::map(function(x)
+		x %>% 
+		select(xvar, b, se, pvalue, N) %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se),
+			N = sprintf("%1d", as.integer(N))
+		) %>% 
+		select(xvar, b, se, N) %>% 
+		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		select(-stat) %>% 
+		cbind(xvar = c("ln(giving price)", "", "N"), .)
+	) %>% 
+	reduce(rbind)
+
+elastab <- tabset$extensive %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(xvar, e_b, e_se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("Elasticity", ""), .)
+
+tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
+```
+
+
+```{r kableEstimateElasticityByTrustGroup, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[1:3,],
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+## Intensive and Extensive Margin
+
+```{r kableEstimateElasticityIntExtByTrustGroup, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[4:11,],
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+pack_rows("Intensive Margin", 1, 3) %>% 
+pack_rows("Extensive Margin", 4, 8)
+```
+
 ## Three Subgroup Regression by Trust Index
 
 ```{stata EstimateElasticityByTrustGroup3, results = "hide", eval = FALSE}
@@ -1285,6 +1561,85 @@ mat list tabular
 
 
 xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByTrustGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapeEstimateElasticityByTrustGroup3}
+tabset <- list(
+	overall = read.dta13("_assets/EstimateElasticityByTrustGroup3.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/EstimateElasticityIntensiveByTrustGroup3.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/EstimateElasticityExtensiveByTrustGroup3.dta") %>% data.frame()
+)
+
+coeftab <- tabset %>% 
+	purrr::map(function(x)
+		x %>% 
+		select(xvar, b, se, pvalue, N) %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se),
+			N = sprintf("%1d", as.integer(N))
+		) %>% 
+		select(xvar, b, se, N) %>% 
+		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		select(-stat) %>% 
+		cbind(xvar = c("ln(giving price)", "", "N"), .)
+	) %>% 
+	reduce(rbind)
+
+elastab <- tabset$extensive %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(xvar, e_b, e_se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("Elasticity", ""), .)
+
+tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
+```
+
+
+```{r kableEstimateElasticityByTrustGroup3, include = TRUE}
+knitr::kable(
+    tab[1:3,],
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "1Q", "2Q", "3Q"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+## Intensive and Extensive Margin
+
+```{r kableEstimateElasticityIntExtByTrustGroup3, include = TRUE}
+knitr::kable(
+    tab[4:11,],
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "1Q", "2Q", "3Q"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+pack_rows("Intensive Margin", 1, 3) %>% 
+pack_rows("Extensive Margin", 4, 8)
 ```
 
 
@@ -1462,6 +1817,85 @@ mat list tabular
 xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByEfficientGroup.dta, replace) rownames(xvar) names(col)
 ```
 
+```{r shapeEstimateElasticityByEfficientGroup, eval = FALSE}
+tabset <- list(
+	overall = read.dta13("_assets/EstimateElasticityByEfficientGroup.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/EstimateElasticityIntensiveByEfficientGroup.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/EstimateElasticityExtensiveByEfficientGroup.dta") %>% data.frame()
+)
+
+coeftab <- tabset %>% 
+	purrr::map(function(x)
+		x %>% 
+		select(xvar, b, se, pvalue, N) %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se),
+			N = sprintf("%1d", as.integer(N))
+		) %>% 
+		select(xvar, b, se, N) %>% 
+		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		select(-stat) %>% 
+		cbind(xvar = c("ln(giving price)", "", "N"), .)
+	) %>% 
+	reduce(rbind)
+
+elastab <- tabset$extensive %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(xvar, e_b, e_se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("Elasticity", ""), .)
+
+tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
+```
+
+
+```{r kableEstimateElasticityByEfficientGroup, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[1:3,],
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+## Intensive and Extensive Margin
+
+```{r kableEstimateElasticityIntExtByEfficientGroup, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[4:11,],
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+pack_rows("Intensive Margin", 1, 3) %>% 
+pack_rows("Extensive Margin", 4, 8)
+```
+
 ## Three Subgroup Regression by Trust Index
 
 ```{stata EstimateElasticityByEfficientGroup3, results = "hide", eval = FALSE}
@@ -1574,4 +2008,83 @@ forvalues i = 1(1)3 {
 mat list tabular
 
 xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapeEstimateElasticityByEfficientGroup3}
+tabset <- list(
+	overall = read.dta13("_assets/EstimateElasticityByEfficientGroup3.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/EstimateElasticityIntensiveByEfficientGroup3.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/EstimateElasticityExtensiveByEfficientGroup3.dta") %>% data.frame()
+)
+
+coeftab <- tabset %>% 
+	purrr::map(function(x)
+		x %>% 
+		select(xvar, b, se, pvalue, N) %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se),
+			N = sprintf("%1d", as.integer(N))
+		) %>% 
+		select(xvar, b, se, N) %>% 
+		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		select(-stat) %>% 
+		cbind(xvar = c("ln(giving price)", "", "N"), .)
+	) %>% 
+	reduce(rbind)
+
+elastab <- tabset$extensive %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(xvar, e_b, e_se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("Elasticity", ""), .)
+
+tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
+```
+
+
+```{r kableEstimateElasticityByEfficientGroup3, include = TRUE}
+knitr::kable(
+    tab[1:3,],
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "1Q", "2Q", "3Q"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+## Intensive and Extensive Margin
+
+```{r kableEstimateElasticityIntExtByEfficientGroup3, include = TRUE}
+knitr::kable(
+    tab[4:11,],
+    format = "latex",
+    caption = "Subgroup Regressions",
+    col.names = c("", "1Q", "2Q", "3Q"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+pack_rows("Intensive Margin", 1, 3) %>% 
+pack_rows("Extensive Margin", 4, 8)
 ```
