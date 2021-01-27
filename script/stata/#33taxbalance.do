@@ -89,10 +89,22 @@ frame balancedt: {
 }
 frame balancedt: save "data\shape\balanceid.dta", replace
 
+** ---- merged with balancedt
 merge m:1 pid using "data\shape\balanceid.dta"
 drop _merge
 
+********************************************************************************
+* Efficent index summary
+********************************************************************************
+
 ** ---- HistogramTaxBalanceIndex
+frame copy default balancedt
+frame balancedt {
+    keep pid balanceid park_balanceid moon_balanceid diff_balance balance5 park_balance5 ///
+		lessdiff1_balance lessdiffhalf_balance
+	duplicates drop
+}
+
 frame balancedt: {
 	twoway ///
 	(histogram balanceid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
@@ -114,6 +126,21 @@ frame balancedt: {
 
 ** ---- TtestPresidentTaxBalanceIndex
 frame balancedt: ttest moon_balanceid == park_balanceid
+
+forvalues i = 1(1)2 {
+	mat group`i' = (r(mu_`i') \ r(sd_`i'))
+	mat colnames group`i' = group`i'
+	mat rownames group`i' = mu sd
+}
+
+mat diff = (group1[1,1] - group2[1,1] \ r(p))
+mat colnames diff = diff
+mat rownames diff = mu pval
+
+mat_capp tabular : group1 group2
+mat_capp tabular : tabular diff, miss(.)
+
+mat list tabular
 
 ** ---- Scatter2TaxBalanceIndex
 frame balancedt: {
@@ -189,6 +216,15 @@ frame coefplotdt: {
 ** ---- RegTaxBalanceIndexOnCovariate
 reg balanceid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
 
+mat coef = r(table)
+mat coef = coef[.,1..12]
+mat stat = (e(N) \ e(r2_a))
+mat colnames stat = stat
+mat rownames stat = N r2a
+mat_capp model : coef stat, miss(.)
+mat model = model'
+
+mat list model
 
 ** ---- EstimateElasticityByTaxBalanceIndexGroup
 forvalues i = 1(1)6 {
