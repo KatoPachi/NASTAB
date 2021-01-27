@@ -349,8 +349,8 @@ Our baseline regression equation is
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Result of Baseline Regressions}
-\protect\hypertarget{result-of-baseline-regressions}{}
+\begin{frame}{Baseline Regressions: Result}
+\protect\hypertarget{baseline-regressions-result}{}
 We found the \textbf{price effect} of giving (1\% price increase leads
 to about 1.1\% giving decrease)
 
@@ -408,7 +408,7 @@ Covariates in each column corresponds to a column in a previous slide.
 
 \caption{\label{tab:kableEstimateElasticityIntExt}Intensive-margin and Extensive-Margin Price Elasticity}
 \centering
-\fontsize{9}{11}\selectfont
+\fontsize{8}{10}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
  & (1) & (2) & (3) & (4) & (5)\\
@@ -430,7 +430,7 @@ Covariates in each column corresponds to a column in a previous slide.
 \end{table}
 \end{frame}
 
-\begin{frame}{Robustness Check (1)}
+\begin{frame}{Robustness Check 1}
 \protect\hypertarget{robustness-check-1}{}
 First potential concern: Income and donations are determined
 simultaneously
@@ -603,21 +603,48 @@ fixed effect model.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Five Subgroup Regression by Political Trust}
-\protect\hypertarget{five-subgroup-regression-by-political-trust}{}
+\begin{frame}{Histrogram of Trust Index}
+\protect\hypertarget{histrogram-of-trust-index}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramTrustid} \caption{Histogram of Trust Index}\label{fig:unnamed-chunk-3}
+\end{figure}
 \end{frame}
 
-\begin{frame}{Intensive and Extensive Margin}
-\protect\hypertarget{intensive-and-extensive-margin}{}
+\begin{frame}{Heterogenous Price Elasticity by Political Trust}
+\protect\hypertarget{heterogenous-price-elasticity-by-political-trust}{}
+To see the heterogenous price elasticity by political trust, We
+estimated the baseline regression model (5) (see Table
+\ref{tab:kableEstimateElasticity}), using sample grouped by the trust
+index.
+
+\begin{itemize}
+\tightlist
+\item
+  Five quantile groups: we divide units \(i\) into the first, second,
+  third, fourth, and fifth quantile of trust index (1Q, 2Q, 3Q, 4Q, and
+  5Q, respectively).
+\item
+  Three quantile groups: we divide units \(i\) into the first, second,
+  and third quantile of trust index (1Q, 2Q, and 3Q, respectively).
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Three Subgroup Regression by Trust Index}
-\protect\hypertarget{three-subgroup-regression-by-trust-index}{}
+\begin{frame}{Five Quantile Groups: Result}
+\protect\hypertarget{five-quantile-groups-result}{}
+Ongoing now\ldots{}
+\end{frame}
+
+\begin{frame}{Five Quantile Groups: Intensive and Extensive Margin}
+\protect\hypertarget{five-quantile-groups-intensive-and-extensive-margin}{}
+Ongoing now\ldots{}
+\end{frame}
+
+\begin{frame}{Three Quantile Groups: Result}
+\protect\hypertarget{three-quantile-groups-result}{}
 \begin{table}
 
-\caption{\label{tab:kableEstimateElasticityByTrustGroup3}Subgroup Regressions}
+\caption{\label{tab:kableEstimateElasticityByTrustGroup3}Price Elasticity by Three Quantile Trust Groups}
 \centering
-\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
  & 1Q & 2Q & 3Q\\
@@ -630,13 +657,12 @@ N & 17421 & 16810 & 17075\\
 \end{table}
 \end{frame}
 
-\begin{frame}{Intensive and Extensive Margin}
-\protect\hypertarget{intensive-and-extensive-margin-1}{}
+\begin{frame}{Three Quantile Groups: Intensive and Extensive Margin}
+\protect\hypertarget{three-quantile-groups-intensive-and-extensive-margin}{}
 \begin{table}
 
-\caption{\label{tab:kableEstimateElasticityIntExtByTrustGroup3}Subgroup Regressions}
+\caption{\label{tab:kableEstimateElasticityIntExtByTrustGroup3}Intensive- and Extensive-Margin Price Elasticity by Three Quantile Trust Groups}
 \centering
-\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
  & 1Q & 2Q & 3Q\\
@@ -684,21 +710,48 @@ To rule out government's policies, we use individual fixed effect as the
 \textbf{tax-welare size index}
 \end{frame}
 
-\begin{frame}{Five Subgroup Regression by Political Trust}
-\protect\hypertarget{five-subgroup-regression-by-political-trust-1}{}
+\begin{frame}{Histrogram of Efficient Index}
+\protect\hypertarget{histrogram-of-efficient-index}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramBalanceid} \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-4}
+\end{figure}
 \end{frame}
 
-\begin{frame}{Intensive and Extensive Margin}
-\protect\hypertarget{intensive-and-extensive-margin-2}{}
+\begin{frame}{Heterogenous Price Elasticity by Governement Efficiency}
+\protect\hypertarget{heterogenous-price-elasticity-by-governement-efficiency}{}
+To see the heterogenous price elasticity by efficient index, We
+estimated the baseline regression model (5) (see Table
+\ref{tab:kableEstimateElasticity}), using sample grouped by the
+efficient index.
+
+\begin{itemize}
+\tightlist
+\item
+  Five quantile groups: we divide units \(i\) into the first, second,
+  third, fourth, and fifth quantile of efficient index (1Q, 2Q, 3Q, 4Q,
+  and 5Q, respectively).
+\item
+  Three quantile groups: we divide units \(i\) into the first, second,
+  and third quantile of efficient index (1Q, 2Q, and 3Q, respectively).
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Three Subgroup Regression by Trust Index}
-\protect\hypertarget{three-subgroup-regression-by-trust-index-1}{}
+\begin{frame}{Five Quantile Groups: Result}
+\protect\hypertarget{five-quantile-groups-result-1}{}
+Ongoing now\ldots{}
+\end{frame}
+
+\begin{frame}{Five Quantile Groups: Intensive and Extensive Margin}
+\protect\hypertarget{five-quantile-groups-intensive-and-extensive-margin-1}{}
+Ongoing now\ldots{}
+\end{frame}
+
+\begin{frame}{Three Quantile Groups: Result}
+\protect\hypertarget{three-quantile-groups-result-1}{}
 \begin{table}
 
-\caption{\label{tab:kableEstimateElasticityByEfficientGroup3}Subgroup Regressions}
+\caption{\label{tab:kableEstimateElasticityByEfficientGroup3}Price Elasticity by Three Quantile Efficient Groups}
 \centering
-\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
  & 1Q & 2Q & 3Q\\
@@ -711,13 +764,12 @@ N & 17119 & 16662 & 17525\\
 \end{table}
 \end{frame}
 
-\begin{frame}{Intensive and Extensive Margin}
-\protect\hypertarget{intensive-and-extensive-margin-3}{}
+\begin{frame}{Three Quantile Groups: Intensive and Extensive Margin}
+\protect\hypertarget{three-quantile-groups-intensive-and-extensive-margin-1}{}
 \begin{table}
 
-\caption{\label{tab:kableEstimateElasticityIntExtByEfficientGroup3}Subgroup Regressions}
+\caption{\label{tab:kableEstimateElasticityIntExtByEfficientGroup3}Intensive- and Extensive-Margin Price Elasticity by Three Quantile Efficient Groups}
 \centering
-\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
  & 1Q & 2Q & 3Q\\
