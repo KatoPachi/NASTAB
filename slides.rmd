@@ -87,7 +87,7 @@ We conjecture that the political trust is key driver to determine the price effe
 - Since the NaSTab includes residence area of respondents, it merges with the data on local governement finance. 
 -->
 
-```{stata dataset, collectcode=TRUE, results = "hide"}
+```{stata dataset, collectcode=TRUE, results = "hide", eval = FALSE}
 cd "C:\Users\vge00\Desktop\nastab"  //root path
 
 ** ---- ReadData
@@ -108,15 +108,14 @@ gen sqage = age^2/100
 ** ---- LagOperation
 tsset pid year
 
-gen lag1_price = l.price
-gen lag2_price = l2.price
-gen lag3_price = l3.price
-gen lag4_price = l4.price
-
-gen lag1iv = ln(price/lag1_price)
-gen lag2iv = ln(price/lag2_price)
-gen lag3iv = ln(price/lag3_price)
-gen lag4iv = ln(price/lag4_price)
+forvalues k = 1(1)3 {
+  gen diff`k'G = log_total_g - l`k'.log_total_g
+	gen diff`k'G1 = i_ext_giving - l`k'.i_ext_giving
+	gen diff`k'p = log_price - l`k'.log_price
+	gen diff`k'I = log_pinc_all - l`k'.log_pinc_all
+	gen diff`k'_age = age - l`k'.age
+	gen diff`k'_sqage = sqage - l`k'.sqage
+}
 
 keep if year >= 2012
 
@@ -146,7 +145,7 @@ replace now_balance3 = . if missing(now_balance)
 
 ## Time Series of Chariable Giving
 
-```{stata SummaryOutcome, results = "hide"}
+```{stata SummaryOutcome, results = "hide", eval = FALSE}
 frame copy default avgdt
 frame avgdt: by year, sort: egen meanext = mean(i_ext_giving)
 frame avgdt: by year, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
@@ -179,7 +178,7 @@ knitr::include_graphics(paste(here(), "_assets/SummaryOutcome.pdf", sep= "/"))
 
 ## Summary Statistics of Covariates
 
-```{stata SummaryCovariate, results = "hide"}
+```{stata SummaryCovariate, results = "hide", eval = FALSE}
 matrix sumcov = J(7, 7, .)
 
 label variable gender "Female"
@@ -339,7 +338,7 @@ In the South Korea, the tax policy about charitable giving drastically changed i
 
 ## Income Distribution and Giving Price
 
-```{stata SummaryPriceChange, results = "hide"}
+```{stata SummaryPriceChange, results = "hide", eval = FALSE}
 frame copy default sump
 frame sump: keep if year == 2013
 frame sump: keep lincome price
@@ -382,62 +381,48 @@ $$
 - $\beta_1$ represents the price elasticity of giving.
 - $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
 
-```{stata EstimateElasticity, results = "hide"}
+```{stata EstimateElasticity, results = "hide", eval = FALSE}
 label variable log_price "ln(giving price)"
 
+* baseline
 xtreg log_total_g log_price log_pinc_all i.year, fe vce(cluster pid)
-mat coef1 = r(table)
-mat coef1 = coef1[1..rowsof(coef1), 1]
-mat colnames coef1 = model1
-mat stat1 = (e(N) \ e(r2_a))
-mat colnames stat1 = model1
-mat rownames stat1 = N r2a
+mat coef = r(table)["b".."pvalue", "log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_a)
+mat colnames stat = model0
+mat rownames stat = N r2a
+mat_rapp model0 : coef stat
+mat tabular = model0'
 
-xtreg log_total_g log_price log_pinc_all age i.year, fe vce(cluster pid)
-mat coef2 = r(table)
-mat coef2 = coef2[1..rowsof(coef2), 1]
-mat colnames coef2 = model2
-mat stat2 = (e(N) \ e(r2_a))
-mat colnames stat2 = model2
-mat rownames stat2 = N r2a
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
+    
+	*make set of covariates
+	local xvars `xvars' `v'
+	
+	*estimate fixed effect model
+	xtreg log_total_g log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2a
+	mat_rapp model`k' : coef stat
+	mat model`k' = model`k''
+	
+	*combined with previous results
+	mat_rapp tabular : tabular model`k'
 
-xtreg log_total_g log_price log_pinc_all age i.year##i.educ, fe vce(cluster pid)
-mat coef3 = r(table)
-mat coef3 = coef3[1..rowsof(coef3), 1]
-mat colnames coef3 = model3
-mat stat3 = (e(N) \ e(r2_a))
-mat colnames stat3 = model3
-mat rownames stat3 = N r2a
+	local k = `++k'
+}
 
-xtreg log_total_g log_price log_pinc_all age i.year##i.gender i.year##i.educ, fe vce(cluster pid)
-mat coef4 = r(table)
-mat coef4 = coef4[1..rowsof(coef4), 1]
-mat colnames coef4 = model4
-mat stat4 = (e(N) \ e(r2_a))
-mat colnames stat4 = model4
-mat rownames stat4 = N r2a
-
-xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, fe vce(cluster pid)
-mat coef5 = r(table)
-mat coef5 = coef5[1..rowsof(coef5), 1]
-mat colnames coef5 = model5
-mat stat5 = (e(N) \ e(r2_a))
-mat colnames stat5 = model5
-mat rownames stat5 = N r2a
-
-mat_capp coef : coef1 coef2
-mat_capp coef : coef coef3
-mat_capp coef : coef coef4
-mat_capp coef : coef coef5
-
-mat_capp stat : stat1 stat2
-mat_capp stat : stat stat3
-mat_capp stat : stat stat4
-mat_capp stat : stat stat5
-
-mat_rapp model : coef stat
-
-xsvmat model, saving(_assets/EstimateElasticity.dta) rownames(xvar)
+xsvmat tabular, saving(_assets/EstimateElasticity.dta, replace) rownames(xvar) names(col)
 ```
 
 
@@ -450,9 +435,6 @@ We found the **price effect** of giving (1\% price increase leads to about 1.1\%
 org.basereg <- read.dta13("_assets/EstimateElasticity.dta") %>% data.frame()
 
 coef.basereg <- org.basereg %>% 
-	filter(xvar %in% c("b", "se", "pvalue")) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "reg") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	mutate(
 		b = case_when(
 			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
@@ -462,13 +444,13 @@ coef.basereg <- org.basereg %>%
 		),
 		se = sprintf("(%1.3f)", se)
 	) %>% 
-	select(reg, b, se) %>% 
-	pivot_longer(-reg, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "reg") %>% 
+	select(xvar, b, se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	select(-stat) %>% 
 	cbind(xvar = c("ln(giving price)", ""), .)
 
-stat.basereg <- org.basereg %>% filter(xvar == "N") 
+stat.basereg <- org.basereg %>% select(N) %>% unlist() %>% c("N", .)
 
 addline <- rbind(
   c("Logged Income", "Y", "Y", "Y", "Y", "Y"),
@@ -479,7 +461,7 @@ addline <- rbind(
 )
 
 tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% 
-	rbind(as.matrix(stat.basereg)) %>% 
+	rbind(stat.basereg) %>% 
 	data.frame()
 ```
 
@@ -496,123 +478,144 @@ knitr::kable(
 kable_styling(font_size = 9)
 ```
 
-## Robustness Check 
+## Intensive Margin
 
-We addressed the following two potential concerns:
+```{stata EstimateElasticityIntensive, results = "hide", eval = FALSE}
+label variable log_price "ln(giving price)"
 
-1. Income and donations are determined simultaneously
-    - This causes both a change of giving price and a change of an amount of donations
-    - Gruber and Saez (2002) provided that we should use $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ as an insturment.
-    - Following Alumina et al. (2020), we estimated the model (5) in the previous slide, using the panel IV model for $k = 1, 2, 3, 4$.
-2. The effect of presidential transition on donations 
-    - The presidential transition is one of our major ommited factor to affect both political trust and charitable giving.
-    - To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for $k = 1, 2, 3, 4$.
+* baseline
+xtreg log_total_g log_price log_pinc_all i.year if i_ext_giving == 1, fe vce(cluster pid)
+mat coef = r(table)["b".."pvalue", "log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_a)
+mat colnames stat = model0
+mat rownames stat = N r2a
+mat_rapp model0 : coef stat
+mat tabular = model0'
 
-```{stata Robust1EstimateElasticity, results = "hide", eval = FALSE}
-forvalues i = 1(1)4 {
-	xtreg log_price lag`i'iv log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
+    
+	*make set of covariates
+	local xvars `xvars' `v'
+	
+	*estimate fixed effect model
+	xtreg log_total_g log_price log_pinc_all i.year age `xvars' if i_ext_giving == 1, /// 
 		fe vce(cluster pid)
-	mat fstage`i' = r(table)
-	mat fstage`i' = fstage`i'[1..rowsof(fstage`i'), 1]
-	mat fstage`i' = (fstage`i'[1,1] \ fstage`i'[3,1]^2)
-	mat colnames fstage`i' = model`i'
-	mat rownames fstage`i' = ivcoef ivf
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2a
+	mat_rapp model`k' : coef stat
+	mat model`k' = model`k''
+	
+	*combined with previous results
+	mat_rapp tabular : tabular model`k'
+
+	local k = `++k'
 }
 
-forvalues i = 1(1)4 {
-	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = lag`i'iv), fe first vce(cluster pid)
-	mat coef`i' = r(table)
-	mat coef`i' = coef`i'[1..rowsof(coef`i'), 1]
-	mat colnames coef`i' = model`i'
-	mat stat`i' = (e(N) \ e(r2_w))
-	mat colnames stat`i' = model`i'
-	mat rownames stat`i' = N r2w
-}
 
-mat_capp coef : coef1 coef2
-mat_capp coef : coef coef3
-mat_capp coef : coef coef4
-mat coef = coef'
-
-mat_capp stat : stat1 stat2
-mat_capp stat : stat stat3
-mat_capp stat : stat stat4
-mat stat = stat'
-
-mat_capp fstage : fstage1 fstage2
-mat_capp fstage : fstage fstage3
-mat_capp fstage : fstage fstage4
-mat fstage = fstage'
-
-mat_capp model : coef stat
-mat_capp model : model fstage
-
-xsvmat model, saving(_assets/Robust1EstimateElasticity.dta) rownames(xvar) names(col)
+xsvmat tabular, saving(_assets/EstimateElasticityIntensive.dta, replace) rownames(xvar) names(col)
 ```
 
-```{stata Robust2EstimateElasticity, results = "hide", eval = FALSE}
-xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	if year == 2013|year == 2014, fe vce(cluster pid)
-mat coef0 = r(table)
-mat coef0 = coef0[1..rowsof(coef0), 1]
-mat colnames coef0 = model0
-mat stat0 = (e(N) \ e(r2_a))
-mat colnames stat0 = model0
-mat rownames stat0 = N r2a
-mat_rapp model0 : coef0 stat0
 
-forvalues i = 1(1)4 {
-	xtreg log_price lag`i'iv log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if year == 2013|year == 2014, fe vce(cluster pid)
-	mat fstage`i' = r(table)
-	mat fstage`i' = fstage`i'[1..rowsof(fstage`i'), 1]
-	mat fstage`i' = (fstage`i'[1,1] \ fstage`i'[3,1]^2)
-	mat colnames fstage`i' = model`i'
-	mat rownames fstage`i' = ivcoef ivf
+## Extensive Margin
+
+Elasticity of extensive margin can be estimated by  
+
+$$
+    D_{ijt} = \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+$$
+
+- $D_{ijt$ is a dummy variable taking 1 if individual $i$ donated in year $t$.
+
+The extensive-margin price elasticity can be calculated by $\beta_1/\bar{D}$
+where $\bar{D}$ is the sample mean of $D_{ijt}$
+
+```{stata EstimateElasticityExtensive, results = "hide", eval = FALSE}
+label variable log_price "ln(giving price)"
+
+* baseline
+xtreg i_ext_giving log_price log_pinc_all i.year, fe vce(cluster pid)
+mat coef = r(table)["b".."pvalue", "log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_a)
+mat colnames stat = model0
+mat rownames stat = N r2a
+
+* proportion of donors
+summarize i_ext_giving
+local mu = r(mean)
+
+* implied elasticity
+lincom log_price*(1/`mu')
+mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas = model0
+mat rownames elas = e_b e_se e_pval
+
+* baseline result
+mat_rapp model0 : coef stat
+mat_rapp model0 : model0 elas
+mat tabular = model0'
+
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
+    
+	*make set of covariates
+	local xvars `xvars' `v'
+	
+	*estimate fixed effect model
+	xtreg i_ext_giving log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2a
+	
+	*proportion of donors
+	summarize i_ext_giving
+	local mu = r(mean)
+	
+	*implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`k'
+	mat rownames elas = e_b e_se e_pval
+	
+	*regression result
+	mat_rapp model`k' : coef stat
+	mat_rapp model`k' : model`k' elas
+	mat model`k' = model`k''
+	
+	*combined with previous results
+	mat_rapp tabular : tabular model`k'
+
+	local k = `++k'
 }
 
-forvalues i = 1(1)4 {
-	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = lag`i'iv) if year == 2013|year == 2014, fe first vce(cluster pid)
-	mat coef`i' = r(table)
-	mat coef`i' = coef`i'[1..rowsof(coef`i'), 1]
-	mat colnames coef`i' = model`i'
-	mat stat`i' = (e(N) \ e(r2_w))
-	mat colnames stat`i' = model`i'
-	mat rownames stat`i' = N r2w
-}
-
-mat_capp coef : coef1 coef2
-mat_capp coef : coef coef3
-mat_capp coef : coef coef4
-
-mat_capp stat : stat1 stat2
-mat_capp stat : stat stat3
-mat_capp stat : stat stat4
-
-mat_capp fstage : fstage1 fstage2
-mat_capp fstage : fstage fstage3
-mat_capp fstage : fstage fstage4
-
-mat_rapp model : coef stat
-mat_rapp model : model fstage
-
-mat_capp model : model0 model, miss(.)
-mat model = model'
-
-xsvmat model, saving(_assets/Robust2EstimateElasticity.dta) rownames(xvar) names(col)
+xsvmat tabular, saving(_assets/EstimateElasticityExtensive.dta, replace) rownames(xvar) names(col)
 ```
 
-## Result of Robustness Check 1
+## Result of Extensive Margin 
 
-We obtained similar value of price elasticity to baseline results (1\% price increase leads to about 1.1\% giving decrease)
+```{r shapeEstimateElasticityExtensive}
+org.basereg <- read.dta13("_assets/EstimateElasticityExtensive.dta") %>% data.frame()
 
-```{r shapeRobust1EstimateElasticity}
-org.pivreg <- read.dta13("_assets/Robust1EstimateElasticity.dta") %>% data.frame()
-
-coef.pivreg <- org.pivreg %>% 
-	select(xvar, b, se, pvalue) %>% 
+coef.basereg <- org.basereg %>% 
 	mutate(
 		b = case_when(
 			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
@@ -628,79 +631,375 @@ coef.pivreg <- org.pivreg %>%
 	select(-stat) %>% 
 	cbind(xvar = c("ln(giving price)", ""), .)
 
-stat.pivreg <- org.pivreg %>% 
-	select(xvar, ivf, N) %>% 
-	mutate(ivf = sprintf("%1.2f", ivf), N = sprintf("%1d", as.integer(N))) %>%
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("F-stat of IV", "N"), .)
-
-tab.pivreg <- rbind(coef.pivreg, stat.pivreg)
-```
-
-```{r kableRobust1EstimateElasticity, include = TRUE}
-knitr::kable(
-    tab.pivreg,
-    format = "latex",
-    caption = "Panel IV Regressions",
-    col.names = c("", "k = 1", "k = 2", "k = 3", "k = 4"),
-    row.names = FALSE,
-    align = "lcccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling()
-```
-
-## Result of Robustness Check 2
-
-We obtained **stonger** price effect than baseline (1\% price increase leads to about 1.2 ~ 1.6\% giving decrease)
-
-```{r shapeRobust2EstimateElasticity}
-org.pivreg <- read.dta13("_assets/Robust2EstimateElasticity.dta") %>% data.frame()
-
-coef.pivreg <- org.pivreg %>% 
-	select(xvar, b, se, pvalue) %>% 
+elas.basereg <- org.basereg %>% 
 	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
 		),
-		se = sprintf("(%1.3f)", se)
+		e_se = sprintf("(%1.3f)", e_se)
 	) %>% 
-	select(xvar, b, se) %>% 
+	select(xvar, e_b, e_se) %>% 
 	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
 	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	select(-stat) %>% 
-	cbind(xvar = c("ln(giving price)", ""), .)
+	cbind(xvar = c("Elasticity", ""), .)
 
-stat.pivreg <- org.pivreg %>% 
-	select(xvar, ivf, N) %>% 
-	mutate(ivf = if_else(is.na(ivf), "", sprintf("%1.2f", ivf)), N = sprintf("%1d", as.integer(N))) %>%
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("F-stat of IV", "N"), .)
+stat.basereg <- org.basereg %>% select(N) %>% unlist() %>% c("N", .)
 
-tab.pivreg <- rbind(coef.pivreg, stat.pivreg)
+tab.basereg <- rbind(as.matrix(coef.basereg), as.matrix(elas.basereg)) %>% 
+	rbind(stat.basereg) %>% 
+	data.frame()
 ```
 
-```{r kableRobust2EstimateElasticity, include=TRUE}
+```{r kableEstimateElasticityExtensive, include = TRUE}
 knitr::kable(
-    tab.pivreg,
+    tab.basereg,
     format = "latex",
-    caption = "Results with data in 2013 and 2014",
-    col.names = c("", "", "k = 1", "k = 2", "k = 3", "k = 4"),
+    caption = "Extensive-Margin Price Elasticity",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
     row.names = FALSE,
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 9) %>% 
-add_header_above(c(" " = 1, "FE" = 1, "Panel IV with FE" = 4))
+kable_styling(font_size = 9)
 ```
 
+
+## Robustness Check (1)
+
+First potential concern: Income and donations are determined simultaneously
+    
+- This causes both a change of giving price and a change of an amount of donations
+- Gruber and Saez (2002) provided that we should use $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ as an insturment.
+- Following Alumina et al. (2020), we estimated the model (5) in the previous slide, using the panel IV model for $k = 1, 2, 3$.
+
+
+```{stata PanelIVEstimateElasticity, results = "hide", eval = FALSE}
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+		fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p), fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	mat_rapp model`k' : coef stat
+	
+	* combined with first stage result
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+}
+
+mat_rapp tabular : model1 model2
+mat_rapp tabular : tabular model3
+
+xsvmat tabular, saving(_assets/PanelIVEstimateElasticity.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata PanelIVEstimateElasticityExtensive, results = "hide", eval = FALSE}
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+		fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg i_ext_giving log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p), fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	
+	*proportion of donors
+	summarize i_ext_giving
+	local mu = r(mean)
+	
+	*implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+	mat colnames elas = model`k'
+	mat rownames elas = e_b e_se e_pval
+	
+	* combined with results
+	mat_rapp model`k' : coef stat
+	mat_rapp model`k' : model`k' elas
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+
+}
+
+mat_rapp tabular : model1 model2
+mat_rapp tabular : tabular model3
+
+xsvmat tabular, saving(_assets/PanelIVEstimateElasticityExtensive.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata PanelIVEstimateElasticityIntensive, results = "hide", eval = FALSE}
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if i_ext_giving == 1, fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p) if i_ext_giving == 1, fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	mat_rapp model`k' : coef stat
+	
+	* combined with first stage result
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+}
+
+mat_rapp tabular : model1 model2
+mat_rapp tabular : tabular model3
+
+xsvmat tabular, saving(_assets/PanelIVEstimateElasticityIntensive.dta, replace) rownames(xvar) names(col)
+```
+
+
+## Result of Robustness Check 1
+
+## Result of Robustness Check 1: Extensive Margin
+
+## Result of Robustness Check 1: Intensive Margin
+
+## Robust Check 2
+
+Second potential concern: The effect of presidential transition on donations 
+    
+- The presidential transition is one of our major ommited factor to affect both political trust and charitable giving.
+- To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for $k = 1, 2, 3$.
+
+
+```{stata ShortEstimateElasticity, results = "hide", eval = FALSE}
+xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013 | year == 2014, fe vce(cluster pid)
+
+mat coef = r(table)["b".."pvalue","log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_w)
+mat colnames stat = model0
+mat rownames stat = N r2w
+mat_rapp model : coef stat
+mat tabular = model'
+
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if year == 2013 | year == 2014, fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p) if year == 2013 | year == 2014, fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	mat_rapp model`k' : coef stat
+	
+	* combined with first stage result
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+	mat_rapp tabular : tabular model`k', miss(.)
+}
+
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/ShortEstimateElasticity.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata ShortEstimateElasticityExtensive, results = "hide", eval = FALSE}
+* baseline
+xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013 | year == 2014, fe vce(cluster pid)
+
+mat coef = r(table)["b".."pvalue","log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_w)
+mat colnames stat = model0
+mat rownames stat = N r2w
+
+* proportion of donors
+summarize i_ext_giving
+local mu = r(mean)
+
+* implied elasticity
+lincom log_price*(1/`mu')
+mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas = model0
+mat rownames elas = e_b e_se e_pval
+
+mat_rapp model : coef elas
+mat_rapp model : model stat
+mat tabular = model'
+
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if year == 2013 | year == 2014, fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg i_ext_giving log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p) if year == 2013 | year == 2014, fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	
+	*proportion of donors
+	summarize i_ext_giving
+	local mu = r(mean)
+	
+	*implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+	mat colnames elas = model`k'
+	mat rownames elas = e_b e_se e_pval
+	
+	* combined with first stage result
+	mat_rapp model`k' : coef elas
+	mat_rapp model`k' : model`k' stat
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+	mat_rapp tabular : tabular model`k', miss(.)
+}
+
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/ShortEstimateElasticityExtensive.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata ShortEstimateElasticityIntensive, results = "hide", eval = FALSE}
+* baseline
+xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
+
+mat coef = r(table)["b".."pvalue","log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_w)
+mat colnames stat = model0
+mat rownames stat = N r2w
+mat_rapp model : coef stat
+mat tabular = model'
+
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p) if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	mat_rapp model`k' : coef stat
+	
+	* combined with first stage result
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+	mat_rapp tabular : tabular model`k', miss(.)
+}
+
+
+mat list tabular
+
+
+xsvmat tabular, saving(_assets/ShortEstimateElasticityIntensive.dta, replace) rownames(xvar) names(col)
+```
+
+
+## Result of Robustness Check 2
+
+## Result of Robustness Check 2: Extensive Margin
+
+## Result of Robustness Check 2: Intensive Margin
 
 # Political Trust and Price Elasticity
 
@@ -719,7 +1018,7 @@ $$
 - $\lambda_t$ captures the central government policies effect
 
 
-```{stata EstimateTrustIndex}
+```{stata EstimateTrustIndex, results = "hide", eval = FALSE}
 xtreg trust_politician i.year##i.living_area if year >= 2015, fe
 predict orgtrustid, u
 
@@ -743,6 +1042,8 @@ frame trustdt: duplicates drop
 frame trustdt: gen diff = moontrustid - parktrustid
 frame trustdt: xtile original5 = trustid, nq(5) 
 frame trustdt: xtile park5 = parktrustid, nq(5)
+frame trustdt: xtile original3 = trustid, nq(3)
+frame trustdt: xtile park3 = parktrustid, nq(3)
 frame trustdt: {
 	gen lessdiff1 = 0
 	replace lessdiff1 = 1 if abs(diff) < 1
@@ -754,755 +1055,242 @@ frame trustdt: {
 	replace lessdiffhalf = . if missing(diff)
 }
 frame trustdt: save "data\shape\trustid.dta", replace
+frame drop trustdt
 ```
 
-## Histrogram of Trust Index
+## Five Subgroup Regression by Political Trust
 
-```{stata HistogramTrustid, results = "hide"}
-frame create trustdt
-frame trustdt: use "data\shape\trustid.dta", clear
-
-frame trustdt: {
-	twoway ///
-	(histogram trustid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
-	xtitle("Trust index") ///
-	graphregion(fcolor(white))
-	
-	graph export "_assets/HistogramTrustid.pdf", replace
-}
-```
-
-```{r, include = TRUE, out.width="90%", fig.cap="Histogram of Trust Index"}
-knitr::include_graphics(paste(here(), "_assets/HistogramTrustid.pdf", sep= "/"))
-```
-
-## Relationship with Donations and Covariates 
-
-- We made a scatter plot b/w individual average donations and trust index
-    - No linear relationship
-- We tested difference in mean of individual average donations b/w among those whose trust index above and below threshold
-    - The difference in mean is statistically siginificant at 5\% level if threshold is $\{0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4\}$.
-- We regressed trust index on covariates, using data in 2018
-    - trust among females < trust among males
-    - the positive correlation between income and trust index
-    - trust index is concave in age
-    - Those having extreme political views have a distrust of politicians rather than those having moderate political views.
-
-
-## Relationship b/w Donations and Trust Index 
-
-```{stata ScatterTrusidDonations, results = "hide"}
-merge m:1 pid using "data\shape\trustid.dta"
-drop _merge
-
-frame copy default scatdt
-frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
-frame scatdt: keep pid trustid avgdonate
-frame scatdt: duplicates drop
-
-frame scatdt: {
-	twoway  ///
-	(scatter avgdonate trustid, color(gs10%50)),  ///
-	xtitle("Trust index") ytitle("Individual average donations across time")  ///
-	graphregion(fcolor(white))
-	
-	graph export "_assets/ScatterTrusidDonations.pdf", replace
-}
-```
-
-```{r, include=TRUE, out.width="90%", fig.cap="Scatter Plot between Donations and Trust Index"}
-knitr::include_graphics(paste(here(), "_assets/ScatterTrusidDonations.pdf", sep= "/"))
-```
-
-## Difference in Mean b/w Two Trust Groups
-
-```{stata PlotDiffDonationsbwTrustGroup, results = "hide"}
-merge m:1 pid using "data\shape\trustid.dta"
-drop _merge
-
-frame copy default scatdt
-frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
-frame scatdt: keep pid trustid avgdonate
-frame scatdt: duplicates drop
-
-frame create coefplotdt
-frame coefplotdt: {
-	set obs 21
-	gen effect = .
-	gen se_effect = .
-	gen cutoff = .
-}
-
-frame scatdt: gen high = .
-local k = 1
-forvalues i = 0(.1)2.1 {
-	di "k = `k'"
-	frame scatdt: replace high = 0 if trustid <= `i'
-	frame scatdt: replace high = 1 if trustid > `i'
-	frame scatdt: replace high = . if missing(trustid)
-	frame scatdt: reg avgdonate high 
-	frame coefplotdt: replace effect = _b[high] if _n == `k'
-	frame coefplotdt: replace se_effect = _se[high] if _n == `k'
-	frame coefplotdt: replace cutoff = `i' if _n == `k'
-	local k = `k' + 1
-}
-
-frame coefplotdt: gen lcoef = effect - 1.96*se_effect
-frame coefplotdt: gen hcoef = effect + 1.96*se_effect
-
-frame coefplotdt: {
-	twoway ///
-	(scatter effect cutoff, color(blue)) ///
-	(line effect cutoff, color(blue))  ///
-	(rcap hcoef lcoef cutoff, color(black)), ///
-	yline(0, lcolor(red) lpattern(-))  ///
-	xtitle("Threshold of trust index") ///
-	ytitle("Difference in mean (+/- 1.96*se)") ///
-	legend(off) ///
-	graphregion(fcolor(white))
-
-	graph export "_assets/PlotDiffDonationsbwTrustGroup.pdf", replace
-}
-
-```
-
-```{r, include=TRUE, out.width="90%", fig.cap = "Difference in Mean between Trust Group above and below Threshold"}
-knitr::include_graphics(paste(here(), "_assets/PlotDiffDonationsbwTrustGroup.pdf", sep= "/"))
-```
-
-## Regression of Trust Index on Covariates
-
-```{stata RegTrustidOnCovariate, results = "hide"}
-merge m:1 pid using "data\shape\trustid.dta"
-drop _merge
-
-reg trustid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
-
-mat coef = r(table)
-mat coef = coef[.,1..12]
-mat stat = (e(N) \ e(r2_a))
-mat colnames stat = stat
-mat rownames stat = N r2a
-mat_capp model : coef stat, miss(.)
-mat model = model'
-
-xsvmat model, saving(_assets/RegTrustidOnCovariate.dta) rownames(xvar) names(col)
-```
-
-```{r shapeRegTrustidOnCovariate, include=TRUE}
-org.indexreg <- read.dta13("_assets/RegTrustidOnCovariate.dta") %>% data.frame()
-
-coef.indexreg <- org.indexreg %>% 
-	filter(!is.na(se)) %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	mutate(
-		xvar = recode(
-			xvar,
-			"gender" = "Female",
-			"log_pinc_all" = "Logarithm of income",
-			"age" = "Age",
-			"sqage" = "Squared age/100",
-			"2.educ" = "High school graduate",
-			"3.educ" = "University graduate",
-			"1.political_pref" = "Extreme right wing",
-			"2.political_pref" = "Right wing",
-			"4.political_pref" = "Left wing",
-			"5.political_pref" = "Extreme left wing"
-		)
-	)
-
-stat.indexreg <- org.indexreg %>% 
-	filter(xvar == "stat") %>%
-	select(xvar, N) %>% 
-	mutate(
-		xvar = recode(xvar, "stat" = "N"),
-		N = sprintf("%1d", as.integer(N))
-	) %>%
-	cbind(se = c(""))
-
-tab.indexreg <- rbind(as.matrix(coef.indexreg), as.matrix(stat.indexreg)) %>% 
-	data.frame()
-```
-
-```{r kableRegTrustidOnCovariate, include=TRUE}
-knitr::kable(
-    tab.indexreg,
-    format = "latex",
-    caption = "Regression of Standarized Trust Index (Year = 2018)",
-    col.names = c("Variables", "Coefficients", "S.E."),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling()
-```
-
-## Subgroup Regressions
-
-To see the heterogenous price elasticity by political trust,
-We estimated the baseline regression model (5) (see Table \ref{tab:kableEstimateElasticity}),
-using sample grouped by the trust index.
-
-- Lowest: 0 ~ 20\% quantile of trust index
-- Lower: 20 ~ 40\% quantile of trust index
-- Neutral: 40 ~ 60\% quantile of trust index
-- Higher: 60 ~ 80\% quantile of trust index
-- Highest: 80 ~ 100\% quantile of trust index
-
-Covariates are the logarithm of income, age, interactions b/w year and education,
-interactions b/w year and gender, and living are dummy into covariates.
-
-```{stata EstimateElasticityByTrustGroup, results = "hide"}
+```{stata EstimateElasticityByTrustGroup, results = "hide", eval = FALSE}
 merge m:1 pid using "data\shape\trustid.dta"
 drop _merge
 
 forvalues i = 1(1)5 {
+    
+	* subgroup regression
 	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
 		if original5 == `i', fe vce(cluster pid)
-	mat coef`i' = r(table)
-	mat coef`i' = coef`i'[1..rowsof(coef`i'), 1]
-	mat colnames coef`i' = group`i'
-	mat stat`i' = (e(N) \ e(r2_a))
-	mat colnames stat`i' = group`i'
-	mat rownames stat`i' = N r2a
-	mat_rapp group`i' : coef`i' stat`i'
-}
-
-mat_capp group : group1 group2, miss(.)
-mat_capp group : group group3, miss(.)
-mat_capp group : group group4, miss(.)
-mat_capp group : group group5, miss(.)
-mat group = group'
-
-xsvmat group, saving(_assets/EstimateElasticityByTrustGroup.dta) rownames(xvar) names(col)
-```
-
-## Results of Subgroup Regressions
-
-We cound **NOT** find the price effect for respondents whose trust is very low.
-
-```{r shapeEstimateElasticityByTrustGroup, include = TRUE}
-org.trustreg <- read.dta13("_assets/EstimateElasticityByTrustGroup.dta") %>% data.frame()
-
-coef.trustreg <- org.trustreg %>% 
-	filter(!is.na(se)) %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("ln(giving price)", ""), .)
-
-stat.trustreg <- org.trustreg %>% 
-	select(xvar, N) %>% 
-	mutate(N = sprintf("%1d", as.integer(N))) %>%
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("N"), .)
-
-tab.trustreg <- rbind(as.matrix(coef.trustreg), as.matrix(stat.trustreg)) %>% 
-	data.frame()
-```
-
-
-```{r kableEstimateElasticityByTrustGroup, include = TRUE}
-knitr::kable(
-    tab.trustreg,
-    format = "latex",
-    caption = "Subgroup Regressions",
-    col.names = c("", "Lowest", "Lower", "Neutral", "Higher", "Highest"),
-    row.names = FALSE,
-    align = "lccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9)
-```
-
-
-## Regression on Interaction Term
-
-To check whether price elasticity is statistically siginificant different among five trust groups,
-we estimated the baseline regression model (5) including interation term between five trust groups and giving price.
-
-\begin{align*}
-    \log(\text{Giving}_{ijt}) 
-    =& \alpha_i + \beta_1 \log(\text{Price}_{ijt}) \\
-    &+ \sum_g \beta_g \log(\text{Price}_{ijt}) \cdot \text{TrustGroup}_{ijg}  \\
-    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-\end{align*}
-
-- $\text{TrustGroup}_{ijg}$: taking 1 if individual $i$ living in $j$ belongs to the trust group $g$.
-- $g \in \{ \text{Lowest}, \text{Lower}, \text{Higher}, \text{Highest} \}$.
-
-```{stata EstimateInteractionByTrustGroup, results = "hide"}
-merge m:1 pid using "data\shape\trustid.dta"
-drop _merge
-
-xtreg log_total_g c.log_price##ib3.original5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
-
-mat coef = r(table)
-mat coef = coef[.,1..11]
-mat stat = (e(N) \ e(r2_a))
-mat colnames stat = stat
-mat rownames stat = N r2a
-mat_capp model : coef stat, miss(.)
-mat model = model'
-
-xsvmat model, saving(_assets/EstimateInteractionByTrustGroup.dta) rownames(xvar) names(col)
-```
-
-## Regression Result on Interation Term
-
-There is statistically siginificant difference on price elasticity between the lowest group and the nuetral group.
-
-```{r shapeEstimateInteractionByTrustGroup, include=TRUE}
-org.intreg <- read.dta13("_assets/EstimateInteractionByTrustGroup.dta") %>% data.frame()
-
-coef.intreg <- org.intreg %>% 
-	filter(!is.na(se)) %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	mutate(
-		xvar = recode(
-			xvar,
-			"log_price" = "ln(giving price)",
-			"1.original5#c.log_price" = "X Lowest",
-			"2.original5#c.log_price" = "X Lower",
-			"4.original5#c.log_price" = "X Higher",
-			"5.original5#c.log_price" = "X Highest"
-		)
-	)
-
-stat.intreg <- org.intreg %>% 
-	filter(xvar == "stat") %>%
-	select(xvar, N) %>% 
-	mutate(
-		xvar = recode(xvar, "stat" = "N"),
-		N = sprintf("%1d", as.integer(N))
-	) %>%
-	cbind(se = c(""))
-
-tab.intreg <- rbind(as.matrix(coef.intreg), as.matrix(stat.intreg)) %>% 
-	data.frame()
-```
-
-
-```{r kableEstimateInteractionByTrustGroup, include=TRUE}
-knitr::kable(
-    tab.intreg,
-    format = "latex",
-    caption = "Heterogenous Price Elasticity",
-    col.names = c("", "Coefficients", "S.E."),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-add_indent(c(2:5))
-```
-
-
-## Potential Concerns of Heterogenous Price Elasticity
-
-- There is one potential concern that the presidential transition affects both donation behavior and political trust.
-    - In May 2017, South Korean president changed from Park Geun-hye to Moon Jae-in. This presidential transition was due to the impeachment charge against Park Geun-hye. People became distrustful of Park Geun-hye due to the shinking of MV Sewol (April 2014).
-- To rule out this confounder, we constructed president-specific trust indexs using either in 2015 and 2016 (Park's Trust index) or 
-data in 2017 and 2018 (Moon's Trust index).
-    - We discussed how to use these indexs later.
-
-## Relationship b/w President-specific Trust Indexs
-
-- We made a scatter plot between Park's trust index and Moon's trust index.
-    - Large variation of Moon's trust index among those who have same value of the Park's trust index.
-- We tested whether the average individual difference b/w president-specific trust indexs is statistically different from zero.
-    - We cannot reject the null hypothesis.
-
-
-## Scatter Plot b/w President-specific Trust Indexs
-
-```{stata Scatter1Trustid, results = "hide"}
-frame create trustdt
-frame trustdt: use "data\shape\trustid.dta", clear
-
-frame trustdt: {
-	twoway ///
-	(scatter moontrustid parktrustid, color(gs10%50)) ///
-	(fpfit moontrustid parktrustid, color(red)), ///
-	xtitle("Park's trust index") ytitle("Moon's trust index") ///
-	legend(off) ///
-	graphregion(fcolor(white))
 	
-	graph export "_assets/Scatter1Trustid.pdf", replace
-}
-```
-
-```{r, include=TRUE, out.width="90%", fig.cap = "Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in"}
-knitr::include_graphics(paste(here(), "_assets/Scatter1Trustid.pdf", sep= "/"))
-```
-
-## Result of Pair-wise t-test 
-
-```{stata TtestPresidentTrustid, results = "hide"}
-frame create trustdt
-frame trustdt: use "data\shape\trustid.dta", clear
-
-frame trustdt: ttest moontrustid == parktrustid
-
-forvalues i = 1(1)2 {
-	mat group`i' = (r(mu_`i') \ r(sd_`i'))
-	mat colnames group`i' = group`i'
-	mat rownames group`i' = mean sd
-}
-
-mat diff = (group1[1,1] - group2[1,1] \ r(p))
-mat colnames diff = diff
-mat rownames diff = mu pval
-
-mat_capp tab : group1 group2
-mat_capp tab : tab diff, miss(.)
-xsvmat tab, saving(_assets/TtestPresidentTrustid.dta) rownames(xvar) names(col)
-```
-
-```{r shapeTtestPresidentTrustid}
-org.dfset <- read.dta13("_assets/TtestPresidentTrustid.dta") %>% data.frame()
-
-coef.dfset <- org.dfset %>% 
-	select(-diff) %>%
-	drop_na() %>% 
-	mutate_at(
-		vars(-xvar),
-		list(~case_when(
-				xvar == "mean" ~ sprintf("%1.3f", .),
-				xvar == "sd" ~ sprintf("(%1.3f)", .))
-		)
-	) %>% 
-	mutate(xvar = recode(xvar, "mean" = "Average", "sd" = "sd"))
-
-stat.dfset <- org.dfset %>% 
-	select(xvar, diff) %>% 
-	drop_na() %>% 
-	mutate(
-		diff = case_when(
-			xvar == "mu" ~ sprintf("%1.3f", diff),
-			xvar == "pval" ~ sprintf("[%1.3f]", diff)
-		),
-		xvar = recode(xvar, "mu" = "Average", "pval" = "sd")
-	)
-
-tab.dfset <- left_join(coef.dfset, stat.dfset, by = "xvar") %>% 
-	mutate(xvar = recode(xvar, "sd" = "", .default = xvar))
-```
-
-```{r kableTtestPresidentTrustid, include = TRUE}
-knitr::kable(
-    tab.dfset,
-    format = "latex",
-    caption = "Pair-wise T-test",
-    col.names = c("", "Moon's trust", "Park's trust", "Difference"),
-    row.names = FALSE,
-    align = "lccc",
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling()
-```
-
-## Relationship among Three Trust Indexs
-
-- We made a scatter plot between difference of president-specific trust indexs and the original trust index. 
-    - there is large variation of difference of president-specific trust indexs, and there is large variation of the original trust index among those who have similar value of two president-specific trust indexs.
-- We regressed the original trust index on difference of president-specific trust indexs. We restrict units whose aboslute value of president-specific trust index difference is less than 2 (Abs < 2), 1 (Abs < 1), and 0.5 (Abs < 0.5). 
-    - the positive correlations between difference of president-specific trust indexs and the original one. However, this positive correlation is statistically insignigicant if we use units whose president-specific trust indexs have similar values.
-	
-
-## Scatter Plot b/w Difference of Separated Trust Indexs and Original One
-
-```{stata Scatter2Trustid, results = "hide"}
-frame create trustdt
-frame trustdt: use "data\shape\trustid.dta", clear
-
-frame trustdt: {
-	twoway ///
-	(scatter trustid diff, color(gs10%50))  ///
-	(fpfit trustid diff, color(red)), ///
-	xtitle("Difference b/w president-specific trust index") ///
-	ytitle("Trust index") ///
-	legend(off)  ///
-	graphregion(fcolor(white))
-
-	graph export "_assets/Scatter2Trustid.pdf", replace
-}
-```
-
-```{r, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Trust Indexs and Original One"}
-knitr::include_graphics(paste(here(), "_assets/Scatter2Trustid.pdf", sep= "/"))
-```
-
-
-## Result of Regressions on Difference b/w President-specific Trust
-
-```{stata RegTrustidOnDiff2Trustid, results = "hide"}
-frame create trustdt
-frame trustdt: use "data\shape\trustid.dta", clear
-
-frame trustdt: reg trustid diff
-mat coef1 = r(table)
-mat coef1 = coef1[1..9,1]
-mat colnames coef1 = model1
-mat stat1 = (e(N) \ e(r2_a))
-mat colnames stat1 = model1
-mat rownames stat1 = N r2a
-mat_rapp model1 : coef1 stat1
-
-frame trustdt: reg trustid diff if abs(diff) < 2
-mat coef2 = r(table)
-mat coef2 = coef2[1..9,1]
-mat colnames coef2 = model2
-mat stat2 = (e(N) \ e(r2_a))
-mat colnames stat2 = model2
-mat rownames stat2 = N r2a
-mat_rapp model2 : coef2 stat2
-
-frame trustdt: reg trustid diff if abs(diff) < 1
-mat coef3 = r(table)
-mat coef3 = coef3[1..9,1]
-mat colnames coef3 = model3
-mat stat3 = (e(N) \ e(r2_a))
-mat colnames stat3 = model3
-mat rownames stat3 = N r2a
-mat_rapp model3 : coef3 stat3
-
-frame trustdt: reg trustid diff if abs(diff) < 0.5
-mat coef4 = r(table)
-mat coef4 = coef4[1..9,1]
-mat colnames coef4 = model4
-mat stat4 = (e(N) \ e(r2_a))
-mat colnames stat4 = model4
-mat rownames stat4 = N r2a
-mat_rapp model4 : coef4 stat4
-
-mat_capp tab : model1 model2
-mat_capp tab : tab model3 
-mat_capp tab : tab model4
-mat tab = tab'
-
-xsvmat tab, saving(_assets/RegTrustidOnDiff2Trustid.dta) rownames(xvar) names(col)
-```
-
-```{r shapeRegTrustidOnDiff2Trustid}
-org.dfset <- read.dta13("_assets/RegTrustidOnDiff2Trustid.dta") %>% data.frame()
-
-coef.dfset <- org.dfset %>% 
-	filter(!is.na(se)) %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Moon's trust - Park's trust", ""), .)
-
-stat.dfset <- org.dfset %>% 
-	select(xvar, r2a, N) %>% 
-	mutate(N = sprintf("%1d", as.integer(N)), r2a = sprintf("%1.3f", r2a)) %>%
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Adjusted R-sq", "N"), .)
-
-tab.dfset <- rbind(as.matrix(coef.dfset), as.matrix(stat.dfset)) %>% 
-	data.frame()
-```
-
-```{r kableRegTrustidOnDiff2Trustid, include = TRUE}
-knitr::kable(
-    tab.dfset,
-    format = "latex",
-    caption = "Regressions of Trust Index on President-specific Trust Index",
-    col.names = c("", "Full", "Abs < 2", "Abs < 1", "Abs < 0.5"),
-    row.names = FALSE,
-    align = "lcccc",
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9)
-```
-
-
-## Robustness Check of Heterogenous Price Elasticity
-
-1. Using data in 2013 and 2014, we estimated the interaction model again
-    - The president was Park Geun-hye in both 2013 and 2014. Thus, we can exclude the effect of presidential transition on donation behavior.
-1. Using the park's trust index instead, we estimated the interaction model with data in 2013 and 2014.
-    - Since the trust index represents the trust for politicians under the president Park (but scandalous period), we can rule out the effect of presidential transition on both donations and trust.
- 
-```{stata Robust1EstimateInteractionByTrustGroup, results = "hide"}
-merge m:1 pid using "data\shape\trustid.dta"
-drop _merge
-
-foreach v in original5 park5 {
-	xtreg log_total_g c.log_price##ib3.`v' log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if year == 2013|year == 2014, fe vce(cluster pid)
-	
-	mat coef = r(table)
-	mat coef = coef[.,1..11]
-	mat stat = (e(N) \ e(r2_a))
-	mat colnames stat = stat
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
 	mat rownames stat = N r2a
-	mat_capp `v' : coef stat, miss(.)
-	mat `v' = `v''
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
 }
 
-xsvmat original5, saving(_assets/RobustEstimateInteractionOriginal.dta) rownames(xvar) names(col)
-xsvmat park5, saving(_assets/RobustEstimateInteractionPark.dta) rownames(xvar) names(col)
+mat list tabular
+
+xsvmat tabular, saving(_assets/EstimateElasticityByTrustGroup.dta, replace) rownames(xvar) names(col)
 ```
 
-## Result of Robustness Check
+```{stata EstimateElasticityExtensiveByTrustGroup, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\trustid.dta"
+drop _merge
 
-```{r shapeRobust1EstimateInteractionByTrustGroup}
-org.robintreg <- list(
-	read.dta13("_assets/RobustEstimateInteractionOriginal.dta") %>% data.frame(),
-	read.dta13("_assets/RobustEstimateInteractionPark.dta") %>% data.frame()
-)
+forvalues i = 1(1)5 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original5 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if original5 == `i'
+	local mu = r(mean)
 
-coef.robintreg <- org.robintreg %>% 
-	purrr::map(function(x)
-		x %>% filter(!is.na(se)) %>% 
-			select(xvar, b, se, pvalue) %>% 
-			mutate(
-				b = case_when(
-					pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-					pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-					pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-					TRUE ~ sprintf("%1.3f", b)
-				),
-				se = sprintf("(%1.3f)", se)
-			) %>% 
-		select(xvar, b, se) %>% 
-		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-		mutate(
-			xvar = case_when(
-				xvar == "log_price" ~ "ln(giving price)",
-				str_detect(xvar, "1") ~ "X Lowest Trust",
-				str_detect(xvar, "2") ~ "X Lower Trust",
-				str_detect(xvar, "4") ~ "X Higher Trust",
-				str_detect(xvar, "5") ~ "X Highest Trust"
-			)
-		)
-	) %>% 
-	reduce(left_join, by = c("xvar", "stat")) %>% 
-	mutate(xvar = case_when(stat == "se" ~ "", TRUE ~ xvar)) %>% 
-	select(-stat)
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`i'
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp model`i' : coef elas
+	mat_rapp model`i' : model`i' stat
+	mat model`i' = model`i''
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
 
-stat.robintreg <- org.robintreg %>% 
-	purrr::map(function(x)
-		x %>% filter(xvar == "stat") %>% select(N) %>% mutate(N = sprintf("%1d", as.integer(N))) %>% unlist()
-	) %>% 
-	as_vector()
-
-tab.robintreg <- rbind(as.matrix(coef.robintreg), c("N", stat.robintreg)) %>% data.frame()
+mat list tabular
+xsvmat tabular, saving(_assets/EstimateElasticityExtensiveByTrustGroup.dta, replace) rownames(xvar) names(col)
 ```
 
-```{r kableRobust1EstimateInteractionByTrustGroup, include = TRUE}
-knitr::kable(
-    tab.robintreg,
-    format = "latex",
-    caption = "Robustness Check of Heterogenous Price Elasticity",
-    col.names = c("", "(1)", "(2)"),
-    row.names = FALSE,
-    align = "lcccc",
-    booktabs = TRUE, escape = FALSE, linesep = ""
-) %>% 
-kable_styling(font_size = 8) %>% 
-add_indent(c(3:10)) %>% 
-add_header_above(c("Trust index" = 1, "Original" = 1, "Park" = 1)) %>% 
-add_header_above(c("Year" = 1, "2013 and 2014" = 2))
+```{stata EstimateElasticityIntensiveByTrustGroup, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\trustid.dta"
+drop _merge
+
+forvalues i = 1(1)5 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original5 == `i' & i_ext_giving == 1, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByTrustGroup.dta, replace) rownames(xvar) names(col)
 ```
 
-<!--
-## Heterogenity By Political Trust
+## Three Subgroup Regression by Trust Index
 
-To capture heterogeneity precisely,
-we estimate the following regression equations:
+```{stata EstimateElasticityByTrustGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\trustid.dta"
+drop _merge
 
-\begin{align*}
-    \log(\text{Giving}_{ijt}) = 
-    &\alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \beta_2 \log(\text{Price}_{ijt})\cdot\text{Trustid}_{ij} \\
-    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-\end{align*}
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original3 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
 
-Price elasticity is obtained by $\beta_1 + \beta_2\cdot\text{Trust}_{ij}$.
+mat list tabular
 
-```{r EstimateHeteroPEstByTrusid, eval=FALSE}
-
+xsvmat tabular, saving(_assets/EstimateElasticityByTrustGroup3.dta, replace) rownames(xvar) names(col)
 ```
 
-## Result of Heterogeneity of Political Trust
+```{stata EstimateElasticityExtensiveByTrustGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\trustid.dta"
+drop _merge
 
-The price elasticity is **convex** in the trust index.
-Those whose trust index is low and high do not respond to the price incentive.
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original3 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if original5 == `i'
+	local mu = r(mean)
 
-```{r kableEstimateHeteroPEstByTrusid, include=TRUE, eval=FALSE}
-knitr::kable(
-    tab.heteroreg,
-    format = "latex",
-    caption = "Heterogeneity of Political Trust",
-    col.names = c("", "(1)", "(2)"),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-add_indent(c(3,5))
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`i'
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp model`i' : coef elas
+	mat_rapp model`i' : model`i' stat
+	mat model`i' = model`i''
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+xsvmat tabular, saving(_assets/EstimateElasticityExtensiveByTrustGroup3.dta, replace) rownames(xvar) names(col)
 ```
 
-## Graphical Representation of Heterogeneity Effect
+```{stata EstimateElasticityIntensiveByTrustGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\trustid.dta"
+drop _merge
 
-```{r PlotHeteroPElast, include=TRUE, fig.cap="Relationship between Trust Index and Predicted Elasticity", eval=FALSE}
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original3 == `i' & i_ext_giving == 1, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
 
+mat list tabular
+
+
+xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByTrustGroup3.dta, replace) rownames(xvar) names(col)
 ```
 
--->
 
-# Tax-welfare Balance and Price Elasticity
+# Governement Efficient and Price Elasticity
 
-## Tax-welfare Balance
+## Government Efficiency
 
 From the 2015 survey, 
 NaSTaB asks the current and ideal balance between tax burden and welfare size.
@@ -1512,7 +1300,7 @@ more directly.
 
 Thus, we did same excercise, using the current balance bewteen tax burden and welfare size.
 
-## Construct Tax-welfare Balance Index
+## Construct Efficient Index
 
 Questionnaire of tax-welfare balance index is
 
@@ -1520,7 +1308,7 @@ Questionnaire of tax-welfare balance index is
 
 To rule out government's policies, we use individual fixed effect as the **tax-welare size index**
 
-```{stata EstimateTaxBalanceIndex, results = "hide"}
+```{stata EstimateTaxBalanceIndex, results = "hide", eval = FALSE}
 xtreg now_balance i.year##i.living_area if year >= 2015, fe
 predict orgbalanceid, u
 
@@ -1544,6 +1332,8 @@ frame balancedt: duplicates drop
 frame balancedt: gen diff_balance = moon_balanceid - park_balanceid
 frame balancedt: xtile balance5 = balanceid, nq(5) 
 frame balancedt: xtile park_balance5 = park_balanceid, nq(5)
+frame balancedt: xtile balance3 = balanceid, nq(3) 
+frame balancedt: xtile park_balance3 = park_balanceid, nq(3)
 frame balancedt: {
 	gen lessdiff1_balance = 0
 	replace lessdiff1_balance = 1 if abs(diff_balance) < 1
@@ -1555,668 +1345,233 @@ frame balancedt: {
 	replace lessdiffhalf_balance = . if missing(diff_balance)
 }
 frame balancedt: save "data\shape\balanceid.dta", replace
+frame drop balancedt
 ```
 
-## Histrogram of Trust Index
+## Five Subgroup Regression by Political Trust
 
-```{stata HistogramTaxBalanceIndex, results = "hide"}
-frame create balancedt
-frame balancedt: use "data\shape\balanceid.dta", clear
-
-frame balancedt: {
-	twoway ///
-	(histogram balanceid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
-	xtitle("Tax-welfare balance index") ///
-	graphregion(fcolor(white))
-	
-	graph export "_assets/HistogramBalanceid.pdf", replace
-}
-```
-
-```{r, include = TRUE, out.width="90%", fig.cap="Histogram of Tax-Welfare Balance Index"}
-knitr::include_graphics(paste(here(), "_assets/HistogramBalanceid.pdf", sep= "/"))
-```
-
-## Relationship b/w Donations and Balance Index 
-
-```{stata ScatterTaxBalanceIndexDonations, results = "hide"}
-merge m:1 pid using "data\shape\balanceid.dta"
-drop _merge
-
-frame copy default scatdt
-frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
-frame scatdt: keep pid balanceid avgdonate
-frame scatdt: duplicates drop
-
-frame scatdt: {
-	twoway  ///
-	(scatter avgdonate balanceid, color(gs10%50)),  ///
-	xtitle("Tax-welfare balance index") ///
-	ytitle("Individual average donations across time")  ///
-	graphregion(fcolor(white))
-	
-	graph export "_assets/ScatterBalanceidDonations.pdf", replace
-}
-```
-
-```{r, include=TRUE, out.width="90%", fig.cap="Scatter Plot between Donations and Tax-Welfare Balance Index"}
-knitr::include_graphics(paste(here(), "_assets/ScatterBalanceidDonations.pdf", sep= "/"))
-```
-
-## Difference in Mean b/w Two Trust Groups
-
-```{stata PlotDiffDonationsbwBalanceGroup, results = "hide"}
-merge m:1 pid using "data\shape\balanceid.dta"
-drop _merge
-
-frame copy default scatdt
-frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
-frame scatdt: keep pid balanceid avgdonate
-frame scatdt: duplicates drop
-
-frame create coefplotdt
-frame coefplotdt: {
-	set obs 21
-	gen effect = .
-	gen se_effect = .
-	gen cutoff = .
-}
-
-frame scatdt: gen high = .
-local k = 1
-forvalues i = 0(.1)2.1 {
-	di "k = `k'"
-	frame scatdt: replace high = 0 if balanceid <= `i'
-	frame scatdt: replace high = 1 if balanceid > `i'
-	frame scatdt: replace high = . if missing(balanceid)
-	frame scatdt: reg avgdonate high 
-	frame coefplotdt: replace effect = _b[high] if _n == `k'
-	frame coefplotdt: replace se_effect = _se[high] if _n == `k'
-	frame coefplotdt: replace cutoff = `i' if _n == `k'
-	local k = `k' + 1
-}
-
-frame coefplotdt: gen lcoef = effect - 1.96*se_effect
-frame coefplotdt: gen hcoef = effect + 1.96*se_effect
-
-frame coefplotdt: {
-	twoway ///
-	(scatter effect cutoff, color(blue)) ///
-	(line effect cutoff, color(blue))  ///
-	(rcap hcoef lcoef cutoff, color(black)), ///
-	yline(0, lcolor(red) lpattern(-))  ///
-	xtitle("Threshold of tax-welfare balance index") ///
-	ytitle("Difference in mean (+/- 1.96*se)") ///
-	legend(off) ///
-	graphregion(fcolor(white))
-
-	graph export "_assets/PlotDiffDonationsbwBalanceGroup.pdf", replace
-}
-
-```
-
-```{r, include=TRUE, out.width="90%", fig.cap = "Difference in Mean between Group above and below Threshold"}
-knitr::include_graphics(paste(here(), "_assets/PlotDiffDonationsbwBalanceGroup.pdf", sep= "/"))
-```
-
-
-## Regression of Tax Balance Index on Covariates
-
-```{stata RegBalanceidOnCovariate, results = "hide"}
-merge m:1 pid using "data\shape\balanceid.dta"
-drop _merge
-
-reg balanceid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
-
-mat coef = r(table)
-mat coef = coef[.,1..12]
-mat stat = (e(N) \ e(r2_a))
-mat colnames stat = stat
-mat rownames stat = N r2a
-mat_capp model : coef stat, miss(.)
-mat model = model'
-
-xsvmat model, saving(_assets/RegBalanceidOnCovariate.dta) rownames(xvar) names(col)
-```
-
-```{r shapeRegBalanceidOnCovariate, include=TRUE}
-org.indexreg <- read.dta13("_assets/RegBalanceidOnCovariate.dta") %>% data.frame()
-
-coef.indexreg <- org.indexreg %>% 
-	filter(!is.na(se)) %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	mutate(
-		xvar = recode(
-			xvar,
-			"gender" = "Female",
-			"log_pinc_all" = "Logarithm of income",
-			"age" = "Age",
-			"sqage" = "Squared age/100",
-			"2.educ" = "High school graduate",
-			"3.educ" = "University graduate",
-			"1.political_pref" = "Extreme right wing",
-			"2.political_pref" = "Right wing",
-			"4.political_pref" = "Left wing",
-			"5.political_pref" = "Extreme left wing"
-		)
-	)
-
-stat.indexreg <- org.indexreg %>% 
-	filter(xvar == "stat") %>%
-	select(xvar, N) %>% 
-	mutate(
-		xvar = recode(xvar, "stat" = "N"),
-		N = sprintf("%1d", as.integer(N))
-	) %>%
-	cbind(se = c(""))
-
-tab.indexreg <- rbind(as.matrix(coef.indexreg), as.matrix(stat.indexreg)) %>% 
-	data.frame()
-```
-
-```{r kableRegBalanceidOnCovariate, include=TRUE}
-knitr::kable(
-    tab.indexreg,
-    format = "latex",
-    caption = "Regression of Taw-Welfare Balance Index (Year = 2018)",
-    col.names = c("Variables", "Coefficients", "S.E."),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling()
-```
-
-## Subgroup Regressions
-
-```{stata EstimateElasticityByBalanceGroup, results = "hide"}
+```{stata EstimateElasticityByEfficientGroup, results = "hide", eval = FALSE}
 merge m:1 pid using "data\shape\balanceid.dta"
 drop _merge
 
 forvalues i = 1(1)5 {
+    
+	* subgroup regression
 	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
 		if balance5 == `i', fe vce(cluster pid)
-	mat coef`i' = r(table)
-	mat coef`i' = coef`i'[1..rowsof(coef`i'), 1]
-	mat colnames coef`i' = group`i'
-	mat stat`i' = (e(N) \ e(r2_a))
-	mat colnames stat`i' = group`i'
-	mat rownames stat`i' = N r2a
-	mat_rapp group`i' : coef`i' stat`i'
-}
-
-mat_capp group : group1 group2, miss(.)
-mat_capp group : group group3, miss(.)
-mat_capp group : group group4, miss(.)
-mat_capp group : group group5, miss(.)
-mat group = group'
-
-xsvmat group, saving(_assets/EstimateElasticityByBalanceGroup.dta) rownames(xvar) names(col)
-```
-
-
-```{r shapeEstimateElasticityByBalanceGroup, include = TRUE}
-org.trustreg <- read.dta13("_assets/EstimateElasticityByBalanceGroup.dta") %>% data.frame()
-
-coef.trustreg <- org.trustreg %>% 
-	filter(!is.na(se)) %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("ln(giving price)", ""), .)
-
-stat.trustreg <- org.trustreg %>% 
-	select(xvar, N) %>% 
-	mutate(N = sprintf("%1d", as.integer(N))) %>%
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("N"), .)
-
-tab.trustreg <- rbind(as.matrix(coef.trustreg), as.matrix(stat.trustreg)) %>% 
-	data.frame()
-```
-
-
-```{r kableEstimateElasticityByBalanceGroup, include = TRUE}
-knitr::kable(
-    tab.trustreg,
-    format = "latex",
-    caption = "Subgroup Regressions",
-    col.names = c("", "S inefficient", "Inefficient", "Balanced", "Efficient", "S efficient"),
-    row.names = FALSE,
-    align = "lccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 8)
-```
-
-
-## Regression on Interaction Term
-
-
-```{stata EstimateInteractionByBalanceGroup, results = "hide"}
-merge m:1 pid using "data\shape\balanceid.dta"
-drop _merge
-
-xtreg log_total_g c.log_price##ib3.balance5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
-	fe vce(cluster pid)
-
-mat coef = r(table)
-mat coef = coef[.,1..11]
-mat stat = (e(N) \ e(r2_a))
-mat colnames stat = stat
-mat rownames stat = N r2a
-mat_capp model : coef stat, miss(.)
-mat model = model'
-
-xsvmat model, saving(_assets/EstimateInteractionByBalanceGroup.dta) rownames(xvar) names(col)
-```
-
-
-```{r shapeEstimateInteractionByBalanceGroup, include=TRUE}
-org.intreg <- read.dta13("_assets/EstimateInteractionByBalanceGroup.dta") %>% data.frame()
-
-coef.intreg <- org.intreg %>% 
-	filter(!is.na(se)) %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	mutate(
-		xvar = recode(
-			xvar,
-			"log_price" = "ln(giving price)",
-			"1.balance5#c.log_price" = "X Strong inefficient",
-			"2.balance5#c.log_price" = "X Inefficient",
-			"4.balance5#c.log_price" = "X Efficient",
-			"5.balance5#c.log_price" = "X Strong Efficient"
-		)
-	)
-
-stat.intreg <- org.intreg %>% 
-	filter(xvar == "stat") %>%
-	select(xvar, N) %>% 
-	mutate(
-		xvar = recode(xvar, "stat" = "N"),
-		N = sprintf("%1d", as.integer(N))
-	) %>%
-	cbind(se = c(""))
-
-tab.intreg <- rbind(as.matrix(coef.intreg), as.matrix(stat.intreg)) %>% 
-	data.frame()
-```
-
-
-```{r kableEstimateInteractionByBalanceGroup, include=TRUE}
-knitr::kable(
-    tab.intreg,
-    format = "latex",
-    caption = "Heterogenous Price Elasticity among Tax-Welfare Balance",
-    col.names = c("", "Coefficients", "S.E."),
-    row.names = FALSE,
-    align = "lcc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-add_indent(c(2:5))
-```
-
-
-## Scatter Plot b/w President-specific Balance Indexs
-
-```{stata Scatter1TaxBalanceIndex, results = "hide"}
-frame create balancedt
-frame balancedt: use "data\shape\balanceid.dta", clear
-
-frame balancedt: {
-	twoway ///
-	(scatter moon_balanceid park_balanceid, color(gs10%50)) ///
-	(fpfit moon_balanceid park_balanceid, color(red)), ///
-	xtitle("Park's tax-welfare balance index") ///
-	ytitle("Moon's tax-welfare balance index") ///
-	legend(off) ///
-	graphregion(fcolor(white))
 	
-	graph export "_assets/Scatter1Balanceid.pdf", replace
-}
-```
-
-```{r, include=TRUE, out.width="90%", fig.cap = "Scatter Plot between Balance Index under Park Geun-hye and Moon Jae-in"}
-knitr::include_graphics(paste(here(), "_assets/Scatter1Balanceid.pdf", sep= "/"))
-```
-
-## Result of Pair-wise t-test 
-
-```{stata TtestPresidentBalanceid, results = "hide"}
-frame create balancedt
-frame balancedt: use "data\shape\balanceid.dta", clear
-
-frame balancedt: ttest moon_balanceid == park_balanceid
-
-forvalues i = 1(1)2 {
-	mat group`i' = (r(mu_`i') \ r(sd_`i'))
-	mat colnames group`i' = group`i'
-	mat rownames group`i' = mean sd
-}
-
-mat diff = (group1[1,1] - group2[1,1] \ r(p))
-mat colnames diff = diff
-mat rownames diff = mu pval
-
-mat_capp tab : group1 group2
-mat_capp tab : tab diff, miss(.)
-xsvmat tab, saving(_assets/TtestPresidentBalanceid.dta) rownames(xvar) names(col)
-```
-
-```{r shapeTtestPresidentBalanceid}
-org.dfset <- read.dta13("_assets/TtestPresidentBalanceid.dta") %>% data.frame()
-
-coef.dfset <- org.dfset %>% 
-	select(-diff) %>%
-	drop_na() %>% 
-	mutate_at(
-		vars(-xvar),
-		list(~case_when(
-				xvar == "mean" ~ sprintf("%1.3f", .),
-				xvar == "sd" ~ sprintf("(%1.3f)", .))
-		)
-	) %>% 
-	mutate(xvar = recode(xvar, "mean" = "Average", "sd" = "sd"))
-
-stat.dfset <- org.dfset %>% 
-	select(xvar, diff) %>% 
-	drop_na() %>% 
-	mutate(
-		diff = case_when(
-			xvar == "mu" ~ sprintf("%1.3f", diff),
-			xvar == "pval" ~ sprintf("[%1.3f]", diff)
-		),
-		xvar = recode(xvar, "mu" = "Average", "pval" = "sd")
-	)
-
-tab.dfset <- left_join(coef.dfset, stat.dfset, by = "xvar") %>% 
-	mutate(xvar = recode(xvar, "sd" = "", .default = xvar))
-```
-
-```{r kableTtestPresidentBalanceid, include = TRUE}
-knitr::kable(
-    tab.dfset,
-    format = "latex",
-    caption = "Pair-wise T-test",
-    col.names = c("", "Moon's balance index", "Park's balance index", "Difference"),
-    row.names = FALSE,
-    align = "lccc",
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9)
-```
-
-
-## Scatter Plot b/w Difference of Separated Trust Indexs and Original One
-
-```{stata Scatter2Balanceid, results = "hide"}
-frame create balancedt
-frame balancedt: use "data\shape\balanceid.dta", clear
-
-frame balancedt: {
-	twoway ///
-	(scatter balanceid diff_balance, color(gs10%50))  ///
-	(fpfit balanceid diff_balance, color(red)), ///
-	xtitle("Difference b/w president-specific tax-welfare balance index") ///
-	ytitle("Tax-welfare balance index") ///
-	legend(off)  ///
-	graphregion(fcolor(white))
-
-	graph export "_assets/Scatter2Balanceid.pdf", replace
-}
-```
-
-```{r, include=TRUE, fig.cap = "Scatter Plot between Difference of President-specific Balance Indexs and Original One"}
-knitr::include_graphics(paste(here(), "_assets/Scatter2Balanceid.pdf", sep= "/"))
-```
-
-
-## Result of Regressions on Difference b/w President-specific Trust
-
-```{stata RegTrustidOnDiff2TaxBalanceIndex, results = "hide"}
-frame create balancedt
-frame balancedt: use "data\shape\balanceid.dta", clear
-
-frame balancedt: reg balanceid diff_balance
-mat coef1 = r(table)
-mat coef1 = coef1[1..9,1]
-mat colnames coef1 = model1
-mat stat1 = (e(N) \ e(r2_a))
-mat colnames stat1 = model1
-mat rownames stat1 = N r2a
-mat_rapp model1 : coef1 stat1
-
-frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 2
-mat coef2 = r(table)
-mat coef2 = coef2[1..9,1]
-mat colnames coef2 = model2
-mat stat2 = (e(N) \ e(r2_a))
-mat colnames stat2 = model2
-mat rownames stat2 = N r2a
-mat_rapp model2 : coef2 stat2
-
-frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 1
-mat coef3 = r(table)
-mat coef3 = coef3[1..9,1]
-mat colnames coef3 = model3
-mat stat3 = (e(N) \ e(r2_a))
-mat colnames stat3 = model3
-mat rownames stat3 = N r2a
-mat_rapp model3 : coef3 stat3
-
-frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 0.5
-mat coef4 = r(table)
-mat coef4 = coef4[1..9,1]
-mat colnames coef4 = model4
-mat stat4 = (e(N) \ e(r2_a))
-mat colnames stat4 = model4
-mat rownames stat4 = N r2a
-mat_rapp model4 : coef4 stat4
-
-mat_capp tab : model1 model2
-mat_capp tab : tab model3 
-mat_capp tab : tab model4
-mat tab = tab'
-
-xsvmat tab, saving(_assets/RegTrustidOnDiff2Balanceid.dta) rownames(xvar) names(col)
-```
-
-```{r shapeRegTrustidOnDiff2Balanceid}
-org.dfset <- read.dta13("_assets/RegTrustidOnDiff2Balanceid.dta") %>% data.frame()
-
-coef.dfset <- org.dfset %>% 
-	filter(!is.na(se)) %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Moon's index - Park's index", ""), .)
-
-stat.dfset <- org.dfset %>% 
-	select(xvar, r2a, N) %>% 
-	mutate(N = sprintf("%1d", as.integer(N)), r2a = sprintf("%1.3f", r2a)) %>%
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Adjusted R-sq", "N"), .)
-
-tab.dfset <- rbind(as.matrix(coef.dfset), as.matrix(stat.dfset)) %>% 
-	data.frame()
-```
-
-```{r kableRegTrustidOnDiff2Balanceid, include = TRUE}
-knitr::kable(
-    tab.dfset,
-    format = "latex",
-    caption = "Regressions of Balance Index on President-specific Balance Index",
-    col.names = c("", "Full", "Abs < 2", "Abs < 1", "Abs < 0.5"),
-    row.names = FALSE,
-    align = "lcccc",
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9)
-```
-
-
-## Robustness Check of Heterogenous Price Elasticity
-
-```{stata Robust1EstimateInteractionByTaxBalanceIndexGroup, results = "hide"}
-merge m:1 pid using "data\shape\balanceid.dta"
-drop _merge
-
-foreach v in balance5 park_balance5 {
-	xtreg log_total_g c.log_price##ib3.`v' log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if year == 2013|year == 2014, fe vce(cluster pid)
-	
-	mat coef = r(table)
-	mat coef = coef[.,1..11]
-	mat stat = (e(N) \ e(r2_a))
-	mat colnames stat = stat
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
 	mat rownames stat = N r2a
-	mat_capp `v' : coef stat, miss(.)
-	mat `v' = `v''
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
 }
 
-xtreg log_total_g c.log_price##ib3.balance5 log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	if lessdiffhalf_balance == 1, fe vce(cluster pid)
-mat coef = r(table)
-mat coef = coef[.,1..11]
-mat stat = (e(N) \ e(r2_a))
-mat colnames stat = stat
-mat rownames stat = N r2a
-mat_capp diff : coef stat, miss(.)
-mat diff = diff'
+mat list tabular
 
-xsvmat balance5, saving(_assets/RobustEstimateInteractionBalance5.dta) rownames(xvar) names(col)
-xsvmat park_balance5, saving(_assets/RobustEstimateInteractionParkBalance5.dta) rownames(xvar) names(col)
-xsvmat diff, saving(_assets/RobustEstimateInteractionDiffBalance.dta) rownames(xvar) names(col)
+xsvmat tabular, saving(_assets/EstimateElasticityByEfficientGroup.dta, replace) rownames(xvar) names(col)
 ```
 
+```{stata EstimateElasticityExtensiveByEfficientGroup, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
 
-```{r shapeRobust1EstimateInteractionByBalanceGroup}
-org.robintreg <- list(
-	read.dta13("_assets/RobustEstimateInteractionBalance5.dta") %>% data.frame(),
-	read.dta13("_assets/RobustEstimateInteractionParkBalance5.dta") %>% data.frame(),
-	read.dta13("_assets/RobustEstimateInteractionDiffBalance.dta") %>% data.frame()
-)
+forvalues i = 1(1)5 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance5 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if balance5 == `i'
+	local mu = r(mean)
 
-coef.robintreg <- org.robintreg %>% 
-	purrr::map(function(x)
-		x %>% filter(!is.na(se)) %>% 
-			select(xvar, b, se, pvalue) %>% 
-			mutate(
-				b = case_when(
-					pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-					pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-					pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-					TRUE ~ sprintf("%1.3f", b)
-				),
-				se = sprintf("(%1.3f)", se)
-			) %>% 
-		select(xvar, b, se) %>% 
-		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-		mutate(
-			xvar = case_when(
-				xvar == "log_price" ~ "ln(giving price)",
-				str_detect(xvar, "1") ~ "X Strong inefficient",
-				str_detect(xvar, "2") ~ "X Inefficient",
-				str_detect(xvar, "4") ~ "X Efficient",
-				str_detect(xvar, "5") ~ "X Strong efficient"
-			)
-		)
-	) %>% 
-	reduce(left_join, by = c("xvar", "stat")) %>% 
-	mutate(xvar = case_when(stat == "se" ~ "", TRUE ~ xvar)) %>% 
-	select(-stat)
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`i'
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp model`i' : coef elas
+	mat_rapp model`i' : model`i' stat
+	mat model`i' = model`i''
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
 
-stat.robintreg <- org.robintreg %>% 
-	purrr::map(function(x)
-		x %>% filter(xvar == "stat") %>% select(N) %>% mutate(N = sprintf("%1d", as.integer(N))) %>% unlist()
-	) %>% 
-	as_vector()
-
-tab.robintreg <- rbind(as.matrix(coef.robintreg), c("N", stat.robintreg)) %>% data.frame()
+mat list tabular
+xsvmat tabular, saving(_assets/EstimateElasticityExtensiveByEfficientGroup.dta, replace) rownames(xvar) names(col)
 ```
 
-```{r kableRobust1EstimateInteractionByBalanceGroup, include = TRUE}
-knitr::kable(
-    tab.robintreg,
-    format = "latex",
-    caption = "Robustness Check of Heterogenous Price Elasticity",
-    col.names = c("", "(1)", "(2)", "(3)"),
-    row.names = FALSE,
-    align = "lcccc",
-    booktabs = TRUE, escape = FALSE, linesep = ""
-) %>% 
-kable_styling(font_size = 8) %>% 
-add_indent(c(3:10)) %>% 
-add_header_above(c("Tax-welfare balance index" = 1, "Original" = 1, "Park" = 1, "Original (Abs<0.5)" = 1)) %>% 
-add_header_above(c("Year" = 1, "2013 and 2014" = 2, "After 2012" = 1))
+```{stata EstimateElasticityIntensiveByEfficientGroup, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)5 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance5 == `i' & i_ext_giving == 1, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByEfficientGroup.dta, replace) rownames(xvar) names(col)
 ```
 
+## Three Subgroup Regression by Trust Index
 
-# Conclusions
+```{stata EstimateElasticityByEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
 
-## Conclusions
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
 
-<!--
-Our primitive result can be summarized as follows:
+mat list tabular
 
-- Low trust: Since people untrust governement's behavior, they act regardless of governement's policies (expenditure and tax benefit)
-- Middle trust: Since people have strategic uncertainty, they take a strategy of conditional cooperation. That is, they increase donations and use tax benefit to boost their giving if a local governement increases expenditures.
-- High trust (very weak evidence): Since people believe that governement contributes to social welfare, they send money to governement (not charities). Thus, they hestitate to use a tax benefit compared with those whose trust is middle level. 
+xsvmat tabular, saving(_assets/EstimateElasticityByEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
 
-## Avenue of Our Research
+```{stata EstimateElasticityExtensiveByEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
 
-Our primitive results have several serious problem.
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if balance3 == `i'
+	local mu = r(mean)
 
-1. Endogeneity of giving price. The giving price includes decision-making of use of tax benefit.
-1. Does charitable giving contributes to local social welfare? To examine the crowd-out effect of local government expenditure, we need to assume that peole send money to charities which work for local social welfare.
-1. Does people believe that a tax benefit decreases the **local** governement's revenue? To interpret our primitive results, we assume that people believe that a tax benefit decreases the budget of local governement.
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`i'
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp model`i' : coef elas
+	mat_rapp model`i' : model`i' stat
+	mat model`i' = model`i''
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
 
-In future, we need to solve these problems.
--->
+mat list tabular
+xsvmat tabular, saving(_assets/EstimateElasticityExtensiveByEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata EstimateElasticityIntensiveByEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & i_ext_giving == 1, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
