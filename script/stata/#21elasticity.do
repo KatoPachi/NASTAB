@@ -79,10 +79,6 @@ mat list tabular
 ** ---- EstimateElasticityExtensive
 label variable log_price "ln(giving price)"
 
-* proportion of donors
-summarize i_ext_giving
-local mu = r(mean)
-
 * baseline
 xtreg i_ext_giving log_price log_pinc_all i.year, fe vce(cluster pid)
 mat coef = r(table)["b".."pvalue", "log_price"]
@@ -90,6 +86,10 @@ mat colnames coef = model0
 mat stat = e(N) \ e(r2_a)
 mat colnames stat = model0
 mat rownames stat = N r2a
+
+* proportion of donors
+summarize i_ext_giving
+local mu = r(mean)
 
 * implied elasticity
 lincom log_price*(1/`mu')
@@ -411,13 +411,168 @@ mat list tabular
 ********************************************************************************
 
 ** ---- ShortEstimateElasticity
+* baseline
 xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	if year == 2013|year == 2014, fe vce(cluster pid)
-xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	(log_price = lag1iv) if year == 2013|year == 2014, fe first vce(cluster pid)
-xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	(log_price = lag2iv) if year == 2013|year == 2014, fe first vce(cluster pid)
-xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	(log_price = lag3iv) if year == 2013|year == 2014, fe first vce(cluster pid)
-xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	(log_price = lag4iv) if year == 2013|year == 2014, fe first vce(cluster pid)
+	if year == 2013 | year == 2014, fe vce(cluster pid)
+
+mat coef = r(table)["b".."pvalue","log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_w)
+mat colnames stat = model0
+mat rownames stat = N r2w
+mat_rapp model : coef stat
+mat tabular = model'
+
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if year == 2013 | year == 2014, fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p) if year == 2013 | year == 2014, fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	mat_rapp model`k' : coef stat
+	
+	* combined with first stage result
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+	mat_rapp tabular : tabular model`k', miss(.)
+}
+
+
+mat list tabular
+
+** ---- ShortEstimateElasticityExtensive
+* baseline
+xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013 | year == 2014, fe vce(cluster pid)
+
+mat coef = r(table)["b".."pvalue","log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_w)
+mat colnames stat = model0
+mat rownames stat = N r2w
+
+* proportion of donors
+summarize i_ext_giving
+local mu = r(mean)
+
+* implied elasticity
+lincom log_price*(1/`mu')
+mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas = model0
+mat rownames elas = e_b e_se e_pval
+
+mat_rapp model : coef elas
+mat_rapp model : model stat
+mat tabular = model'
+
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if year == 2013 | year == 2014, fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg i_ext_giving log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p) if year == 2013 | year == 2014, fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	
+	*proportion of donors
+	summarize i_ext_giving
+	local mu = r(mean)
+	
+	*implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+	mat colnames elas = model`k'
+	mat rownames elas = e_b e_se e_pval
+	
+	* combined with first stage result
+	mat_rapp model`k' : coef elas
+	mat_rapp model`k' : model`k' stat
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+	mat_rapp tabular : tabular model`k', miss(.)
+}
+
+
+mat list tabular
+
+** ---- ShortEstimateElasticityIntensive
+* baseline
+xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
+
+mat coef = r(table)["b".."pvalue","log_price"]
+mat colnames coef = model0
+mat stat = e(N) \ e(r2_w)
+mat colnames stat = model0
+mat rownames stat = N r2w
+mat_rapp model : coef stat
+mat tabular = model'
+
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* first stage 
+    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
+	
+	* result of first stage
+	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = model`k'
+	mat rownames fstage = ivcoef ivf
+	
+	* second stage
+	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = diff`k'p) if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
+	
+	* result of second stage
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`k'
+	mat stat = e(N) \ e(r2_w)
+	mat colnames stat = model`k'
+	mat rownames stat = N r2w
+	mat_rapp model`k' : coef stat
+	
+	* combined with first stage result
+	mat_rapp model`k' : model`k' fstage
+	mat model`k' = model`k''
+	mat_rapp tabular : tabular model`k', miss(.)
+}
+
+
+mat list tabular
