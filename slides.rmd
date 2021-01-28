@@ -32,6 +32,7 @@ knitr::opts_knit$set(root.dir = here())
 
 library(tidyverse)
 library(readstata13)
+library(Statamarkdown)
 library(kableExtra)
 options(knitr.kable.NA = "")
 ```
@@ -2220,3 +2221,4 @@ Our primitive results have several serious problem.
 
 In future, we need to solve these problems.
 -->
+
