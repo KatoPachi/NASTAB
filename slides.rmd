@@ -38,29 +38,50 @@ options(knitr.kable.NA = "")
 ```
 
 # Introduction
-## Background of South Korea Tax Reform
+## Charitable Giving and Taxiation
 
-To investigate the price effect, we use the 2014 tax reform in the South Korea.
+In many countries, governments set a tax relief for charitable giving.
+This is because, if subsidizing charitable giving induces a large increase in donations, it is desirable.
+
+To evaluate the effect of tax relief, it is needed to know the elasticity of charitable donations with respect to their tax price. 
+
+## Charitable Giving and Taxiation
+
+In addition to the tax price charitable donations, the donations may be affected by people's perception towards the government. 
+
+This is because the works and missions of private charity often mirror or overlap with one of governments, and the charity is not needed if the government adequately satisfies the needs of society.
+
+Thus, the different perception towards the government may make the different behavior for charitable giving.
+
+We investigate the relation between tax price elasticity of charitable donations and the different perception towards the government using the South Korean dataset.
+
+## Why South Korea?
+
+We can utilize the effect of the 2014 tax reform in the South Korea.
 
 - Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
 - After 2014, tax credit have been adopted.
 
-The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer’s marginal tax rate, which increases with gross income
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer’s marginal tax rate, which increases with gross income.
+
+In addition, the dataset contains the information about perception towards the government.
+
+## Related Literature
+
+This study mainly relates to the two strands of studies.
+
+ 1. Research about tax price elasticity of charitable donations
+  - Fack and Landais(2010)
+  - Duquette (2016)
+  - Hickey et al.(2019)
+  - Almunia et al.(2020)
+ 2. Research about perception towards the government and donation/taxiation.
+  - Li et al.(2011) 
+  - Frey and Torgler (2007)
+  - Dorrenberg (2015)
+  - Sheremeta and Uler(2020)
 
 <!--
-## Charitable Giving and Governement Policy
-
-There are huge literatures to investigate relationship bewteen chariable giving and governement policies
-
-1. price elasticity of charitable giving using the tax benefit
-1. the crowd-out effect of government expenditure
-
-Even though tax benefits directly affect government expenditure,
-there is no literature to try to connect the tax benefit with governement expenditure as far as we know.
-
-We investigate the price effect and the crowd-out effect simultaneously,
-and connect two effects through political trust.
-
 ## Why Political Trust?
 
 We conjecture that the political trust is key driver to determine the price effect and the crowd-out effect 
