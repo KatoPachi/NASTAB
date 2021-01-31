@@ -109,6 +109,59 @@ frame sump: {
 	graphregion(fcolor(white))
 }
 
+** ---- SummaryOutcomeByBenefitGroup
+frame copy default plotdt
+frame plotdt {
+	gen benefit_group = .
+	replace benefit_group = 1 if credit_benefit == 1
+	replace benefit_group = 2 if credit_neutral == 1
+	replace benefit_group = 3 if credit_loss == 1
+	
+	by year benefit_group, sort: egen meang = mean(i_total_giving)
+	by year benefit_group, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
+	by year benefit_group, sort: egen meanext = mean(i_ext_giving)
+}
+frame plotdt: keep year benefit_group meang meanint meanext
+frame plotdt: duplicates drop
+frame plotdt: keep if !missing(meanint) & !missing(benefit_group)
+
+frame plotdt {
+	twoway ///
+	(connected meang year if benefit_group == 1, msymbol(O) color(black))  ///
+	(connected meang year if benefit_group == 2, msymbol(T) color(black))  ///
+	(connected meang year if benefit_group == 3, msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Average Total Donations")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
+}
+
+frame plotdt {
+	twoway ///
+	(connected meanint year if benefit_group == 1, msymbol(O) color(black))  ///
+	(connected meanint year if benefit_group == 2, msymbol(T) color(black))  ///
+	(connected meanint year if benefit_group == 3, msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Average Total Donations among Donors")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
+}
+
+frame plotdt {
+	twoway ///
+	(connected meanext year if benefit_group == 1, msymbol(O) color(black))  ///
+	(connected meanext year if benefit_group == 2, msymbol(T) color(black))  ///
+	(connected meanext year if benefit_group == 3, msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Proportion of Donors")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
+}
+
+
 ** ---- ClearEnv
 frame change default
 frame drop avgdt
