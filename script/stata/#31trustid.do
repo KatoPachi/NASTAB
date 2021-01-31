@@ -55,6 +55,8 @@ frame trustdt: xtile original5 = trustid, nq(5)
 frame trustdt: xtile park5 = parktrustid, nq(5)
 frame trustdt: xtile original3 = trustid, nq(3)
 frame trustdt: xtile park3 = parktrustid, nq(3)
+frame trustdt: xtile original4 = trustid, nq(4)
+frame trustdt: xtile park4 = parktrustid, nq(4)
 frame trustdt: {
 	gen lessdiff1 = 0
 	replace lessdiff1 = 1 if abs(diff) < 1
@@ -203,7 +205,7 @@ mat model = model'
 mat list model
 
 ********************************************************************************
-* Heterogenous price elasticity by trust index 
+* Heterogenous price elasticity by trust index (5 Gruops)
 ********************************************************************************
 
 ** ---- EstimateElasticityByTrustGroup
@@ -280,6 +282,105 @@ forvalues i = 1(1)5 {
 	* subgroup regression
 	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
 		if original5 == `i' & i_ext_giving == 1, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+********************************************************************************
+* Heterogenous price elasticity by trust index (4 Gruops)
+********************************************************************************
+
+** ---- EstimateElasticityByTrustGroup4
+forvalues i = 1(1)4 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original4 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+** ---- EstimateElasticityExtensiveByTrustGroup4
+forvalues i = 1(1)4 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original4 == `i', fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if original4 == `i'
+	local mu = r(mean)
+
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`i'
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp model`i' : coef elas
+	mat_rapp model`i' : model`i' stat
+	mat model`i' = model`i''
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+** ---- EstimateElasticityIntensiveByTrustGroup4
+forvalues i = 1(1)4 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if original4 == `i' & i_ext_giving == 1, fe vce(cluster pid)
 	
 	*matrix of regression result
 	mat coef = r(table)["b".."pvalue","log_price"]
