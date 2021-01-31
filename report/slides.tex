@@ -44,13 +44,12 @@
   \frame{\subsectionpage}
 }
 \usepackage{lmodern}
-\usepackage{amsmath}
+\usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
-  \usepackage{amssymb}
 \else % if luatex or xetex
   \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
@@ -108,14 +107,11 @@
 \usepackage{xltxtra} 
 \usepackage{zxjatype} 
 \usepackage[ipa]{zxjafont} 
-\ifluatex
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
 
 \title{Charitable Giving, Tax Reform, and Political Trust}
 \author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
 Kim\(^3\)}
-\date{2021/01/27}
+\date{2021/01/31}
 \institute{\(^1\)Osaka University \and \(^2\)Chiba
 University \and \(^3\)Kobe University}
 
@@ -180,7 +176,7 @@ marginal tax rate, which increases with gross income
 \begin{frame}{Time Series of Chariable Giving}
 \protect\hypertarget{time-series-of-chariable-giving}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcome} \caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcome} \caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
 \end{figure}
 \end{frame}
 
@@ -317,7 +313,7 @@ changed in 2014.
 \begin{frame}{Income Distribution and Giving Price}
 \protect\hypertarget{income-distribution-and-giving-price}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryPriceChange} \caption{Income Distribution and Giving Price in 2013}\label{fig:unnamed-chunk-2}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryPriceChange} \caption{Income Distribution and Giving Price in 2013}\label{fig:unnamed-chunk-2}
 \end{figure}
 \end{frame}
 
@@ -606,7 +602,7 @@ fixed effect model.
 \begin{frame}{Histrogram of Trust Index}
 \protect\hypertarget{histrogram-of-trust-index}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramTrustid} \caption{Histogram of Trust Index}\label{fig:unnamed-chunk-3}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramTrustid} \caption{Histogram of Trust Index}\label{fig:unnamed-chunk-3}
 \end{figure}
 \end{frame}
 
@@ -631,12 +627,49 @@ index.
 
 \begin{frame}{Five Quantile Groups: Result}
 \protect\hypertarget{five-quantile-groups-result}{}
-Ongoing now\ldots{}
+\begin{table}
+
+\caption{\label{tab:kableEstimateElasticityByTrustGroup}Subgroup Regressions}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+ & 1Q & 2Q & 3Q & 4Q & 5Q\\
+\midrule
+ln(giving price) & -0.673 & -0.452 & -1.707*** & -1.130** & -1.397**\\
+ & (0.557) & (0.462) & (0.479) & (0.524) & (0.563)\\
+N & 10250 & 10532 & 10286 & 10558 & 9680\\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{frame}
 
 \begin{frame}{Five Quantile Groups: Intensive and Extensive Margin}
 \protect\hypertarget{five-quantile-groups-intensive-and-extensive-margin}{}
-Ongoing now\ldots{}
+\begin{table}
+
+\caption{\label{tab:kableEstimateElasticityIntExtByTrustGroup}Subgroup Regressions}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+ & 1Q & 2Q & 3Q & 4Q & 5Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Intensive Margin}}\\
+\hspace{1em}ln(giving price) & -0.792 & -1.118** & -0.531 & -0.806 & -0.122\\
+\hspace{1em} & (0.624) & (0.463) & (0.463) & (0.577) & (0.626)\\
+\hspace{1em}N & 1968 & 2326 & 2445 & 2517 & 2136\\
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Extensive Margin}}\\
+\hspace{1em}ln(giving price) & -0.203* & -0.061 & -0.394*** & -0.146 & -0.359***\\
+\hspace{1em} & (0.122) & (0.105) & (0.113) & (0.114) & (0.128)\\
+\hspace{1em}Elasticity & -1.113* & -0.294 & -1.755*** & -0.659 & -1.780***\\
+\hspace{1em} & (0.672) & (0.502) & (0.504) & (0.516) & (0.635)\\
+\hspace{1em}N & 10250 & 10532 & 10286 & 10558 & 9680\\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{frame}
 
 \begin{frame}{Three Quantile Groups: Result}
@@ -713,7 +746,7 @@ To rule out government's policies, we use individual fixed effect as the
 \begin{frame}{Histrogram of Efficient Index}
 \protect\hypertarget{histrogram-of-efficient-index}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramBalanceid} \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-4}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramBalanceid} \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-4}
 \end{figure}
 \end{frame}
 
@@ -738,12 +771,49 @@ efficient index.
 
 \begin{frame}{Five Quantile Groups: Result}
 \protect\hypertarget{five-quantile-groups-result-1}{}
-Ongoing now\ldots{}
+\begin{table}
+
+\caption{\label{tab:kableEstimateElasticityByEfficientGroup}Subgroup Regressions}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+ & 1Q & 2Q & 3Q & 4Q & 5Q\\
+\midrule
+ln(giving price) & -1.281*** & -0.773 & -1.429*** & -1.021** & -0.739\\
+ & (0.492) & (0.495) & (0.543) & (0.494) & (0.544)\\
+N & 9795 & 11369 & 9561 & 10411 & 10170\\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{frame}
 
 \begin{frame}{Five Quantile Groups: Intensive and Extensive Margin}
 \protect\hypertarget{five-quantile-groups-intensive-and-extensive-margin-1}{}
-Ongoing now\ldots{}
+\begin{table}
+
+\caption{\label{tab:kableEstimateElasticityIntExtByEfficientGroup}Subgroup Regressions}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+ & 1Q & 2Q & 3Q & 4Q & 5Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Intensive Margin}}\\
+\hspace{1em}ln(giving price) & -0.959* & -0.321 & -0.530 & -0.927 & -0.999*\\
+\hspace{1em} & (0.514) & (0.447) & (0.601) & (0.648) & (0.598)\\
+\hspace{1em}N & 2167 & 2405 & 1978 & 2352 & 2490\\
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Extensive Margin}}\\
+\hspace{1em}ln(giving price) & -0.263** & -0.178 & -0.349*** & -0.231** & -0.106\\
+\hspace{1em} & (0.108) & (0.116) & (0.124) & (0.114) & (0.119)\\
+\hspace{1em}Elasticity & -1.304** & -0.881 & -1.813*** & -1.078** & -0.462\\
+\hspace{1em} & (0.534) & (0.574) & (0.644) & (0.534) & (0.521)\\
+\hspace{1em}N & 9795 & 11369 & 9561 & 10411 & 10170\\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{frame}
 
 \begin{frame}{Three Quantile Groups: Result}
