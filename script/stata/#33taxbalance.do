@@ -15,6 +15,25 @@ gen highschool = (educ == 2) if !missing(educ)
 gen juniorhigh = (educ == 1) if !missing(educ)
 gen sqage = age^2/100
 
+gen benefit_group = .
+replace benefit_group = 1 if credit_benefit == 1
+replace benefit_group = 2 if credit_neutral == 1
+replace benefit_group = 3 if credit_loss == 1
+
+gen now_balance = 0
+replace now_balance = 2 if avg_welfare_tax == 1
+replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
+replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
+replace now_balance = -2 if avg_welfare_tax == 9
+replace now_balance = . if missing(avg_welfare_tax)
+
+gen ideal_balance = 0 
+replace ideal_balance = 2 if opt_welfare_tax == 1
+replace ideal_balance = 1 if opt_welfare_tax == 2 | opt_welfare_tax == 4
+replace ideal_balance = -1 if opt_welfare_tax == 6 | opt_welfare_tax == 8
+replace ideal_balance = -2 if opt_welfare_tax == 9
+replace ideal_balance = . if missing(opt_welfare_tax) 
+
 ** ---- LagOperation
 tsset pid year
 
@@ -28,36 +47,6 @@ forvalues k = 1(1)3 {
 }
 
 keep if year >= 2012
-
-** ---- ConstructTaxBalance
-gen now_welfare = 1
-replace now_welfare = 2 if avg_welfare_tax < 3 & avg_welfare_tax <= 6
-replace now_welfare = 3 if avg_welfare_tax <= 3
-replace now_welfare = . if missing(avg_welfare_tax)
-
-gen now_tax = 1
-replace now_tax = 2 if avg_welfare_tax == 2 | avg_welfare_tax == 5 | avg_welfare_tax == 8
-replace now_tax = 3 if avg_welfare_tax == 3 | avg_welfare_tax == 6 | avg_welfare_tax == 9
-replace now_tax = . if missing(avg_welfare_tax)
-
-gen now_balance = 0
-replace now_balance = 2 if avg_welfare_tax == 1
-replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
-replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
-replace now_balance = -2 if avg_welfare_tax == 9
-replace now_balance = . if missing(avg_welfare_tax)
-
-gen now_balance3 = 0
-replace now_balance3 = 1 if now_balance > 0
-replace now_balance3 = -1 if now_balance < 0
-replace now_balance3 = . if missing(now_balance)
-
-gen ideal_balance = 0 
-replace ideal_balance = 2 if opt_welfare_tax == 1
-replace ideal_balance = 1 if opt_welfare_tax == 2 | opt_welfare_tax == 4
-replace ideal_balance = -1 if opt_welfare_tax == 6 | opt_welfare_tax == 8
-replace ideal_balance = -2 if opt_welfare_tax == 9
-replace ideal_balance = . if missing(opt_welfare_tax) 
 
 ** ---- EstimateTaxBalanceIndex
 * current efficient index
@@ -119,25 +108,24 @@ merge m:1 pid using "data\shape\balanceid.dta"
 drop _merge
 
 ********************************************************************************
-* Efficent index summary
+* Summary of Efficent index summary
 ********************************************************************************
 
 ** ---- HistogramTaxBalanceIndex
-frame copy default balancedt
-frame balancedt {
-    keep pid balanceid park_balanceid moon_balanceid diff_balance balance5 park_balance5 ///
-		lessdiff1_balance lessdiffhalf_balance
+frame copy default plotdt
+frame plotdt {
+	keep pid balanceid
 	duplicates drop
 }
-
-frame balancedt: {
+frame plotdt: {
 	twoway ///
 	(histogram balanceid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
-	xtitle("Tax-welfare balance index") ///
+	xtitle("Current efficient index") ///
 	graphregion(fcolor(white))
 }
+frame drop plotdt
 
-** ---- HistogramTaxBalanceIndex2
+** ---- DensityTaxBalanceIndex
 frame copy default plotdt
 frame plotdt {
 	keep pid balanceid ideal_balanceid
@@ -145,115 +133,91 @@ frame plotdt {
 }
 frame plotdt {
 	twoway ///
-	(kdensity balanceid) ///
-	(kdensity balanceid if ideal_balanceid > 0),  ///
-	xtitle("Current Efficient Index")  ///
+	(kdensity balanceid, color(black)) ///
+	(kdensity balanceid if ideal_balanceid > 0, color(black) lpattern(-)),  ///
+	xtitle("Current efficient index")  ///
 	ytitle("Density") ///
 	legend(label(1 "Full sample") label(2 "Ideal efficient index {&gt} 0")) ///
 	graphregion(fcolor(white))
 }
 frame drop plotdt
 
+** ---- SummaryOutcomeByBenefitEfficientGroup
+frame copy default plotdt
+frame plotdt {
+	by year benefit_group balance3, sort: egen meang = mean(i_total_giving)
+	by year benefit_group balance3, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
+	by year benefit_group balance3, sort: egen meanext = mean(i_ext_giving)
+}
+frame plotdt {
+	keep year benefit_group balance3 meang meanint meanext
+	duplicates drop
+	keep if !missing(benefit_group) & !missing(balance3) & !missing(meanint)
+}
 
-** ---- Scatter1TaxBalanceIndex
-frame balancedt: {
+frame plotdt {
 	twoway ///
-	(scatter moon_balanceid park_balanceid, color(gs10%50)) ///
-	(fpfit moon_balanceid park_balanceid, color(red)), ///
-	xtitle("Park's tax-welfare balance index") ///
-	ytitle("Moon's tax-welfare balance index") ///
-	legend(off) ///
-	graphregion(fcolor(white))
+	(connect meang year if benefit_group == 1 & balance3 == 1, msymbol(O) color(black))  ///
+	(connect meang year if benefit_group == 3 & balance3 == 1, msymbol(T) color(black))  ///
+	(connect meang year if benefit_group == 1 & balance3 == 3, msymbol(O) color(black) lpattern(-))  ///
+	(connect meang year if benefit_group == 3 & balance3 == 3, msymbol(T) color(black) lpattern(-)), ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlab(2012(1)2018) xtitle("Year") ///
+	ytitle("Average Donations")  ///
+	legend(label(1 "Income {&lt} 1200 (1Q of efficent index)") label(2 "Income {&ge} 4600 (1Q of efficient index)") ///
+		label(3 "Income {&lt} 1200 (3Q of efficent index)") label(4 "Income {&ge} 4600 (3Q of efficient index)") size(small) cols(1)) ///
+	graphregion(fcolor(white%100))
+}
+frame plotdt {
+	twoway ///
+	(connect meanint year if benefit_group == 1 & balance3 == 1, msymbol(O) color(black))  ///
+	(connect meanint year if benefit_group == 3 & balance3 == 1, msymbol(T) color(black))  ///
+	(connect meanint year if benefit_group == 1 & balance3 == 3, msymbol(O) color(black) lpattern(-))  ///
+	(connect meanint year if benefit_group == 3 & balance3 == 3, msymbol(T) color(black) lpattern(-)), ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlab(2012(1)2018) xtitle("Year") ///
+	ytitle("Average Donations")  ///
+	legend(label(1 "Income {&lt} 1200 (1Q of efficent index)") label(2 "Income {&ge} 4600 (1Q of efficient index)") ///
+		label(3 "Income {&lt} 1200 (3Q of efficent index)") label(4 "Income {&ge} 4600 (3Q of efficient index)") size(small) cols(1)) ///
+	graphregion(fcolor(white%100))
+}
+frame plotdt {
+	twoway ///
+	(connect meanext year if benefit_group == 1 & balance3 == 1, msymbol(O) color(black))  ///
+	(connect meanext year if benefit_group == 3 & balance3 == 1, msymbol(T) color(black))  ///
+	(connect meanext year if benefit_group == 1 & balance3 == 3, msymbol(O) color(black) lpattern(-))  ///
+	(connect meanext year if benefit_group == 3 & balance3 == 3, msymbol(T) color(black) lpattern(-)), ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlab(2012(1)2018) xtitle("Year") ///
+	ytitle("Average Donations")  ///
+	legend(label(1 "Income {&lt} 1200 (1Q of efficent index)") label(2 "Income {&ge} 4600 (1Q of efficient index)") ///
+		label(3 "Income {&lt} 1200 (3Q of efficent index)") label(4 "Income {&ge} 4600 (3Q of efficient index)") size(small) cols(1)) ///
+	graphregion(fcolor(white%100))
 }
 
-** ---- TtestPresidentTaxBalanceIndex
-frame balancedt: ttest moon_balanceid == park_balanceid
+frame drop plotdt
 
-forvalues i = 1(1)2 {
-	mat group`i' = (r(mu_`i') \ r(sd_`i'))
-	mat colnames group`i' = group`i'
-	mat rownames group`i' = mu sd
+** ----tTestPresidentEfficientIndex
+frame copy default tdt 
+frame tdt {
+	keep pid moon_balanceid park_balanceid ideal_moon_balanceid ideal_park_balanceid
+	duplicates drop
 }
 
-mat diff = (group1[1,1] - group2[1,1] \ r(p))
-mat colnames diff = diff
-mat rownames diff = mu pval
+frame tdt: ttest moon_balanceid == park_balanceid
+mat test1 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
+mat colnames test1 = current
+mat rownames test1 = diff se pval
 
-mat_capp tabular : group1 group2
-mat_capp tabular : tabular diff, miss(.)
+frame tdt: ttest ideal_moon_balanceid == ideal_park_balanceid
+mat test2 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
+mat colnames test2 = ideal
+mat rownames test2 = diff se pval
+
+mat_capp tabular : test1 test2
 
 mat list tabular
-
-** ---- Scatter2TaxBalanceIndex
-frame balancedt: {
-	twoway ///
-	(scatter balanceid diff_balance, color(gs10%50))  ///
-	(fpfit balanceid diff_balance, color(red)), ///
-	xtitle("Difference b/w president-specific tax-welfare balance index") ///
-	ytitle("Tax-welfare balance index") ///
-	legend(off)  ///
-	graphregion(fcolor(white))
-}
-
-** ---- RegTrustidOnDiff2TaxBalanceIndex
-frame balancedt: reg balanceid diff_balance
-frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 2
-frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 1
-frame balancedt: reg balanceid diff_balance if abs(diff_balance) < 0.5
-
-
-** ---- ScatterTaxBalanceIndexDonations
-frame copy default scatdt
-frame scatdt: bysort pid: egen avgdonate = mean(i_total_giving)
-frame scatdt: keep pid balanceid avgdonate
-frame scatdt: duplicates drop
-
-frame scatdt: {
-	twoway  ///
-	(scatter avgdonate balanceid, color(gs10%50)),  ///
-	xtitle("Tax-welfare balance index") ///
-	ytitle("Individual average donations across time")  ///
-	graphregion(fcolor(white))
-}
-
-** ---- PlotDiffDonationsbwTaxBalanceIndex
-frame create coefplotdt
-frame coefplotdt: {
-	set obs 21
-	gen effect = .
-	gen se_effect = .
-	gen cutoff = .
-}
-
-frame scatdt: gen high = .
-local k = 1
-forvalues i = 0(.1)2.1 {
-	di "k = `k'"
-	frame scatdt: replace high = 0 if balanceid <= `i'
-	frame scatdt: replace high = 1 if balanceid > `i'
-	frame scatdt: replace high = . if missing(balanceid)
-	frame scatdt: reg avgdonate high 
-	frame coefplotdt: replace effect = _b[high] if _n == `k'
-	frame coefplotdt: replace se_effect = _se[high] if _n == `k'
-	frame coefplotdt: replace cutoff = `i' if _n == `k'
-	local k = `k' + 1
-}
-
-frame coefplotdt: gen lcoef = effect - 1.96*se_effect
-frame coefplotdt: gen hcoef = effect + 1.96*se_effect
-
-frame coefplotdt: {
-	twoway ///
-	(scatter effect cutoff, color(blue)) ///
-	(line effect cutoff, color(blue))  ///
-	(rcap hcoef lcoef cutoff, color(black)), ///
-	yline(0, lcolor(red) lpattern(-))  ///
-	xtitle("Threshold of tax-welfare balance index") ///
-	ytitle("Difference in mean (+/- 1.96*se)") ///
-	legend(off) ///
-	graphregion(fcolor(white))
-}
-
+frame drop tdt
 
 ** ---- RegTaxBalanceIndexOnCovariate
 reg balanceid gender log_pinc_all age sqage i.educ ib3.political_pref if year == 2018
@@ -569,9 +533,9 @@ forvalues i = 1(1)3 {
 mat list tabular
 
 
-********************************************************************************
+*************************************************************************************
 * Heterogenous price elasticity by trust index (3 groups) using ideal efficienct > 0
-********************************************************************************
+*************************************************************************************
 
 ** ---- EstimateElasticityByIdealSubEfficientGroup3
 forvalues i = 1(1)3 {
