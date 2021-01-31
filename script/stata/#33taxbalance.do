@@ -52,7 +52,15 @@ replace now_balance3 = 1 if now_balance > 0
 replace now_balance3 = -1 if now_balance < 0
 replace now_balance3 = . if missing(now_balance)
 
+gen ideal_balance = 0 
+replace ideal_balance = 2 if opt_welfare_tax == 1
+replace ideal_balance = 1 if opt_welfare_tax == 2 | opt_welfare_tax == 4
+replace ideal_balance = -1 if opt_welfare_tax == 6 | opt_welfare_tax == 8
+replace ideal_balance = -2 if opt_welfare_tax == 9
+replace ideal_balance = . if missing(opt_welfare_tax) 
+
 ** ---- EstimateTaxBalanceIndex
+* current efficient index
 xtreg now_balance i.year##i.living_area if year >= 2015, fe
 predict orgbalanceid, u
 
@@ -62,6 +70,15 @@ predict orgparkbalanceid, u
 xtreg now_balance i.year##i.living_area if year == 2017 | year == 2018, fe
 predict orgmoonbalanceid, u
 
+* ideal efficient index 
+xtreg ideal_balance i.year##i.living_area if year >= 2015, fe
+predict ideal_orgbalanceid, u
+
+xtreg ideal_balance i.year##i.living_area if year == 2015 | year == 2016, fe
+predict ideal_orgparkbalanceid, u
+
+xtreg ideal_balance i.year##i.living_area if year == 2017 | year == 2018, fe
+predict ideal_orgmoonbalanceid, u
 
 
 * make trustid dataset
@@ -70,22 +87,26 @@ frame balancedt: {
 	bysort pid: egen balanceid = mean(orgbalanceid)
 	bysort pid: egen park_balanceid = mean(orgparkbalanceid) 
 	bysort pid: egen moon_balanceid = mean(orgmoonbalanceid)
+	bysort pid: egen ideal_balanceid = mean(ideal_orgbalanceid)
+	bysort pid: egen ideal_park_balanceid = mean(ideal_orgparkbalanceid)
+	bysort pid: egen ideal_moon_balanceid = mean(ideal_orgmoonbalanceid)
 }
-frame balancedt: keep pid balanceid park_balanceid moon_balanceid
+frame balancedt: keep pid balanceid park_balanceid moon_balanceid ideal_balanceid ideal_park_balanceid ideal_moon_balanceid
 frame balancedt: duplicates drop
-frame balancedt: gen diff_balance = moon_balanceid - park_balanceid
-frame balancedt: xtile balance5 = balanceid, nq(5) 
-frame balancedt: xtile park_balance5 = park_balanceid, nq(5)
-frame balancedt: xtile balance3 = balanceid, nq(3) 
-frame balancedt: xtile park_balance3 = park_balanceid, nq(3)
-frame balancedt: xtile balance4 = balanceid, nq(4) 
-frame balancedt: xtile park_balance4 = park_balanceid, nq(4)
-frame balancedt: {
+frame balancedt {
+	gen diff_balance = moon_balanceid - park_balanceid
+	
+	xtile balance5 = balanceid, nq(5)
+	xtile park_balance5 = park_balanceid, nq(5)
+	xtile balance4 = balanceid, nq(4)
+	xtile park_balance4 = park_balanceid, nq(4)
+	xtile balance3 = balanceid, nq(3)
+	xtile park_balance3 = park_balanceid, nq(3)
+	
 	gen lessdiff1_balance = 0
 	replace lessdiff1_balance = 1 if abs(diff_balance) < 1
 	replace lessdiff1_balance = . if missing(diff_balance)
-}
-frame balancedt: {
+	
 	gen lessdiffhalf_balance = 0
 	replace lessdiffhalf_balance = 1 if abs(diff_balance) < 0.5
 	replace lessdiffhalf_balance = . if missing(diff_balance)
@@ -115,6 +136,23 @@ frame balancedt: {
 	xtitle("Tax-welfare balance index") ///
 	graphregion(fcolor(white))
 }
+
+** ---- HistogramTaxBalanceIndex2
+frame copy default plotdt
+frame plotdt {
+	keep pid balanceid ideal_balanceid
+	duplicates drop
+}
+frame plotdt {
+	twoway ///
+	(kdensity balanceid) ///
+	(kdensity balanceid if ideal_balanceid > 0),  ///
+	xtitle("Current Efficient Index")  ///
+	ytitle("Density") ///
+	legend(label(1 "Full sample") label(2 "Ideal efficient index {&gt} 0")) ///
+	graphregion(fcolor(white))
+}
+frame drop plotdt
 
 
 ** ---- Scatter1TaxBalanceIndex
@@ -530,6 +568,105 @@ forvalues i = 1(1)3 {
 
 mat list tabular
 
+
+********************************************************************************
+* Heterogenous price elasticity by trust index (3 groups) using ideal efficienct > 0
+********************************************************************************
+
+** ---- EstimateElasticityByIdealSubEfficientGroup3
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+** ---- EstimateElasticityExtensiveByIdealSubEfficientGroup3
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if balance3 == `i'
+	local mu = r(mean)
+
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`i'
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp model`i' : coef elas
+	mat_rapp model`i' : model`i' stat
+	mat model`i' = model`i''
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+** ---- EstimateElasticityIntensiveByIdealSubEfficientGroup3
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & i_ext_giving == 1 & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
 
 ********************************************************************************
 * Heterogenous price elasticity by efficient index using year == 2013 | 2014
