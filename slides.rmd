@@ -55,31 +55,60 @@ Thus, the different perception towards the government may make the different beh
 
 We investigate the relation between tax price elasticity of charitable donations and the different perception towards the government using the South Korean dataset.
 
-## Why South Korea?
+<!--
+## Summary in short
+
+- Show results and conclusions here. 
+-->
+
+
+## South Korean tax reform
 
 We can utilize the effect of the 2014 tax reform in the South Korea.
 
 - Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
 - After 2014, tax credit have been adopted.
 
-The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer’s marginal tax rate, which increases with gross income.
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the marginal tax rate, which increases with gross income.
 
 In addition, the dataset contains the information about perception towards the government.
+
 
 ## Related Literature
 
 This study mainly relates to the two strands of studies.
 
  1. Research about tax price elasticity of charitable donations
-  - Fack and Landais(2010)
-  - Duquette (2016)
-  - Hickey et al.(2019)
-  - Almunia et al.(2020)
- 2. Research about perception towards the government and donation/taxiation.
-  - Li et al.(2011) 
-  - Frey and Torgler (2007)
-  - Dorrenberg (2015)
-  - Sheremeta and Uler(2020)
+ 2. Research about perception towards the government and donation/tax payment.
+  
+
+## Research about tax price elasticity of charitable donations
+
+Papers in this strand examines the price and income elasticity of charitable donations using the tax deduction applied for donation.
+The estimated price elasticities vary, but the typical one is said as -1 (Andreoni and Payne, 2013).
+  
+  - Auten et al.(2002): -0.79~-1.26 (the U.S.)
+  - Fack and Landais(2010): -0.15~-0.57 (France)
+  - Bakija and Heim (2011): -0.61~-1.1 (the U.S.)
+  - Duquette (2016): -2.15~-5.01 (the U.S.)
+  - Almunia et al.(2020): -0.24~--1.5 (the U.K.)
+  
+The study in non-Western country, where the culture of donation may be different, is few.
+Thus, we firstly examine the elasticity of giving in Korea.
+
+## Research about perception towards the government and donation/tax payment.
+
+Experimental studies show that the giving behavior may be affected by perception towards the government.
+
+ - Li et al.(2011) suggest that governmental organizations collect less donation than private charities though they have the same mission and work.
+ - Sheremeta and Uler(2020) show that individuals provide public good reacting the wasteful spending of government.
+
+This may be because people with distrust in government think that
+
+ 1. the direct donation is more efficient than public service provision or
+ 2. people can directly allocate and control their funds by donation, unlike public service provision. 
+
+Thus, people having the different trust in the government would have different elasticities of giving.
 
 <!--
 ## Why Political Trust?
