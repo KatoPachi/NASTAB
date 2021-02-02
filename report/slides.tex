@@ -873,24 +873,24 @@ when we estimate the intensive-margin elasticity.
 \midrule
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{FE Model}}\\
-\hspace{1em}ln(giving price) & -0.485 & -2.901*** & -1.164*\\
-\hspace{1em} & (0.564) & (0.563) & (0.623)\\
-\hspace{1em}N & 4713 & 4489 & 4586\\
+\hspace{1em}ln(giving price) & -0.946* & -0.969* & -0.622\\
+\hspace{1em} & (0.540) & (0.575) & (0.673)\\
+\hspace{1em}N & 904 & 958 & 931\\
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{Panel IV (k = 1)}}\\
-\hspace{1em}ln(giving price) & -0.347 & -3.307*** & -1.242*\\
-\hspace{1em} & (0.639) & (0.602) & (0.656)\\
-\hspace{1em}N & 4337 & 4109 & 4190\\
+\hspace{1em}ln(giving price) & -1.408** & -0.687 & -0.396\\
+\hspace{1em} & (0.636) & (0.710) & (0.841)\\
+\hspace{1em}N & 847 & 898 & 881\\
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{Panel IV (k = 2)}}\\
-\hspace{1em}ln(giving price) & -0.617 & -3.314*** & -1.204*\\
-\hspace{1em} & (0.627) & (0.689) & (0.702)\\
-\hspace{1em}N & 4100 & 3839 & 3975\\
+\hspace{1em}ln(giving price) & -1.117* & -0.912 & -0.696\\
+\hspace{1em} & (0.651) & (0.657) & (0.787)\\
+\hspace{1em}N & 812 & 850 & 844\\
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{Panel IV (k = 3)}}\\
-\hspace{1em}ln(giving price) & -0.230 & -2.536*** & -0.807\\
-\hspace{1em} & (0.684) & (0.673) & (0.691)\\
-\hspace{1em}N & 3947 & 3700 & 3832\\
+\hspace{1em}ln(giving price) & -0.640 & -0.611 & -0.327\\
+\hspace{1em} & (0.609) & (0.596) & (0.698)\\
+\hspace{1em}N & 777 & 819 & 816\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -919,7 +919,7 @@ Questionnaire of tax-welfare balance index is
 \includegraphics[width=0.5\textwidth,height=\textheight]{_assets/BalanceQuestion.jpg}
 
 To rule out government's policies, we use individual fixed effect as the
-\textbf{tax-welare size index}
+\textbf{efficient index}
 \end{frame}
 
 \begin{frame}{Histrogram of Efficient Index}
@@ -1025,31 +1025,202 @@ efficient index.
 \begin{itemize}
 \tightlist
 \item
-  What does the efficient index capture?
+  Efficient index may capture both government efficiency on concerns
+  about budget deficits
+
+  \begin{itemize}
+  \tightlist
+  \item
+    NASTAB asks respondents to answer the ideal balance b/w tax burdern
+    and welfare size.
+  \item
+    We constructed the \textbf{ideal} efficient index, using the FE
+    model to estimate the efficient index.
+  \item
+    We droped units with the ideal efficient index is less than 0 from
+    each quantile group and repeated the same excercise.
+  \item
+    This is because respondents whose the ideal efficient index is less
+    than 0 think governments should try to avoid budget deficits (high
+    tax, low welfare).
+  \end{itemize}
 \item
   Presidential transition effect on perceived efficiency
+
+  \begin{itemize}
+  \tightlist
+  \item
+    We constructed president-specific (ideal) efficient index and
+    implemented the pair-wise t-test.
+  \item
+    As a result, average difference of these two indexs are not
+    statistically siginificant zero.
+  \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Robustness Check 1: Estimation Results}
 \protect\hypertarget{robustness-check-1-estimation-results}{}
-Ongoing now\ldots{}
+\begin{table}
+
+\caption{\label{tab:kableEstimateElasticityByPositiveEfficientGroup3}Heterogenous Price Elasticity by Efficiency Using Units with Ideal Efficient Index > 0}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & 1Q & 2Q & 3Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Overall}}\\
+\hspace{1em}ln(giving price) & -1.996*** & -1.122* & -0.063\\
+\hspace{1em} & (0.648) & (0.597) & (0.488)\\
+\hspace{1em}N & 7527 & 6900 & \vphantom{1} 9339\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Intensive Margin}}\\
+\hspace{1em}ln(giving price) & -1.138* & -0.900 & -0.952\\
+\hspace{1em} & (0.640) & (0.652) & (0.741)\\
+\hspace{1em}N & 1541 & 1474 & 2023\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Extensive Margin}}\\
+\hspace{1em}ln(giving price) & -0.317** & -0.220 & 0.014\\
+\hspace{1em} & (0.136) & (0.137) & (0.119)\\
+\hspace{1em}Elasticity & -1.582** & -1.091 & 0.062\\
+\hspace{1em} & (0.681) & (0.679) & (0.537)\\
+\hspace{1em}N & 7527 & 6900 & 9339\\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{frame}
 
 \begin{frame}{Robustness Check 2}
 \protect\hypertarget{robustness-check-2-2}{}
+We check the following two potential concerns
+
 \begin{itemize}
 \tightlist
 \item
   Presidential transition effect on donation behavior
 \item
-  Simultaneous decision problem
+  Income and donations are determined simultaneously
 \end{itemize}
+
+To address these problems, we estimated the FE model and Panel IV model
+with FE where instrument is
+\(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) for \(k = 1, 2, 3\),
+using data in 2013 and 2014. Moreover, we droped units with the ideal
+efficient index \textless{} 0 from each quantile group.
+
+Note that f-statistics of IV is greater than 500 when we estimate
+overall elasticity and extensive-margin elasticity, and greater than 100
+when we estimate the intensive-margin elasticity.
 \end{frame}
 
-\begin{frame}{Robustness Check 2: Estimation Results}
-\protect\hypertarget{robustness-check-2-estimation-results}{}
-Ongoing now\ldots{}
+\begin{frame}{Robustness Check 2: Result}
+\protect\hypertarget{robustness-check-2-result-2}{}
+\begin{table}
+
+\caption{\label{tab:tabShortEstimateElasticityByEfficientGroup3}Robustness Check of Heterogenous Price Elasiticity by Government Efficiency}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & 1Q & 2Q & 3Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{FE Model}}\\
+\hspace{1em}ln(giving price) & -1.989** & -1.047 & -1.881**\\
+\hspace{1em} & (0.913) & (1.078) & (0.835)\\
+\hspace{1em}N & 2021 & 1841 & 2504\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 1)}}\\
+\hspace{1em}ln(giving price) & -1.881* & -1.093 & -2.189**\\
+\hspace{1em} & (0.992) & (1.272) & (0.851)\\
+\hspace{1em}N & 1842 & 1689 & 2292\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 2)}}\\
+\hspace{1em}ln(giving price) & -1.958* & -1.594 & -1.684\\
+\hspace{1em} & (1.101) & (1.212) & (1.024)\\
+\hspace{1em}N & 1723 & 1582 & 2174\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 3)}}\\
+\hspace{1em}ln(giving price) & -1.608 & -0.317 & -1.544\\
+\hspace{1em} & (1.079) & (1.219) & (0.999)\\
+\hspace{1em}N & 1645 & 1529 & 2096\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Result (Extensive Margin)}
+\protect\hypertarget{robustness-check-2-result-extensive-margin-1}{}
+\begin{table}
+
+\caption{\label{tab:tabShortEstimateElasticityExtensiveByEfficientGroup3}Robustness Check of Heterogenous Extensive-Margin Price Elasiticity by Government Efficiency}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & 1Q & 2Q & 3Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{FE Model}}\\
+\hspace{1em}Implied Elasticity & -1.558 & -0.649 & -2.453**\\
+\hspace{1em} & (1.119) & (1.326) & (1.147)\\
+\hspace{1em}N & 2021 & 1841 & 2504\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 1)}}\\
+\hspace{1em}Implied Elasticity & -1.345 & -0.517 & -2.934**\\
+\hspace{1em} & (1.255) & (1.612) & (1.180)\\
+\hspace{1em}N & 1842 & 1689 & 2292\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 2)}}\\
+\hspace{1em}Implied Elasticity & -1.396 & -1.557 & -1.998\\
+\hspace{1em} & (1.264) & (1.486) & (1.439)\\
+\hspace{1em}N & 1723 & 1582 & 2174\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 3)}}\\
+\hspace{1em}Implied Elasticity & -1.056 & -0.460 & -1.795\\
+\hspace{1em} & (1.262) & (1.477) & (1.355)\\
+\hspace{1em}N & 1645 & 1529 & 2096\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Result (Intensive Margin)}
+\protect\hypertarget{robustness-check-2-result-intensive-margin-1}{}
+\begin{table}
+
+\caption{\label{tab:tabShortEstimateElasticityIntensiveByEfficientGroup3}Robustness Check of Heterogenous Intenstive-Margin Price Elasiticity by Government Efficiency}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & 1Q & 2Q & 3Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{FE Model}}\\
+\hspace{1em}ln(giving price) & -0.753 & -2.301* & -1.362\\
+\hspace{1em} & (0.848) & (1.310) & (0.956)\\
+\hspace{1em}N & 404 & 361 & 479\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 1)}}\\
+\hspace{1em}ln(giving price) & -0.749 & -3.220* & -1.471\\
+\hspace{1em} & (1.088) & (1.812) & (1.013)\\
+\hspace{1em}N & 380 & 340 & 449\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 2)}}\\
+\hspace{1em}ln(giving price) & -0.770 & -1.216 & -0.771\\
+\hspace{1em} & (0.997) & (1.504) & (0.966)\\
+\hspace{1em}N & 357 & 322 & 433\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 3)}}\\
+\hspace{1em}ln(giving price) & 0.573 & -0.691 & -1.472\\
+\hspace{1em} & (1.117) & (1.088) & (0.991)\\
+\hspace{1em}N & 337 & 307 & 414\\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{frame}
 
 \end{document}
