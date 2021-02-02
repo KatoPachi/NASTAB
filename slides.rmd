@@ -101,6 +101,20 @@ replace benefit_group = 1 if credit_benefit == 1
 replace benefit_group = 2 if credit_neutral == 1
 replace benefit_group = 3 if credit_loss == 1
 
+gen now_balance = 0
+replace now_balance = 2 if avg_welfare_tax == 1
+replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
+replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
+replace now_balance = -2 if avg_welfare_tax == 9
+replace now_balance = . if missing(avg_welfare_tax)
+
+gen ideal_balance = 0 
+replace ideal_balance = 2 if opt_welfare_tax == 1
+replace ideal_balance = 1 if opt_welfare_tax == 2 | opt_welfare_tax == 4
+replace ideal_balance = -1 if opt_welfare_tax == 6 | opt_welfare_tax == 8
+replace ideal_balance = -2 if opt_welfare_tax == 9
+replace ideal_balance = . if missing(opt_welfare_tax) 
+
 ** ---- LagOperation
 tsset pid year
 
@@ -114,29 +128,6 @@ forvalues k = 1(1)3 {
 }
 
 keep if year >= 2012
-
-** ---- ConstructTaxBalance
-gen now_welfare = 1
-replace now_welfare = 2 if avg_welfare_tax < 3 & avg_welfare_tax <= 6
-replace now_welfare = 3 if avg_welfare_tax <= 3
-replace now_welfare = . if missing(avg_welfare_tax)
-
-gen now_tax = 1
-replace now_tax = 2 if avg_welfare_tax == 2 | avg_welfare_tax == 5 | avg_welfare_tax == 8
-replace now_tax = 3 if avg_welfare_tax == 3 | avg_welfare_tax == 6 | avg_welfare_tax == 9
-replace now_tax = . if missing(avg_welfare_tax)
-
-gen now_balance = 0
-replace now_balance = 2 if avg_welfare_tax == 1
-replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
-replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
-replace now_balance = -2 if avg_welfare_tax == 9
-replace now_balance = . if missing(avg_welfare_tax)
-
-gen now_balance3 = 0
-replace now_balance3 = 1 if now_balance > 0
-replace now_balance3 = -1 if now_balance < 0
-replace now_balance3 = . if missing(now_balance)
 ```
 
 ## Time Series of Chariable Giving
@@ -1569,7 +1560,7 @@ knitr::include_graphics(paste(here(), "_assets/SummaryOutcomeExtensiveByTrustGro
 knitr::include_graphics(paste(here(), "_assets/SummaryOutcomeIntensiveByTrustGroup.pdf", sep= "/"))
 ```
 
-## Trust Groups: Result
+## Trust Groups: Estimation Result
 
 ```{r shapeEstimateElasticityByTrustGroup3}
 tabset <- list(
@@ -1931,7 +1922,8 @@ Questionnaire of tax-welfare balance index is
 
 To rule out government's policies, we use individual fixed effect as the **tax-welare size index**
 
-```{stata EstimateTaxBalanceIndex, results = "hide", eval = FALSE}
+```{stata EstimateTaxBalanceIndex, results = "hide"}
+* current efficient index
 xtreg now_balance i.year##i.living_area if year >= 2015, fe
 predict orgbalanceid, u
 
@@ -1941,6 +1933,15 @@ predict orgparkbalanceid, u
 xtreg now_balance i.year##i.living_area if year == 2017 | year == 2018, fe
 predict orgmoonbalanceid, u
 
+* ideal efficient index 
+xtreg ideal_balance i.year##i.living_area if year >= 2015, fe
+predict ideal_orgbalanceid, u
+
+xtreg ideal_balance i.year##i.living_area if year == 2015 | year == 2016, fe
+predict ideal_orgparkbalanceid, u
+
+xtreg ideal_balance i.year##i.living_area if year == 2017 | year == 2018, fe
+predict ideal_orgmoonbalanceid, u
 
 
 * make trustid dataset
@@ -1949,20 +1950,26 @@ frame balancedt: {
 	bysort pid: egen balanceid = mean(orgbalanceid)
 	bysort pid: egen park_balanceid = mean(orgparkbalanceid) 
 	bysort pid: egen moon_balanceid = mean(orgmoonbalanceid)
+	bysort pid: egen ideal_balanceid = mean(ideal_orgbalanceid)
+	bysort pid: egen ideal_park_balanceid = mean(ideal_orgparkbalanceid)
+	bysort pid: egen ideal_moon_balanceid = mean(ideal_orgmoonbalanceid)
 }
-frame balancedt: keep pid balanceid park_balanceid moon_balanceid
+frame balancedt: keep pid balanceid park_balanceid moon_balanceid ideal_balanceid ideal_park_balanceid ideal_moon_balanceid
 frame balancedt: duplicates drop
-frame balancedt: gen diff_balance = moon_balanceid - park_balanceid
-frame balancedt: xtile balance5 = balanceid, nq(5) 
-frame balancedt: xtile park_balance5 = park_balanceid, nq(5)
-frame balancedt: xtile balance3 = balanceid, nq(3) 
-frame balancedt: xtile park_balance3 = park_balanceid, nq(3)
-frame balancedt: {
+frame balancedt {
+	gen diff_balance = moon_balanceid - park_balanceid
+	
+	xtile balance5 = balanceid, nq(5)
+	xtile park_balance5 = park_balanceid, nq(5)
+	xtile balance4 = balanceid, nq(4)
+	xtile park_balance4 = park_balanceid, nq(4)
+	xtile balance3 = balanceid, nq(3)
+	xtile park_balance3 = park_balanceid, nq(3)
+	
 	gen lessdiff1_balance = 0
 	replace lessdiff1_balance = 1 if abs(diff_balance) < 1
 	replace lessdiff1_balance = . if missing(diff_balance)
-}
-frame balancedt: {
+	
 	gen lessdiffhalf_balance = 0
 	replace lessdiffhalf_balance = 1 if abs(diff_balance) < 0.5
 	replace lessdiffhalf_balance = . if missing(diff_balance)
@@ -1997,121 +2004,73 @@ To see the heterogenous price elasticity by efficient index,
 We estimated the baseline regression model (5) (see Table \ref{tab:kableEstimateElasticity}),
 using sample grouped by the efficient index.
 
-- Five quantile groups: we divide units $i$ into the first, second, third, fourth, and fifth quantile of efficient index (1Q, 2Q, 3Q, 4Q, and 5Q, respectively).
 - Three quantile groups: we divide units $i$ into the first, second, and third quantile of efficient index (1Q, 2Q, and 3Q, respectively).
 
-```{stata EstimateElasticityByEfficientGroup, results = "hide", eval = FALSE}
+```{stata SummaryOutcomeByBenefitEfficientGroup, results = "hide", eval = FALSE}
 merge m:1 pid using "data\shape\balanceid.dta"
 drop _merge
 
-forvalues i = 1(1)5 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance5 == `i', fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
+frame copy default plotdt
+frame plotdt {
+	by year benefit_group balance3, sort: egen meang = mean(i_total_giving)
+	by year benefit_group balance3, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
+	by year benefit_group balance3, sort: egen meanext = mean(i_ext_giving)
+}
+frame plotdt {
+	keep year benefit_group balance3 meang meanint meanext
+	duplicates drop
+	keep if !missing(benefit_group) & !missing(balance3) & !missing(meanint)
 }
 
-mat list tabular
+frame plotdt {
+	twoway ///
+	(connect meang year if benefit_group == 1 & balance3 == 1, msymbol(O) color(black))  ///
+	(connect meang year if benefit_group == 3 & balance3 == 1, msymbol(T) color(black))  ///
+	(connect meang year if benefit_group == 1 & balance3 == 3, msymbol(O) color(black) lpattern(-))  ///
+	(connect meang year if benefit_group == 3 & balance3 == 3, msymbol(T) color(black) lpattern(-)), ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlab(2012(1)2018) xtitle("Year") ///
+	ytitle("Average Donations")  ///
+	legend(label(1 "Income {&lt} 1200 (1Q of efficent index)") label(2 "Income {&ge} 4600 (1Q of efficient index)") ///
+		label(3 "Income {&lt} 1200 (3Q of efficent index)") label(4 "Income {&ge} 4600 (3Q of efficient index)") size(small) cols(1)) ///
+	graphregion(fcolor(white%100))
 
-xsvmat tabular, saving(_assets/EstimateElasticityByEfficientGroup.dta, replace) rownames(xvar) names(col)
-```
+	graph export "_assets/SummaryOutcomeByEfficientGroup3.pdf", replace
+}
+frame plotdt {
+	twoway ///
+	(connect meanint year if benefit_group == 1 & balance3 == 1, msymbol(O) color(black))  ///
+	(connect meanint year if benefit_group == 3 & balance3 == 1, msymbol(T) color(black))  ///
+	(connect meanint year if benefit_group == 1 & balance3 == 3, msymbol(O) color(black) lpattern(-))  ///
+	(connect meanint year if benefit_group == 3 & balance3 == 3, msymbol(T) color(black) lpattern(-)), ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlab(2012(1)2018) xtitle("Year") ///
+	ytitle("Average Donations")  ///
+	legend(label(1 "Income {&lt} 1200 (1Q of efficent index)") label(2 "Income {&ge} 4600 (1Q of efficient index)") ///
+		label(3 "Income {&lt} 1200 (3Q of efficent index)") label(4 "Income {&ge} 4600 (3Q of efficient index)") size(small) cols(1)) ///
+	graphregion(fcolor(white%100))
 
-```{stata EstimateElasticityExtensiveByEfficientGroup, results = "hide", eval = FALSE}
-merge m:1 pid using "data\shape\balanceid.dta"
-drop _merge
+	graph export "_assets/SummaryOutcomeIntensiveByEfficientGroup3.pdf", replace
+}
+frame plotdt {
+	twoway ///
+	(connect meanext year if benefit_group == 1 & balance3 == 1, msymbol(O) color(black))  ///
+	(connect meanext year if benefit_group == 3 & balance3 == 1, msymbol(T) color(black))  ///
+	(connect meanext year if benefit_group == 1 & balance3 == 3, msymbol(O) color(black) lpattern(-))  ///
+	(connect meanext year if benefit_group == 3 & balance3 == 3, msymbol(T) color(black) lpattern(-)), ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlab(2012(1)2018) xtitle("Year") ///
+	ytitle("Average Donations")  ///
+	legend(label(1 "Income {&lt} 1200 (1Q of efficent index)") label(2 "Income {&ge} 4600 (1Q of efficient index)") ///
+		label(3 "Income {&lt} 1200 (3Q of efficent index)") label(4 "Income {&ge} 4600 (3Q of efficient index)") size(small) cols(1)) ///
+	graphregion(fcolor(white%100))
 
-forvalues i = 1(1)5 {
-    
-	* subgroup regression
-	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance5 == `i', fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	
-	* proportion of donors
-	summarize i_ext_giving if balance5 == `i'
-	local mu = r(mean)
-
-	* implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`i'
-	mat rownames elas = e_b e_se e_pval
-	
-	* regression result for original5 == i
-	mat_rapp model`i' : coef elas
-	mat_rapp model`i' : model`i' stat
-	mat model`i' = model`i''
-	
-	* combined with previous results
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
+	graph export "_assets/SummaryOutcomeExtensiveByEfficientGroup3.pdf", replace
 }
 
-mat list tabular
-xsvmat tabular, saving(_assets/EstimateElasticityExtensiveByEfficientGroup.dta, replace) rownames(xvar) names(col)
+frame drop plotdt
+
 ```
-
-```{stata EstimateElasticityIntensiveByEfficientGroup, results = "hide", eval = FALSE}
-merge m:1 pid using "data\shape\balanceid.dta"
-drop _merge
-
-forvalues i = 1(1)5 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance5 == `i' & i_ext_giving == 1, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
-
-mat list tabular
-
-xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByEfficientGroup.dta, replace) rownames(xvar) names(col)
-```
-
 
 ```{stata EstimateElasticityByEfficientGroup3, results = "hide", eval = FALSE}
 merge m:1 pid using "data\shape\balanceid.dta"
@@ -2225,73 +2184,25 @@ mat list tabular
 xsvmat tabular, saving(_assets/EstimateElasticityIntensiveByEfficientGroup3.dta, replace) rownames(xvar) names(col)
 ```
 
-## Five Quantile Groups: Result
-```{r shapeEstimateElasticityByEfficientGroup}
-tabset <- list(
-	overall = read.dta13("_assets/EstimateElasticityByEfficientGroup.dta") %>% data.frame(),
-	intensive = read.dta13("_assets/EstimateElasticityIntensiveByEfficientGroup.dta") %>% data.frame(),
-	extensive = read.dta13("_assets/EstimateElasticityExtensiveByEfficientGroup.dta") %>% data.frame()
-)
+## Efficient Groups: Descriptive Stats
 
-coeftab <- tabset %>% 
-	purrr::map(function(x)
-		x %>% 
-		select(xvar, b, se, pvalue, N) %>% 
-		mutate(
-			b = case_when(
-				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-				TRUE ~ sprintf("%1.3f", b)
-			),
-			se = sprintf("(%1.3f)", se),
-			N = sprintf("%1d", as.integer(N))
-		) %>% 
-		select(xvar, b, se, N) %>% 
-		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-		pivot_wider(values_from = "value", names_from = "xvar") %>% 
-		select(-stat) %>% 
-		cbind(xvar = c("ln(giving price)", "", "N"), .)
-	) %>% 
-	reduce(rbind)
-
-elastab <- tabset$extensive %>% 
-	mutate(
-		e_b = case_when(
-			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
-			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
-			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
-			TRUE ~ sprintf("%1.3f", e_b)
-		),
-		e_se = sprintf("(%1.3f)", e_se)
-	) %>% 
-	select(xvar, e_b, e_se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Elasticity", ""), .)
-
-tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
+```{r, include = TRUE, out.width="90%", fig.cap="Time Series of Average Donations by Subgroup"}
+knitr::include_graphics(paste(here(), "_assets/SummaryOutcomeByEfficientGroup3.pdf", sep= "/"))
 ```
 
+## Efficient Groups: Descriptive Statis (Extensive Margin)
 
-```{r kableEstimateElasticityByEfficientGroup, include = TRUE}
-knitr::kable(
-    tab,
-    format = "latex",
-    caption = "Subgroup Regressions",
-    col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
-    row.names = FALSE,
-    align = "lccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 8) %>% 
-pack_rows("Overall", 1, 3) %>% 
-pack_rows("Intensive Margin", 4, 6) %>% 
-pack_rows("Extensive Margin", 7, 11)
+```{r, include = TRUE, out.width="90%", fig.cap="Time Series of Proportion of Donors by Subgroup"}
+knitr::include_graphics(paste(here(), "_assets/SummaryOutcomeExtensiveByEfficientGroup3.pdf", sep= "/"))
 ```
 
-## Three Quantile Groups: Result
+## Efficient Groups: Descriptive Stats (Intensive Margin)
+
+```{r, include = TRUE, out.width="90%", fig.cap="Time Series of Average Donations among Donors by Subgroup"}
+knitr::include_graphics(paste(here(), "_assets/SummaryOutcomeIntensiveByEfficientGroup3.pdf", sep= "/"))
+```
+
+## Efficient Groups: Estimation Results
 
 ```{r shapeEstimateElasticityByEfficientGroup3}
 tabset <- list(
@@ -2341,7 +2252,6 @@ elastab <- tabset$extensive %>%
 tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
 ```
 
-
 ```{r kableEstimateElasticityByEfficientGroup3, include = TRUE}
 knitr::kable(
     tab,
@@ -2367,3 +2277,396 @@ pack_rows("Extensive Margin", 7, 11)
 1. Last price elasticity
 1. Self-selection of receiving tax benefit
 1. Transitory and permanent elasticity
+
+## Robustness Check 1
+
+- What does the efficient index capture?
+- Presidential transition effect on perceived efficiency
+
+```{stata tTestPresidentEfficientIndex, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+frame copy default tdt 
+frame tdt {
+	keep pid moon_balanceid park_balanceid ideal_moon_balanceid ideal_park_balanceid
+	duplicates drop
+}
+
+frame tdt: ttest moon_balanceid == park_balanceid
+mat test1 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
+mat colnames test1 = current
+mat rownames test1 = diff se pval
+
+frame tdt: ttest ideal_moon_balanceid == ideal_park_balanceid
+mat test2 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
+mat colnames test2 = ideal
+mat rownames test2 = diff se pval
+
+mat_capp tabular : test1 test2
+
+mat list tabular
+frame drop tdt
+
+xsvmat tabular, saving(_assets/tTestPresidentEfficientid.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata EstimateElasticityByPositiveEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/ElasticityByPositiveEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata EstimateElasticityExtensiveByPositiveEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if balance3 == `i'
+	local mu = r(mean)
+
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = model`i'
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp model`i' : coef elas
+	mat_rapp model`i' : model`i' stat
+	mat model`i' = model`i''
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+xsvmat tabular, saving(_assets/ElasticityExtensiveByPositiveEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+
+```{stata EstimateElasticityIntensiveByPositiveEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & i_ext_giving == 1 & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = model`i'
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = model`i'
+	mat rownames stat = N r2a
+	mat_rapp model`i' : coef stat
+	mat model`i' = model`i''
+	
+	if `i' == 1 {
+	    mat tabular = model`i'
+	}
+	else {
+	    mat_rapp tabular : tabular model`i'
+	}
+	
+}
+
+mat list tabular
+xsvmat tabular, saving(_assets/ElasticityIntensiveByPositiveEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+## Robustness Check 1: Estimation Results
+
+Ongoing now...
+
+## Robustness Check 2
+
+- Presidential transition effect on donation behavior 
+- Simultaneous decision problem
+
+
+```{stata ShortEstimateElasticityByEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & (year == 2013|year==2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = Q`i'k0
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = Q`i'k0
+	mat rownames stat = N r2a
+	mat_rapp Q`i'k0 : coef stat
+	mat Q`i'k0 = Q`i'k0'
+	
+	if `i' == 1 {
+	    mat tabular = Q`i'k0
+	}
+	else {
+	    mat_rapp tabular : tabular Q`i'k0
+	}
+	
+}
+
+forvalues i = 1(1)3 {
+    
+	forvalues k = 1(1)3 {
+    
+		di "lag = `k' with Group Q`i'"
+	
+		* first stage 
+		xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+			if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+		* result of first stage
+		mat fstage = r(table)["b".."pvalue","diff`k'p"]
+		mat fstage = fstage[1,1] \ fstage[3,1]^2
+		mat colnames fstage = Q`i'k`k'
+		mat rownames fstage = ivcoef ivf
+	
+		* second stage
+		xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+			(log_price = diff`k'p) if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+		* result of second stage
+		mat coef = r(table)["b".."pvalue","log_price"]
+		mat colnames coef = Q`i'k`k'
+		mat stat = e(N) \ e(r2_w)
+		mat colnames stat = Q`i'k`k'
+		mat rownames stat = N r2w
+		mat_rapp Q`i'k`k' : coef stat
+	
+		* combined with first stage result
+		mat_rapp Q`i'k`k' : Q`i'k`k' fstage
+		mat Q`i'k`k' = Q`i'k`k''
+		mat_rapp tabular : tabular Q`i'k`k', miss(.)
+		
+	}
+}
+
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/ShortElasticityByEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata ShortEstimateElasticityExtensiveByEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = Q`i'k0
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = Q`i'k0
+	mat rownames stat = N r2a
+	
+	* proportion of donors
+	summarize i_ext_giving if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0
+	local mu = r(mean)
+
+	* implied elasticity
+	lincom log_price*(1/`mu')
+	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas = Q`i'k0
+	mat rownames elas = e_b e_se e_pval
+	
+	* regression result for original5 == i
+	mat_rapp Q`i'k0 : coef elas
+	mat_rapp Q`i'k0 : Q`i'k0 stat
+	mat Q`i'k0 = Q`i'k0'
+	
+	* combined with previous results
+	if `i' == 1 {
+	    mat tabular = Q`i'k0
+	}
+	else {
+	    mat_rapp tabular : tabular Q`i'k0
+	}
+	
+}
+
+forvalues i = 1(1)3 {
+    
+	forvalues k = 1(1)3 {
+    
+		di "lag = `k' with group Q`i'"
+	
+		* first stage 
+		xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+			if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+		* result of first stage
+		mat fstage = r(table)["b".."pvalue","diff`k'p"]
+		mat fstage = fstage[1,1] \ fstage[3,1]^2
+		mat colnames fstage = Q`i'k`k'
+		mat rownames fstage = ivcoef ivf
+	
+		* second stage
+		xtivreg i_ext_giving log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+			(log_price = diff`k'p) if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+		* result of second stage
+		mat coef = r(table)["b".."pvalue","log_price"]
+		mat colnames coef = Q`i'k`k'
+		mat stat = e(N) \ e(r2_w)
+		mat colnames stat = Q`i'k`k'
+		mat rownames stat = N r2w
+	
+		*proportion of donors
+		summarize i_ext_giving if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0
+		local mu = r(mean)
+	
+		*implied elasticity
+		lincom log_price*(1/`mu')
+		mat elas = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+		mat colnames elas = Q`i'k`k'
+		mat rownames elas = e_b e_se e_pval
+	
+		* combined with first stage result
+		mat_rapp Q`i'k`k' : coef elas
+		mat_rapp Q`i'k`k' : Q`i'k`k' stat
+		mat_rapp Q`i'k`k' : Q`i'k`k' fstage
+		mat Q`i'k`k' = Q`i'k`k''
+		mat_rapp tabular : tabular Q`i'k`k', miss(.)
+	}
+	
+}
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/ShortElasticityExtensiveByEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata ShortEstimateElasticityIntensiveByEfficientGroup3, results = "hide", eval = FALSE}
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+forvalues i = 1(1)3 {
+    
+	* subgroup regression
+	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if balance3 == `i' & i_ext_giving == 1 & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price"]
+	mat colnames coef = Q`i'k0
+	mat stat = e(N) \ e(r2_a)
+	mat colnames stat = Q`i'k0
+	mat rownames stat = N r2a
+	mat_rapp Q`i'k0 : coef stat
+	mat Q`i'k0 = Q`i'k0'
+	
+	if `i' == 1 {
+	    mat tabular = Q`i'k0
+	}
+	else {
+	    mat_rapp tabular : tabular Q`i'k0
+	}
+	
+}
+
+forvalues i = 1(1)3 {
+    
+	forvalues k = 1(1)3 {
+    
+		di "lag = `k' with group Q`k'"
+	
+		* first stage 
+		xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+			if balance3 == `i' & i_ext_giving == 1 & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+		* result of first stage
+		mat fstage = r(table)["b".."pvalue","diff`k'p"]
+		mat fstage = fstage[1,1] \ fstage[3,1]^2
+		mat colnames fstage = Q`i'k`k'
+		mat rownames fstage = ivcoef ivf
+	
+		* second stage
+		xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+			(log_price = diff`k'p) ///
+			if balance3 == `i' & i_ext_giving == 1 & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	
+		* result of second stage
+		mat coef = r(table)["b".."pvalue","log_price"]
+		mat colnames coef = Q`i'k`k'
+		mat stat = e(N) \ e(r2_w)
+		mat colnames stat = Q`i'k`k'
+		mat rownames stat = N r2w
+		mat_rapp Q`i'k`k' : coef stat
+	
+		* combined with first stage result
+		mat_rapp Q`i'k`k' : Q`i'k`k' fstage
+		mat Q`i'k`k' = Q`i'k`k''
+		mat_rapp tabular : tabular Q`i'k`k', miss(.)
+	}
+	
+}
+
+mat list tabular
+
+xsvmat tabular, saving(_assets/ShortElasticityIntensiveByEfficientGroup3.dta, replace) rownames(xvar) names(col)
+```
+
+## Robustness Check 2: Estimation Results
+
+Ongoing now...
