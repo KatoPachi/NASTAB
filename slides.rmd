@@ -659,6 +659,13 @@ pack_rows("Intensive Margin", 1, 3) %>%
 pack_rows("Extensive Margin", 4, 6)
 ```
 
+## Robustness Check
+
+1. Income and donations are determined simultaneously
+1. Effect of presidential transition on donation behavior
+1. Last price elasticity
+1. Self-selection of receiving tax benefit
+1. Transitory and permanent elasticity
 
 ## Robustness Check 1
 
@@ -1363,7 +1370,7 @@ mat list tabular
 xsvmat tabular, saving(_assets/EstimateElasticityExtensiveByTrustGroup.dta, replace) rownames(xvar) names(col)
 ```
 
-```{stata EstimateElasticityIntensiveByTrustGroup, results = "hide"}
+```{stata EstimateElasticityIntensiveByTrustGroup, results = "hide", eval = FALSE}
 merge m:1 pid using "data\shape\trustid.dta"
 drop _merge
 
@@ -1564,7 +1571,7 @@ tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
 
 ```{r kableEstimateElasticityByTrustGroup, include = TRUE}
 knitr::kable(
-    tab[1:3,],
+    tab,
     format = "latex",
     caption = "Subgroup Regressions",
     col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
@@ -1572,24 +1579,10 @@ knitr::kable(
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 9)
-```
-
-## Five Quantile Groups: Intensive and Extensive Margin
-
-```{r kableEstimateElasticityIntExtByTrustGroup, include = TRUE}
-knitr::kable(
-    tab[4:11,],
-    format = "latex",
-    caption = "Subgroup Regressions",
-    col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
-    row.names = FALSE,
-    align = "lccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9) %>% 
-pack_rows("Intensive Margin", 1, 3) %>% 
-pack_rows("Extensive Margin", 4, 8)
+kable_styling(font_size = 8) %>% 
+pack_rows("Overall", 1, 3) %>% 
+pack_rows("Intensive Margin", 4, 6) %>% 
+pack_rows("Extensive Margin", 7, 11)
 ```
 
 ## Three Quantile Groups: Result
@@ -1642,10 +1635,9 @@ elastab <- tabset$extensive %>%
 tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
 ```
 
-
-```{r kableEstimateElasticityByTrustGroup3, include = TRUE}
+```{r kableEstimateElasticityIntExtByTrustGroup3, include = TRUE}
 knitr::kable(
-    tab[1:3,],
+    tab,
     format = "latex",
     caption = "Price Elasticity by Three Quantile Trust Groups",
     col.names = c("", "1Q", "2Q", "3Q"),
@@ -1653,26 +1645,20 @@ knitr::kable(
     align = "lccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling()
+kable_styling(font_size = 8) %>% 
+pack_rows("Overall", 1, 3) %>% 
+pack_rows("Intensive Margin", 4, 6) %>% 
+pack_rows("Extensive Margin", 7, 11)
 ```
 
-## Three Quantile Groups: Intensive and Extensive Margin
+## Robustness Check
 
-```{r kableEstimateElasticityIntExtByTrustGroup3, include = TRUE}
-knitr::kable(
-    tab[4:11,],
-    format = "latex",
-    caption = "Intensive- and Extensive-Margin Price Elasticity by Three Quantile Trust Groups",
-    col.names = c("", "1Q", "2Q", "3Q"),
-    row.names = FALSE,
-    align = "lccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-pack_rows("Intensive Margin", 1, 3) %>% 
-pack_rows("Extensive Margin", 4, 8)
-```
-
+1. Effect of presidential transition on trust index
+1. Effect of presidential transition on donation behavior
+1. Income and donations are determined simultaneously
+1. Last price elasticity
+1. Self-selection of receiving tax benefit
+1. Transitory and permanent elasticity
 
 # Governement Efficient and Price Elasticity
 
@@ -1842,7 +1828,7 @@ mat list tabular
 xsvmat tabular, saving(_assets/EstimateElasticityExtensiveByEfficientGroup.dta, replace) rownames(xvar) names(col)
 ```
 
-```{stata EstimateElasticityIntensiveByEfficientGroup, results = "hide"}
+```{stata EstimateElasticityIntensiveByEfficientGroup, results = "hide", eval = FALSE}
 merge m:1 pid using "data\shape\balanceid.dta"
 drop _merge
 
@@ -2040,7 +2026,7 @@ tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
 
 ```{r kableEstimateElasticityByEfficientGroup, include = TRUE}
 knitr::kable(
-    tab[1:3,],
+    tab,
     format = "latex",
     caption = "Subgroup Regressions",
     col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
@@ -2048,24 +2034,10 @@ knitr::kable(
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 9)
-```
-
-## Five Quantile Groups: Intensive and Extensive Margin
-
-```{r kableEstimateElasticityIntExtByEfficientGroup, include = TRUE}
-knitr::kable(
-    tab[4:11,],
-    format = "latex",
-    caption = "Subgroup Regressions",
-    col.names = c("", "1Q", "2Q", "3Q", "4Q", "5Q"),
-    row.names = FALSE,
-    align = "lccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 9) %>% 
-pack_rows("Intensive Margin", 1, 3) %>% 
-pack_rows("Extensive Margin", 4, 8)
+kable_styling(font_size = 8) %>% 
+pack_rows("Overall", 1, 3) %>% 
+pack_rows("Intensive Margin", 4, 6) %>% 
+pack_rows("Extensive Margin", 7, 11)
 ```
 
 ## Three Quantile Groups: Result
@@ -2121,7 +2093,7 @@ tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
 
 ```{r kableEstimateElasticityByEfficientGroup3, include = TRUE}
 knitr::kable(
-    tab[1:3,],
+    tab,
     format = "latex",
     caption = "Price Elasticity by Three Quantile Efficient Groups",
     col.names = c("", "1Q", "2Q", "3Q"),
@@ -2129,22 +2101,18 @@ knitr::kable(
     align = "lccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling()
+kable_styling(font_size = 8) %>% 
+pack_rows("Overall", 1, 3) %>% 
+pack_rows("Intensive Margin", 4, 6) %>% 
+pack_rows("Extensive Margin", 7, 11)
 ```
 
-## Three Quantile Groups: Intensive and Extensive Margin
+## Robustness Check
 
-```{r kableEstimateElasticityIntExtByEfficientGroup3, include = TRUE}
-knitr::kable(
-    tab[4:11,],
-    format = "latex",
-    caption = "Intensive- and Extensive-Margin Price Elasticity by Three Quantile Efficient Groups",
-    col.names = c("", "1Q", "2Q", "3Q"),
-    row.names = FALSE,
-    align = "lccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-pack_rows("Intensive Margin", 1, 3) %>% 
-pack_rows("Extensive Margin", 4, 8)
-```
+1. Efficient index captures both government efficiency on concerns about budget deficits
+1. Effect of presidential transition on efficient index 
+1. Effect of presidential transition on donation behavior
+1. Income and donations are determined simultaneously
+1. Last price elasticity
+1. Self-selection of receiving tax benefit
+1. Transitory and permanent elasticity
