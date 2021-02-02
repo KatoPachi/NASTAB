@@ -654,50 +654,34 @@ index.
 \begin{itemize}
 \tightlist
 \item
-  Five quantile groups: we divide units \(i\) into the first, second,
-  third, fourth, and fifth quantile of trust index (1Q, 2Q, 3Q, 4Q, and
-  5Q, respectively).
-\item
   Three quantile groups: we divide units \(i\) into the first, second,
   and third quantile of trust index (1Q, 2Q, and 3Q, respectively).
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Five Quantile Groups: Result}
-\protect\hypertarget{five-quantile-groups-result}{}
-\begin{table}
-
-\caption{\label{tab:kableEstimateElasticityByTrustGroup}Subgroup Regressions}
-\centering
-\fontsize{8}{10}\selectfont
-\begin{tabular}[t]{lccccc}
-\toprule
- & 1Q & 2Q & 3Q & 4Q & 5Q\\
-\midrule
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Overall}}\\
-\hspace{1em}ln(giving price) & -0.673 & -0.452 & -1.707*** & -1.130** & -1.397**\\
-\hspace{1em} & (0.557) & (0.462) & (0.479) & (0.524) & (0.563)\\
-\hspace{1em}N & 10250 & 10532 & 10286 & 10558 & \vphantom{1} 9680\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Intensive Margin}}\\
-\hspace{1em}ln(giving price) & -0.792 & -1.118** & -0.531 & -0.806 & -0.122\\
-\hspace{1em} & (0.624) & (0.463) & (0.463) & (0.577) & (0.626)\\
-\hspace{1em}N & 1968 & 2326 & 2445 & 2517 & 2136\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Extensive Margin}}\\
-\hspace{1em}ln(giving price) & -0.203* & -0.061 & -0.394*** & -0.146 & -0.359***\\
-\hspace{1em} & (0.122) & (0.105) & (0.113) & (0.114) & (0.128)\\
-\hspace{1em}Elasticity & -1.113* & -0.294 & -1.755*** & -0.659 & -1.780***\\
-\hspace{1em} & (0.672) & (0.502) & (0.504) & (0.516) & (0.635)\\
-\hspace{1em}N & 10250 & 10532 & 10286 & 10558 & 9680\\
-\bottomrule
-\end{tabular}
-\end{table}
+\begin{frame}{Trust Groups: Descriptive Stats}
+\protect\hypertarget{trust-groups-descriptive-stats}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeByTrustGroup} \caption{Time Series of Average Donations by Subgroup}\label{fig:unnamed-chunk-7}
+\end{figure}
 \end{frame}
 
-\begin{frame}{Three Quantile Groups: Result}
-\protect\hypertarget{three-quantile-groups-result}{}
+\begin{frame}{Trust Groups: Descriptive Statis (Extensive Margin)}
+\protect\hypertarget{trust-groups-descriptive-statis-extensive-margin}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeExtensiveByTrustGroup} \caption{Time Series of Proportion of Donors by Subgroup}\label{fig:unnamed-chunk-8}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Trust Groups: Descriptive Stats (Intensive Margin)}
+\protect\hypertarget{trust-groups-descriptive-stats-intensive-margin}{}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeIntensiveByTrustGroup} \caption{Time Series of Average Donations among Donors by Subgroup}\label{fig:unnamed-chunk-9}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Trust Groups: Result}
+\protect\hypertarget{trust-groups-result}{}
 \begin{table}
 
 \caption{\label{tab:kableEstimateElasticityIntExtByTrustGroup3}Price Elasticity by Three Quantile Trust Groups}
@@ -748,6 +732,28 @@ index.
 \end{enumerate}
 \end{frame}
 
+\begin{frame}{Robustness Check 1: Presidential Transition Effect on
+Trust}
+\protect\hypertarget{robustness-check-1-presidential-transition-effect-on-trust}{}
+Ongoing now\ldots.
+\end{frame}
+
+\begin{frame}{Robustness Check 2}
+\protect\hypertarget{robustness-check-2-1}{}
+\begin{itemize}
+\tightlist
+\item
+  Presidential transition effect on donation behavior
+\item
+  Simultaneous decision problem
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Result}
+\protect\hypertarget{robustness-check-2-result-1}{}
+Ongoing now\ldots{}
+\end{frame}
+
 \hypertarget{governement-efficient-and-price-elasticity}{%
 \section{Governement Efficient and Price
 Elasticity}\label{governement-efficient-and-price-elasticity}}
@@ -777,7 +783,7 @@ To rule out government's policies, we use individual fixed effect as the
 \begin{frame}{Histrogram of Efficient Index}
 \protect\hypertarget{histrogram-of-efficient-index}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramBalanceid} \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-7}
+\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramBalanceid} \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-10}
 \end{figure}
 \end{frame}
 
@@ -801,7 +807,7 @@ efficient index.
 \end{frame}
 
 \begin{frame}{Five Quantile Groups: Result}
-\protect\hypertarget{five-quantile-groups-result-1}{}
+\protect\hypertarget{five-quantile-groups-result}{}
 \begin{table}
 
 \caption{\label{tab:kableEstimateElasticityByEfficientGroup}Subgroup Regressions}
@@ -834,7 +840,7 @@ efficient index.
 \end{frame}
 
 \begin{frame}{Three Quantile Groups: Result}
-\protect\hypertarget{three-quantile-groups-result-1}{}
+\protect\hypertarget{three-quantile-groups-result}{}
 \begin{table}
 
 \caption{\label{tab:kableEstimateElasticityByEfficientGroup3}Price Elasticity by Three Quantile Efficient Groups}
