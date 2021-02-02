@@ -111,7 +111,7 @@
 \title{Charitable Giving, Tax Reform, and Political Trust}
 \author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
 Kim\(^3\)}
-\date{2021/01/31}
+\date{2021/02/02}
 \institute{\(^1\)Osaka University \and \(^2\)Chiba
 University \and \(^3\)Kobe University}
 
@@ -426,6 +426,23 @@ Covariates in each column corresponds to a column in a previous slide.
 \end{table}
 \end{frame}
 
+\begin{frame}{Robustness Check}
+\protect\hypertarget{robustness-check}{}
+\begin{enumerate}
+\tightlist
+\item
+  Income and donations are determined simultaneously
+\item
+  Effect of presidential transition on donation behavior
+\item
+  Last price elasticity
+\item
+  Self-selection of receiving tax benefit
+\item
+  Transitory and permanent elasticity
+\end{enumerate}
+\end{frame}
+
 \begin{frame}{Robustness Check 1}
 \protect\hypertarget{robustness-check-1}{}
 First potential concern: Income and donations are determined
@@ -631,30 +648,16 @@ index.
 
 \caption{\label{tab:kableEstimateElasticityByTrustGroup}Subgroup Regressions}
 \centering
-\fontsize{9}{11}\selectfont
+\fontsize{8}{10}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
  & 1Q & 2Q & 3Q & 4Q & 5Q\\
 \midrule
-ln(giving price) & -0.673 & -0.452 & -1.707*** & -1.130** & -1.397**\\
- & (0.557) & (0.462) & (0.479) & (0.524) & (0.563)\\
-N & 10250 & 10532 & 10286 & 10558 & 9680\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Five Quantile Groups: Intensive and Extensive Margin}
-\protect\hypertarget{five-quantile-groups-intensive-and-extensive-margin}{}
-\begin{table}
-
-\caption{\label{tab:kableEstimateElasticityIntExtByTrustGroup}Subgroup Regressions}
-\centering
-\fontsize{9}{11}\selectfont
-\begin{tabular}[t]{lccccc}
-\toprule
- & 1Q & 2Q & 3Q & 4Q & 5Q\\
-\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Overall}}\\
+\hspace{1em}ln(giving price) & -0.673 & -0.452 & -1.707*** & -1.130** & -1.397**\\
+\hspace{1em} & (0.557) & (0.462) & (0.479) & (0.524) & (0.563)\\
+\hspace{1em}N & 10250 & 10532 & 10286 & 10558 & \vphantom{1} 9680\\
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{Intensive Margin}}\\
 \hspace{1em}ln(giving price) & -0.792 & -1.118** & -0.531 & -0.806 & -0.122\\
@@ -676,30 +679,18 @@ N & 10250 & 10532 & 10286 & 10558 & 9680\\
 \protect\hypertarget{three-quantile-groups-result}{}
 \begin{table}
 
-\caption{\label{tab:kableEstimateElasticityByTrustGroup3}Price Elasticity by Three Quantile Trust Groups}
+\caption{\label{tab:kableEstimateElasticityIntExtByTrustGroup3}Price Elasticity by Three Quantile Trust Groups}
 \centering
+\fontsize{8}{10}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
  & 1Q & 2Q & 3Q\\
 \midrule
-ln(giving price) & -0.496 & -1.635*** & -1.157***\\
- & (0.398) & (0.391) & (0.410)\\
-N & 17421 & 16810 & 17075\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Three Quantile Groups: Intensive and Extensive Margin}
-\protect\hypertarget{three-quantile-groups-intensive-and-extensive-margin}{}
-\begin{table}
-
-\caption{\label{tab:kableEstimateElasticityIntExtByTrustGroup3}Intensive- and Extensive-Margin Price Elasticity by Three Quantile Trust Groups}
-\centering
-\begin{tabular}[t]{lccc}
-\toprule
- & 1Q & 2Q & 3Q\\
-\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Overall}}\\
+\hspace{1em}ln(giving price) & -0.496 & -1.635*** & -1.157***\\
+\hspace{1em} & (0.398) & (0.391) & (0.410)\\
+\hspace{1em}N & 17421 & 16810 & \vphantom{1} 17075\\
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{Intensive Margin}}\\
 \hspace{1em}ln(giving price) & -0.997** & -0.980** & -0.208\\
@@ -715,6 +706,25 @@ N & 17421 & 16810 & 17075\\
 \bottomrule
 \end{tabular}
 \end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check}
+\protect\hypertarget{robustness-check-2}{}
+\begin{enumerate}
+\tightlist
+\item
+  Effect of presidential transition on trust index
+\item
+  Effect of presidential transition on donation behavior
+\item
+  Income and donations are determined simultaneously
+\item
+  Last price elasticity
+\item
+  Self-selection of receiving tax benefit
+\item
+  Transitory and permanent elasticity
+\end{enumerate}
 \end{frame}
 
 \hypertarget{governement-efficient-and-price-elasticity}{%
@@ -775,30 +785,16 @@ efficient index.
 
 \caption{\label{tab:kableEstimateElasticityByEfficientGroup}Subgroup Regressions}
 \centering
-\fontsize{9}{11}\selectfont
+\fontsize{8}{10}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
  & 1Q & 2Q & 3Q & 4Q & 5Q\\
 \midrule
-ln(giving price) & -1.281*** & -0.773 & -1.429*** & -1.021** & -0.739\\
- & (0.492) & (0.495) & (0.543) & (0.494) & (0.544)\\
-N & 9795 & 11369 & 9561 & 10411 & 10170\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Five Quantile Groups: Intensive and Extensive Margin}
-\protect\hypertarget{five-quantile-groups-intensive-and-extensive-margin-1}{}
-\begin{table}
-
-\caption{\label{tab:kableEstimateElasticityIntExtByEfficientGroup}Subgroup Regressions}
-\centering
-\fontsize{9}{11}\selectfont
-\begin{tabular}[t]{lccccc}
-\toprule
- & 1Q & 2Q & 3Q & 4Q & 5Q\\
-\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textbf{Overall}}\\
+\hspace{1em}ln(giving price) & -1.281*** & -0.773 & -1.429*** & -1.021** & -0.739\\
+\hspace{1em} & (0.492) & (0.495) & (0.543) & (0.494) & (0.544)\\
+\hspace{1em}N & 9795 & 11369 & 9561 & 10411 & \vphantom{1} 10170\\
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{Intensive Margin}}\\
 \hspace{1em}ln(giving price) & -0.959* & -0.321 & -0.530 & -0.927 & -0.999*\\
@@ -822,28 +818,16 @@ N & 9795 & 11369 & 9561 & 10411 & 10170\\
 
 \caption{\label{tab:kableEstimateElasticityByEfficientGroup3}Price Elasticity by Three Quantile Efficient Groups}
 \centering
+\fontsize{8}{10}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
  & 1Q & 2Q & 3Q\\
 \midrule
-ln(giving price) & -1.321*** & -0.844** & -0.929**\\
- & (0.388) & (0.404) & (0.404)\\
-N & 17119 & 16662 & 17525\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Three Quantile Groups: Intensive and Extensive Margin}
-\protect\hypertarget{three-quantile-groups-intensive-and-extensive-margin-1}{}
-\begin{table}
-
-\caption{\label{tab:kableEstimateElasticityIntExtByEfficientGroup3}Intensive- and Extensive-Margin Price Elasticity by Three Quantile Efficient Groups}
-\centering
-\begin{tabular}[t]{lccc}
-\toprule
- & 1Q & 2Q & 3Q\\
-\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Overall}}\\
+\hspace{1em}ln(giving price) & -1.321*** & -0.844** & -0.929**\\
+\hspace{1em} & (0.388) & (0.404) & (0.404)\\
+\hspace{1em}N & 17119 & 16662 & \vphantom{1} 17525\\
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{Intensive Margin}}\\
 \hspace{1em}ln(giving price) & -0.792** & -0.360 & -1.111**\\
@@ -859,6 +843,28 @@ N & 17119 & 16662 & 17525\\
 \bottomrule
 \end{tabular}
 \end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check}
+\protect\hypertarget{robustness-check-3}{}
+\begin{enumerate}
+\tightlist
+\item
+  Efficient index captures both government efficiency on concerns about
+  budget deficits
+\item
+  Effect of presidential transition on efficient index
+\item
+  Effect of presidential transition on donation behavior
+\item
+  Income and donations are determined simultaneously
+\item
+  Last price elasticity
+\item
+  Self-selection of receiving tax benefit
+\item
+  Transitory and permanent elasticity
+\end{enumerate}
 \end{frame}
 
 \end{document}
