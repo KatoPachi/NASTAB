@@ -81,6 +81,12 @@
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
 \newif\ifbibliography
+\usepackage{longtable,booktabs}
+\usepackage{caption}
+% Make caption package work with longtable
+\makeatletter
+\def\fnum@table{\tablename~\thetable}
+\makeatother
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -121,26 +127,25 @@ University \and \(^3\)Kobe University}
 \begin{document}
 \frame{\titlepage}
 
+\begin{frame}
+\end{frame}
+
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
 \begin{frame}{Background of South Korea Tax Reform}
 \protect\hypertarget{background-of-south-korea-tax-reform}{}
-To investigate the price effect, we use the 2014 tax reform in the South
-Korea.
+To investigate the price effect, we use the 2014 tax reform in the South Korea.
 
 \begin{itemize}
 \tightlist
 \item
-  Before 2014, tax deduction was adopted to subsidize charitable
-  donation behavior.
+  Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
 \item
   After 2014, tax credit have been adopted.
 \end{itemize}
 
-The main difference is that tax credits reduce taxes directly, while tax
-deductions indirectly lower the tax burden by decreasing the taxpayer's
-marginal tax rate, which increases with gross income
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer's marginal tax rate, which increases with gross income
 \end{frame}
 
 \hypertarget{data}{%
@@ -151,20 +156,13 @@ marginal tax rate, which increases with gross income
 \begin{itemize}
 \tightlist
 \item
-  The Korea Institute of Taxation and Finance implements the financial
-  panel survey to study the tax burden of households and the benefits
-  that households receive from goverment.
+  The Korea Institute of Taxation and Finance implements the financial panel survey to study the tax burden of households and the benefits that households receive from goverment.
 \item
-  The subjects of this survey are general household and household
-  members living in 15 cities and provinces nationwide.
+  The subjects of this survey are general household and household members living in 15 cities and provinces nationwide.
 \item
-  This survey is based on a face-to-face interview. If it is difficult
-  for investigators to meet subjects, another family member answers on
-  behalf of him.
+  This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
 \item
-  Survey items: Annual taxable income (last year), charitable donations
-  (last year), trust for politicians (5-Likert scale), and other
-  covariates (age, education, gender etc.).
+  Survey items: Annual taxable income (last year), charitable donations (last year), trust for politicians (5-Likert scale), and other covariates (age, education, gender etc.).
 \item
   Survey period: 2008 \textasciitilde{} 2019
 
@@ -229,16 +227,15 @@ High school graduate & 0.31 & 0.31 & 0.31\\
 
 \begin{frame}{What is Giving Price?}
 \protect\hypertarget{what-is-giving-price}{}
-Consider allocation between private consumptions (\(x_i\)) and
-charitable giving (\(g_i\)). Let \(y_i\) be pre-tax total income. Then,
-the budget constraint is
+Consider allocation between private consumptions (\(x_i\)) and charitable giving (\(g_i\)).
+Let \(y_i\) be pre-tax total income.
+Then, the budget constraint is
 
 \[
     x_i + g_i = y_i - T_i(y_i, g_i),
 \]
 
-where \(T_i\) is tax amount depending on the pre-tax income and
-charitable giving.
+where \(T_i\) is tax amount depending on the pre-tax income and charitable giving.
 \end{frame}
 
 \begin{frame}{Determination of Tax Amount}
@@ -249,8 +246,7 @@ Tax deduction reduces taxable income by giving, that is,
     T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
 \]
 
-where \(\tau(\cdot)\) is the marginal income tax rate which is
-determined by \(y_i - g_i\).
+where \(\tau(\cdot)\) is the marginal income tax rate which is determined by \(y_i - g_i\).
 
 Tax credit reduces tax amount directly, that is,
 
@@ -269,8 +265,7 @@ Under the tax deduction system, the budget constraint is
     x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
 \]
 
-Thus, the giving price of tax deduction system is
-\(p_i^{d} = 1 - \tau(y_i - g_i)\).
+Thus, the giving price of tax deduction system is \(p_i^{d} = 1 - \tau(y_i - g_i)\).
 
 Under the tax credit system, the budget constraint is
 
@@ -283,8 +278,7 @@ Thus, the giving price of tax credit system is \(p_i^c = 1 - m\).
 
 \begin{frame}{Construct Giving Price}
 \protect\hypertarget{construct-giving-price}{}
-In the South Korea, the tax policy about charitable giving drastically
-changed in 2014.
+In the South Korea, the tax policy about charitable giving drastically changed in 2014.
 
 \begin{itemize}
 \tightlist
@@ -294,12 +288,7 @@ changed in 2014.
   \begin{itemize}
   \tightlist
   \item
-    the giving price is endogenous because people can manipulate
-    \(\tau(y_i - g_i)\) using the charitable giving \(g_i\). Since this
-    problem is caused by \emph{last} donations, we use the giving price
-    applying to the \emph{first} donations (\textbf{first price}). The
-    first price is calculate by \(\tau(y_i)\) where \(y_i\) is the
-    annual taxable income reported in the NaSTaB.
+    the giving price is endogenous because people can manipulate \(\tau(y_i - g_i)\) using the charitable giving \(g_i\). Since this problem is caused by \emph{last} donations, we use the giving price applying to the \emph{first} donations (\textbf{first price}). The first price is calculate by \(\tau(y_i)\) where \(y_i\) is the annual taxable income reported in the NaSTaB.
   \end{itemize}
 \item
   tax credit (after 2014): \(\text{Price}_i = 1 - m\)
@@ -307,8 +296,7 @@ changed in 2014.
   \begin{itemize}
   \tightlist
   \item
-    In the South Korea, the tax credit rate determines exogeneity,
-    \(m = 0.15\).
+    In the South Korea, the tax credit rate determines exogeneity, \(m = 0.15\).
   \end{itemize}
 \end{itemize}
 \end{frame}
@@ -356,16 +344,13 @@ Our baseline regression equation is
 \begin{itemize}
 \tightlist
 \item
-  \(\log(\text{Giving}_{ijt})\) is logarithm of individual \(i\)'s
-  charitable giving in year \(t\).
+  \(\log(\text{Giving}_{ijt})\) is logarithm of individual \(i\)'s charitable giving in year \(t\).
 \item
-  \(\log(\text{Price}_{ijt})\) is logarithm of individual \(i\)'s giving
-  price in year \(t\).
+  \(\log(\text{Price}_{ijt})\) is logarithm of individual \(i\)'s giving price in year \(t\).
 \item
   \(\beta_1\) represents the price elasticity of giving.
 \item
-  \(\alpha_i\) and \(\lambda_t\) are individual and time fixed effect,
-  respectively.
+  \(\alpha_i\) and \(\lambda_t\) are individual and time fixed effect, respectively.
 \end{itemize}
 \end{frame}
 
@@ -623,14 +608,12 @@ N & 15134 & 13727 & 12902 & 12420\\
 \end{frame}
 
 \hypertarget{political-trust-and-price-elasticity}{%
-\section{Political Trust and Price
-Elasticity}\label{political-trust-and-price-elasticity}}
+\section{Political Trust and Price Elasticity}\label{political-trust-and-price-elasticity}}
 
 \begin{frame}{Estimation of Trust Index}
 \protect\hypertarget{estimation-of-trust-index}{}
-The trust for politicans is time-varying variable because it depends on
-governments' policies. We make time-invarying trust index using the
-fixed effect model.
+The trust for politicans is time-varying variable because it depends on governments' policies.
+We make time-invarying trust index using the fixed effect model.
 
 \[
     \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
@@ -905,11 +888,10 @@ Elasticity}\label{governement-efficient-and-price-elasticity}}
 From the 2015 survey, NaSTaB asks the current and ideal balance between
 tax burden and welfare size.
 
-These variables provide us to investigate the relationship between price
-elasticity and govenrment's efficiency more directly.
+These variables provide us to investigate the relationship between price elasticity and govenrment's efficiency
+more directly.
 
-Thus, we did same excercise, using the current balance bewteen tax
-burden and welfare size.
+Thus, we did same excercise, using the current balance bewteen tax burden and welfare size.
 \end{frame}
 
 \begin{frame}{Construct Efficient Index}
