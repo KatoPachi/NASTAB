@@ -81,6 +81,12 @@
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
 \newif\ifbibliography
+\usepackage{longtable,booktabs}
+\usepackage{caption}
+% Make caption package work with longtable
+\makeatletter
+\def\fnum@table{\tablename~\thetable}
+\makeatother
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -107,37 +113,37 @@
 \usepackage{xltxtra} 
 \usepackage{zxjatype} 
 \usepackage[ipa]{zxjafont} 
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
 
 \title{Charitable Giving, Tax Reform, and Political Trust}
-\author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
-Kim\(^3\)}
-\date{2021/01/26}
-\institute{\(^1\)Osaka University \and \(^2\)Chiba
-University \and \(^3\)Kobe University}
+\author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok Kim\(^3\)}
+\date{2021/02/02}
+\institute{\(^1\)Osaka University \and \(^2\)Chiba University \and \(^3\)Kobe University}
 
 \begin{document}
 \frame{\titlepage}
+
+\begin{frame}
+\end{frame}
 
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
 \begin{frame}{Background of South Korea Tax Reform}
 \protect\hypertarget{background-of-south-korea-tax-reform}{}
-To investigate the price effect, we use the 2014 tax reform in the South
-Korea.
+To investigate the price effect, we use the 2014 tax reform in the South Korea.
 
 \begin{itemize}
 \tightlist
 \item
-  Before 2014, tax deduction was adopted to subsidize charitable
-  donation behavior.
+  Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
 \item
   After 2014, tax credit have been adopted.
 \end{itemize}
 
-The main difference is that tax credits reduce taxes directly, while tax
-deductions indirectly lower the tax burden by decreasing the taxpayer's
-marginal tax rate, which increases with gross income
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer's marginal tax rate, which increases with gross income
 \end{frame}
 
 \hypertarget{data}{%
@@ -148,20 +154,13 @@ marginal tax rate, which increases with gross income
 \begin{itemize}
 \tightlist
 \item
-  The Korea Institute of Taxation and Finance implements the financial
-  panel survey to study the tax burden of households and the benefits
-  that households receive from goverment.
+  The Korea Institute of Taxation and Finance implements the financial panel survey to study the tax burden of households and the benefits that households receive from goverment.
 \item
-  The subjects of this survey are general household and household
-  members living in 15 cities and provinces nationwide.
+  The subjects of this survey are general household and household members living in 15 cities and provinces nationwide.
 \item
-  This survey is based on a face-to-face interview. If it is difficult
-  for investigators to meet subjects, another family member answers on
-  behalf of him.
+  This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
 \item
-  Survey items: Annual taxable income (last year), charitable donations
-  (last year), trust for politicians (5-Likert scale), and other
-  covariates (age, education, gender etc.).
+  Survey items: Annual taxable income (last year), charitable donations (last year), trust for politicians (5-Likert scale), and other covariates (age, education, gender etc.).
 \item
   Survey period: 2008 \textasciitilde{} 2019
 
@@ -176,7 +175,7 @@ marginal tax rate, which increases with gross income
 \begin{frame}{Time Series of Chariable Giving}
 \protect\hypertarget{time-series-of-chariable-giving}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcome} \caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcome} \caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
 \end{figure}
 \end{frame}
 
@@ -226,16 +225,15 @@ High school graduate & 0.31 & 0.31 & 0.31\\
 
 \begin{frame}{What is Giving Price?}
 \protect\hypertarget{what-is-giving-price}{}
-Consider allocation between private consumptions (\(x_i\)) and
-charitable giving (\(g_i\)). Let \(y_i\) be pre-tax total income. Then,
-the budget constraint is
+Consider allocation between private consumptions (\(x_i\)) and charitable giving (\(g_i\)).
+Let \(y_i\) be pre-tax total income.
+Then, the budget constraint is
 
 \[
     x_i + g_i = y_i - T_i(y_i, g_i),
 \]
 
-where \(T_i\) is tax amount depending on the pre-tax income and
-charitable giving.
+where \(T_i\) is tax amount depending on the pre-tax income and charitable giving.
 \end{frame}
 
 \begin{frame}{Determination of Tax Amount}
@@ -246,8 +244,7 @@ Tax deduction reduces taxable income by giving, that is,
     T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
 \]
 
-where \(\tau(\cdot)\) is the marginal income tax rate which is
-determined by \(y_i - g_i\).
+where \(\tau(\cdot)\) is the marginal income tax rate which is determined by \(y_i - g_i\).
 
 Tax credit reduces tax amount directly, that is,
 
@@ -266,8 +263,7 @@ Under the tax deduction system, the budget constraint is
     x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
 \]
 
-Thus, the giving price of tax deduction system is
-\(p_i^{d} = 1 - \tau(y_i - g_i)\).
+Thus, the giving price of tax deduction system is \(p_i^{d} = 1 - \tau(y_i - g_i)\).
 
 Under the tax credit system, the budget constraint is
 
@@ -280,8 +276,7 @@ Thus, the giving price of tax credit system is \(p_i^c = 1 - m\).
 
 \begin{frame}{Construct Giving Price}
 \protect\hypertarget{construct-giving-price}{}
-In the South Korea, the tax policy about charitable giving drastically
-changed in 2014.
+In the South Korea, the tax policy about charitable giving drastically changed in 2014.
 
 \begin{itemize}
 \tightlist
@@ -291,12 +286,7 @@ changed in 2014.
   \begin{itemize}
   \tightlist
   \item
-    the giving price is endogenous because people can manipulate
-    \(\tau(y_i - g_i)\) using the charitable giving \(g_i\). Since this
-    problem is caused by \emph{last} donations, we use the giving price
-    applying to the \emph{first} donations (\textbf{first price}). The
-    first price is calculate by \(\tau(y_i)\) where \(y_i\) is the
-    annual taxable income reported in the NaSTaB.
+    the giving price is endogenous because people can manipulate \(\tau(y_i - g_i)\) using the charitable giving \(g_i\). Since this problem is caused by \emph{last} donations, we use the giving price applying to the \emph{first} donations (\textbf{first price}). The first price is calculate by \(\tau(y_i)\) where \(y_i\) is the annual taxable income reported in the NaSTaB.
   \end{itemize}
 \item
   tax credit (after 2014): \(\text{Price}_i = 1 - m\)
@@ -304,8 +294,7 @@ changed in 2014.
   \begin{itemize}
   \tightlist
   \item
-    In the South Korea, the tax credit rate determines exogeneity,
-    \(m = 0.15\).
+    In the South Korea, the tax credit rate determines exogeneity, \(m = 0.15\).
   \end{itemize}
 \end{itemize}
 \end{frame}
@@ -313,7 +302,7 @@ changed in 2014.
 \begin{frame}{Income Distribution and Giving Price}
 \protect\hypertarget{income-distribution-and-giving-price}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryPriceChange} \caption{Income Distribution and Giving Price in 2013}\label{fig:unnamed-chunk-2}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryPriceChange} \caption{Income Distribution and Giving Price in 2013}\label{fig:unnamed-chunk-2}
 \end{figure}
 \end{frame}
 
@@ -332,23 +321,19 @@ Our baseline regression equation is
 \begin{itemize}
 \tightlist
 \item
-  \(\log(\text{Giving}_{ijt})\) is logarithm of individual \(i\)'s
-  charitable giving in year \(t\).
+  \(\log(\text{Giving}_{ijt})\) is logarithm of individual \(i\)'s charitable giving in year \(t\).
 \item
-  \(\log(\text{Price}_{ijt})\) is logarithm of individual \(i\)'s giving
-  price in year \(t\).
+  \(\log(\text{Price}_{ijt})\) is logarithm of individual \(i\)'s giving price in year \(t\).
 \item
   \(\beta_1\) represents the price elasticity of giving.
 \item
-  \(\alpha_i\) and \(\lambda_t\) are individual and time fixed effect,
-  respectively.
+  \(\alpha_i\) and \(\lambda_t\) are individual and time fixed effect, respectively.
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Result of Baseline Regressions}
 \protect\hypertarget{result-of-baseline-regressions}{}
-We found the \textbf{price effect} of giving (1\% price increase leads
-to about 1.1\% giving decrease)
+We found the \textbf{price effect} of giving (1\% price increase leads to about 1.1\% giving decrease)
 
 \begin{table}
 
@@ -384,15 +369,11 @@ We addressed the following two potential concerns:
   \begin{itemize}
   \tightlist
   \item
-    This causes both a change of giving price and a change of an amount
-    of donations
+    This causes both a change of giving price and a change of an amount of donations
   \item
-    Gruber and Saez (2002) provided that we should use
-    \(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) as an
-    insturment.
+    Gruber and Saez (2002) provided that we should use \(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) as an insturment.
   \item
-    Following Alumina et al.~(2020), we estimated the model (5) in the
-    previous slide, using the panel IV model for \(k = 1, 2, 3, 4\).
+    Following Alumina et al.~(2020), we estimated the model (5) in the previous slide, using the panel IV model for \(k = 1, 2, 3, 4\).
   \end{itemize}
 \item
   The effect of presidential transition on donations
@@ -400,21 +381,16 @@ We addressed the following two potential concerns:
   \begin{itemize}
   \tightlist
   \item
-    The presidential transition is one of our major ommited factor to
-    affect both political trust and charitable giving.
+    The presidential transition is one of our major ommited factor to affect both political trust and charitable giving.
   \item
-    To shed light on this concern, we used data in 2013 and 2014
-    (President was Park Geun-hye in both years), and estimated the model
-    (5) in the previous slide, using the fixed effect model and the
-    panel IV model for \(k = 1, 2, 3, 4\).
+    To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for \(k = 1, 2, 3, 4\).
   \end{itemize}
 \end{enumerate}
 \end{frame}
 
 \begin{frame}{Result of Robustness Check 1}
 \protect\hypertarget{result-of-robustness-check-1}{}
-We obtained similar value of price elasticity to baseline results (1\%
-price increase leads to about 1.1\% giving decrease)
+We obtained similar value of price elasticity to baseline results (1\% price increase leads to about 1.1\% giving decrease)
 
 \begin{table}
 
@@ -435,8 +411,7 @@ N & 51548 & 49217 & 46399 & 43301\\
 
 \begin{frame}{Result of Robustness Check 2}
 \protect\hypertarget{result-of-robustness-check-2}{}
-We obtained \textbf{stonger} price effect than baseline (1\% price
-increase leads to about 1.2 \textasciitilde{} 1.6\% giving decrease)
+We obtained \textbf{stonger} price effect than baseline (1\% price increase leads to about 1.2 \textasciitilde{} 1.6\% giving decrease)
 
 \begin{table}
 
@@ -459,14 +434,12 @@ N & 15134 & 13727 & 12902 & 12420 & 11676\\
 \end{frame}
 
 \hypertarget{political-trust-and-price-elasticity}{%
-\section{Political Trust and Price
-Elasticity}\label{political-trust-and-price-elasticity}}
+\section{Political Trust and Price Elasticity}\label{political-trust-and-price-elasticity}}
 
 \begin{frame}{Estimation of Trust Index}
 \protect\hypertarget{estimation-of-trust-index}{}
-The trust for politicans is time-varying variable because it depends on
-governments' policies. We make time-invarying trust index using the
-fixed effect model.
+The trust for politicans is time-varying variable because it depends on governments' policies.
+We make time-invarying trust index using the fixed effect model.
 
 \[
     \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
@@ -488,7 +461,7 @@ fixed effect model.
 \begin{frame}{Histrogram of Trust Index}
 \protect\hypertarget{histrogram-of-trust-index}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramTrustid} \caption{Histogram of Trust Index}\label{fig:unnamed-chunk-3}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramTrustid} \caption{Histogram of Trust Index}\label{fig:unnamed-chunk-3}
 \end{figure}
 \end{frame}
 
@@ -497,8 +470,7 @@ fixed effect model.
 \begin{itemize}
 \tightlist
 \item
-  We made a scatter plot b/w individual average donations and trust
-  index
+  We made a scatter plot b/w individual average donations and trust index
 
   \begin{itemize}
   \tightlist
@@ -506,14 +478,12 @@ fixed effect model.
     No linear relationship
   \end{itemize}
 \item
-  We tested difference in mean of individual average donations b/w among
-  those whose trust index above and below threshold
+  We tested difference in mean of individual average donations b/w among those whose trust index above and below threshold
 
   \begin{itemize}
   \tightlist
   \item
-    The difference in mean is statistically siginificant at 5\% level if
-    threshold is \(\{0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4\}\).
+    The difference in mean is statistically siginificant at 5\% level if threshold is \(\{0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4\}\).
   \end{itemize}
 \item
   We regressed trust index on covariates, using data in 2018
@@ -527,8 +497,7 @@ fixed effect model.
   \item
     trust index is concave in age
   \item
-    Those having extreme political views have a distrust of politicians
-    rather than those having moderate political views.
+    Those having extreme political views have a distrust of politicians rather than those having moderate political views.
   \end{itemize}
 \end{itemize}
 \end{frame}
@@ -536,14 +505,14 @@ fixed effect model.
 \begin{frame}{Relationship b/w Donations and Trust Index}
 \protect\hypertarget{relationship-bw-donations-and-trust-index}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/ScatterTrusidDonations} \caption{Scatter Plot between Donations and Trust Index}\label{fig:unnamed-chunk-4}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/ScatterTrusidDonations} \caption{Scatter Plot between Donations and Trust Index}\label{fig:unnamed-chunk-4}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Difference in Mean b/w Two Trust Groups}
 \protect\hypertarget{difference-in-mean-bw-two-trust-groups}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/PlotDiffDonationsbwTrustGroup} \caption{Difference in Mean between Trust Group above and below Threshold}\label{fig:unnamed-chunk-5}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/PlotDiffDonationsbwTrustGroup} \caption{Difference in Mean between Trust Group above and below Threshold}\label{fig:unnamed-chunk-5}
 \end{figure}
 \end{frame}
 
@@ -575,10 +544,9 @@ N & 7697 & \\
 
 \begin{frame}{Subgroup Regressions}
 \protect\hypertarget{subgroup-regressions}{}
-To see the heterogenous price elasticity by political trust, We
-estimated the baseline regression model (5) (see Table
-\ref{tab:kableEstimateElasticity}), using sample grouped by the trust
-index.
+To see the heterogenous price elasticity by political trust,
+We estimated the baseline regression model (5) (see Table \ref{tab:kableEstimateElasticity}),
+using sample grouped by the trust index.
 
 \begin{itemize}
 \tightlist
@@ -594,15 +562,13 @@ index.
   Highest: 80 \textasciitilde{} 100\% quantile of trust index
 \end{itemize}
 
-Covariates are the logarithm of income, age, interactions b/w year and
-education, interactions b/w year and gender, and living are dummy into
-covariates.
+Covariates are the logarithm of income, age, interactions b/w year and education,
+interactions b/w year and gender, and living are dummy into covariates.
 \end{frame}
 
 \begin{frame}{Results of Subgroup Regressions}
 \protect\hypertarget{results-of-subgroup-regressions}{}
-We cound \textbf{NOT} find the price effect for respondents whose trust
-is very low.
+We cound \textbf{NOT} find the price effect for respondents whose trust is very low.
 
 \begin{table}
 
@@ -623,10 +589,8 @@ N & 10250 & 10532 & 10286 & 10558 & 9680\\
 
 \begin{frame}{Regression on Interaction Term}
 \protect\hypertarget{regression-on-interaction-term}{}
-To check whether price elasticity is statistically siginificant
-different among five trust groups, we estimated the baseline regression
-model (5) including interation term between five trust groups and giving
-price.
+To check whether price elasticity is statistically siginificant different among five trust groups,
+we estimated the baseline regression model (5) including interation term between five trust groups and giving price.
 
 \begin{align*}
     \log(\text{Giving}_{ijt}) 
@@ -638,8 +602,7 @@ price.
 \begin{itemize}
 \tightlist
 \item
-  \(\text{TrustGroup}_{ijg}\): taking 1 if individual \(i\) living in
-  \(j\) belongs to the trust group \(g\).
+  \(\text{TrustGroup}_{ijg}\): taking 1 if individual \(i\) living in \(j\) belongs to the trust group \(g\).
 \item
   \(g \in \{ \text{Lowest}, \text{Lower}, \text{Higher}, \text{Highest} \}\).
 \end{itemize}
@@ -647,8 +610,7 @@ price.
 
 \begin{frame}{Regression Result on Interation Term}
 \protect\hypertarget{regression-result-on-interation-term}{}
-There is statistically siginificant difference on price elasticity
-between the lowest group and the nuetral group.
+There is statistically siginificant difference on price elasticity between the lowest group and the nuetral group.
 
 \begin{table}
 
@@ -674,21 +636,16 @@ N & 51306 & \\
 \begin{itemize}
 \tightlist
 \item
-  There is one potential concern that the presidential transition
-  affects both donation behavior and political trust.
+  There is one potential concern that the presidential transition affects both donation behavior and political trust.
 
   \begin{itemize}
   \tightlist
   \item
-    In May 2017, South Korean president changed from Park Geun-hye to
-    Moon Jae-in. This presidential transition was due to the impeachment
-    charge against Park Geun-hye. People became distrustful of Park
-    Geun-hye due to the shinking of MV Sewol (April 2014).
+    In May 2017, South Korean president changed from Park Geun-hye to Moon Jae-in. This presidential transition was due to the impeachment charge against Park Geun-hye. People became distrustful of Park Geun-hye due to the shinking of MV Sewol (April 2014).
   \end{itemize}
 \item
-  To rule out this confounder, we constructed president-specific trust
-  indexs using either in 2015 and 2016 (Park's Trust index) or data in
-  2017 and 2018 (Moon's Trust index).
+  To rule out this confounder, we constructed president-specific trust indexs using either in 2015 and 2016 (Park's Trust index) or
+  data in 2017 and 2018 (Moon's Trust index).
 
   \begin{itemize}
   \tightlist
@@ -703,18 +660,15 @@ N & 51306 & \\
 \begin{itemize}
 \tightlist
 \item
-  We made a scatter plot between Park's trust index and Moon's trust
-  index.
+  We made a scatter plot between Park's trust index and Moon's trust index.
 
   \begin{itemize}
   \tightlist
   \item
-    Large variation of Moon's trust index among those who have same
-    value of the Park's trust index.
+    Large variation of Moon's trust index among those who have same value of the Park's trust index.
   \end{itemize}
 \item
-  We tested whether the average individual difference b/w
-  president-specific trust indexs is statistically different from zero.
+  We tested whether the average individual difference b/w president-specific trust indexs is statistically different from zero.
 
   \begin{itemize}
   \tightlist
@@ -727,7 +681,7 @@ N & 51306 & \\
 \begin{frame}{Scatter Plot b/w President-specific Trust Indexs}
 \protect\hypertarget{scatter-plot-bw-president-specific-trust-indexs}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter1Trustid} \caption{Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in}\label{fig:unnamed-chunk-6}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/Scatter1Trustid} \caption{Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in}\label{fig:unnamed-chunk-6}
 \end{figure}
 \end{frame}
 
@@ -753,47 +707,34 @@ Average & -0.009 & -0.001 & -0.008\\
 \begin{itemize}
 \tightlist
 \item
-  We made a scatter plot between difference of president-specific trust
-  indexs and the original trust index.
+  We made a scatter plot between difference of president-specific trust indexs and the original trust index.
 
   \begin{itemize}
   \tightlist
   \item
-    there is large variation of difference of president-specific trust
-    indexs, and there is large variation of the original trust index
-    among those who have similar value of two president-specific trust
-    indexs.
+    there is large variation of difference of president-specific trust indexs, and there is large variation of the original trust index among those who have similar value of two president-specific trust indexs.
   \end{itemize}
 \item
-  We regressed the original trust index on difference of
-  president-specific trust indexs. We restrict units whose aboslute
-  value of president-specific trust index difference is less than 2 (Abs
-  \textless{} 2), 1 (Abs \textless{} 1), and 0.5 (Abs \textless{} 0.5).
+  We regressed the original trust index on difference of president-specific trust indexs. We restrict units whose aboslute value of president-specific trust index difference is less than 2 (Abs \textless{} 2), 1 (Abs \textless{} 1), and 0.5 (Abs \textless{} 0.5).
 
   \begin{itemize}
   \tightlist
   \item
-    the positive correlations between difference of president-specific
-    trust indexs and the original one. However, this positive
-    correlation is statistically insignigicant if we use units whose
-    president-specific trust indexs have similar values.
+    the positive correlations between difference of president-specific trust indexs and the original one. However, this positive correlation is statistically insignigicant if we use units whose president-specific trust indexs have similar values.
   \end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and
-Original One}
+\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and Original One}
 \protect\hypertarget{scatter-plot-bw-difference-of-separated-trust-indexs-and-original-one}{}
 \begin{figure}
 \centering
-\includegraphics{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter2Trustid.pdf}
-\caption{Scatter Plot between Difference of President-specific Trust
-Indexs and Original One}
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/_assets/Scatter2Trustid.pdf}
+\caption{\label{fig:unnamed-chunk-7}Scatter Plot between Difference of President-specific Trust Indexs and Original One}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Result of Regressions on Difference b/w President-specific
-Trust}
+\begin{frame}{Result of Regressions on Difference b/w President-specific Trust}
 \protect\hypertarget{result-of-regressions-on-difference-bw-president-specific-trust}{}
 \begin{table}
 
@@ -823,19 +764,15 @@ N & 7314 & 7128 & 5687 & 3467\\
   \begin{itemize}
   \tightlist
   \item
-    The president was Park Geun-hye in both 2013 and 2014. Thus, we can
-    exclude the effect of presidential transition on donation behavior.
+    The president was Park Geun-hye in both 2013 and 2014. Thus, we can exclude the effect of presidential transition on donation behavior.
   \end{itemize}
 \item
-  Using the park's trust index instead, we estimated the interaction
-  model with data in 2013 and 2014.
+  Using the park's trust index instead, we estimated the interaction model with data in 2013 and 2014.
 
   \begin{itemize}
   \tightlist
   \item
-    Since the trust index represents the trust for politicians under the
-    president Park (but scandalous period), we can rule out the effect
-    of presidential transition on both donations and trust.
+    Since the trust index represents the trust for politicians under the president Park (but scandalous period), we can rule out the effect of presidential transition on both donations and trust.
   \end{itemize}
 \end{enumerate}
 \end{frame}
@@ -872,19 +809,17 @@ N & 13788 & 13440\\
 \end{frame}
 
 \hypertarget{tax-welfare-balance-and-price-elasticity}{%
-\section{Tax-welfare Balance and Price
-Elasticity}\label{tax-welfare-balance-and-price-elasticity}}
+\section{Tax-welfare Balance and Price Elasticity}\label{tax-welfare-balance-and-price-elasticity}}
 
 \begin{frame}{Tax-welfare Balance}
 \protect\hypertarget{tax-welfare-balance}{}
-From the 2015 survey, NaSTaB asks the current and ideal balance between
-tax burden and welfare size.
+From the 2015 survey,
+NaSTaB asks the current and ideal balance between tax burden and welfare size.
 
-These variables provide us to investigate the relationship between price
-elasticity and govenrment's efficiency more directly.
+These variables provide us to investigate the relationship between price elasticity and govenrment's efficiency
+more directly.
 
-Thus, we did same excercise, using the current balance bewteen tax
-burden and welfare size.
+Thus, we did same excercise, using the current balance bewteen tax burden and welfare size.
 \end{frame}
 
 \begin{frame}{Construct Tax-welfare Balance Index}
@@ -893,28 +828,27 @@ Questionnaire of tax-welfare balance index is
 
 \includegraphics[width=0.5\textwidth,height=\textheight]{_assets/BalanceQuestion.jpg}
 
-To rule out government's policies, we use individual fixed effect as the
-\textbf{tax-welare size index}
+To rule out government's policies, we use individual fixed effect as the \textbf{tax-welare size index}
 \end{frame}
 
 \begin{frame}{Histrogram of Trust Index}
 \protect\hypertarget{histrogram-of-trust-index-1}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramBalanceid} \caption{Histogram of Tax-Welfare Balance Index}\label{fig:unnamed-chunk-8}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramBalanceid} \caption{Histogram of Tax-Welfare Balance Index}\label{fig:unnamed-chunk-8}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Relationship b/w Donations and Balance Index}
 \protect\hypertarget{relationship-bw-donations-and-balance-index}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/ScatterBalanceidDonations} \caption{Scatter Plot between Donations and Tax-Welfare Balance Index}\label{fig:unnamed-chunk-9}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/ScatterBalanceidDonations} \caption{Scatter Plot between Donations and Tax-Welfare Balance Index}\label{fig:unnamed-chunk-9}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Difference in Mean b/w Two Trust Groups}
 \protect\hypertarget{difference-in-mean-bw-two-trust-groups-1}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/PlotDiffDonationsbwBalanceGroup} \caption{Difference in Mean between Group above and below Threshold}\label{fig:unnamed-chunk-10}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/PlotDiffDonationsbwBalanceGroup} \caption{Difference in Mean between Group above and below Threshold}\label{fig:unnamed-chunk-10}
 \end{figure}
 \end{frame}
 
@@ -987,7 +921,7 @@ N & 51306 & \\
 \begin{frame}{Scatter Plot b/w President-specific Balance Indexs}
 \protect\hypertarget{scatter-plot-bw-president-specific-balance-indexs}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter1Balanceid} \caption{Scatter Plot between Balance Index under Park Geun-hye and Moon Jae-in}\label{fig:unnamed-chunk-11}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/Scatter1Balanceid} \caption{Scatter Plot between Balance Index under Park Geun-hye and Moon Jae-in}\label{fig:unnamed-chunk-11}
 \end{figure}
 \end{frame}
 
@@ -1009,19 +943,16 @@ Average & 0.004 & -0.006 & 0.010\\
 \end{table}
 \end{frame}
 
-\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and
-Original One}
+\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and Original One}
 \protect\hypertarget{scatter-plot-bw-difference-of-separated-trust-indexs-and-original-one-1}{}
 \begin{figure}
 \centering
-\includegraphics{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter2Balanceid.pdf}
-\caption{Scatter Plot between Difference of President-specific Balance
-Indexs and Original One}
+\includegraphics{C:/Users/katoo/Desktop/NASTAB/_assets/Scatter2Balanceid.pdf}
+\caption{\label{fig:unnamed-chunk-12}Scatter Plot between Difference of President-specific Balance Indexs and Original One}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Result of Regressions on Difference b/w President-specific
-Trust}
+\begin{frame}{Result of Regressions on Difference b/w President-specific Trust}
 \protect\hypertarget{result-of-regressions-on-difference-bw-president-specific-trust-1}{}
 \begin{table}
 
