@@ -1,0 +1,336 @@
+
+# Price Elasticity
+
+## Baseline Regressions
+
+Our baseline regression equation is 
+
+$$
+    \log(\text{Giving}_{ijt}) = 
+    \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+$$
+
+- $\log(\text{Giving}_{ijt})$ is logarithm of individual $i$'s charitable giving in year $t$.
+- $\log(\text{Price}_{ijt})$ is logarithm of individual $i$'s giving price in year $t$.
+- $\beta_1$ represents the price elasticity of giving.
+- $\alpha_i$ and $\lambda_t$ are individual and time fixed effect, respectively.
+
+```{stata EstimateElasticity, results = "hide", eval = FALSE}
+label variable log_price "ln(giving price)"
+
+xtreg log_total_g log_price log_pinc_all i.year, fe vce(cluster pid)
+mat coef1 = r(table)
+mat coef1 = coef1[1..rowsof(coef1), 1]
+mat colnames coef1 = model1
+mat stat1 = (e(N) \ e(r2_a))
+mat colnames stat1 = model1
+mat rownames stat1 = N r2a
+
+xtreg log_total_g log_price log_pinc_all age i.year, fe vce(cluster pid)
+mat coef2 = r(table)
+mat coef2 = coef2[1..rowsof(coef2), 1]
+mat colnames coef2 = model2
+mat stat2 = (e(N) \ e(r2_a))
+mat colnames stat2 = model2
+mat rownames stat2 = N r2a
+
+xtreg log_total_g log_price log_pinc_all age i.year##i.educ, fe vce(cluster pid)
+mat coef3 = r(table)
+mat coef3 = coef3[1..rowsof(coef3), 1]
+mat colnames coef3 = model3
+mat stat3 = (e(N) \ e(r2_a))
+mat colnames stat3 = model3
+mat rownames stat3 = N r2a
+
+xtreg log_total_g log_price log_pinc_all age i.year##i.gender i.year##i.educ, fe vce(cluster pid)
+mat coef4 = r(table)
+mat coef4 = coef4[1..rowsof(coef4), 1]
+mat colnames coef4 = model4
+mat stat4 = (e(N) \ e(r2_a))
+mat colnames stat4 = model4
+mat rownames stat4 = N r2a
+
+xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, fe vce(cluster pid)
+mat coef5 = r(table)
+mat coef5 = coef5[1..rowsof(coef5), 1]
+mat colnames coef5 = model5
+mat stat5 = (e(N) \ e(r2_a))
+mat colnames stat5 = model5
+mat rownames stat5 = N r2a
+
+mat_capp coef : coef1 coef2
+mat_capp coef : coef coef3
+mat_capp coef : coef coef4
+mat_capp coef : coef coef5
+
+mat_capp stat : stat1 stat2
+mat_capp stat : stat stat3
+mat_capp stat : stat stat4
+mat_capp stat : stat stat5
+
+mat_rapp model : coef stat
+
+xsvmat model, saving(_assets/EstimateElasticity.dta) rownames(xvar)
+```
+
+
+## Result of Baseline Regressions
+
+We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease)
+
+
+```{r shapeEstimateElasticity}
+org.basereg <- read.dta13("_assets/EstimateElasticity.dta") %>% data.frame()
+
+coef.basereg <- org.basereg %>% 
+	filter(xvar %in% c("b", "se", "pvalue")) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "reg") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se)
+	) %>% 
+	select(reg, b, se) %>% 
+	pivot_longer(-reg, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "reg") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("ln(giving price)", ""), .)
+
+stat.basereg <- org.basereg %>% filter(xvar == "N") 
+
+addline <- rbind(
+  c("Logged Income", "Y", "Y", "Y", "Y", "Y"),
+  c("Age", "N", "Y", "Y", "Y", "Y"),
+  c("Year X Educ", "N", "N", "Y", "Y", "Y"),
+  c("Year X Gender", "N", "N", "N", "Y", "Y"),
+  c("Resident Area", "N", "N", "N", "N", "Y")
+)
+
+tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% 
+	rbind(as.matrix(stat.basereg)) %>% 
+	data.frame()
+```
+
+```{r kableEstimateElasticity, include = TRUE}
+knitr::kable(
+    tab.basereg,
+    format = "latex",
+    caption = "Baseline Regressions",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9)
+```
+
+## Robustness Check 
+
+We addressed the following two potential concerns:
+
+1. Income and donations are determined simultaneously
+    - This causes both a change of giving price and a change of an amount of donations
+    - Gruber and Saez (2002) provided that we should use $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ as an insturment.
+    - Following Alumina et al. (2020), we estimated the model (5) in the previous slide, using the panel IV model for $k = 1, 2, 3, 4$.
+2. The effect of presidential transition on donations 
+    - The presidential transition is one of our major ommited factor to affect both political trust and charitable giving.
+    - To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for $k = 1, 2, 3, 4$.
+
+```{stata Robust1EstimateElasticity, results = "hide", eval = FALSE}
+forvalues i = 1(1)4 {
+	xtreg log_price lag`i'iv log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+		fe vce(cluster pid)
+	mat fstage`i' = r(table)
+	mat fstage`i' = fstage`i'[1..rowsof(fstage`i'), 1]
+	mat fstage`i' = (fstage`i'[1,1] \ fstage`i'[3,1]^2)
+	mat colnames fstage`i' = model`i'
+	mat rownames fstage`i' = ivcoef ivf
+}
+
+forvalues i = 1(1)4 {
+	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = lag`i'iv), fe first vce(cluster pid)
+	mat coef`i' = r(table)
+	mat coef`i' = coef`i'[1..rowsof(coef`i'), 1]
+	mat colnames coef`i' = model`i'
+	mat stat`i' = (e(N) \ e(r2_w))
+	mat colnames stat`i' = model`i'
+	mat rownames stat`i' = N r2w
+}
+
+mat_capp coef : coef1 coef2
+mat_capp coef : coef coef3
+mat_capp coef : coef coef4
+mat coef = coef'
+
+mat_capp stat : stat1 stat2
+mat_capp stat : stat stat3
+mat_capp stat : stat stat4
+mat stat = stat'
+
+mat_capp fstage : fstage1 fstage2
+mat_capp fstage : fstage fstage3
+mat_capp fstage : fstage fstage4
+mat fstage = fstage'
+
+mat_capp model : coef stat
+mat_capp model : model fstage
+
+xsvmat model, saving(_assets/Robust1EstimateElasticity.dta) rownames(xvar) names(col)
+```
+
+```{stata Robust2EstimateElasticity, results = "hide", eval = FALSE}
+xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	if year == 2013|year == 2014, fe vce(cluster pid)
+mat coef0 = r(table)
+mat coef0 = coef0[1..rowsof(coef0), 1]
+mat colnames coef0 = model0
+mat stat0 = (e(N) \ e(r2_a))
+mat colnames stat0 = model0
+mat rownames stat0 = N r2a
+mat_rapp model0 : coef0 stat0
+
+forvalues i = 1(1)4 {
+	xtreg log_price lag`i'iv log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		if year == 2013|year == 2014, fe vce(cluster pid)
+	mat fstage`i' = r(table)
+	mat fstage`i' = fstage`i'[1..rowsof(fstage`i'), 1]
+	mat fstage`i' = (fstage`i'[1,1] \ fstage`i'[3,1]^2)
+	mat colnames fstage`i' = model`i'
+	mat rownames fstage`i' = ivcoef ivf
+}
+
+forvalues i = 1(1)4 {
+	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+		(log_price = lag`i'iv) if year == 2013|year == 2014, fe first vce(cluster pid)
+	mat coef`i' = r(table)
+	mat coef`i' = coef`i'[1..rowsof(coef`i'), 1]
+	mat colnames coef`i' = model`i'
+	mat stat`i' = (e(N) \ e(r2_w))
+	mat colnames stat`i' = model`i'
+	mat rownames stat`i' = N r2w
+}
+
+mat_capp coef : coef1 coef2
+mat_capp coef : coef coef3
+mat_capp coef : coef coef4
+
+mat_capp stat : stat1 stat2
+mat_capp stat : stat stat3
+mat_capp stat : stat stat4
+
+mat_capp fstage : fstage1 fstage2
+mat_capp fstage : fstage fstage3
+mat_capp fstage : fstage fstage4
+
+mat_rapp model : coef stat
+mat_rapp model : model fstage
+
+mat_capp model : model0 model, miss(.)
+mat model = model'
+
+xsvmat model, saving(_assets/Robust2EstimateElasticity.dta) rownames(xvar) names(col)
+```
+
+## Result of Robustness Check 1
+
+We obtained similar value of price elasticity to baseline results (1\% price increase leads to about 1.1\% giving decrease)
+
+```{r shapeRobust1EstimateElasticity}
+org.pivreg <- read.dta13("_assets/Robust1EstimateElasticity.dta") %>% data.frame()
+
+coef.pivreg <- org.pivreg %>% 
+	select(xvar, b, se, pvalue) %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se)
+	) %>% 
+	select(xvar, b, se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("ln(giving price)", ""), .)
+
+stat.pivreg <- org.pivreg %>% 
+	select(xvar, ivf, N) %>% 
+	mutate(ivf = sprintf("%1.2f", ivf), N = sprintf("%1d", as.integer(N))) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("F-stat of IV", "N"), .)
+
+tab.pivreg <- rbind(coef.pivreg, stat.pivreg)
+```
+
+```{r kableRobust1EstimateElasticity, include = TRUE}
+knitr::kable(
+    tab.pivreg,
+    format = "latex",
+    caption = "Panel IV Regressions",
+    col.names = c("", "k = 1", "k = 2", "k = 3", "k = 4"),
+    row.names = FALSE,
+    align = "lcccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling()
+```
+
+## Result of Robustness Check 2
+
+We obtained **stonger** price effect than baseline (1\% price increase leads to about 1.2 ~ 1.6\% giving decrease)
+
+```{r shapeRobust2EstimateElasticity}
+org.pivreg <- read.dta13("_assets/Robust2EstimateElasticity.dta") %>% data.frame()
+
+coef.pivreg <- org.pivreg %>% 
+	select(xvar, b, se, pvalue) %>% 
+	mutate(
+		b = case_when(
+			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+			TRUE ~ sprintf("%1.3f", b)
+		),
+		se = sprintf("(%1.3f)", se)
+	) %>% 
+	select(xvar, b, se) %>% 
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("ln(giving price)", ""), .)
+
+stat.pivreg <- org.pivreg %>% 
+	select(xvar, ivf, N) %>% 
+	mutate(ivf = if_else(is.na(ivf), "", sprintf("%1.2f", ivf)), N = sprintf("%1d", as.integer(N))) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	select(-stat) %>% 
+	cbind(xvar = c("F-stat of IV", "N"), .)
+
+tab.pivreg <- rbind(coef.pivreg, stat.pivreg)
+```
+
+```{r kableRobust2EstimateElasticity, include=TRUE}
+knitr::kable(
+    tab.pivreg,
+    format = "latex",
+    caption = "Results with data in 2013 and 2014",
+    col.names = c("", "", "k = 1", "k = 2", "k = 3", "k = 4"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 9) %>% 
+add_header_above(c(" " = 1, "FE" = 1, "Panel IV with FE" = 4))
+```
+
