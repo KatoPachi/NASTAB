@@ -107,6 +107,9 @@
 \usepackage{xltxtra} 
 \usepackage{zxjatype} 
 \usepackage[ipa]{zxjafont} 
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
 
 \title{Charitable Giving, Tax Reform, and Political Trust}
 \author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
@@ -176,7 +179,7 @@ marginal tax rate, which increases with gross income
 \begin{frame}{Time Series of Chariable Giving}
 \protect\hypertarget{time-series-of-chariable-giving}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcome} \caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcome} \caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
 \end{figure}
 \end{frame}
 
@@ -313,28 +316,28 @@ changed in 2014.
 \begin{frame}{Income Distribution and Giving Price}
 \protect\hypertarget{income-distribution-and-giving-price}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryPriceChange} \caption{Income Distribution and Giving Price in 2013}\label{fig:unnamed-chunk-2}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryPriceChange} \caption{Income Distribution and Giving Price in 2013}\label{fig:unnamed-chunk-2}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Time Series of Average Donations By Benefit Group}
 \protect\hypertarget{time-series-of-average-donations-by-benefit-group}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/AverageDonationsByBenefitGroup} \caption{Time Series of Average Donations by Benefit Group}\label{fig:unnamed-chunk-3}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/AverageDonationsByBenefitGroup} \caption{Time Series of Average Donations by Benefit Group}\label{fig:unnamed-chunk-3}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Time Series of Extensive Margin by Benfit Group}
 \protect\hypertarget{time-series-of-extensive-margin-by-benfit-group}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/ExtensiveByBenefitGroup} \caption{Time Series of Proportion of Donors by Benefit Group}\label{fig:unnamed-chunk-4}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/ExtensiveByBenefitGroup} \caption{Time Series of Proportion of Donors by Benefit Group}\label{fig:unnamed-chunk-4}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Time Series of Intensive Margin by Benfit Group}
 \protect\hypertarget{time-series-of-intensive-margin-by-benfit-group}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/IntensiveByBenefitGroup} \caption{Time Series of Average Donations among Donors by Benefit Group}\label{fig:unnamed-chunk-5}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/IntensiveByBenefitGroup} \caption{Time Series of Average Donations among Donors by Benefit Group}\label{fig:unnamed-chunk-5}
 \end{figure}
 \end{frame}
 
@@ -547,7 +550,16 @@ donations
 \tightlist
 \item
   The presidential transition is one of our major ommited factor to
-  affect both political trust and charitable giving.
+  charitable giving.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In May 2017, South Korea president changed from Park Geun-hye to
+    Moon Jae-in. This presidential transition was due to the impeachment
+    charge against Park Geun-hye. People became distrustful of her due
+    to the shinking of MV Sewol (April 2014).
+  \end{itemize}
 \item
   To shed light on this concern, we used data in 2013 and 2014
   (President was Park Geun-hye in both years), and estimated the model
@@ -640,7 +652,7 @@ fixed effect model.
 \begin{frame}{Histrogram of Trust Index}
 \protect\hypertarget{histrogram-of-trust-index}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramTrustid} \caption{Histogram of Trust Index}\label{fig:unnamed-chunk-6}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramTrustid} \caption{Histogram of Trust Index}\label{fig:unnamed-chunk-6}
 \end{figure}
 \end{frame}
 
@@ -662,21 +674,21 @@ index.
 \begin{frame}{Trust Groups: Descriptive Stats}
 \protect\hypertarget{trust-groups-descriptive-stats}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeByTrustGroup} \caption{Time Series of Average Donations by Subgroup}\label{fig:unnamed-chunk-7}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcomeByTrustGroup} \caption{Time Series of Average Donations by Subgroup}\label{fig:unnamed-chunk-7}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Trust Groups: Descriptive Statis (Extensive Margin)}
 \protect\hypertarget{trust-groups-descriptive-statis-extensive-margin}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeExtensiveByTrustGroup} \caption{Time Series of Proportion of Donors by Subgroup}\label{fig:unnamed-chunk-8}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcomeExtensiveByTrustGroup} \caption{Time Series of Proportion of Donors by Subgroup}\label{fig:unnamed-chunk-8}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Trust Groups: Descriptive Stats (Intensive Margin)}
 \protect\hypertarget{trust-groups-descriptive-stats-intensive-margin}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeIntensiveByTrustGroup} \caption{Time Series of Average Donations among Donors by Subgroup}\label{fig:unnamed-chunk-9}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcomeIntensiveByTrustGroup} \caption{Time Series of Average Donations among Donors by Subgroup}\label{fig:unnamed-chunk-9}
 \end{figure}
 \end{frame}
 
@@ -735,23 +747,153 @@ index.
 \begin{frame}{Robustness Check 1: Presidential Transition Effect on
 Trust}
 \protect\hypertarget{robustness-check-1-presidential-transition-effect-on-trust}{}
-Ongoing now\ldots.
+\begin{itemize}
+\tightlist
+\item
+  Even though we control time fixed effect when estimating the trust
+  index, we may not rule out the effect of presidential transition on it
+  perfectly.
+\item
+  To check this point, we repeat estimate the same model using either
+  data in 2015 and 2016 (Park's trust index) or in 2017 and 2018 (Moon's
+  trust index), and obtain the president-specific trust indexs. After
+  that, we test whether the average individual difference b/w these two
+  indexs is statistically different from zero (pair-wise t-test).
+\item
+  As a result, the average individual difference is -0.008 (s.e. =
+  0.01). This difference is not statistically different from zero
+  (p-value = 0.446).
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Robustness Check 2}
 \protect\hypertarget{robustness-check-2-1}{}
+We check the following two potential concerns
+
 \begin{itemize}
 \tightlist
 \item
   Presidential transition effect on donation behavior
 \item
-  Simultaneous decision problem
+  Income and donations are determined simultaneously
 \end{itemize}
+
+To address these problems, we estimate the FE model and Panel IV model
+with FE where instrument is
+\(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) for \(k = 1, 2, 3\),
+using data in 2013 and 2014.
+
+Note that f-statistics of IV is greater than 1000 when we estimate
+overall elasticity and extensive-margin elasticity, and greater than 400
+when we estimate the intensive-margin elasticity.
 \end{frame}
 
 \begin{frame}{Robustness Check 2: Result}
 \protect\hypertarget{robustness-check-2-result-1}{}
-Ongoing now\ldots{}
+\begin{table}
+
+\caption{\label{tab:tabShortEstimateElasticityByTrustGroup3}Robustness Check of Heterogenous Price Elasiticity by Political Trust}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & 1Q & 2Q & 3Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{FE Model}}\\
+\hspace{1em}ln(giving price) & -0.485 & -2.901*** & -1.164*\\
+\hspace{1em} & (0.564) & (0.563) & (0.623)\\
+\hspace{1em}N & 4713 & 4489 & 4586\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 1)}}\\
+\hspace{1em}ln(giving price) & -0.347 & -3.307*** & -1.242*\\
+\hspace{1em} & (0.639) & (0.602) & (0.656)\\
+\hspace{1em}N & 4337 & 4109 & 4190\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 2)}}\\
+\hspace{1em}ln(giving price) & -0.617 & -3.314*** & -1.204*\\
+\hspace{1em} & (0.627) & (0.689) & (0.702)\\
+\hspace{1em}N & 4100 & 3839 & 3975\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 3)}}\\
+\hspace{1em}ln(giving price) & -0.230 & -2.536*** & -0.807\\
+\hspace{1em} & (0.684) & (0.673) & (0.691)\\
+\hspace{1em}N & 3947 & 3700 & 3832\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Result (Extensive Margin)}
+\protect\hypertarget{robustness-check-2-result-extensive-margin}{}
+\begin{table}
+
+\caption{\label{tab:tabShortEstimateElasticityExtensiveByTrustGroup3}Robustness Check of Heterogenous Extensive-Margin Price Elasiticity by Political Trust}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & 1Q & 2Q & 3Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{FE Model}}\\
+\hspace{1em}Implied Elasticity & -0.834 & -3.347*** & -1.386*\\
+\hspace{1em} & (0.728) & (0.672) & (0.774)\\
+\hspace{1em}N & 4713 & 4489 & 4586\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 1)}}\\
+\hspace{1em}Implied Elasticity & -0.438 & -3.880*** & -1.658*\\
+\hspace{1em} & (0.816) & (0.732) & (0.846)\\
+\hspace{1em}N & 4337 & 4109 & 4190\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 2)}}\\
+\hspace{1em}Implied Elasticity & -1.082 & -3.864*** & -1.223\\
+\hspace{1em} & (0.805) & (0.797) & (0.878)\\
+\hspace{1em}N & 4100 & 3839 & 3975\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 3)}}\\
+\hspace{1em}Implied Elasticity & -0.852 & -3.176*** & -0.850\\
+\hspace{1em} & (0.881) & (0.806) & (0.893)\\
+\hspace{1em}N & 3947 & 3700 & 3832\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Result (Intensive Margin)}
+\protect\hypertarget{robustness-check-2-result-intensive-margin}{}
+\begin{table}
+
+\caption{\label{tab:tabShortEstimateElasticityIntensiveByTrustGroup3}Robustness Check of Heterogenous Intenstive-Margin Price Elasiticity by Political Trust}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & 1Q & 2Q & 3Q\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{FE Model}}\\
+\hspace{1em}ln(giving price) & -0.485 & -2.901*** & -1.164*\\
+\hspace{1em} & (0.564) & (0.563) & (0.623)\\
+\hspace{1em}N & 4713 & 4489 & 4586\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 1)}}\\
+\hspace{1em}ln(giving price) & -0.347 & -3.307*** & -1.242*\\
+\hspace{1em} & (0.639) & (0.602) & (0.656)\\
+\hspace{1em}N & 4337 & 4109 & 4190\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 2)}}\\
+\hspace{1em}ln(giving price) & -0.617 & -3.314*** & -1.204*\\
+\hspace{1em} & (0.627) & (0.689) & (0.702)\\
+\hspace{1em}N & 4100 & 3839 & 3975\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Panel IV (k = 3)}}\\
+\hspace{1em}ln(giving price) & -0.230 & -2.536*** & -0.807\\
+\hspace{1em} & (0.684) & (0.673) & (0.691)\\
+\hspace{1em}N & 3947 & 3700 & 3832\\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{frame}
 
 \hypertarget{governement-efficient-and-price-elasticity}{%
@@ -783,7 +925,7 @@ To rule out government's policies, we use individual fixed effect as the
 \begin{frame}{Histrogram of Efficient Index}
 \protect\hypertarget{histrogram-of-efficient-index}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramBalanceid} \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-10}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramBalanceid} \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-10}
 \end{figure}
 \end{frame}
 
@@ -805,21 +947,21 @@ efficient index.
 \begin{frame}{Efficient Groups: Descriptive Stats}
 \protect\hypertarget{efficient-groups-descriptive-stats}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeByEfficientGroup3} \caption{Time Series of Average Donations by Subgroup}\label{fig:unnamed-chunk-11}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcomeByEfficientGroup3} \caption{Time Series of Average Donations by Subgroup}\label{fig:unnamed-chunk-11}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Efficient Groups: Descriptive Statis (Extensive Margin)}
 \protect\hypertarget{efficient-groups-descriptive-statis-extensive-margin}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeExtensiveByEfficientGroup3} \caption{Time Series of Proportion of Donors by Subgroup}\label{fig:unnamed-chunk-12}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcomeExtensiveByEfficientGroup3} \caption{Time Series of Proportion of Donors by Subgroup}\label{fig:unnamed-chunk-12}
 \end{figure}
 \end{frame}
 
 \begin{frame}{Efficient Groups: Descriptive Stats (Intensive Margin)}
 \protect\hypertarget{efficient-groups-descriptive-stats-intensive-margin}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcomeIntensiveByEfficientGroup3} \caption{Time Series of Average Donations among Donors by Subgroup}\label{fig:unnamed-chunk-13}
+\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcomeIntensiveByEfficientGroup3} \caption{Time Series of Average Donations among Donors by Subgroup}\label{fig:unnamed-chunk-13}
 \end{figure}
 \end{frame}
 

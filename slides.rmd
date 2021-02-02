@@ -992,7 +992,8 @@ pack_rows("Extensive Margin", 5, 10)
 
 Second potential concern: The effect of presidential transition on donations 
     
-- The presidential transition is one of our major ommited factor to affect both political trust and charitable giving.
+- The presidential transition is one of our major ommited factor to charitable giving.
+	- In May 2017, South Korea president changed from Park Geun-hye to Moon Jae-in. This presidential transition was due to the impeachment charge against Park Geun-hye. People became distrustful of her due to the shinking of MV Sewol (April 2014).
 - To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for $k = 1, 2, 3$.
 
 
@@ -1637,8 +1638,6 @@ pack_rows("Extensive Margin", 7, 11)
 
 ## Robustness Check 1: Presidential Transition Effect on Trust
 
-Ongoing now....
-
 ```{stata tTestPresidentTrustid, results = "hide", eval = FALSE}
 merge m:1 pid using "data\shape\trustid.dta"
 drop _merge
@@ -1660,10 +1659,24 @@ mat list tabular
 xsvmat tabular, saving(_assets/tTestPresidentTrustid.dta, replace) rownames(xvar) names(col)
 ```
 
+```{r shapetTestPresidentTrustid}
+tdt <- read.dta13("_assets/tTestPresidentTrustid.dta") %>% data.frame()
+```
+
+- Even though we control time fixed effect when estimating the trust index, we may not rule out the effect of presidential transition on it perfectly.
+- To check this point, we repeat estimate the same model using either data in 2015 and 2016 (Park's trust index) or in 2017 and 2018 (Moon's trust index), and obtain the president-specific trust indexs. After that, we test whether the average individual difference b/w these two indexs is statistically different from zero (pair-wise t-test).
+- As a result, the average individual difference is `r round(tdt[1,2], 3)` (s.e. = `r round(tdt[2,2],3)`). This difference is not statistically different from zero (p-value = `r round(tdt[3,2], 3)`).
+
 ## Robustness Check 2
 
+We check the following two potential concerns
+
 - Presidential transition effect on donation behavior 
-- Simultaneous decision problem
+- Income and donations are determined simultaneously
+
+To address these problems, we estimate the FE model and Panel IV model with FE where instrument is $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ for $k = 1, 2, 3$, using data in 2013 and 2014.
+
+Note that f-statistics of IV is greater than 1000 when we estimate overall elasticity and extensive-margin elasticity, and greater than 400 when we estimate the intensive-margin elasticity.
 
 ```{stata ShortEstimateElasticityByTrustGroup3, results = "hide", eval = FALSE}
 merge m:1 pid using "data\shape\trustid.dta"
@@ -1898,9 +1911,113 @@ mat list tabular
 xsvmat tabular, saving(_assets/ShortElasticityIntensiveByTrustGroup3.dta, replace) rownames(xvar) names(col)
 ```
 
+```{r shapeShortEstimateElasticityByTrustGroup3}
+orgtab <- list(
+	overall = read.dta13("_assets/ShortElasticityByTrustGroup3.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/ShortElasticityExtensiveByTrustGroup3.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/ShortElasticityIntensiveByTrustGroup3.dta") %>% data.frame()
+)
+
+shape1 <- list(orgtab$overall, orgtab$intensive) %>% 
+	purrr::map(function(x)
+		x %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se),
+			N = sprintf("%1d", as.integer(N))
+		) %>%
+		select(xvar, b, se, N) %>% 
+		pivot_longer(-xvar, names_to = "stat", values_to = "val") %>% 
+		pivot_wider(names_from = "xvar", values_from = "val") %>% 
+		pivot_longer(-stat, names_to = c("group", "lag"), names_pattern = "Q(.)k(.)", values_to = "val") %>% 
+		pivot_wider(names_from = "group", values_from = "val") %>% 
+		.[order(.$lag),] %>% 
+		select(-stat, -lag) %>% 
+		cbind(xvar = rep(c("ln(giving price)", "", "N"), 4), .)
+	)
+
+shape2 <- orgtab$extensive %>% 
+	mutate(
+		N = sprintf("%1d", as.integer(N)),
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(xvar, e_b, e_se, N) %>% 
+	pivot_longer(-xvar, names_to = "stat", values_to = "val") %>% 
+	pivot_wider(names_from = "xvar", values_from = "val") %>% 
+	pivot_longer(-stat, names_to = c("group", "lag"), names_pattern = "Q(.)k(.)", values_to = "val") %>% 
+	pivot_wider(names_from = "group", values_from = "val") %>% 
+	.[order(.$lag),] %>% 
+	select(-stat, -lag) %>%
+	cbind(xvar = rep(c("Implied Elasticity", "", "N"), 4), .) 
+```
+
 ## Robustness Check 2: Result
 
-Ongoing now...
+```{r tabShortEstimateElasticityByTrustGroup3, include = TRUE}
+knitr::kable(
+    shape1[[1]],
+    format = "latex",
+    caption = "Robustness Check of Heterogenous Price Elasiticity by Political Trust",
+    col.names = c("", "1Q", "2Q", "3Q"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+pack_rows("FE Model", 1, 3) %>% 
+pack_rows("Panel IV (k = 1)", 4, 6) %>% 
+pack_rows("Panel IV (k = 2)", 7, 9) %>% 
+pack_rows("Panel IV (k = 3)", 10, 12) 
+```
+
+## Robustness Check 2: Result (Extensive Margin)
+
+```{r tabShortEstimateElasticityExtensiveByTrustGroup3, include = TRUE}
+knitr::kable(
+    shape2,
+    format = "latex",
+    caption = "Robustness Check of Heterogenous Extensive-Margin Price Elasiticity by Political Trust",
+    col.names = c("", "1Q", "2Q", "3Q"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+pack_rows("FE Model", 1, 3) %>% 
+pack_rows("Panel IV (k = 1)", 4, 6) %>% 
+pack_rows("Panel IV (k = 2)", 7, 9) %>% 
+pack_rows("Panel IV (k = 3)", 10, 12) 
+```
+
+## Robustness Check 2: Result (Intensive Margin)
+
+```{r tabShortEstimateElasticityIntensiveByTrustGroup3, include = TRUE}
+knitr::kable(
+    shape1[[1]],
+    format = "latex",
+    caption = "Robustness Check of Heterogenous Intenstive-Margin Price Elasiticity by Political Trust",
+    col.names = c("", "1Q", "2Q", "3Q"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+pack_rows("FE Model", 1, 3) %>% 
+pack_rows("Panel IV (k = 1)", 4, 6) %>% 
+pack_rows("Panel IV (k = 2)", 7, 9) %>% 
+pack_rows("Panel IV (k = 3)", 10, 12) 
+```
 
 # Governement Efficient and Price Elasticity
 
@@ -1922,7 +2039,7 @@ Questionnaire of tax-welfare balance index is
 
 To rule out government's policies, we use individual fixed effect as the **tax-welare size index**
 
-```{stata EstimateTaxBalanceIndex, results = "hide"}
+```{stata EstimateTaxBalanceIndex, results = "hide", eval = FALSE}
 * current efficient index
 xtreg now_balance i.year##i.living_area if year >= 2015, fe
 predict orgbalanceid, u
