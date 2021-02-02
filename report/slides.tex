@@ -118,11 +118,9 @@
 \fi
 
 \title{Charitable Giving, Tax Reform, and Political Trust}
-\author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
-Kim\(^3\)}
-\date{2021/02/02}
-\institute{\(^1\)Osaka University \and \(^2\)Chiba
-University \and \(^3\)Kobe University}
+\author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok Kim\(^3\)}
+\date{2021/02/03}
+\institute{\(^1\)Osaka University \and \(^2\)Chiba University \and \(^3\)Kobe University}
 
 \begin{document}
 \frame{\titlepage}
@@ -133,19 +131,8 @@ University \and \(^3\)Kobe University}
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-\begin{frame}{Background of South Korea Tax Reform}
-\protect\hypertarget{background-of-south-korea-tax-reform}{}
-To investigate the price effect, we use the 2014 tax reform in the South Korea.
-
-\begin{itemize}
-\tightlist
-\item
-  Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
-\item
-  After 2014, tax credit have been adopted.
-\end{itemize}
-
-The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer's marginal tax rate, which increases with gross income
+\begin{frame}{Introduction}
+\protect\hypertarget{introduction-1}{}
 \end{frame}
 
 \hypertarget{data}{%
@@ -356,8 +343,7 @@ Our baseline regression equation is
 
 \begin{frame}{Baseline Regressions: Result}
 \protect\hypertarget{baseline-regressions-result}{}
-We found the \textbf{price effect} of giving (1\% price increase leads
-to about 1.1\% giving decrease)
+We found the \textbf{price effect} of giving (1\% price increase leads to about 1.1\% giving decrease)
 
 \begin{table}
 
@@ -383,24 +369,19 @@ N & 54213 & 54213 & 54211 & 54211 & 54211\\
 
 \begin{frame}{Intensive Margin and Extensive Margin}
 \protect\hypertarget{intensive-margin-and-extensive-margin}{}
-Let \(D_{ijt}\) be a dummy variable taking 1 if individual \(i\) whose
-resident area \(j\) in year \(t\) donate in year \(t\)
+Let \(D_{ijt}\) be a dummy variable taking 1 if individual \(i\) whose resident area \(j\) in year \(t\) donate in year \(t\)
 
 \begin{itemize}
 \tightlist
 \item
-  Intensive margin: Estiamte \(\beta_1\) where outcome variable is
-  \(\log(\text{Giving}_{ijt})\), using units with \(D_{ijt} = 1\).
+  Intensive margin: Estiamte \(\beta_1\) where outcome variable is \(\log(\text{Giving}_{ijt})\), using units with \(D_{ijt} = 1\).
 \item
-  Extensive margin: Estimate \(\beta_1\) where outcome variable is
-  \(D_{ijt}\).
+  Extensive margin: Estimate \(\beta_1\) where outcome variable is \(D_{ijt}\).
 
   \begin{itemize}
   \tightlist
   \item
-    Extensive-margin price elasticity can be calculated by
-    \(\beta_1/\bar{D}\) where \(\bar{D}\) is the sample mean of
-    \(D_{ijt}\).
+    Extensive-margin price elasticity can be calculated by \(\beta_1/\bar{D}\) where \(\bar{D}\) is the sample mean of \(D_{ijt}\).
   \end{itemize}
 \end{itemize}
 
@@ -454,20 +435,16 @@ Covariates in each column corresponds to a column in a previous slide.
 
 \begin{frame}{Robustness Check 1}
 \protect\hypertarget{robustness-check-1}{}
-First potential concern: Income and donations are determined
-simultaneously
+First potential concern: Income and donations are determined simultaneously
 
 \begin{itemize}
 \tightlist
 \item
-  This causes both a change of giving price and a change of an amount of
-  donations
+  This causes both a change of giving price and a change of an amount of donations
 \item
-  Gruber and Saez (2002) provided that we should use
-  \(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) as an insturment.
+  Gruber and Saez (2002) provided that we should use \(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) as an insturment.
 \item
-  We estimated the model (5) in the previous slide, using the panel IV
-  model for \(k = 1, 2, 3\).
+  We estimated the model (5) in the previous slide, using the panel IV model for \(k = 1, 2, 3\).
 
   \begin{itemize}
   \tightlist
@@ -528,28 +505,20 @@ N & 51548 & 49217 & 46399\\
 
 \begin{frame}{Robust Check 2}
 \protect\hypertarget{robust-check-2}{}
-Second potential concern: The effect of presidential transition on
-donations
+Second potential concern: The effect of presidential transition on donations
 
 \begin{itemize}
 \tightlist
 \item
-  The presidential transition is one of our major ommited factor to
-  charitable giving.
+  The presidential transition is one of our major ommited factor to charitable giving.
 
   \begin{itemize}
   \tightlist
   \item
-    In May 2017, South Korea president changed from Park Geun-hye to
-    Moon Jae-in. This presidential transition was due to the impeachment
-    charge against Park Geun-hye. People became distrustful of her due
-    to the shinking of MV Sewol (April 2014).
+    In May 2017, South Korea president changed from Park Geun-hye to Moon Jae-in. This presidential transition was due to the impeachment charge against Park Geun-hye. People became distrustful of her due to the shinking of MV Sewol (April 2014).
   \end{itemize}
 \item
-  To shed light on this concern, we used data in 2013 and 2014
-  (President was Park Geun-hye in both years), and estimated the model
-  (5) in the previous slide, using the fixed effect model and the panel
-  IV model for \(k = 1, 2, 3\).
+  To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for \(k = 1, 2, 3\).
 \end{itemize}
 \end{frame}
 
@@ -641,16 +610,14 @@ We make time-invarying trust index using the fixed effect model.
 
 \begin{frame}{Heterogenous Price Elasticity by Political Trust}
 \protect\hypertarget{heterogenous-price-elasticity-by-political-trust}{}
-To see the heterogenous price elasticity by political trust, We
-estimated the baseline regression model (5) (see Table
-\ref{tab:kableEstimateElasticity}), using sample grouped by the trust
-index.
+To see the heterogenous price elasticity by political trust,
+We estimated the baseline regression model (5) (see Table \ref{tab:kableEstimateElasticity}),
+using sample grouped by the trust index.
 
 \begin{itemize}
 \tightlist
 \item
-  Three quantile groups: we divide units \(i\) into the first, second,
-  and third quantile of trust index (1Q, 2Q, and 3Q, respectively).
+  Three quantile groups: we divide units \(i\) into the first, second, and third quantile of trust index (1Q, 2Q, and 3Q, respectively).
 \end{itemize}
 \end{frame}
 
@@ -727,25 +694,16 @@ index.
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Robustness Check 1: Presidential Transition Effect on
-Trust}
+\begin{frame}{Robustness Check 1: Presidential Transition Effect on Trust}
 \protect\hypertarget{robustness-check-1-presidential-transition-effect-on-trust}{}
 \begin{itemize}
 \tightlist
 \item
-  Even though we control time fixed effect when estimating the trust
-  index, we may not rule out the effect of presidential transition on it
-  perfectly.
+  Even though we control time fixed effect when estimating the trust index, we may not rule out the effect of presidential transition on it perfectly.
 \item
-  To check this point, we repeat estimate the same model using either
-  data in 2015 and 2016 (Park's trust index) or in 2017 and 2018 (Moon's
-  trust index), and obtain the president-specific trust indexs. After
-  that, we test whether the average individual difference b/w these two
-  indexs is statistically different from zero (pair-wise t-test).
+  To check this point, we repeat estimate the same model using either data in 2015 and 2016 (Park's trust index) or in 2017 and 2018 (Moon's trust index), and obtain the president-specific trust indexs. After that, we test whether the average individual difference b/w these two indexs is statistically different from zero (pair-wise t-test).
 \item
-  As a result, the average individual difference is -0.008 (s.e. =
-  0.01). This difference is not statistically different from zero
-  (p-value = 0.446).
+  As a result, the average individual difference is -0.008 (s.e. = 0.01). This difference is not statistically different from zero (p-value = 0.446).
 \end{itemize}
 \end{frame}
 
@@ -761,14 +719,9 @@ We check the following two potential concerns
   Income and donations are determined simultaneously
 \end{itemize}
 
-To address these problems, we estimate the FE model and Panel IV model
-with FE where instrument is
-\(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) for \(k = 1, 2, 3\),
-using data in 2013 and 2014.
+To address these problems, we estimate the FE model and Panel IV model with FE where instrument is \(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) for \(k = 1, 2, 3\), using data in 2013 and 2014.
 
-Note that f-statistics of IV is greater than 1000 when we estimate
-overall elasticity and extensive-margin elasticity, and greater than 400
-when we estimate the intensive-margin elasticity.
+Note that f-statistics of IV is greater than 1000 when we estimate overall elasticity and extensive-margin elasticity, and greater than 400 when we estimate the intensive-margin elasticity.
 \end{frame}
 
 \begin{frame}{Robustness Check 2: Result}
@@ -880,13 +833,12 @@ when we estimate the intensive-margin elasticity.
 \end{frame}
 
 \hypertarget{governement-efficient-and-price-elasticity}{%
-\section{Governement Efficient and Price
-Elasticity}\label{governement-efficient-and-price-elasticity}}
+\section{Governement Efficient and Price Elasticity}\label{governement-efficient-and-price-elasticity}}
 
 \begin{frame}{Government Efficiency}
 \protect\hypertarget{government-efficiency}{}
-From the 2015 survey, NaSTaB asks the current and ideal balance between
-tax burden and welfare size.
+From the 2015 survey,
+NaSTaB asks the current and ideal balance between tax burden and welfare size.
 
 These variables provide us to investigate the relationship between price elasticity and govenrment's efficiency
 more directly.
@@ -900,8 +852,7 @@ Questionnaire of tax-welfare balance index is
 
 \includegraphics[width=0.5\textwidth,height=\textheight]{_assets/BalanceQuestion.jpg}
 
-To rule out government's policies, we use individual fixed effect as the
-\textbf{efficient index}
+To rule out government's policies, we use individual fixed effect as the \textbf{efficient index}
 \end{frame}
 
 \begin{frame}{Histrogram of Efficient Index}
@@ -913,16 +864,14 @@ To rule out government's policies, we use individual fixed effect as the
 
 \begin{frame}{Heterogenous Price Elasticity by Governement Efficiency}
 \protect\hypertarget{heterogenous-price-elasticity-by-governement-efficiency}{}
-To see the heterogenous price elasticity by efficient index, We
-estimated the baseline regression model (5) (see Table
-\ref{tab:kableEstimateElasticity}), using sample grouped by the
-efficient index.
+To see the heterogenous price elasticity by efficient index,
+We estimated the baseline regression model (5) (see Table \ref{tab:kableEstimateElasticity}),
+using sample grouped by the efficient index.
 
 \begin{itemize}
 \tightlist
 \item
-  Three quantile groups: we divide units \(i\) into the first, second,
-  and third quantile of efficient index (1Q, 2Q, and 3Q, respectively).
+  Three quantile groups: we divide units \(i\) into the first, second, and third quantile of efficient index (1Q, 2Q, and 3Q, respectively).
 \end{itemize}
 \end{frame}
 
@@ -985,8 +934,7 @@ efficient index.
 \begin{enumerate}
 \tightlist
 \item
-  Efficient index captures both government efficiency on concerns about
-  budget deficits
+  Efficient index captures both government efficiency on concerns about budget deficits
 \item
   Effect of presidential transition on efficient index
 \item
@@ -1007,24 +955,18 @@ efficient index.
 \begin{itemize}
 \tightlist
 \item
-  Efficient index may capture both government efficiency on concerns
-  about budget deficits
+  Efficient index may capture both government efficiency on concerns about budget deficits
 
   \begin{itemize}
   \tightlist
   \item
-    NASTAB asks respondents to answer the ideal balance b/w tax burdern
-    and welfare size.
+    NASTAB asks respondents to answer the ideal balance b/w tax burdern and welfare size.
   \item
-    We constructed the \textbf{ideal} efficient index, using the FE
-    model to estimate the efficient index.
+    We constructed the \textbf{ideal} efficient index, using the FE model to estimate the efficient index.
   \item
-    We droped units with the ideal efficient index is less than 0 from
-    each quantile group and repeated the same excercise.
+    We droped units with the ideal efficient index is less than 0 from each quantile group and repeated the same excercise.
   \item
-    This is because respondents whose the ideal efficient index is less
-    than 0 think governments should try to avoid budget deficits (high
-    tax, low welfare).
+    This is because respondents whose the ideal efficient index is less than 0 think governments should try to avoid budget deficits (high tax, low welfare).
   \end{itemize}
 \item
   Presidential transition effect on perceived efficiency
@@ -1032,11 +974,9 @@ efficient index.
   \begin{itemize}
   \tightlist
   \item
-    We constructed president-specific (ideal) efficient index and
-    implemented the pair-wise t-test.
+    We constructed president-specific (ideal) efficient index and implemented the pair-wise t-test.
   \item
-    As a result, average difference of these two indexs are not
-    statistically siginificant zero.
+    As a result, average difference of these two indexs are not statistically siginificant zero.
   \end{itemize}
 \end{itemize}
 \end{frame}
@@ -1086,15 +1026,10 @@ We check the following two potential concerns
   Income and donations are determined simultaneously
 \end{itemize}
 
-To address these problems, we estimated the FE model and Panel IV model
-with FE where instrument is
-\(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) for \(k = 1, 2, 3\),
-using data in 2013 and 2014. Moreover, we droped units with the ideal
-efficient index \textless{} 0 from each quantile group.
+To address these problems, we estimated the FE model and Panel IV model with FE where instrument is \(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) for \(k = 1, 2, 3\), using data in 2013 and 2014.
+Moreover, we droped units with the ideal efficient index \textless{} 0 from each quantile group.
 
-Note that f-statistics of IV is greater than 500 when we estimate
-overall elasticity and extensive-margin elasticity, and greater than 100
-when we estimate the intensive-margin elasticity.
+Note that f-statistics of IV is greater than 500 when we estimate overall elasticity and extensive-margin elasticity, and greater than 100 when we estimate the intensive-margin elasticity.
 \end{frame}
 
 \begin{frame}{Robustness Check 2: Result}
@@ -1203,6 +1138,13 @@ when we estimate the intensive-margin elasticity.
 \bottomrule
 \end{tabular}
 \end{table}
+\end{frame}
+
+\hypertarget{conclusions}{%
+\section{Conclusions}\label{conclusions}}
+
+\begin{frame}{Conclusions}
+\protect\hypertarget{conclusions-1}{}
 \end{frame}
 
 \end{document}
