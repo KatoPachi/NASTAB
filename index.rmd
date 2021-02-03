@@ -9,4 +9,5 @@ institute:
     - $^2$Chiba University
     - $^3$Kobe University
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
+bibliography: Ref.bib
 ---
