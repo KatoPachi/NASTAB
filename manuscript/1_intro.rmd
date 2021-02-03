@@ -27,7 +27,7 @@ To investigate the price effect, we use the 2014 tax reform in the South Korea
 - Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
 - After 2014, tax credit have been adopted.
 
-The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer’s marginal tax rate, which increases with gross income
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the taxpayer marginal tax rate, which increases with gross income
 
 <!--
 ## Charitable Giving and Governement Policy
