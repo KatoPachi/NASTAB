@@ -1,4 +1,7 @@
 *.log
+*.fff
+*.spl
+*.ttt
 
 # cache folder
 slides_cache/

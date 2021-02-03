@@ -4,5 +4,11 @@ bookdown::pdf_book:
   latex_engine: xelatex
   keep_tex: true
   toc: false
-  includes:
-    in_header: template/header.tex
+  template: template/pandoc_beamer_temp.tex
+bookdown::pdf_document2:
+  latex_engine: xelatex
+  number_sections: yes
+  keep_tex: yes
+  fig_caption: yes
+  toc: false
+  template: template/pandoc_elsarticle_temp.tex
