@@ -44,12 +44,13 @@
   \frame{\subsectionpage}
 }
 \usepackage{lmodern}
-\usepackage{amssymb,amsmath}
+\usepackage{amsmath}
 \usepackage{ifxetex,ifluatex}
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
+  \usepackage{amssymb}
 \else % if luatex or xetex
   \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
@@ -75,30 +76,17 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={Charitable Giving, Tax Reform, and Political Trust},
-  pdfauthor={Hiroki Kato\^{}1; Tsuyoshi Goto\^{}2; Yong-Rok Kim\^{}3},
+  pdftitle={Charitable Giving, Tax Reform, and Government Efficiency},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
 \newif\ifbibliography
 \usepackage{longtable,booktabs}
+\usepackage{calc} % for calculating minipage widths
 \usepackage{caption}
 % Make caption package work with longtable
 \makeatletter
 \def\fnum@table{\tablename~\thetable}
-\makeatother
-\usepackage{graphicx}
-\makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-% Set default figure placement to htbp
-\makeatletter
-\def\fps@figure{htbp}
 \makeatother
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \providecommand{\tightlist}{%
@@ -117,10 +105,31 @@
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
-\title{Charitable Giving, Tax Reform, and Political Trust}
-\author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok Kim\(^3\)}
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[3] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1 \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces\fi
+  % set entry spacing
+  \ifnum #2 > 0
+  \setlength{\parskip}{#2\baselineskip}
+  \fi
+ }%
+ {}
+\usepackage{calc} % for \widthof, \maxof
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\maxof{\widthof{#1}}{\csllabelwidth}}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth}{#1}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\title{Charitable Giving, Tax Reform, and Government Efficiency}
+  \author{ Hiroki Kato\(^1\)\and Tsuyoshi Goto\(^2\)\and Yong-Rok Kim\(^3\)}
+  \institute{\(^1\)Osaka University\and\(^2\)Chiba University\and\(^3\)Kobe University}
 \date{2021/02/03}
-\institute{\(^1\)Osaka University \and \(^2\)Chiba University \and \(^3\)Kobe University}
 
 \begin{document}
 \frame{\titlepage}
@@ -164,7 +173,12 @@
 \begin{frame}{Time Series of Chariable Giving}
 \protect\hypertarget{time-series-of-chariable-giving}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcome} \caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
+
+{\centering \includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcome} 
+
+}
+
+\caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
 \end{figure}
 \end{frame}
 
@@ -1140,11 +1154,14 @@ Note that f-statistics of IV is greater than 500 when we estimate overall elasti
 \end{table}
 \end{frame}
 
-\hypertarget{conclusions}{%
-\section{Conclusions}\label{conclusions}}
+\begin{frame}{References}
+\protect\hypertarget{references}{}
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\hypertarget{ref-Bursztyn2017}{}%
+Bursztyn, L., Jensen, R., 2017. Social image and economic behavior in the field: Identifying, understanding, and shaping social pressure. Annual Review of Economics 9, 131--153. doi:\href{https://doi.org/10.1146/annurev-economics-063016-103625}{10.1146/annurev-economics-063016-103625}
 
-\begin{frame}{Conclusions}
-\protect\hypertarget{conclusions-1}{}
+\end{CSLReferences}
 \end{frame}
 
 \end{document}
