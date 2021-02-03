@@ -1,7 +1,7 @@
 rmd_files:
   - "index.rmd"
   - "manuscript/1_intro.rmd"
-  - "manuscript/2_data.rmd"
+  #- "manuscript/2_data.rmd"
   #- "manuscript/3_elasticity.rmd"
   #- "manuscript/4_trustElasticity.rmd"
   #- "manuscript/5_efficiencyElasticity.rmd"
