@@ -14,12 +14,22 @@ options(bookdown.render.file_scope = FALSE)
 #'
 #+ Rmd File to Output
 
-# pdf
+# pdf (slides)
 bookdown::render_book(
     input = "index.rmd",
     output_format = "bookdown::pdf_book",
     output_file = "slides.pdf",
     output_dir = "report",
+    clean = TRUE,
+    encoding = "utf8"
+)
+
+# pdf (paper)
+bookdown::render_book(
+    input = "index.rmd",
+    output_format = "bookdown::pdf_document2",
+    output_file = "draft.pdf",
+    output_dir = "paper",
     clean = TRUE,
     encoding = "utf8"
 )

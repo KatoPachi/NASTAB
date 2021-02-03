@@ -7,7 +7,8 @@ knitr::opts_chunk$set(
   echo = FALSE, 
   cache = FALSE,
   include = FALSE,
-  fig.width = 10, fig.height = 6
+  fig.width = 10, fig.height = 6,
+  fig.align = "center"
 )
 knitr::opts_knit$set(root.dir = here())
 
@@ -20,7 +21,8 @@ options(knitr.kable.NA = "")
 # Introduction
 ## Background of South Korea Tax Reform
 
-To investigate the price effect, we use the 2014 tax reform in the South Korea.
+To investigate the price effect, we use the 2014 tax reform in the South Korea
+[@Bursztyn2017].
 
 - Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
 - After 2014, tax credit have been adopted.
