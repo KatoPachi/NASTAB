@@ -1,7 +1,7 @@
 #' 
 #+ pandoc version (optional)
 #Sys.setenv(RSTUDIO_PANDOC = "C:/Users/vge00/AppData/Local/Pandoc")
-Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/Pandoc")
+#Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/Pandoc")
 
 #'
 #+ library and wd
@@ -18,7 +18,7 @@ options(bookdown.render.file_scope = FALSE)
 bookdown::render_book(
     input = "index.rmd",
     output_format = "bookdown::pdf_book",
-    output_file = "slides.pdf",
+    output_file = "Paper.pdf",
     output_dir = "report",
     clean = TRUE,
     encoding = "utf8"
