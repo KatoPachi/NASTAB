@@ -1,0 +1,8 @@
+bookdown::pdf_book:
+  base_format: "function(..., number_sections) rmarkdown::beamer_presentation(...)"
+  number_sections: false
+  latex_engine: xelatex
+  keep_tex: true
+  toc: false
+  includes:
+    in_header: template/header.tex
