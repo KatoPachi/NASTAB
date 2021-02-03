@@ -1,0 +1,12 @@
+---
+title: "Charitable Giving, Tax Reform, and Political Trust"
+author: 
+    - Hiroki Kato$^1$
+    - Tsuyoshi Goto$^2$
+    - Yong-Rok Kim$^3$
+institute:
+    - $^1$Osaka University
+    - $^2$Chiba University
+    - $^3$Kobe University
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+---

@@ -1,0 +1,21 @@
+# Conclusions
+
+## Conclusions
+
+<!--
+Our primitive result can be summarized as follows:
+
+- Low trust: Since people untrust governement's behavior, they act regardless of governement's policies (expenditure and tax benefit)
+- Middle trust: Since people have strategic uncertainty, they take a strategy of conditional cooperation. That is, they increase donations and use tax benefit to boost their giving if a local governement increases expenditures.
+- High trust (very weak evidence): Since people believe that governement contributes to social welfare, they send money to governement (not charities). Thus, they hestitate to use a tax benefit compared with those whose trust is middle level. 
+
+## Avenue of Our Research
+
+Our primitive results have several serious problem.
+
+1. Endogeneity of giving price. The giving price includes decision-making of use of tax benefit.
+1. Does charitable giving contributes to local social welfare? To examine the crowd-out effect of local government expenditure, we need to assume that peole send money to charities which work for local social welfare.
+1. Does people believe that a tax benefit decreases the **local** governement's revenue? To interpret our primitive results, we assume that people believe that a tax benefit decreases the budget of local governement.
+
+In future, we need to solve these problems.
+-->
