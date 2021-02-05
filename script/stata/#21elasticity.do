@@ -15,39 +15,27 @@ gen highschool = (educ == 2) if !missing(educ)
 gen juniorhigh = (educ == 1) if !missing(educ)
 gen sqage = age^2/100
 
-** ---- LagOperation
 tsset pid year
-
-forvalues k = 1(1)3 {
-    gen diff`k'G = log_total_g - l`k'.log_total_g
-	gen diff`k'G1 = i_ext_giving - l`k'.i_ext_giving
-	gen diff`k'p = log_price - l`k'.log_price
-	gen diff`k'I = log_pinc_all - l`k'.log_pinc_all
-	gen diff`k'_age = age - l`k'.age
-	gen diff`k'_sqage = sqage - l`k'.sqage
-}
-
 keep if year >= 2012
 
 ********************************************************************************
 * Baseline
 ********************************************************************************
 
-** ---- EstimateElasticity
-label variable log_price "ln(giving price)"
-
-* baseline
+** ---- Elasticity
 xtreg log_total_g log_price log_pinc_all i.year, fe vce(cluster pid)
-mat coef = r(table)["b".."pvalue", "log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_a)
-mat colnames stat = model0
-mat rownames stat = N r2a
-mat_rapp model0 : coef stat
-mat tabular = model0'
+
+mat coeftab = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab = Logprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+predict resid, e
 
 * with covariates
-local cov sqage i.year##i.educ i.year##i.gender i.living_area
+local cov sqage i.year##i.educ i.year##i.gender 
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -57,53 +45,96 @@ foreach v of local cov {
 	local xvars `xvars' `v'
 	
 	*estimate fixed effect model
-	xtreg log_total_g log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
+	xtreg log_total_g log_price log_pinc_all i.year age i.living_area `xvars', fe vce(cluster pid)
 	
 	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2a
-	mat_rapp model`k' : coef stat
-	mat model`k' = model`k''
+	mat coef = r(table)["b".."pvalue","log_price".."log_pinc_all"]
+	mat colnames coef = Logprice_M`k' Loginc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
 	
 	*combined with previous results
-	mat_rapp tabular : tabular model`k'
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
 
 	local k = `++k'
 }
 
-mat list tabular
+mat list coeftab
+mat list stattab
 
-** ---- EstimateElasticityExtensive
-label variable log_price "ln(giving price)"
+* residuals plot
+frame copy default plotdt
+frame plotdt {
+	gen benefit_group = .
+	replace benefit_group = 1 if credit_benefit == 1
+	replace benefit_group = 2 if credit_neutral == 1
+	replace benefit_group = 3 if credit_loss == 1
+	
+	by year benefit_group, sort: egen meang = mean(resid)
+	
+	keep meang year benefit_group
+	duplicates drop
+	keep if !missing(benefit_group)
+	
+	gen meang_norm = meang if year == 2013
+	by benefit_group, sort: egen meang13 = mean(meang_norm) 
+	gen meang_n = meang/meang13 - 1
+}
 
+frame plotdt {
+	twoway ///
+	(connected meang_n year if benefit_group == 1, sort msymbol(O) color(black))  ///
+	(connected meang_n year if benefit_group == 2, sort msymbol(T) color(black))  ///
+	(connected meang_n year if benefit_group == 3, sort msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Average Residuals (Normalized)")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
+}
+
+frame drop plotdt
+
+** ---- ExtElasticity
 * baseline
 xtreg i_ext_giving log_price log_pinc_all i.year, fe vce(cluster pid)
-mat coef = r(table)["b".."pvalue", "log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_a)
-mat colnames stat = model0
-mat rownames stat = N r2a
+predict residext, e
 
-* proportion of donors
+mat coeftab = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab = Logprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r
+
+* price elasticity evaluated at mean
 summarize i_ext_giving
 local mu = r(mean)
-
-* implied elasticity
 lincom log_price*(1/`mu')
-mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-mat colnames elas = model0
-mat rownames elas = e_b e_se e_pval
+
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M0
+mat rownames elas1 = e_b e_se e_pval
+
+* price elasticity evaluated at mean
+summarize i_ext_giving
+local mu = r(mean)
+lincom log_pinc_all*(1/`mu')
+
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Loginc_M0
+mat rownames elas2 = e_b e_se e_pval
 
 * baseline result
-mat_rapp model0 : coef stat
-mat_rapp model0 : model0 elas
-mat tabular = model0'
+mat_capp elas : elas1 elas2
+mat_rapp coeftab : coeftab elas
+
 
 * with covariates
-local cov sqage i.year##i.educ i.year##i.gender i.living_area
+local cov sqage i.year##i.educ i.year##i.gender 
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -113,53 +144,99 @@ foreach v of local cov {
 	local xvars `xvars' `v'
 	
 	*estimate fixed effect model
-	xtreg i_ext_giving log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
+	xtreg i_ext_giving log_price log_pinc_all i.year age i.living_area `xvars', fe vce(cluster pid)
 	
 	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2a
+	mat coef = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+	mat colnames coef = Logprice_M`k' Loginc_M`k'
+
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M0
+	mat rownames stat = N r
 	
 	*proportion of donors
 	summarize i_ext_giving
 	local mu = r(mean)
 	
-	*implied elasticity
+	* price elasticity evaluated at mean
+	summarize i_ext_giving
+	local mu = r(mean)
 	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`k'
-	mat rownames elas = e_b e_se e_pval
-	
-	*regression result
-	mat_rapp model`k' : coef stat
-	mat_rapp model`k' : model`k' elas
-	mat model`k' = model`k''
+
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logprice_M`k'
+	mat rownames elas1 = e_b e_se e_pval
+
+	* price elasticity evaluated at mean
+	summarize i_ext_giving
+	local mu = r(mean)
+	lincom log_pinc_all*(1/`mu')
+
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Loginc_M`k'
+	mat rownames elas2 = e_b e_se e_pval
 	
 	*combined with previous results
-	mat_rapp tabular : tabular model`k'
+	mat_capp elas : elas1 elas2
+	mat_rapp coef : coef elas
+	mat_capp coeftab : coeftab coef
+	
+	mat_capp stattab : stattab stat
 
 	local k = `++k'
 }
 
-mat list tabular
+mat list coeftab
+mat list stattab
 
-** ---- EstimateElasticityIntensive
-label variable log_price "ln(giving price)"
+* residuals plot
+frame copy default plotdt
+frame plotdt {
+	gen benefit_group = .
+	replace benefit_group = 1 if credit_benefit == 1
+	replace benefit_group = 2 if credit_neutral == 1
+	replace benefit_group = 3 if credit_loss == 1
+	
+	by year benefit_group, sort: egen meang = mean(residext)
+	
+	keep meang year benefit_group
+	duplicates drop
+	keep if !missing(benefit_group)
+	
+	gen meang_norm = meang if year == 2013
+	by benefit_group, sort: egen meang13 = mean(meang_norm) 
+	gen meang_n = meang/meang13 - 1
+}
 
+frame plotdt {
+	twoway ///
+	(connected meang_n year if benefit_group == 1, sort msymbol(O) color(black))  ///
+	(connected meang_n year if benefit_group == 2, sort msymbol(T) color(black))  ///
+	(connected meang_n year if benefit_group == 3, sort msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Average Residuals (Normalized)")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
+}
+
+frame drop plotdt
+
+** ---- IntElasticity
 * baseline
 xtreg log_total_g log_price log_pinc_all i.year if i_ext_giving == 1, fe vce(cluster pid)
-mat coef = r(table)["b".."pvalue", "log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_a)
-mat colnames stat = model0
-mat rownames stat = N r2a
-mat_rapp model0 : coef stat
-mat tabular = model0'
+
+mat coeftab = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab = Logprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+predict residint, e
 
 * with covariates
-local cov sqage i.year##i.educ i.year##i.gender i.living_area
+local cov sqage i.year##i.educ i.year##i.gender 
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -169,25 +246,60 @@ foreach v of local cov {
 	local xvars `xvars' `v'
 	
 	*estimate fixed effect model
-	xtreg log_total_g log_price log_pinc_all i.year age `xvars' if i_ext_giving == 1, /// 
-		fe vce(cluster pid)
+	xtreg log_total_g log_price log_pinc_all i.year age i.living_area `xvars' if i_ext_giving == 1, fe vce(cluster pid)
 	
 	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2a
-	mat_rapp model`k' : coef stat
-	mat model`k' = model`k''
+	mat coef = r(table)["b".."pvalue","log_price".."log_pinc_all"]
+	mat colnames coef = Logprice_M`k' Loginc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
 	
 	*combined with previous results
-	mat_rapp tabular : tabular model`k'
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
 
 	local k = `++k'
 }
 
-mat list tabular
+mat list coeftab
+mat list stattab
+
+* residuals plot
+frame copy default plotdt
+frame plotdt {
+	gen benefit_group = .
+	replace benefit_group = 1 if credit_benefit == 1
+	replace benefit_group = 2 if credit_neutral == 1
+	replace benefit_group = 3 if credit_loss == 1
+	
+	by year benefit_group, sort: egen meang = mean(residint)
+	
+	keep meang year benefit_group
+	duplicates drop
+	keep if !missing(benefit_group)
+	
+	gen meang_norm = meang if year == 2013
+	by benefit_group, sort: egen meang13 = mean(meang_norm) 
+	gen meang_n = meang/meang13 - 1
+}
+
+frame plotdt {
+	twoway ///
+	(connected meang_n year if benefit_group == 1, sort msymbol(O) color(black))  ///
+	(connected meang_n year if benefit_group == 2, sort msymbol(T) color(black))  ///
+	(connected meang_n year if benefit_group == 3, sort msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Average Residuals (Normalized)")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
+}
+
+frame drop plotdt
+
+
 
 ********************************************************************************
 * Panel IV (instrument is log(p_it) - log(p_it-k))
