@@ -14,7 +14,22 @@ gen univ = (educ == 3) if !missing(educ)
 gen highschool = (educ == 2) if !missing(educ)
 gen juniorhigh = (educ == 1) if !missing(educ)
 
-keep if year >= 2012
+gen now_balance = 0
+replace now_balance = 2 if avg_welfare_tax == 1
+replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
+replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
+replace now_balance = -2 if avg_welfare_tax == 9
+replace now_balance = . if missing(avg_welfare_tax)
+
+gen ideal_balance = 0 
+replace ideal_balance = 2 if opt_welfare_tax == 1
+replace ideal_balance = 1 if opt_welfare_tax == 2 | opt_welfare_tax == 4
+replace ideal_balance = -1 if opt_welfare_tax == 6 | opt_welfare_tax == 8
+replace ideal_balance = -2 if opt_welfare_tax == 9
+replace ideal_balance = . if missing(opt_welfare_tax) 
+
+keep if year >= 2012 & age >= 24
+tsset pid year
 
 ** ---- SummaryOutcome
 frame copy default avgdt
@@ -34,61 +49,35 @@ frame avgdt: {
 	ylabel(0(.05).2, axis(1)) ///
 	ylabel(0(50)200, axis(2)) ///
 	ytitle("Proportion of donors", axis(1)) ///
-	ytitle("Average donations among donors", axis(2)) ///
+	ytitle("Average donations among donors (10,000KRW)", axis(2)) ///
 	xlabel(2012(1)2018) xtitle("Year")  ///
 	legend(label(1 "Extensive margin") label(2 "Intensive margin")) ///
 	graphregion(fcolor(white))
 }
 
+frame drop avgdt
+
 ** ---- SummaryCovariate
-matrix sumcov = J(7, 7, .)
-
-label variable gender "Female"
-label variable age "Age"
-label variable lincome "Annual taxable income"
-label variable univ "University graduate"
-label variable highschool "High School Graduate"
-label variable pid "#.Respondents"
-label variable hhid "#.Households"
-
-local j = 0
-foreach v in gender age lincome univ highschool {
-    local k = 1
-	local j = `++j'
-	di "j = `j'"
-	forvalues y = 2012(1)2018 {
-	    di "k = `k'"
-		summarize `v' if year == `y'
-		matrix sumcov[`j',`k'] = r(mean)
-		local k = `++k'
+local k = 0
+foreach v in lincome price i_total_giving i_ext_giving now_balance ideal_balance age gender univ highschool juniorhigh {
+	local k = `++k'
+	sum `v', detail
+	mat `v' = r(N) \ r(mean) \ r(sd) \ r(min) \ r(p25) \ r(p50) \ r(p75) \ r(max)
+	mat colnames `v' = `v'
+	mat rownames `v' = N mean sd min p25 median p75 max
+	
+	if `k' == 1 {
+	    mat tabular = `v'
+	}
+	else {
+	    mat_capp tabular : tabular `v'
 	}
 }
 
-local k = 1
-forvalues y = 2012(1)2018 {
-    di = "k = `k'"
-	summarize pid if year == `y'
-	matrix sumcov[6, `k'] = r(N)
-	local k = `++k'
-}
+mat tabular = tabular'
+mat list tabular
 
-frame copy default temp
-frame temp: keep year hhid
-frame temp: duplicates drop
-local k = 1
-forvalues y = 2012(1)2018 {
-    di = "k = `k'"
-	frame temp: summarize hhid if year == `y'
-	matrix sumcov[7, `k'] = r(N)
-	local k = `++k'
-}
 
-matrix rownames sumcov = gender age lincome univ highschool pid hhid 
-xsvmat sumcov, saving(test.dta) rownames(xvar)
-
-frmttable using test.csv, statmat(sumcov) varlabels  ///
-	sdec(2\2\2\2\2\0\0) ///
-	ctitles("", "2012", "2013", "2014", "2015", "2016", "2017", "2018")
 
 ** ---- SummaryPriceChange
 frame copy default sump
@@ -104,66 +93,10 @@ frame sump: {
 	xline(4600, lcolor(black) lpattern(-))  ///
 	ytitle("Giving Price", axis(1)) ///
 	ytitle("Count", axis(2)) ///
+	xtitle("Annual taxable income (10,000KRW)")  ///
 	xlabel(1200 4600 8800 30000) ///
 	legend(label(1 "Giving Price in 2013")) ///
 	graphregion(fcolor(white))
 }
 
-** ---- SummaryOutcomeByBenefitGroup
-frame copy default plotdt
-frame plotdt {
-	gen benefit_group = .
-	replace benefit_group = 1 if credit_benefit == 1
-	replace benefit_group = 2 if credit_neutral == 1
-	replace benefit_group = 3 if credit_loss == 1
-	
-	by year benefit_group, sort: egen meang = mean(i_total_giving)
-	by year benefit_group, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
-	by year benefit_group, sort: egen meanext = mean(i_ext_giving)
-}
-frame plotdt: keep year benefit_group meang meanint meanext
-frame plotdt: duplicates drop
-frame plotdt: keep if !missing(meanint) & !missing(benefit_group)
-
-frame plotdt {
-	twoway ///
-	(connected meang year if benefit_group == 1, msymbol(O) color(black))  ///
-	(connected meang year if benefit_group == 2, msymbol(T) color(black))  ///
-	(connected meang year if benefit_group == 3, msymbol(S) color(black)),  ///
-	xline(2013.5, lcolor(red) lpattern(-)) ///
-	xlabel(2012(1)2018) xtitle("Year")  ///
-	ytitle("Average Total Donations")  ///
-	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
-	graphregion(fcolor(white))
-}
-
-frame plotdt {
-	twoway ///
-	(connected meanint year if benefit_group == 1, msymbol(O) color(black))  ///
-	(connected meanint year if benefit_group == 2, msymbol(T) color(black))  ///
-	(connected meanint year if benefit_group == 3, msymbol(S) color(black)),  ///
-	xline(2013.5, lcolor(red) lpattern(-)) ///
-	xlabel(2012(1)2018) xtitle("Year")  ///
-	ytitle("Average Total Donations among Donors")  ///
-	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
-	graphregion(fcolor(white))
-}
-
-frame plotdt {
-	twoway ///
-	(connected meanext year if benefit_group == 1, msymbol(O) color(black))  ///
-	(connected meanext year if benefit_group == 2, msymbol(T) color(black))  ///
-	(connected meanext year if benefit_group == 3, msymbol(S) color(black)),  ///
-	xline(2013.5, lcolor(red) lpattern(-)) ///
-	xlabel(2012(1)2018) xtitle("Year")  ///
-	ytitle("Proportion of Donors")  ///
-	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
-	graphregion(fcolor(white))
-}
-
-
-** ---- ClearEnv
-frame change default
-frame drop avgdt
-frame drop temp
 frame drop sump
