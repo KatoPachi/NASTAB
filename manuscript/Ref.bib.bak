@@ -394,5 +394,109 @@
   publisher = {Springer},
   type      = {Article},
 }
+﻿
+
+@Article{Frey2007,
+  author                     = {Frey, Bruno S. and Torgler, Benno},
+  journal                    = {Journal of Comparative Economics},
+  title                      = {{Tax morale and conditional cooperation}},
+  year                       = {2007},
+  issn                       = {0147-5967},
+  month                      = {{MAR}},
+  number                     = {1},
+  pages                      = {136-159},
+  volume                     = {35},
+  abstract                   = {{Why so many people pay their taxes, even though fines and audit
+   probability are low, is a central question in the tax compliance
+   literature. Positing a homo oeconomicus having a refined motivation
+   structure sheds light on this puzzle. This paper provides empirical
+   evidence for the relevance of conditional cooperation, using survey data
+   from 30 West and East European countries. We find a high correlation
+   between perceived tax evasion and tax morale. The results remain robust
+   after exploiting endogeneity and conducting several robustness tests. We
+   also observe a strong positive correlation between institutional quality
+   and tax morale.}},
+  affiliation                = {{Univ Calif Berkeley, Sch Law, Berkeley, CA 94720 USA. Univ Zurich, Inst Empir Res Econ, CH-8006 Zurich, Switzerland.}},
+  author-email               = {{bsfrey@iew.unizh.ch bennotorgler@berkeley.edu}},
+  da                         = {{2021-02-05}},
+  doc-delivery-number        = {{164LS}},
+  doi                        = {10.1016/j.jce.2006.10.006},
+  eissn                      = {{1095-7227}},
+  journal-iso                = {{J. Comp. Econ.}},
+  keywords                   = {{tax morale; tax compliance; tax evasion; pro-social behavior; institutions}},
+  keywords-plus              = {{PRO-SOCIAL BEHAVIOR; EVASION; TRANSITION; REFORM; TRUST}},
+  language                   = {{English}},
+  number-of-cited-references = {{82}},
+  oa                         = {{Green Accepted}},
+  orcid-numbers              = {{Torgler, Benno/0000-0002-9809-963X}},
+  publisher                  = {Elsevier},
+  research-areas             = {Business \& Economics},
+  researcherid-numbers       = {{Osuna, Luis E/A-5858-2010 Torgler, Benno/W-4556-2019 Torgler, Benno/J-1140-2012}},
+  times-cited                = {{230}},
+  type                       = {{Article}},
+  unique-id                  = {{ISI:000246235900007}},
+  usage-count-last-180-days  = {{0}},
+  usage-count-since-2013     = {{61}},
+  web-of-science-categories  = {{Economics}},
+}
+﻿
+
+@Article{Anderson2017,
+  author                     = {Anderson, John E.},
+  journal                    = {Comparative Economic Studies},
+  title                      = {{Trust in Government and Willingness to Pay Taxes in Transition Countries}},
+  year                       = {{2017}},
+  issn                       = {{0888-7233}},
+  month                      = {{MAR}},
+  number                     = {1},
+  pages                      = {1-22},
+  volume                     = {59},
+  abstract                   = {{This paper examines citizen trust in government institutions and the
+   effect of trust on willingness to pay taxes for public goods/services in
+   transition countries. Empirical models are estimated to test whether
+   trust in government has a positive effect on WTP for improved public
+   education, improved public health system, combating climate change, and
+   helping the needy. Data are from the European Bank for Reconstruction
+   and Development's Life in Transition Survey, 2010. Results indicate that
+   trust in government generally has a significant positive effect on WTP
+   for public goods, although differences are found among government
+   institutions and across public goods.}},
+  affiliation                = {{Anderson, JE (Corresponding Author), Univ Nebraska, Dept Econ, Coll Business 348, Lincoln, NE 68588 USA. Anderson, John E., Univ Nebraska, Dept Econ, Coll Business 348, Lincoln, NE 68588 USA.}},
+  author-email               = {{janderson4@unl.edu}},
+  da                         = {{2021-02-05}},
+  doc-delivery-number        = {{ES6SR}},
+  doi                        = {{10.1057/s41294-016-0017-x}},
+  eissn                      = {{1478-3320}},
+  journal-iso                = {{Comp. Econ. Stud.}},
+  keywords                   = {{trust in government; transition economies; willingness to pay taxes; taxation; redistribution}},
+  keywords-plus              = {{MORALE}},
+  language                   = {{English}},
+  number-of-cited-references = {{24}},
+  orcid-numbers              = {{Anderson, John/0000-0002-4944-7300}},
+  publisher                  = {Palgrave Macmillan Ltd},
+  research-areas             = {{Business \& Economics}},
+  researcherid-numbers       = {{Anderson, John/AAN-1893-2020}},
+  times-cited                = {{2}},
+  type                       = {{Article}},
+  unique-id                  = {{ISI:000399680200001}},
+  usage-count-last-180-days  = {{2}},
+  usage-count-since-2013     = {{13}},
+  web-of-science-categories  = {{Economics}},
+}
+
+@Article{Hammar2009,
+  author   = {Henrik Hammar and Sverker C. Jagers and Katarina Nordblom},
+  journal  = {The Journal of Socio-Economics},
+  title    = {Perceived tax evasion and the importance of trust},
+  year     = {2009},
+  issn     = {1053-5357},
+  number   = {2},
+  pages    = {238-245},
+  volume   = {38},
+  abstract = {Using Swedish individual survey data, we analyze the perception of tax evasion in terms of ten different taxes. We find large variation across taxes, highlighting the importance of studying different taxes separately rather than treating tax evasion as one common phenomenon. We focus on the importance of trust in taxpayers and in politicians. Those who do not trust their fellow citizens are more likely to believe that they are evading taxes, but distrust in politicians has an even greater effect, especially for redistributive and fiscally motivated taxes. Hence, it is important for politicians to be perceived as trustworthy in order to be able to collect taxes for maintaining the welfare state.},
+  doi      = {https://doi.org/10.1016/j.socec.2008.07.003},
+  keywords = {Trust in politicians, Generalized trust, Social capital, General welfare state, Tax policy, Tax compliance},
+  url      = {https://www.sciencedirect.com/science/article/pii/S1053535708001157},
+}
 
 @Comment{jabref-meta: databaseType:bibtex;}
