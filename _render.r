@@ -16,8 +16,8 @@ options(bookdown.render.file_scope = FALSE)
 
 # preview chapter
 bookdown::preview_chapter(
-    "manuscript/1_intro.Rmd", 
-    "bookdown::pdf_document2",
+    input = "manuscript/1_intro.Rmd", 
+    output_format = "bookdown::pdf_document2",
     output_dir = "paper",
     output_file = "chapter1.pdf"
 )
