@@ -73,18 +73,17 @@ forvalues i = 1(1)3 {
 
 * iv giving price
 tsset pid year 
-gen nyear = year - 2014
 
 forvalues i = 1(1)3 {
-    gen lag`i'_nyear = l`i'.nyear
+	gen lag`i'price = l`i'.price
 	gen iv`i'price = .
-	replace iv`i'price = price/(1-0.15) if lag`i'_nyear >= 0
-	replace iv`i'price = price/lag`i'inc_price if lag`i'_nyear < 0
+	replace iv`i'price = (1-0.15)/lag`i'price if year > 2013
+	replace iv`i'price = lag`i'inc_price/lag`i'price if year <= 2013
 	label variable iv`i'price "[世帯員]first price with lagged`i' income/lagged`i' first price"
-	drop lag`i'_nyear
+	drop lag`i'price
 }
 
-drop nyear
+
 
 * save file
 save "data\shaped.dta", replace
