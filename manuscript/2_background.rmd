@@ -1,4 +1,69 @@
-# Data
+# Institutional background
+In this section, we describe the income tax relief for charitable giving in Korea and used dataset.
+
+## Tax relief for charitable giving and tax reform in 2014 (Need modification by Kim san)
+
+The tax incentives for charitable giving in Korea stared in 2000. The income tax deduction was initially used as a tax incentive and the limit of charitable giving deduction was set as the 5\% of income. The government gradually expanded the limit and it finally became 30\% in 2012. However, the government reformed tax system again in 2014, where the tax credit was introduced instead of tax deduction. Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit.
+
+The tax deduction and tax credit may have different effects on giving behavior.
+Consider that a household has a choice between private consumptions ($x_i$) and charitable giving ($g_i$). Let $y_i$ be pre-tax total income.
+Then, the budget constraint is 
+
+$$
+    x_i + g_i = y_i - T_i(y_i, g_i).
+$$
+$T_i$ is tax amount which depends on the pre-tax income and charitable giving.
+On one hand, tax deduction reduces taxable income by giving, that is,
+
+$$
+    T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
+$$
+
+where $\tau(\cdot)$ is the marginal income tax rate which is determined by $y_i - g_i$. The budget constraint will be 
+
+$$
+    x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
+$$
+
+Thus, the giving price compared to the price of private consumption is $p_i^{d} \equiv 1 - \tau(y_i - g_i)$ in tax deduction system.
+On the other hand, tax credit reduces tax amount directly, that is,
+
+$$
+    T_i = \tau(y_i)\cdot y_i - m g_i,
+$$
+
+where $m \in [0, 1]$ is the tax credit rate. Under the tax credit system, the budget constraint is 
+
+$$
+    x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
+$$
+
+Thus, the giving price of tax credit system will be $p_i^c = 1 - m$.
+
+In the South Korea, the tax policy about charitable giving drastically changed in 2014.
+
+- tax deduction (before 2014): $\text{Price}_i = 1 - \tau(y_i - g_i)$
+    - the giving price is endogenous because people can manipulate $\tau(y_i - g_i)$ using the charitable giving $g_i$. Since this problem is caused by *last* donations, we use the giving price applying to the *first* donations (**first price**). The first price is calculate by $\tau(y_i)$ where $y_i$ is the annual taxable income reported in the NaSTaB.
+- tax credit (after 2014): $\text{Price}_i = 1 - m$
+    - In the South Korea, the tax credit rate determines exogeneity, $m = 0.15$.
+
+
+
+As well as other countries, the income tax in Korea can be calculated as following two steps:
+\begin{align}
+&\text{[Taxable income] = [Total income] – [Amount of tax deduction]}\\
+&\text{[Finalized tax amount] = ([Taxable income] × [Tax rate]) – [Amount of tax credit]}
+\end{align}
+If donors gives one unit of donation additionally, the marginal income tax relief for the donation (giving price hereafter) will equivalent to one minus income tax rate when the tax deduction is applied while the giving price under the tax credit will be one minus the allowance rate of tax credit, which is 30\% in Korea. Since the progressive tax rate is applied and the marginal tax rate was set as Table \ref{tax_rate}, the high income household .
+
+
+We can utilize the effect of the 2014 tax reform in the South Korea.
+• Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
+• After 2014, tax credit have been adopted.
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the
+tax burden by decreasing the marginal tax rate, which increases with gross income.
+In addition, the dataset contains the information about perception towards the government
+<!--
 ## National Survey of Tax and Benefit (NaSTaB)
 
 - The Korea Institute of Taxation and Finance implements the financial panel survey to study the tax burden of households and the benefits that households receive from goverment.
@@ -383,3 +448,4 @@ Let $D_{ijt}$ be a dummy variable taking 1 if individual $i$ whose resident area
 	- Extensive-margin price elasticity can be calculated by $\beta_1/\bar{D}$ where $\bar{D}$ is the sample mean of $D_{ijt}$.
 
 Covariates in each column corresponds to a column in a previous slide.
+-->
