@@ -3,17 +3,13 @@ cd "C:\Users\vge00\Desktop\nastab"  //root path
 ** ---- ReadData
 use "data\shaped.dta", clear
 
-gen price = .
-replace price = 1 - mtr if year < 2014
-replace price = 1 - 0.15 if year >= 2014
 gen log_price = ln(price)
+gen log_lprice = ln(lprice)
+gen log_iv1price = ln(iv1price)
+gen log_iv2price = ln(iv2price)
+gen log_iv3price = ln(iv3price)
 gen log_total_g = ln(i_total_giving + 1)
 gen log_pinc_all = ln(lincome + 100000)
-replace gender = gender - 1
-gen univ = (educ == 3) if !missing(educ)
-gen highschool = (educ == 2) if !missing(educ)
-gen juniorhigh = (educ == 1) if !missing(educ)
-gen sqage = age^2/100
 
 tsset pid year
 keep if year >= 2012 & age >= 24
@@ -552,6 +548,234 @@ mat list stattab
 
 
 ********************************************************************************
+* Robustness 2: Last Price Elasticity
+********************************************************************************
+
+** ---- LastElasticity
+* first stage
+xtreg log_lprice log_price log_pinc_all i.year, fe vce(cluster pid)
+
+mat fstage = r(table)["b".."pvalue","log_price"]
+mat fstage = fstage[1,1] \ fstage[3,1]^2
+mat colnames fstage = M0
+mat rownames fstage = ivcoef ivf
+
+* second stage
+xtivreg log_total_g log_pinc_all i.year (log_lprice = log_price), fe vce(cluster pid)
+
+mat coeftab = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+mat colnames coeftab = Loglprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+mat_rapp stattab : stattab fstage
+
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
+    
+	*make set of covariates
+	local xvars `xvars' `v'
+	
+	*first stage
+	xtreg log_lprice log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
+	
+	mat fstage = r(table)["b".."pvalue","log_price"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = M`k'
+	mat rownames fstage = ivcoef ivf
+	
+	*second stage
+	xtivreg log_total_g log_pinc_all i.year age `xvars' (log_lprice = log_price), fe vce(cluster pid)
+	
+	mat coef = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+	mat colnames coef = Loglprice_M`k' Loginc_M`k'
+
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	mat_rapp stat : stat fstage
+	
+	*combined with previous results
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+
+	local k = `++k'
+}
+
+mat list coeftab
+mat list stattab
+
+** ---- LastExtElasticity
+* first stage
+xtreg log_lprice log_price log_pinc_all i.year, fe vce(cluster pid)
+
+mat fstage = r(table)["b".."pvalue","log_price"]
+mat fstage = fstage[1,1] \ fstage[3,1]^2
+mat colnames fstage = M0
+mat rownames fstage = ivcoef ivf
+
+* second stage
+xtivreg i_ext_giving log_pinc_all i.year (log_lprice = log_price), fe vce(cluster pid)
+
+mat coeftab = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+mat colnames coeftab = Loglprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+* price elasticity evaluated at mean
+summarize i_ext_giving
+local mu = r(mean)
+lincom log_lprice*(1/`mu')
+
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M0
+mat rownames elas1 = e_b e_se e_pval
+
+* price elasticity evaluated at mean
+summarize i_ext_giving
+local mu = r(mean)
+lincom log_pinc_all*(1/`mu')
+
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loginc_M0
+mat rownames elas2 = e_b e_se e_pval
+
+mat_capp elas : elas1 elas2
+mat_rapp coeftab : coeftab elas
+mat_rapp stattab : stattab fstage
+
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
+    
+	*make set of covariates
+	local xvars `xvars' `v'
+	
+	*first stage
+	xtreg log_lprice log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
+	
+	mat fstage = r(table)["b".."pvalue","log_price"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = M`k'
+	mat rownames fstage = ivcoef ivf
+	
+	*second stage
+	xtivreg i_ext_giving log_pinc_all i.year age `xvars' (log_lprice = log_price), fe vce(cluster pid)
+	
+	mat coef = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+	mat colnames coef = Loglprice_M`k' Loginc_M`k'
+
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	* price elasticity evaluated at mean
+	summarize i_ext_giving
+	local mu = r(mean)
+	lincom log_lprice*(1/`mu')
+
+	mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+	mat colnames elas1 = Loglprice_M`k'
+	mat rownames elas1 = e_b e_se e_pval
+
+	* price elasticity evaluated at mean
+	summarize i_ext_giving
+	local mu = r(mean)
+	lincom log_pinc_all*(1/`mu')
+
+	mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+	mat colnames elas2 = Loginc_M`k'
+	mat rownames elas2 = e_b e_se e_pval
+
+	mat_capp elas : elas1 elas2
+	mat_rapp coef : coef elas
+	mat_rapp stat : stat fstage
+	
+	*combined with previous results
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+
+	local k = `++k'
+}
+
+mat list coeftab
+mat list stattab
+
+** ---- LastIntElasticity
+* first stage
+xtreg log_lprice log_price log_pinc_all i.year if i_ext_giving == 1, fe vce(cluster pid)
+
+mat fstage = r(table)["b".."pvalue","log_price"]
+mat fstage = fstage[1,1] \ fstage[3,1]^2
+mat colnames fstage = M0
+mat rownames fstage = ivcoef ivf
+
+* second stage
+xtivreg log_total_g log_pinc_all i.year (log_lprice = log_price) if i_ext_giving == 1, fe vce(cluster pid)
+
+mat coeftab = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+mat colnames coeftab = Loglprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+mat_rapp stattab : stattab fstage
+
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
+    
+	*make set of covariates
+	local xvars `xvars' `v'
+	
+	*first stage
+	xtreg log_lprice log_price log_pinc_all i.year age `xvars' if i_ext_giving == 1, fe vce(cluster pid)
+	
+	mat fstage = r(table)["b".."pvalue","log_price"]
+	mat fstage = fstage[1,1] \ fstage[3,1]^2
+	mat colnames fstage = M`k'
+	mat rownames fstage = ivcoef ivf
+	
+	*second stage
+	xtivreg log_total_g log_pinc_all i.year age `xvars' (log_lprice = log_price) if i_ext_giving == 1, fe vce(cluster pid)
+	
+	mat coef = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+	mat colnames coef = Loglprice_M`k' Loginc_M`k'
+
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	mat_rapp stat : stat fstage
+	
+	*combined with previous results
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+
+	local k = `++k'
+}
+
+mat list coeftab
+mat list stattab
+
+
+********************************************************************************
 * Panel IV (instrument is log(p_it) - log(p_it-k))
 ********************************************************************************
 
@@ -677,6 +901,10 @@ mat_rapp tabular : model1 model2
 mat_rapp tabular : tabular model3
 
 mat list tabular
+
+
+
+
 
 ********************************************************************************
 * k-Difference Estimation
