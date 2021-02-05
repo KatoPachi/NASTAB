@@ -76,11 +76,6 @@ mat list stattab
 * residuals plot
 frame copy default plotdt
 frame plotdt {
-	gen benefit_group = .
-	replace benefit_group = 1 if credit_benefit == 1
-	replace benefit_group = 2 if credit_neutral == 1
-	replace benefit_group = 3 if credit_loss == 1
-	
 	by year benefit_group, sort: egen meang = mean(resid)
 	
 	keep meang year benefit_group
@@ -89,7 +84,7 @@ frame plotdt {
 	
 	gen meang_norm = meang if year == 2013
 	by benefit_group, sort: egen meang13 = mean(meang_norm) 
-	gen meang_n = meang/meang13 - 1
+	gen meang_n = meang - meang13
 }
 
 frame plotdt {
@@ -200,11 +195,6 @@ mat list stattab
 * residuals plot
 frame copy default plotdt
 frame plotdt {
-	gen benefit_group = .
-	replace benefit_group = 1 if credit_benefit == 1
-	replace benefit_group = 2 if credit_neutral == 1
-	replace benefit_group = 3 if credit_loss == 1
-	
 	by year benefit_group, sort: egen meang = mean(residext)
 	
 	keep meang year benefit_group
@@ -213,7 +203,7 @@ frame plotdt {
 	
 	gen meang_norm = meang if year == 2013
 	by benefit_group, sort: egen meang13 = mean(meang_norm) 
-	gen meang_n = meang/meang13 - 1
+	gen meang_n = meang - meang13
 }
 
 frame plotdt {
@@ -277,11 +267,6 @@ mat list stattab
 * residuals plot
 frame copy default plotdt
 frame plotdt {
-	gen benefit_group = .
-	replace benefit_group = 1 if credit_benefit == 1
-	replace benefit_group = 2 if credit_neutral == 1
-	replace benefit_group = 3 if credit_loss == 1
-	
 	by year benefit_group, sort: egen meang = mean(residint)
 	
 	keep meang year benefit_group
@@ -290,7 +275,7 @@ frame plotdt {
 	
 	gen meang_norm = meang if year == 2013
 	by benefit_group, sort: egen meang13 = mean(meang_norm) 
-	gen meang_n = meang/meang13 - 1
+	gen meang_n = meang - meang13
 }
 
 frame plotdt {
