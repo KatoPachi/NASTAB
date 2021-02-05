@@ -1,6 +1,8 @@
 # Main Results
 
+<!--- Slide
 ## Price and Income Elasticity
+--->
 
 ```{stata Elasticity, results = "hide", eval = FALSE}
 xtreg log_total_g log_price log_pinc_all i.year, fe vce(cluster pid)
@@ -428,10 +430,9 @@ pack_rows("Extensive-Margin Elasticity", 7, 22) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
 
-
+<!--- Slide
 ## Robustness Check
 
-<!--- Slide
 1. Income and donations are determined simultaneously
 1. Effect of presidential transition on donation behavior
 1. Last price elasticity
