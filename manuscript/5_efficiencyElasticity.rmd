@@ -55,6 +55,7 @@ foreach v in log_price log_lprice log_iv1price log_iv2price log_iv3price {
 
 # Governement Efficient and Price Elasticity
 
+<!-- Slide
 ## Government Efficiency
 
 From the 2015 survey, 
@@ -72,6 +73,7 @@ Questionnaire of tax-welfare balance index is
 ![](_assets/BalanceQuestion.jpg){width=50%}
 
 To rule out government's policies, we use individual fixed effect as the **efficient index**
+-->
 
 ```{stata EstimateTaxBalanceIndex, results = "hide", eval = FALSE}
 * current efficient index
@@ -115,7 +117,9 @@ frame balancedt: save "data\shape\balanceid.dta", replace
 frame drop balancedt
 ```
 
+<!-- Slide
 ## Histrogram of Efficient Index
+-->
 
 ```{stata HistogramEfficientIndex, results = "hide", eval = FALSE}
 frame copy default plotdt
@@ -135,9 +139,10 @@ frame drop plotdt
 ```
 
 ```{r, include = TRUE, out.width="90%", fig.cap="Histogram of Efficient Index"}
-knitr::include_graphics(paste(here(), "_assets/HistogramBalanceid.pdf", sep= "/"))
+knitr::include_graphics(paste(here(), "_assets/HistogramEfficientid.pdf", sep= "/"))
 ```
 
+<!-- Slide
 ## Heterogenous Price Elasticity by Governement Efficiency
 
 To see the heterogenous price elasticity by efficient index,
@@ -145,7 +150,7 @@ We estimated the baseline regression model (5) (see Table \ref{tab:kableEstimate
 using sample grouped by the efficient index.
 
 - Three quantile groups: we divide units $i$ into the first, second, and third quantile of efficient index (1Q, 2Q, and 3Q, respectively).
-
+-->
 
 ```{stata HeteroElasticity, results = "hide", eval = FALSE}
 * overall
@@ -288,19 +293,20 @@ xsvmat coeftab, saving(_assets/HeteroElasticityCoef.dta, replace) rownames(xvar)
 xsvmat stattab, saving(_assets/HeteroElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
+<!--- Slide
 ## Efficient Groups: Estimation Results
+--->
 
-```{r shapeEstimateElasticityByEfficientGroup3, eval = FALSE}
+```{r shapeHeteroElasticity}
 tabset <- list(
-	overall = read.dta13("_assets/EstimateElasticityByEfficientGroup3.dta") %>% data.frame(),
-	intensive = read.dta13("_assets/EstimateElasticityIntensiveByEfficientGroup3.dta") %>% data.frame(),
-	extensive = read.dta13("_assets/EstimateElasticityExtensiveByEfficientGroup3.dta") %>% data.frame()
+	coef = read.dta13("_assets/HeteroElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/HeteroElasticityStat.dta") %>% data.frame()
 )
 
-coeftab <- tabset %>% 
-	purrr::map(function(x)
-		x %>% 
-		select(xvar, b, se, pvalue, N) %>% 
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
 		mutate(
 			b = case_when(
 				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
@@ -308,18 +314,26 @@ coeftab <- tabset %>%
 				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
 				TRUE ~ sprintf("%1.3f", b)
 			),
-			se = sprintf("(%1.3f)", se),
-			N = sprintf("%1d", as.integer(N))
+			se = sprintf("(%1.3f)", se)
 		) %>% 
-		select(xvar, b, se, N) %>% 
-		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-		pivot_wider(values_from = "value", names_from = "xvar") %>% 
-		select(-stat) %>% 
-		cbind(xvar = c("ln(giving price)", "", "N"), .)
-	) %>% 
-	reduce(rbind)
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logprice" ~ "ln(giving price)",
+				vars == "Logprice2" ~ "ln(giving price) X 2Q Efficient Group",
+				vars == "Logprice3" ~ "ln(giving price) X 3Q Efficient Group",
+				vars == "Loginc" ~ "ln(auunaul taxable income)"
+			)
+		) %>% 
+		select(-stat)
 
-elastab <- tabset$extensive %>% 
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	mutate(
 		e_b = case_when(
 			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
@@ -329,31 +343,54 @@ elastab <- tabset$extensive %>%
 		),
 		e_se = sprintf("(%1.3f)", e_se)
 	) %>% 
-	select(xvar, e_b, e_se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Elasticity", ""), .)
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
 
-tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar)
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M0 = rep("Y", 3),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
-```{r kableEstimateElasticityByEfficientGroup3, include = TRUE, eval = FALSE}
+```{r kableHeteroElasticity, include = TRUE}
 knitr::kable(
     tab,
     format = "latex",
-    caption = "Price Elasticity by Three Quantile Efficient Groups",
-    col.names = c("", "1Q", "2Q", "3Q"),
+    caption = "Heterogenous Elasticity by Perceived Government Efficiency",
+    col.names = c("", "(1)", "(2)", "(3)"),
     row.names = FALSE,
     align = "lccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
 kable_styling(font_size = 8) %>% 
-pack_rows("Overall", 1, 3) %>% 
-pack_rows("Intensive Margin", 4, 6) %>% 
-pack_rows("Extensive Margin", 7, 11)
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
 
+<!-- Slide
 ## Robustness Check
 
 1. Efficient index captures both government efficiency on concerns about budget deficits
@@ -365,6 +402,7 @@ pack_rows("Extensive Margin", 7, 11)
 1. Transitory and permanent elasticity
 
 ## Robustness Check 1
+-->
 
 ```{stata DensityEfficientIndex, results = "hide", eval = FALSE}
 frame copy default plotdt
@@ -385,6 +423,10 @@ frame plotdt {
 
 }
 frame drop plotdt
+```
+
+```{r, include = TRUE, out.width="90%", fig.cap="Density of Efficient Index Using those whose ideal efficient index > 0"}
+knitr::include_graphics(paste(here(), "_assets/DensityEfficientid.pdf", sep= "/"))
 ```
 
 ```{stata tTestPresidentEfficientIndex, results = "hide", eval = FALSE}
@@ -412,10 +454,11 @@ frame drop tdt
 xsvmat tabular, saving(_assets/tTestPresidentEfficientid.dta, replace) rownames(xvar) names(col)
 ```
 
-```{r shapetTestPresidentEfficientIndex, eval = FALSE}
+```{r shapetTestPresidentEfficientIndex}
 tdt <- read.dta13("_assets/tTestPresidentEfficientid.dta") %>% data.frame()
 ```
 
+<!-- Slide
 - Efficient index may capture both government efficiency on concerns about budget deficits
 	- NASTAB asks respondents to answer the ideal balance b/w tax burdern and welfare size. 
 	- We constructed the **ideal** efficient index, using the FE model to estimate the efficient index. 
@@ -424,6 +467,7 @@ tdt <- read.dta13("_assets/tTestPresidentEfficientid.dta") %>% data.frame()
 - Presidential transition effect on perceived efficiency
 	- We constructed president-specific (ideal) efficient index and implemented the pair-wise t-test.
 	- As a result, average difference of these two indexs are not statistically siginificant zero.
+-->
 
 ```{stata SubsetHeteroElasticity, results = "hide", eval = FALSE}
 * overall
@@ -566,19 +610,20 @@ xsvmat coeftab, saving(_assets/SubsetHeteroElasticityCoef.dta, replace) rownames
 xsvmat stattab, saving(_assets/SubsetHeteroElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
+<!-- Slide
 ## Robustness Check 1: Estimation Results
+-->
 
-```{r shapeEstimateElasticityByPositiveEfficientGroup3, eval = FALSE}
+```{r shapeSubsetHeteroElasticity}
 tabset <- list(
-	overall = read.dta13("_assets/ElasticityByPositiveEfficientGroup3.dta") %>% data.frame(),
-	intensive = read.dta13("_assets/ElasticityIntensiveByPositiveEfficientGroup3.dta") %>% data.frame(),
-	extensive = read.dta13("_assets/ElasticityExtensiveByPositiveEfficientGroup3.dta") %>% data.frame()
+	coef = read.dta13("_assets/SubsetHeteroElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/SubsetHeteroElasticityStat.dta") %>% data.frame()
 )
 
-coeftab <- tabset %>% 
-	purrr::map(function(x)
-		x %>% 
-		select(xvar, b, se, pvalue, N) %>% 
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
 		mutate(
 			b = case_when(
 				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
@@ -586,18 +631,26 @@ coeftab <- tabset %>%
 				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
 				TRUE ~ sprintf("%1.3f", b)
 			),
-			se = sprintf("(%1.3f)", se),
-			N = sprintf("%1d", as.integer(N))
+			se = sprintf("(%1.3f)", se)
 		) %>% 
-		select(xvar, b, se, N) %>% 
-		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-		pivot_wider(values_from = "value", names_from = "xvar") %>% 
-		select(-stat) %>% 
-		cbind(xvar = c("ln(giving price)", "", "N"), .)
-	) %>% 
-	reduce(rbind)
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logprice" ~ "ln(giving price)",
+				vars == "Logprice2" ~ "ln(giving price) X 2Q Efficient Group",
+				vars == "Logprice3" ~ "ln(giving price) X 3Q Efficient Group",
+				vars == "Loginc" ~ "ln(auunaul taxable income)"
+			)
+		) %>% 
+		select(-stat)
 
-elastab <- tabset$extensive %>% 
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	mutate(
 		e_b = case_when(
 			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
@@ -607,29 +660,51 @@ elastab <- tabset$extensive %>%
 		),
 		e_se = sprintf("(%1.3f)", e_se)
 	) %>% 
-	select(xvar, e_b, e_se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Elasticity", ""), .)
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
 
-tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar)
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M0 = rep("Y", 3),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
-```{r kableEstimateElasticityByPositiveEfficientGroup3, include = TRUE, eval = FALSE}
+```{r kableSubsetHeteroElasticity, include = TRUE}
 knitr::kable(
     tab,
     format = "latex",
-    caption = "Heterogenous Price Elasticity by Efficiency Using Units with Ideal Efficient Index > 0",
-    col.names = c("", "1Q", "2Q", "3Q"),
+    caption = "Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0",
+    col.names = c("", "(1)", "(2)", "(3)"),
     row.names = FALSE,
     align = "lccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
 kable_styling(font_size = 8) %>% 
-pack_rows("Overall", 1, 3) %>% 
-pack_rows("Intensive Margin", 4, 6) %>% 
-pack_rows("Extensive Margin", 7, 11)
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
 
 
@@ -904,6 +979,105 @@ xsvmat coeftab, saving(_assets/HeteroLastElasticityCoef.dta, replace) rownames(x
 xsvmat stattab, saving(_assets/HeteroLastElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
+```{r shapeHeteroLastElasticity}
+tabset <- list(
+	coef = read.dta13("_assets/HeteroLastElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/HeteroLastElasticityStat.dta") %>% data.frame()
+)
+
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-z, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Loglprice" ~ "ln(last giving price)",
+				vars == "Loglprice2" ~ "ln(last giving price) X 2Q Efficient Group",
+				vars == "Loglprice3" ~ "ln(last giving price) X 3Q Efficient Group",
+				vars == "Loginc" ~ "ln(auunaul taxable income)"
+			)
+		) %>% 
+		select(-stat)
+
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Loglprice" ~ "Implied last price elasiticity (1Q efficient group)",
+			vars == "Loglprice2" ~ "Implied last price elasiticity (2Q efficient group)",
+			vars == "Loglprice3" ~ "Implied last price elasiticity (3Q efficient group)",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) %>% 
+	filter(vars == "N")
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M0 = rep("Y", 3),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
+```
+
+```{r kableHeteroLastElasticity, include = TRUE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3, "Ideal Efficient Index > 0" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The instumental variables are the first giving price in year $t$ and its interaction with the 2Q (3Q) Efficient Group. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
+```
+
+<!--- Slide
 ## Robustness Check 2
 
 We check the following two potential concerns
@@ -915,6 +1089,7 @@ To address these problems, we estimated the FE model and Panel IV model with FE 
 Moreover, we droped units with the ideal efficient index < 0 from each quantile group.
 
 Note that f-statistics of IV is greater than 500 when we estimate overall elasticity and extensive-margin elasticity, and greater than 100 when we estimate the intensive-margin elasticity.
+--->
 
 
 ```{stata HeteroShortElasticity, results = "hide", eval = FALSE}
@@ -1008,7 +1183,7 @@ mat list stat1
 * intensive
 xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
 	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
-	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
+	if i_ext_giving == 1 & year > 2012, fe vce(cluster pid)
 
 mat coef2 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
 mat colnames coef2 = Logprice_M2 Logprice2_M2 Logprice3_M2 Loginc_M2
@@ -1049,7 +1224,7 @@ mat list stat2
 * overall (ideal_balanceid >0)
 xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
 	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
-	if ideal_balanceid > 0 & year >= 2012, fe vce(cluster pid)
+	if ideal_balanceid > 0 & year > 2012, fe vce(cluster pid)
 
 mat coef3 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
 mat colnames coef3 = Logprice_M3 Logprice2_M3 Logprice3_M3 Loginc_M3
@@ -1090,7 +1265,7 @@ mat list stat3
 * extensive (ideal_balanceid > 0)
 xtreg i_ext_giving log_price log_price_int2 log_price_int3 log_pinc_all ///
 	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
-	if ideal_balanceid > 0 & year >= 2012, fe vce(cluster pid)
+	if ideal_balanceid > 0 & year > 2012, fe vce(cluster pid)
 
 mat coef4 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
 mat colnames coef4 = Logprice_M4 Logprice2_M4 Logprice3_M4 Loginc_M4
@@ -1134,7 +1309,7 @@ mat list stat4
 * intensive (ideal_balanceid > 0)
 xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
 	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
-	if i_ext_giving == 1 & ideal_balanceid > 0 & year >= 2012, fe vce(cluster pid)
+	if i_ext_giving == 1 & ideal_balanceid > 0 & year > 2012, fe vce(cluster pid)
 
 mat coef5 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
 mat colnames coef5 = Logprice_M5 Logprice2_M5 Logprice3_M5 Loginc_M5
@@ -1190,16 +1365,16 @@ xsvmat coeftab, saving(_assets/HeteroShortElasticityCoef.dta, replace) rownames(
 xsvmat stattab, saving(_assets/HeteroShortElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-```{r shapeShortEstimateElasticityByEfficientGroup3, eval = FALSE}
-orgtab <- list(
-	overall = read.dta13("_assets/ShortElasticityByEfficientGroup3.dta") %>% data.frame(),
-	extensive = read.dta13("_assets/ShortElasticityExtensiveByEfficientGroup3.dta") %>% data.frame(),
-	intensive = read.dta13("_assets/ShortElasticityIntensiveByEfficientGroup3.dta") %>% data.frame()
+```{r shapeHeteroShortElasticity}
+tabset <- list(
+	coef = read.dta13("_assets/HeteroShortElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/HeteroShortElasticityStat.dta") %>% data.frame()
 )
 
-shape1 <- list(orgtab$overall, orgtab$intensive) %>% 
-	purrr::map(function(x)
-		x %>% 
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
 		mutate(
 			b = case_when(
 				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
@@ -1207,22 +1382,27 @@ shape1 <- list(orgtab$overall, orgtab$intensive) %>%
 				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
 				TRUE ~ sprintf("%1.3f", b)
 			),
-			se = sprintf("(%1.3f)", se),
-			N = sprintf("%1d", as.integer(N))
-		) %>%
-		select(xvar, b, se, N) %>% 
-		pivot_longer(-xvar, names_to = "stat", values_to = "val") %>% 
-		pivot_wider(names_from = "xvar", values_from = "val") %>% 
-		pivot_longer(-stat, names_to = c("group", "lag"), names_pattern = "Q(.)k(.)", values_to = "val") %>% 
-		pivot_wider(names_from = "group", values_from = "val") %>% 
-		.[order(.$lag),] %>% 
-		select(-stat, -lag) %>% 
-		cbind(xvar = rep(c("ln(giving price)", "", "N"), 4), .)
-	)
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logprice" ~ "ln(giving price)",
+				vars == "Logprice2" ~ "ln(giving price) X 2Q Efficient Group",
+				vars == "Logprice3" ~ "ln(giving price) X 3Q Efficient Group",
+				vars == "Loginc" ~ "ln(auunaul taxable income)"
+			)
+		) %>% 
+		select(-stat)
 
-shape2 <- orgtab$extensive %>% 
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	mutate(
-		N = sprintf("%1d", as.integer(N)),
 		e_b = case_when(
 			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
 			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
@@ -1231,72 +1411,61 @@ shape2 <- orgtab$extensive %>%
 		),
 		e_se = sprintf("(%1.3f)", e_se)
 	) %>% 
-	select(xvar, e_b, e_se, N) %>% 
-	pivot_longer(-xvar, names_to = "stat", values_to = "val") %>% 
-	pivot_wider(names_from = "xvar", values_from = "val") %>% 
-	pivot_longer(-stat, names_to = c("group", "lag"), names_pattern = "Q(.)k(.)", values_to = "val") %>% 
-	pivot_wider(names_from = "group", values_from = "val") %>% 
-	.[order(.$lag),] %>% 
-	select(-stat, -lag) %>%
-	cbind(xvar = rep(c("Implied Elasticity", "", "N"), 4), .) 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) 
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M0 = rep("Y", 3),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
+<!-- Slide
 ## Robustness Check 2: Result
+-->
 
-```{r tabShortEstimateElasticityByEfficientGroup3, include = TRUE, eval = FALSE}
+```{r kableHeteroShortElasticity, include = TRUE}
 knitr::kable(
-    shape1[[1]],
+    tab,
     format = "latex",
-    caption = "Robustness Check of Heterogenous Price Elasiticity by Government Efficiency",
-    col.names = c("", "1Q", "2Q", "3Q"),
+    caption = "Heterogenous Price Elasticity with Data after 2012",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
     row.names = FALSE,
-    align = "lccc", 
+    align = "lcccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
 kable_styling(font_size = 8) %>% 
-pack_rows("FE Model", 1, 3) %>% 
-pack_rows("Panel IV (k = 1)", 4, 6) %>% 
-pack_rows("Panel IV (k = 2)", 7, 9) %>% 
-pack_rows("Panel IV (k = 3)", 10, 12) 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3, "Ideal Efficient Index > 0" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
 
-## Robustness Check 2: Result (Extensive Margin)
-
-```{r tabShortEstimateElasticityExtensiveByEfficientGroup3, include = TRUE, eval = FALSE}
-knitr::kable(
-    shape2,
-    format = "latex",
-    caption = "Robustness Check of Heterogenous Extensive-Margin Price Elasiticity by Government Efficiency",
-    col.names = c("", "1Q", "2Q", "3Q"),
-    row.names = FALSE,
-    align = "lccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 8) %>% 
-pack_rows("FE Model", 1, 3) %>% 
-pack_rows("Panel IV (k = 1)", 4, 6) %>% 
-pack_rows("Panel IV (k = 2)", 7, 9) %>% 
-pack_rows("Panel IV (k = 3)", 10, 12) 
-```
-
-## Robustness Check 2: Result (Intensive Margin)
-
-```{r tabShortEstimateElasticityIntensiveByEfficientGroup3, include = TRUE, eval = FALSE}
-knitr::kable(
-    shape1[[2]],
-    format = "latex",
-    caption = "Robustness Check of Heterogenous Intenstive-Margin Price Elasiticity by Government Efficiency",
-    col.names = c("", "1Q", "2Q", "3Q"),
-    row.names = FALSE,
-    align = "lccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 8) %>% 
-pack_rows("FE Model", 1, 3) %>% 
-pack_rows("Panel IV (k = 1)", 4, 6) %>% 
-pack_rows("Panel IV (k = 2)", 7, 9) %>% 
-pack_rows("Panel IV (k = 3)", 10, 12) 
-```
 
 ```{stata HeterokDiffElasticity, results = "hide", eval = FALSE}
 * overall 
@@ -1409,6 +1578,104 @@ xsvmat coeftab, saving(_assets/HeterokDiffElasticityCoef.dta, replace) rownames(
 xsvmat stattab, saving(_assets/HeterokDiffElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
+```{r shapeHeterokDiffElasticity}
+tabset <- list(
+	coef = read.dta13("_assets/HeterokDiffElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/HeterokDiffElasticityStat.dta") %>% data.frame()
+)
+
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logdiffprice" ~ "Lagged difference of first price (log)",
+				vars == "Logdiffprice2" ~ "X 2Q Efficient Group",
+				vars == "Logdiffprice3" ~ "X 3Q Efficient Group",
+				vars == "Logdiffinc" ~ "Lagged difference of annual income (log)"
+			)
+		) %>% 
+		select(-stat)
+
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logdiffprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logdiffprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logdiffprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Logdiffinc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) 
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3),
+	M6 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
+```
+
+```{r kableHeterokDiffElasticity, include = TRUE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
+```
+
 ```{stata SubsetHeterokDiffElasticity, results = "hide", eval = FALSE}
 * overall 
 forvalues k = 1(1)3 {
@@ -1518,4 +1785,102 @@ mat list stattab
 
 xsvmat coeftab, saving(_assets/SubsetHeterokDiffElasticityCoef.dta, replace) rownames(xvar) names(col)
 xsvmat stattab, saving(_assets/SubsetHeterokDiffElasticityStat.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapeSubsetHeterokDiffElasticity}
+tabset <- list(
+	coef = read.dta13("_assets/SubsetHeterokDiffElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/SubsetHeterokDiffElasticityStat.dta") %>% data.frame()
+)
+
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logdiffprice" ~ "Lagged difference of first price (log)",
+				vars == "Logdiffprice2" ~ "X 2Q Efficient Group",
+				vars == "Logdiffprice3" ~ "X 3Q Efficient Group",
+				vars == "Logdiffinc" ~ "Lagged difference of annual income (log)"
+			)
+		) %>% 
+		select(-stat)
+
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logdiffprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logdiffprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logdiffprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Logdiffinc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) 
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3),
+	M6 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
+```
+
+```{r kableSubsetHeterokDiffElasticity, include = TRUE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero.", threeparttable = TRUE, escape = FALSE)
 ```
