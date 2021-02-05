@@ -10,55 +10,39 @@
 
 
 ```{stata dataset, collectcode=TRUE, results = "hide", eval = FALSE}
-cd "C:\Users\vge00\Desktop\nastab"  //root path
-
-** ---- ReadData
 use "data\shaped.dta", clear
-
-gen price = .
-replace price = 1 - mtr if year < 2014
-replace price = 1 - 0.15 if year >= 2014
-gen log_price = ln(price)
-gen log_total_g = ln(i_total_giving + 1)
-gen log_pinc_all = ln(lincome + 100000)
-replace gender = gender - 1
-gen univ = (educ == 3) if !missing(educ)
-gen highschool = (educ == 2) if !missing(educ)
-gen juniorhigh = (educ == 1) if !missing(educ)
-gen sqage = age^2/100
-
-gen benefit_group = .
-replace benefit_group = 1 if credit_benefit == 1
-replace benefit_group = 2 if credit_neutral == 1
-replace benefit_group = 3 if credit_loss == 1
-
-gen now_balance = 0
-replace now_balance = 2 if avg_welfare_tax == 1
-replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
-replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
-replace now_balance = -2 if avg_welfare_tax == 9
-replace now_balance = . if missing(avg_welfare_tax)
-
-gen ideal_balance = 0 
-replace ideal_balance = 2 if opt_welfare_tax == 1
-replace ideal_balance = 1 if opt_welfare_tax == 2 | opt_welfare_tax == 4
-replace ideal_balance = -1 if opt_welfare_tax == 6 | opt_welfare_tax == 8
-replace ideal_balance = -2 if opt_welfare_tax == 9
-replace ideal_balance = . if missing(opt_welfare_tax) 
-
-** ---- LagOperation
 tsset pid year
 
-forvalues k = 1(1)3 {
-  gen diff`k'G = log_total_g - l`k'.log_total_g
-	gen diff`k'G1 = i_ext_giving - l`k'.i_ext_giving
-	gen diff`k'p = log_price - l`k'.log_price
-	gen diff`k'I = log_pinc_all - l`k'.log_pinc_all
-	gen diff`k'_age = age - l`k'.age
-	gen diff`k'_sqage = sqage - l`k'.sqage
+gen log_price = ln(price)
+gen log_lprice = ln(lprice)
+gen log_iv1price = ln(iv1price)
+gen log_iv2price = ln(iv2price)
+gen log_iv3price = ln(iv3price)
+gen log_total_g = ln(i_total_giving + 1)
+gen log_pinc_all = ln(lincome + 100000)
+
+forvalues i = 1(1)3 {
+	gen lag`i'_log_total_g = l`i'.log_total_g
+	gen lag`i'_log_pinc_all = l`i'.log_pinc_all
+	gen lag`i'_age = l`i'.age
+	gen lag`i'_sqage = l`i'.sqage
+	
+	gen log_diff`i'g = log_total_g - lag`i'_log_total_g
+	gen log_diff`i'I = log_pinc_all - lag`i'_log_pinc_all
+	gen diff`i'_age = age - lag`i'_age
+	gen diff`i'_sqage = sqage - lag`i'_sqage
 }
 
-keep if year >= 2012
+keep if year >= 2012 & age >= 24
+
+** ---- merged with balancedt
+merge m:1 pid using "data\shape\balanceid.dta"
+drop _merge
+
+foreach v in log_price log_lprice log_iv1price log_iv2price log_iv3price {
+    gen `v'_int2 = `v' * (balance3 == 2) if !missing(balance3)
+	gen `v'_int3 = `v' * (balance3 == 3) if !missing(balance3)
+}
 ```
 
 ## Time Series of Chariable Giving
@@ -81,7 +65,7 @@ frame avgdt: {
 	ylabel(0(.05).2, axis(1)) ///
 	ylabel(0(50)200, axis(2)) ///
 	ytitle("Proportion of donors", axis(1)) ///
-	ytitle("Average donations among donors", axis(2)) ///
+	ytitle("Average donations among donors (10,000KRW)", axis(2)) ///
 	xlabel(2012(1)2018) xtitle("Year")  ///
 	legend(label(1 "Extensive margin") label(2 "Intensive margin")) ///
 	graphregion(fcolor(white))
@@ -94,106 +78,67 @@ frame avgdt: {
 knitr::include_graphics(paste(here(), "_assets/SummaryOutcome.pdf", sep= "/"))
 ```
 
-## Summary Statistics of Covariates
+## Summary Statistics
 
 ```{stata SummaryCovariate, results = "hide", eval = FALSE}
-matrix sumcov = J(7, 7, .)
-
-label variable gender "Female"
-label variable age "Age"
-label variable lincome "Annual taxable income"
-label variable univ "University graduate"
-label variable highschool "High School Graduate"
-label variable pid "#.Respondents"
-label variable hhid "#.Households"
-
-local j = 0
-foreach v in gender age lincome univ highschool {
-    local k = 1
-	local j = `++j'
-	di "j = `j'"
-	forvalues y = 2012(1)2018 {
-	    di "k = `k'"
-		summarize `v' if year == `y'
-		matrix sumcov[`j',`k'] = r(mean)
-		local k = `++k'
+local k = 0
+foreach v in lincome price i_total_giving i_ext_giving now_balance ideal_balance age gender univ highschool juniorhigh {
+	local k = `++k'
+	sum `v', detail
+	mat `v' = r(N) \ r(mean) \ r(sd) \ r(min) \ r(p25) \ r(p50) \ r(p75) \ r(max)
+	mat colnames `v' = `v'
+	mat rownames `v' = N mean sd min p25 median p75 max
+	
+	if `k' == 1 {
+	    mat tabular = `v'
+	}
+	else {
+	    mat_capp tabular : tabular `v'
 	}
 }
 
-local k = 1
-forvalues y = 2012(1)2018 {
-    di = "k = `k'"
-	summarize pid if year == `y'
-	matrix sumcov[6, `k'] = r(N)
-	local k = `++k'
-}
-
-frame copy default temp
-frame temp: keep year hhid
-frame temp: duplicates drop
-local k = 1
-forvalues y = 2012(1)2018 {
-    di = "k = `k'"
-	frame temp: summarize hhid if year == `y'
-	matrix sumcov[7, `k'] = r(N)
-	local k = `++k'
-}
-
-matrix rownames sumcov = gender age lincome univ highschool pid hhid 
-xsvmat sumcov, saving(_assets/SummaryCovariate.dta) rownames(xvar)
+mat tabular = tabular'
+mat list tabular
+xsvmat tabular, saving(_assets/SummaryCovariate.dta, replace) rownames(xvar) names(col)
 ```
 
 ```{r shapeSummaryCovariate}
 tabsum <- read.dta13("_assets/SummaryCovariate.dta") %>% data.frame()
 tabsum <- tabsum %>% 
-	mutate_at(vars(-xvar), 
-		list(
-			~case_when(
-				xvar == "pid" | xvar == "hhid" ~ sprintf("%1d", as.integer(.)),
-				TRUE ~ sprintf("%1.2f", .)
-			)
-		)
-	) %>% 
 	mutate(
 		xvar = recode(
 			xvar,
-			"gender" = "Female",
+			"lincome" = "Annual taxable income (unit: 10,000KRW)",
+			"price" = "Giving Price",
+			"i_total_giving" = "Annual charitable giving (unit: 10,000KRW)",
+			"i_ext_giving" = "dummy of Donation > 0",
+			"now_balance" = "Current Tax-Welfare Balance",
+			"ideal_balance" = "Ideal Tax-Welfare Balance",
 			"age" = "Age",
-			"lincome" = "Annual taxable income",
+			"gender" = "Female dummy",
 			"univ" = "University graduate",
 			"highschool" = "High school graduate",
-			"pid" = "#.Respondents",
-			"hhid" = "#.Households" 
+			"juniorhigh" = "Junior high school graduate"
 		)
 	)
 ```
 
 ```{r kableSummaryCovariate, include=TRUE}
 knitr::kable(
-    tabsum[,1:5],
+    tabsum,
     format = "latex",
-    caption = "Summary Statistics of Covariates",
-    col.names = c("", "2012", "2013", "2014", "2015"),
+    caption = "Summary Statistics",
+    col.names = c("", "N", "Mean", "Std.Dev.", "Min", "p25", "p50", "p75", "Max"),
     row.names = FALSE,
-    align = "lccccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
+    align = "lcccccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = "",
+		digits = 3
 ) %>% 
-kable_styling() 
-```
-
-## Summary Statistics of Covariates (Cont'd)
-
-```{r kableSummaryCovariate2, include=TRUE}
-knitr::kable(
-    tabsum[,c(1,6:8)],
-    format = "latex",
-    caption = "Summary Statistics of Covariates (Continued)",
-    col.names = c("", "2016", "2017", "2018"),
-    row.names = FALSE,
-    align = "lccccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() 
+kable_styling(font_size = 8) %>% 
+pack_rows("Income and Giving Price", 1, 2) %>% 
+pack_rows("Charitable Donations", 3, 4) %>% 
+pack_rows("Government Efficiency", 5, 6) %>% 
+pack_rows("Individual Characteristics", 7, 11)
 ```
 
 
@@ -270,8 +215,8 @@ frame sump: {
 	xline(4600, lcolor(black) lpattern(-))  ///
 	ytitle("Giving Price", axis(1)) ///
 	ytitle("Count", axis(2)) ///
+	xtitle("Annual taxable income (10,000KRW)")  ///
 	xlabel(1200 4600 8800 30000) ///
-	xtitle("Annual taxable income (unit: 10,000KRW)")  ///
 	legend(label(1 "Giving Price in 2013")) ///
 	graphregion(fcolor(white))
 
@@ -283,83 +228,6 @@ frame sump: {
 knitr::include_graphics(paste(here(), "_assets/SummaryPriceChange.pdf", sep= "/"))
 ```
 
-## Time Series of Average Donations By Benefit Group 
-
-```{stata SummaryOutcomeByBenefitGroup, results ="hide", eval = FALSE}
-frame copy default plotdt
-frame plotdt {
-	gen benefit_group = .
-	replace benefit_group = 1 if credit_benefit == 1
-	replace benefit_group = 2 if credit_neutral == 1
-	replace benefit_group = 3 if credit_loss == 1
-	
-	by year benefit_group, sort: egen meang = mean(i_total_giving)
-	by year benefit_group, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
-	by year benefit_group, sort: egen meanext = mean(i_ext_giving)
-}
-frame plotdt: keep year benefit_group meang meanint meanext
-frame plotdt: duplicates drop
-frame plotdt: keep if !missing(meanint) & !missing(benefit_group)
-
-frame plotdt {
-	twoway ///
-	(connected meang year if benefit_group == 1, msymbol(O) color(black))  ///
-	(connected meang year if benefit_group == 2, msymbol(T) color(black))  ///
-	(connected meang year if benefit_group == 3, msymbol(S) color(black)),  ///
-	xline(2013.5, lcolor(red) lpattern(-)) ///
-	xlabel(2012(1)2018) xtitle("Year")  ///
-	ytitle("Average Total Donations")  ///
-	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
-	graphregion(fcolor(white))
-
-	graph export "_assets/AverageDonationsByBenefitGroup.pdf", replace
-}
-
-frame plotdt {
-	twoway ///
-	(connected meanint year if benefit_group == 1, msymbol(O) color(black))  ///
-	(connected meanint year if benefit_group == 2, msymbol(T) color(black))  ///
-	(connected meanint year if benefit_group == 3, msymbol(S) color(black)),  ///
-	xline(2013.5, lcolor(red) lpattern(-)) ///
-	xlabel(2012(1)2018) xtitle("Year")  ///
-	ytitle("Average Total Donations among Donors")  ///
-	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
-	graphregion(fcolor(white))
-
-	graph export "_assets/IntensiveByBenefitGroup.pdf", replace
-}
-
-frame plotdt {
-	twoway ///
-	(connected meanext year if benefit_group == 1, msymbol(O) color(black))  ///
-	(connected meanext year if benefit_group == 2, msymbol(T) color(black))  ///
-	(connected meanext year if benefit_group == 3, msymbol(S) color(black)),  ///
-	xline(2013.5, lcolor(red) lpattern(-)) ///
-	xlabel(2012(1)2018) xtitle("Year")  ///
-	ytitle("Proportion of Donors")  ///
-	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
-	graphregion(fcolor(white))
-
-	graph export "_assets/ExtensiveByBenefitGroup.pdf", replace
-}
-
-```
-
-```{r, include = TRUE, out.width="90%", fig.cap="Time Series of Average Donations by Benefit Group"}
-knitr::include_graphics(paste(here(), "_assets/AverageDonationsByBenefitGroup.pdf", sep= "/"))
-```
-
-## Time Series of Extensive Margin by Benfit Group
-
-```{r, include = TRUE, out.width="90%", fig.cap="Time Series of Proportion of Donors by Benefit Group"}
-knitr::include_graphics(paste(here(), "_assets/ExtensiveByBenefitGroup.pdf", sep= "/"))
-```
-
-## Time Series of Intensive Margin by Benfit Group
-
-```{r, include = TRUE, out.width="90%", fig.cap="Time Series of Average Donations among Donors by Benefit Group"}
-knitr::include_graphics(paste(here(), "_assets/IntensiveByBenefitGroup.pdf", sep= "/"))
-```
 
 ## Empirical Strategy
 
