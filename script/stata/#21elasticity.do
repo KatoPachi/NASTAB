@@ -2,6 +2,7 @@ cd "C:\Users\vge00\Desktop\nastab"  //root path
 
 ** ---- ReadData
 use "data\shaped.dta", clear
+tsset pid year
 
 gen log_price = ln(price)
 gen log_lprice = ln(lprice)
@@ -11,7 +12,18 @@ gen log_iv3price = ln(iv3price)
 gen log_total_g = ln(i_total_giving + 1)
 gen log_pinc_all = ln(lincome + 100000)
 
-tsset pid year
+forvalues i = 1(1)3 {
+	gen lag`i'_log_total_g = l`i'.log_total_g
+	gen lag`i'_log_pinc_all = l`i'.log_pinc_all
+	gen lag`i'_age = l`i'.age
+	gen lag`i'_sqage = l`i'.sqage
+	
+	gen log_diff`i'g = log_total_g - lag`i'_log_total_g
+	gen log_diff`i'I = log_pinc_all - lag`i'_log_pinc_all
+	gen diff`i'_age = age - lag`i'_age
+	gen diff`i'_sqage = sqage - lag`i'_sqage
+}
+
 keep if year >= 2012 & age >= 24
 
 ********************************************************************************
@@ -774,225 +786,66 @@ foreach v of local cov {
 mat list coeftab
 mat list stattab
 
-
 ********************************************************************************
-* Panel IV (instrument is log(p_it) - log(p_it-k))
+* Robust3: k-Difference Estimation
 ********************************************************************************
 
-** ---- PanelIVEstimateElasticity
+** ---- kDiffElasticity
 forvalues k = 1(1)3 {
     
 	di "lag = `k'"
 	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
+	* panel regression
+	xtreg log_diff`k'g log_iv`k'price log_diff`k'I diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area, ///
 		fe vce(cluster pid)
 	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
-	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
-	mat rownames fstage = ivcoef ivf
+	* result of panel regression
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`k' Logdiffinc_M`k'
 	
-	* second stage
-	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p), fe vce(cluster pid)
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
 	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	mat_rapp model`k' : coef stat
-	
-	* combined with first stage result
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
+	if `k' == 1 {
+	    mat coeftab = coef
+		mat stattab = stat
+	}
+	else {
+	    mat_capp coeftab : coeftab coef
+		mat_capp stattab : stattab stat
+	}
 }
 
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
+mat list coeftab
+mat list stattab
 
-mat list tabular
-
-** ---- PanelIVEstimateElasticityExtensive
+** ---- kDiffIntElasticity
 forvalues k = 1(1)3 {
     
 	di "lag = `k'"
 	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
-		fe vce(cluster pid)
-	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
-	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
-	mat rownames fstage = ivcoef ivf
-	
-	* second stage
-	xtivreg i_ext_giving log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p), fe vce(cluster pid)
-	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	
-	*proportion of donors
-	summarize i_ext_giving
-	local mu = r(mean)
-	
-	*implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
-	mat colnames elas = model`k'
-	mat rownames elas = e_b e_se e_pval
-	
-	* combined with results
-	mat_rapp model`k' : coef stat
-	mat_rapp model`k' : model`k' elas
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
-
-}
-
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
-
-mat list tabular
-
-** ---- PanelIVEstimateElasticityIntensive
-forvalues k = 1(1)3 {
-    
-	di "lag = `k'"
-	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+	* panel regression
+	xtreg log_diff`k'g log_iv`k'price log_diff`k'I diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
 		if i_ext_giving == 1, fe vce(cluster pid)
 	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
-	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
-	mat rownames fstage = ivcoef ivf
-	
-	* second stage
-	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p) if i_ext_giving == 1, fe vce(cluster pid)
-	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	mat_rapp model`k' : coef stat
-	
-	* combined with first stage result
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
-}
-
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
-
-mat list tabular
-
-
-
-
-
-********************************************************************************
-* k-Difference Estimation
-********************************************************************************
-
-** ---- kDiffEstimateElasticity
-forvalues k = 1(1)3 {
-    
-	di "lag = `k'"
-	
-	* panel regression
-	xtreg diff`k'G diff`k'p diff`k'I diff`k'_age diff`k'_sqage i.year, ///
-		fe vce(cluster pid)
-	
 	* result of panel regression
-	mat coef = r(table)["b".."pvalue","diff`k'p"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	mat_rapp model`k' : coef stat
-	mat model`k' = model`k''
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`k' Logdiffinc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	if `k' == 1 {
+	    mat coeftab = coef
+		mat stattab = stat
+	}
+	else {
+	    mat_capp coeftab : coeftab coef
+		mat_capp stattab : stattab stat
+	}
 }
 
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
-
-mat list tabular
-
-** ---- kDiffEstimateElasticityExtensive
-forvalues k = 1(1)3 {
-    
-	di "lag = `k'"
-	
-	* panel regression
-	xtreg diff`k'G1 diff`k'p diff`k'I diff`k'_age diff`k'_sqage i.year, ///
-		fe vce(cluster pid)
-	
-	* result of panel regression
-	mat coef = r(table)["b".."pvalue","diff`k'p"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	
-	
-	*proportion of donors
-	summarize diff`k'G1
-	local mu = r(mean)
-	
-	*implied elasticity
-	lincom diff`k'p*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`k'
-	mat rownames elas = e_b e_se e_pval
-	
-	*combined with result
-	mat_rapp model`k' : coef elas
-	mat_rapp model`k' : model`k' stat
-	mat model`k' = model`k''
-}
-
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
-
-mat list tabular
-
-** ---- kDiffEstimateElasticityIntensive
-forvalues k = 1(1)3 {
-    
-	di "lag = `k'"
-	
-	* panel regression
-	xtreg diff`k'G diff`k'p diff`k'I diff`k'_age diff`k'_sqage i.year if i_ext_giving == 1, ///
-		fe vce(cluster pid)
-	
-	* result of panel regression
-	mat coef = r(table)["b".."pvalue","diff`k'p"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	mat_rapp model`k' : coef stat
-	mat model`k' = model`k''
-}
-
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
-
-mat list tabular
-
+mat list coeftab
+mat list stattab
