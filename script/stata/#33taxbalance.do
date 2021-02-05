@@ -2,51 +2,29 @@ cd "C:\Users\vge00\Desktop\nastab"  //root path
 
 ** ---- ReadData
 use "data\shaped.dta", clear
-
-gen price = .
-replace price = 1 - mtr if year < 2014
-replace price = 1 - 0.15 if year >= 2014
-gen log_price = ln(price)
-gen log_total_g = ln(i_total_giving + 1)
-gen log_pinc_all = ln(lincome + 100000)
-replace gender = gender - 1
-gen univ = (educ == 3) if !missing(educ)
-gen highschool = (educ == 2) if !missing(educ)
-gen juniorhigh = (educ == 1) if !missing(educ)
-gen sqage = age^2/100
-
-gen benefit_group = .
-replace benefit_group = 1 if credit_benefit == 1
-replace benefit_group = 2 if credit_neutral == 1
-replace benefit_group = 3 if credit_loss == 1
-
-gen now_balance = 0
-replace now_balance = 2 if avg_welfare_tax == 1
-replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
-replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
-replace now_balance = -2 if avg_welfare_tax == 9
-replace now_balance = . if missing(avg_welfare_tax)
-
-gen ideal_balance = 0 
-replace ideal_balance = 2 if opt_welfare_tax == 1
-replace ideal_balance = 1 if opt_welfare_tax == 2 | opt_welfare_tax == 4
-replace ideal_balance = -1 if opt_welfare_tax == 6 | opt_welfare_tax == 8
-replace ideal_balance = -2 if opt_welfare_tax == 9
-replace ideal_balance = . if missing(opt_welfare_tax) 
-
-** ---- LagOperation
 tsset pid year
 
-forvalues k = 1(1)3 {
-    gen diff`k'G = log_total_g - l`k'.log_total_g
-	gen diff`k'G1 = i_ext_giving - l`k'.i_ext_giving
-	gen diff`k'p = log_price - l`k'.log_price
-	gen diff`k'I = log_pinc_all - l`k'.log_pinc_all
-	gen diff`k'_age = age - l`k'.age
-	gen diff`k'_sqage = sqage - l`k'.sqage
+gen log_price = ln(price)
+gen log_lprice = ln(lprice)
+gen log_iv1price = ln(iv1price)
+gen log_iv2price = ln(iv2price)
+gen log_iv3price = ln(iv3price)
+gen log_total_g = ln(i_total_giving + 1)
+gen log_pinc_all = ln(lincome + 100000)
+
+forvalues i = 1(1)3 {
+	gen lag`i'_log_total_g = l`i'.log_total_g
+	gen lag`i'_log_pinc_all = l`i'.log_pinc_all
+	gen lag`i'_age = l`i'.age
+	gen lag`i'_sqage = l`i'.sqage
+	
+	gen log_diff`i'g = log_total_g - lag`i'_log_total_g
+	gen log_diff`i'I = log_pinc_all - lag`i'_log_pinc_all
+	gen diff`i'_age = age - lag`i'_age
+	gen diff`i'_sqage = sqage - lag`i'_sqage
 }
 
-keep if year >= 2012
+keep if year >= 2012 & age >= 24
 
 ********************************************************************************
 * Construct Efficient index
@@ -128,7 +106,7 @@ frame plotdt {
 frame plotdt: {
 	twoway ///
 	(histogram balanceid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
-	xtitle("Current efficient index") ///
+	xtitle("Efficient index") ///
 	graphregion(fcolor(white))
 }
 frame drop plotdt
@@ -143,7 +121,7 @@ frame plotdt {
 	twoway ///
 	(kdensity balanceid, color(black)) ///
 	(kdensity balanceid if ideal_balanceid > 0, color(black) lpattern(-)),  ///
-	xtitle("Current efficient index")  ///
+	xtitle("Efficient index")  ///
 	ytitle("Density") ///
 	legend(label(1 "Full sample") label(2 "Ideal efficient index {&gt} 0")) ///
 	graphregion(fcolor(white))
