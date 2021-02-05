@@ -8,6 +8,7 @@
 - Survey period: 2008 ~ 2019
     - We use survey data after 2013 to focus on tax policy change in 2014.
 
+
 ```{stata dataset, collectcode=TRUE, results = "hide", eval = FALSE}
 cd "C:\Users\vge00\Desktop\nastab"  //root path
 
