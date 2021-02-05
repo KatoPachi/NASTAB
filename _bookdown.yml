@@ -1,8 +1,8 @@
 rmd_files:
   - "index.rmd"
   - "manuscript/1_intro.rmd"
-  #- "manuscript/2_data.rmd"
-  #- "manuscript/3_elasticity.rmd"
-  #- "manuscript/5_efficiencyElasticity.rmd"
-  #- "manuscript/6_conclusions.rmd"
+  - "manuscript/2_data.rmd"
+  - "manuscript/3_elasticity.rmd"
+  - "manuscript/5_efficiencyElasticity.rmd"
+  - "manuscript/6_conclusions.rmd"
   - "manuscript/7_reference.rmd"
