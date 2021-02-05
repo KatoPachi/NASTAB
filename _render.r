@@ -16,10 +16,10 @@ options(bookdown.render.file_scope = FALSE)
 
 # preview chapter
 bookdown::preview_chapter(
-    input = "manuscript/4_elasticity.rmd", 
+    input = "manuscript/5_efficiencyElasticity.rmd", 
     output_format = "bookdown::pdf_document2",
     output_dir = "paper",
-    output_file = "chapter4.pdf"
+    output_file = "chapter5.pdf"
 )
 
 # pdf (slides)
