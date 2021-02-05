@@ -14,11 +14,19 @@ options(bookdown.render.file_scope = FALSE)
 #'
 #+ Rmd File to Output
 
+# preview chapter
+bookdown::preview_chapter(
+    "manuscript/1_intro.Rmd", 
+    "bookdown::pdf_document2",
+    output_dir = "paper",
+    output_file = "chapter1.pdf"
+)
+
 # pdf (slides)
 bookdown::render_book(
     input = "index.rmd",
     output_format = "bookdown::pdf_book",
-    output_file = "Paper.pdf",
+    output_file = "slides.pdf",
     output_dir = "report",
     clean = TRUE,
     encoding = "utf8"
