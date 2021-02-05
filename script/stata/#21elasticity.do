@@ -16,7 +16,7 @@ gen juniorhigh = (educ == 1) if !missing(educ)
 gen sqage = age^2/100
 
 tsset pid year
-keep if year >= 2012
+keep if year >= 2012 & age >= 24
 
 ********************************************************************************
 * Baseline
@@ -35,7 +35,7 @@ mat rownames stattab = N r2
 predict resid, e
 
 * with covariates
-local cov sqage i.year##i.educ i.year##i.gender 
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -45,7 +45,7 @@ foreach v of local cov {
 	local xvars `xvars' `v'
 	
 	*estimate fixed effect model
-	xtreg log_total_g log_price log_pinc_all i.year age i.living_area `xvars', fe vce(cluster pid)
+	xtreg log_total_g log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
 	
 	*matrix of regression result
 	mat coef = r(table)["b".."pvalue","log_price".."log_pinc_all"]
