@@ -3,7 +3,7 @@
 @Article{Auten2002,
   author    = {Gerald E. Auten and Holger Sieg and Charles T. Clotfelter},
   journal   = {American Economic Review},
-  title     = {{Charitable Giving, Income, and Taxes: An Analysis of Panel Data}},
+  title     = {Charitable Giving, Income, and Taxes: An Analysis of Panel Data},
   year      = {2002},
   issn      = {00028282},
   number    = {1},
@@ -12,12 +12,12 @@
   publisher = {American Economic Association},
   url       = {http://www.jstor.org/stable/3083340},
 }
-﻿
+
 
 @Article{Kim2021,
   author                     = {Kim, YoungRok},
   journal                    = {Korean Economic Review},
-  title                      = {{Politics, Religion, and Tax Incentives for Charitable Giving in South Korea}},
+  title                      = {Politics, Religion, and Tax Incentives for Charitable Giving in South Korea},
   year                       = {2021},
   issn                       = {0254-3737},
   month                      = {{WIN}},
@@ -41,7 +41,7 @@
   author-email               = {{econ.maple@gmail.com}},
   da                         = {{2021-02-03}},
   doc-delivery-number        = {{PQ5TQ}},
-  doi                        = {{10.22841/kerdoi.2021.37.1.006}},
+  doi                        = {10.22841/kerdoi.2021.37.1.006},
   funding-acknowledgement    = {{Korea Institute of Public Finance panel contest}},
   funding-text               = {{This study is awarded by the Korea Institute of Public Finance panel contest.}},
   journal-iso                = {{Korean Econ. Rev.}},
@@ -58,12 +58,12 @@
   usage-count-since-2013     = {{0}},
   web-of-science-categories  = {{Economics}},
 }
-﻿
+
 
 @Article{Duquette2016,
   author                     = {Duquette, Nicolas J.},
   journal                    = {Journal of Public Economics},
-  title                      = {{Do tax incentives affect charitable contributions? Evidence from public charities' reported revenues}},
+  title                      = {Do tax incentives affect charitable contributions? Evidence from public charities' reported revenues},
   year                       = {2016},
   issn                       = {{0047-2727}},
   month                      = {{MAY}},
@@ -85,7 +85,7 @@
   author-email               = {{nduquett@usc.edu}},
   da                         = {{2021-02-03}},
   doc-delivery-number        = {{DM9TO}},
-  doi                        = {{10.1016/j.jpubeco.2016.02.002}},
+  doi                        = {10.1016/j.jpubeco.2016.02.002},
   funding-acknowledgement    = {{National Bureau of Economic Research Graduate Dissertation Fellowship for Nonprofit Research; Economic History Association Data Grant; University of Michigan Rackham Centennial Fellowship; Office of Tax Policy Research}},
   funding-text               = {{This research was generously supported by the National Bureau of Economic Research Graduate Dissertation Fellowship for Nonprofit Research, an Economic History Association Data Grant, a University of Michigan Rackham Centennial Fellowship, and a grant from the Office of Tax Policy Research. The author is grateful for helpful comments from many seminar participants at the University of Michigan, the University of Arizona, Vanderbilt University, University of Southern California, the U.S. Department of Treasury, and ARNOVA, with special thanks to David Albouy, Jeremy Atack, Gerald Auten, Martha Bailey, Tanya Byker, Kitt Carpenter, Adam Cole, William-Collins, Jamein-Cunningham; Eric Chyn Price Fishback, Brian Galle, Christian Gillitzer, Andrew Goodman-Bacon, Jim Hines, Daniel Hungerman, Dan Marcin, Eric Ohm, Paul Rhode, Claudia Rei, Molly Saunders-Scott, Jessamyn Schaller, Joel Slemrod, Rich Steinberg, Caroline Weber, and Mark Wilhelm. Two anonymous referees gave excellent suggestions.}},
   journal-iso                = {{J. Public Econ.}},
@@ -102,7 +102,7 @@
   usage-count-since-2013     = {{38}},
   web-of-science-categories  = {{Economics}},
 }
-﻿
+
 
 @Article{Bakija2011,
   author                     = {Bakija, Jon and Heim, Bradley T.},
@@ -127,7 +127,7 @@
   author-email               = {{jbakija@williams.edu heimb@indiana.edu}},
   da                         = {{2021-02-03}},
   doc-delivery-number        = {{771VR}},
-  doi                        = {{10.17310/ntj.2011.2S.08}},
+  doi                        = {10.17310/ntj.2011.2S.08},
   journal-iso                = {{Natl. Tax J.}},
   keywords                   = {{charitable donations; incentive effects of taxation}},
   keywords-plus              = {{TAXES}},
@@ -142,7 +142,7 @@
   usage-count-since-2013     = {{17}},
   web-of-science-categories  = {{Business, Finance; Economics}},
 }
-﻿
+
 
 @Article{Randolph1995,
   author                     = {Randolph, W. C.},
@@ -167,7 +167,7 @@
   affiliation                = {{RANDOLPH, WC (Corresponding Author), US CONGRESS,CONGRESS BUDGET OFF,WASHINGTON,DC 20510, USA.}},
   da                         = {{2021-02-03}},
   doc-delivery-number        = {{RR867}},
-  doi                        = {{10.1086/262000}},
+  doi                        = {10.1086/262000},
   journal-iso                = {{J. Polit. Econ.}},
   keywords-plus              = {{MODELS}},
   language                   = {{English}},
@@ -181,7 +181,7 @@
   usage-count-since-2013     = {{12}},
   web-of-science-categories  = {{Economics}},
 }
-﻿
+
 
 @Article{Saez2004,
   author                     = {Saez, E},
@@ -214,7 +214,7 @@
   author-email               = {{saez@econ.berkeley.edu}},
   da                         = {{2021-02-03}},
   doc-delivery-number        = {{854VD}},
-  doi                        = {{10.1016/j.jpubeco.2003.09.004}},
+  doi                        = {10.1016/j.jpubeco.2003.09.004},
   journal-iso                = {{J. Public Econ.}},
   keywords                   = {{optimal taxation; tax expenditures; charitable giving}},
   keywords-plus              = {{PUBLIC-GOODS; PRIVATE PROVISION; OPTIMAL TAXATION; TAXABLE INCOME}},
@@ -229,7 +229,7 @@
   usage-count-since-2013     = {{22}},
   web-of-science-categories  = {{Economics}},
 }
-﻿
+
 
 @Article{Fack2010,
   author                     = {Fack, Gabrielle and Landais, Camille},
@@ -255,7 +255,7 @@
   author-email               = {{gabrielle.fack@upf.edu camille\_landais@berkeley.edu}},
   da                         = {{2021-02-03}},
   doc-delivery-number        = {{684OP}},
-  doi                        = {{10.1257/pol.2.2.117}},
+  doi                        = {10.1257/pol.2.2.117},
   eissn                      = {{1945-774X}},
   journal-iso                = {{Am. Econ. J.-Econ. Policy}},
   keywords-plus              = {{CENSORED QUANTILE REGRESSION; INCOME; DONATIONS; TAXATION; IMPACT}},
@@ -270,12 +270,12 @@
   usage-count-since-2013     = {{19}},
   web-of-science-categories  = {{Economics}},
 }
-﻿
+
 
 @Article{Li2011,
   author                     = {Li, Sherry Xin and Eckel, Catherine C. and Grossman, Philip J. and Brown, Tara Larson},
   journal                    = {Journal of Public Economics},
-  title                      = {{Giving to government: Voluntary taxation in the lab}},
+  title                      = {Giving to government: Voluntary taxation in the lab},
   year                       = {2011},
   issn                       = {0047-2727},
   month                      = {{OCT}},
@@ -301,7 +301,7 @@
   author-email               = {{sherry.xin.li@utdallas.edu eckelc@utdallas.edu pgrossman@stcloudstate.edu tara@uta.edu}},
   da                         = {{2021-02-03}},
   doc-delivery-number        = {{815FR}},
-  doi                        = {{10.1016/j.jpubeco.2011.03.005}},
+  doi                        = {10.1016/j.jpubeco.2011.03.005},
   journal-iso                = {{J. Public Econ.}},
   keywords                   = {{Charitable giving; Voluntary taxation; Lab experiment}},
   keywords-plus              = {{CHARITABLE CONTRIBUTIONS; FIELD EXPERIMENT; ALTRUISM; INFORMATION; ECONOMICS; SELFISH; REBATE}},
@@ -319,13 +319,13 @@
   usage-count-since-2013     = {{22}},
   web-of-science-categories  = {{Economics}},
 }
-﻿
+
 
 @Article{Almunia2020,
   author                     = {Almunia, Miguel and Guceri, Irem and Lockwood, Ben and Scharf, Kimberley},
   journal                    = {Journal of Public Economics},
-  title                      = {{More giving or more givers? The effects of tax incentives on charitable donations in the UK}},
-  year                       = {{2020}},
+  title                      = {More giving or more givers? The effects of tax incentives on charitable donations in the UK},
+  year                       = {2020},
   issn                       = {{0047-2727}},
   month                      = {{MAR}},
   volume                     = {183},
@@ -348,7 +348,7 @@
   author-email               = {{miguel.almunia@cunef.edu irem.guceri@sbs.ox.ac.uk b.lockwood@warwick.ac.uk k.scharf@bham.ac.uk}},
   da                         = {{2021-02-04}},
   doc-delivery-number        = {{LH4TH}},
-  doi                        = {{10.1016/j.jpubeco.2019.104114}},
+  doi                        = {10.1016/j.jpubeco.2019.104114},
   funding-acknowledgement    = {{British Academy}},
   funding-text               = {{We thank Clement de Chaisemartin, Ivan Fernandez-Val, Bo Honore, Jonny Mood, Rob Prideaux, Roland Rathelot, Petr Simecek, Kevin Staub, Fabian Waldinger and MarkOttoni Wilhelm for useful suggestions and discussions. Daniel Diez Alonso provided excellent research assistance. We also thank the team at the HMRC Datalab for their invaluable help to access the data for the analysis. Guceri is a British Academy Postdoctoral Fellow and gratefully acknowledges the support of the British Academy. This work contains statistical data from HMRC, which is Crown Copyright. The research datasets used may not exactly reproduce HMRC aggregates. The use of HMRC statistical data in this work does not imply the endorsement of HMRC in relation to the interpretation or analysis of the information. Any remaining errors are our own.}},
   journal-iso                = {{J. Public Econ.}},
@@ -371,7 +371,7 @@
 @Article{Sheremeta2020,
   author    = {Sheremeta, Roman M. and Uler, Neslihan},
   journal   = {Experimental Economics},
-  title     = {{The impact of taxes and wasteful government spending on giving}},
+  title     = {The impact of taxes and wasteful government spending on giving},
   year      = {2020},
   issn      = {1386-4157},
   abstract  = {{We examine how taxes impact charitable giving and how this relationship
@@ -394,12 +394,12 @@
   publisher = {Springer},
   type      = {Article},
 }
-﻿
+
 
 @Article{Frey2007,
   author                     = {Frey, Bruno S. and Torgler, Benno},
   journal                    = {Journal of Comparative Economics},
-  title                      = {{Tax morale and conditional cooperation}},
+  title                      = {Tax morale and conditional cooperation},
   year                       = {2007},
   issn                       = {0147-5967},
   month                      = {{MAR}},
@@ -439,13 +439,13 @@
   usage-count-since-2013     = {{61}},
   web-of-science-categories  = {{Economics}},
 }
-﻿
+
 
 @Article{Anderson2017,
   author                     = {Anderson, John E.},
   journal                    = {Comparative Economic Studies},
-  title                      = {{Trust in Government and Willingness to Pay Taxes in Transition Countries}},
-  year                       = {{2017}},
+  title                      = {Trust in Government and Willingness to Pay Taxes in Transition Countries},
+  year                       = {2017},
   issn                       = {{0888-7233}},
   month                      = {{MAR}},
   number                     = {1},
@@ -465,7 +465,7 @@
   author-email               = {{janderson4@unl.edu}},
   da                         = {{2021-02-05}},
   doc-delivery-number        = {{ES6SR}},
-  doi                        = {{10.1057/s41294-016-0017-x}},
+  doi                        = {10.1057/s41294-016-0017-x},
   eissn                      = {{1478-3320}},
   journal-iso                = {{Comp. Econ. Stud.}},
   keywords                   = {{trust in government; transition economies; willingness to pay taxes; taxation; redistribution}},
