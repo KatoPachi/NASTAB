@@ -5,5 +5,5 @@ rmd_files:
   - "manuscript/3_data.rmd"
   - "manuscript/4_elasticity.rmd"
   - "manuscript/5_efficiencyElasticity.rmd"
-  - "manuscript/7_conclusions.rmd"
-  - "manuscript/8_reference.rmd"
+  - "manuscript/6_conclusions.rmd"
+  - "manuscript/7_reference.rmd"

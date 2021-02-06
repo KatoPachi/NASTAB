@@ -1,22 +1,23 @@
 # Main Results
 
+<!--- Slide
 ## Price and Income Elasticity
+--->
 
-```{stata EstimateElasticity, results = "hide", eval = FALSE}
-label variable log_price "ln(giving price)"
-
-* baseline
+```{stata Elasticity, results = "hide", eval = FALSE}
 xtreg log_total_g log_price log_pinc_all i.year, fe vce(cluster pid)
-mat coef = r(table)["b".."pvalue", "log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_a)
-mat colnames stat = model0
-mat rownames stat = N r2a
-mat_rapp model0 : coef stat
-mat tabular = model0'
+
+mat coeftab = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab = Logprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+predict resid, e
 
 * with covariates
-local cov sqage i.year##i.educ i.year##i.gender i.living_area
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -29,97 +30,95 @@ foreach v of local cov {
 	xtreg log_total_g log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
 	
 	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2a
-	mat_rapp model`k' : coef stat
-	mat model`k' = model`k''
+	mat coef = r(table)["b".."pvalue","log_price".."log_pinc_all"]
+	mat colnames coef = Logprice_M`k' Loginc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
 	
 	*combined with previous results
-	mat_rapp tabular : tabular model`k'
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
 
 	local k = `++k'
 }
 
-xsvmat tabular, saving(_assets/EstimateElasticity.dta, replace) rownames(xvar) names(col)
-```
+mat list coeftab
+mat list stattab
 
-```{stata EstimateElasticityIntensive, results = "hide", eval = FALSE}
-label variable log_price "ln(giving price)"
+xsvmat coeftab, saving(_assets/ElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/ElasticityStat.dta, replace) rownames(xvar) names(col)
 
-* baseline
-xtreg log_total_g log_price log_pinc_all i.year if i_ext_giving == 1, fe vce(cluster pid)
-mat coef = r(table)["b".."pvalue", "log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_a)
-mat colnames stat = model0
-mat rownames stat = N r2a
-mat_rapp model0 : coef stat
-mat tabular = model0'
-
-* with covariates
-local cov sqage i.year##i.educ i.year##i.gender i.living_area
-local xvars 
-local k = 1
-foreach v of local cov {
-	di "model `k'"
-    
-	*make set of covariates
-	local xvars `xvars' `v'
+* residuals plot
+frame copy default plotdt
+frame plotdt {
+	by year benefit_group, sort: egen meang = mean(resid)
 	
-	*estimate fixed effect model
-	xtreg log_total_g log_price log_pinc_all i.year age `xvars' if i_ext_giving == 1, /// 
-		fe vce(cluster pid)
+	keep meang year benefit_group
+	duplicates drop
+	keep if !missing(benefit_group)
 	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2a
-	mat_rapp model`k' : coef stat
-	mat model`k' = model`k''
-	
-	*combined with previous results
-	mat_rapp tabular : tabular model`k'
-
-	local k = `++k'
+	gen meang_norm = meang if year == 2013
+	by benefit_group, sort: egen meang13 = mean(meang_norm) 
+	gen meang_n = meang - meang13
 }
 
+frame plotdt {
+	twoway ///
+	(connected meang_n year if benefit_group == 1, sort msymbol(O) color(black))  ///
+	(connected meang_n year if benefit_group == 2, sort msymbol(T) color(black))  ///
+	(connected meang_n year if benefit_group == 3, sort msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Average Residuals (Normalized)")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
 
-xsvmat tabular, saving(_assets/EstimateElasticityIntensive.dta, replace) rownames(xvar) names(col)
+	graph export "_assets/ElasticityResid.pdf", replace
+}
+
+frame drop plotdt
 ```
 
-```{stata EstimateElasticityExtensive, results = "hide", eval = FALSE}
-label variable log_price "ln(giving price)"
-
+```{stata ExtElasticity, results = "hide", eval = FALSE}
 * baseline
 xtreg i_ext_giving log_price log_pinc_all i.year, fe vce(cluster pid)
-mat coef = r(table)["b".."pvalue", "log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_a)
-mat colnames stat = model0
-mat rownames stat = N r2a
 
-* proportion of donors
+mat coeftab = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab = Logprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r
+
+predict residext, e
+
+* price elasticity evaluated at mean
 summarize i_ext_giving
 local mu = r(mean)
-
-* implied elasticity
 lincom log_price*(1/`mu')
-mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-mat colnames elas = model0
-mat rownames elas = e_b e_se e_pval
+
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M0
+mat rownames elas1 = e_b e_se e_pval
+
+* price elasticity evaluated at mean
+summarize i_ext_giving
+local mu = r(mean)
+lincom log_pinc_all*(1/`mu')
+
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Loginc_M0
+mat rownames elas2 = e_b e_se e_pval
 
 * baseline result
-mat_rapp model0 : coef stat
-mat_rapp model0 : model0 elas
-mat tabular = model0'
+mat_capp elas : elas1 elas2
+mat_rapp coeftab : coeftab elas
+
 
 * with covariates
-local cov sqage i.year##i.educ i.year##i.gender i.living_area
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
 local xvars 
 local k = 1
 foreach v of local cov {
@@ -132,66 +131,204 @@ foreach v of local cov {
 	xtreg i_ext_giving log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
 	
 	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2a
+	mat coef = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+	mat colnames coef = Logprice_M`k' Loginc_M`k'
+
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r
 	
 	*proportion of donors
 	summarize i_ext_giving
 	local mu = r(mean)
 	
-	*implied elasticity
+	* price elasticity evaluated at mean
+	summarize i_ext_giving
+	local mu = r(mean)
 	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`k'
-	mat rownames elas = e_b e_se e_pval
-	
-	*regression result
-	mat_rapp model`k' : coef stat
-	mat_rapp model`k' : model`k' elas
-	mat model`k' = model`k''
+
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logprice_M`k'
+	mat rownames elas1 = e_b e_se e_pval
+
+	* price elasticity evaluated at mean
+	summarize i_ext_giving
+	local mu = r(mean)
+	lincom log_pinc_all*(1/`mu')
+
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Loginc_M`k'
+	mat rownames elas2 = e_b e_se e_pval
 	
 	*combined with previous results
-	mat_rapp tabular : tabular model`k'
+	mat_capp elas : elas1 elas2
+	mat_rapp coef : coef elas
+	mat_capp coeftab : coeftab coef
+	
+	mat_capp stattab : stattab stat
 
 	local k = `++k'
 }
 
-xsvmat tabular, saving(_assets/EstimateElasticityExtensive.dta, replace) rownames(xvar) names(col)
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/ExtElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/ExtElasticityStat.dta, replace) rownames(xvar) names(col)
+
+* residuals plot
+frame copy default plotdt
+frame plotdt {
+	by year benefit_group, sort: egen meang = mean(residext)
+	
+	keep meang year benefit_group
+	duplicates drop
+	keep if !missing(benefit_group)
+	
+	gen meang_norm = meang if year == 2013
+	by benefit_group, sort: egen meang13 = mean(meang_norm) 
+	gen meang_n = meang - meang13
+}
+
+frame plotdt {
+	twoway ///
+	(connected meang_n year if benefit_group == 1, sort msymbol(O) color(black))  ///
+	(connected meang_n year if benefit_group == 2, sort msymbol(T) color(black))  ///
+	(connected meang_n year if benefit_group == 3, sort msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Average Residuals (Normalized)")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
+
+	graph export "_assets/ExtElasticityResid.pdf", replace
+}
+
+frame drop plotdt
+```
+
+```{stata IntElasticity, results = "hide", eval = FALSE}
+* baseline
+xtreg log_total_g log_price log_pinc_all i.year if i_ext_giving == 1, fe vce(cluster pid)
+
+mat coeftab = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab = Logprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+predict residint, e
+
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
+    
+	*make set of covariates
+	local xvars `xvars' `v'
+	
+	*estimate fixed effect model
+	xtreg log_total_g log_price log_pinc_all i.year age `xvars' if i_ext_giving == 1, fe vce(cluster pid)
+	
+	*matrix of regression result
+	mat coef = r(table)["b".."pvalue","log_price".."log_pinc_all"]
+	mat colnames coef = Logprice_M`k' Loginc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	*combined with previous results
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+
+	local k = `++k'
+}
+
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/IntElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/IntElasticityStat.dta, replace) rownames(xvar) names(col)
+
+* residuals plot
+frame copy default plotdt
+frame plotdt {
+	by year benefit_group, sort: egen meang = mean(residint)
+	
+	keep meang year benefit_group
+	duplicates drop
+	keep if !missing(benefit_group)
+	
+	gen meang_norm = meang if year == 2013
+	by benefit_group, sort: egen meang13 = mean(meang_norm) 
+	gen meang_n = meang - meang13
+}
+
+frame plotdt {
+	twoway ///
+	(connected meang_n year if benefit_group == 1, sort msymbol(O) color(black))  ///
+	(connected meang_n year if benefit_group == 2, sort msymbol(T) color(black))  ///
+	(connected meang_n year if benefit_group == 3, sort msymbol(S) color(black)),  ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	ytitle("Average Residuals (Normalized)")  ///
+	legend(label(1 "Income {&lt} 1200") label(2 " Income in [1200, 4600)") label(3 "Income {&ge} 4600"))  ///
+	graphregion(fcolor(white))
+
+	graph export "_assets/IntElasticityResid.pdf", replace
+}
+
+frame drop plotdt
+```
+
+```{r, include = TRUE, out.width="90%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group"}
+knitr::include_graphics(paste(here(), "_assets/ElasticityResid.pdf", sep= "/"))
 ```
 
 
-```{r shapeEstimateElasticity}
-orgtab <- list(
-	overall = read.dta13("_assets/EstimateElasticity.dta") %>% data.frame(),
-	intensive = read.dta13("_assets/EstimateElasticityIntensive.dta") %>% data.frame(),
-	extensive = read.dta13("_assets/EstimateElasticityExtensive.dta") %>% data.frame()
+```{r shapeElasticity}
+coeftab <- list(
+	overall = read.dta13("_assets/ElasticityCoef.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/IntElasticityCoef.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/ExtElasticityCoef.dta") %>% data.frame()
 )
 
-coeftab <- orgtab %>% 
+shape_coeftab <- coeftab %>% 
 	purrr::map(function(x)
 		x %>% 
-		mutate(
-			b = case_when(
-				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-				TRUE ~ sprintf("%1.3f", b)
-			),
-			se = sprintf("(%1.3f)", se),
-			N = sprintf("%1d", N)
-		) %>% 
-		select(xvar, b, se, N) %>% 
-		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-		pivot_wider(values_from = "value", names_from = "xvar") %>% 
-		select(-stat) %>% 
-		cbind(xvar = c("ln(giving price)", "", "N"), .)
-	) %>% 
-	reduce(rbind)
+			filter(!str_detect(xvar, "e_")) %>%
+			pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+			pivot_wider(values_from = "value", names_from = "xvar") %>% 
+			mutate(
+				b = case_when(
+					pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+					pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+					pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+					TRUE ~ sprintf("%1.3f", b)
+				),
+				se = sprintf("(%1.3f)", se)
+			) %>% 
+			select(-t, -pvalue) %>% 
+			pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+			pivot_wider(values_from = "value", names_from = "model") %>%
+			mutate(
+				vars = case_when(
+					stat == "se" ~ "",
+					vars == "Logprice" ~ "ln(giving price)",
+					vars == "Loginc" ~ "ln(auunaul taxable income)"
+				)
+			) %>% 
+			select(-stat)
+	)
 
-elastab <- orgtab$extensive %>% 
+elastab <- coeftab$extensive %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	mutate(
 		e_b = case_when(
 			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
@@ -201,25 +338,48 @@ elastab <- orgtab$extensive %>%
 		),
 		e_se = sprintf("(%1.3f)", e_se)
 	) %>% 
-	select(xvar, e_b, e_se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Price elasticity at mean", ""), .)
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logprice" ~ "Implied price elasiticity",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
 
-result.tab <- rbind(coeftab[-9,], elastab) %>% rbind(coeftab[9,])
+shape_coeftab$extensive <- rbind(shape_coeftab$extensive, elastab)
 
-addline <- cbind(
-	xvar = c("Time FE", "Age", "Year X Education", "Year X Gender", "Resident Area"),
-	model0 = c("Y", rep("N", 4)),
-	model1 = c(rep("Y", 2), rep("N", 3)),
-	model2 = c(rep("Y", 3), rep("N", 2)),
-	model3 = c(rep("Y", 4), rep("N", 1)),
-	model4 = rep("Y", 5)
+stattab <- list(
+	overall = read.dta13("_assets/ElasticityStat.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/IntElasticityStat.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/ExtElasticityStat.dta") %>% data.frame()
+) %>% 
+purrr::map(function(x) 
+	x %>% mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar)
 )
 
-tab1 <- rbind(result.tab[1:2,], addline) %>% rbind(result.tab[3,])
-tab2 <- rbind(result.tab[4:10,], addline) %>% rbind(result.tab[11,])
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Age", "Year X Education", "Year X Gender", "Year X Resident Area"),
+	M0 = c(rep("Y", 2), rep("N", 4)),
+	M1 = c(rep("Y", 3), rep("N", 3)),
+	M2 = c(rep("Y", 4), rep("N", 2)),
+	M3 = c(rep("Y", 5), rep("N", 1)),
+	M4 = rep("Y", 6)
+)
+
+tabular <- c("overall", "intensive", "extensive") %>% 
+	purrr::map(function(x) rbind(shape_coeftab[[x]], addline) %>% rbind(stattab[[x]]))
+
+alltab <- tabular[[1]]
+intexttab <- rbind(tabular[[2]][-(5:10),], tabular[[3]])
 ```
 
 <!--- Slide
@@ -229,7 +389,7 @@ We found the **price effect** of giving (1\% price increase leads to about 1.1\%
 
 ```{r kableEstimateElasticityPart1, include = TRUE}
 knitr::kable(
-    tab1,
+    alltab,
     format = "latex",
     caption = "Main Results",
     col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
@@ -237,7 +397,7 @@ knitr::kable(
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling() %>% 
+kable_styling(font_size = 8) %>% 
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
 ```
 
@@ -246,9 +406,17 @@ footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.
 ## Intensive Margin and Extensive Margin: Result
 --->
 
+```{r, include = TRUE, out.width="90%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)"}
+knitr::include_graphics(paste(here(), "_assets/IntElasticityResid.pdf", sep= "/"))
+```
+
+```{r, include = TRUE, out.width="90%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)"}
+knitr::include_graphics(paste(here(), "_assets/ExtElasticityResid.pdf", sep= "/"))
+```
+
 ```{r kableEstimateElasticityPart2, include = TRUE}
 knitr::kable(
-    tab2,
+    intexttab,
     format = "latex",
     caption = "Main Results: Intensive- and Extensive-Margin Elasticity",
     col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
@@ -256,16 +424,15 @@ knitr::kable(
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling() %>% 
-pack_rows("Intensive-Margin Elasticity", 1, 3) %>% 
-pack_rows("Extensive-Margin Elasticity", 4, 13) %>% 
+kable_styling(font_size = 8) %>% 
+pack_rows("Intensive-Margin Elasticity", 1, 6) %>% 
+pack_rows("Extensive-Margin Elasticity", 7, 22) %>% 
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
 
-
+<!--- Slide
 ## Robustness Check
 
-<!--- Slide
 1. Income and donations are determined simultaneously
 1. Effect of presidential transition on donation behavior
 1. Last price elasticity
@@ -284,222 +451,284 @@ First potential concern: Income and donations are determined simultaneously
 	- Note that Alumnia (2020) took a strategy of $k$-difference model.
 --->
 
-```{stata PanelIVEstimateElasticity, results = "hide", eval = FALSE}
-forvalues k = 1(1)3 {
+```{stata LastElasticity, results = "hide", eval = FALSE}
+* first stage
+xtreg log_lprice log_price log_pinc_all i.year, fe vce(cluster pid)
+
+mat fstage = r(table)["b".."pvalue","log_price"]
+mat fstage = fstage[1,1] \ fstage[3,1]^2
+mat colnames fstage = M0
+mat rownames fstage = ivcoef ivf
+
+* second stage
+xtivreg log_total_g log_pinc_all i.year (log_lprice = log_price), fe vce(cluster pid)
+
+mat coeftab = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+mat colnames coeftab = Loglprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+mat_rapp stattab : stattab fstage
+
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
     
-	di "lag = `k'"
+	*make set of covariates
+	local xvars `xvars' `v'
 	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
-		fe vce(cluster pid)
+	*first stage
+	xtreg log_lprice log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
 	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = r(table)["b".."pvalue","log_price"]
 	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
+	mat colnames fstage = M`k'
 	mat rownames fstage = ivcoef ivf
 	
-	* second stage
-	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p), fe vce(cluster pid)
+	*second stage
+	xtivreg log_total_g log_pinc_all i.year age `xvars' (log_lprice = log_price), fe vce(cluster pid)
 	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	mat_rapp model`k' : coef stat
+	mat coef = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+	mat colnames coef = Loglprice_M`k' Loginc_M`k'
+
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
 	
-	* combined with first stage result
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
+	mat_rapp stat : stat fstage
+	
+	*combined with previous results
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+
+	local k = `++k'
 }
 
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
+mat list coeftab
+mat list stattab
 
-xsvmat tabular, saving(_assets/PanelIVEstimateElasticity.dta, replace) rownames(xvar) names(col)
+xsvmat coeftab, saving(_assets/LastElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/LastElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-```{stata PanelIVEstimateElasticityExtensive, results = "hide", eval = FALSE}
-forvalues k = 1(1)3 {
+```{stata LastExtElasticity, results = "hide", eval = FALSE}
+* first stage
+xtreg log_lprice log_price log_pinc_all i.year, fe vce(cluster pid)
+
+mat fstage = r(table)["b".."pvalue","log_price"]
+mat fstage = fstage[1,1] \ fstage[3,1]^2
+mat colnames fstage = M0
+mat rownames fstage = ivcoef ivf
+
+* second stage
+xtivreg i_ext_giving log_pinc_all i.year (log_lprice = log_price), fe vce(cluster pid)
+
+mat coeftab = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+mat colnames coeftab = Loglprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+* price elasticity evaluated at mean
+summarize i_ext_giving
+local mu = r(mean)
+lincom log_lprice*(1/`mu')
+
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M0
+mat rownames elas1 = e_b e_se e_pval
+
+* price elasticity evaluated at mean
+summarize i_ext_giving
+local mu = r(mean)
+lincom log_pinc_all*(1/`mu')
+
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loginc_M0
+mat rownames elas2 = e_b e_se e_pval
+
+mat_capp elas : elas1 elas2
+mat_rapp coeftab : coeftab elas
+mat_rapp stattab : stattab fstage
+
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
     
-	di "lag = `k'"
+	*make set of covariates
+	local xvars `xvars' `v'
 	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ, ///
-		fe vce(cluster pid)
+	*first stage
+	xtreg log_lprice log_price log_pinc_all i.year age `xvars', fe vce(cluster pid)
 	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = r(table)["b".."pvalue","log_price"]
 	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
+	mat colnames fstage = M`k'
 	mat rownames fstage = ivcoef ivf
 	
-	* second stage
-	xtivreg i_ext_giving log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p), fe vce(cluster pid)
+	*second stage
+	xtivreg i_ext_giving log_pinc_all i.year age `xvars' (log_lprice = log_price), fe vce(cluster pid)
 	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
+	mat coef = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+	mat colnames coef = Loglprice_M`k' Loginc_M`k'
+
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
 	
-	*proportion of donors
+	* price elasticity evaluated at mean
 	summarize i_ext_giving
 	local mu = r(mean)
-	
-	*implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
-	mat colnames elas = model`k'
-	mat rownames elas = e_b e_se e_pval
-	
-	* combined with results
-	mat_rapp model`k' : coef stat
-	mat_rapp model`k' : model`k' elas
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
+	lincom log_lprice*(1/`mu')
 
+	mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+	mat colnames elas1 = Loglprice_M`k'
+	mat rownames elas1 = e_b e_se e_pval
+
+	* price elasticity evaluated at mean
+	summarize i_ext_giving
+	local mu = r(mean)
+	lincom log_pinc_all*(1/`mu')
+
+	mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+	mat colnames elas2 = Loginc_M`k'
+	mat rownames elas2 = e_b e_se e_pval
+
+	mat_capp elas : elas1 elas2
+	mat_rapp coef : coef elas
+	mat_rapp stat : stat fstage
+	
+	*combined with previous results
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+
+	local k = `++k'
 }
 
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
+mat list coeftab
+mat list stattab
 
-xsvmat tabular, saving(_assets/PanelIVEstimateElasticityExtensive.dta, replace) rownames(xvar) names(col)
+xsvmat coeftab, saving(_assets/LastExtElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/LastExtElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-```{stata PanelIVEstimateElasticityIntensive, results = "hide", eval = FALSE}
-forvalues k = 1(1)3 {
+```{stata LastIntElasticity, results = "hide", eval = FALSE}
+* first stage
+xtreg log_lprice log_price log_pinc_all i.year if i_ext_giving == 1, fe vce(cluster pid)
+
+mat fstage = r(table)["b".."pvalue","log_price"]
+mat fstage = fstage[1,1] \ fstage[3,1]^2
+mat colnames fstage = M0
+mat rownames fstage = ivcoef ivf
+
+* second stage
+xtivreg log_total_g log_pinc_all i.year (log_lprice = log_price) if i_ext_giving == 1, fe vce(cluster pid)
+
+mat coeftab = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+mat colnames coeftab = Loglprice_M0 Loginc_M0
+
+mat stattab = e(N) \ e(r2)
+mat colnames stattab = M0
+mat rownames stattab = N r2
+
+mat_rapp stattab : stattab fstage
+
+* with covariates
+local cov sqage i.year##i.educ i.year##i.gender i.year##i.living_area
+local xvars 
+local k = 1
+foreach v of local cov {
+	di "model `k'"
     
-	di "lag = `k'"
+	*make set of covariates
+	local xvars `xvars' `v'
 	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if i_ext_giving == 1, fe vce(cluster pid)
+	*first stage
+	xtreg log_lprice log_price log_pinc_all i.year age `xvars' if i_ext_giving == 1, fe vce(cluster pid)
 	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
+	mat fstage = r(table)["b".."pvalue","log_price"]
 	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
+	mat colnames fstage = M`k'
 	mat rownames fstage = ivcoef ivf
 	
-	* second stage
-	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p) if i_ext_giving == 1, fe vce(cluster pid)
+	*second stage
+	xtivreg log_total_g log_pinc_all i.year age `xvars' (log_lprice = log_price) if i_ext_giving == 1, fe vce(cluster pid)
 	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	mat_rapp model`k' : coef stat
+	mat coef = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]
+	mat colnames coef = Loglprice_M`k' Loginc_M`k'
+
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
 	
-	* combined with first stage result
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
+	mat_rapp stat : stat fstage
+	
+	*combined with previous results
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+
+	local k = `++k'
 }
 
-mat_rapp tabular : model1 model2
-mat_rapp tabular : tabular model3
+mat list coeftab
+mat list stattab
 
-xsvmat tabular, saving(_assets/PanelIVEstimateElasticityIntensive.dta, replace) rownames(xvar) names(col)
+xsvmat coeftab, saving(_assets/LastIntElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/LastIntElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
 <!--- Slide
 ## Robustness Check 1: Result
 ---> 
 
-```{r shapePanelIVEstimateElasticity}
-org.pivreg <- read.dta13("_assets/PanelIVEstimateElasticity.dta") %>% data.frame()
-
-coef.pivreg <- org.pivreg %>% 
-	select(xvar, b, se, pvalue) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se)
-	) %>% 
-	select(xvar, b, se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("ln(giving price)", ""), .)
-
-stat.pivreg <- org.pivreg %>% 
-	select(xvar, ivf, N) %>% 
-	mutate(ivf = sprintf("%1.2f", ivf), N = sprintf("%1d", as.integer(N))) %>%
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("F-stat of IV", "N"), .)
-
-addline <- cbind(
-	xvar = c("Individual FE", "Time FE", "Other Controls"),
-	model1 = rep("Y", 3),
-	model2 = rep("Y", 3),
-	model3 = rep("Y", 3)
+```{r shapeLastElasticity}
+coeftab <- list(
+	overall = read.dta13("_assets/LastElasticityCoef.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/LastIntElasticityCoef.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/LastExtElasticityCoef.dta") %>% data.frame()
 )
 
-tab.pivreg <- rbind(coef.pivreg, addline) %>% rbind(stat.pivreg)
-```
-
-```{r kablePanelIVEstimateElasticity, include = TRUE}
-knitr::kable(
-    tab.pivreg,
-    format = "latex",
-    caption = "Panel IV Results",
-    col.names = c("", "(1)", "(2)", "(3)"),
-    row.names = FALSE,
-    align = "lccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
-footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and resident area. The instumental variable is $\\\\log(\\\\text{Price}_{ijt}/\\\\text{Price}_{ij(t-k)})$.", threeparttable = TRUE, escape = FALSE)
-```
-
-<!--- Slide
-## Robustness Check 1: Intensive and Extensive Margin
---->
-
-```{r shapePanelIVEstimateElasticityIntExt}
-org.pivreg <- list(
-	intensive = read.dta13("_assets/PanelIVEstimateElasticityIntensive.dta") %>% data.frame(),
-	extensive = read.dta13("_assets/PanelIVEstimateElasticityExtensive.dta") %>% data.frame()
-)
-
-coef.pivreg <- org.pivreg %>% 
+shape_coeftab <- coeftab %>% 
 	purrr::map(function(x)
 		x %>% 
-		select(xvar, b, se, pvalue, ivf, N) %>% 
-		mutate(
-			b = case_when(
-				pvalue <= 0.01 ~ sprintf("%1.4f***", b),
-				pvalue <= 0.05 ~ sprintf("%1.4f**", b),
-				pvalue <= 0.1 ~ sprintf("%1.4f*", b),
-				TRUE ~ sprintf("%1.4f", b)
-			),
-			se = sprintf("(%1.4f)", se),
-			ivf = sprintf("%1.2f", ivf), N = sprintf("%1d", as.integer(N))
-		) %>% 
-		select(xvar, b, se, ivf, N) %>% 
-		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-		pivot_wider(values_from = "value", names_from = "xvar") %>% 
-		select(-stat) %>% 
-		cbind(xvar = c("ln(giving price)", "", "F-stat of IV", "N"), .)
-	) %>% 
-	reduce(rbind)
+			filter(!str_detect(xvar, "e_")) %>%
+			pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+			pivot_wider(values_from = "value", names_from = "xvar") %>% 
+			mutate(
+				b = case_when(
+					pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+					pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+					pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+					TRUE ~ sprintf("%1.3f", b)
+				),
+				se = sprintf("(%1.3f)", se)
+			) %>% 
+			select(-z, -pvalue) %>% 
+			pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+			pivot_wider(values_from = "value", names_from = "model") %>%
+			mutate(
+				vars = case_when(
+					stat == "se" ~ "",
+					vars == "Loglprice" ~ "ln(last giving price)",
+					vars == "Loginc" ~ "ln(auunaul taxable income)"
+				)
+			) %>% 
+			select(-stat)
+	)
 
-elas.pivreg <- org.pivreg$extensive %>% 
+elastab <- coeftab$extensive %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	mutate(
 		e_b = case_when(
 			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
@@ -509,39 +738,84 @@ elas.pivreg <- org.pivreg$extensive %>%
 		),
 		e_se = sprintf("(%1.3f)", e_se)
 	) %>% 
-	select(xvar, e_b, e_se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Price elasticity at mean", ""), .)
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Loglprice" ~ "Implied last price elasiticity",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
 
-addline <- cbind(
-	xvar = c("Individual FE", "Time FE", "Other Controls"),
-	model1 = rep("Y", 3),
-	model2 = rep("Y", 3),
-	model3 = rep("Y", 3)
+shape_coeftab$extensive <- rbind(shape_coeftab$extensive, elastab)
+
+stattab <- list(
+	overall = read.dta13("_assets/LastElasticityStat.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/LastIntElasticityStat.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/LastExtElasticityStat.dta") %>% data.frame()
+) %>% 
+purrr::map(function(x) 
+	x %>% mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.2f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r2" = "R-sq", "ivf" = "F-statistics of IV", .default = xvar)) %>% 
+	rename(vars = xvar) %>% 
+	filter(vars != "R-sq" & vars != "ivcoef") %>% 
+	.[c(2,1),]
 )
 
-tab.pivreg <- rbind(coef.pivreg[1:6,], elas.pivreg) %>% 
-	rbind(addline) %>% 
-	rbind(coef.pivreg[7:8,])
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Age", "Year X Education", "Year X Gender", "Year X Resident Area"),
+	M0 = c(rep("Y", 2), rep("N", 4)),
+	M1 = c(rep("Y", 3), rep("N", 3)),
+	M2 = c(rep("Y", 4), rep("N", 2)),
+	M3 = c(rep("Y", 5), rep("N", 1)),
+	M4 = rep("Y", 6)
+)
+
+tabular <- c("overall", "intensive", "extensive") %>% 
+	purrr::map(function(x) rbind(shape_coeftab[[x]], addline) %>% rbind(stattab[[x]]))
+
+alltab <- tabular[[1]]
+intexttab <- rbind(tabular[[2]][-(5:10),], tabular[[3]])
 ```
 
-```{r kablePanelIVEstimateElasticityIntExt, include = TRUE}
+```{r kableLastElasticity1, include = TRUE}
 knitr::kable(
-    tab.pivreg,
+    alltab,
     format = "latex",
-    caption = "Panel IV Results: Intensive- and Extensive-Margin Elasticity",
-    col.names = c("", "(1)", "(2)", "(3)"),
+    caption = "Last Price Elasticity: Panel IV",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
     row.names = FALSE,
-    align = "lccc", 
+    align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling() %>% 
-add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
-pack_rows("Intensive Margin", 1, 4) %>% 
-pack_rows("Extensive Margin", 5, 13) %>% 
-footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and resident area. The instumental variable is $\\\\log(\\\\text{Price}_{ijt}/\\\\text{Price}_{ij(t-k)})$. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
+kable_styling(font_size = 8) %>% 
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
+```
+
+<!--- Slide
+## Robustness Check 1: Intensive and Extensive Margin
+--->
+
+```{r kableLastElasticity2, include = TRUE}
+knitr::kable(
+    intexttab,
+    format = "latex",
+    caption = "Intensive- and Extensive-Margin Last Price Elasticity: Panel IV",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+pack_rows("Intensive-Margin Elasticity", 1, 6) %>% 
+pack_rows("Extensive-Margin Elasticity", 7, 22) %>% 
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
 
 <!--- Slide
@@ -555,269 +829,307 @@ Second potential concern: The effect of presidential transition on donations
 --->
 
 
-```{stata ShortEstimateElasticity, results = "hide", eval = FALSE}
-xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+```{stata ShortElasticity, results = "hide", eval = FALSE}
+* M0: year >= 2013 without cov
+xtreg log_total_g log_price log_pinc_all i.year if year >= 2013, fe vce(cluster pid)
+
+mat coeftab0 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab0 = Logprice_M0 Loginc_M0
+
+mat stattab0 = e(N) \ e(r2)
+mat colnames stattab0 = M0
+mat rownames stattab0 = N r2
+
+* M1: year >= 2013 with cov
+xtreg log_total_g log_price log_pinc_all i.year age sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+	if year >= 2013, fe vce(cluster pid)
+
+mat coeftab1 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab1 = Logprice_M1 Loginc_M1
+
+mat stattab1 = e(N) \ e(r2)
+mat colnames stattab1 = M1
+mat rownames stattab1 = N r2
+
+* M2: year == 2013 | 2014 without cov
+xtreg log_total_g log_price log_pinc_all i.year if year == 2013 | year == 2014, fe vce(cluster pid)
+
+mat coeftab2 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab2 = Logprice_M2 Loginc_M2
+
+mat stattab2 = e(N) \ e(r2)
+mat colnames stattab2 = M2
+mat rownames stattab2 = N r2
+
+* M3: year == 2013 | 2014 with cov
+xtreg log_total_g log_price log_pinc_all i.year age sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
 	if year == 2013 | year == 2014, fe vce(cluster pid)
 
-mat coef = r(table)["b".."pvalue","log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_w)
-mat colnames stat = model0
-mat rownames stat = N r2w
-mat_rapp model : coef stat
-mat tabular = model'
+mat coeftab3 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab3 = Logprice_M3 Loginc_M3
 
-forvalues k = 1(1)3 {
-    
-	di "lag = `k'"
-	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if year == 2013 | year == 2014, fe vce(cluster pid)
-	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
-	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
-	mat rownames fstage = ivcoef ivf
-	
-	* second stage
-	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p) if year == 2013 | year == 2014, fe vce(cluster pid)
-	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	mat_rapp model`k' : coef stat
-	
-	* combined with first stage result
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
-	mat_rapp tabular : tabular model`k', miss(.)
-}
+mat stattab3 = e(N) \ e(r2)
+mat colnames stattab3 = M3
+mat rownames stattab3 = N r2
 
+mat_capp coeftab : coeftab0 coeftab1
+mat_capp coeftab : coeftab coeftab2
+mat_capp coeftab : coeftab coeftab3
 
-mat list tabular
+mat_capp stattab : stattab0 stattab1
+mat_capp stattab : stattab stattab2
+mat_capp stattab : stattab stattab3
 
-xsvmat tabular, saving(_assets/ShortEstimateElasticity.dta, replace) rownames(xvar) names(col)
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/ShortElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/ShortElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-```{stata ShortEstimateElasticityExtensive, results = "hide", eval = FALSE}
-* baseline
-xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-	if year == 2013 | year == 2014, fe vce(cluster pid)
+```{stata ShortIntElasticity, results = "hide", eval = FALSE}
+* M0: year >= 2013 without cov
+xtreg log_total_g log_price log_pinc_all i.year if year >= 2013 & i_ext_giving == 1, fe vce(cluster pid)
 
-mat coef = r(table)["b".."pvalue","log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_w)
-mat colnames stat = model0
-mat rownames stat = N r2w
+mat coeftab0 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab0 = Logprice_M0 Loginc_M0
 
-* proportion of donors
-summarize i_ext_giving
-local mu = r(mean)
+mat stattab0 = e(N) \ e(r2)
+mat colnames stattab0 = M0
+mat rownames stattab0 = N r2
 
-* implied elasticity
-lincom log_price*(1/`mu')
-mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-mat colnames elas = model0
-mat rownames elas = e_b e_se e_pval
+* M1: year >= 2013 with cov
+xtreg log_total_g log_price log_pinc_all i.year age sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+	if year >= 2013 & i_ext_giving == 1, fe vce(cluster pid)
 
-mat_rapp model : coef elas
-mat_rapp model : model stat
-mat tabular = model'
+mat coeftab1 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab1 = Logprice_M1 Loginc_M1
 
-forvalues k = 1(1)3 {
-    
-	di "lag = `k'"
-	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if year == 2013 | year == 2014, fe vce(cluster pid)
-	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
-	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
-	mat rownames fstage = ivcoef ivf
-	
-	* second stage
-	xtivreg i_ext_giving log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p) if year == 2013 | year == 2014, fe vce(cluster pid)
-	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	
-	*proportion of donors
-	summarize i_ext_giving
-	local mu = r(mean)
-	
-	*implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
-	mat colnames elas = model`k'
-	mat rownames elas = e_b e_se e_pval
-	
-	* combined with first stage result
-	mat_rapp model`k' : coef elas
-	mat_rapp model`k' : model`k' stat
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
-	mat_rapp tabular : tabular model`k', miss(.)
-}
+mat stattab1 = e(N) \ e(r2)
+mat colnames stattab1 = M1
+mat rownames stattab1 = N r2
 
+* M2: year == 2013 | 2014 without cov
+xtreg log_total_g log_price log_pinc_all i.year if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
 
-mat list tabular
+mat coeftab2 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab2 = Logprice_M2 Loginc_M2
 
-xsvmat tabular, saving(_assets/ShortEstimateElasticityExtensive.dta, replace) rownames(xvar) names(col)
-```
+mat stattab2 = e(N) \ e(r2)
+mat colnames stattab2 = M2
+mat rownames stattab2 = N r2
 
-```{stata ShortEstimateElasticityIntensive, results = "hide", eval = FALSE}
-* baseline
-xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
+* M3: year == 2013 | 2014 with cov
+xtreg log_total_g log_price log_pinc_all i.year age sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
 	if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
 
-mat coef = r(table)["b".."pvalue","log_price"]
-mat colnames coef = model0
-mat stat = e(N) \ e(r2_w)
-mat colnames stat = model0
-mat rownames stat = N r2w
-mat_rapp model : coef stat
-mat tabular = model'
+mat coeftab3 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab3 = Logprice_M3 Loginc_M3
 
-forvalues k = 1(1)3 {
-    
-	di "lag = `k'"
-	
-	* first stage 
-    xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
-	
-	* result of first stage
-	mat fstage = r(table)["b".."pvalue","diff`k'p"]
-	mat fstage = fstage[1,1] \ fstage[3,1]^2
-	mat colnames fstage = model`k'
-	mat rownames fstage = ivcoef ivf
-	
-	* second stage
-	xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		(log_price = diff`k'p) if (year == 2013 | year == 2014) & i_ext_giving == 1, fe vce(cluster pid)
-	
-	* result of second stage
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`k'
-	mat stat = e(N) \ e(r2_w)
-	mat colnames stat = model`k'
-	mat rownames stat = N r2w
-	mat_rapp model`k' : coef stat
-	
-	* combined with first stage result
-	mat_rapp model`k' : model`k' fstage
-	mat model`k' = model`k''
-	mat_rapp tabular : tabular model`k', miss(.)
-}
+mat stattab3 = e(N) \ e(r2)
+mat colnames stattab3 = M3
+mat rownames stattab3 = N r2
 
+mat_capp coeftab : coeftab0 coeftab1
+mat_capp coeftab : coeftab coeftab2
+mat_capp coeftab : coeftab coeftab3
 
-mat list tabular
+mat_capp stattab : stattab0 stattab1
+mat_capp stattab : stattab stattab2
+mat_capp stattab : stattab stattab3
 
+mat list coeftab
+mat list stattab
 
-xsvmat tabular, saving(_assets/ShortEstimateElasticityIntensive.dta, replace) rownames(xvar) names(col)
+xsvmat coeftab, saving(_assets/ShortIntElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/ShortIntElasticityStat.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata ShortExtElasticity, results = "hide", eval = FALSE}
+** M0: year >= 2013 without cov
+xtreg i_ext_giving log_price log_pinc_all i.year if year >= 2013, fe vce(cluster pid)
+
+mat coeftab0 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab0 = Logprice_M0 Loginc_M0
+
+mat stattab0 = e(N) \ e(r2)
+mat colnames stattab0 = M0
+mat rownames stattab0 = N r2
+
+* price elasticity evaluated at mean
+summarize i_ext_giving if year >= 2013
+local mu = r(mean)
+lincom log_price*(1/`mu')
+
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M0
+mat rownames elas1 = e_b e_se e_pval
+
+* price elasticity evaluated at mean
+summarize i_ext_giving if year >= 2013
+local mu = r(mean)
+lincom log_pinc_all*(1/`mu')
+
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Loginc_M0
+mat rownames elas2 = e_b e_se e_pval
+
+mat_capp elas : elas1 elas2
+mat_rapp coeftab0 : coeftab0 elas
+
+** M1: year >= 2013 with cov
+xtreg i_ext_giving log_price log_pinc_all i.year age sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+	if year >= 2013, fe vce(cluster pid)
+
+mat coeftab1 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab1 = Logprice_M1 Loginc_M1
+
+mat stattab1 = e(N) \ e(r2)
+mat colnames stattab1 = M1
+mat rownames stattab1 = N r2
+
+* price elasticity evaluated at mean
+summarize i_ext_giving if year >= 2013
+local mu = r(mean)
+lincom log_price*(1/`mu')
+
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M1
+mat rownames elas1 = e_b e_se e_pval
+
+* price elasticity evaluated at mean
+summarize i_ext_giving if year >= 2013
+local mu = r(mean)
+lincom log_pinc_all*(1/`mu')
+
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Loginc_M1
+mat rownames elas2 = e_b e_se e_pval
+
+mat_capp elas : elas1 elas2
+mat_rapp coeftab1 : coeftab1 elas
+
+** M2: year == 2013 | 2014 without cov
+xtreg i_ext_giving log_price log_pinc_all i.year if year == 2013 | year == 2014, fe vce(cluster pid)
+
+mat coeftab2 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab2 = Logprice_M2 Loginc_M2
+
+mat stattab2 = e(N) \ e(r2)
+mat colnames stattab2 = M2
+mat rownames stattab2 = N r2
+
+* price elasticity evaluated at mean
+summarize i_ext_giving if year == 2013 | year == 2014
+local mu = r(mean)
+lincom log_price*(1/`mu')
+
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M2
+mat rownames elas1 = e_b e_se e_pval
+
+* price elasticity evaluated at mean
+summarize i_ext_giving if year == 2013 | year == 2014
+local mu = r(mean)
+lincom log_pinc_all*(1/`mu')
+
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Loginc_M2
+mat rownames elas2 = e_b e_se e_pval
+
+mat_capp elas : elas1 elas2
+mat_rapp coeftab2 : coeftab2 elas
+
+** M3: year == 2013 | 2014 with cov
+xtreg i_ext_giving log_price log_pinc_all i.year age sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+	if year == 2013 | year == 2014, fe vce(cluster pid)
+
+mat coeftab3 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]
+mat colnames coeftab3 = Logprice_M3 Loginc_M3
+
+mat stattab3 = e(N) \ e(r2)
+mat colnames stattab3 = M3
+mat rownames stattab3 = N r2
+
+* price elasticity evaluated at mean
+summarize i_ext_giving if year == 2013 | year == 2014
+local mu = r(mean)
+lincom log_price*(1/`mu')
+
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M3
+mat rownames elas1 = e_b e_se e_pval
+
+* price elasticity evaluated at mean
+summarize i_ext_giving if year == 2013 | year == 2014
+local mu = r(mean)
+lincom log_pinc_all*(1/`mu')
+
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Loginc_M3
+mat rownames elas2 = e_b e_se e_pval
+
+mat_capp elas : elas1 elas2
+mat_rapp coeftab3 : coeftab3 elas
+
+mat_capp coeftab : coeftab0 coeftab1
+mat_capp coeftab : coeftab coeftab2
+mat_capp coeftab : coeftab coeftab3
+
+mat_capp stattab : stattab0 stattab1
+mat_capp stattab : stattab stattab2
+mat_capp stattab : stattab stattab3
+
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/ShortExtElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/ShortExtElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
 <!--- Slide
 ## Robustness Check 2: Result
 --->
 
-```{r shapeShortEstimateElasticity}
-org.tab <- read.dta13("_assets/ShortEstimateElasticity.dta") %>% data.frame()
-
-shape.tab <- org.tab %>% 
-	select(xvar, b, se, pvalue, ivf, N) %>% 
-	mutate(
-		b = case_when(
-			pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-			pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-			pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-			TRUE ~ sprintf("%1.3f", b)
-		),
-		se = sprintf("(%1.3f)", se),
-		ivf = if_else(is.na(ivf), "", sprintf("%1.2f", ivf)), 
-		N = sprintf("%1d", as.integer(N))
-	) %>% 
-	select(xvar, b, se, ivf, N) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("ln(giving price)", "", "F-stat of IV", "N"), .)
-
-addline <- cbind(
-	xvar = c("Individual FE", "Time FE", "Other Controls"),
-	model0 = rep("Y", 3),
-	model1 = rep("Y", 3),
-	model2 = rep("Y", 3),
-	model3 = rep("Y", 3)
+```{r shapeShortElasticity}
+coeftab <- list(
+	overall = read.dta13("_assets/ShortElasticityCoef.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/ShortIntElasticityCoef.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/ShortExtElasticityCoef.dta") %>% data.frame()
 )
 
-tab <- rbind(shape.tab[1:2,], addline) %>% rbind(shape.tab[3:4,])
-```
-
-```{r kableShortEstimateElasticity, include=TRUE}
-knitr::kable(
-    tab,
-    format = "latex",
-    caption = "Results with 2013 and 2014 Data",
-    col.names = c("", "(1)", "(2)", "(3)", "(4)"),
-    row.names = FALSE,
-    align = "lcccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling() %>% 
-add_header_above(c("Lag $k$" = 1, " " = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
-add_header_above(c("Model" = 1, "FE" = 1, "Panel IV" = 3)) %>% 
-footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and resident area. The instumental variable is $\\\\log(\\\\text{Price}_{ijt}/\\\\text{Price}_{ij(t-k)})$.", threeparttable = TRUE, escape = FALSE)
-```
-
-<!--- Slide
-## Robustness Check 2: Intensive and Extensive Margin
---->
-
-```{r shapeShortEstimateElasticityIntExt}
-org.tab <- list(
-	intensive = read.dta13("_assets/ShortEstimateElasticityIntensive.dta") %>% data.frame(),
-	extensive = read.dta13("_assets/ShortEstimateElasticityExtensive.dta") %>% data.frame()
-)
-
-coef.tab <- org.tab %>% 
+shape_coeftab <- coeftab %>% 
 	purrr::map(function(x)
 		x %>% 
-		select(xvar, b, se, pvalue, ivf, N) %>% 
-		mutate(
-			b = case_when(
-				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-				TRUE ~ sprintf("%1.3f", b)
-			),
-			se = sprintf("(%1.3f)", se),
-			ivf = if_else(is.na(ivf), "", sprintf("%1.2f", ivf)), 
-			N = sprintf("%1d", as.integer(N))
-		) %>% 
-		select(xvar, b, se, ivf, N) %>% 
-		pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-		pivot_wider(values_from = "value", names_from = "xvar") %>% 
-		select(-stat) %>% 
-		cbind(xvar = c("ln(giving price)", "", "F-stat of IV", "N"), .)
-	) %>% 
-	reduce(rbind)
+			filter(!str_detect(xvar, "e_")) %>%
+			pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+			pivot_wider(values_from = "value", names_from = "xvar") %>% 
+			mutate(
+				b = case_when(
+					pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+					pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+					pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+					TRUE ~ sprintf("%1.3f", b)
+				),
+				se = sprintf("(%1.3f)", se)
+			) %>% 
+			select(-t, -pvalue) %>% 
+			pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+			pivot_wider(values_from = "value", names_from = "model") %>%
+			mutate(
+				vars = case_when(
+					stat == "se" ~ "",
+					vars == "Logprice" ~ "ln(giving price)",
+					vars == "Loginc" ~ "ln(auunaul taxable income)"
+				)
+			) %>% 
+			select(-stat)
+	)
 
-elas.tab <- org.tab$extensive %>% 
+elastab <- coeftab$extensive %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
 	mutate(
 		e_b = case_when(
 			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
@@ -827,40 +1139,226 @@ elas.tab <- org.tab$extensive %>%
 		),
 		e_se = sprintf("(%1.3f)", e_se)
 	) %>% 
-	select(xvar, e_b, e_se) %>% 
-	pivot_longer(-xvar, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	select(-stat) %>% 
-	cbind(xvar = c("Elasticity", ""), .)
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logprice" ~ "Implied price elasiticity",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
 
-result.tab <- rbind(coef.tab[1:6,], elas.tab) %>% rbind(coef.tab[7:8,])
+shape_coeftab$extensive <- rbind(shape_coeftab$extensive, elastab)
 
-addline <- cbind(
-	xvar = c("Individual FE", "Time FE", "Other Controls"),
-	model0 = rep("Y", 3),
-	model1 = rep("Y", 3),
-	model2 = rep("Y", 3),
-	model3 = rep("Y", 3)
+stattab <- list(
+	overall = read.dta13("_assets/ShortElasticityStat.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/ShortIntElasticityStat.dta") %>% data.frame(),
+	extensive = read.dta13("_assets/ShortExtElasticityStat.dta") %>% data.frame()
+) %>% 
+purrr::map(function(x) 
+	x %>% mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar)
 )
 
-tab <- rbind(result.tab[1:8,], addline) %>% rbind(result.tab[9:10,])
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M0 = c(rep("Y", 2), "N"),
+	M1 = rep("Y", 3),
+	M2 = c(rep("Y", 2), "N"),
+	M3 = rep("Y", 3)
+)
+
+tabular <- c("overall", "intensive", "extensive") %>% 
+	purrr::map(function(x) rbind(shape_coeftab[[x]], addline) %>% rbind(stattab[[x]]))
+
+alltab <- tabular[[1]]
+intexttab <- rbind(tabular[[2]][-(5:7),], tabular[[3]])
 ```
 
-```{r kableShortEstimateElasticityIntExt, include=TRUE}
+```{r kableShortElasticity1, include=TRUE}
 knitr::kable(
-    tab,
+    alltab,
     format = "latex",
-    caption = "Intensive- and Extensive-Margin Elasticity with 2013 and 2014 Data",
+    caption = "Elasticity with Short-Period Data",
     col.names = c("", "(1)", "(2)", "(3)", "(4)"),
     row.names = FALSE,
     align = "lcccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling() %>% 
-pack_rows("Intensive Margin", 1, 4) %>% 
-pack_rows("Extensive Margin", 5, 13) %>% 
-add_header_above(c("Lag $k$" = 1, " " = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
-add_header_above(c("Model" = 1, "FE" = 1, "Panel IV with FE" = 3)) %>% 
-footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and resident area. The instumental variable is $\\\\log(\\\\text{Price}_{ijt}/\\\\text{Price}_{ij(t-k)})$. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
 ```
 
+<!--- Slide
+## Robustness Check 2: Intensive and Extensive Margin
+--->
+
+```{r kableShortElasticity2, include=TRUE}
+knitr::kable(
+    intexttab,
+    format = "latex",
+    caption = "Intensive- and Extensive-Margin Elasticity with Short-Period Data",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)"),
+    row.names = FALSE,
+    align = "lcccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+pack_rows("Intensive-Margin Elasticity", 1, 6) %>% 
+pack_rows("Extensive-Margin Elasticity", 7, 19) %>% 
+add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
+```
+
+```{stata kDiffElasticity, results = "hide", eval = FALSE}
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* panel regression
+	xtreg log_diff`k'g log_iv`k'price log_diff`k'I diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area, ///
+		fe vce(cluster pid)
+	
+	* result of panel regression
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`k' Logdiffinc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	if `k' == 1 {
+	    mat coeftab = coef
+		mat stattab = stat
+	}
+	else {
+	    mat_capp coeftab : coeftab coef
+		mat_capp stattab : stattab stat
+	}
+}
+
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/kDiffElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/kDiffElasticityStat.dta, replace) rownames(xvar) names(col)
+```
+
+```{stata kDiffIntElasticity, results = "hide", eval = FALSE}
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+	* panel regression
+	xtreg log_diff`k'g log_iv`k'price log_diff`k'I diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+		if i_ext_giving == 1, fe vce(cluster pid)
+	
+	* result of panel regression
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`k' Logdiffinc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	if `k' == 1 {
+	    mat coeftab = coef
+		mat stattab = stat
+	}
+	else {
+	    mat_capp coeftab : coeftab coef
+		mat_capp stattab : stattab stat
+	}
+}
+
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/kDiffIntElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/kDiffIntElasticityStat.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapekDiffElasticity}
+coeftab <- list(
+	overall = read.dta13("_assets/kDiffElasticityCoef.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/kDiffIntElasticityCoef.dta") %>% data.frame()
+)
+
+shape_coeftab <- coeftab %>% 
+	purrr::map(function(x)
+		x %>% 
+			filter(!str_detect(xvar, "e_")) %>%
+			pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+			pivot_wider(values_from = "value", names_from = "xvar") %>% 
+			mutate(
+				b = case_when(
+					pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+					pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+					pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+					TRUE ~ sprintf("%1.3f", b)
+				),
+				se = sprintf("(%1.3f)", se)
+			) %>% 
+			select(-t, -pvalue) %>% 
+			pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+			pivot_wider(values_from = "value", names_from = "model") %>%
+			mutate(
+				vars = case_when(
+					stat == "se" ~ "",
+					vars == "Logdiffprice" ~ "Lagged difference of first price (log)",
+					vars == "Logdiffinc" ~ "Lagged difference of annual income (log)"
+				)
+			) %>% 
+			select(-stat)
+	)
+
+stattab <- list(
+	overall = read.dta13("_assets/kDiffElasticityStat.dta") %>% data.frame(),
+	intensive = read.dta13("_assets/kDiffIntElasticityStat.dta") %>% data.frame()
+) %>% 
+purrr::map(function(x) 
+	x %>% mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar)
+)
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3)
+)
+
+tabular <- c("overall", "intensive") %>% 
+	purrr::map(function(x) rbind(shape_coeftab[[x]], addline) %>% rbind(stattab[[x]]))
+
+alltab <- rbind(tabular[[1]][-(5:7),], tabular[[2]])
+```
+
+```{r kablekDiffElasticity, include=TRUE}
+knitr::kable(
+    alltab,
+    format = "latex",
+    caption = "Estimation of Elasticity: $k$-difference model",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+pack_rows("Overall Elasticity", 1, 6) %>% 
+pack_rows("Intensive-Margin Elasticity", 7, 15) %>% 
+add_header_above(c("lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
+```
