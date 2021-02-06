@@ -2,51 +2,29 @@ cd "C:\Users\vge00\Desktop\nastab"  //root path
 
 ** ---- ReadData
 use "data\shaped.dta", clear
-
-gen price = .
-replace price = 1 - mtr if year < 2014
-replace price = 1 - 0.15 if year >= 2014
-gen log_price = ln(price)
-gen log_total_g = ln(i_total_giving + 1)
-gen log_pinc_all = ln(lincome + 100000)
-replace gender = gender - 1
-gen univ = (educ == 3) if !missing(educ)
-gen highschool = (educ == 2) if !missing(educ)
-gen juniorhigh = (educ == 1) if !missing(educ)
-gen sqage = age^2/100
-
-gen benefit_group = .
-replace benefit_group = 1 if credit_benefit == 1
-replace benefit_group = 2 if credit_neutral == 1
-replace benefit_group = 3 if credit_loss == 1
-
-gen now_balance = 0
-replace now_balance = 2 if avg_welfare_tax == 1
-replace now_balance = 1 if avg_welfare_tax == 2 | avg_welfare_tax == 4
-replace now_balance = -1 if avg_welfare_tax == 6 | avg_welfare_tax == 8
-replace now_balance = -2 if avg_welfare_tax == 9
-replace now_balance = . if missing(avg_welfare_tax)
-
-gen ideal_balance = 0 
-replace ideal_balance = 2 if opt_welfare_tax == 1
-replace ideal_balance = 1 if opt_welfare_tax == 2 | opt_welfare_tax == 4
-replace ideal_balance = -1 if opt_welfare_tax == 6 | opt_welfare_tax == 8
-replace ideal_balance = -2 if opt_welfare_tax == 9
-replace ideal_balance = . if missing(opt_welfare_tax) 
-
-** ---- LagOperation
 tsset pid year
 
-forvalues k = 1(1)3 {
-    gen diff`k'G = log_total_g - l`k'.log_total_g
-	gen diff`k'G1 = i_ext_giving - l`k'.i_ext_giving
-	gen diff`k'p = log_price - l`k'.log_price
-	gen diff`k'I = log_pinc_all - l`k'.log_pinc_all
-	gen diff`k'_age = age - l`k'.age
-	gen diff`k'_sqage = sqage - l`k'.sqage
+gen log_price = ln(price)
+gen log_lprice = ln(lprice)
+gen log_iv1price = ln(iv1price)
+gen log_iv2price = ln(iv2price)
+gen log_iv3price = ln(iv3price)
+gen log_total_g = ln(i_total_giving + 1)
+gen log_pinc_all = ln(lincome + 100000)
+
+forvalues i = 1(1)3 {
+	gen lag`i'_log_total_g = l`i'.log_total_g
+	gen lag`i'_log_pinc_all = l`i'.log_pinc_all
+	gen lag`i'_age = l`i'.age
+	gen lag`i'_sqage = l`i'.sqage
+	
+	gen log_diff`i'g = log_total_g - lag`i'_log_total_g
+	gen log_diff`i'I = log_pinc_all - lag`i'_log_pinc_all
+	gen diff`i'_age = age - lag`i'_age
+	gen diff`i'_sqage = sqage - lag`i'_sqage
 }
 
-keep if year >= 2012
+keep if year >= 2012 & age >= 24
 
 ********************************************************************************
 * Construct Efficient index
@@ -87,22 +65,8 @@ frame balancedt: {
 frame balancedt: keep pid balanceid park_balanceid moon_balanceid ideal_balanceid ideal_park_balanceid ideal_moon_balanceid
 frame balancedt: duplicates drop
 frame balancedt {
-	gen diff_balance = moon_balanceid - park_balanceid
-	
-	xtile balance5 = balanceid, nq(5)
-	xtile park_balance5 = park_balanceid, nq(5)
-	xtile balance4 = balanceid, nq(4)
-	xtile park_balance4 = park_balanceid, nq(4)
 	xtile balance3 = balanceid, nq(3)
 	xtile park_balance3 = park_balanceid, nq(3)
-	
-	gen lessdiff1_balance = 0
-	replace lessdiff1_balance = 1 if abs(diff_balance) < 1
-	replace lessdiff1_balance = . if missing(diff_balance)
-	
-	gen lessdiffhalf_balance = 0
-	replace lessdiffhalf_balance = 1 if abs(diff_balance) < 0.5
-	replace lessdiffhalf_balance = . if missing(diff_balance)
 }
 frame balancedt: save "data\shape\balanceid.dta", replace
 frame drop balancedt
@@ -114,6 +78,11 @@ frame drop balancedt
 ** ---- merged with balancedt
 merge m:1 pid using "data\shape\balanceid.dta"
 drop _merge
+
+foreach v in log_price log_lprice log_iv1price log_iv2price log_iv3price {
+    gen `v'_int2 = `v' * (balance3 == 2) if !missing(balance3)
+	gen `v'_int3 = `v' * (balance3 == 3) if !missing(balance3)
+}
 
 ********************************************************************************
 * Summary of Efficent index summary
@@ -128,7 +97,7 @@ frame plotdt {
 frame plotdt: {
 	twoway ///
 	(histogram balanceid, freq yaxis(2) color(gs10%50) lcolor(black)), ///
-	xtitle("Current efficient index") ///
+	xtitle("Efficient index") ///
 	graphregion(fcolor(white))
 }
 frame drop plotdt
@@ -143,7 +112,7 @@ frame plotdt {
 	twoway ///
 	(kdensity balanceid, color(black)) ///
 	(kdensity balanceid if ideal_balanceid > 0, color(black) lpattern(-)),  ///
-	xtitle("Current efficient index")  ///
+	xtitle("Efficient index")  ///
 	ytitle("Density") ///
 	legend(label(1 "Full sample") label(2 "Ideal efficient index {&gt} 0")) ///
 	graphregion(fcolor(white))
@@ -242,719 +211,1046 @@ mat list model
 
 
 ********************************************************************************
-* Heterogenous price elasticity by trust index (5 Groups)
+* Heterogenous price elasticity by efficient index (3 quanitle)
 ********************************************************************************
 
-** ---- EstimateElasticityByEfficientGroup
-forvalues i = 1(1)5 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance5 == `i', fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+** ---- HeteroElasticity
+* overall
+xtreg log_total_g log_price log_price_int2 log_price_int3   ///
+	log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ, ///
+	fe vce(cluster pid)
 
-mat list tabular
+mat coef0 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef0 = Logprice_M0 Logprice2_M0 Logprice3_M0 Loginc_M0
 
-** ---- EstimateElasticityExtensiveByEfficientGroup
-forvalues i = 1(1)5 {
-    
-	* subgroup regression
-	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance5 == `i', fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	
-	* proportion of donors
-	summarize i_ext_giving if balance5 == `i'
-	local mu = r(mean)
+mat stat0 = e(N) \ e(r2)
+mat colnames stat0 = M0
+mat rownames stat0 = N r2
 
-	* implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`i'
-	mat rownames elas = e_b e_se e_pval
-	
-	* regression result for original5 == i
-	mat_rapp model`i' : coef elas
-	mat_rapp model`i' : model`i' stat
-	mat model`i' = model`i''
-	
-	* combined with previous results
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M0
+mat rownames elas1 = e_b e_se e_pval	
 
-mat list tabular
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M0
+mat rownames elas2 = e_b e_se e_pval	
 
-** ---- EstimateElasticityIntensiveByEfficientGroup
-forvalues i = 1(1)5 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance5 == `i' & i_ext_giving == 1, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M0
+mat rownames elas3 = e_b e_se e_pval	
 
-mat list tabular
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M0
+mat rownames elas4 = e_b e_se e_pval	
 
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
 
-********************************************************************************
-* Heterogenous price elasticity by trust index (4 Groups)
-********************************************************************************
+mat_rapp coef0 : coef0 elas
 
-** ---- EstimateElasticityByEfficientGroup4
-forvalues i = 1(1)4 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance4 == `i', fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+mat list coef0 
+mat list stat0
 
-mat list tabular
+* extensive
+xtreg i_ext_giving log_price log_price_int2 log_price_int3   ///
+	log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ, ///
+	fe vce(cluster pid)
 
-** ---- EstimateElasticityExtensiveByEfficientGroup
-forvalues i = 1(1)4 {
-    
-	* subgroup regression
-	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance4 == `i', fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	
-	* proportion of donors
-	summarize i_ext_giving if balance4 == `i'
-	local mu = r(mean)
+mat coef1 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef1 = Logprice_M1 Logprice2_M1 Logprice3_M1 Loginc_M1
 
-	* implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`i'
-	mat rownames elas = e_b e_se e_pval
-	
-	* regression result for balance4 == i
-	mat_rapp model`i' : coef elas
-	mat_rapp model`i' : model`i' stat
-	mat model`i' = model`i''
-	
-	* combined with previous results
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+mat stat1 = e(N) \ e(r2)
+mat colnames stat1 = M1
+mat rownames stat1 = N r2
 
-mat list tabular
+sum i_ext_giving
+local mu = r(mean)
 
-** ---- EstimateElasticityIntensiveByEfficientGroup4
-forvalues i = 1(1)4 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance4 == `i' & i_ext_giving == 1, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+lincom log_price * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M1
+mat rownames elas1 = e_b e_se e_pval	
 
-mat list tabular
+lincom (log_price + log_price_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M1
+mat rownames elas2 = e_b e_se e_pval
 
+lincom (log_price + log_price_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M1
+mat rownames elas3 = e_b e_se e_pval	
 
-********************************************************************************
-* Heterogenous price elasticity by trust index (3 groups)
-********************************************************************************
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M1
+mat rownames elas4 = e_b e_se e_pval	
+	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
 
-** ---- EstimateElasticityByEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i', fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+mat_rapp coef1 : coef1 elas
 
-mat list tabular
+mat list coef1 
+mat list stat1
 
-** ---- EstimateElasticityExtensiveByEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i', fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	
-	* proportion of donors
-	summarize i_ext_giving if balance3 == `i'
-	local mu = r(mean)
+* intensive
+xtreg log_total_g log_price log_price_int2 log_price_int3   ///
+	log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if i_ext_giving == 1, fe vce(cluster pid)
 
-	* implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`i'
-	mat rownames elas = e_b e_se e_pval
-	
-	* regression result for original5 == i
-	mat_rapp model`i' : coef elas
-	mat_rapp model`i' : model`i' stat
-	mat model`i' = model`i''
-	
-	* combined with previous results
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+mat coef2 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef2 = Logprice_M2 Logprice2_M2 Logprice3_M2 Loginc_M2
 
-mat list tabular
+mat stat2 = e(N) \ e(r2)
+mat colnames stat2 = M2
+mat rownames stat2 = N r2
 
-** ---- EstimateElasticityIntensiveByEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & i_ext_giving == 1, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M2
+mat rownames elas1 = e_b e_se e_pval	
 
-mat list tabular
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M2
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M2
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M2
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef2 : coef2 elas
+
+mat list coef2 
+mat list stat2
+
+* combined result
+mat_capp coeftab : coef0 coef1
+mat_capp coeftab : coeftab coef2
+
+mat_capp stattab : stat0 stat1
+mat_capp stattab : stattab stat2
+
+mat list coeftab
+mat list stattab
 
 
 *************************************************************************************
-* Heterogenous price elasticity by trust index (3 groups) using ideal efficienct > 0
+* Robust 1: Heterogenous price elasticity by efficient index using ideal efficienct > 0
 *************************************************************************************
 
-** ---- EstimateElasticityByPositiveEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & ideal_balanceid > 0, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+** ---- SubsetHeteroElasticity
+* overall
+xtreg log_total_g log_price log_price_int2 log_price_int3   ///
+	log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if ideal_balanceid > 0, fe vce(cluster pid)
 
-mat list tabular
+mat coef0 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef0 = Logprice_M0 Logprice2_M0 Logprice3_M0 Loginc_M0
 
-** ---- EstimateElasticityExtensiveByPositiveEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & ideal_balanceid > 0, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	
-	* proportion of donors
-	summarize i_ext_giving if balance3 == `i'
-	local mu = r(mean)
+mat stat0 = e(N) \ e(r2)
+mat colnames stat0 = M0
+mat rownames stat0 = N r2
 
-	* implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`i'
-	mat rownames elas = e_b e_se e_pval
-	
-	* regression result for original5 == i
-	mat_rapp model`i' : coef elas
-	mat_rapp model`i' : model`i' stat
-	mat model`i' = model`i''
-	
-	* combined with previous results
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M0
+mat rownames elas1 = e_b e_se e_pval	
 
-mat list tabular
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M0
+mat rownames elas2 = e_b e_se e_pval	
 
-** ---- EstimateElasticityIntensiveByPositiveEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & i_ext_giving == 1 & ideal_balanceid > 0, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M0
+mat rownames elas3 = e_b e_se e_pval	
 
-mat list tabular
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M0
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef0 : coef0 elas
+
+mat list coef0 
+mat list stat0
+
+* extensive
+xtreg i_ext_giving log_price log_price_int2 log_price_int3   ///
+	log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if ideal_balanceid > 0, fe vce(cluster pid)
+
+mat coef1 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef1 = Logprice_M1 Logprice2_M1 Logprice3_M1 Loginc_M1
+
+mat stat1 = e(N) \ e(r2)
+mat colnames stat1 = M1
+mat rownames stat1 = N r2
+
+sum i_ext_giving
+local mu = r(mean)
+
+lincom log_price * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M1
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_price + log_price_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M1
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_price + log_price_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M1
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M1
+mat rownames elas4 = e_b e_se e_pval	
+	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef1 : coef1 elas
+
+mat list coef1 
+mat list stat1
+
+* intensive
+xtreg log_total_g log_price log_price_int2 log_price_int3   ///
+	log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if i_ext_giving == 1 & ideal_balanceid > 0, fe vce(cluster pid)
+
+mat coef2 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef2 = Logprice_M2 Logprice2_M2 Logprice3_M2 Loginc_M2
+
+mat stat2 = e(N) \ e(r2)
+mat colnames stat2 = M2
+mat rownames stat2 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M2
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M2
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M2
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M2
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef2 : coef2 elas
+
+mat list coef2 
+mat list stat2
+
+* combined result
+mat_capp coeftab : coef0 coef1
+mat_capp coeftab : coeftab coef2
+
+mat_capp stattab : stat0 stat1
+mat_capp stattab : stattab stat2
+
+mat list coeftab
+mat list stattab
+
 
 *************************************************************************************
-* Heterogenous price elasticity by trust index (3 groups) using ideal efficienct < 0
+* Robust 2: Heterogenous last price elasticity by efficient index
 *************************************************************************************
 
-** ---- EstimateElasticityByNegativeEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & ideal_balanceid < 0, fe vce(cluster pid)
+** ---- HeteroLastElasticity
+* overall 
+xtivreg log_total_g log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3), ///
+	fe vce(cluster pid)
+
+mat coef0 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef0 = Loglprice_M0 Loglprice2_M0 Loglprice3_M0 Loginc_M0
+
+mat stat0 = e(N) \ e(r2)
+mat colnames stat0 = M0
+mat rownames stat0 = N r2
+
+lincom log_lprice
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M0
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int2
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M0
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int3
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M0
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M0
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef0 : coef0 elas
+
+mat list coef0 
+mat list stat0
+
+* extensive
+xtivreg i_ext_giving log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3), ///
+	fe vce(cluster pid)
+
+mat coef1 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef1 = Loglprice_M1 Loglprice2_M1 Loglprice3_M1 Loginc_M1
+
+mat stat1 = e(N) \ e(r2)
+mat colnames stat1 = M1
+mat rownames stat1 = N r2
+
+sum i_ext_giving
+local mu = r(mean)
+
+lincom log_lprice * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M1
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_lprice + log_lprice_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M1
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_lprice + log_lprice_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M1
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M1
+mat rownames elas4 = e_b e_se e_pval	
 	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef1 : coef1 elas
+
+mat list coef1 
+mat list stat1
 	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
+* intensive
+xtivreg log_total_g log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3) ///
+	if i_ext_giving == 1, fe vce(cluster pid)
+
+mat coef2 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef2 = Loglprice_M2 Loglprice2_M2 Loglprice3_M2 Loginc_M2
+
+mat stat2 = e(N) \ e(r2)
+mat colnames stat2 = M2
+mat rownames stat2 = N r2
+
+lincom log_lprice
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M2
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int2
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M2
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int3
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M2
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M2
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef2 : coef2 elas
+
+mat list coef2 
+mat list stat2
+
+* overall (ideal_balanceid >0)
+xtivreg log_total_g log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3) ///
+	if ideal_balanceid > 0, fe vce(cluster pid)
+
+mat coef3 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef3 = Loglprice_M3 Loglprice2_M3 Loglprice3_M3 Loginc_M3
+
+mat stat3 = e(N) \ e(r2)
+mat colnames stat3 = M3
+mat rownames stat3 = N r2
+
+lincom log_lprice
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M3
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int2
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M3
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int3
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M3
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M3
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef3 : coef3 elas
+
+mat list coef3 
+mat list stat3
+
+* extensive (ideal_balanceid > 0)
+xtivreg i_ext_giving log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3) ///
+	if ideal_balanceid > 0, fe vce(cluster pid)
+
+mat coef4 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef4 = Loglprice_M4 Loglprice2_M4 Loglprice3_M4 Loginc_M4
+
+mat stat4 = e(N) \ e(r2)
+mat colnames stat4 = M4
+mat rownames stat4 = N r2
+
+sum i_ext_giving if ideal_balanceid > 0
+local mu = r(mean)
+
+lincom log_lprice * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M4
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_lprice + log_lprice_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M4
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_lprice + log_lprice_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M4
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M4
+mat rownames elas4 = e_b e_se e_pval	
 	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef4 : coef4 elas
+
+mat list coef4
+mat list stat4
+	
+* intensive (ideal_balanceid > 0)
+xtivreg log_total_g log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3) ///
+	if i_ext_giving == 1 & ideal_balanceid > 0, fe vce(cluster pid)
+
+mat coef5 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef5 = Loglprice_M5 Loglprice2_M5 Loglprice3_M5 Loginc_M5
+
+mat stat5 = e(N) \ e(r2)
+mat colnames stat5 = M5
+mat rownames stat5 = N r2
+
+lincom log_lprice
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M5
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int2
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M5
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int3
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M5
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M5
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef5 : coef5 elas
+
+mat list coef5 
+mat list stat5
+
+* combined result
+mat_capp coeftab : coef0 coef1
+forvalues i = 2(1)5 {
+    mat_capp coeftab : coeftab coef`i'
 }
 
-mat list tabular
-
-** ---- EstimateElasticityExtensiveByNegativeEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & ideal_balanceid < 0, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	
-	* proportion of donors
-	summarize i_ext_giving if balance3 == `i'
-	local mu = r(mean)
-
-	* implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = model`i'
-	mat rownames elas = e_b e_se e_pval
-	
-	* regression result for original5 == i
-	mat_rapp model`i' : coef elas
-	mat_rapp model`i' : model`i' stat
-	mat model`i' = model`i''
-	
-	* combined with previous results
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
+mat_capp stattab : stat0 stat1
+forvalues i = 2(1)5 {
+    mat_capp stattab : stattab stat`i'
 }
 
-mat list tabular
+mat list coeftab
+mat list stattab
 
-** ---- EstimateElasticityIntensiveByNegativeEfficientGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & i_ext_giving == 1 & ideal_balanceid < 0, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = model`i'
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = model`i'
-	mat rownames stat = N r2a
-	mat_rapp model`i' : coef stat
-	mat model`i' = model`i''
-	
-	if `i' == 1 {
-	    mat tabular = model`i'
-	}
-	else {
-	    mat_rapp tabular : tabular model`i'
-	}
-	
-}
-
-mat list tabular
 
 ********************************************************************************
-* Heterogenous price elasticity by efficient index (3 groups) using Year == 2013|2014
+* Robustness 3: Hetegenous Elasticity Limited by year
 ********************************************************************************
+** ---- HeteroShortElasticity
+* overall 
+xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if year > 2012, ///
+	fe vce(cluster pid)
 
-** ---- ShortEstimateElasticityByEfficientGroup3
-forvalues i = 1(1)3 {
+mat coef0 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef0 = Logprice_M0 Logprice2_M0 Logprice3_M0 Loginc_M0
+
+mat stat0 = e(N) \ e(r2)
+mat colnames stat0 = M0
+mat rownames stat0 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M0
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M0
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M0
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M0
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef0 : coef0 elas
+
+mat list coef0 
+mat list stat0
+
+* extensive
+xtreg i_ext_giving log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if year > 2012, ///
+	fe vce(cluster pid)
+
+mat coef1 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef1 = Logprice_M1 Logprice2_M1 Logprice3_M1 Loginc_M1
+
+mat stat1 = e(N) \ e(r2)
+mat colnames stat1 = M1
+mat rownames stat1 = N r2
+
+sum i_ext_giving if year > 2012
+local mu = r(mean)
+
+lincom log_price * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M1
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_price + log_price_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M1
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_price + log_price_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M1
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M1
+mat rownames elas4 = e_b e_se e_pval	
+	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef1 : coef1 elas
+
+mat list coef1 
+mat list stat1
+	
+* intensive
+xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if i_ext_giving == 1 & year >= 2012, fe vce(cluster pid)
+
+mat coef2 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef2 = Logprice_M2 Logprice2_M2 Logprice3_M2 Loginc_M2
+
+mat stat2 = e(N) \ e(r2)
+mat colnames stat2 = M2
+mat rownames stat2 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M2
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M2
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M2
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M2
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef2 : coef2 elas
+
+mat list coef2 
+mat list stat2
+
+* overall (ideal_balanceid >0)
+xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if ideal_balanceid > 0 & year >= 2012, fe vce(cluster pid)
+
+mat coef3 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef3 = Logprice_M3 Logprice2_M3 Logprice3_M3 Loginc_M3
+
+mat stat3 = e(N) \ e(r2)
+mat colnames stat3 = M3
+mat rownames stat3 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M3
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M3
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M3
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M3
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef3 : coef3 elas
+
+mat list coef3 
+mat list stat3
+
+* extensive (ideal_balanceid > 0)
+xtreg i_ext_giving log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if ideal_balanceid > 0 & year >= 2012, fe vce(cluster pid)
+
+mat coef4 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef4 = Logprice_M4 Logprice2_M4 Logprice3_M4 Loginc_M4
+
+mat stat4 = e(N) \ e(r2)
+mat colnames stat4 = M4
+mat rownames stat4 = N r2
+
+sum i_ext_giving if ideal_balanceid > 0 & year >= 2012
+local mu = r(mean)
+
+lincom log_price * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M4
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_price + log_price_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M4
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_price + log_price_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M4
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M4
+mat rownames elas4 = e_b e_se e_pval	
+	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef4 : coef4 elas
+
+mat list coef4
+mat list stat4
+	
+* intensive (ideal_balanceid > 0)
+xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if i_ext_giving == 1 & ideal_balanceid > 0 & year >= 2012, fe vce(cluster pid)
+
+mat coef5 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef5 = Logprice_M5 Logprice2_M5 Logprice3_M5 Loginc_M5
+
+mat stat5 = e(N) \ e(r2)
+mat colnames stat5 = M5
+mat rownames stat5 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M5
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M5
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M5
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M5
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef5 : coef5 elas
+
+mat list coef5 
+mat list stat5
+
+* combined result
+mat_capp coeftab : coef0 coef1
+forvalues i = 2(1)5 {
+    mat_capp coeftab : coeftab coef`i'
+}
+
+mat_capp stattab : stat0 stat1
+forvalues i = 2(1)5 {
+    mat_capp stattab : stattab stat`i'
+}
+
+mat list coeftab
+mat list stattab
+
+********************************************************************************
+* Robustness 4: Hetegenous Elasticity Limited by year
+********************************************************************************
+** ---- HeterokDiffElasticity
+* overall 
+forvalues k = 1(1)3 {
     
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & (year == 2013|year==2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	di "lag = `k'"
 	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = Q`i'k0
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = Q`i'k0
-	mat rownames stat = N r2a
-	mat_rapp Q`i'k0 : coef stat
-	mat Q`i'k0 = Q`i'k0'
+    xtreg log_diff`k'g log_iv`k'price log_iv`k'price_int2 log_iv`k'price_int3 log_diff`k'I ///
+		diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area, ///
+		fe vce(cluster pid)
 	
-	if `i' == 1 {
-	    mat tabular = Q`i'k0
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`k' Logdiffprice2_M`k' Logdiffprice3_M`k' Logdiffinc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	lincom log_iv`k'price
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logdiffprice_M`k'
+	mat rownames elas1 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int2
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Logdiffprice2_M`k'
+	mat rownames elas2 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int3
+	mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas3 = Logdiffprice3_M`k'
+	mat rownames elas3 = e_b e_se e_pval	
+
+	lincom log_diff`k'I
+	mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas4 = Logdiffinc_M`k'
+	mat rownames elas4 = e_b e_se e_pval	
+
+	mat_capp elas : elas1 elas2
+	mat_capp elas : elas elas3
+	mat_capp elas : elas elas4
+	
+	mat_rapp coef : coef elas
+	
+	if `k' == 1 {
+	    mat coeftab = coef
+		mat stattab = stat
 	}
 	else {
-	    mat_rapp tabular : tabular Q`i'k0
+	    mat_capp coeftab : coeftab coef
+		mat_capp stattab : stattab stat
 	}
 	
 }
 
-forvalues i = 1(1)3 {
+* intensive
+local j = 4
+forvalues k = 1(1)3 {
     
-	forvalues k = 1(1)3 {
-    
-		di "lag = `k' with Group Q`i'"
+	di "Model `j': lag = `k'"
 	
-		* first stage 
-		xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-			if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+    xtreg log_diff`k'g log_iv`k'price log_iv`k'price_int2 log_iv`k'price_int3 log_diff`k'I ///
+		diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+		if i_ext_giving == 1, fe vce(cluster pid)
 	
-		* result of first stage
-		mat fstage = r(table)["b".."pvalue","diff`k'p"]
-		mat fstage = fstage[1,1] \ fstage[3,1]^2
-		mat colnames fstage = Q`i'k`k'
-		mat rownames fstage = ivcoef ivf
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`j' Logdiffprice2_M`j' Logdiffprice3_M`j' Logdiffinc_M`j'
 	
-		* second stage
-		xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-			(log_price = diff`k'p) if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`j'
+	mat rownames stat = N r2
 	
-		* result of second stage
-		mat coef = r(table)["b".."pvalue","log_price"]
-		mat colnames coef = Q`i'k`k'
-		mat stat = e(N) \ e(r2_w)
-		mat colnames stat = Q`i'k`k'
-		mat rownames stat = N r2w
-		mat_rapp Q`i'k`k' : coef stat
+	lincom log_iv`k'price
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logdiffprice_M`j'
+	mat rownames elas1 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int2
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Logdiffprice2_M`j'
+	mat rownames elas2 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int3
+	mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas3 = Logdiffprice3_M`j'
+	mat rownames elas3 = e_b e_se e_pval	
+
+	lincom log_diff`k'I
+	mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas4 = Logdiffinc_M`j'
+	mat rownames elas4 = e_b e_se e_pval	
+
+	mat_capp elas : elas1 elas2
+	mat_capp elas : elas elas3
+	mat_capp elas : elas elas4
 	
-		* combined with first stage result
-		mat_rapp Q`i'k`k' : Q`i'k`k' fstage
-		mat Q`i'k`k' = Q`i'k`k''
-		mat_rapp tabular : tabular Q`i'k`k', miss(.)
-		
-	}
+	mat_rapp coef : coef elas
+	
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+	
+	local j = `++j'
+	
 }
 
+mat list coeftab
+mat list stattab
 
-mat list tabular
-
-** ---- ShortEstimateElasticityExtensiveByTrustGroup3
-forvalues i = 1(1)3 {
+** ---- SubsetHeterokDiffElasticity
+* overall 
+forvalues k = 1(1)3 {
     
-	* subgroup regression
-	xtreg i_ext_giving log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	di "lag = `k'"
 	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = Q`i'k0
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = Q`i'k0
-	mat rownames stat = N r2a
+    xtreg log_diff`k'g log_iv`k'price log_iv`k'price_int2 log_iv`k'price_int3 log_diff`k'I ///
+		diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+		if ideal_balanceid > 0, fe vce(cluster pid)
 	
-	* proportion of donors
-	summarize i_ext_giving if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0
-	local mu = r(mean)
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`k' Logdiffprice2_M`k' Logdiffprice3_M`k' Logdiffinc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	lincom log_iv`k'price
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logdiffprice_M`k'
+	mat rownames elas1 = e_b e_se e_pval	
 
-	* implied elasticity
-	lincom log_price*(1/`mu')
-	mat elas = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
-	mat colnames elas = Q`i'k0
-	mat rownames elas = e_b e_se e_pval
+	lincom log_iv`k'price + log_iv`k'price_int2
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Logdiffprice2_M`k'
+	mat rownames elas2 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int3
+	mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas3 = Logdiffprice3_M`k'
+	mat rownames elas3 = e_b e_se e_pval	
+
+	lincom log_diff`k'I
+	mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas4 = Logdiffinc_M`k'
+	mat rownames elas4 = e_b e_se e_pval	
+
+	mat_capp elas : elas1 elas2
+	mat_capp elas : elas elas3
+	mat_capp elas : elas elas4
 	
-	* regression result for original5 == i
-	mat_rapp Q`i'k0 : coef elas
-	mat_rapp Q`i'k0 : Q`i'k0 stat
-	mat Q`i'k0 = Q`i'k0'
+	mat_rapp coef : coef elas
 	
-	* combined with previous results
-	if `i' == 1 {
-	    mat tabular = Q`i'k0
+	if `k' == 1 {
+	    mat coeftab = coef
+		mat stattab = stat
 	}
 	else {
-	    mat_rapp tabular : tabular Q`i'k0
+	    mat_capp coeftab : coeftab coef
+		mat_capp stattab : stattab stat
 	}
 	
 }
 
-forvalues i = 1(1)3 {
+* intensive
+local j = 4
+forvalues k = 1(1)3 {
     
-	forvalues k = 1(1)3 {
-    
-		di "lag = `k' with group Q`i'"
+	di "Model `j': lag = `k'"
 	
-		* first stage 
-		xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-			if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+    xtreg log_diff`k'g log_iv`k'price log_iv`k'price_int2 log_iv`k'price_int3 log_diff`k'I ///
+		diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+		if i_ext_giving == 1 & ideal_balanceid > 0, fe vce(cluster pid)
 	
-		* result of first stage
-		mat fstage = r(table)["b".."pvalue","diff`k'p"]
-		mat fstage = fstage[1,1] \ fstage[3,1]^2
-		mat colnames fstage = Q`i'k`k'
-		mat rownames fstage = ivcoef ivf
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`j' Logdiffprice2_M`j' Logdiffprice3_M`j' Logdiffinc_M`j'
 	
-		* second stage
-		xtivreg i_ext_giving log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-			(log_price = diff`k'p) if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`j'
+	mat rownames stat = N r2
 	
-		* result of second stage
-		mat coef = r(table)["b".."pvalue","log_price"]
-		mat colnames coef = Q`i'k`k'
-		mat stat = e(N) \ e(r2_w)
-		mat colnames stat = Q`i'k`k'
-		mat rownames stat = N r2w
+	lincom log_iv`k'price
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logdiffprice_M`j'
+	mat rownames elas1 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int2
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Logdiffprice2_M`j'
+	mat rownames elas2 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int3
+	mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas3 = Logdiffprice3_M`j'
+	mat rownames elas3 = e_b e_se e_pval	
+
+	lincom log_diff`k'I
+	mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas4 = Logdiffinc_M`j'
+	mat rownames elas4 = e_b e_se e_pval	
+
+	mat_capp elas : elas1 elas2
+	mat_capp elas : elas elas3
+	mat_capp elas : elas elas4
 	
-		*proportion of donors
-		summarize i_ext_giving if balance3 == `i' & (year == 2013 | year == 2014) & ideal_balanceid > 0
-		local mu = r(mean)
+	mat_rapp coef : coef elas
 	
-		*implied elasticity
-		lincom log_price*(1/`mu')
-		mat elas = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
-		mat colnames elas = Q`i'k`k'
-		mat rownames elas = e_b e_se e_pval
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
 	
-		* combined with first stage result
-		mat_rapp Q`i'k`k' : coef elas
-		mat_rapp Q`i'k`k' : Q`i'k`k' stat
-		mat_rapp Q`i'k`k' : Q`i'k`k' fstage
-		mat Q`i'k`k' = Q`i'k`k''
-		mat_rapp tabular : tabular Q`i'k`k', miss(.)
-	}
+	local j = `++j'
 	
 }
 
-mat list tabular
-
-** ---- ShortEstimateElasticityIntensiveByTrustGroup3
-forvalues i = 1(1)3 {
-    
-	* subgroup regression
-	xtreg log_total_g log_price log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-		if balance3 == `i' & i_ext_giving == 1 & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
-	
-	*matrix of regression result
-	mat coef = r(table)["b".."pvalue","log_price"]
-	mat colnames coef = Q`i'k0
-	mat stat = e(N) \ e(r2_a)
-	mat colnames stat = Q`i'k0
-	mat rownames stat = N r2a
-	mat_rapp Q`i'k0 : coef stat
-	mat Q`i'k0 = Q`i'k0'
-	
-	if `i' == 1 {
-	    mat tabular = Q`i'k0
-	}
-	else {
-	    mat_rapp tabular : tabular Q`i'k0
-	}
-	
-}
-
-forvalues i = 1(1)3 {
-    
-	forvalues k = 1(1)3 {
-    
-		di "lag = `k' with group Q`k'"
-	
-		* first stage 
-		xtreg log_price diff`k'p log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-			if balance3 == `i' & i_ext_giving == 1 & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
-	
-		* result of first stage
-		mat fstage = r(table)["b".."pvalue","diff`k'p"]
-		mat fstage = fstage[1,1] \ fstage[3,1]^2
-		mat colnames fstage = Q`i'k`k'
-		mat rownames fstage = ivcoef ivf
-	
-		* second stage
-		xtivreg log_total_g log_pinc_all age i.living_area i.year##i.gender i.year##i.educ ///
-			(log_price = diff`k'p) ///
-			if balance3 == `i' & i_ext_giving == 1 & (year == 2013 | year == 2014) & ideal_balanceid > 0, fe vce(cluster pid)
-	
-		* result of second stage
-		mat coef = r(table)["b".."pvalue","log_price"]
-		mat colnames coef = Q`i'k`k'
-		mat stat = e(N) \ e(r2_w)
-		mat colnames stat = Q`i'k`k'
-		mat rownames stat = N r2w
-		mat_rapp Q`i'k`k' : coef stat
-	
-		* combined with first stage result
-		mat_rapp Q`i'k`k' : Q`i'k`k' fstage
-		mat Q`i'k`k' = Q`i'k`k''
-		mat_rapp tabular : tabular Q`i'k`k', miss(.)
-	}
-	
-}
-
-mat list tabular
+mat list coeftab
+mat list stattab
