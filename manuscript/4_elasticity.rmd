@@ -1,3 +1,17 @@
+# Estimation
+
+## Empirical strategies
+Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price. 
+
+We estimate the elasticity of intensive margin using the following specification:
+$$
+\ln g_{it} = e_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}.
+$$
+$g_{it}, p_{it}$ and $y_{it}$ respectively indicates the amount of giving, the giving price, and income of $i$ in year $t$.  $\mu_i, \iota_t$ and $u_{it}$ are individual fixed effect, year fixed effect and error term, respectively. 
+The individual fixed effect controls for time-invariant individual characteristics. The year fixed effect controls for events that affect all subjects at the same time. $X_{it}$ is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into $X_{it}$, since they will control for events that affects subject with specific characteristics at the same time following @Zeldow2019.
+
+
+
 # Main Results
 
 <!--- Slide
