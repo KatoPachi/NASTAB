@@ -1,5 +1,42 @@
 # Governement Efficient and Price Elasticity
 
+From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level. For current balance, the subjects answer the degree of their current perception about tax burden and welfare level, both of them are scaled by three: high, middle, and low (See figure \ref{Balance}.). For ideal balance, the choice set of answer is the same as the current balance, but the subjects answers their ideal tax burden and welfare level.
+Thus, we can derive the two pair of answers about tax burden and welfare level for each subject, i.e. the pair about current balance and one about ideal balance.
+
+We can consider that the pair of answers about current balance reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare. Based on the pair about current perception, we construct an index called efficiency index by the following steps. Firstly, according to \@ref(tab:tabefficiency), we assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient. Secondly, to construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect. Then, we use the obtained fixed effect as the efficiency index. Since the assigned number ranges from -2 to 2, the efficiency index takes a value within the interval of (-2, 2). 
+
+We consider that the efficiency index shows the individual's perception toward government for its efficiency. However, there are two potential problems for the construction of this index. The first problem is that there is a room for subjects to interpret the questions of tax/welfare balance not as questions about the efficiency of the government but as questions about the expenditure policy of the government. If the latter is true, some subjects consider that the government with low tax burden and high welfare level is inefficient because it conducts debt financing. To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable. In other words, in the robustness check, we rule out the subjects whose efficiency index for the ideal balance question is less than 0. We check that this refinement enable us to get a clearer result. 
+
+The second issue is ....(Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。)
+
+The distribution of the efficiency index is shown in figure XXX. We can see that the index is distributed around 0 and the distribution is not changed if we limit the sample whose ideal efficiency index is not less than 0. 
+
+To estimate the effect of the perception, we use two ways of estimation following the method used in the baseline analysis. The first way is sub-sample analysis, where make three sub-samples according to the efficiency index. The second way utilize the interaction between the efficiency index and the giving price. Both ways of the analyses use the specifications based on Eq. (\@ref{Intensive}) and (\@ref{Extensive}) for intensive and extensive margins, respectively. 
+
+```{r tabefficiency, include=TRUE}
+tab <- data.frame(
+    col1 = c("High", "Middle", "Low"),
+    col2 = c("2", "1", "0"),
+    col3 = c("1", "0", "-1"),
+    col4 = c("0", "-1", "2")
+)
+
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "The assigned number for each pair of welfare/tax burden answers",
+    col.names = c("Welfare/Tax burden", "Low", "Middle", "High"),
+    row.names = FALSE,
+    align = "l|ccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+footnote(general_title = "", general = "Notes: The number shows the corresponding efficiency index for each pair of tax burden and welfare level.", threeparttable = TRUE, escape = FALSE)
+```
+
+![](_assets/BalanceQuestion.jpg){width=50%}
+
+
 <!-- Slide
 ## Government Efficiency
 

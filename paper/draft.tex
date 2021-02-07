@@ -371,7 +371,7 @@
   \hypertarget{obstacles-for-identification}{%
   \subsubsection{Obstacles for identification}\label{obstacles-for-identification}}
   
-  The estimations based on Eq. (\ref{Intensive}) and (\ref{Extensive}) are likely to show biased estimates because there are two potential endogeneity problem: (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For the issue (A), the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system. Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation. The first price is formally defined as the giving price \(p^d_i\equiv 1−\tau (y_i−g_i)\), evaluated at \(g_i=0\). Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance. Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
+  The estimations based on Eq. (@ref\{Intensive\}) and (@ref\{Extensive\}) are likely to show biased estimates because there are two potential endogeneity problem: (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For the issue (A), the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system. Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation. The first price is formally defined as the giving price \(p^d_i\equiv 1−\tau (y_i−g_i)\), evaluated at \(g_i=0\). Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance. Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
   
   Regarding issue (B), the change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate. Therefore, we employ lagged values of taxable income and construct an instrument variable for the change in the first price of giving as following:
   
@@ -671,6 +671,42 @@
   
   \hypertarget{governement-efficient-and-price-elasticity}{%
   \section{Governement Efficient and Price Elasticity}\label{governement-efficient-and-price-elasticity}}
+  
+  From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level. For current balance, the subjects answer the degree of their current perception about tax burden and welfare level, both of them are scaled by three: high, middle, and low (See figure \ref{Balance}.). For ideal balance, the choice set of answer is the same as the current balance, but the subjects answers their ideal tax burden and welfare level.
+  Thus, we can derive the two pair of answers about tax burden and welfare level for each subject, i.e.~the pair about current balance and one about ideal balance.
+  
+  We can consider that the pair of answers about current balance reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare. Based on the pair about current perception, we construct an index called efficiency index by the following steps. Firstly, according to \ref{tab:tabefficiency}, we assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient. Secondly, to construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect. Then, we use the obtained fixed effect as the efficiency index. Since the assigned number ranges from -2 to 2, the efficiency index takes a value within the interval of (-2, 2).
+  
+  We consider that the efficiency index shows the individual's perception toward government for its efficiency. However, there are two potential problems for the construction of this index. The first problem is that there is a room for subjects to interpret the questions of tax/welfare balance not as questions about the efficiency of the government but as questions about the expenditure policy of the government. If the latter is true, some subjects consider that the government with low tax burden and high welfare level is inefficient because it conducts debt financing. To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable. In other words, in the robustness check, we rule out the subjects whose efficiency index for the ideal balance question is less than 0. We check that this refinement enable us to get a clearer result.
+  
+  The second issue is \ldots.(Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。)
+  
+  The distribution of the efficiency index is shown in figure XXX. We can see that the index is distributed around 0 and the distribution is not changed if we limit the sample whose ideal efficiency index is not less than 0.
+  
+  To estimate the effect of the perception, we use two ways of estimation following the method used in the baseline analysis. The first way is sub-sample analysis, where make three sub-samples according to the efficiency index. The second way utilize the interaction between the efficiency index and the giving price. Both ways of the analyses use the specifications based on Eq. (@ref\{Intensive\}) and (@ref\{Extensive\}) for intensive and extensive margins, respectively.
+  
+  \begin{table}
+  
+  \caption{\label{tab:tabefficiency}The assigned number for each pair of welfare/tax burden answers}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{l|cccl|cccl|cccl|ccc}
+  \toprule
+  Welfare/Tax burden & Low & Middle & High\\
+  \midrule
+  High & 2 & 1 & 0\\
+  Middle & 1 & 0 & -1\\
+  Low & 0 & -1 & 2\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: The number shows the corresponding efficiency index for each pair of tax burden and welfare level.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+  
+  \includegraphics[width=0.5\textwidth,height=\textheight]{_assets/BalanceQuestion.jpg}
   
   \begin{figure}
   
