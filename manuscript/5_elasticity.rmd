@@ -1,24 +1,3 @@
-
-```{r setup, include = FALSE, echo = FALSE}
-library(here)
-knitr::opts_chunk$set(
-  message = FALSE, 
-  warning = FALSE, 
-  echo = FALSE, 
-  cache = FALSE,
-  include = FALSE,
-  fig.width = 10, fig.height = 6,
-  fig.align = "center"
-)
-knitr::opts_knit$set(root.dir = here())
-
-library(tidyverse)
-library(readstata13)
-library(kableExtra)
-options(knitr.kable.NA = "")
-```
-
-
 # Main Results
 
 ```{stata Elasticity, results = "hide", eval = FALSE}
@@ -432,9 +411,9 @@ kable_styling(font_size = 7) #%>%
 ## Intensive and Extensive Margin
 
 - To obtain intensive- and extensive-margin elasticity, we repeat the same excercise.
-- \@ref(fig:showIntElasticityResid) shows average residuals grouped by year and benefit of the 2014 tax reform 
+- Figure \@ref(fig:showIntElasticityResid) shows average residuals grouped by year and benefit of the 2014 tax reform 
     - We used those who donated and estimated residuals obtained from the regression logged donations on logged annual taxable income, individual and time fixed year.
-- \@ref(fig:showExtElasticityResid) shows average residuals grouped by year and benefir of the 2014 tax reform.
+- Figure \@ref(fig:showExtElasticityResid) shows average residuals grouped by year and benefir of the 2014 tax reform.
     - We estimated residuals obtained from the regression the donation dummy on logged annual taxable income, individual and time fixed year.
 
 ## Intensive Margin: Residuals Plot

@@ -1,61 +1,24 @@
-# Governement Efficient and Price Elasticity
-
-From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level. For current balance, the subjects answer the degree of their current perception about tax burden and welfare level, both of them are scaled by three: high, middle, and low (See figure \ref{Balance}.). For ideal balance, the choice set of answer is the same as the current balance, but the subjects answers their ideal tax burden and welfare level.
-Thus, we can derive the two pair of answers about tax burden and welfare level for each subject, i.e. the pair about current balance and one about ideal balance.
-
-We can consider that the pair of answers about current balance reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare. Based on the pair about current perception, we construct an index called efficiency index by the following steps. Firstly, according to \@ref(tab:tabefficiency), we assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient. Secondly, to construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect. Then, we use the obtained fixed effect as the efficiency index. Since the assigned number ranges from -2 to 2, the efficiency index takes a value within the interval of (-2, 2). 
-
-We consider that the efficiency index shows the individual's perception toward government for its efficiency. However, there are two potential problems for the construction of this index. The first problem is that there is a room for subjects to interpret the questions of tax/welfare balance not as questions about the efficiency of the government but as questions about the expenditure policy of the government. If the latter is true, some subjects consider that the government with low tax burden and high welfare level is inefficient because it conducts debt financing. To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable. In other words, in the robustness check, we rule out the subjects whose efficiency index for the ideal balance question is less than 0. We check that this refinement enable us to get a clearer result. 
-
-The second issue is ....(Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。)
-
-The distribution of the efficiency index is shown in figure XXX. We can see that the index is distributed around 0 and the distribution is not changed if we limit the sample whose ideal efficiency index is not less than 0. 
-
-To estimate the effect of the perception, we use two ways of estimation following the method used in the baseline analysis. The first way is sub-sample analysis, where make three sub-samples according to the efficiency index. The second way utilize the interaction between the efficiency index and the giving price. Both ways of the analyses use the specifications based on Eq. (\@ref{Intensive}) and (\@ref{Extensive}) for intensive and extensive margins, respectively. 
-
-```{r tabefficiency, include=TRUE}
-tab <- data.frame(
-    col1 = c("High", "Middle", "Low"),
-    col2 = c("2", "1", "0"),
-    col3 = c("1", "0", "-1"),
-    col4 = c("0", "-1", "2")
+```{r setup, include = FALSE, echo = FALSE}
+library(here)
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  echo = FALSE, 
+  cache = FALSE,
+  include = FALSE,
+  fig.width = 10, fig.height = 6,
+  fig.align = "center"
 )
+knitr::opts_knit$set(root.dir = here())
 
-knitr::kable(
-    tab,
-    format = "latex",
-    caption = "The assigned number for each pair of welfare/tax burden answers",
-    col.names = c("Welfare/Tax burden", "Low", "Middle", "High"),
-    row.names = FALSE,
-    align = "l|ccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 8) %>% 
-footnote(general_title = "", general = "Notes: The number shows the corresponding efficiency index for each pair of tax burden and welfare level.", threeparttable = TRUE, escape = FALSE)
+library(tidyverse)
+library(readstata13)
+library(kableExtra)
+options(knitr.kable.NA = "")
 ```
 
-![](_assets/BalanceQuestion.jpg){width=50%}
 
-
-<!-- Slide
-## Government Efficiency
-
-From the 2015 survey, 
-NaSTaB asks the current and ideal balance between tax burden and welfare size.
-
-These variables provide us to investigate the relationship between price elasticity and govenrment's efficiency
-more directly.
-
-Thus, we did same excercise, using the current balance bewteen tax burden and welfare size.
-
-## Construct Efficient Index
-
-Questionnaire of tax-welfare balance index is
-
-![](_assets/BalanceQuestion.jpg){width=50%}
-
-To rule out government's policies, we use individual fixed effect as the **efficient index**
--->
+# Governement Efficient and Price Elasticity
 
 ```{stata EstimateTaxBalanceIndex, results = "hide", eval = FALSE}
 * current efficient index
@@ -99,9 +62,50 @@ frame balancedt: save "data\shape\balanceid.dta", replace
 frame drop balancedt
 ```
 
-<!-- Slide
+## Construct Efficiency Index
+
+From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level.
+See the following table.
+
+```{r efficientQ, include=TRUE}
+tab <- data.frame(
+    col1 = c("High", "Middle", "Low"),
+    col2 = c("2", "1", "0"),
+    col3 = c("1", "0", "-1"),
+    col4 = c("0", "-1", "2")
+)
+
+knitr::kable(
+    tab,
+    format = "latex",
+    #caption = "The assigned number for each pair of welfare/tax burden answers",
+    col.names = c("Welfare/Tax burden", "Low", "Middle", "High"),
+    row.names = FALSE,
+    align = "l|ccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) #%>% 
+#footnote(general_title = "", general = "Notes: The number shows the corresponding efficiency index for each pair of tax burden and welfare level.", threeparttable = TRUE, escape = FALSE)
+```
+
+## Construct Efficient Index (Cont'd)
+
+- The pair of answers reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare.
+- Based on the pair about current perception, we construct an index called efficiency index by the following steps.
+	1. We assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient.
+	2. To construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect.
+	3. use the obtained fixed effect as the efficiency index
+
+<!--- Paper
+From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level. For current balance, the subjects answer the degree of their current perception about tax burden and welfare level, both of them are scaled by three: high, middle, and low (See figure \ref{Balance}.). For ideal balance, the choice set of answer is the same as the current balance, but the subjects answers their ideal tax burden and welfare level.
+Thus, we can derive the two pair of answers about tax burden and welfare level for each subject, i.e. the pair about current balance and one about ideal balance.
+
+We can consider that the pair of answers about current balance reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare. Based on the pair about current perception, we construct an index called efficiency index by the following steps. Firstly, according to \@ref(tab:tabefficiency), we assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient. Secondly, to construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect. Then, we use the obtained fixed effect as the efficiency index. Since the assigned number ranges from -2 to 2, the efficiency index takes a value within the interval of (-2, 2). 
+---> 
+
+
 ## Histrogram of Efficient Index
--->
+
 
 ```{stata HistogramEfficientIndex, results = "hide", eval = FALSE}
 frame copy default plotdt
@@ -124,15 +128,34 @@ frame drop plotdt
 knitr::include_graphics(paste(here(), "_assets/HistogramEfficientid.pdf", sep= "/"))
 ```
 
-<!-- Slide
+
+## Two Potential Concerns
+
+1. There is a room for subjects to interpret the questions of tax/welfare balance as questions about the expenditure policy of the government.
+	- To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
+2. Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。
+
+<!--- Paper
+We consider that the efficiency index shows the individual's perception toward government for its efficiency. However, there are two potential problems for the construction of this index. The first problem is that there is a room for subjects to interpret the questions of tax/welfare balance not as questions about the efficiency of the government but as questions about the expenditure policy of the government. If the latter is true, some subjects consider that the government with low tax burden and high welfare level is inefficient because it conducts debt financing. To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable. In other words, in the robustness check, we rule out the subjects whose efficiency index for the ideal balance question is less than 0. We check that this refinement enable us to get a clearer result. 
+
+The second issue is ....(Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。)
+
+The distribution of the efficiency index is shown in figure XXX. We can see that the index is distributed around 0 and the distribution is not changed if we limit the sample whose ideal efficiency index is not less than 0. 
+
+To estimate the effect of the perception, we use two ways of estimation following the method used in the baseline analysis. The first way is sub-sample analysis, where make three sub-samples according to the efficiency index. The second way utilize the interaction between the efficiency index and the giving price. Both ways of the analyses use the specifications based on Eq. (\@ref{Intensive}) and (\@ref{Extensive}) for intensive and extensive margins, respectively. 
+--->
+
 ## Heterogenous Price Elasticity by Governement Efficiency
 
 To see the heterogenous price elasticity by efficient index,
-We estimated the baseline regression model (5) (see Table \ref{tab:kableEstimateElasticity}),
-using sample grouped by the efficient index.
+we utilize the interaction between the efficiency index and the giving price.
 
-- Three quantile groups: we divide units $i$ into the first, second, and third quantile of efficient index (1Q, 2Q, and 3Q, respectively).
--->
+Bothe ways of the analyses use the sepcifications based on the Equation (XX) and (XX) for intensive and extensive margins,
+respectively.
+
+We control individual and time fixed effect,
+and other covariates.
+
 
 ```{stata HeteroElasticity, results = "hide", eval = FALSE}
 * overall
@@ -275,9 +298,6 @@ xsvmat coeftab, saving(_assets/HeteroElasticityCoef.dta, replace) rownames(xvar)
 xsvmat stattab, saving(_assets/HeteroElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-<!--- Slide
-## Efficient Groups: Estimation Results
---->
 
 ```{r shapeHeteroElasticity}
 tabset <- list(
@@ -357,7 +377,40 @@ addline <- cbind(
 tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
-```{r kableHeteroElasticity, include = TRUE}
+## Heterogenous Price Elasticity: Estimations Results
+
+```{r kableHeteroElasticitySlide1, include = TRUE}
+knitr::kable(
+    rbind(tab[1:6,], tab[20,]),
+    format = "latex",
+    caption = "Heterogenous Elasticity by Perceived Government Efficiency (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) 
+```
+
+## Heterogenous Price Elasticity: Implied Elasticity
+
+```{r kableHeteroElasticitySlide2, include = TRUE}
+knitr::kable(
+    rbind(tab[9:14,], tab[20,]),
+    format = "latex",
+    caption = "Heterogenous Elasticity by Perceived Government Efficiency (2)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) 
+```
+
+<!--- Paper
+```{r kableHeteroElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
     format = "latex",
@@ -371,20 +424,14 @@ kable_styling(font_size = 8) %>%
 add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
-
-<!-- Slide
-## Robustness Check
-
-1. Efficient index captures both government efficiency on concerns about budget deficits
-1. Effect of presidential transition on efficient index 
-1. Effect of presidential transition on donation behavior
-1. Income and donations are determined simultaneously
-1. Last price elasticity
-1. Self-selection of receiving tax benefit
-1. Transitory and permanent elasticity
+--->
 
 ## Robustness Check 1
--->
+
+First Potential Concern: interpretaion of the questions of tax/welfare balance as questions about the expenditure policy of the government
+
+- First, we construct three quantile groups, using the original efficient index.
+- Second, we rule out the subjects whose efficiency index for the ideal balance question is less than 0 from each group. 
 
 ```{stata DensityEfficientIndex, results = "hide", eval = FALSE}
 frame copy default plotdt
@@ -407,38 +454,13 @@ frame plotdt {
 frame drop plotdt
 ```
 
+
+## Robustness Check 1: Density of Efficient Index
+
 ```{r, include = TRUE, out.width="90%", fig.cap="Density of Efficient Index Using those whose ideal efficient index > 0"}
 knitr::include_graphics(paste(here(), "_assets/DensityEfficientid.pdf", sep= "/"))
 ```
 
-```{stata tTestPresidentEfficientIndex, results = "hide", eval = FALSE}
-frame copy default tdt 
-frame tdt {
-	keep pid moon_balanceid park_balanceid ideal_moon_balanceid ideal_park_balanceid
-	duplicates drop
-}
-
-frame tdt: ttest moon_balanceid == park_balanceid
-mat test1 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
-mat colnames test1 = current
-mat rownames test1 = diff se pval
-
-frame tdt: ttest ideal_moon_balanceid == ideal_park_balanceid
-mat test2 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
-mat colnames test2 = ideal
-mat rownames test2 = diff se pval
-
-mat_capp tabular : test1 test2
-
-mat list tabular
-frame drop tdt
-
-xsvmat tabular, saving(_assets/tTestPresidentEfficientid.dta, replace) rownames(xvar) names(col)
-```
-
-```{r shapetTestPresidentEfficientIndex}
-tdt <- read.dta13("_assets/tTestPresidentEfficientid.dta") %>% data.frame()
-```
 
 <!-- Slide
 - Efficient index may capture both government efficiency on concerns about budget deficits
@@ -674,7 +696,40 @@ addline <- cbind(
 tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
-```{r kableSubsetHeteroElasticity, include = TRUE}
+## Robustness Check 1: Estimation Results
+
+
+```{r kableSubsetHeteroElasticitySlide1, include = TRUE}
+knitr::kable(
+    rbind(tab[1:6,], tab[20,]),
+    format = "latex",
+    caption = "Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0 (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8)
+```
+
+
+## Robustness Check 1: Implied Price Elasticity
+
+```{r kableSubsetHeteroElasticitySlide2, include = TRUE}
+knitr::kable(
+    rbind(tab[9:14,], tab[20,]),
+    format = "latex",
+    caption = "Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0 (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8)
+```
+
+<!--- Paper
+```{r kableSubsetHeteroElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
     format = "latex",
@@ -688,6 +743,15 @@ kable_styling(font_size = 8) %>%
 add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
+---->
+
+
+## Robustness Check 2
+
+Second potential concern: Last price elasticity
+
+- We repeat same excercise as the panel IV including two interaction terms as endogenous variables.
+- Exgonenous variables are the interaction between giving price and dummies of efficient index group.
 
 
 ```{stata HeteroLastElasticity, results = "hide", eval = FALSE}
@@ -1043,7 +1107,76 @@ addline <- cbind(
 tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
-```{r kableHeteroLastElasticity, include = TRUE}
+## Robustness Check 2: Estimation Results (1)
+
+```{r kableHeteroLastElasticitySlide1, include = TRUE}
+knitr::kable(
+    tab[c(1:6, 20),1:4],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE) 
+```
+
+## Robustness Check 2: Implied Price Elasticity (1)
+
+```{r kableHeteroLastElasticitySlide2, include = TRUE}
+knitr::kable(
+    tab[c(9:14, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (2)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE) 
+```
+
+## Robustness Check 2: Estimation Results (2)
+
+```{r kableHeteroLastElasticitySlide3, include = TRUE}
+knitr::kable(
+    tab[c(1:6, 20),c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (3)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
+```
+
+## Robustness Check 2: Implied Price Elasticity (2)
+
+```{r kableHeteroLastElasticitySlide4, include = TRUE}
+knitr::kable(
+    tab[c(9:14, 20),c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (4)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
+```
+
+<!--- For Paper
+```{r kableHeteroLastElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
     format = "latex",
@@ -1058,20 +1191,16 @@ add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1, "Ov
 add_header_above(c(" " = 1, "Full Sample" = 3, "Ideal Efficient Index > 0" = 3), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The instumental variables are the first giving price in year $t$ and its interaction with the 2Q (3Q) Efficient Group. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
-
-<!--- Slide
-## Robustness Check 2
-
-We check the following two potential concerns
-
-- Presidential transition effect on donation behavior 
-- Income and donations are determined simultaneously
-
-To address these problems, we estimated the FE model and Panel IV model with FE where instrument is $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ for $k = 1, 2, 3$, using data in 2013 and 2014.
-Moreover, we droped units with the ideal efficient index < 0 from each quantile group.
-
-Note that f-statistics of IV is greater than 500 when we estimate overall elasticity and extensive-margin elasticity, and greater than 100 when we estimate the intensive-margin elasticity.
 --->
+
+
+## Robustness Check 3
+
+Third potential concerns: Price change due to the change in income
+
+- To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
+    - By this restriction, the *within* price variation of giving price is completely exgonenous.
+- We include interactions between giving price and dummies of the efficient quantile group. 
 
 
 ```{stata HeteroShortElasticity, results = "hide", eval = FALSE}
@@ -1428,11 +1557,77 @@ addline <- cbind(
 tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
-<!-- Slide
-## Robustness Check 2: Result
--->
 
-```{r kableHeteroShortElasticity, include = TRUE}
+## Robustness Check 3: Estimation Result (1)
+
+```{r kableHeteroShortElasticitySlide1, include = TRUE}
+knitr::kable(
+    tab[c(1:6, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE) 
+```
+
+## Robustness Check 3: Implied Price Elasticity (1)
+
+```{r kableHeteroShortElasticitySlide2, include = TRUE}
+knitr::kable(
+    tab[c(9:14, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE) 
+```
+
+## Robustness Check 3: Estimation Result (3)
+
+```{r kableHeteroShortElasticitySlide3, include = TRUE}
+knitr::kable(
+    tab[c(1:6, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (3)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
+```
+
+## Robustness Check 3: Implied Price Elasticity (4)
+
+```{r kableHeteroShortElasticitySlide4, include = TRUE}
+knitr::kable(
+    tab[c(9:14, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (4)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
+```
+
+<!--- For Paper
+```{r kableHeteroShortElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
     format = "latex",
@@ -1447,6 +1642,16 @@ add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1, "Ov
 add_header_above(c(" " = 1, "Full Sample" = 3, "Ideal Efficient Index > 0" = 3), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
+--->
+
+## Robustness Check 4
+
+Third potential concerns: Price change due to the change in income
+
+- To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
+- We can also rule out this problem, using the change in the first giving price.
+    - The change in the first giving price is $\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))$ where $g_{it-k} = 0$.
+    - Since we fix the income $y_{it-k}$, this variation comes from the tax reform.
 
 
 ```{stata HeterokDiffElasticity, results = "hide", eval = FALSE}
@@ -1560,103 +1765,6 @@ xsvmat coeftab, saving(_assets/HeterokDiffElasticityCoef.dta, replace) rownames(
 xsvmat stattab, saving(_assets/HeterokDiffElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-```{r shapeHeterokDiffElasticity}
-tabset <- list(
-	coef = read.dta13("_assets/HeterokDiffElasticityCoef.dta") %>% data.frame(),
-	stat = read.dta13("_assets/HeterokDiffElasticityStat.dta") %>% data.frame()
-)
-
-coeftab <- tabset$coef %>% 
-		filter(!str_detect(xvar, "e_")) %>%
-		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
-		pivot_wider(values_from = "value", names_from = "xvar") %>% 
-		mutate(
-			b = case_when(
-				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
-				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
-				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
-				TRUE ~ sprintf("%1.3f", b)
-			),
-			se = sprintf("(%1.3f)", se)
-		) %>% 
-		select(-t, -pvalue) %>% 
-		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
-		pivot_wider(values_from = "value", names_from = "model") %>%
-		mutate(
-			vars = case_when(
-				stat == "se" ~ "",
-				vars == "Logdiffprice" ~ "Lagged difference of first price (log)",
-				vars == "Logdiffprice2" ~ "X 2Q Efficient Group",
-				vars == "Logdiffprice3" ~ "X 3Q Efficient Group",
-				vars == "Logdiffinc" ~ "Lagged difference of annual income (log)"
-			)
-		) %>% 
-		select(-stat)
-
-elastab <- tabset$coef %>% 
-	filter(str_detect(xvar, "e_")) %>%
-	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
-	pivot_wider(values_from = "value", names_from = "xvar") %>% 
-	mutate(
-		e_b = case_when(
-			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
-			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
-			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
-			TRUE ~ sprintf("%1.3f", e_b)
-		),
-		e_se = sprintf("(%1.3f)", e_se)
-	) %>% 
-	select(-e_pval) %>% 
-	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
-	pivot_wider(values_from = "value", names_from = "model") %>%
-	mutate(
-		vars = case_when(
-			stat == "e_se" ~ "",
-			vars == "Logdiffprice" ~ "Implied price elasiticity (1Q efficient group)",
-			vars == "Logdiffprice2" ~ "Implied price elasiticity (2Q efficient group)",
-			vars == "Logdiffprice3" ~ "Implied price elasiticity (3Q efficient group)",
-			vars == "Logdiffinc" ~ "Implied income elasticity"
-		)
-	) %>% 
-	select(-stat)
-
-stattab <- tabset$stat %>% 
-	mutate_at(
-		vars(-xvar),
-		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
-	) %>% 
-	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
-	rename(vars = xvar) 
-
-addline <- cbind(
-	vars = c("Individual FE", "Time FE", "Other Controls"),
-	M1 = rep("Y", 3),
-	M2 = rep("Y", 3),
-	M3 = rep("Y", 3),
-	M4 = rep("Y", 3),
-	M5 = rep("Y", 3),
-	M6 = rep("Y", 3)
-)
-
-tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
-```
-
-```{r kableHeterokDiffElasticity, include = TRUE}
-knitr::kable(
-    tab,
-    format = "latex",
-    caption = "Heterogenous Price Elasticity: $k$-difference Model",
-    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
-    row.names = FALSE,
-    align = "lcccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = ""
-) %>% 
-kable_styling(font_size = 8) %>% 
-add_indent(c(3, 5)) %>%
-add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
-add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
-footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
-```
 
 ```{stata SubsetHeterokDiffElasticity, results = "hide", eval = FALSE}
 * overall 
@@ -1769,6 +1877,178 @@ xsvmat coeftab, saving(_assets/SubsetHeterokDiffElasticityCoef.dta, replace) row
 xsvmat stattab, saving(_assets/SubsetHeterokDiffElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
+```{r shapeHeterokDiffElasticity}
+tabset <- list(
+	coef = read.dta13("_assets/HeterokDiffElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/HeterokDiffElasticityStat.dta") %>% data.frame()
+)
+
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logdiffprice" ~ "Lagged difference of first price (log)",
+				vars == "Logdiffprice2" ~ "X 2Q Efficient Group",
+				vars == "Logdiffprice3" ~ "X 3Q Efficient Group",
+				vars == "Logdiffinc" ~ "Lagged difference of annual income (log)"
+			)
+		) %>% 
+		select(-stat)
+
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logdiffprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logdiffprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logdiffprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Logdiffinc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) 
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3),
+	M6 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
+```
+
+## Robustness Check 4: Estimation Results (1)
+
+```{r kableHeterokDiffElasticitySlide1, include = TRUE}
+knitr::kable(
+    tab[c(1:6, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE)
+```
+
+## Robustness Check 4: Implied Price Elasticity (1)
+
+```{r kableHeterokDiffElasticitySlide2, include = TRUE}
+knitr::kable(
+    tab[c(9:14, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model (2)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE)
+```
+
+## Robustness Check 4: Estimation Results (2)
+
+```{r kableHeterokDiffElasticitySlide3, include = TRUE}
+knitr::kable(
+    tab[c(1:6, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model (3)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE)
+```
+
+## Robustness Check 4: Implied Price Elasticity (2)
+
+```{r kableHeterokDiffElasticitySlide4, include = TRUE}
+knitr::kable(
+    tab[c(9:14, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model (4)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE)
+```
+
+<!--- Paper
+```{r kableHeterokDiffElasticity, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
+```
+--->
+
+## Robustness Check 4 (Ideal Efficient ID > 0): Estimation Results (1)
+
 ```{r shapeSubsetHeterokDiffElasticity}
 tabset <- list(
 	coef = read.dta13("_assets/SubsetHeterokDiffElasticityCoef.dta") %>% data.frame(),
@@ -1850,7 +2130,82 @@ addline <- cbind(
 tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
-```{r kableSubsetHeterokDiffElasticity, include = TRUE}
+
+```{r kableSubsetHeterokDiffElasticitySlide1, include = TRUE}
+knitr::kable(
+    tab[c(1:6, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE) 
+```
+
+
+## Robustness Check 4 (Ideal Efficient ID > 0): Implied Price Elasticity (1)
+
+
+```{r kableSubsetHeterokDiffElasticitySlide2, include = TRUE}
+knitr::kable(
+    tab[c(9:14, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (2)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE) 
+```
+
+## Robustness Check 4 (Ideal Efficient ID > 0): Estimation Results (2)
+
+```{r kableSubsetHeterokDiffElasticitySlide3, include = TRUE}
+knitr::kable(
+    tab[c(1:6, 20), c(1,5:7)],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (3)",    
+	col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE) 
+```
+
+
+## Robustness Check 4 (Ideal Efficient ID > 0): Implied Price Elasticity (2)
+
+
+```{r kableSubsetHeterokDiffElasticitySlide4, include = TRUE}
+knitr::kable(
+    tab[c(9:14, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (4)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE) 
+```
+
+
+<!--- Paper
+```{r kableSubsetHeterokDiffElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
     format = "latex",
@@ -1866,3 +2221,36 @@ add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "
 add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero.", threeparttable = TRUE, escape = FALSE)
 ```
+--->
+
+<!-------- Igonore this part
+
+```{stata tTestPresidentEfficientIndex, results = "hide", eval = FALSE}
+frame copy default tdt 
+frame tdt {
+	keep pid moon_balanceid park_balanceid ideal_moon_balanceid ideal_park_balanceid
+	duplicates drop
+}
+
+frame tdt: ttest moon_balanceid == park_balanceid
+mat test1 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
+mat colnames test1 = current
+mat rownames test1 = diff se pval
+
+frame tdt: ttest ideal_moon_balanceid == ideal_park_balanceid
+mat test2 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
+mat colnames test2 = ideal
+mat rownames test2 = diff se pval
+
+mat_capp tabular : test1 test2
+
+mat list tabular
+frame drop tdt
+
+xsvmat tabular, saving(_assets/tTestPresidentEfficientid.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapetTestPresidentEfficientIndex, eval = FALSE}
+tdt <- read.dta13("_assets/tTestPresidentEfficientid.dta") %>% data.frame()
+```
+---->
