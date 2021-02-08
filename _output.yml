@@ -4,6 +4,7 @@ bookdown::pdf_book:
   latex_engine: xelatex
   keep_tex: true
   toc: false
+  slide_level: 2
   template: template/pandoc_beamer_temp.tex
 bookdown::pdf_document2:
   latex_engine: xelatex

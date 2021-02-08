@@ -1,9 +1,25 @@
 
-# Main Results
+```{r setup, include = FALSE, echo = FALSE}
+library(here)
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  echo = FALSE, 
+  cache = FALSE,
+  include = FALSE,
+  fig.width = 10, fig.height = 6,
+  fig.align = "center"
+)
+knitr::opts_knit$set(root.dir = here())
 
-<!--- Slide
-## Price and Income Elasticity
---->
+library(tidyverse)
+library(readstata13)
+library(kableExtra)
+options(knitr.kable.NA = "")
+```
+
+
+# Main Results
 
 ```{stata Elasticity, results = "hide", eval = FALSE}
 xtreg log_total_g log_price log_pinc_all i.year, fe vce(cluster pid)
@@ -286,10 +302,25 @@ frame plotdt {
 frame drop plotdt
 ```
 
-```{r, include = TRUE, out.width="90%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group"}
+
+## Price and Income Elasticity
+
+- To show our baseline results graphically, Figure \@ref(fig:showElasticityResid) shows average residuals grouped by year and benefit of the 2014 tax reform.
+    - Residuals are obtained from the regression of logged donations on logged annual taxable income, individual and time fixed year.
+
+## Price and Income Elasticity: Residuals Plot
+
+Those who incurring loss owing to the 2014 tax reform drastically decreases thier amount of donations.
+
+```{r showElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group"}
 knitr::include_graphics(paste(here(), "_assets/ElasticityResid.pdf", sep= "/"))
 ```
 
+
+## Price and Income Elasticity: Estimation Results
+
+We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease),
+and the **income effect** of giving(1\% income increase leads to about 5\% giving increase).
 
 ```{r shapeElasticity}
 coeftab <- list(
@@ -383,14 +414,9 @@ alltab <- tabular[[1]]
 intexttab <- rbind(tabular[[2]][-(5:10),], tabular[[3]])
 ```
 
-<!--- Slide
-## Baseline Regressions: Result
-We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease)
--->
-
 ```{r kableEstimateElasticityPart1, include = TRUE}
 knitr::kable(
-    alltab,
+    alltab[-c(5:6, 12),],
     format = "latex",
     caption = "Main Results",
     col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
@@ -398,24 +424,71 @@ knitr::kable(
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 8) %>% 
-footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
+kable_styling(font_size = 7) #%>% 
+#footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
 ```
 
 
-<!--- Slide
-## Intensive Margin and Extensive Margin: Result
---->
+## Intensive and Extensive Margin
 
-```{r, include = TRUE, out.width="90%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)"}
+- To obtain intensive- and extensive-margin elasticity, we repeat the same excercise.
+- \@ref(fig:showIntElasticityResid) shows average residuals grouped by year and benefit of the 2014 tax reform 
+    - We used those who donated and estimated residuals obtained from the regression logged donations on logged annual taxable income, individual and time fixed year.
+- \@ref(fig:showExtElasticityResid) shows average residuals grouped by year and benefir of the 2014 tax reform.
+    - We estimated residuals obtained from the regression the donation dummy on logged annual taxable income, individual and time fixed year.
+
+## Intensive Margin: Residuals Plot
+
+Donors who receive benefit owing to the 2014 tax reform decrease their donations in 2014 and 2015.
+
+```{r showIntElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)"}
 knitr::include_graphics(paste(here(), "_assets/IntElasticityResid.pdf", sep= "/"))
 ```
 
-```{r, include = TRUE, out.width="90%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)"}
+## Extensive Margin: Residuals Plot
+
+Those who incurring loss owing to the 2014 tax reform drastically were less likely to donate.
+
+```{r showExtElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)"}
 knitr::include_graphics(paste(here(), "_assets/ExtElasticityResid.pdf", sep= "/"))
 ```
 
-```{r kableEstimateElasticityPart2, include = TRUE}
+## Intensive and Extensive Margin: Estimation Results
+
+The intensive-margin price elasticity is -0.5 ~ -1\%. 
+
+```{r kableEstimateElasticityPart2Slide1, include = TRUE}
+knitr::kable(
+    rbind(intexttab[1:4,], intexttab[17:20,]) %>% rbind(intexttab[5,]),
+    format = "latex",
+    caption = "Main Results: Intensive-Margin Elasticity",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 7)
+```
+
+## Intensive and Extensive Margin: Estimation Results
+
+The extensive-margin price elasticity is -1.2 ~ -1.4\%. 
+
+```{r kableEstimateElasticityPart2Slide2, include = TRUE}
+knitr::kable(
+    rbind(intexttab[11:14,], intexttab[17:21,]),
+    format = "latex",
+    caption = "Main Results: Extensive-Margin Elasticity",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 7)
+```
+
+<!--- For Paper
+```{r kableEstimateElasticityPart2, include = TRUE, eval = FALSE}
 knitr::kable(
     intexttab,
     format = "latex",
@@ -430,27 +503,16 @@ pack_rows("Intensive-Margin Elasticity", 1, 6) %>%
 pack_rows("Extensive-Margin Elasticity", 7, 22) %>% 
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
-
-<!--- Slide
-## Robustness Check
-
-1. Income and donations are determined simultaneously
-1. Effect of presidential transition on donation behavior
-1. Last price elasticity
-1. Self-selection of receiving tax benefit
-1. Transitory and permanent elasticity
 --->
 
-<!--- Slide
 ## Robustness Check 1
 
-First potential concern: Income and donations are determined simultaneously
-    
-- This causes both a change of giving price and a change of an amount of donations
-- Gruber and Saez (2002) provided that we should use $\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})$ as an insturment.
-- We estimated the model (5) in the previous slide, using the panel IV model for $k = 1, 2, 3$.
-	- Note that Alumnia (2020) took a strategy of $k$-difference model.
---->
+First potential concern: last price elasticity
+
+- Our baseline results show the **first** price elasticity to avoid the endogeneity of giving price.
+- We estimated the **last** price elasticity, using the Panel IV method.
+    - The instrument is the first giving price.
+    - Note that the last giving price is equal to the first giving price under the tax credit system.
 
 ```{stata LastElasticity, results = "hide", eval = FALSE}
 * first stage
@@ -687,9 +749,10 @@ xsvmat coeftab, saving(_assets/LastIntElasticityCoef.dta, replace) rownames(xvar
 xsvmat stattab, saving(_assets/LastIntElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-<!--- Slide
+
 ## Robustness Check 1: Result
----> 
+
+Overall last price elasticity increases twofold.
 
 ```{r shapeLastElasticity}
 coeftab <- list(
@@ -787,7 +850,7 @@ intexttab <- rbind(tabular[[2]][-(5:10),], tabular[[3]])
 
 ```{r kableLastElasticity1, include = TRUE}
 knitr::kable(
-    alltab,
+    alltab[-c(5:6, 11),],
     format = "latex",
     caption = "Last Price Elasticity: Panel IV",
     col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
@@ -795,15 +858,47 @@ knitr::kable(
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 8) %>% 
-footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
+kable_styling(font_size = 7) #%>% 
+#footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
 ```
 
-<!--- Slide
-## Robustness Check 1: Intensive and Extensive Margin
---->
 
-```{r kableLastElasticity2, include = TRUE}
+## Robustness Check 1: Intensive Margin
+
+The intensive-margin last price elasticity lies within the range of the first price elasticity.
+
+```{r kableLastElasticity2Slide1, include = TRUE}
+knitr::kable(
+    rbind(intexttab[1:4,], intexttab[17:20,]) %>% rbind(intexttab[6,]),
+    format = "latex",
+    caption = "Intensive-Margin Last Price Elasticity: Panel IV",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 7)
+```
+
+## Robustness Check 1: Extensive Margin
+
+The extensive-margin last price elasticity at sample mean is roughly -3\%.
+
+```{r kableLastElasticity2Slide2, include = TRUE}
+knitr::kable(
+    rbind(intexttab[11:14,], intexttab[17:20,]) %>% rbind(intexttab[22,]),
+    format = "latex",
+    caption = "Extensive-Margin Last Price Elasticity: Panel IV",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
+    row.names = FALSE,
+    align = "lccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 7)
+```
+
+<!--- Paper
+```{r kableLastElasticity2, include = TRUE, eval = FALSE}
 knitr::kable(
     intexttab,
     format = "latex",
@@ -818,16 +913,16 @@ pack_rows("Intensive-Margin Elasticity", 1, 6) %>%
 pack_rows("Extensive-Margin Elasticity", 7, 22) %>% 
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
+--->
 
-<!--- Slide
+
 ## Robust Check 2
 
-Second potential concern: The effect of presidential transition on donations 
+Second potential concern: Price change due to the change of income
     
-- The presidential transition is one of our major ommited factor to charitable giving.
-	- In May 2017, South Korea president changed from Park Geun-hye to Moon Jae-in. This presidential transition was due to the impeachment charge against Park Geun-hye. People became distrustful of her due to the shinking of MV Sewol (April 2014).
-- To shed light on this concern, we used data in 2013 and 2014 (President was Park Geun-hye in both years), and estimated the model (5) in the previous slide, using the fixed effect model and the panel IV model for $k = 1, 2, 3$.
---->
+- Since the giving price under the tax deduction depends on the change of income, the *within* variation of giving price may be endogenous.
+- To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
+    - By this restriction, the *within* price variation of giving price is completely exgonenous.
 
 
 ```{stata ShortElasticity, results = "hide", eval = FALSE}
@@ -1088,10 +1183,6 @@ xsvmat coeftab, saving(_assets/ShortExtElasticityCoef.dta, replace) rownames(xva
 xsvmat stattab, saving(_assets/ShortExtElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-<!--- Slide
-## Robustness Check 2: Result
---->
-
 ```{r shapeShortElasticity}
 coeftab <- list(
 	overall = read.dta13("_assets/ShortElasticityCoef.dta") %>% data.frame(),
@@ -1183,9 +1274,14 @@ alltab <- tabular[[1]]
 intexttab <- rbind(tabular[[2]][-(5:7),], tabular[[3]])
 ```
 
+
+## Robustness Check 2: Result
+
+Overall price elasticity is -1 ~ -1.7\%.
+
 ```{r kableShortElasticity1, include=TRUE}
 knitr::kable(
-    alltab,
+    alltab[-c(5, 6, 9),],
     format = "latex",
     caption = "Elasticity with Short-Period Data",
     col.names = c("", "(1)", "(2)", "(3)", "(4)"),
@@ -1194,15 +1290,51 @@ knitr::kable(
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
 kable_styling(font_size = 8) %>% 
-add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) %>%
-footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
+add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) #%>%
+#footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
 ```
 
-<!--- Slide
-## Robustness Check 2: Intensive and Extensive Margin
---->
 
-```{r kableShortElasticity2, include=TRUE}
+## Robustness Check 2: Intensive Marign
+
+The intensive-margin price elasticity is -0.6 ~ -1\%.
+In column (3), the price elasticity is statistically insignificant.
+
+```{r kableShortElasticity2Slide1, include=TRUE}
+knitr::kable(
+    rbind(intexttab[1:4,], intexttab[17,]) %>% rbind(intexttab[5,]),
+    format = "latex",
+    caption = "Intensive-Margin Elasticity with Short-Period Data",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)"),
+    row.names = FALSE,
+    align = "lcccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) 
+```
+
+## Robustness Check 2: Extensive Marign
+
+The extensive-margin price elasticity at sample mean is -1 ~ -2\%.
+
+```{r kableShortElasticity2Slide2, include=TRUE}
+knitr::kable(
+    rbind(intexttab[11:14,], intexttab[17:18,]),
+    format = "latex",
+    caption = "Extensive-Margin Elasticity with Short-Period Data",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)"),
+    row.names = FALSE,
+    align = "lcccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) 
+```
+
+
+<!--- Paper
+```{r kableShortElasticity2, include=TRUE, eval = FALSE}
 knitr::kable(
     intexttab,
     format = "latex",
@@ -1218,6 +1350,26 @@ pack_rows("Extensive-Margin Elasticity", 7, 19) %>%
 add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
+--->
+
+## Robustness Check 3
+
+Second potential concerns: the change of price due to the change of income
+
+- To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
+- We can also rule out this problem, using the change in the first giving price.
+    - The change in the first giving price is $\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))$ where $g_{it-k} = 0$.
+    - Since we fix the income $y_{it-k}$, this variation comes from the tax reform.
+
+## Robustness Check 3 (Cont'd)
+
+Our estimation equation is 
+$$\Delta^k \ln g_{it} = \delta \Delta^k \ln p_{it} + \gamma \Delta^k \ln y_{it} + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},$$
+where $\Delta^k Y_{it} = Y_{it} - Y_{it-k}$.
+
+- Note that we cannot estimation the extensive-margin elasticity since it is hard to interapt this estimation equation when we use $\Delta^k D_{it}$ as an outcome.
+- We estimate this model for $k = 1, 2, 3$.
+
 
 ```{stata kDiffElasticity, results = "hide", eval = FALSE}
 forvalues k = 1(1)3 {
@@ -1347,7 +1499,45 @@ tabular <- c("overall", "intensive") %>%
 alltab <- rbind(tabular[[1]][-(5:7),], tabular[[2]])
 ```
 
-```{r kablekDiffElasticity, include=TRUE}
+
+## Robustness Check 3: Overall Elasticity
+
+Overall price elasticity is rougnly -2\%.
+
+```{r kablekDiffElasticitySlide1, include=TRUE}
+knitr::kable(
+    alltab[1:5,],
+    format = "latex",
+    caption = "Overall Elasticity: $k$-difference model",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c("lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) 
+```
+
+## Robustness Check 3: Intensive-Margin Elasticity
+
+The intensive-margin price elasticity is rougnly -2\%.
+
+```{r kablekDiffElasticitySlide2, include=TRUE}
+knitr::kable(
+    rbind(alltab[7:10,], alltab[14,]),
+    format = "latex",
+    caption = "Intensive-Margin Elasticity: $k$-difference model",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c("lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) 
+```
+
+<!--- Paper
+```{r kablekDiffElasticity, include=TRUE, eval = FALSE}
 knitr::kable(
     alltab,
     format = "latex",
@@ -1363,3 +1553,4 @@ pack_rows("Intensive-Margin Elasticity", 7, 15) %>%
 add_header_above(c("lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
 ```
+--->
