@@ -28,8 +28,8 @@ footnote:
   - code: \*
     text: "Corresponding Author."
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
-#bibliography: manuscript/Ref.bib
-#csl: template/elsevier-harvard.csl
+bibliography: manuscript/Ref.bib
+csl: template/elsevier-harvard.csl
 review: yes  #Elsevier Template
 classoption: 3p  #Elsevier Template
 abstract: |

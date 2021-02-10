@@ -1,8 +1,6 @@
 # Estimation
 
-## Empirical Strategies
-
-<!--- For Slides --->
+<!--- For Slides
 
 Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin.
 
@@ -54,9 +52,9 @@ Our identification assumption may violate due to two endogenous problems under t
     - We employ lagged values of taxable income and construct an instrument variable, $\ln (p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))$ where $g_{it-k} = 0$.
     - By fixing income at year $t - k$, the instrument isolates changes in price from income responses to the tax reform.
 
-<!--- End of Slides --->
+ --->
 
-<!--- For Papers
+
 Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price. 
 
 We estimate the elasticity of intensive margin using the following specification:
@@ -68,26 +66,52 @@ The individual fixed effect controls for time-invariant individual characteristi
 
 The elasticity of extensive margin is estimated using the linear probability model such as
 $$
-D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_it. \label{extensive}
+D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_{it}. \label{extensive}
 $$
-$D_{it}$ is a dummy variable taking 1 if individual $i$ donates at year $t$ and 0 otherwise. We use linear probability model following @Almunia2020 since the fitted probabilities always take values within the range of (0, 1). Using $e_{EXT}$ in this equation, the price elasticity of extensive margin can be calculated as $\varepsilon_{EXT} = \gamma/\bar{D}$. $\bar{D}$ is the sample mean of $D_{it}$, which is the proportion of donors in our sample in year t.
+$D_{it}$ is a dummy variable taking 1 if individual $i$ donates at year $t$ and 0 otherwise.
+\color{red} Since we use the linear probability model, 
+the estimated coefficient $\delta$ represents $\hat{\delta} =  \frac{\partial D_{it}}{\partial p_{it}} p_{it}$.
+Also, the estimated coefficient $\gamma$ represents $\hat{\gamma} = \frac{\partial D_{it}}{\partial y_{it}} y_{it}$.
+Thus, the extensive-margin price and income elasticity are $\hat{\delta}/D_{it}$ and $\hat{gamma}/D_{it}$, respectively.
+We evaluate the extensive-margin price and income elasticity at sample mean of $D_{it}$.
 
-Our identification strategy to estimate the price elasticity exploits the exogenous giving price change made by tax reform in 2014. The tax reform brought the reduction of giving price for individual whose income was low, while the high income earner faced the increment of giving price and the price was not changed for the middle income individual. Figure XXX shows the residual plot which shows the average residuals of E.q. (\ref{intensive}) for three different groups: (i) income $<$ 12 million KRW, (ii) income $\in$ [12 million KRW, 46 million KRW), and (iii) income $>$ 46 million KRW. We can consider that group (i) and (iii) respectively experienced the giving price reduction and increase, while the giving price for group (ii) remained the same, in the 2014 tax reform. Contrary to the expectation, the amount of donations increase for group (iii) while it reduce for group (i) after the tax reform in Figure XXX. However, figure XXX plotting the average residuals of each group of E.q. (\ref{extensive}) observes the reduction of donation for group (iii) as expected. Thus, the tax reform in 2014 might have a large effect on the extensive margin of donation. 
+Our identification assumption is the *within* price variation is exogenous because we use the fixed effect model.
+This assumption may be hold because the major *within* price variation comes from the 2014 tax reform.
+After the 2014 tax reform (the tax credit system), the giving price is constant across individuals and 
+there is no room for manipulation by donations and income.
+However, before the 2014 tax reform, the giving price has two potential endogeneity problem: 
+(A) endogeneity of giving price and (B) simulatenous determination of income and donations.
+By these two reasons, the *within* prive variation is partly endogenous.
 
+Our identification assumption may violate due to two endogenous problems discussed above.
+To tackle these problems, we take two methods.
+First, the giving price is endogenous because 
+the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+Since this issue does not happen for the first one unit of donation, whose price ("first price") cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+The first price is formally defined as the giving price $p^d_i \equiv 1 − \tau (y_i − g_i)$, evaluated at $g_i = 0$. 
+Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance. 
+Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
+
+The second issue is simulatenous determination of income and donations.
+Under the tax deduction system,
+the change of income have effects on both donations through the income effect and the giving price through the marginal tax rate.
+Therefore, we employ lagged values of taxable income and construct a variable for the change in the first price of giving as following:
+
+$$
+\ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right).
+$$
+
+where $g_{it-k} = 0$.
+The numerator is the first price that individual $i$ would have faced in year $t$ if she had declared her year (t − k) taxable income at that year. 
+By fixing the income at year $t - k$, 
+the instrument isolates changes in price from income responses to the tax reform. 
+Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
+
+
+
+<!--
 ここらへんの議論ですが、以下の点、要検討です。これらが解決しないと残差プロットの図を出す意味は殆どないと思います。
  
  - 残差プロットの図がIntensive marginについて、期待される図とはかなり異なる結果を出しているので、どう議論しようか悩みどころです。
  - 平行トレンドについてですが、ここでは政策変更前の期間が1期しかないので、チェックできません。なので、個人的には政府の効率性の議論にかかわらず、期間を延長して分析・図を見せるのもありだと思います。とりあえずのバージョンでは平行トレンドについては書きません。
-
-
-### Obstacles for identification
-
-The estimations based on Eq. (\@ref{Intensive}) and (\@ref{Extensive}) are likely to show biased estimates because there are two potential endogeneity problem: (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For the issue (A), the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system. Since this issue does not happen for the first one unit of donation, whose price ("first price") cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation. The first price is formally defined as the giving price $p^d_i\equiv 1−\tau (y_i−g_i)$, evaluated at $g_i=0$. Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance. Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
-
-Regarding issue (B), the change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate. Therefore, we employ lagged values of taxable income and construct an instrument variable for the change in the first price of giving as following:
-
-$$
-ln (\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}).
-$$
-The numerator is the first price that individual i would have faced in year t if she had declared her year (t − k) taxable income at that year. By using the income level which is not affected by the tax reform, the instrument isolates changes in price from income responses to the tax reform. Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
 --->
