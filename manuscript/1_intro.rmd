@@ -20,6 +20,7 @@ options(knitr.kable.NA = "")
 
 # Introduction
 
+<!--- Slides 
 ## Charitable Giving and Taxiation
 In many countries, governments set a tax relief for charitable giving.
 
@@ -94,9 +95,9 @@ This may be because people with distrust in government think that
 
 Thus, people having the different trust in the government would have different elasticities of giving.
 
-<!--- End of Slides --->
+--->
 
-<!--- For Paper
+
 In many countries, governments set a tax relief for charitable giving. This is because, if subsidizing charitable giving induces a large increase in donations, it is desirable for public good provision. To evaluate the effect of tax relief, many papers investigate the elasticity of charitable donations with respect to their tax price [@Randolph1995; @Auten2002; @Fack2010; @Bakija2011; @Almunia2020]. Focusing on the tax deduction or tax credit on the charity, they show that the price elasticity of giving is about -1 or more in terms of absolute value, which means that the tax relief for the charitable giving is good in the sense that 1\% tax relief derives more than 1\% donation.
 
 However, if the government can provide public good more efficiently than the direct donation, the donation may not be preferable because the public good provision via donation would be costly then.
@@ -115,4 +116,3 @@ Moreover, we use the data of Korea, a non-Western country, which the extant rese
 In the second strand, there are some experimental studies and papers considering the tax evasion. Using an experiment, @Li2011 compare people's willingness to give money for private charities and government agencies whose missions are the same. They show that people tend to donate for private charities more than government agency though they do not directly investigate the relationship between people's perception toward the government and giving behavior. @Sheremeta2020 show that people increase the voluntary public good provision when they face the wasteful government spending in the experimental setting. Although the government in their setting does not provide public good, they suggest that the willingness for donation may increase if people perceive the inefficiency of government. In the tax evasion literature, several paper suggests the perceived inefficiency of government reduce tax morale [@Frey2007; @Hammar2009; @Anderson2017]. We contribute on this literature by showing the relation between the perception of government efficiency and the giving behavior. 
 
 This paper consist of XXX sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 deals with the analysis of giving price elasticity and section 5 shows the analysis of perceptions toward the government. We discuss the result in section 6 and section 7 concludes.
---->

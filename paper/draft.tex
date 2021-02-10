@@ -204,7 +204,7 @@
       x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
   \]
   
-  Thus, the giving price compared to the price of private consumption is \(p_i^{d} \equiv 1 - \tau(y_i - g_i)\) in tax deduction system. Since the giving price in tax deduction scheme varies depending on (1) the income level and (2) the amount of charitable giving, it is endogenous to them, i.e.~(1) and (2).
+  Thus, the giving price compared to the price of private consumption is \(p_i^{d} \equiv 1 - \tau(y_i - g_i)\) in tax deduction system. Since the giving price in tax deduction scheme varies depending on (1) the income level and (2) the amount of charitable giving, it is endogenous to them, i.e. (1) and (2).
   
   On the other hand, tax credit reduces tax amount directly, that is,
   
@@ -220,18 +220,19 @@
   
   Thus, the giving price of tax credit system will be \(p_i^c = 1 - m\), which is only dependent on the tax credit rate \(m\), which is exogenously determined by the government.
   Therefore, the giving price in the tax credit system would not be manipulated by donors.
+  ---\textgreater{}
   
   \hypertarget{korean-tax-reform-in-2014-need-modification-by-kim-san}{%
   \subsection{Korean tax reform in 2014 (Need modification by Kim san)}\label{korean-tax-reform-in-2014-need-modification-by-kim-san}}
   
-  The tax incentives for charitable giving in Korea stared in 2000 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761\% of GDP) in 2012.
+  The tax incentives for charitable giving in Korea stared in 2000 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761\% of GDP) in 2012 according to the national tax statistics.
   Since the income tax deduction was initially used as a tax incentive and the marginal income tax rate was determined as Table \ref{tab:tabTaxRate}, the minimum giving price before 2014 was 0.62.
   
   \begin{table}
   
   \caption{\label{tab:tabTaxRate}Marginal Income Tax Rate}
   \centering
-  \fontsize{8}{10}\selectfont
+  \fontsize{7}{9}\selectfont
   \begin{threeparttable}
   \begin{tabular}[t]{lccccccc}
   \toprule
@@ -271,23 +272,23 @@
   \hypertarget{data}{%
   \section{Data}\label{data}}
   
+  \hypertarget{national-survey-of-tax-and-benefit-nastab}{%
+  \subsection{National Survey of Tax and Benefit (NaSTaB)}\label{national-survey-of-tax-and-benefit-nastab}}
+  
   In this paper, we use panel data from the National Survey of Tax and Benefit (NasTaB).
   NasTaB survey is an annual financial panel survey implemented by The Korea Institute of Taxation and Finance implements to study the tax burden of households and the benefits that households receive from government. The subjects of this survey are general household and household members living in 15 cities and provinces nationwide. This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
   
-  In the analysis, we use data from 2012 to 2018 since the items of the value survey which we focused is not available before 2012. In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
+  In the analysis, we use data from 2012 to 2018 since \color{red}we focus on the 2014 tax reform.
+  \color{black}In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
   
   Figure \ref{fig:figDonationRate} shows the proportion of donors and the average amount of donation by donors in the NasTaB data. It shows that about 20\% of respondents in NasTaB data donate in each year and their amount of donation is about 1.7 million KRW.
-  
-  Summary statistics is summarized in Table \ref{tab:SummaryCovariate}. We used four types of variables in this paper: sets of variables about Income and Giving Price, Charitable Donations, Government Efficiency, and Individual Characteristics. Giving Price is constructed according to the marginal income tax rate and income level of subjects under tax deduction system, while it is 0.85 under tax credit system, as we explained in section 2. Dummy of Donation takes 1 if subject donate and takes 0 otherwise. A set of variables about Government Efficiency is constructed from the value survey of NasTaB data. Current Tax-Welfare Balance shows how the subject perceives the balance between tax burden and received welfare from the government, while Ideal Tax-Welfare Balance indicates what is the ideal balance between tax burden and received welfare for the subject. The higher values of them means that received welfare from the government is higher than tax burden. We explain the details and constructions of these variables later. The variables about Individual Characteristics is used as control variables.
-  
-  Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.
   
   \hypertarget{time-series-of-chariable-giving}{%
   \subsection{Time Series of Chariable Giving}\label{time-series-of-chariable-giving}}
   
   \begin{figure}
   
-  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/gt510/Documents/Korea/_assets/SummaryOutcome} 
+  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcome} 
   
   }
   
@@ -296,50 +297,51 @@
   
   \begin{table}
   
-  \caption{\label{tab:kableSummaryCovariate}Summary Statistics}
+  \caption{\label{tab:kableSummaryCovariateSlides}Summary Statistics}
   \centering
-  \fontsize{8}{10}\selectfont
-  \begin{tabular}[t]{lcccccccc}
+  \fontsize{7}{9}\selectfont
+  \begin{tabular}[t]{lccc}
   \toprule
-   & N & Mean & Std.Dev. & Min & p25 & p50 & p75 & Max\\
+   & N & Mean & Std.Dev.\\
   \midrule
   \addlinespace[0.3em]
-  \multicolumn{9}{l}{\textbf{Income and Giving Price}}\\
-  \hspace{1em}Annual taxable income (unit: 10,000KRW) & 53269 & 1876.121 & 2700.965 & 0.00 & 0.00 & 900.00 & 2902.445 & 91772.00\\
-  \hspace{1em}Giving Price & 62878 & 0.858 & 0.036 & 0.62 & 0.85 & 0.85 & 0.850 & 0.94\\
+  \multicolumn{4}{l}{\textbf{Income and Giving Price}}\\
+  \hspace{1em}Annual taxable income (unit: 10,000KRW) & 53269 & 1876.121 & 2700.965\\
+  \hspace{1em}Giving Price & 62878 & 0.858 & 0.036\\
   \addlinespace[0.3em]
-  \multicolumn{9}{l}{\textbf{Charitable Donations}}\\
-  \hspace{1em}Annual charitable giving (unit: 10,000KRW) & 67849 & 29.522 & 132.914 & 0.00 & 0.00 & 0.00 & 0.000 & 10000.00\\
-  \hspace{1em}dummy of Donation > 0 & 67849 & 0.203 & 0.402 & 0.00 & 0.00 & 0.00 & 0.000 & 1.00\\
+  \multicolumn{4}{l}{\textbf{Charitable Donations}}\\
+  \hspace{1em}Annual charitable giving (unit: 10,000KRW) & 67849 & 29.522 & 132.914\\
+  \hspace{1em}dummy of Donation > 0 & 67849 & 0.203 & 0.402\\
   \addlinespace[0.3em]
-  \multicolumn{9}{l}{\textbf{Government Efficiency}}\\
-  \hspace{1em}Current Tax-Welfare Balance & 29272 & -0.137 & 0.889 & -2.00 & -1.00 & 0.00 & 0.000 & 2.00\\
-  \hspace{1em}Ideal Tax-Welfare Balance & 29273 & 0.541 & 0.721 & -2.00 & 0.00 & 0.00 & 1.000 & 2.00\\
+  \multicolumn{4}{l}{\textbf{Government Efficiency}}\\
+  \hspace{1em}Current Tax-Welfare Balance & 29272 & -0.137 & 0.889\\
+  \hspace{1em}Ideal Tax-Welfare Balance & 29273 & 0.541 & 0.721\\
   \addlinespace[0.3em]
-  \multicolumn{9}{l}{\textbf{Individual Characteristics}}\\
-  \hspace{1em}Age & 67848 & 51.348 & 15.806 & 24.00 & 39.00 & 50.00 & 62.000 & 104.00\\
-  \hspace{1em}Female dummy & 67848 & 0.525 & 0.499 & 0.00 & 0.00 & 1.00 & 1.000 & 1.00\\
-  \hspace{1em}University graduate & 67842 & 0.411 & 0.492 & 0.00 & 0.00 & 0.00 & 1.000 & 1.00\\
-  \hspace{1em}High school graduate & 67842 & 0.350 & 0.477 & 0.00 & 0.00 & 0.00 & 1.000 & 1.00\\
-  \hspace{1em}Junior high school graduate & 67842 & 0.238 & 0.426 & 0.00 & 0.00 & 0.00 & 0.000 & 1.00\\
+  \multicolumn{4}{l}{\textbf{Individual Characteristics}}\\
+  \hspace{1em}Age & 67848 & 51.348 & 15.806\\
+  \hspace{1em}Female dummy & 67848 & 0.525 & 0.499\\
+  \hspace{1em}University graduate & 67842 & 0.411 & 0.492\\
+  \hspace{1em}High school graduate & 67842 & 0.350 & 0.477\\
+  \hspace{1em}Junior high school graduate & 67842 & 0.238 & 0.426\\
   \bottomrule
   \end{tabular}
   \end{table}
   
+  Summary statistics is summarized in Table \ref{tab:SummaryCovariate}. We used four types of variables in this paper: sets of variables about Income and Giving Price, Charitable Donations, Government Efficiency, and Individual Characteristics. Giving Price is constructed according to the marginal income tax rate and income level of subjects under tax deduction system, while it is 0.85 under tax credit system, as we explained in section 2. Dummy of Donation takes 1 if subject donate and takes 0 otherwise. A set of variables about Government Efficiency is constructed from the value survey of NasTaB data. Current Tax-Welfare Balance shows how the subject perceives the balance between tax burden and received welfare from the government, while Ideal Tax-Welfare Balance indicates what is the ideal balance between tax burden and received welfare for the subject. The higher values of them means that received welfare from the government is higher than tax burden. We explain the details and constructions of these variables later. The variables about Individual Characteristics is used as control variables.
+  
+  Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.
+  
   \begin{figure}
   
-  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/gt510/Documents/Korea/_assets/SummaryPriceChange} 
+  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryPriceChange} 
   
   }
   
-  \caption{Income Distribution and Giving Price in 2013}\label{fig:unnamed-chunk-1}
+  \caption{Income Distribution and Giving Price in 2013}\label{fig:showSummaryPriceChange}
   \end{figure}
   
   \hypertarget{estimation}{%
   \section{Estimation}\label{estimation}}
-  
-  \hypertarget{empirical-strategies}{%
-  \subsection{Empirical strategies}\label{empirical-strategies}}
   
   Following Almunia et al. (2020), we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
   
@@ -352,52 +354,90 @@
   
   The elasticity of extensive margin is estimated using the linear probability model such as
   \[
-  D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_it. \label{extensive}
+  D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_{it}. \label{extensive}
   \]
-  \(D_{it}\) is a dummy variable taking 1 if individual \(i\) donates at year \(t\) and 0 otherwise. We use linear probability model following Almunia et al. (2020) since the fitted probabilities always take values within the range of (0, 1). Using \(e_{EXT}\) in this equation, the price elasticity of extensive margin can be calculated as \(\varepsilon_{EXT} = \gamma/\bar{D}\). \(\bar{D}\) is the sample mean of \(D_{it}\), which is the proportion of donors in our sample in year t.
+  \(D_{it}\) is a dummy variable taking 1 if individual \(i\) donates at year \(t\) and 0 otherwise.
+  \color{red} Since we use the linear probability model,
+  the estimated coefficient \(\delta\) represents \(\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\).
+  Also, the estimated coefficient \(\gamma\) represents \(\hat{\gamma} = \frac{\partial D_{it}}{\partial y_{it}} y_{it}\).
+  Thus, the extensive-margin price and income elasticity are \(\hat{\delta}/D_{it}\) and \(\hat{gamma}/D_{it}\), respectively.
+  We evaluate the extensive-margin price and income elasticity at sample mean of \(D_{it}\).
   
-  Our identification strategy to estimate the price elasticity exploits the exogenous giving price change made by tax reform in 2014. The tax reform brought the reduction of giving price for individual whose income was low, while the high income earner faced the increment of giving price and the price was not changed for the middle income individual. Figure XXX shows the residual plot which shows the average residuals of E.q. (\ref{intensive}) for three different groups: (i) income \(<\) 12 million KRW, (ii) income \(\in\) {[}12 million KRW, 46 million KRW), and (iii) income \(>\) 46 million KRW. We can consider that group (i) and (iii) respectively experienced the giving price reduction and increase, while the giving price for group (ii) remained the same, in the 2014 tax reform. Contrary to the expectation, the amount of donations increase for group (iii) while it reduce for group (i) after the tax reform in Figure XXX. However, figure XXX plotting the average residuals of each group of E.q. (\ref{extensive}) observes the reduction of donation for group (iii) as expected. Thus, the tax reform in 2014 might have a large effect on the extensive margin of donation.
+  Our identification assumption is the \emph{within} price variation is exogenous because we use the fixed effect model.
+  This assumption may be hold because the major \emph{within} price variation comes from the 2014 tax reform.
+  After the 2014 tax reform (the tax credit system), the giving price is constant across individuals and
+  there is no room for manipulation by donations and income.
+  However, before the 2014 tax reform, the giving price has two potential endogeneity problem:
+  (A) endogeneity of giving price and (B) simulatenous determination of income and donations.
+  By these two reasons, the \emph{within} prive variation is partly endogenous.
   
-  ここらへんの議論ですが、以下の点、要検討です。これらが解決しないと残差プロットの図を出す意味は殆どないと思います。
+  Our identification assumption may violate due to two endogenous problems discussed above.
+  To tackle these problems, we take two methods.
+  First, the giving price is endogenous because
+  the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+  Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+  The first price is formally defined as the giving price \(p^d_i \equiv 1 − \tau (y_i − g_i)\), evaluated at \(g_i = 0\).
+  Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance.
+  Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
   
-  \begin{itemize}
-  \tightlist
-  \item
-    残差プロットの図がIntensive marginについて、期待される図とはかなり異なる結果を出しているので、どう議論しようか悩みどころです。
-  \item
-    平行トレンドについてですが、ここでは政策変更前の期間が1期しかないので、チェックできません。なので、個人的には政府の効率性の議論にかかわらず、期間を延長して分析・図を見せるのもありだと思います。とりあえずのバージョンでは平行トレンドについては書きません。
-  \end{itemize}
-  
-  \hypertarget{obstacles-for-identification}{%
-  \subsubsection{Obstacles for identification}\label{obstacles-for-identification}}
-  
-  The estimations based on Eq. (@ref\{Intensive\}) and (@ref\{Extensive\}) are likely to show biased estimates because there are two potential endogeneity problem: (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For the issue (A), the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system. Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation. The first price is formally defined as the giving price \(p^d_i\equiv 1−\tau (y_i−g_i)\), evaluated at \(g_i=0\). Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance. Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
-  
-  Regarding issue (B), the change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate. Therefore, we employ lagged values of taxable income and construct an instrument variable for the change in the first price of giving as following:
+  The second issue is simulatenous determination of income and donations.
+  Under the tax deduction system,
+  the change of income have effects on both donations through the income effect and the giving price through the marginal tax rate.
+  Therefore, we employ lagged values of taxable income and construct a variable for the change in the first price of giving as following:
   
   \[
-  ln (\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}).
+  \ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right).
   \]
-  The numerator is the first price that individual i would have faced in year t if she had declared her year (t − k) taxable income at that year. By using the income level which is not affected by the tax reform, the instrument isolates changes in price from income responses to the tax reform. Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
+  
+  where \(g_{it-k} = 0\).
+  The numerator is the first price that individual \(i\) would have faced in year \(t\) if she had declared her year (t − k) taxable income at that year.
+  By fixing the income at year \(t - k\),
+  the instrument isolates changes in price from income responses to the tax reform.
+  Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
   
   \hypertarget{main-results}{%
   \section{Main Results}\label{main-results}}
   
+  \hypertarget{price-and-income-elasticity}{%
+  \subsection{Price and Income Elasticity}\label{price-and-income-elasticity}}
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    To show our baseline results graphically, Figure \ref{fig:showElasticityResid} shows average residuals grouped by year and benefit of the 2014 tax reform.
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      Residuals are obtained from the regression of logged donations on logged annual taxable income, individual and time fixed year.
+    \end{itemize}
+  \end{itemize}
+  
+  \hypertarget{price-and-income-elasticity-residuals-plot}{%
+  \subsection{Price and Income Elasticity: Residuals Plot}\label{price-and-income-elasticity-residuals-plot}}
+  
+  Those who incurring loss owing to the 2014 tax reform drastically decreases thier amount of donations.
+  
   \begin{figure}
   
-  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/gt510/Documents/Korea/_assets/ElasticityResid} 
+  {\centering \includegraphics[width=0.8\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/ElasticityResid} 
   
   }
   
-  \caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group}\label{fig:unnamed-chunk-2}
+  \caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group}\label{fig:showElasticityResid}
   \end{figure}
+  
+  \hypertarget{price-and-income-elasticity-estimation-results}{%
+  \subsection{Price and Income Elasticity: Estimation Results}\label{price-and-income-elasticity-estimation-results}}
+  
+  We found the \textbf{price effect} of giving (1\% price increase leads to about 1.1\% giving decrease),
+  and the \textbf{income effect} of giving(1\% income increase leads to about 5\% giving increase).
   
   \begin{table}
   
   \caption{\label{tab:kableEstimateElasticityPart1}Main Results}
   \centering
-  \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
+  \fontsize{7}{9}\selectfont
   \begin{tabular}[t]{lccccc}
   \toprule
    & (1) & (2) & (3) & (4) & (5)\\
@@ -406,90 +446,153 @@
    & (0.202) & (0.213) & (0.230) & (0.229) & (0.227)\\
   ln(auunaul taxable income) & 5.392*** & 5.080*** & 5.047*** & 5.116*** & 4.946***\\
    & (0.970) & (0.964) & (0.964) & (0.966) & (0.949)\\
-  Individual FE & Y & Y & Y & Y & Y\\
-  Time FE & Y & Y & Y & Y & Y\\
   Age & N & Y & Y & Y & Y\\
   Year X Education & N & N & Y & Y & Y\\
   Year X Gender & N & N & N & Y & Y\\
   Year X Resident Area & N & N & N & N & Y\\
   N & 53269 & 53269 & 53267 & 53267 & 53267\\
-  R-sq & 0.009 & 0.010 & 0.010 & 0.011 & 0.020\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
   
+  \hypertarget{intensive-and-extensive-margin}{%
+  \subsection{Intensive and Extensive Margin}\label{intensive-and-extensive-margin}}
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    To obtain intensive- and extensive-margin elasticity, we repeat the same excercise.
+  \item
+    Figure \ref{fig:showIntElasticityResid} shows average residuals grouped by year and benefit of the 2014 tax reform
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      We used those who donated and estimated residuals obtained from the regression logged donations on logged annual taxable income, individual and time fixed year.
+    \end{itemize}
+  \item
+    Figure \ref{fig:showExtElasticityResid} shows average residuals grouped by year and benefir of the 2014 tax reform.
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      We estimated residuals obtained from the regression the donation dummy on logged annual taxable income, individual and time fixed year.
+    \end{itemize}
+  \end{itemize}
+  
+  \hypertarget{intensive-margin-residuals-plot}{%
+  \subsection{Intensive Margin: Residuals Plot}\label{intensive-margin-residuals-plot}}
+  
+  Donors who receive benefit owing to the 2014 tax reform decrease their donations in 2014 and 2015.
+  
   \begin{figure}
   
-  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/gt510/Documents/Korea/_assets/IntElasticityResid} 
+  {\centering \includegraphics[width=0.8\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/IntElasticityResid} 
   
   }
   
-  \caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)}\label{fig:unnamed-chunk-3}
+  \caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)}\label{fig:showIntElasticityResid}
   \end{figure}
+  
+  \hypertarget{extensive-margin-residuals-plot}{%
+  \subsection{Extensive Margin: Residuals Plot}\label{extensive-margin-residuals-plot}}
+  
+  Those who incurring loss owing to the 2014 tax reform drastically were less likely to donate.
   
   \begin{figure}
   
-  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/gt510/Documents/Korea/_assets/ExtElasticityResid} 
+  {\centering \includegraphics[width=0.8\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/ExtElasticityResid} 
   
   }
   
-  \caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)}\label{fig:unnamed-chunk-4}
+  \caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)}\label{fig:showExtElasticityResid}
   \end{figure}
+  
+  \hypertarget{intensive-and-extensive-margin-estimation-results}{%
+  \subsection{Intensive and Extensive Margin: Estimation Results}\label{intensive-and-extensive-margin-estimation-results}}
+  
+  The intensive-margin price elasticity is -0.5 \textasciitilde{} -1\%.
   
   \begin{table}
   
-  \caption{\label{tab:kableEstimateElasticityPart2}Main Results: Intensive- and Extensive-Margin Elasticity}
+  \caption{\label{tab:kableEstimateElasticityPart2Slide1}Main Results: Intensive-Margin Elasticity}
   \centering
-  \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
+  \fontsize{7}{9}\selectfont
   \begin{tabular}[t]{lccccc}
   \toprule
    & (1) & (2) & (3) & (4) & (5)\\
   \midrule
-  \addlinespace[0.3em]
-  \multicolumn{6}{l}{\textbf{Intensive-Margin Elasticity}}\\
-  \hspace{1em}ln(giving price) & -0.593*** & -0.838*** & -1.016*** & -0.893*** & -0.904***\\
-  \hspace{1em} & (0.203) & (0.212) & (0.232) & (0.243) & (0.248)\\
-  \hspace{1em}ln(auunaul taxable income) & 2.015*** & 1.562** & 1.445** & 1.528** & 1.571**\\
-  \hspace{1em} & (0.675) & (0.655) & (0.647) & (0.651) & (0.653)\\
-  \hspace{1em}N & 11637 & 11637 & 11637 & 11637 & 11637\\
-  \hspace{1em}R-sq & 0.006 & 0.009 & 0.012 & 0.013 & 0.034\\
-  \addlinespace[0.3em]
-  \multicolumn{6}{l}{\textbf{Extensive-Margin Elasticity}}\\
-  \hspace{1em}ln(giving price) & -0.257*** & -0.288*** & -0.273*** & -0.237*** & -0.267***\\
-  \hspace{1em} & (0.046) & (0.048) & (0.052) & (0.052) & (0.051)\\
-  \hspace{1em}ln(auunaul taxable income) & 1.175*** & 1.124*** & 1.125*** & 1.139*** & 1.102***\\
-  \hspace{1em} & (0.223) & (0.223) & (0.223) & (0.224) & (0.220)\\
-  \hspace{1em}Implied price elasiticity & -1.264*** & -1.418*** & -1.343*** & -1.167*** & -1.312***\\
-  \hspace{1em} & (0.226) & (0.237) & (0.256) & (0.256) & (0.253)\\
-  \hspace{1em}Implied income elasticity & 5.778*** & 5.527*** & 5.531*** & 5.600*** & 5.420***\\
-  \hspace{1em} & (1.099) & (1.097) & (1.099) & (1.100) & (1.080)\\
-  \hspace{1em}Individual FE & Y & Y & Y & Y & Y\\
-  \hspace{1em}Time FE & Y & Y & Y & Y & Y\\
-  \hspace{1em}Age & N & Y & Y & Y & Y\\
-  \hspace{1em}Year X Education & N & N & Y & Y & Y\\
-  \hspace{1em}Year X Gender & N & N & N & Y & Y\\
-  \hspace{1em}Year X Resident Area & N & N & N & N & Y\\
-  \hspace{1em}N & 53269 & 53269 & 53267 & 53267 & 53267\\
-  \hspace{1em}R-sq & 0.008 & 0.009 & 0.009 & 0.010 & 0.019\\
+  ln(giving price) & -0.593*** & -0.838*** & -1.016*** & -0.893*** & -0.904***\\
+   & (0.203) & (0.212) & (0.232) & (0.243) & (0.248)\\
+  ln(auunaul taxable income) & 2.015*** & 1.562** & 1.445** & 1.528** & 1.571**\\
+   & (0.675) & (0.655) & (0.647) & (0.651) & (0.653)\\
+  Age & N & Y & Y & Y & Y\\
+  Year X Education & N & N & Y & Y & Y\\
+  Year X Gender & N & N & N & Y & Y\\
+  Year X Resident Area & N & N & N & N & Y\\
+  N & 11637 & 11637 & 11637 & 11637 & 11637\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{intensive-and-extensive-margin-estimation-results-1}{%
+  \subsection{Intensive and Extensive Margin: Estimation Results}\label{intensive-and-extensive-margin-estimation-results-1}}
+  
+  The extensive-margin price elasticity is -1.2 \textasciitilde{} -1.4\%.
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableEstimateElasticityPart2Slide2}Main Results: Extensive-Margin Elasticity}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{tabular}[t]{lccccc}
+  \toprule
+   & (1) & (2) & (3) & (4) & (5)\\
+  \midrule
+  Implied price elasiticity & -1.264*** & -1.418*** & -1.343*** & -1.167*** & -1.312***\\
+   & (0.226) & (0.237) & (0.256) & (0.256) & (0.253)\\
+  Implied income elasticity & 5.778*** & 5.527*** & 5.531*** & 5.600*** & 5.420***\\
+   & (1.099) & (1.097) & (1.099) & (1.100) & (1.080)\\
+  Age & N & Y & Y & Y & Y\\
+  Year X Education & N & N & Y & Y & Y\\
+  Year X Gender & N & N & N & Y & Y\\
+  Year X Resident Area & N & N & N & N & Y\\
+  N & 53269 & 53269 & 53267 & 53267 & 53267\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-1}{%
+  \subsection{Robustness Check 1}\label{robustness-check-1}}
+  
+  First potential concern: last price elasticity
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    Our baseline results show the \textbf{first} price elasticity to avoid the endogeneity of giving price.
+  \item
+    We estimated the \textbf{last} price elasticity, using the Panel IV method.
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      The instrument is the first giving price.
+    \item
+      Note that the last giving price is equal to the first giving price under the tax credit system.
+    \end{itemize}
+  \end{itemize}
+  
+  \hypertarget{robustness-check-1-result}{%
+  \subsection{Robustness Check 1: Result}\label{robustness-check-1-result}}
+  
+  Overall last price elasticity increases twofold.
   
   \begin{table}
   
   \caption{\label{tab:kableLastElasticity1}Last Price Elasticity: Panel IV}
   \centering
-  \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
+  \fontsize{7}{9}\selectfont
   \begin{tabular}[t]{lccccc}
   \toprule
    & (1) & (2) & (3) & (4) & (5)\\
@@ -498,72 +601,98 @@
    & (0.204) & (0.216) & (0.233) & (0.231) & (0.229)\\
   ln(auunaul taxable income) & 5.258*** & 5.071*** & 4.981*** & 5.058*** & 4.910***\\
    & (0.961) & (0.961) & (0.959) & (0.961) & (0.948)\\
-  Individual FE & Y & Y & Y & Y & Y\\
-  Time FE & Y & Y & Y & Y & Y\\
   Age & N & Y & Y & Y & Y\\
   Year X Education & N & N & Y & Y & Y\\
   Year X Gender & N & N & N & Y & Y\\
   Year X Resident Area & N & N & N & N & Y\\
-  F-statistics of IV & 149708.36 & 133463.98 & 122042.55 & 119684.05 & 115742.55\\
   N & 52304 & 52304 & 52302 & 52302 & 52302\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-1-intensive-margin}{%
+  \subsection{Robustness Check 1: Intensive Margin}\label{robustness-check-1-intensive-margin}}
+  
+  The intensive-margin last price elasticity lies within the range of the first price elasticity.
   
   \begin{table}
   
-  \caption{\label{tab:kableLastElasticity2}Intensive- and Extensive-Margin Last Price Elasticity: Panel IV}
+  \caption{\label{tab:kableLastElasticity2Slide1}Intensive-Margin Last Price Elasticity: Panel IV}
   \centering
-  \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
+  \fontsize{7}{9}\selectfont
   \begin{tabular}[t]{lccccc}
   \toprule
    & (1) & (2) & (3) & (4) & (5)\\
   \midrule
-  \addlinespace[0.3em]
-  \multicolumn{6}{l}{\textbf{Intensive-Margin Elasticity}}\\
-  \hspace{1em}ln(last giving price) & -0.898*** & -0.961*** & -1.197*** & -0.998*** & -1.074***\\
-  \hspace{1em} & (0.271) & (0.271) & (0.307) & (0.325) & (0.332)\\
-  \hspace{1em}ln(auunaul taxable income) & 2.023*** & 1.638** & 1.460** & 1.530** & 1.572**\\
-  \hspace{1em} & (0.694) & (0.678) & (0.667) & (0.670) & (0.667)\\
-  \hspace{1em}F-statistics of IV & 8861.30 & 8893.12 & 7522.05 & 6585.00 & 6426.96\\
-  \hspace{1em}N & 10672 & 10672 & 10672 & 10672 & 10672\\
-  \addlinespace[0.3em]
-  \multicolumn{6}{l}{\textbf{Extensive-Margin Elasticity}}\\
-  \hspace{1em}ln(last giving price) & -0.623*** & -0.630*** & -0.644*** & -0.593*** & -0.619***\\
-  \hspace{1em} & (0.046) & (0.049) & (0.053) & (0.052) & (0.052)\\
-  \hspace{1em}ln(auunaul taxable income) & 1.125*** & 1.113*** & 1.103*** & 1.121*** & 1.090***\\
-  \hspace{1em} & (0.221) & (0.223) & (0.223) & (0.223) & (0.220)\\
-  \hspace{1em}Implied last price elasiticity & -3.063*** & -3.100*** & -3.167*** & -2.917*** & -3.046***\\
-  \hspace{1em} & (0.227) & (0.240) & (0.259) & (0.258) & (0.254)\\
-  \hspace{1em}Implied income elasticity & 5.532*** & 5.472*** & 5.426*** & 5.513*** & 5.361***\\
-  \hspace{1em} & (1.088) & (1.096) & (1.096) & (1.098) & (1.082)\\
-  \hspace{1em}Individual FE & Y & Y & Y & Y & Y\\
-  \hspace{1em}Time FE & Y & Y & Y & Y & Y\\
-  \hspace{1em}Age & N & Y & Y & Y & Y\\
-  \hspace{1em}Year X Education & N & N & Y & Y & Y\\
-  \hspace{1em}Year X Gender & N & N & N & Y & Y\\
-  \hspace{1em}Year X Resident Area & N & N & N & N & Y\\
-  \hspace{1em}F-statistics of IV & 149708.36 & 133463.98 & 122042.55 & 119684.05 & 115742.55\\
-  \hspace{1em}N & 52304 & 52304 & 52302 & 52302 & 52302\\
+  ln(last giving price) & -0.898*** & -0.961*** & -1.197*** & -0.998*** & -1.074***\\
+   & (0.271) & (0.271) & (0.307) & (0.325) & (0.332)\\
+  ln(auunaul taxable income) & 2.023*** & 1.638** & 1.460** & 1.530** & 1.572**\\
+   & (0.694) & (0.678) & (0.667) & (0.670) & (0.667)\\
+  Age & N & Y & Y & Y & Y\\
+  Year X Education & N & N & Y & Y & Y\\
+  Year X Gender & N & N & N & Y & Y\\
+  Year X Resident Area & N & N & N & N & Y\\
+  N & 10672 & 10672 & 10672 & 10672 & 10672\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-1-extensive-margin}{%
+  \subsection{Robustness Check 1: Extensive Margin}\label{robustness-check-1-extensive-margin}}
+  
+  The extensive-margin last price elasticity at sample mean is roughly -3\%.
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableLastElasticity2Slide2}Extensive-Margin Last Price Elasticity: Panel IV}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{tabular}[t]{lccccc}
+  \toprule
+   & (1) & (2) & (3) & (4) & (5)\\
+  \midrule
+  Implied last price elasiticity & -3.063*** & -3.100*** & -3.167*** & -2.917*** & -3.046***\\
+   & (0.227) & (0.240) & (0.259) & (0.258) & (0.254)\\
+  Implied income elasticity & 5.532*** & 5.472*** & 5.426*** & 5.513*** & 5.361***\\
+   & (1.088) & (1.096) & (1.096) & (1.098) & (1.082)\\
+  Age & N & Y & Y & Y & Y\\
+  Year X Education & N & N & Y & Y & Y\\
+  Year X Gender & N & N & N & Y & Y\\
+  Year X Resident Area & N & N & N & N & Y\\
+  N & 52304 & 52304 & 52302 & 52302 & 52302\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robust-check-2}{%
+  \subsection{Robust Check 2}\label{robust-check-2}}
+  
+  Second potential concern: Price change due to the change of income
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    Since the giving price under the tax deduction depends on the change of income, the \emph{within} variation of giving price may be endogenous.
+  \item
+    To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      By this restriction, the \emph{within} price variation of giving price is completely exgonenous.
+    \end{itemize}
+  \end{itemize}
+  
+  \hypertarget{robustness-check-2-result}{%
+  \subsection{Robustness Check 2: Result}\label{robustness-check-2-result}}
+  
+  Overall price elasticity is -1 \textasciitilde{} -1.7\%.
   
   \begin{table}
   
   \caption{\label{tab:kableShortElasticity1}Elasticity with Short-Period Data}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
   \begin{tabular}[t]{lcccc}
   \toprule
   \multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
@@ -574,124 +703,164 @@
    & (0.255) & (0.290) & (0.289) & (0.338)\\
   ln(auunaul taxable income) & 5.108*** & 4.743*** & 4.013** & 3.035\\
    & (1.009) & (0.990) & (1.948) & (1.992)\\
-  Individual FE & Y & Y & Y & Y\\
-  Time FE & Y & Y & Y & Y\\
   Other Controls & N & Y & N & Y\\
   N & 45994 & 45992 & 14893 & 14893\\
-  R-sq & 0.009 & 0.018 & 0.013 & 0.024\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-2-intensive-marign}{%
+  \subsection{Robustness Check 2: Intensive Marign}\label{robustness-check-2-intensive-marign}}
+  
+  The intensive-margin price elasticity is -0.6 \textasciitilde{} -1\%.
+  In column (3), the price elasticity is statistically insignificant.
   
   \begin{table}
   
-  \caption{\label{tab:kableShortElasticity2}Intensive- and Extensive-Margin Elasticity with Short-Period Data}
+  \caption{\label{tab:kableShortElasticity2Slide1}Intensive-Margin Elasticity with Short-Period Data}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
   \begin{tabular}[t]{lcccc}
   \toprule
   \multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
   \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
    & (1) & (2) & (3) & (4)\\
   \midrule
-  \addlinespace[0.3em]
-  \multicolumn{5}{l}{\textbf{Intensive-Margin Elasticity}}\\
-  \hspace{1em}ln(giving price) & -0.647*** & -1.129*** & -0.394 & -0.712**\\
-  \hspace{1em} & (0.236) & (0.291) & (0.310) & (0.363)\\
-  \hspace{1em}ln(auunaul taxable income) & 1.943*** & 1.714*** & 1.440 & 1.047\\
-  \hspace{1em} & (0.662) & (0.649) & (2.975) & (3.072)\\
-  \hspace{1em}N & 10158 & 10158 & 2922 & 2922\\
-  \hspace{1em}R-sq & 0.006 & 0.034 & 0.004 & 0.046\\
-  \addlinespace[0.3em]
-  \multicolumn{5}{l}{\textbf{Extensive-Margin Elasticity}}\\
-  \hspace{1em}ln(giving price) & -0.235*** & -0.269*** & -0.331*** & -0.383***\\
-  \hspace{1em} & (0.058) & (0.065) & (0.065) & (0.076)\\
-  \hspace{1em}ln(auunaul taxable income) & 1.093*** & 1.024*** & 0.801* & 0.574\\
-  \hspace{1em} & (0.230) & (0.226) & (0.428) & (0.447)\\
-  \hspace{1em}Implied price elasiticity & -1.136*** & -1.300*** & -1.845*** & -2.131***\\
-  \hspace{1em} & (0.279) & (0.314) & (0.364) & (0.422)\\
-  \hspace{1em}Implied income elasticity & 5.287*** & 4.954*** & 4.457* & 3.196\\
-  \hspace{1em} & (1.114) & (1.094) & (2.381) & (2.488)\\
-  \hspace{1em}Individual FE & Y & Y & Y & Y\\
-  \hspace{1em}Time FE & Y & Y & Y & Y\\
-  \hspace{1em}Other Controls & N & Y & N & Y\\
-  \hspace{1em}N & 45994 & 45992 & 14893 & 14893\\
-  \hspace{1em}R-sq & 0.008 & 0.018 & 0.013 & 0.022\\
+  ln(giving price) & -0.647*** & -1.129*** & -0.394 & -0.712**\\
+   & (0.236) & (0.291) & (0.310) & (0.363)\\
+  ln(auunaul taxable income) & 1.943*** & 1.714*** & 1.440 & 1.047\\
+   & (0.662) & (0.649) & (2.975) & (3.072)\\
+  Other Controls & N & Y & N & Y\\
+  N & 10158 & 10158 & 2922 & 2922\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-2-extensive-marign}{%
+  \subsection{Robustness Check 2: Extensive Marign}\label{robustness-check-2-extensive-marign}}
+  
+  The extensive-margin price elasticity at sample mean is -1 \textasciitilde{} -2\%.
   
   \begin{table}
   
-  \caption{\label{tab:kablekDiffElasticity}Estimation of Elasticity: $k$-difference model}
+  \caption{\label{tab:kableShortElasticity2Slide2}Extensive-Margin Elasticity with Short-Period Data}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
+  \begin{tabular}[t]{lcccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+  \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+   & (1) & (2) & (3) & (4)\\
+  \midrule
+  Implied price elasiticity & -1.136*** & -1.300*** & -1.845*** & -2.131***\\
+   & (0.279) & (0.314) & (0.364) & (0.422)\\
+  Implied income elasticity & 5.287*** & 4.954*** & 4.457* & 3.196\\
+   & (1.114) & (1.094) & (2.381) & (2.488)\\
+  Other Controls & N & Y & N & Y\\
+  N & 45994 & 45992 & 14893 & 14893\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-3}{%
+  \subsection{Robustness Check 3}\label{robustness-check-3}}
+  
+  Second potential concerns: the change of price due to the change of income
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
+  \item
+    We can also rule out this problem, using the change in the first giving price.
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      The change in the first giving price is \(\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
+    \item
+      Since we fix the income \(y_{it-k}\), this variation comes from the tax reform.
+    \end{itemize}
+  \end{itemize}
+  
+  \hypertarget{robustness-check-3-contd}{%
+  \subsection{Robustness Check 3 (Cont'd)}\label{robustness-check-3-contd}}
+  
+  Our estimation equation is
+  \[\Delta^k \ln g_{it} = \delta \Delta^k \ln p_{it} + \gamma \Delta^k \ln y_{it} + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},\]
+  where \(\Delta^k Y_{it} = Y_{it} - Y_{it-k}\).
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    Note that we cannot estimation the extensive-margin elasticity since it is hard to interapt this estimation equation when we use \(\Delta^k D_{it}\) as an outcome.
+  \item
+    We estimate this model for \(k = 1, 2, 3\).
+  \end{itemize}
+  
+  \hypertarget{robustness-check-3-overall-elasticity}{%
+  \subsection{Robustness Check 3: Overall Elasticity}\label{robustness-check-3-overall-elasticity}}
+  
+  Overall price elasticity is rougnly -2\%.
+  
+  \begin{table}
+  
+  \caption{\label{tab:kablekDiffElasticitySlide1}Overall Elasticity: $k$-difference model}
+  \centering
+  \fontsize{8}{10}\selectfont
   \begin{tabular}[t]{lccc}
   \toprule
   \multicolumn{1}{c}{lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
   \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
    & (1) & (2) & (3)\\
   \midrule
-  \addlinespace[0.3em]
-  \multicolumn{4}{l}{\textbf{Overall Elasticity}}\\
-  \hspace{1em}Lagged difference of first price (log) & -1.894*** & -2.170*** & -1.752***\\
-  \hspace{1em} & (0.389) & (0.355) & (0.346)\\
-  \hspace{1em}Lagged difference of annual income (log) & 2.737*** & 4.685*** & 5.307***\\
-  \hspace{1em} & (1.042) & (1.141) & (1.174)\\
-  \hspace{1em}N & 49014 & 46610 & 44205\\
-  \hspace{1em}R-sq & 0.010 & 0.015 & 0.015\\
-  \addlinespace[0.3em]
-  \multicolumn{4}{l}{\textbf{Intensive-Margin Elasticity}}\\
-  \hspace{1em}Lagged difference of first price (log) & -1.854** & -2.282*** & -2.163***\\
-  \hspace{1em} & (0.763) & (0.621) & (0.550)\\
-  \hspace{1em}Lagged difference of annual income (log) & 2.229 & 4.675*** & 5.582**\\
-  \hspace{1em} & (1.715) & (1.791) & (2.178)\\
-  \hspace{1em}Individual FE & Y & Y & Y\\
-  \hspace{1em}Time FE & Y & Y & Y\\
-  \hspace{1em}Other Controls & Y & Y & Y\\
-  \hspace{1em}N & 10939 & 10505 & 10043\\
-  \hspace{1em}R-sq & 0.066 & 0.073 & 0.055\\
+  Lagged difference of first price (log) & -1.894*** & -2.170*** & -1.752***\\
+   & (0.389) & (0.355) & (0.346)\\
+  Lagged difference of annual income (log) & 2.737*** & 4.685*** & 5.307***\\
+   & (1.042) & (1.141) & (1.174)\\
+  N & 49014 & 46610 & 44205\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
-  \end{tablenotes}
-  \end{threeparttable}
+  \end{table}
+  
+  \hypertarget{robustness-check-3-intensive-margin-elasticity}{%
+  \subsection{Robustness Check 3: Intensive-Margin Elasticity}\label{robustness-check-3-intensive-margin-elasticity}}
+  
+  The intensive-margin price elasticity is rougnly -2\%.
+  
+  \begin{table}
+  
+  \caption{\label{tab:kablekDiffElasticitySlide2}Intensive-Margin Elasticity: $k$-difference model}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  Lagged difference of first price (log) & -1.854** & -2.282*** & -2.163***\\
+   & (0.763) & (0.621) & (0.550)\\
+  Lagged difference of annual income (log) & 2.229 & 4.675*** & 5.582**\\
+   & (1.715) & (1.791) & (2.178)\\
+  N & 10939 & 10505 & 10043\\
+  \bottomrule
+  \end{tabular}
   \end{table}
   
   \hypertarget{governement-efficient-and-price-elasticity}{%
   \section{Governement Efficient and Price Elasticity}\label{governement-efficient-and-price-elasticity}}
   
-  From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level. For current balance, the subjects answer the degree of their current perception about tax burden and welfare level, both of them are scaled by three: high, middle, and low (See figure \ref{Balance}.). For ideal balance, the choice set of answer is the same as the current balance, but the subjects answers their ideal tax burden and welfare level.
-  Thus, we can derive the two pair of answers about tax burden and welfare level for each subject, i.e.~the pair about current balance and one about ideal balance.
+  \hypertarget{construct-efficiency-index}{%
+  \subsection{Construct Efficiency Index}\label{construct-efficiency-index}}
   
-  We can consider that the pair of answers about current balance reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare. Based on the pair about current perception, we construct an index called efficiency index by the following steps. Firstly, according to \ref{tab:tabefficiency}, we assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient. Secondly, to construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect. Then, we use the obtained fixed effect as the efficiency index. Since the assigned number ranges from -2 to 2, the efficiency index takes a value within the interval of (-2, 2).
+  From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level.
+  See the following table.
   
-  We consider that the efficiency index shows the individual's perception toward government for its efficiency. However, there are two potential problems for the construction of this index. The first problem is that there is a room for subjects to interpret the questions of tax/welfare balance not as questions about the efficiency of the government but as questions about the expenditure policy of the government. If the latter is true, some subjects consider that the government with low tax burden and high welfare level is inefficient because it conducts debt financing. To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable. In other words, in the robustness check, we rule out the subjects whose efficiency index for the ideal balance question is less than 0. We check that this refinement enable us to get a clearer result.
+  \begin{table}[H]
+  \centering\begingroup\fontsize{8}{10}\selectfont
   
-  The second issue is \ldots.(Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。)
-  
-  The distribution of the efficiency index is shown in figure XXX. We can see that the index is distributed around 0 and the distribution is not changed if we limit the sample whose ideal efficiency index is not less than 0.
-  
-  To estimate the effect of the perception, we use two ways of estimation following the method used in the baseline analysis. The first way is sub-sample analysis, where make three sub-samples according to the efficiency index. The second way utilize the interaction between the efficiency index and the giving price. Both ways of the analyses use the specifications based on Eq. (@ref\{Intensive\}) and (@ref\{Extensive\}) for intensive and extensive margins, respectively.
-  
-  \begin{table}
-  
-  \caption{\label{tab:tabefficiency}The assigned number for each pair of welfare/tax burden answers}
-  \centering
-  \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
-  \begin{tabular}[t]{l|cccl|cccl|cccl|ccc}
+  \begin{tabular}{l|cccl|cccl|cccl|ccc}
   \toprule
   Welfare/Tax burden & Low & Middle & High\\
   \midrule
@@ -700,29 +869,81 @@
   Low & 0 & -1 & 2\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: The number shows the corresponding efficiency index for each pair of tax burden and welfare level.
-  \end{tablenotes}
-  \end{threeparttable}
+  \endgroup{}
   \end{table}
   
-  \includegraphics[width=0.5\textwidth,height=\textheight]{_assets/BalanceQuestion.jpg}
+  \hypertarget{construct-efficient-index-contd}{%
+  \subsection{Construct Efficient Index (Cont'd)}\label{construct-efficient-index-contd}}
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    The pair of answers reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare.
+  \item
+    Based on the pair about current perception, we construct an index called efficiency index by the following steps.
+  
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+    \tightlist
+    \item
+      We assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient.
+    \item
+      To construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect.
+    \item
+      use the obtained fixed effect as the efficiency index
+    \end{enumerate}
+  \end{itemize}
+  
+  \hypertarget{histrogram-of-efficient-index}{%
+  \subsection{Histrogram of Efficient Index}\label{histrogram-of-efficient-index}}
   
   \begin{figure}
   
-  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/gt510/Documents/Korea/_assets/HistogramEfficientid} 
+  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramEfficientid} 
   
   }
   
-  \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-5}
+  \caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-1}
   \end{figure}
+  
+  \hypertarget{two-potential-concerns}{%
+  \subsection{Two Potential Concerns}\label{two-potential-concerns}}
+  
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    There is a room for subjects to interpret the questions of tax/welfare balance as questions about the expenditure policy of the government.
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
+    \end{itemize}
+  \item
+    Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。
+  \end{enumerate}
+  
+  \hypertarget{heterogenous-price-elasticity-by-governement-efficiency}{%
+  \subsection{Heterogenous Price Elasticity by Governement Efficiency}\label{heterogenous-price-elasticity-by-governement-efficiency}}
+  
+  To see the heterogenous price elasticity by efficient index,
+  we utilize the interaction between the efficiency index and the giving price.
+  
+  Bothe ways of the analyses use the sepcifications based on the Equation (XX) and (XX) for intensive and extensive margins,
+  respectively.
+  
+  We control individual and time fixed effect,
+  and other covariates.
+  
+  \hypertarget{heterogenous-price-elasticity-estimations-results}{%
+  \subsection{Heterogenous Price Elasticity: Estimations Results}\label{heterogenous-price-elasticity-estimations-results}}
   
   \begin{table}
   
-  \caption{\label{tab:kableHeteroElasticity}Heterogenous Elasticity by Perceived Government Efficiency}
+  \caption{\label{tab:kableHeteroElasticitySlide1}Heterogenous Elasticity by Perceived Government Efficiency (1)}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
   \begin{tabular}[t]{lccc}
   \toprule
   \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
@@ -735,48 +956,71 @@
    & (0.423) & (0.098) & (0.489)\\
   ln(giving price) X 3Q Efficient Group & 0.353 & 0.095 & -0.285\\
    & (0.417) & (0.097) & (0.545)\\
-  ln(auunaul taxable income) & 4.943*** & 1.104*** & 1.589**\\
-   & (0.959) & (0.222) & (0.657)\\
+  N & 50455 & 50455 & 11327\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{heterogenous-price-elasticity-implied-elasticity}{%
+  \subsection{Heterogenous Price Elasticity: Implied Elasticity}\label{heterogenous-price-elasticity-implied-elasticity}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeteroElasticitySlide2}Heterogenous Elasticity by Perceived Government Efficiency (2)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
   Implied price elasiticity (1Q efficient group) & -1.356*** & -1.396*** & -0.952***\\
    & (0.336) & (0.374) & (0.334)\\
   Implied price elasiticity (2Q efficient group) & -1.388*** & -1.686*** & -0.661*\\
    & (0.330) & (0.378) & (0.394)\\
   Implied price elasiticity (3Q efficient group) & -1.002*** & -0.930** & -1.237***\\
    & (0.327) & (0.374) & (0.468)\\
-  Implied income elasticity & 4.943*** & 5.429*** & 1.589**\\
-   & (0.959) & (1.093) & (0.657)\\
-  Individual FE & Y & Y & Y\\
-  Time FE & Y & Y & Y\\
-  Other Controls & Y & Y & Y\\
   N & 50455 & 50455 & 11327\\
-  R-sq & 0.020 & 0.020 & 0.034\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-1-1}{%
+  \subsection{Robustness Check 1}\label{robustness-check-1-1}}
+  
+  First Potential Concern: interpretaion of the questions of tax/welfare balance as questions about the expenditure policy of the government
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    First, we construct three quantile groups, using the original efficient index.
+  \item
+    Second, we rule out the subjects whose efficiency index for the ideal balance question is less than 0 from each group.
+  \end{itemize}
+  
+  \hypertarget{robustness-check-1-density-of-efficient-index}{%
+  \subsection{Robustness Check 1: Density of Efficient Index}\label{robustness-check-1-density-of-efficient-index}}
   
   \begin{figure}
   
-  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/gt510/Documents/Korea/_assets/DensityEfficientid} 
+  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/DensityEfficientid} 
   
   }
   
-  \caption{Density of Efficient Index Using those whose ideal efficient index > 0}\label{fig:unnamed-chunk-6}
+  \caption{Density of Efficient Index Using those whose ideal efficient index > 0}\label{fig:unnamed-chunk-2}
   \end{figure}
+  
+  \hypertarget{robustness-check-1-estimation-results}{%
+  \subsection{Robustness Check 1: Estimation Results}\label{robustness-check-1-estimation-results}}
   
   \begin{table}
   
-  \caption{\label{tab:kableSubsetHeteroElasticity}Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0}
+  \caption{\label{tab:kableSubsetHeteroElasticitySlide1}Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0 (1)}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
   \begin{tabular}[t]{lccc}
   \toprule
-  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
-  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
    & (1) & (2) & (3)\\
   \midrule
   ln(giving price) & -1.831*** & -0.316*** & -1.303**\\
@@ -785,207 +1029,521 @@
    & (0.657) & (0.146) & (0.807)\\
   ln(giving price) X 3Q Efficient Group & 1.295** & 0.237* & 0.236\\
    & (0.586) & (0.135) & (0.834)\\
-  ln(auunaul taxable income) & 5.686*** & 1.202*** & 3.225*\\
-   & (1.272) & (0.273) & (1.880)\\
+  N & 23366 & 23366 & 5004\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-1-implied-price-elasticity}{%
+  \subsection{Robustness Check 1: Implied Price Elasticity}\label{robustness-check-1-implied-price-elasticity}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableSubsetHeteroElasticitySlide2}Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0 (1)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+   & (1) & (2) & (3)\\
+  \midrule
   Implied price elasiticity (1Q efficient group) & -1.831*** & -1.555*** & -1.303**\\
    & (0.538) & (0.565) & (0.571)\\
   Implied price elasiticity (2Q efficient group) & -1.492*** & -1.335** & -0.995\\
    & (0.505) & (0.561) & (0.622)\\
   Implied price elasiticity (3Q efficient group) & -0.536 & -0.392 & -1.067\\
    & (0.416) & (0.500) & (0.680)\\
-  Implied income elasticity & 5.686*** & 5.913*** & 3.225*\\
-   & (1.272) & (1.344) & (1.880)\\
-  Individual FE & Y & Y & Y\\
-  Time FE & Y & Y & Y\\
-  Other Controls & Y & Y & Y\\
   N & 23366 & 23366 & 5004\\
-  R-sq & 0.020 & 0.019 & 0.057\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-2}{%
+  \subsection{Robustness Check 2}\label{robustness-check-2}}
+  
+  Second potential concern: Last price elasticity
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    We repeat same excercise as the panel IV including two interaction terms as endogenous variables.
+  \item
+    Exgonenous variables are the interaction between giving price and dummies of efficient index group.
+  \end{itemize}
+  
+  \hypertarget{robustness-check-2-estimation-results-1}{%
+  \subsection{Robustness Check 2: Estimation Results (1)}\label{robustness-check-2-estimation-results-1}}
   
   \begin{table}
   
-  \caption{\label{tab:kableHeteroLastElasticity}Heterogenous Last Price Elasticity: Panel IV}
+  \caption{\label{tab:kableHeteroLastElasticitySlide1}Heterogenous Last Price Elasticity: Panel IV (1)}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
-  \begin{tabular}[t]{lcccccc}
+  \begin{tabular}[t]{lccc}
   \toprule
-  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
-  \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
-  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
-  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-5} \cmidrule(l{3pt}r{3pt}){6-6} \cmidrule(l{3pt}r{3pt}){7-7}
-   & (1) & (2) & (3) & (4) & (5) & (6)\\
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
   \midrule
-  ln(last giving price) & -2.604*** & -0.586*** & -1.166*** & -2.984*** & -0.579*** & -1.681**\\
-   & (0.342) & (0.077) & (0.438) & (0.551) & (0.116) & (0.778)\\
-  ln(last giving price) X 2Q Efficient Group & -0.272 & -0.104 & 0.043 & -0.108 & -0.063 & 0.239\\
-   & (0.417) & (0.095) & (0.591) & (0.645) & (0.141) & (1.019)\\
-  ln(last giving price) X 3Q Efficient Group & -0.010 & -0.038 & 0.111 & 0.894 & 0.056 & 1.285\\
-   & (0.420) & (0.096) & (0.709) & (0.588) & (0.132) & (1.071)\\
-  ln(auunaul taxable income) & 4.892*** & 1.087*** & 1.597** & 5.313*** & 1.141*** & 2.743\\
-   & (0.958) & (0.222) & (0.670) & (1.282) & (0.277) & (1.947)\\
-  Implied last price elasiticity (1Q efficient group) & -2.604*** & -2.883*** & -1.166*** & -2.984*** & -3.097*** & -1.681**\\
-   & (0.342) & (0.377) & (0.438) & (0.551) & (0.621) & (0.778)\\
-  Implied last price elasiticity (2Q efficient group) & -2.876*** & -3.395*** & -1.122** & -3.092*** & -3.432*** & -1.442*\\
-   & (0.318) & (0.362) & (0.488) & (0.491) & (0.583) & (0.776)\\
-  Implied last price elasiticity (3Q efficient group) & -2.614*** & -3.071*** & -1.055* & -2.091*** & -2.796*** & -0.396\\
-   & (0.328) & (0.371) & (0.639) & (0.414) & (0.533) & (0.892)\\
-  Implied income elasticity & 4.892*** & 5.345*** & 1.597** & 5.313*** & 6.097*** & 2.743\\
-   & (0.958) & (1.094) & (0.670) & (1.282) & (1.481) & (1.947)\\
-  Individual FE & Y & Y & Y & Y & Y & Y\\
-  Time FE & Y & Y & Y & Y & Y & Y\\
-  Other Controls & Y & Y & Y & Y & Y & Y\\
-  N & 49575 & 49575 & 10447 & 22974 & 22974 & 4612\\
+  ln(last giving price) & -2.604*** & -0.586*** & -1.166***\\
+   & (0.342) & (0.077) & (0.438)\\
+  ln(last giving price) X 2Q Efficient Group & -0.272 & -0.104 & 0.043\\
+   & (0.417) & (0.095) & (0.591)\\
+  ln(last giving price) X 3Q Efficient Group & -0.010 & -0.038 & 0.111\\
+   & (0.420) & (0.096) & (0.709)\\
+  N & 49575 & 49575 & 10447\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The instumental variables are the first giving price in year $t$ and its interaction with the 2Q (3Q) Efficient Group. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-2-implied-price-elasticity-1}{%
+  \subsection{Robustness Check 2: Implied Price Elasticity (1)}\label{robustness-check-2-implied-price-elasticity-1}}
   
   \begin{table}
   
-  \caption{\label{tab:kableHeteroShortElasticity}Heterogenous Price Elasticity with Data after 2012}
+  \caption{\label{tab:kableHeteroLastElasticitySlide2}Heterogenous Last Price Elasticity: Panel IV (2)}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
-  \begin{tabular}[t]{lcccccc}
+  \begin{tabular}[t]{lccc}
   \toprule
-  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
-  \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
-  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
-  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-5} \cmidrule(l{3pt}r{3pt}){6-6} \cmidrule(l{3pt}r{3pt}){7-7}
-   & (1) & (2) & (3) & (4) & (5) & (6)\\
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
   \midrule
-  ln(giving price) & -1.116*** & -0.197** & -1.175*** & -1.526** & -0.187 & -1.301*\\
-   & (0.425) & (0.096) & (0.380) & (0.650) & (0.146) & (0.713)\\
-  ln(giving price) X 2Q Efficient Group & -0.499 & -0.198 & 0.164 & 0.064 & -0.090 & -0.094\\
-   & (0.544) & (0.124) & (0.558) & (0.863) & (0.192) & (0.974)\\
-  ln(giving price) X 3Q Efficient Group & -0.125 & -0.060 & -0.167 & 0.448 & -0.036 & 0.197\\
-   & (0.530) & (0.124) & (0.630) & (0.733) & (0.175) & (0.941)\\
-  ln(auunaul taxable income) & 4.777*** & 1.034*** & 1.757*** & 6.126*** & 1.239*** & 2.903\\
-   & (1.002) & (0.229) & (0.652) & (1.414) & (0.305) & (2.188)\\
-  Implied price elasiticity (1Q efficient group) & -1.116*** & -0.951** & -1.175*** & -1.526** & -1.000 & -1.301*\\
-   & (0.425) & (0.464) & (0.380) & (0.650) & (0.780) & (0.713)\\
-  Implied price elasiticity (2Q efficient group) & -1.615*** & -1.910*** & -1.011** & -1.462** & -1.480* & -1.394*\\
-   & (0.431) & (0.470) & (0.455) & (0.730) & (0.835) & (0.755)\\
-  Implied price elasiticity (3Q efficient group) & -1.240*** & -1.242*** & -1.342** & -1.078* & -1.193* & -1.103\\
-   & (0.413) & (0.470) & (0.549) & (0.550) & (0.722) & (0.739)\\
-  Implied income elasticity & 4.777*** & 4.998*** & 1.757*** & 6.126*** & 6.622*** & 2.903\\
-   & (1.002) & (1.107) & (0.652) & (1.414) & (1.632) & (2.188)\\
-  Individual FE & Y & Y & Y & Y & Y & Y\\
-  Time FE & Y & Y & Y & Y & Y & Y\\
-  Other Controls & Y & Y & Y & Y & Y & Y\\
-  N & 44115 & 44115 & 9967 & 20441 & 20441 & 4419\\
-  R-sq & 0.018 & 0.019 & 0.034 & 0.018 & 0.018 & 0.061\\
+  Implied last price elasiticity (1Q efficient group) & -2.604*** & -2.883*** & -1.166***\\
+   & (0.342) & (0.377) & (0.438)\\
+  Implied last price elasiticity (2Q efficient group) & -2.876*** & -3.395*** & -1.122**\\
+   & (0.318) & (0.362) & (0.488)\\
+  Implied last price elasiticity (3Q efficient group) & -2.614*** & -3.071*** & -1.055*\\
+   & (0.328) & (0.371) & (0.639)\\
+  N & 49575 & 49575 & 10447\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-2-estimation-results-2}{%
+  \subsection{Robustness Check 2: Estimation Results (2)}\label{robustness-check-2-estimation-results-2}}
   
   \begin{table}
   
-  \caption{\label{tab:kableHeterokDiffElasticity}Heterogenous Price Elasticity: $k$-difference Model}
+  \caption{\label{tab:kableHeteroLastElasticitySlide3}Heterogenous Last Price Elasticity: Panel IV (3)}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
-  \begin{tabular}[t]{lcccccc}
+  \begin{tabular}[t]{lccc}
   \toprule
-  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
-  \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
-  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
-  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-5} \cmidrule(l{3pt}r{3pt}){6-6} \cmidrule(l{3pt}r{3pt}){7-7}
-   & (1) & (2) & (3) & (4) & (5) & (6)\\
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (4) & (5) & (6)\\
   \midrule
-  Lagged difference of first price (log) & -1.778*** & -2.884*** & -2.467*** & -1.401 & -2.320** & -2.549***\\
-   & (0.553) & (0.520) & (0.509) & (1.074) & (0.970) & \vphantom{1} (0.788)\\
-  \hspace{1em}X 2Q Efficient Group & -0.204 & 0.970 & 0.755 & -0.113 & -0.035 & 0.942\\
-   & (0.747) & (0.687) & (0.648) & (1.548) & (1.331) & (1.128)\\
-  \hspace{1em}X 3Q Efficient Group & -0.346 & 1.316** & 1.440** & -1.439 & 0.218 & 0.302\\
-   & (0.704) & (0.644) & (0.624) & (1.610) & (1.319) & (1.196)\\
-  Lagged difference of annual income (log) & 2.685** & 4.641*** & 5.274*** & 2.208 & 4.849*** & 5.471**\\
-   & (1.045) & (1.149) & (1.185) & (1.712) & (1.816) & \vphantom{1} (2.189)\\
-  Implied price elasiticity (1Q efficient group) & -1.778*** & -2.884*** & -2.467*** & -1.401 & -2.320** & -2.549***\\
-   & (0.553) & (0.520) & (0.509) & (1.074) & (0.970) & (0.788)\\
-  Implied price elasiticity (2Q efficient group) & -1.982*** & -1.914*** & -1.712*** & -1.515 & -2.355** & -1.607*\\
-   & (0.611) & (0.546) & (0.508) & (1.230) & (0.986) & (0.885)\\
-  Implied price elasiticity (3Q efficient group) & -2.123*** & -1.568*** & -1.027** & -2.840** & -2.102** & -2.248**\\
-   & (0.550) & (0.494) & (0.485) & (1.317) & (0.995) & (0.973)\\
-  Implied income elasticity & 2.685** & 4.641*** & 5.274*** & 2.208 & 4.849*** & 5.471**\\
-   & (1.045) & (1.149) & (1.185) & (1.712) & (1.816) & (2.189)\\
-  Individual FE & Y & Y & Y & Y & Y & Y\\
-  Time FE & Y & Y & Y & Y & Y & Y\\
-  Other Controls & Y & Y & Y & Y & Y & Y\\
-  N & 46661 & 44448 & 42198 & 10675 & 10257 & 9811\\
-  R-sq & 0.010 & 0.016 & 0.015 & 0.066 & 0.073 & 0.055\\
+  ln(last giving price) & -2.984*** & -0.579*** & -1.681**\\
+   & (0.551) & (0.116) & (0.778)\\
+  ln(last giving price) X 2Q Efficient Group & -0.108 & -0.063 & 0.239\\
+   & (0.645) & (0.141) & (1.019)\\
+  ln(last giving price) X 3Q Efficient Group & 0.894 & 0.056 & 1.285\\
+   & (0.588) & (0.132) & (1.071)\\
+  N & 22974 & 22974 & 4612\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
-  \end{tablenotes}
-  \end{threeparttable}
   \end{table}
+  
+  \hypertarget{robustness-check-2-implied-price-elasticity-2}{%
+  \subsection{Robustness Check 2: Implied Price Elasticity (2)}\label{robustness-check-2-implied-price-elasticity-2}}
   
   \begin{table}
   
-  \caption{\label{tab:kableSubsetHeterokDiffElasticity}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0}
+  \caption{\label{tab:kableHeteroLastElasticitySlide4}Heterogenous Last Price Elasticity: Panel IV (4)}
   \centering
   \fontsize{8}{10}\selectfont
-  \begin{threeparttable}
-  \begin{tabular}[t]{lcccccc}
+  \begin{tabular}[t]{lccc}
   \toprule
-  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
-  \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
-  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
-  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-5} \cmidrule(l{3pt}r{3pt}){6-6} \cmidrule(l{3pt}r{3pt}){7-7}
-   & (1) & (2) & (3) & (4) & (5) & (6)\\
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (4) & (5) & (6)\\
   \midrule
-  Lagged difference of first price (log) & -2.215** & -3.269*** & -2.647*** & -0.841 & -4.928*** & -2.227\\
-   & (0.872) & (0.794) & (0.821) & (1.936) & (1.780) & \vphantom{1} (1.588)\\
-  \hspace{1em}X 2Q Efficient Group & 0.078 & 0.900 & 0.604 & -0.752 & 1.312 & -0.954\\
-   & (1.233) & (1.070) & (0.972) & (2.841) & (2.329) & (1.992)\\
-  \hspace{1em}X 3Q Efficient Group & -0.666 & 2.307*** & 2.242** & -3.101 & 3.154 & 2.071\\
-   & (1.024) & (0.894) & (0.875) & (2.646) & (2.219) & (2.081)\\
-  Lagged difference of annual income (log) & 3.048** & 5.197*** & 5.749*** & 3.692 & 6.587** & 8.671**\\
-   & (1.319) & (1.564) & (1.419) & (4.077) & (3.120) & \vphantom{1} (3.406)\\
-  Implied price elasiticity (1Q efficient group) & -2.215** & -3.269*** & -2.647*** & -0.841 & -4.928*** & -2.227\\
-   & (0.872) & (0.794) & (0.821) & (1.936) & (1.780) & (1.588)\\
-  Implied price elasiticity (2Q efficient group) & -2.137** & -2.369*** & -2.042*** & -1.592 & -3.616** & -3.182**\\
-   & (1.064) & (0.869) & (0.725) & (2.238) & (1.656) & (1.336)\\
-  Implied price elasiticity (3Q efficient group) & -2.881*** & -0.962 & -0.404 & -3.942* & -1.775 & -0.156\\
-   & (0.795) & (0.633) & (0.590) & (2.032) & (1.514) & (1.461)\\
-  Implied income elasticity & 3.048** & 5.197*** & 5.749*** & 3.692 & 6.587** & 8.671**\\
-   & (1.319) & (1.564) & (1.419) & (4.077) & (3.120) & (3.406)\\
-  Individual FE & Y & Y & Y & Y & Y & Y\\
-  Time FE & Y & Y & Y & Y & Y & Y\\
-  Other Controls & Y & Y & Y & Y & Y & Y\\
-  N & 21583 & 20516 & 19422 & 4686 & 4474 & 4245\\
-  R-sq & 0.012 & 0.020 & 0.020 & 0.074 & 0.088 & 0.091\\
+  Implied last price elasiticity (1Q efficient group) & -2.984*** & -3.097*** & -1.681**\\
+   & (0.551) & (0.621) & (0.778)\\
+  Implied last price elasiticity (2Q efficient group) & -3.092*** & -3.432*** & -1.442*\\
+   & (0.491) & (0.583) & (0.776)\\
+  Implied last price elasiticity (3Q efficient group) & -2.091*** & -2.796*** & -0.396\\
+   & (0.414) & (0.533) & (0.892)\\
+  N & 22974 & 22974 & 4612\\
   \bottomrule
   \end{tabular}
-  \begin{tablenotes}
-  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero.
-  \end{tablenotes}
-  \end{threeparttable}
+  \end{table}
+  
+  \hypertarget{robustness-check-3-1}{%
+  \subsection{Robustness Check 3}\label{robustness-check-3-1}}
+  
+  Third potential concerns: Price change due to the change in income
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      By this restriction, the \emph{within} price variation of giving price is completely exgonenous.
+    \end{itemize}
+  \item
+    We include interactions between giving price and dummies of the efficient quantile group.
+  \end{itemize}
+  
+  \hypertarget{robustness-check-3-estimation-result-1}{%
+  \subsection{Robustness Check 3: Estimation Result (1)}\label{robustness-check-3-estimation-result-1}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeteroShortElasticitySlide1}Heterogenous Last Price Elasticity: Panel IV (1)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  ln(giving price) & -1.116*** & -0.197** & -1.175***\\
+   & (0.425) & (0.096) & (0.380)\\
+  ln(giving price) X 2Q Efficient Group & -0.499 & -0.198 & 0.164\\
+   & (0.544) & (0.124) & (0.558)\\
+  ln(giving price) X 3Q Efficient Group & -0.125 & -0.060 & -0.167\\
+   & (0.530) & (0.124) & (0.630)\\
+  N & 44115 & 44115 & 9967\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-3-implied-price-elasticity-1}{%
+  \subsection{Robustness Check 3: Implied Price Elasticity (1)}\label{robustness-check-3-implied-price-elasticity-1}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeteroShortElasticitySlide2}Heterogenous Last Price Elasticity: Panel IV}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  Implied price elasiticity (1Q efficient group) & -1.116*** & -0.951** & -1.175***\\
+   & (0.425) & (0.464) & (0.380)\\
+  Implied price elasiticity (2Q efficient group) & -1.615*** & -1.910*** & -1.011**\\
+   & (0.431) & (0.470) & (0.455)\\
+  Implied price elasiticity (3Q efficient group) & -1.240*** & -1.242*** & -1.342**\\
+   & (0.413) & (0.470) & (0.549)\\
+  N & 44115 & 44115 & 9967\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-3-estimation-result-3}{%
+  \subsection{Robustness Check 3: Estimation Result (3)}\label{robustness-check-3-estimation-result-3}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeteroShortElasticitySlide3}Heterogenous Last Price Elasticity: Panel IV (3)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (4) & (5) & (6)\\
+  \midrule
+  ln(giving price) & -1.526** & -0.187 & -1.301*\\
+   & (0.650) & (0.146) & (0.713)\\
+  ln(giving price) X 2Q Efficient Group & 0.064 & -0.090 & -0.094\\
+   & (0.863) & (0.192) & (0.974)\\
+  ln(giving price) X 3Q Efficient Group & 0.448 & -0.036 & 0.197\\
+   & (0.733) & (0.175) & (0.941)\\
+  N & 20441 & 20441 & 4419\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-3-implied-price-elasticity-4}{%
+  \subsection{Robustness Check 3: Implied Price Elasticity (4)}\label{robustness-check-3-implied-price-elasticity-4}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeteroShortElasticitySlide4}Heterogenous Last Price Elasticity: Panel IV (4)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (4) & (5) & (6)\\
+  \midrule
+  Implied price elasiticity (1Q efficient group) & -1.526** & -1.000 & -1.301*\\
+   & (0.650) & (0.780) & (0.713)\\
+  Implied price elasiticity (2Q efficient group) & -1.462** & -1.480* & -1.394*\\
+   & (0.730) & (0.835) & (0.755)\\
+  Implied price elasiticity (3Q efficient group) & -1.078* & -1.193* & -1.103\\
+   & (0.550) & (0.722) & (0.739)\\
+  N & 20441 & 20441 & 4419\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-4}{%
+  \subsection{Robustness Check 4}\label{robustness-check-4}}
+  
+  Third potential concerns: Price change due to the change in income
+  
+  \begin{itemize}
+  \tightlist
+  \item
+    To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
+  \item
+    We can also rule out this problem, using the change in the first giving price.
+  
+    \begin{itemize}
+    \tightlist
+    \item
+      The change in the first giving price is \(\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
+    \item
+      Since we fix the income \(y_{it-k}\), this variation comes from the tax reform.
+    \end{itemize}
+  \end{itemize}
+  
+  \hypertarget{robustness-check-4-estimation-results-1}{%
+  \subsection{Robustness Check 4: Estimation Results (1)}\label{robustness-check-4-estimation-results-1}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeterokDiffElasticitySlide1}Heterogenous Price Elasticity: $k$-difference Model (1)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  Lagged difference of first price (log) & -1.778*** & -2.884*** & -2.467***\\
+   & (0.553) & (0.520) & (0.509)\\
+  \hspace{1em}X 2Q Efficient Group & -0.204 & 0.970 & 0.755\\
+   & (0.747) & (0.687) & (0.648)\\
+  \hspace{1em}X 3Q Efficient Group & -0.346 & 1.316** & 1.440**\\
+   & (0.704) & (0.644) & (0.624)\\
+  N & 46661 & 44448 & 42198\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-4-implied-price-elasticity-1}{%
+  \subsection{Robustness Check 4: Implied Price Elasticity (1)}\label{robustness-check-4-implied-price-elasticity-1}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeterokDiffElasticitySlide2}Heterogenous Price Elasticity: $k$-difference Model (2)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  Implied price elasiticity (1Q efficient group) & -1.778*** & -2.884*** & -2.467***\\
+   & (0.553) & (0.520) & (0.509)\\
+  Implied price elasiticity (2Q efficient group) & -1.982*** & -1.914*** & -1.712***\\
+   & (0.611) & (0.546) & (0.508)\\
+  Implied price elasiticity (3Q efficient group) & -2.123*** & -1.568*** & -1.027**\\
+   & (0.550) & (0.494) & (0.485)\\
+  N & 46661 & 44448 & 42198\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-4-estimation-results-2}{%
+  \subsection{Robustness Check 4: Estimation Results (2)}\label{robustness-check-4-estimation-results-2}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeterokDiffElasticitySlide3}Heterogenous Price Elasticity: $k$-difference Model (3)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (4) & (5) & (6)\\
+  \midrule
+  Lagged difference of first price (log) & -1.401 & -2.320** & -2.549***\\
+   & (1.074) & (0.970) & (0.788)\\
+  \hspace{1em}X 2Q Efficient Group & -0.113 & -0.035 & 0.942\\
+   & (1.548) & (1.331) & (1.128)\\
+  \hspace{1em}X 3Q Efficient Group & -1.439 & 0.218 & 0.302\\
+   & (1.610) & (1.319) & (1.196)\\
+  N & 10675 & 10257 & 9811\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-4-implied-price-elasticity-2}{%
+  \subsection{Robustness Check 4: Implied Price Elasticity (2)}\label{robustness-check-4-implied-price-elasticity-2}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableHeterokDiffElasticitySlide4}Heterogenous Price Elasticity: $k$-difference Model (4)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (4) & (5) & (6)\\
+  \midrule
+  Implied price elasiticity (1Q efficient group) & -1.401 & -2.320** & -2.549***\\
+   & (1.074) & (0.970) & (0.788)\\
+  Implied price elasiticity (2Q efficient group) & -1.515 & -2.355** & -1.607*\\
+   & (1.230) & (0.986) & (0.885)\\
+  Implied price elasiticity (3Q efficient group) & -2.840** & -2.102** & -2.248**\\
+   & (1.317) & (0.995) & (0.973)\\
+  N & 10675 & 10257 & 9811\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-4-ideal-efficient-id-0-estimation-results-1}{%
+  \subsection{Robustness Check 4 (Ideal Efficient ID \textgreater{} 0): Estimation Results (1)}\label{robustness-check-4-ideal-efficient-id-0-estimation-results-1}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableSubsetHeterokDiffElasticitySlide1}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (1)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  Lagged difference of first price (log) & -2.215** & -3.269*** & -2.647***\\
+   & (0.872) & (0.794) & (0.821)\\
+  \hspace{1em}X 2Q Efficient Group & 0.078 & 0.900 & 0.604\\
+   & (1.233) & (1.070) & (0.972)\\
+  \hspace{1em}X 3Q Efficient Group & -0.666 & 2.307*** & 2.242**\\
+   & (1.024) & (0.894) & (0.875)\\
+  N & 21583 & 20516 & 19422\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-4-ideal-efficient-id-0-implied-price-elasticity-1}{%
+  \subsection{Robustness Check 4 (Ideal Efficient ID \textgreater{} 0): Implied Price Elasticity (1)}\label{robustness-check-4-ideal-efficient-id-0-implied-price-elasticity-1}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableSubsetHeterokDiffElasticitySlide2}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (2)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  Implied price elasiticity (1Q efficient group) & -2.215** & -3.269*** & -2.647***\\
+   & (0.872) & (0.794) & (0.821)\\
+  Implied price elasiticity (2Q efficient group) & -2.137** & -2.369*** & -2.042***\\
+   & (1.064) & (0.869) & (0.725)\\
+  Implied price elasiticity (3Q efficient group) & -2.881*** & -0.962 & -0.404\\
+   & (0.795) & (0.633) & (0.590)\\
+  N & 21583 & 20516 & 19422\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-4-ideal-efficient-id-0-estimation-results-2}{%
+  \subsection{Robustness Check 4 (Ideal Efficient ID \textgreater{} 0): Estimation Results (2)}\label{robustness-check-4-ideal-efficient-id-0-estimation-results-2}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableSubsetHeterokDiffElasticitySlide3}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (3)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (4) & (5) & (6)\\
+  \midrule
+  Lagged difference of first price (log) & -0.841 & -4.928*** & -2.227\\
+   & (1.936) & (1.780) & (1.588)\\
+  \hspace{1em}X 2Q Efficient Group & -0.752 & 1.312 & -0.954\\
+   & (2.841) & (2.329) & (1.992)\\
+  \hspace{1em}X 3Q Efficient Group & -3.101 & 3.154 & 2.071\\
+   & (2.646) & (2.219) & (2.081)\\
+  N & 4686 & 4474 & 4245\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+  
+  \hypertarget{robustness-check-4-ideal-efficient-id-0-implied-price-elasticity-2}{%
+  \subsection{Robustness Check 4 (Ideal Efficient ID \textgreater{} 0): Implied Price Elasticity (2)}\label{robustness-check-4-ideal-efficient-id-0-implied-price-elasticity-2}}
+  
+  \begin{table}
+  
+  \caption{\label{tab:kableSubsetHeterokDiffElasticitySlide4}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (4)}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
+  \cmidrule(l{3pt}r{3pt}){2-4}
+  \multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (4) & (5) & (6)\\
+  \midrule
+  Implied price elasiticity (1Q efficient group) & -0.841 & -4.928*** & -2.227\\
+   & (1.936) & (1.780) & (1.588)\\
+  Implied price elasiticity (2Q efficient group) & -1.592 & -3.616** & -3.182**\\
+   & (2.238) & (1.656) & (1.336)\\
+  Implied price elasiticity (3Q efficient group) & -3.942* & -1.775 & -0.156\\
+   & (2.032) & (1.514) & (1.461)\\
+  N & 4686 & 4474 & 4245\\
+  \bottomrule
+  \end{tabular}
   \end{table}
   
   \hypertarget{conclusions}{%
   \section{Conclusions}\label{conclusions}}
-  
-  \hypertarget{conclusions-1}{%
-  \subsection{Conclusions}\label{conclusions-1}}
-  
-  \clearpage
   
   \hypertarget{references}{%
   \subsection*{References}\label{references}}
