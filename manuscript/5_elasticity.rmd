@@ -281,7 +281,7 @@ frame plotdt {
 frame drop plotdt
 ```
 
-
+<!--- Slides
 ## Price and Income Elasticity
 
 - To show our baseline results graphically, Figure \@ref(fig:showElasticityResid) shows average residuals grouped by year and benefit of the 2014 tax reform.
@@ -291,15 +291,32 @@ frame drop plotdt
 
 Those who incurring loss owing to the 2014 tax reform drastically decreases thier amount of donations.
 
-```{r showElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group"}
+```{r showElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group", eval = FALSE}
 knitr::include_graphics(paste(here(), "_assets/ElasticityResid.pdf", sep= "/"))
 ```
+--->
 
+## Price and Income Elasticity
 
-## Price and Income Elasticity: Estimation Results
-
+<!-- Slide
 We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease),
 and the **income effect** of giving(1\% income increase leads to about 5\% giving increase).
+--->
+
+Table \@ref(tab:kableEstimateElasticityPart1) shows estimation results of overall elasticity.
+To get intuition, we do not distinguish elasticities into the intensive-margin one and the extensive-margin one.
+The column (1) is the baseline estimation, which include individual and time fixed effects.
+The price elasticity is rougly -1, which is statistically significant different from zero.
+This implies that 1\% increase of giving price raise charitable giving by 1\%.
+This result is in line with previous researches which focus on Western countries.
+The income elasticity is about 5.3, which is statistically significant different from zero.
+This implies that 1\% increase of annual income raise charitable giving by 5.3\%.
+The remaining four columns control for events that affects subject with specific characteristics at the same time.
+As a result, the price elasticity is more elastic than the baseline result.
+The price elasticity lies between -1.3 and -1.1.
+On the other hand, the income elasticity is less elastic than the baseline result.
+The income elasticity lies between -5.1 and -4.9.
+
 
 ```{r shapeElasticity}
 coeftab <- list(
@@ -395,7 +412,8 @@ intexttab <- rbind(tabular[[2]][-(5:10),], tabular[[3]])
 
 ```{r kableEstimateElasticityPart1, include = TRUE}
 knitr::kable(
-    alltab[-c(5:6, 12),],
+    alltab,
+	#alltab[-c(5:6, 12),], slides
     format = "latex",
     caption = "Main Results",
     col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)"),
@@ -403,11 +421,11 @@ knitr::kable(
     align = "lccccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 7) #%>% 
-#footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
+kable_styling(font_size = 7) %>% 
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
 ```
 
-
+<!-- Slide
 ## Intensive and Extensive Margin
 
 - To obtain intensive- and extensive-margin elasticity, we repeat the same excercise.
@@ -420,7 +438,7 @@ kable_styling(font_size = 7) #%>%
 
 Donors who receive benefit owing to the 2014 tax reform decrease their donations in 2014 and 2015.
 
-```{r showIntElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)"}
+```{r showIntElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)", eval = FALSE}
 knitr::include_graphics(paste(here(), "_assets/IntElasticityResid.pdf", sep= "/"))
 ```
 
@@ -428,7 +446,7 @@ knitr::include_graphics(paste(here(), "_assets/IntElasticityResid.pdf", sep= "/"
 
 Those who incurring loss owing to the 2014 tax reform drastically were less likely to donate.
 
-```{r showExtElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)"}
+```{r showExtElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)", eval = FALSE}
 knitr::include_graphics(paste(here(), "_assets/ExtElasticityResid.pdf", sep= "/"))
 ```
 
@@ -436,7 +454,7 @@ knitr::include_graphics(paste(here(), "_assets/ExtElasticityResid.pdf", sep= "/"
 
 The intensive-margin price elasticity is -0.5 ~ -1\%. 
 
-```{r kableEstimateElasticityPart2Slide1, include = TRUE}
+```{r kableEstimateElasticityPart2Slide1, include = TRUE, eval = FALSE}
 knitr::kable(
     rbind(intexttab[1:4,], intexttab[17:20,]) %>% rbind(intexttab[5,]),
     format = "latex",
@@ -453,7 +471,7 @@ kable_styling(font_size = 7)
 
 The extensive-margin price elasticity is -1.2 ~ -1.4\%. 
 
-```{r kableEstimateElasticityPart2Slide2, include = TRUE}
+```{r kableEstimateElasticityPart2Slide2, include = TRUE, eval = FALSE}
 knitr::kable(
     rbind(intexttab[11:14,], intexttab[17:21,]),
     format = "latex",
@@ -465,9 +483,39 @@ knitr::kable(
 ) %>% 
 kable_styling(font_size = 7)
 ```
+--->
 
-<!--- For Paper
-```{r kableEstimateElasticityPart2, include = TRUE, eval = FALSE}
+Table \@ref(tab:kableEstimateElasticityPart2) shows the intensive-margin and the extensive-margin elasticities.
+The first panel shows the intensive-margin elasticity.
+Compared to the overall elasticitiy, the price and income elasticitiy are less elastic.
+Controlling individual and time fixed effects, 
+the price and income elasticity is about -0.6 and about 2,
+which are statistically significant different from zero (See the column (1)).
+Moreover, when we include the interaction term between individual characteristics and year dummies,
+these values vary.
+The price elasticity lies between -1.1 and -0.8,
+and the income elasticity lies between 1.4 and 1.6.
+Anyway, our conlusion is that the amount of donations is insensitive to the giving price among donors.
+
+The second panel shows the extensive-margin elasticity.
+By results of overall elasticities and the intensive-margin elasticities,
+we expect that the extensive-margin price and income elasticity is more elastic than the overall elasticities.
+In the column (1), the coefficient of logged giving price and logged annual income are -0.257 and 1.175 respectively,
+which are statistically significant different from zero.
+Since we use the linear probability model,
+we need to calculate $\epsilon^p_{EXT} = -0.257/D_{it}$ and $\epsilon^y_{EXT} = 1.175/D_{it}$
+to obtain the price and income elasticity, respectively. 
+Especially, the coefficient of logged giving price represents the lower-bound of price elasticity
+because the variable $D_{it}$ takes either 0 or 1.
+When we evaluate the price elasticity at the sample mean of $D_{it}$,
+the implied price elasticity is -1.264, which is slightly more elastic than the overall one.
+Also, we evaluate the income elasticity at the sample mean of outcome.
+The implied income elasticity is 5.778, which is slightly more elastic than the overall one.
+Although the implied price and income elasticity varies with covariates,
+results are in line with our expectation.
+Thus, the decision of donations is sensitive to the giving price and annual income.
+
+```{r kableEstimateElasticityPart2, include = TRUE}
 knitr::kable(
     intexttab,
     format = "latex",
@@ -482,7 +530,7 @@ pack_rows("Intensive-Margin Elasticity", 1, 6) %>%
 pack_rows("Extensive-Margin Elasticity", 7, 22) %>% 
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
---->
+
 
 ## Robustness Check 1
 
