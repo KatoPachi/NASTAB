@@ -69,7 +69,8 @@ $$
 D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_{it}. \label{extensive}
 $$
 $D_{it}$ is a dummy variable taking 1 if individual $i$ donates at year $t$ and 0 otherwise.
-\color{red} Since we use the linear probability model, 
+\color{red} 
+Since we use the linear probability model, 
 the estimated coefficient $\delta$ represents $\hat{\delta} =  \frac{\partial D_{it}}{\partial p_{it}} p_{it}$.
 Also, the estimated coefficient $\gamma$ represents $\hat{\gamma} = \frac{\partial D_{it}}{\partial y_{it}} y_{it}$.
 Thus, the extensive-margin price and income elasticity are $\hat{\delta}/D_{it}$ and $\hat{gamma}/D_{it}$, respectively.
@@ -106,6 +107,7 @@ The numerator is the first price that individual $i$ would have faced in year $t
 By fixing the income at year $t - k$, 
 the instrument isolates changes in price from income responses to the tax reform. 
 Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
+\color{black}
 
 
 

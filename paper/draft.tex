@@ -357,7 +357,8 @@
   D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_{it}. \label{extensive}
   \]
   \(D_{it}\) is a dummy variable taking 1 if individual \(i\) donates at year \(t\) and 0 otherwise.
-  \color{red} Since we use the linear probability model,
+  \color{red}
+  Since we use the linear probability model,
   the estimated coefficient \(\delta\) represents \(\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\).
   Also, the estimated coefficient \(\gamma\) represents \(\hat{\gamma} = \frac{\partial D_{it}}{\partial y_{it}} y_{it}\).
   Thus, the extensive-margin price and income elasticity are \(\hat{\delta}/D_{it}\) and \(\hat{gamma}/D_{it}\), respectively.
@@ -394,6 +395,7 @@
   By fixing the income at year \(t - k\),
   the instrument isolates changes in price from income responses to the tax reform.
   Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
+  \color{black}
 
   \hypertarget{main-results}{%
   \section{Main Results}\label{main-results}}
@@ -479,7 +481,7 @@
 
   \caption{\label{tab:kableEstimateElasticityPart2}Main Results: Intensive- and Extensive-Margin Elasticity}
   \centering
-  \fontsize{8}{10}\selectfont
+  \fontsize{7}{9}\selectfont
   \begin{threeparttable}
   \begin{tabular}[t]{lccccc}
   \toprule
@@ -519,37 +521,57 @@
   \end{threeparttable}
   \end{table}
 
-  \hypertarget{robustness-check-1}{%
-  \subsection{Robustness Check 1}\label{robustness-check-1}}
+  In summary, our first conclusion is that
+  the decision of donations is sensitive to the giving price,
+  and the amount of donations is insensitive to the giving price once they decide to donate.
+  In the next subsection, we check the robustness of our first conclusion, using three methods.
 
-  First potential concern: last price elasticity
+  \hypertarget{robustness-check}{%
+  \subsection{Robustness Check}\label{robustness-check}}
 
-  \begin{itemize}
-  \tightlist
-  \item
-    Our baseline results show the \textbf{first} price elasticity to avoid the endogeneity of giving price.
-  \item
-    We estimated the \textbf{last} price elasticity, using the Panel IV method.
+  The first robustness check is the last price elasticity.
+  Our main results show that \emph{first} price elasticity to avoid the endogeneity of giving price.
+  However, the first prive elasiticity is not realistic
+  because people face the \emph{last} marginal price when deciding amount of donations.
+  Thus, we estimate the \emph{last} price elasticity, using the Panel IV method.
+  The instrumental variable is the first giving price.
 
-    \begin{itemize}
-    \tightlist
-    \item
-      The instrument is the first giving price.
-    \item
-      Note that the last giving price is equal to the first giving price under the tax credit system.
-    \end{itemize}
-  \end{itemize}
+  \color{blue}
 
-  \hypertarget{robustness-check-1-result}{%
-  \subsection{Robustness Check 1: Result}\label{robustness-check-1-result}}
+  There is one caution to interapt the last price elasticity.
+  Under the tax credit system, the last price elasticity is equivalent to the first one.
+  Since major observation units are observed when the tax credit system is implemented,
+  the last giving price is strongly correlated with the first one.
+  In other words, covariate between the last and first giving price is roughly equal to one.
+  In the first stage, the coefficient of first giving price is roughly 0.98 in any specifications.\footnote{We do not show the first-stage results. Instead, we show the F-statistics of the instrument variable.}
+  Thus, our last price elasiticity may be upper bound of true price elasticity.
 
-  Overall last price elasticity increases twofold.
+  \color{black}
+
+  The last price elasticity is in line with our first conclusion.
+  Table \ref{tab:kableLastElasticity1} shows overall last price elasticity.
+  Compared to the main results, the last price elasticity is more elastic.
+  The aboslute value of estimated coefficient is larger than 2.4,
+  which is statistically significant different from zero.
+  This implies that 1\% increase of last price decreases charitable contributions by 2.4\% or more.
+  Table \ref{tab:kableLastElasticity2} shows the intensive-margin and extensive-margin last price elasticity.
+  In the first panel,
+  the intensive-margin last price elasticity is similar value to the main results.
+  Its abolute value lies between 0.89 and 1.2.
+  These results are statistically different from zero.
+  In the second panel,
+  the coefficient of logged last price, which represents the lower bound of last price elasticity,
+  lies between -0.63 and -0.59.
+  The implied last price elasticity evalueated at the sample mean of \(D_{it}\) is roughly -3.
+  These results are statistically significant different from zero,
+  and more elastic than the first price elasticity.
 
   \begin{table}
 
   \caption{\label{tab:kableLastElasticity1}Last Price Elasticity: Panel IV}
   \centering
   \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
   \begin{tabular}[t]{lccccc}
   \toprule
    & (1) & (2) & (3) & (4) & (5)\\
@@ -558,98 +580,90 @@
    & (0.204) & (0.216) & (0.233) & (0.231) & (0.229)\\
   ln(auunaul taxable income) & 5.258*** & 5.071*** & 4.981*** & 5.058*** & 4.910***\\
    & (0.961) & (0.961) & (0.959) & (0.961) & (0.948)\\
+  Individual FE & Y & Y & Y & Y & Y\\
+  Time FE & Y & Y & Y & Y & Y\\
   Age & N & Y & Y & Y & Y\\
   Year X Education & N & N & Y & Y & Y\\
   Year X Gender & N & N & N & Y & Y\\
   Year X Resident Area & N & N & N & N & Y\\
+  F-statistics of IV & 149708.36 & 133463.98 & 122042.55 & 119684.05 & 115742.55\\
   N & 52304 & 52304 & 52302 & 52302 & 52302\\
   \bottomrule
   \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.
+  \end{tablenotes}
+  \end{threeparttable}
   \end{table}
-
-  \hypertarget{robustness-check-1-intensive-margin}{%
-  \subsection{Robustness Check 1: Intensive Margin}\label{robustness-check-1-intensive-margin}}
-
-  The intensive-margin last price elasticity lies within the range of the first price elasticity.
 
   \begin{table}
 
-  \caption{\label{tab:kableLastElasticity2Slide1}Intensive-Margin Last Price Elasticity: Panel IV}
+  \caption{\label{tab:kableLastElasticity2}Intensive- and Extensive-Margin Last Price Elasticity: Panel IV}
   \centering
   \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
   \begin{tabular}[t]{lccccc}
   \toprule
    & (1) & (2) & (3) & (4) & (5)\\
   \midrule
-  ln(last giving price) & -0.898*** & -0.961*** & -1.197*** & -0.998*** & -1.074***\\
-   & (0.271) & (0.271) & (0.307) & (0.325) & (0.332)\\
-  ln(auunaul taxable income) & 2.023*** & 1.638** & 1.460** & 1.530** & 1.572**\\
-   & (0.694) & (0.678) & (0.667) & (0.670) & (0.667)\\
-  Age & N & Y & Y & Y & Y\\
-  Year X Education & N & N & Y & Y & Y\\
-  Year X Gender & N & N & N & Y & Y\\
-  Year X Resident Area & N & N & N & N & Y\\
-  N & 10672 & 10672 & 10672 & 10672 & 10672\\
+  \addlinespace[0.3em]
+  \multicolumn{6}{l}{\textbf{Intensive-Margin Elasticity}}\\
+  \hspace{1em}ln(last giving price) & -0.898*** & -0.961*** & -1.197*** & -0.998*** & -1.074***\\
+  \hspace{1em} & (0.271) & (0.271) & (0.307) & (0.325) & (0.332)\\
+  \hspace{1em}ln(auunaul taxable income) & 2.023*** & 1.638** & 1.460** & 1.530** & 1.572**\\
+  \hspace{1em} & (0.694) & (0.678) & (0.667) & (0.670) & (0.667)\\
+  \hspace{1em}F-statistics of IV & 8861.30 & 8893.12 & 7522.05 & 6585.00 & 6426.96\\
+  \hspace{1em}N & 10672 & 10672 & 10672 & 10672 & 10672\\
+  \addlinespace[0.3em]
+  \multicolumn{6}{l}{\textbf{Extensive-Margin Elasticity}}\\
+  \hspace{1em}ln(last giving price) & -0.623*** & -0.630*** & -0.644*** & -0.593*** & -0.619***\\
+  \hspace{1em} & (0.046) & (0.049) & (0.053) & (0.052) & (0.052)\\
+  \hspace{1em}ln(auunaul taxable income) & 1.125*** & 1.113*** & 1.103*** & 1.121*** & 1.090***\\
+  \hspace{1em} & (0.221) & (0.223) & (0.223) & (0.223) & (0.220)\\
+  \hspace{1em}Implied last price elasiticity & -3.063*** & -3.100*** & -3.167*** & -2.917*** & -3.046***\\
+  \hspace{1em} & (0.227) & (0.240) & (0.259) & (0.258) & (0.254)\\
+  \hspace{1em}Implied income elasticity & 5.532*** & 5.472*** & 5.426*** & 5.513*** & 5.361***\\
+  \hspace{1em} & (1.088) & (1.096) & (1.096) & (1.098) & (1.082)\\
+  \hspace{1em}Individual FE & Y & Y & Y & Y & Y\\
+  \hspace{1em}Time FE & Y & Y & Y & Y & Y\\
+  \hspace{1em}Age & N & Y & Y & Y & Y\\
+  \hspace{1em}Year X Education & N & N & Y & Y & Y\\
+  \hspace{1em}Year X Gender & N & N & N & Y & Y\\
+  \hspace{1em}Year X Resident Area & N & N & N & N & Y\\
+  \hspace{1em}F-statistics of IV & 149708.36 & 133463.98 & 122042.55 & 119684.05 & 115742.55\\
+  \hspace{1em}N & 52304 & 52304 & 52302 & 52302 & 52302\\
   \bottomrule
   \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+  \end{tablenotes}
+  \end{threeparttable}
   \end{table}
 
-  \hypertarget{robustness-check-1-extensive-margin}{%
-  \subsection{Robustness Check 1: Extensive Margin}\label{robustness-check-1-extensive-margin}}
+  \color{blue}
 
-  The extensive-margin last price elasticity at sample mean is roughly -3\%.
+  The second robustness check is to use data (i) from 2013 to 2018 or (ii) from 2013 to 2014.
+  This robustness check is to tackle with the price change due to the change of income.
+  As discussed before,
+  the change of giving price is caused by both the tax reform and the chanage of income under the tax deduction system.
+  By using subsample restricted by year, the within price variation of giving price is completely exgonenous
+  because we control the annual taxable income.
 
-  \begin{table}
+  \color{black}
 
-  \caption{\label{tab:kableLastElasticity2Slide2}Extensive-Margin Last Price Elasticity: Panel IV}
-  \centering
-  \fontsize{7}{9}\selectfont
-  \begin{tabular}[t]{lccccc}
-  \toprule
-   & (1) & (2) & (3) & (4) & (5)\\
-  \midrule
-  Implied last price elasiticity & -3.063*** & -3.100*** & -3.167*** & -2.917*** & -3.046***\\
-   & (0.227) & (0.240) & (0.259) & (0.258) & (0.254)\\
-  Implied income elasticity & 5.532*** & 5.472*** & 5.426*** & 5.513*** & 5.361***\\
-   & (1.088) & (1.096) & (1.096) & (1.098) & (1.082)\\
-  Age & N & Y & Y & Y & Y\\
-  Year X Education & N & N & Y & Y & Y\\
-  Year X Gender & N & N & N & Y & Y\\
-  Year X Resident Area & N & N & N & N & Y\\
-  N & 52304 & 52304 & 52302 & 52302 & 52302\\
-  \bottomrule
-  \end{tabular}
-  \end{table}
-
-  \hypertarget{robust-check-2}{%
-  \subsection{Robust Check 2}\label{robust-check-2}}
-
-  Second potential concern: Price change due to the change of income
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Since the giving price under the tax deduction depends on the change of income, the \emph{within} variation of giving price may be endogenous.
-  \item
-    To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
-
-    \begin{itemize}
-    \tightlist
-    \item
-      By this restriction, the \emph{within} price variation of giving price is completely exgonenous.
-    \end{itemize}
-  \end{itemize}
-
-  \hypertarget{robustness-check-2-result}{%
-  \subsection{Robustness Check 2: Result}\label{robustness-check-2-result}}
-
-  Overall price elasticity is -1 \textasciitilde{} -1.7\%.
+  Table \ref{tab:kableShortElasticity1} shows the overall first giving price elasticity.
+  When we use data from 2013 to 2018, the estimated price elasticity is similar value to the main results.
+  On the other hand,
+  when we use data from 2013 to 2014, the estimated price elasticity is more elastic than the main results.
+  The estimated absolute value is roughly -1.7 when we controll covariates and its interaction with year dummies.
+  This value is statistically significant different from zero.
 
   \begin{table}
 
   \caption{\label{tab:kableShortElasticity1}Elasticity with Short-Period Data}
   \centering
-  \fontsize{8}{10}\selectfont
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
   \begin{tabular}[t]{lcccc}
   \toprule
   \multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
@@ -660,150 +674,157 @@
    & (0.255) & (0.290) & (0.289) & (0.338)\\
   ln(auunaul taxable income) & 5.108*** & 4.743*** & 4.013** & 3.035\\
    & (1.009) & (0.990) & (1.948) & (1.992)\\
+  Individual FE & Y & Y & Y & Y\\
+  Time FE & Y & Y & Y & Y\\
   Other Controls & N & Y & N & Y\\
   N & 45994 & 45992 & 14893 & 14893\\
+  R-sq & 0.009 & 0.018 & 0.013 & 0.024\\
   \bottomrule
   \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+  \end{tablenotes}
+  \end{threeparttable}
   \end{table}
 
-  \hypertarget{robustness-check-2-intensive-marign}{%
-  \subsection{Robustness Check 2: Intensive Marign}\label{robustness-check-2-intensive-marign}}
-
-  The intensive-margin price elasticity is -0.6 \textasciitilde{} -1\%.
-  In column (3), the price elasticity is statistically insignificant.
+  Table \ref{tab:kableShortElasticity2} shows the intensive-margin and the extensive-margin first price elasticity.
+  The first panel shows the intensive-margin elasticity.
+  When we use data from 2012 to 2018, the intensive-margin price elasiticity is similar to the main results,
+  which is statistically significant from zero.
+  However, when we use data from 2013 to 2014 and include only individual and time fixed effects,
+  the estimated coefficient is statistically insignificant different from zero.
+  By controlling covariates and its interaction with year dummies,
+  the intensive-margin price elasticity is -0.712, which is statistically significant.
+  The second panel shows the extensive-margin elasticity.
+  When we use data from 2012 to 2018, the extensive-margin price elasiticity is similart to the main results,
+  which is statistically significant.
+  When we use data from 2013 to 2014, the extensive-margin price elasticitiy is more elastic than the main results.
+  Its abolute value is roughly -2, which is statistically significant.
+  In summary, the second robustness check also leads to our first conlusion.
 
   \begin{table}
 
-  \caption{\label{tab:kableShortElasticity2Slide1}Intensive-Margin Elasticity with Short-Period Data}
+  \caption{\label{tab:kableShortElasticity2}Intensive- and Extensive-Margin Elasticity with Short-Period Data}
   \centering
-  \fontsize{8}{10}\selectfont
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
   \begin{tabular}[t]{lcccc}
   \toprule
   \multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
   \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
    & (1) & (2) & (3) & (4)\\
   \midrule
-  ln(giving price) & -0.647*** & -1.129*** & -0.394 & -0.712**\\
-   & (0.236) & (0.291) & (0.310) & (0.363)\\
-  ln(auunaul taxable income) & 1.943*** & 1.714*** & 1.440 & 1.047\\
-   & (0.662) & (0.649) & (2.975) & (3.072)\\
-  Other Controls & N & Y & N & Y\\
-  N & 10158 & 10158 & 2922 & 2922\\
+  \addlinespace[0.3em]
+  \multicolumn{5}{l}{\textbf{Intensive-Margin Elasticity}}\\
+  \hspace{1em}ln(giving price) & -0.647*** & -1.129*** & -0.394 & -0.712**\\
+  \hspace{1em} & (0.236) & (0.291) & (0.310) & (0.363)\\
+  \hspace{1em}ln(auunaul taxable income) & 1.943*** & 1.714*** & 1.440 & 1.047\\
+  \hspace{1em} & (0.662) & (0.649) & (2.975) & (3.072)\\
+  \hspace{1em}N & 10158 & 10158 & 2922 & 2922\\
+  \hspace{1em}R-sq & 0.006 & 0.034 & 0.004 & 0.046\\
+  \addlinespace[0.3em]
+  \multicolumn{5}{l}{\textbf{Extensive-Margin Elasticity}}\\
+  \hspace{1em}ln(giving price) & -0.235*** & -0.269*** & -0.331*** & -0.383***\\
+  \hspace{1em} & (0.058) & (0.065) & (0.065) & (0.076)\\
+  \hspace{1em}ln(auunaul taxable income) & 1.093*** & 1.024*** & 0.801* & 0.574\\
+  \hspace{1em} & (0.230) & (0.226) & (0.428) & (0.447)\\
+  \hspace{1em}Implied price elasiticity & -1.136*** & -1.300*** & -1.845*** & -2.131***\\
+  \hspace{1em} & (0.279) & (0.314) & (0.364) & (0.422)\\
+  \hspace{1em}Implied income elasticity & 5.287*** & 4.954*** & 4.457* & 3.196\\
+  \hspace{1em} & (1.114) & (1.094) & (2.381) & (2.488)\\
+  \hspace{1em}Individual FE & Y & Y & Y & Y\\
+  \hspace{1em}Time FE & Y & Y & Y & Y\\
+  \hspace{1em}Other Controls & N & Y & N & Y\\
+  \hspace{1em}N & 45994 & 45992 & 14893 & 14893\\
+  \hspace{1em}R-sq & 0.008 & 0.018 & 0.013 & 0.022\\
   \bottomrule
   \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+  \end{tablenotes}
+  \end{threeparttable}
   \end{table}
 
-  \hypertarget{robustness-check-2-extensive-marign}{%
-  \subsection{Robustness Check 2: Extensive Marign}\label{robustness-check-2-extensive-marign}}
-
-  The extensive-margin price elasticity at sample mean is -1 \textasciitilde{} -2\%.
-
-  \begin{table}
-
-  \caption{\label{tab:kableShortElasticity2Slide2}Extensive-Margin Elasticity with Short-Period Data}
-  \centering
-  \fontsize{8}{10}\selectfont
-  \begin{tabular}[t]{lcccc}
-  \toprule
-  \multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
-  \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
-   & (1) & (2) & (3) & (4)\\
-  \midrule
-  Implied price elasiticity & -1.136*** & -1.300*** & -1.845*** & -2.131***\\
-   & (0.279) & (0.314) & (0.364) & (0.422)\\
-  Implied income elasticity & 5.287*** & 4.954*** & 4.457* & 3.196\\
-   & (1.114) & (1.094) & (2.381) & (2.488)\\
-  Other Controls & N & Y & N & Y\\
-  N & 45994 & 45992 & 14893 & 14893\\
-  \bottomrule
-  \end{tabular}
-  \end{table}
-
-  \hypertarget{robustness-check-3}{%
-  \subsection{Robustness Check 3}\label{robustness-check-3}}
-
-  Second potential concerns: the change of price due to the change of income
-
-  \begin{itemize}
-  \tightlist
-  \item
-    To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
-  \item
-    We can also rule out this problem, using the change in the first giving price.
-
-    \begin{itemize}
-    \tightlist
-    \item
-      The change in the first giving price is \(\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
-    \item
-      Since we fix the income \(y_{it-k}\), this variation comes from the tax reform.
-    \end{itemize}
-  \end{itemize}
-
-  \hypertarget{robustness-check-3-contd}{%
-  \subsection{Robustness Check 3 (Cont'd)}\label{robustness-check-3-contd}}
-
-  Our estimation equation is
+  The third robustness check is to estimate the \(k\)-th difference model.
+  To tackle with the price change due to the change of income,
+  we estimate the \(k\)-th difference model formulated as follows:
   \[\Delta^k \ln g_{it} = \delta \Delta^k \ln p_{it} + \gamma \Delta^k \ln y_{it} + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},\]
-  where \(\Delta^k Y_{it} = Y_{it} - Y_{it-k}\).
+  where \(\Delta^k \ln g_{it} = \ln g_{it} - \ln g_{it-k}\) and \(\Delta^k \ln y_{it} = \ln y_{it} - y_{it-k}\).
 
-  \begin{itemize}
-  \tightlist
-  \item
-    Note that we cannot estimation the extensive-margin elasticity since it is hard to interapt this estimation equation when we use \(\Delta^k D_{it}\) as an outcome.
-  \item
-    We estimate this model for \(k = 1, 2, 3\).
-  \end{itemize}
+  \color{blue}
 
-  \hypertarget{robustness-check-3-overall-elasticity}{%
-  \subsection{Robustness Check 3: Overall Elasticity}\label{robustness-check-3-overall-elasticity}}
+  The our paramater of interest is \(\delta\).
+  The variable \(\Delta^k p_{it}\) is defined as \(\Delta^k p_{it} \equiv \ln p_{it}(y_{it-k}) - \ln p_{it}(y_{it-k})\).\footnote{Under the tax credit system, the giving price does not depend on income \(y_{it-k}\). If the tax credit system is impelemted in year \(t\) and \(t-k\), then the value of \(\Delta^k p_{it}\) takes zero.}
+  The variation of this variable comes from the tax reform only because we fix the annual income at year \(t - k\).
+  Therefore, we can safely interapt this coefficient as the price elasiticity of giving
+  because the \(\Delta^k p_{it}\) is exogenous.
+  Especially, the estimated \(\delta\) implies that
+  1\% increase of the change of giving price leads to \(\hat{\delta}\)\% increase of the change of charitable giving.
+  Note that we do not estimate the extensive-margin elasticity
+  because it is hard to interapt this estimation equation when we use \(\Delta^k D_{it}\) as an outcome variable.
 
-  Overall price elasticity is rougnly -2\%.
+  \color{black}
+
+  Table \ref{tab:kablekDiffElasticity} shows results of \(k\)-th difference model.
+  The first panel shows the overall elasticity.
+  When we take the one year lag (\(k = 1\)), the overall price elasticity is roughly -1.9,
+  which is statistically significant.
+  This elasticity slightly varies when we take the two or more year lag (\(k > 1\)).
+  The overall price elasticity lies between -2.1 and -1.7, which is statistically significant.
+  This implies that the overall price elasticity obtained by this model is more elastic than the main results.
+  The second panel shows the intensive-margin elasticity.
+  When we take the one year lag (\(k = 1\)), the intensive-margin price elasticity is roughly -1.8,
+  which is statistically significant.
+  The absolute value of the price elasticity is more than 2
+  when we take two or more year lag (\(k > 1\)).
+  Thus, contrary to our first conclusion,
+  this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
 
   \begin{table}
 
-  \caption{\label{tab:kablekDiffElasticitySlide1}Overall Elasticity: $k$-difference model}
+  \caption{\label{tab:kablekDiffElasticity}Estimation of Elasticity: $k$-difference model}
   \centering
-  \fontsize{8}{10}\selectfont
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
   \begin{tabular}[t]{lccc}
   \toprule
   \multicolumn{1}{c}{lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
   \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
    & (1) & (2) & (3)\\
   \midrule
-  Lagged difference of first price (log) & -1.894*** & -2.170*** & -1.752***\\
-   & (0.389) & (0.355) & (0.346)\\
-  Lagged difference of annual income (log) & 2.737*** & 4.685*** & 5.307***\\
-   & (1.042) & (1.141) & (1.174)\\
-  N & 49014 & 46610 & 44205\\
+  \addlinespace[0.3em]
+  \multicolumn{4}{l}{\textbf{Overall Elasticity}}\\
+  \hspace{1em}Lagged difference of first price (log) & -1.894*** & -2.170*** & -1.752***\\
+  \hspace{1em} & (0.389) & (0.355) & (0.346)\\
+  \hspace{1em}Lagged difference of annual income (log) & 2.737*** & 4.685*** & 5.307***\\
+  \hspace{1em} & (1.042) & (1.141) & (1.174)\\
+  \hspace{1em}N & 49014 & 46610 & 44205\\
+  \hspace{1em}R-sq & 0.010 & 0.015 & 0.015\\
+  \addlinespace[0.3em]
+  \multicolumn{4}{l}{\textbf{Intensive-Margin Elasticity}}\\
+  \hspace{1em}Lagged difference of first price (log) & -1.854** & -2.282*** & -2.163***\\
+  \hspace{1em} & (0.763) & (0.621) & (0.550)\\
+  \hspace{1em}Lagged difference of annual income (log) & 2.229 & 4.675*** & 5.582**\\
+  \hspace{1em} & (1.715) & (1.791) & (2.178)\\
+  \hspace{1em}Individual FE & Y & Y & Y\\
+  \hspace{1em}Time FE & Y & Y & Y\\
+  \hspace{1em}Other Controls & Y & Y & Y\\
+  \hspace{1em}N & 10939 & 10505 & 10043\\
+  \hspace{1em}R-sq & 0.066 & 0.073 & 0.055\\
   \bottomrule
   \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+  \end{tablenotes}
+  \end{threeparttable}
   \end{table}
 
-  \hypertarget{robustness-check-3-intensive-margin-elasticity}{%
-  \subsection{Robustness Check 3: Intensive-Margin Elasticity}\label{robustness-check-3-intensive-margin-elasticity}}
-
-  The intensive-margin price elasticity is rougnly -2\%.
-
-  \begin{table}
-
-  \caption{\label{tab:kablekDiffElasticitySlide2}Intensive-Margin Elasticity: $k$-difference model}
-  \centering
-  \fontsize{8}{10}\selectfont
-  \begin{tabular}[t]{lccc}
-  \toprule
-  \multicolumn{1}{c}{lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
-  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
-   & (1) & (2) & (3)\\
-  \midrule
-  Lagged difference of first price (log) & -1.854** & -2.282*** & -2.163***\\
-   & (0.763) & (0.621) & (0.550)\\
-  Lagged difference of annual income (log) & 2.229 & 4.675*** & 5.582**\\
-   & (1.715) & (1.791) & (2.178)\\
-  N & 10939 & 10505 & 10043\\
-  \bottomrule
-  \end{tabular}
-  \end{table}
+  In summary, our three robustness checks are in line with the our first conclusion.
+  The decision to donate is sensitive to the giving price.
+  On the other hand, the amount of donations is insensitive to the giving price once they decide to donate.
+  However, we cannot obtain this conclusion when we use the \(k\)-th difference model.
+  One possibility is that the variable of lagged difference of first price, \(\Delta^k p_{it}\), is less varied.
+  In fact, \color{blue}XXX\color{black}.
 
   \hypertarget{governement-efficient-and-price-elasticity}{%
   \section{Governement Efficient and Price Elasticity}\label{governement-efficient-and-price-elasticity}}
@@ -943,8 +964,8 @@
   \end{tabular}
   \end{table}
 
-  \hypertarget{robustness-check-1-1}{%
-  \subsection{Robustness Check 1}\label{robustness-check-1-1}}
+  \hypertarget{robustness-check-1}{%
+  \subsection{Robustness Check 1}\label{robustness-check-1}}
 
   First Potential Concern: interpretaion of the questions of tax/welfare balance as questions about the expenditure policy of the government
 
@@ -1135,8 +1156,8 @@
   \end{tabular}
   \end{table}
 
-  \hypertarget{robustness-check-3-1}{%
-  \subsection{Robustness Check 3}\label{robustness-check-3-1}}
+  \hypertarget{robustness-check-3}{%
+  \subsection{Robustness Check 3}\label{robustness-check-3}}
 
   Third potential concerns: Price change due to the change in income
 
