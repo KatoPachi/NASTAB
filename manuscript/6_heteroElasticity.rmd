@@ -42,10 +42,13 @@ frame balancedt: save "data\shape\balanceid.dta", replace
 frame drop balancedt
 ```
 
+
 ## Construct Efficiency Index
 
+<!--- Slide
 From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level.
 See the following table.
+--->
 
 ```{r efficientQ, include=TRUE}
 tab <- data.frame(
@@ -58,16 +61,17 @@ tab <- data.frame(
 knitr::kable(
     tab,
     format = "latex",
-    #caption = "The assigned number for each pair of welfare/tax burden answers",
+    caption = "The assigned number for each pair of welfare/tax burden answers",
     col.names = c("Welfare/Tax burden", "Low", "Middle", "High"),
     row.names = FALSE,
     align = "l|ccc", 
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>% 
-kable_styling(font_size = 8) #%>% 
-#footnote(general_title = "", general = "Notes: The number shows the corresponding efficiency index for each pair of tax burden and welfare level.", threeparttable = TRUE, escape = FALSE)
+kable_styling(font_size = 8) %>% 
+footnote(general_title = "", general = "Notes: The number shows the corresponding efficiency index for each pair of tax burden and welfare level.", threeparttable = TRUE, escape = FALSE)
 ```
 
+<!-- Slide
 ## Construct Efficient Index (Cont'd)
 
 - The pair of answers reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare.
@@ -75,17 +79,39 @@ kable_styling(font_size = 8) #%>%
 	1. We assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient.
 	2. To construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect.
 	3. use the obtained fixed effect as the efficiency index
+--->
 
-<!--- Paper
-From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level. For current balance, the subjects answer the degree of their current perception about tax burden and welfare level, both of them are scaled by three: high, middle, and low (See figure \ref{Balance}.). For ideal balance, the choice set of answer is the same as the current balance, but the subjects answers their ideal tax burden and welfare level.
+From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level. 
+For current balance, the subjects answer the degree of their current perception about tax burden and welfare level, 
+both of them are scaled by three: high, middle, and low. 
+For ideal balance, the choice set of answer is the same as the current balance, but the subjects answers their ideal tax burden and welfare level.
 Thus, we can derive the two pair of answers about tax burden and welfare level for each subject, i.e. the pair about current balance and one about ideal balance.
 
-We can consider that the pair of answers about current balance reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare. Based on the pair about current perception, we construct an index called efficiency index by the following steps. Firstly, according to \@ref(tab:tabefficiency), we assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient. Secondly, to construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect. Then, we use the obtained fixed effect as the efficiency index. Since the assigned number ranges from -2 to 2, the efficiency index takes a value within the interval of (-2, 2). 
----> 
+We can consider that the pair of answers about current balance reflect the individual's perception about the efficiency of government 
+because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare. 
+Based on the pair about current perception, we construct an index called efficiency index by the following steps. 
+Firstly, according to Table \@ref(tab:efficientQ), 
+we assign the number from -2 to 2 for each pair of answers depending on the contents of answers, 
+where -2 is the most inefficient and 2 is the most efficient. 
+Secondly, to construct the individual's persistent perception toward the government, 
+we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect. 
+Then, we use the obtained fixed effect as the efficiency index.
+We consider that the efficiency index shows the individual's perception toward government for its efficiency. 
 
+In Figure \@ref(fig:showDensityEfficientIndex), the solid line shows the density of efficient index.
+As the efficient index is higher, 
+individuals are more likely to perceive that the government can provide the public goods efficiency.
+There are two features about the distribution of efficient index.
+First, the efficient index is connentrated around zero.
+This implies that many people thinks the efficiency of government is neutral.
+Second, the density of those whose the efficient index is less than zero is larger than of 
+those whose the efficient index is greater than zero.
+This implies that the number of people thinking the government is inefficient is 
+less than people who think the government is efficient.
 
+<!--- Slide
 ## Histrogram of Efficient Index
-
+--->
 
 ```{stata HistogramEfficientIndex, results = "hide", eval = FALSE}
 frame copy default plotdt
@@ -104,29 +130,80 @@ frame plotdt: {
 frame drop plotdt
 ```
 
-```{r, include = TRUE, out.width="90%", fig.cap="Histogram of Efficient Index"}
+```{r showHistogramEfficientIndex, include = TRUE, out.width="90%", fig.cap="Histogram of Efficient Index", eval = FALSE}
 knitr::include_graphics(paste(here(), "_assets/HistogramEfficientid.pdf", sep= "/"))
 ```
 
+```{stata DensityEfficientIndex, results = "hide", eval = FALSE}
+frame copy default plotdt
+frame plotdt {
+	keep pid balanceid ideal_balanceid
+	duplicates drop
+}
+frame plotdt {
+	twoway ///
+	(kdensity balanceid, color(black)) ///
+	(kdensity balanceid if ideal_balanceid > 0, color(black) lpattern(-)),  ///
+	xtitle("Efficient index")  ///
+	ytitle("Density") ///
+	legend(label(1 "Full sample") label(2 "Ideal efficient index {&gt} 0")) ///
+	graphregion(fcolor(white))
 
+	graph export "_assets/DensityEfficientid.pdf", replace
+
+}
+frame drop plotdt
+```
+
+```{r showDensityEfficientIndex, include = TRUE, out.width="90%", fig.cap="Density of Efficient Index"}
+knitr::include_graphics(paste(here(), "_assets/DensityEfficientid.pdf", sep= "/"))
+```
+
+<!-- Slide
 ## Two Potential Concerns
 
 1. There is a room for subjects to interpret the questions of tax/welfare balance as questions about the expenditure policy of the government.
 	- To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
 2. Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。
-
-<!--- Paper
-We consider that the efficiency index shows the individual's perception toward government for its efficiency. However, there are two potential problems for the construction of this index. The first problem is that there is a room for subjects to interpret the questions of tax/welfare balance not as questions about the efficiency of the government but as questions about the expenditure policy of the government. If the latter is true, some subjects consider that the government with low tax burden and high welfare level is inefficient because it conducts debt financing. To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable. In other words, in the robustness check, we rule out the subjects whose efficiency index for the ideal balance question is less than 0. We check that this refinement enable us to get a clearer result. 
-
-The second issue is ....(Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。)
-
-The distribution of the efficiency index is shown in figure XXX. We can see that the index is distributed around 0 and the distribution is not changed if we limit the sample whose ideal efficiency index is not less than 0. 
-
-To estimate the effect of the perception, we use two ways of estimation following the method used in the baseline analysis. The first way is sub-sample analysis, where make three sub-samples according to the efficiency index. The second way utilize the interaction between the efficiency index and the giving price. Both ways of the analyses use the specifications based on Eq. (\@ref{Intensive}) and (\@ref{Extensive}) for intensive and extensive margins, respectively. 
 --->
 
-## Heterogenous Price Elasticity by Governement Efficiency
+There are two potential concerns about the efficient index.
+The first concern is related with a interpretation of question.
+The question is that 
+there is a room for subjects to interpret the questions of tax/welfare balance 
+not as questions about the efficiency of the government 
+but as questions about the expenditure policy of the government. 
+If the latter is true, 
+some subjects consider that the government with low tax burden and high welfare level is inefficient because 
+it conducts debt financing. 
 
+To address this issue, 
+we use the question for ideal balance between tax burden and welfare level 
+to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable. 
+In other words, in the robustness check, 
+we rule out the subjects whose efficiency index for the ideal balance question is less than 0. 
+We check that this refinement enable us to get a clearer result. 
+In Figure \@ref(fig:showDensityEfficientIndex),
+the dashed line shows the density of efficient index
+using those whose the *ideal* efficient index is greater than zero.
+Its distribution is similar to the distribution using full sample.
+
+The second concern is related with the construction of efficient index.
+The perceived governement efficiency is formed by time-specific events such as governement policies.
+Thus, instead of the individual fixed effect,
+we should use the raw answer of the quetion as the efficient index.
+However, since the tax credit system has been implemented since 2014,
+there is no variation of giving price from 2015 to 2018.
+Thus, we cannot estimate the price elasticity.
+
+To overcome this problem, we use the individual fixed effect as the efficient index.
+This index does not depend on government policies implemented in a specific year and preference for president.
+Thus, the efficient index represents persistent perception toward governement efficiency,
+which is formed by individual education and continuous policies.
+
+## Heterogeneous Price Elasticity in Governement Efficiency
+
+<!--- Slide
 To see the heterogenous price elasticity by efficient index,
 we utilize the interaction between the efficiency index and the giving price.
 
@@ -135,7 +212,13 @@ respectively.
 
 We control individual and time fixed effect,
 and other covariates.
+--->
 
+To estimate the heterogenous price elasticity in the efficient index, 
+we include interaction terms between the efficient index and the giving price
+into the model Eq. (\@ref{Intensive}) and (\@ref{Extensive}) for intensive and extensive margins, respectively. 
+To construct interaction terms, we partition respondents into three groups based on three quantile of efficient index,
+and create corresponding three dummy variables.
 
 ```{stata HeteroElasticity, results = "hide", eval = FALSE}
 * overall
@@ -357,9 +440,10 @@ addline <- cbind(
 tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
+<!-- Slide
 ## Heterogenous Price Elasticity: Estimations Results
 
-```{r kableHeteroElasticitySlide1, include = TRUE}
+```{r kableHeteroElasticitySlide1, include = TRUE, eval=FALSE}
 knitr::kable(
     rbind(tab[1:6,], tab[20,]),
     format = "latex",
@@ -375,7 +459,7 @@ add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape
 
 ## Heterogenous Price Elasticity: Implied Elasticity
 
-```{r kableHeteroElasticitySlide2, include = TRUE}
+```{r kableHeteroElasticitySlide2, include = TRUE, eval=FALSE}
 knitr::kable(
     rbind(tab[9:14,], tab[20,]),
     format = "latex",
@@ -388,9 +472,33 @@ knitr::kable(
 kable_styling(font_size = 8) %>% 
 add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) 
 ```
+--->
 
-<!--- Paper
-```{r kableHeteroElasticity, include = TRUE, eval = FALSE}
+Table \@ref(tab:kableHeteroElasticity) shows the heterogenous price effect in the efficient index
+when we use full sample.
+Column (1) shows the overall elasticities.
+By calculating implied price elasticitiy for each quantile group,
+we find that the absolute value of overall price elasiticity is decreasing in the efficient index.
+This implies that the price elasticitiy becomes more elastic 
+as people think the governement's provision of public goods is inefficient.
+However, 
+the difference of implied price elasiticity is not statistically significant
+since two interaction terms between giving price and the quantile group of efficient index are statistically insignificant.
+Column (2) shows the extensive-margin elasticities.
+By the implied price elasticity for each group,
+we find the extensive-margin price elasticity is convex in the efficient index.
+In other words, those who is the most sensitive to the giving price think that 
+governement efficiency is neutral.
+However, the difference of implied extensive-margin price elasticity is not statistically significant
+because coefficients of two interaction terms are not statistically significant.
+Column (3) shows the intensive-margin elasticities.
+The implied intensive-margin price elasiticity is concave in the efficient index.
+This implies those whose the amount of donations is the most sensitive preceive that 
+the government effciency is inefficient or efficient.
+As overall and extensive-margin elasticities,
+the difference of implied intensive-margin price elasticity is statistically insignificant.
+
+```{r kableHeteroElasticity, include = TRUE}
 knitr::kable(
     tab,
     format = "latex",
@@ -404,54 +512,15 @@ kable_styling(font_size = 8) %>%
 add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
+
+<!--- Slide
+## Robustness Check 1
 --->
 
-## Robustness Check 1
-
-First Potential Concern: interpretaion of the questions of tax/welfare balance as questions about the expenditure policy of the government
-
-- First, we construct three quantile groups, using the original efficient index.
-- Second, we rule out the subjects whose efficiency index for the ideal balance question is less than 0 from each group. 
-
-```{stata DensityEfficientIndex, results = "hide", eval = FALSE}
-frame copy default plotdt
-frame plotdt {
-	keep pid balanceid ideal_balanceid
-	duplicates drop
-}
-frame plotdt {
-	twoway ///
-	(kdensity balanceid, color(black)) ///
-	(kdensity balanceid if ideal_balanceid > 0, color(black) lpattern(-)),  ///
-	xtitle("Efficient index")  ///
-	ytitle("Density") ///
-	legend(label(1 "Full sample") label(2 "Ideal efficient index {&gt} 0")) ///
-	graphregion(fcolor(white))
-
-	graph export "_assets/DensityEfficientid.pdf", replace
-
-}
-frame drop plotdt
-```
-
-
-## Robustness Check 1: Density of Efficient Index
-
-```{r, include = TRUE, out.width="90%", fig.cap="Density of Efficient Index Using those whose ideal efficient index > 0"}
-knitr::include_graphics(paste(here(), "_assets/DensityEfficientid.pdf", sep= "/"))
-```
-
-
-<!-- Slide
-- Efficient index may capture both government efficiency on concerns about budget deficits
-	- NASTAB asks respondents to answer the ideal balance b/w tax burdern and welfare size. 
-	- We constructed the **ideal** efficient index, using the FE model to estimate the efficient index. 
-	- We droped units with the ideal efficient index is less than 0 from each quantile group and repeated the same excercise.
-	- This is because respondents whose the ideal efficient index is less than 0 think governments should try to avoid budget deficits (high tax, low welfare).
-- Presidential transition effect on perceived efficiency
-	- We constructed president-specific (ideal) efficient index and implemented the pair-wise t-test.
-	- As a result, average difference of these two indexs are not statistically siginificant zero.
--->
+Previous results show that there is no heterogenous price elasticity in the efficient index.
+This may be caused by existence of respondents 
+interapting the survey questions as the questions about the expenditure policy of the governement.
+Those 
 
 ```{stata SubsetHeteroElasticity, results = "hide", eval = FALSE}
 * overall
@@ -594,9 +663,6 @@ xsvmat coeftab, saving(_assets/SubsetHeteroElasticityCoef.dta, replace) rownames
 xsvmat stattab, saving(_assets/SubsetHeteroElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-<!-- Slide
-## Robustness Check 1: Estimation Results
--->
 
 ```{r shapeSubsetHeteroElasticity}
 tabset <- list(
@@ -676,10 +742,10 @@ addline <- cbind(
 tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
+<!-- Slide
 ## Robustness Check 1: Estimation Results
 
-
-```{r kableSubsetHeteroElasticitySlide1, include = TRUE}
+```{r kableSubsetHeteroElasticitySlide1, include = TRUE, eval = FALSE}
 knitr::kable(
     rbind(tab[1:6,], tab[20,]),
     format = "latex",
@@ -695,7 +761,7 @@ kable_styling(font_size = 8)
 
 ## Robustness Check 1: Implied Price Elasticity
 
-```{r kableSubsetHeteroElasticitySlide2, include = TRUE}
+```{r kableSubsetHeteroElasticitySlide2, include = TRUE, eval = FALSE}
 knitr::kable(
     rbind(tab[9:14,], tab[20,]),
     format = "latex",
@@ -707,9 +773,9 @@ knitr::kable(
 ) %>% 
 kable_styling(font_size = 8)
 ```
+--->
 
-<!--- Paper
-```{r kableSubsetHeteroElasticity, include = TRUE, eval = FALSE}
+```{r kableSubsetHeteroElasticity, include = TRUE}
 knitr::kable(
     tab,
     format = "latex",
@@ -723,9 +789,9 @@ kable_styling(font_size = 8) %>%
 add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
----->
 
 
+<!-------------------------------------------Ignore this part
 ## Robustness Check 2
 
 Second potential concern: Last price elasticity
@@ -1005,7 +1071,7 @@ xsvmat coeftab, saving(_assets/HeteroLastElasticityCoef.dta, replace) rownames(x
 xsvmat stattab, saving(_assets/HeteroLastElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-```{r shapeHeteroLastElasticity}
+```{r shapeHeteroLastElasticity, eval = FALSE}
 tabset <- list(
 	coef = read.dta13("_assets/HeteroLastElasticityCoef.dta") %>% data.frame(),
 	stat = read.dta13("_assets/HeteroLastElasticityStat.dta") %>% data.frame()
@@ -1089,7 +1155,7 @@ tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 
 ## Robustness Check 2: Estimation Results (1)
 
-```{r kableHeteroLastElasticitySlide1, include = TRUE}
+```{r kableHeteroLastElasticitySlide1, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(1:6, 20),1:4],
     format = "latex",
@@ -1106,7 +1172,7 @@ add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE)
 
 ## Robustness Check 2: Implied Price Elasticity (1)
 
-```{r kableHeteroLastElasticitySlide2, include = TRUE}
+```{r kableHeteroLastElasticitySlide2, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(9:14, 20), 1:4],
     format = "latex",
@@ -1123,7 +1189,7 @@ add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE)
 
 ## Robustness Check 2: Estimation Results (2)
 
-```{r kableHeteroLastElasticitySlide3, include = TRUE}
+```{r kableHeteroLastElasticitySlide3, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(1:6, 20),c(1, 5:7)],
     format = "latex",
@@ -1140,7 +1206,7 @@ add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE)
 
 ## Robustness Check 2: Implied Price Elasticity (2)
 
-```{r kableHeteroLastElasticitySlide4, include = TRUE}
+```{r kableHeteroLastElasticitySlide4, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(9:14, 20),c(1, 5:7)],
     format = "latex",
@@ -1155,7 +1221,7 @@ add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), es
 add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
 ```
 
-<!--- For Paper
+
 ```{r kableHeteroLastElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
@@ -1171,7 +1237,7 @@ add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1, "Ov
 add_header_above(c(" " = 1, "Full Sample" = 3, "Ideal Efficient Index > 0" = 3), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The instumental variables are the first giving price in year $t$ and its interaction with the 2Q (3Q) Efficient Group. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
---->
+
 
 
 ## Robustness Check 3
@@ -1456,7 +1522,7 @@ xsvmat coeftab, saving(_assets/HeteroShortElasticityCoef.dta, replace) rownames(
 xsvmat stattab, saving(_assets/HeteroShortElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-```{r shapeHeteroShortElasticity}
+```{r shapeHeteroShortElasticity, eval = FALSE}
 tabset <- list(
 	coef = read.dta13("_assets/HeteroShortElasticityCoef.dta") %>% data.frame(),
 	stat = read.dta13("_assets/HeteroShortElasticityStat.dta") %>% data.frame()
@@ -1540,7 +1606,7 @@ tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 
 ## Robustness Check 3: Estimation Result (1)
 
-```{r kableHeteroShortElasticitySlide1, include = TRUE}
+```{r kableHeteroShortElasticitySlide1, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(1:6, 20), 1:4],
     format = "latex",
@@ -1557,7 +1623,7 @@ add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE)
 
 ## Robustness Check 3: Implied Price Elasticity (1)
 
-```{r kableHeteroShortElasticitySlide2, include = TRUE}
+```{r kableHeteroShortElasticitySlide2, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(9:14, 20), 1:4],
     format = "latex",
@@ -1574,7 +1640,7 @@ add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE)
 
 ## Robustness Check 3: Estimation Result (3)
 
-```{r kableHeteroShortElasticitySlide3, include = TRUE}
+```{r kableHeteroShortElasticitySlide3, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(1:6, 20), c(1, 5:7)],
     format = "latex",
@@ -1591,7 +1657,7 @@ add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE)
 
 ## Robustness Check 3: Implied Price Elasticity (4)
 
-```{r kableHeteroShortElasticitySlide4, include = TRUE}
+```{r kableHeteroShortElasticitySlide4, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(9:14, 20), c(1, 5:7)],
     format = "latex",
@@ -1606,7 +1672,7 @@ add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), es
 add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
 ```
 
-<!--- For Paper
+
 ```{r kableHeteroShortElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
@@ -1622,7 +1688,7 @@ add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1, "Ov
 add_header_above(c(" " = 1, "Full Sample" = 3, "Ideal Efficient Index > 0" = 3), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
---->
+
 
 ## Robustness Check 4
 
@@ -1857,7 +1923,7 @@ xsvmat coeftab, saving(_assets/SubsetHeterokDiffElasticityCoef.dta, replace) row
 xsvmat stattab, saving(_assets/SubsetHeterokDiffElasticityStat.dta, replace) rownames(xvar) names(col)
 ```
 
-```{r shapeHeterokDiffElasticity}
+```{r shapeHeterokDiffElasticity, eval = FALSE}
 tabset <- list(
 	coef = read.dta13("_assets/HeterokDiffElasticityCoef.dta") %>% data.frame(),
 	stat = read.dta13("_assets/HeterokDiffElasticityStat.dta") %>% data.frame()
@@ -1940,7 +2006,7 @@ tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 
 ## Robustness Check 4: Estimation Results (1)
 
-```{r kableHeterokDiffElasticitySlide1, include = TRUE}
+```{r kableHeterokDiffElasticitySlide1, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(1:6, 20), 1:4],
     format = "latex",
@@ -1958,7 +2024,7 @@ add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE)
 
 ## Robustness Check 4: Implied Price Elasticity (1)
 
-```{r kableHeterokDiffElasticitySlide2, include = TRUE}
+```{r kableHeterokDiffElasticitySlide2, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(9:14, 20), 1:4],
     format = "latex",
@@ -1975,7 +2041,7 @@ add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE)
 
 ## Robustness Check 4: Estimation Results (2)
 
-```{r kableHeterokDiffElasticitySlide3, include = TRUE}
+```{r kableHeterokDiffElasticitySlide3, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(1:6, 20), c(1, 5:7)],
     format = "latex",
@@ -1993,7 +2059,7 @@ add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE)
 
 ## Robustness Check 4: Implied Price Elasticity (2)
 
-```{r kableHeterokDiffElasticitySlide4, include = TRUE}
+```{r kableHeterokDiffElasticitySlide4, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(9:14, 20), c(1, 5:7)],
     format = "latex",
@@ -2008,7 +2074,6 @@ add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), 
 add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE)
 ```
 
-<!--- Paper
 ```{r kableHeterokDiffElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
@@ -2025,11 +2090,11 @@ add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "
 add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
 ```
---->
+
 
 ## Robustness Check 4 (Ideal Efficient ID > 0): Estimation Results (1)
 
-```{r shapeSubsetHeterokDiffElasticity}
+```{r shapeSubsetHeterokDiffElasticity, eval = FALSE}
 tabset <- list(
 	coef = read.dta13("_assets/SubsetHeterokDiffElasticityCoef.dta") %>% data.frame(),
 	stat = read.dta13("_assets/SubsetHeterokDiffElasticityStat.dta") %>% data.frame()
@@ -2111,7 +2176,7 @@ tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
 ```
 
 
-```{r kableSubsetHeterokDiffElasticitySlide1, include = TRUE}
+```{r kableSubsetHeterokDiffElasticitySlide1, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(1:6, 20), 1:4],
     format = "latex",
@@ -2131,7 +2196,7 @@ add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE)
 ## Robustness Check 4 (Ideal Efficient ID > 0): Implied Price Elasticity (1)
 
 
-```{r kableSubsetHeterokDiffElasticitySlide2, include = TRUE}
+```{r kableSubsetHeterokDiffElasticitySlide2, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(9:14, 20), 1:4],
     format = "latex",
@@ -2148,7 +2213,7 @@ add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE)
 
 ## Robustness Check 4 (Ideal Efficient ID > 0): Estimation Results (2)
 
-```{r kableSubsetHeterokDiffElasticitySlide3, include = TRUE}
+```{r kableSubsetHeterokDiffElasticitySlide3, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(1:6, 20), c(1,5:7)],
     format = "latex",
@@ -2168,7 +2233,7 @@ add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE)
 ## Robustness Check 4 (Ideal Efficient ID > 0): Implied Price Elasticity (2)
 
 
-```{r kableSubsetHeterokDiffElasticitySlide4, include = TRUE}
+```{r kableSubsetHeterokDiffElasticitySlide4, include = TRUE, eval = FALSE}
 knitr::kable(
     tab[c(9:14, 20), c(1, 5:7)],
     format = "latex",
@@ -2184,7 +2249,6 @@ add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE)
 ```
 
 
-<!--- Paper
 ```{r kableSubsetHeterokDiffElasticity, include = TRUE, eval = FALSE}
 knitr::kable(
     tab,
@@ -2201,9 +2265,7 @@ add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "
 add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
 footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero.", threeparttable = TRUE, escape = FALSE)
 ```
---->
 
-<!-------- Igonore this part
 
 ```{stata tTestPresidentEfficientIndex, results = "hide", eval = FALSE}
 frame copy default tdt 
