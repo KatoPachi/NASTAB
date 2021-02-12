@@ -105,7 +105,7 @@ Therefore, the giving price in the tax credit system would not be manipulated by
 - Since the income tax deduction was initially used as a tax incentive and the marginal income tax rate was determined as Table \@ref(tab:tabTaxRate), the minimum giving price before 2014 was 0.62. 
 --->
 
-The tax incentives for charitable giving in Korea stared in 2000 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761% of GDP) in 2012 according to the national tax statistics.
+The tax incentives for charitable giving in Korea stared in 1967 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761% of GDP) in 2012 according to the national tax statistics.
 Since the income tax deduction was initially used as a tax incentive and the marginal income tax rate was determined as Table \@ref(tab:tabTaxRate), the minimum giving price before 2014 was 0.62.
 
 <!---In addition, the government set the limit of charitable giving deduction, which was initially the 5\% of income. The government gradually expanded the limit and it finally became 30\% in 2012 and this rate continues until now.
