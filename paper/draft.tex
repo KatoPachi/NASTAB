@@ -118,20 +118,6 @@
 
 % Pandoc header
 
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
 
 \begin{document}
   \begin{frontmatter}
@@ -290,68 +276,149 @@
   \subsection{National Survey of Tax and Benefit (NaSTaB)}\label{national-survey-of-tax-and-benefit-nastab}}
 
   In this paper, we use panel data from the National Survey of Tax and Benefit (NasTaB).
-  NasTaB survey is an annual financial panel survey implemented by The Korea Institute of Taxation and Finance implements to study the tax burden of households and the benefits that households receive from government. The subjects of this survey are general household and household members living in 15 cities and provinces nationwide. This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
+  NasTaB survey is an annual financial panel survey
+  implemented by The Korea Institute of Taxation and Finance
+  to study the tax burden of households and the benefits that households receive from government.
+  The subjects of this survey are general household and household members living in 15 cities
+  and provinces nationwide.
+  This survey is based on a face-to-face interview.
+  If it is difficult for investigators to meet subjects, another family member answers on behalf of him.\footnote{Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.}
 
-  In the analysis, we use data from 2012 to 2018 since \color{red}we focus on the 2014 tax reform.
-  \color{black}In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
-
-  Figure \ref{fig:figDonationRate} shows the proportion of donors and the average amount of donation by donors in the NasTaB data. It shows that about 20\% of respondents in NasTaB data donate in each year and their amount of donation is about 1.7 million KRW.
-
-  \hypertarget{time-series-of-chariable-giving}{%
-  \subsection{Time Series of Chariable Giving}\label{time-series-of-chariable-giving}}
-
-  \begin{figure}
-
-  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcome} 
-
-  }
-
-  \caption{Proportion of Donors and Average Donations among Donors}\label{fig:figDonationRate}
-  \end{figure}
+  In the analysis, we use data from 2012 to 2018 since
+  \color{red}
+  we focus on the 2014 tax reform.
+  By this restriction, the most giving price variation relies on the 2014 tax reform because
+  the marginal income tax rate is same in 2012 and 2013.
+  \color{black}
+  In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
 
   \begin{table}
 
-  \caption{\label{tab:kableSummaryCovariateSlides}Summary Statistics}
+  \caption{\label{tab:kableSummaryCovariate}Summary Statistics}
   \centering
   \fontsize{7}{9}\selectfont
-  \begin{tabular}[t]{lccc}
+  \begin{tabular}[t]{lccclcccl}
   \toprule
-   & N & Mean & Std.Dev.\\
+   & N & Mean & Std.Dev. & Min & p25 & Median & p75 & Max\\
   \midrule
   \addlinespace[0.3em]
-  \multicolumn{4}{l}{\textbf{Income and Giving Price}}\\
-  \hspace{1em}Annual taxable income (unit: 10,000KRW) & 53269 & 1876.121 & 2700.965\\
-  \hspace{1em}Giving Price & 62878 & 0.858 & 0.036\\
+  \multicolumn{9}{l}{\textbf{Income and Giving Price}}\\
+  \hspace{1em}Annual taxable income (unit: 10,000KRW) & 53269 & 1876.121 & 2700.965 & 0.00 & 0.00 & 900.00 & 2902.445 & 91772.00\\
+  \hspace{1em}Giving Price & 62878 & 0.858 & 0.036 & 0.62 & 0.85 & 0.85 & 0.850 & 0.94\\
   \addlinespace[0.3em]
-  \multicolumn{4}{l}{\textbf{Charitable Donations}}\\
-  \hspace{1em}Annual charitable giving (unit: 10,000KRW) & 67849 & 29.522 & 132.914\\
-  \hspace{1em}dummy of Donation > 0 & 67849 & 0.203 & 0.402\\
+  \multicolumn{9}{l}{\textbf{Charitable Donations}}\\
+  \hspace{1em}Annual charitable giving (unit: 10,000KRW) & 67849 & 29.522 & 132.914 & 0.00 & 0.00 & 0.00 & 0.000 & 10000.00\\
+  \hspace{1em}dummy of Donation > 0 & 67849 & 0.203 & 0.402 & 0.00 & 0.00 & 0.00 & 0.000 & 1.00\\
   \addlinespace[0.3em]
-  \multicolumn{4}{l}{\textbf{Government Efficiency}}\\
-  \hspace{1em}Current Tax-Welfare Balance & 29272 & -0.137 & 0.889\\
-  \hspace{1em}Ideal Tax-Welfare Balance & 29273 & 0.541 & 0.721\\
+  \multicolumn{9}{l}{\textbf{Government Efficiency}}\\
+  \hspace{1em}Current Tax-Welfare Balance & 29272 & -0.137 & 0.889 & -2.00 & -1.00 & 0.00 & 0.000 & 2.00\\
+  \hspace{1em}Ideal Tax-Welfare Balance & 29273 & 0.541 & 0.721 & -2.00 & 0.00 & 0.00 & 1.000 & 2.00\\
   \addlinespace[0.3em]
-  \multicolumn{4}{l}{\textbf{Individual Characteristics}}\\
-  \hspace{1em}Age & 67848 & 51.348 & 15.806\\
-  \hspace{1em}Female dummy & 67848 & 0.525 & 0.499\\
-  \hspace{1em}University graduate & 67842 & 0.411 & 0.492\\
-  \hspace{1em}High school graduate & 67842 & 0.350 & 0.477\\
-  \hspace{1em}Junior high school graduate & 67842 & 0.238 & 0.426\\
+  \multicolumn{9}{l}{\textbf{Individual Characteristics}}\\
+  \hspace{1em}Age & 67848 & 51.348 & 15.806 & 24.00 & 39.00 & 50.00 & 62.000 & 104.00\\
+  \hspace{1em}Female dummy & 67848 & 0.525 & 0.499 & 0.00 & 0.00 & 1.00 & 1.000 & 1.00\\
+  \hspace{1em}University graduate & 67842 & 0.411 & 0.492 & 0.00 & 0.00 & 0.00 & 1.000 & 1.00\\
+  \hspace{1em}High school graduate & 67842 & 0.350 & 0.477 & 0.00 & 0.00 & 0.00 & 1.000 & 1.00\\
+  \hspace{1em}Junior high school graduate & 67842 & 0.238 & 0.426 & 0.00 & 0.00 & 0.00 & 0.000 & 1.00\\
   \bottomrule
   \end{tabular}
   \end{table}
 
-  Summary statistics is summarized in Table \ref{tab:SummaryCovariate}. We used four types of variables in this paper: sets of variables about Income and Giving Price, Charitable Donations, Government Efficiency, and Individual Characteristics. Giving Price is constructed according to the marginal income tax rate and income level of subjects under tax deduction system, while it is 0.85 under tax credit system, as we explained in section 2. Dummy of Donation takes 1 if subject donate and takes 0 otherwise. A set of variables about Government Efficiency is constructed from the value survey of NasTaB data. Current Tax-Welfare Balance shows how the subject perceives the balance between tax burden and received welfare from the government, while Ideal Tax-Welfare Balance indicates what is the ideal balance between tax burden and received welfare for the subject. The higher values of them means that received welfare from the government is higher than tax burden. We explain the details and constructions of these variables later. The variables about Individual Characteristics, which consist from age, gender and final education levels, are used as control variables.
+  \color{red}
 
-  Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.
+  Table \ref{tab:kableSummaryCovariate} is summary statistics of our sample.
+  We used four types of variables in this paper:
+  sets of variables about Income and Giving Price,
+  Charitable Donations,
+  Government Efficiency,
+  and Individual Characteristics.
+  A set of variables about Government Efficiency is constructed from the value survey of NasTaB data.
+  Current Tax-Welfare Balance shows how the subject perceives the balance between tax burden and received welfare from the government,
+  while Ideal Tax-Welfare Balance indicates what is the ideal balance between tax burden and received welfare for the subject.
+  The higher values of them means that received welfare from the government is higher than tax burden.
+  We explain the details and constructions of these variables later.
+  The variables about Individual Characteristics,
+  which consist from age, gender and final education levels, are used as control variables.
 
-  \begin{figure}
+  In the next two subsections,
+  we describe the first two set of variables in detail.
+
+  \hypertarget{income-and-giving-price}{%
+  \subsection{Income and Giving Price}\label{income-and-giving-price}}
+
+  NaSTaB asks respondents to answer the annual income last year.
+  For example, in the 2014 survey, respondents answer the annual income at 2013.
+  In our sample, the average annual taxable income is 18.76 million KRW.
+  According to the National Tax Statistical Yearbook published by Korean National Tax Service,
+  the average annual taxable income is 32.77 million from 2012 to 2018
+  for employees who submited the tax return.
+  Since our sample includes subjects with no labor income, such as housewife,
+  our sample mean of income is lower than average income calculated by the public organizations.
+  In Figure \ref{fig:showSummaryPriceChange},
+  the grey bars show the distribution of annual taxable income in 2013.
+  The income distribution is left-skewed.
+
+  Using this variable, we construct the giving price under the tax deduction system (2012 and 2013).
+  After the tax reform (after 2014), the giving price is 0.85 under the tax credit system,
+  as we explained in the section \ref{institutional-background}.
+  In Figure \ref{fig:showSummaryPriceChange},
+  the blue line shows giving price in 2012 and 2013,
+  while the red dashed line shows the giving price after 2014.
+  From this figure,
+  those whose annual income is less than 1200 in 2013 could receive benefit by the 2014 tax reform
+  bacause the tax reform decreases the giving price.
+  On the other hand,
+  those whose auunal income is greater than 4600 in 2013 had a loss by the 2014 tax reform
+  since the tax reform increases the giving price.
+
+  \begin{figure}[t]
 
   {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryPriceChange} 
 
   }
 
   \caption{Income Distribution and Giving Price in 2013}\label{fig:showSummaryPriceChange}
+  \end{figure}
+
+  \hypertarget{charitable-giving}{%
+  \subsection{Charitable Giving}\label{charitable-giving}}
+
+  NaSTaB asks respondents to answer the amount of donations for seven specific purposes last year.
+  Seven specific purposes are
+  policitical parties,
+  educational organizations,
+  social welfare organizations,
+  organizations for culutre and art,
+  religious groups,
+  charity activies organaized by religious group,
+  other purposes.
+  We sum up the amount of donations, and consider it as the annual charitable giving.
+  We use this variable as an first outcome variable when
+  estimating the price effect on the amount of donations among donors (intensive margin).
+
+  Using this variable, we make a dummy variable taking 1 if repsondents donate (Dummy of Donation).
+  This is the second outcome variable
+  to estimate the price effect on the decision of donations (extensive margin).
+
+  Table \ref{tab:kableSummaryCovariate} shows that
+  the average amount of donation is almost 300,000 KRW,
+  and the proportion of donors is roughly 20\%.
+  Figure \ref{fig:showDonationRate} shows the time-series of two variables.
+  The blue line shows the average amount of donation among donors.
+  In each year, its value is nearly 1.5 million KRW,
+  which is 7\% of average annual taxable income.
+  The grey bar shows the proportion of donors.
+  After the tax reform, the proportion of donors decreases by 2\%.
+  After that, the proportion of donors is greter than 20\%.
+  \color{black}
+
+  \begin{figure}[t]
+
+  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcome} 
+
+  }
+
+  \caption{Proportion of Donors and Average Donations among Donors}\label{fig:showDonationRate}
   \end{figure}
 
   \hypertarget{estimation}{%
@@ -895,7 +962,7 @@
   This implies that the number of people thinking the government is inefficient is
   less than people who think the government is efficient.
 
-  \begin{figure}
+  \begin{figure}[t]
 
   {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/DensityEfficientid} 
 

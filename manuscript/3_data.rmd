@@ -49,49 +49,23 @@ foreach v in log_price log_lprice log_iv1price log_iv2price log_iv3price {
 
 
 In this paper, we use panel data from the National Survey of Tax and Benefit (NasTaB). 
-NasTaB survey is an annual financial panel survey implemented by The Korea Institute of Taxation and Finance implements to study the tax burden of households and the benefits that households receive from government. The subjects of this survey are general household and household members living in 15 cities and provinces nationwide. This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him. 
+NasTaB survey is an annual financial panel survey 
+implemented by The Korea Institute of Taxation and Finance 
+to study the tax burden of households and the benefits that households receive from government. 
+The subjects of this survey are general household and household members living in 15 cities 
+and provinces nationwide. 
+This survey is based on a face-to-face interview. 
+If it is difficult for investigators to meet subjects, another family member answers on behalf of him. [^weight] 
 
-In the analysis, we use data from 2012 to 2018 since \color{red}we focus on the 2014 tax reform. 
-\color{black}In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
+[^weight]: Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.
 
-Figure \@ref(fig:figDonationRate) shows the proportion of donors and the average amount of donation by donors in the NasTaB data. It shows that about 20\% of respondents in NasTaB data donate in each year and their amount of donation is about 1.7 million KRW. 
-
-
-## Time Series of Chariable Giving
-
-```{stata SummaryOutcome, results = "hide", eval = FALSE}
-frame copy default avgdt
-frame avgdt: by year, sort: egen meanext = mean(i_ext_giving)
-frame avgdt: by year, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
-frame avgdt: keep year meanext meanint
-frame avgdt: duplicates drop
-frame avgdt: keep if meanint != .
-
-frame avgdt: {
-    twoway ///
-	(bar meanext year, color(gs10) lcolor(black) barwidth(0.9) yaxis(1)) ///
-	(connected meanint year, color(blue) yaxis(2)), ///
-	xline(2013.5, lcolor(red) lpattern(-)) ///
-	yscale(range(0 .) axis(1)) ///
-	yscale(range(0 .) axis(2)) ///
-	ylabel(0(.05).2, axis(1)) ///
-	ylabel(0(50)200, axis(2)) ///
-	ytitle("Proportion of donors", axis(1)) ///
-	ytitle("Average donations among donors (10,000KRW)", axis(2)) ///
-	xlabel(2012(1)2018) xtitle("Year")  ///
-	legend(label(1 "Proportion of donors") label(2 "Average donations among donors")) ///
-	graphregion(fcolor(white))
-
-  graph export "_assets/SummaryOutcome.pdf", replace
-}
-```
-
-```{r figDonationRate, include = TRUE, out.width="90%", fig.cap="Proportion of Donors and Average Donations among Donors"}
-knitr::include_graphics(paste(here(), "_assets/SummaryOutcome.pdf", sep= "/")) 
-```
-<!---
-footnote(general_title = "", general = "Notes: The left and right axises respectively mesure proportion of donors and the average amount donations among donors. Authors made this graph based on NasTaB data.", threeparttable = TRUE, escape = FALSE)
---->
+In the analysis, we use data from 2012 to 2018 since 
+\color{red}
+we focus on the 2014 tax reform. 
+By this restriction, the most giving price variation relies on the 2014 tax reform because
+the marginal income tax rate is same in 2012 and 2013.
+\color{black}
+In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
 
 <!-- For Slides 
 
@@ -142,12 +116,12 @@ tabsum <- tabsum %>%
 	)
 ```
 
-```{r kableSummaryCovariateSlides, include=TRUE}
+```{r kableSummaryCovariate, include=TRUE}
 knitr::kable(
-    tabsum[,1:4],
+    tabsum,
     format = "latex",
     caption = "Summary Statistics",
-    col.names = c("", "N", "Mean", "Std.Dev."),
+    col.names = c("", "N", "Mean", "Std.Dev.", "Min", "p25", "Median", "p75", "Max"),
     row.names = FALSE,
     align = "lccc", 
     booktabs = TRUE, escape = TRUE, linesep = "",
@@ -161,33 +135,27 @@ pack_rows("Individual Characteristics", 7, 11)
 ```
 
 
-Summary statistics is summarized in Table \@ref(tab:SummaryCovariate). We used four types of variables in this paper: sets of variables about Income and Giving Price, Charitable Donations, Government Efficiency, and Individual Characteristics. Giving Price is constructed according to the marginal income tax rate and income level of subjects under tax deduction system, while it is 0.85 under tax credit system, as we explained in section 2. Dummy of Donation takes 1 if subject donate and takes 0 otherwise. A set of variables about Government Efficiency is constructed from the value survey of NasTaB data. Current Tax-Welfare Balance shows how the subject perceives the balance between tax burden and received welfare from the government, while Ideal Tax-Welfare Balance indicates what is the ideal balance between tax burden and received welfare for the subject. The higher values of them means that received welfare from the government is higher than tax burden. We explain the details and constructions of these variables later. The variables about Individual Characteristics, which consist from age, gender and final education levels, are used as control variables.
+\color{red}
+Table \@ref(tab:kableSummaryCovariate) is summary statistics of our sample. 
+We used four types of variables in this paper: 
+sets of variables about Income and Giving Price,
+Charitable Donations, 
+Government Efficiency, 
+and Individual Characteristics. 
+A set of variables about Government Efficiency is constructed from the value survey of NasTaB data.
+Current Tax-Welfare Balance shows how the subject perceives the balance between tax burden and received welfare from the government, 
+while Ideal Tax-Welfare Balance indicates what is the ideal balance between tax burden and received welfare for the subject. 
+The higher values of them means that received welfare from the government is higher than tax burden. 
+We explain the details and constructions of these variables later. 
+The variables about Individual Characteristics, 
+which consist from age, gender and final education levels, are used as control variables.
 
-Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.
+In the next two subsections,
+we describe the first two set of variables in detail.
 
-```{r kableSummaryCovariate, include=TRUE, eval = FALSE}
-knitr::kable(
-    tabsum,
-    format = "latex",
-    caption = "Summary Statistics",
-    col.names = c("", "N", "Mean", "Std.Dev.", "Min", "p25", "p50", "p75", "Max"),
-    row.names = FALSE,
-    align = "lcccccccc", 
-    booktabs = TRUE, escape = TRUE, linesep = "",
-		digits = 3
-) %>% 
-kable_styling(font_size = 8) %>% 
-pack_rows("Income and Giving Price", 1, 2) %>% 
-pack_rows("Charitable Donations", 3, 4) %>% 
-pack_rows("Government Efficiency", 5, 6) %>% 
-pack_rows("Individual Characteristics", 7, 11)
-```
-
+## Income and Giving Price
 
 <!--- For Slides
-
-## Giving Price and Income Distribution
-
 - Figure \@ref(fig:showSummaryPriceChange) shows the giving price after 2012 and income distribution in 2013.
 	- Blue line shows the giving price in 2012 and 2013, which depends on income
 	- Red dashed line shows the giving price after 2014, which is not a function of income.
@@ -199,6 +167,31 @@ pack_rows("Individual Characteristics", 7, 11)
 ## Giving Price and Income Distribution (Cont'd)
 
 --->
+
+NaSTaB asks respondents to answer the annual income last year.
+For example, in the 2014 survey, respondents answer the annual income at 2013.
+In our sample, the average annual taxable income is 18.76 million KRW.
+According to the National Tax Statistical Yearbook published by Korean National Tax Service,
+the average annual taxable income is 32.77 million from 2012 to 2018
+for employees who submited the tax return.
+Since our sample includes subjects with no labor income, such as housewife,
+our sample mean of income is lower than average income calculated by the public organizations.
+In Figure \@ref(fig:showSummaryPriceChange),
+the grey bars show the distribution of annual taxable income in 2013.
+The income distribution is left-skewed.
+
+Using this variable, we construct the giving price under the tax deduction system (2012 and 2013).
+After the tax reform (after 2014), the giving price is 0.85 under the tax credit system, 
+as we explained in the section \@ref(institutional-background).
+In Figure \@ref(fig:showSummaryPriceChange),
+the blue line shows giving price in 2012 and 2013,
+while the red dashed line shows the giving price after 2014.
+From this figure, 
+those whose annual income is less than 1200 in 2013 could receive benefit by the 2014 tax reform
+bacause the tax reform decreases the giving price.
+On the other hand,
+those whose auunal income is greater than 4600 in 2013 had a loss by the 2014 tax reform 
+since the tax reform increases the giving price.
 
 ```{stata SummaryPriceChange, results = "hide", eval = FALSE}
 frame copy default sump
@@ -226,3 +219,70 @@ frame sump: {
 ```{r showSummaryPriceChange, include = TRUE, out.width="90%", fig.cap="Income Distribution and Giving Price in 2013"}
 knitr::include_graphics(paste(here(), "_assets/SummaryPriceChange.pdf", sep= "/"))
 ```
+
+
+
+## Charitable Giving
+
+NaSTaB asks respondents to answer the amount of donations for seven specific purposes last year.
+Seven specific purposes are
+policitical parties,
+educational organizations,
+social welfare organizations,
+organizations for culutre and art,
+religious groups,
+charity activies organaized by religious group,
+other purposes.
+We sum up the amount of donations, and consider it as the annual charitable giving.
+We use this variable as an first outcome variable when 
+estimating the price effect on the amount of donations among donors (intensive margin).
+
+Using this variable, we make a dummy variable taking 1 if repsondents donate (Dummy of Donation).
+This is the second outcome variable 
+to estimate the price effect on the decision of donations (extensive margin).
+
+Table \@ref(tab:kableSummaryCovariate) shows that 
+the average amount of donation is almost 300,000 KRW,
+and the proportion of donors is roughly 20\%.
+Figure \@ref(fig:showDonationRate) shows the time-series of two variables.
+The blue line shows the average amount of donation among donors.
+In each year, its value is nearly 1.5 million KRW,
+which is 7\% of average annual taxable income.
+The grey bar shows the proportion of donors.
+After the tax reform, the proportion of donors decreases by 2\%.
+After that, the proportion of donors is greter than 20\%.
+\color{black}
+
+```{stata SummaryOutcome, results = "hide", eval = FALSE}
+frame copy default avgdt
+frame avgdt: by year, sort: egen meanext = mean(i_ext_giving)
+frame avgdt: by year, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
+frame avgdt: keep year meanext meanint
+frame avgdt: duplicates drop
+frame avgdt: keep if meanint != .
+
+frame avgdt: {
+    twoway ///
+	(bar meanext year, color(gs10) lcolor(black) barwidth(0.9) yaxis(1)) ///
+	(connected meanint year, color(blue) yaxis(2)), ///
+	xline(2013.5, lcolor(red) lpattern(-)) ///
+	yscale(range(0 .) axis(1)) ///
+	yscale(range(0 .) axis(2)) ///
+	ylabel(0(.05).2, axis(1)) ///
+	ylabel(0(50)200, axis(2)) ///
+	ytitle("Proportion of donors", axis(1)) ///
+	ytitle("Average donations among donors (10,000KRW)", axis(2)) ///
+	xlabel(2012(1)2018) xtitle("Year")  ///
+	legend(label(1 "Proportion of donors") label(2 "Average donations among donors")) ///
+	graphregion(fcolor(white))
+
+  graph export "_assets/SummaryOutcome.pdf", replace
+}
+```
+
+```{r showDonationRate, include = TRUE, out.width="90%", fig.cap="Proportion of Donors and Average Donations among Donors"}
+knitr::include_graphics(paste(here(), "_assets/SummaryOutcome.pdf", sep= "/")) 
+```
+<!---
+footnote(general_title = "", general = "Notes: The left and right axises respectively mesure proportion of donors and the average amount donations among donors. Authors made this graph based on NasTaB data.", threeparttable = TRUE, escape = FALSE)
+--->

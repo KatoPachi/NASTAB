@@ -8,7 +8,8 @@ knitr::opts_chunk$set(
   cache = FALSE,
   include = FALSE,
   fig.width = 10, fig.height = 6,
-  fig.align = "center"
+  fig.align = "center",
+  fig.pos = "t"
 )
 knitr::opts_knit$set(root.dir = here())
 
