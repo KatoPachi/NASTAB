@@ -21,7 +21,7 @@ address:
   - code: Osaka University
     address: Graduate School of Economics, Osaka University, Japan
   - code: Chiba University
-    address: Graduate School of Economics, Chiba University, Japan
+    address: Graduate School of Social Sciences, Chiba University, Japan
   - code: Kobe University
     address: Graduate School of Economics, Kobe University, Japan
 footnote:
@@ -33,7 +33,7 @@ csl: template/elsevier-harvard.csl
 review: yes  #Elsevier Template
 classoption: 3p  #Elsevier Template
 abstract: |
-  Brah
+  This paper investigates (1) the price elasticity of giving and (2) whether the different perception towards the government cause the different giving behavior using South Korean panel data. Our result classifies that the price elasticity of giving in Korea is -1.07 ~ -1.26, which is within the range of the extant research. We also show that the amount of donation is not different between those who regard government as inefficient and the others, though the giving price elasticity of the former is more elastic than the latter. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price. 
 keyword:
   text: "Charitable giving, Giving price, Tax reform, Governement efficiency, South Korea"
   JEL: D91, I10, I18
