@@ -520,7 +520,11 @@ footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.
 Previous results show that there is no heterogenous price elasticity in the efficient index.
 This may be caused by existence of respondents 
 interapting the survey questions as the questions about the expenditure policy of the governement.
-Those 
+We expect that their decision of donations is sensitive to the giving price 
+if the real governement efficiency is high.
+They donate if the giving price is low to substitute for the governement expenditure.
+To rule out this problem, we eliminate those whose the ideal efficient index is less than zero,
+and estimate the same model in Table \@ref(tab:kableHeteroElasticity).
 
 ```{stata SubsetHeteroElasticity, results = "hide", eval = FALSE}
 * overall
@@ -774,6 +778,26 @@ knitr::kable(
 kable_styling(font_size = 8)
 ```
 --->
+
+Table \@ref(tab:kableSubsetHeteroElasticity) shows the heterogenous price elasticity in the efficient index
+when we use those whose the ideal efficient index is greater than zero.
+As a result, we found heterogeneity of the overall and extensive-margin price elasticitiy 
+in governement efficiency (column (1) and (2)). 
+In the column (1), the interaction term between the giving price and third quantile efficient group 
+is positive, which is statistically significant.
+This implies that, compared to those whose the efficient index is low,
+those whose the efficient index is high are less sensitive to the giving price.
+In fact, the implied price elasticitiy of the first quantile efficient group is about -1.8,
+which is statistically significant.
+On the other hand, the implied price elasticiity of the third quantile efficient group is roughly -0.5,
+which is not statistically significant.
+The extensive-margin price elasticitiy takes same pattern in the column (2).
+The implied price elasticitiy of the first quantile efficient group is about -1.5,
+which is statistically significant.
+On the other hand, the implied price elasticiity of the third quantile efficient group is roughly -0.4,
+which is not statistically significant.
+Column (3) shows the intensive-margin elasticities.
+we found there is no heterogenous price effct on the amount of donations among donors.
 
 ```{r kableSubsetHeteroElasticity, include = TRUE}
 knitr::kable(
