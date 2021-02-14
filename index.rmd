@@ -1,0 +1,40 @@
+---
+title: |
+  Charitable Giving, Tax Reform, and Government Efficiency
+thanks: 
+  - code: 1
+    content: |
+      This research is base on
+author: 
+  - name: Hiroki Kato
+    affiliation: Osaka University
+    e-mail: vge008kh\@stundent.econ.osaka-u.ac.jp
+    code: 1
+    footnote: \*
+  - name: Tsuyoshi Goto
+    affiliation: Chiba University
+    code: 2
+  - name: Yong-Rok Kim
+    affiliation: Kobe University
+    code: 3
+address:
+  - code: Osaka University
+    address: Graduate School of Economics, Osaka University, Japan
+  - code: Chiba University
+    address: Graduate School of Social Sciences, Chiba University, Japan
+  - code: Kobe University
+    address: Graduate School of Economics, Kobe University, Japan
+footnote:
+  - code: \*
+    text: "Corresponding Author."
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+bibliography: manuscript/Ref.bib
+csl: template/elsevier-harvard.csl
+review: yes  #Elsevier Template
+classoption: 3p  #Elsevier Template
+abstract: |
+  This paper investigates (1) the price elasticity of giving and (2) whether the different perception towards the government cause the different giving behavior using South Korean panel data. Our result classifies that the price elasticity of giving in Korea is -0.59 ~ -1.01 for intensive margin and -1.17 ~ -1.48 for extensive margin. We also show that the amount of donation is not different between those who regard government as inefficient and the others, though the giving price elasticity of the former is more elastic than the latter. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price. 
+keyword:
+  text: "Charitable giving, Giving price, Tax reform, Governement efficiency, South Korea"
+  JEL: D91, I10, I18
+---
