@@ -44,12 +44,13 @@
   \frame{\subsectionpage}
 }
 \usepackage{lmodern}
-\usepackage{amssymb,amsmath}
+\usepackage{amsmath}
 \usepackage{ifxetex,ifluatex}
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
+  \usepackage{amssymb}
 \else % if luatex or xetex
   \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
@@ -75,24 +76,17 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={Charitable Giving, Tax Reform, and Political Trust},
-  pdfauthor={Hiroki Kato\^{}1; Tsuyoshi Goto\^{}2; Yong-Rok Kim\^{}3},
+  pdftitle={Charitable Giving, Tax Reform, and Government Efficiency},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
 \newif\ifbibliography
-\usepackage{graphicx}
+\usepackage{longtable,booktabs}
+\usepackage{calc} % for calculating minipage widths
+\usepackage{caption}
+% Make caption package work with longtable
 \makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-% Set default figure placement to htbp
-\makeatletter
-\def\fps@figure{htbp}
+\def\fnum@table{\tablename~\thetable}
 \makeatother
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \providecommand{\tightlist}{%
@@ -101,43 +95,271 @@
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[page number]
 
-\usepackage{bookmark}
 \usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+
 
 \usepackage{xltxtra} 
 \usepackage{zxjatype} 
 \usepackage[ipa]{zxjafont} 
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
 
-\title{Charitable Giving, Tax Reform, and Political Trust}
-\author{Hiroki Kato\(^1\) \and Tsuyoshi Goto\(^2\) \and Yong-Rok
-Kim\(^3\)}
-\date{2021/01/26}
-\institute{\(^1\)Osaka University \and \(^2\)Chiba
-University \and \(^3\)Kobe University}
+
+\title{Charitable Giving, Tax Reform, and Government Efficiency}
+  \author{ Hiroki Kato\(^1\)\and Tsuyoshi Goto\(^2\)\and Yong-Rok Kim\(^3\)}
+  \institute{\(^1\)Osaka University\and\(^2\)Chiba University\and\(^3\)Kobe University}
+\date{2021/02/09}
 
 \begin{document}
 \frame{\titlepage}
 
+\begin{frame}
+\end{frame}
+
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-\begin{frame}{Background of South Korea Tax Reform}
-\protect\hypertarget{background-of-south-korea-tax-reform}{}
-To investigate the price effect, we use the 2014 tax reform in the South
-Korea.
+\begin{frame}{Charitable Giving and Taxiation}
+\protect\hypertarget{charitable-giving-and-taxiation}{}
+In many countries, governments set a tax relief for charitable giving.
+
+To evaluate the effect of tax relief, many papers investigate the elasticity of charitable donations with respect to their tax price {[}@Randolph1995; @Auten2002; @Fack2010; @Bakija2011; @Almunia2020{]}.
+
+Focusing on the tax deduction or tax credit on the charity, they show that the price elasticity of giving is about -1 or more in terms of absolute value.
+\end{frame}
+
+\begin{frame}{Charitable Giving and Taxiation}
+\protect\hypertarget{charitable-giving-and-taxiation-1}{}
+In addition to the tax price charitable donations, the donations may be affected by people's perception towards the government.
+
+This is because the works and missions of private charity often mirror or overlap with one of governments, and the charity is not needed if the government adequately satisfies the needs of society.
+
+Thus, the different perception towards the government may make the different behavior for charitable giving.
+
+We investigate the relation between tax price elasticity of charitable donations and the different perception towards the government using the South Korean dataset.
+\end{frame}
+
+\begin{frame}{Summary in short}
+\protect\hypertarget{summary-in-short}{}
+Our result classifies that:
 
 \begin{itemize}
 \tightlist
 \item
-  Before 2014, tax deduction was adopted to subsidize charitable
-  donation behavior.
+  the price elasticity of giving in Korea is -1.07 \textasciitilde{} -1.26, which is within the range of the extant research.
+\item
+  the amount of donation is not different between those who regard government as inefficient and the others.
+\item
+  the giving price elasticity of those who regard government as inefficient is more elastic than the others. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{South Korean tax reform}
+\protect\hypertarget{south-korean-tax-reform}{}
+We can utilize the effect of the 2014 tax reform in the South Korea.
+
+\begin{itemize}
+\tightlist
+\item
+  Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
 \item
   After 2014, tax credit have been adopted.
 \end{itemize}
 
-The main difference is that tax credits reduce taxes directly, while tax
-deductions indirectly lower the tax burden by decreasing the taxpayer's
-marginal tax rate, which increases with gross income
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the marginal tax rate, which increases with gross income.
+
+In addition, the dataset contains the information about perception towards the government.
+\end{frame}
+
+\begin{frame}{Related Literature}
+\protect\hypertarget{related-literature}{}
+This study mainly relates to the two strands of studies.
+
+\begin{enumerate}
+\tightlist
+\item
+  Research about tax price elasticity of charitable donations
+\item
+  Research about perception towards the government and donation/tax payment.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Research about tax price elasticity of charitable donations}
+\protect\hypertarget{research-about-tax-price-elasticity-of-charitable-donations}{}
+Papers in this strand examines the price and income elasticity of charitable donations using the tax deduction applied for donation.
+The estimated price elasticities vary, but the typical one is said as -1 (Andreoni and Payne, 2013).
+
+\begin{itemize}
+\tightlist
+\item
+  Auten et al.(2002): -0.79\textasciitilde-1.26 (the U.S.)
+\item
+  Fack and Landais(2010): -0.15\textasciitilde-0.57 (France)
+\item
+  Bakija and Heim (2011): -0.61\textasciitilde-1.1 (the U.S.)
+\item
+  Duquette (2016): -2.15\textasciitilde-5.01 (the U.S.)
+\item
+  Almunia et al.(2020): -0.24\textasciitilde--1.5 (the U.K.)
+\end{itemize}
+
+The study in non-Western country, where the culture of donation may be different, is few.
+Thus, we firstly examine the elasticity of giving in Korea.
+\end{frame}
+
+\begin{frame}{Research about perception towards the government and donation/tax payment.}
+\protect\hypertarget{research-about-perception-towards-the-government-and-donationtax-payment.}{}
+Experimental studies show that the giving behavior may be affected by perception towards the government.
+
+\begin{itemize}
+\tightlist
+\item
+  Li et al.(2011) suggest that governmental organizations collect less donation than private charities though they have the same mission and work.
+\item
+  Sheremeta and Uler(2020) show that individuals provide public good reacting the wasteful spending of government.
+\end{itemize}
+
+This may be because people with distrust in government think that
+
+\begin{enumerate}
+\tightlist
+\item
+  the direct donation is more efficient than public service provision or
+\item
+  people can directly allocate and control their funds by donation, unlike public service provision.
+\end{enumerate}
+
+Thus, people having the different trust in the government would have different elasticities of giving.
+\end{frame}
+
+\hypertarget{institutional-background}{%
+\section{Institutional background}\label{institutional-background}}
+
+\begin{frame}{Tax relief for charitable giving by tax deduction and tax credit}
+\protect\hypertarget{tax-relief-for-charitable-giving-by-tax-deduction-and-tax-credit}{}
+In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction.
+
+The tax deduction and tax credit may have different effects on giving behavior.
+This section summarize the difference of tax deduction and tax credit.
+\end{frame}
+
+\begin{frame}{Budget Set}
+\protect\hypertarget{budget-set}{}
+Consider that a household has a choice between private consumptions (\(x_i\)) and charitable giving (\(g_i\)). Let \(y_i\) be pre-tax total income.
+Then, the budget constraint is
+
+\[
+    x_i + g_i = y_i - T_i(y_i, g_i).
+\]
+\(T_i\) is tax amount which depends on the pre-tax income and charitable giving.
+\end{frame}
+
+\begin{frame}{Tax Deduction}
+\protect\hypertarget{tax-deduction}{}
+Tax deduction reduces taxable income by giving, that is,
+
+\[
+    T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
+\]
+
+where \(\tau(\cdot)\) is the marginal income tax rate which is determined by \(y_i - g_i\). The budget constraint will be
+
+\[
+    x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
+\]
+
+The relative price of giving is \(p_i^{d} \equiv 1 - \tau(y_i - g_i)\).
+Since the giving price in tax deduction scheme varies depending on (1) the income level and (2) the amount of charitable giving, it is endogenous to them.
+\end{frame}
+
+\begin{frame}{Tax Credit}
+\protect\hypertarget{tax-credit}{}
+Tax credit reduces tax amount directly, that is,
+
+\[
+    T_i = \tau(y_i)\cdot y_i - m g_i,
+\]
+
+where \(m \in [0, 1]\) is the tax credit rate. Under the tax credit system, the budget constraint is
+
+\[
+    x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
+\]
+
+The relative price of giving is \(p_i^c = 1 - m\),
+which is only dependent on the tax credit rate \(m\), which is exogenously determined by the government.
+\end{frame}
+
+\begin{frame}{Korean tax reform in 2014 (Need modification by Kim san)}
+\protect\hypertarget{korean-tax-reform-in-2014-need-modification-by-kim-san}{}
+\begin{itemize}
+\tightlist
+\item
+  The tax incentives for charitable giving in Korea stared in 2000 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761\% of GDP) in 2012 according to the national tax statistics.
+\item
+  Since the income tax deduction was initially used as a tax incentive and the marginal income tax rate was determined as Table \ref{tab:tabTaxRate}, the minimum giving price before 2014 was 0.62.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Marginal income tax rate}
+\protect\hypertarget{marginal-income-tax-rate}{}
+\begin{table}
+
+\caption{\label{tab:tabTaxRate}Marginal Income Tax Rate}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccccc}
+\toprule
+Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{} 2013 & 2014 \textasciitilde{} 2016 & 2017 & 2018\\
+\midrule
+(A) \textasciitilde{} 1200 & 8\% & 6\% & 6\% & 6\% & 6\% & 6\% & 6\%\\
+\cmidrule{1-8}
+(B) 1200 \textasciitilde{} 4600 & 17\% & 16\% & 15\% & 15\% & 15\% & 15\% & 15\%\\
+\cmidrule{1-8}
+(C) 4600 \textasciitilde{} 8800 & 26\% & 25\% & 24\% &  & 24\% & 24\% & 24\%\\
+\cmidrule{1-4}
+\cmidrule{6-8}
+(D) 8800 \textasciitilde{} 15000 &  &  &  & \multirow{-2}{*}{\centering\arraybackslash 24\%} & 35\% &  & 35\%\\
+\cmidrule{1-1}
+\cmidrule{5-6}
+\cmidrule{8-8}
+(E) 15000 \textasciitilde{} 30000 &  &  &  & 35\% &  & \multirow{-2}{*}{\centering\arraybackslash 35\%} & 38\%\\
+\cmidrule{1-1}
+\cmidrule{5-5}
+\cmidrule{7-8}
+(F) 30000 \textasciitilde{} 50000 &  &  &  &  &  & 38\% & 40\%\\
+\cmidrule{1-1}
+\cmidrule{7-8}
+(G) 50000 \textasciitilde{} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-2}{*}{\centering\arraybackslash 38\%} & \multirow{-3}{*}{\centering\arraybackslash 38\%} & 40\% & 42\%\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: Marginal income tax rates applied from 2008 to 2018 are summarized. The income level is shown in terms of 10,000 KRW, which is approximately 10 United States dollars (USD) at an exchange rate of 1,000 KRW to one USD.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Our Identification Strategy}
+\protect\hypertarget{our-identification-strategy}{}
+In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system again, where the tax credit was introduced instead of tax deduction. Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit, which means that the giving price from 2014 is 0.85 irrelevant to the income level.
+
+Summarizing this, compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%, get benefit from charitable giving under the tax deduction system. However, middle or low income households would enjoy tax relief in tax credit system more than tax deduction system. We exploit this policy change as an identification strategy.
 \end{frame}
 
 \hypertarget{data}{%
@@ -148,925 +370,1354 @@ marginal tax rate, which increases with gross income
 \begin{itemize}
 \tightlist
 \item
-  The Korea Institute of Taxation and Finance implements the financial
-  panel survey to study the tax burden of households and the benefits
-  that households receive from goverment.
+  An annual financial panel survey implemented by The Korea Institute of Taxation and Finance implements to study the tax burden of households and the benefits that households receive from government.
 \item
-  The subjects of this survey are general household and household
-  members living in 15 cities and provinces nationwide.
+  The subjects of this survey are general household and household members living in 15 cities and provinces nationwide.
 \item
-  This survey is based on a face-to-face interview. If it is difficult
-  for investigators to meet subjects, another family member answers on
-  behalf of him.
+  This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
 \item
-  Survey items: Annual taxable income (last year), charitable donations
-  (last year), trust for politicians (5-Likert scale), and other
-  covariates (age, education, gender etc.).
-\item
-  Survey period: 2008 \textasciitilde{} 2019
-
-  \begin{itemize}
-  \tightlist
-  \item
-    We use survey data after 2013 to focus on tax policy change in 2014.
-  \end{itemize}
+  We use data from 2012 to 2018 \textbf{since the items of the value survey which we focused is not available before 2012 (ここは違います)}. In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Time Series of Chariable Giving}
 \protect\hypertarget{time-series-of-chariable-giving}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcome} \caption{Proportion of Donors and Average Donations among Donors}\label{fig:unnamed-chunk-1}
+
+{\centering \includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryOutcome} 
+
+}
+
+\caption{Proportion of Donors and Average Donations among Donors}\label{fig:figDonationRate}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Summary Statistics of Covariates}
-\protect\hypertarget{summary-statistics-of-covariates}{}
+\begin{frame}{Summary Statistics}
+\protect\hypertarget{summary-statistics}{}
 \begin{table}
 
-\caption{\label{tab:kableSummaryCovariate}Summary Statistics of Covariates}
+\caption{\label{tab:kableSummaryCovariateSlides}Summary Statistics}
 \centering
-\begin{tabular}[t]{lcccc}
-\toprule
- & 2012 & 2013 & 2014 & 2015\\
-\midrule
-Female & 0.51 & 0.51 & 0.52 & 0.52\\
-Age & 38.39 & 39.10 & 39.67 & 40.51\\
-Annual taxable income & 1699.86 & 1764.04 & 1838.76 & 1872.54\\
-University graduate & 0.28 & 0.28 & 0.29 & 0.30\\
-High school graduate & 0.30 & 0.30 & 0.31 & 0.31\\
-\#.Respondents & 14138 & 13984 & 13787 & 13524\\
-\#.Households & 4756 & 4807 & 4819 & 4832\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Summary Statistics of Covariates (Cont'd)}
-\protect\hypertarget{summary-statistics-of-covariates-contd}{}
-\begin{table}
-
-\caption{\label{tab:kableSummaryCovariate2}Summary Statistics of Covariates (Continued)}
-\centering
+\fontsize{7}{9}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
- & 2016 & 2017 & 2018\\
+ & N & Mean & Std.Dev.\\
 \midrule
-Female & 0.52 & 0.52 & 0.52\\
-Age & 41.07 & 41.89 & 42.55\\
-Annual taxable income & 1906.91 & 1951.55 & 2039.47\\
-University graduate & 0.31 & 0.33 & 0.34\\
-High school graduate & 0.31 & 0.31 & 0.31\\
-\#.Respondents & 13238 & 12963 & 12795\\
-\#.Households & 4790 & 4770 & 4765\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Income and Giving Price}}\\
+\hspace{1em}Annual taxable income (unit: 10,000KRW) & 53269 & 1876.121 & 2700.965\\
+\hspace{1em}Giving Price & 62878 & 0.858 & 0.036\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Charitable Donations}}\\
+\hspace{1em}Annual charitable giving (unit: 10,000KRW) & 67849 & 29.522 & 132.914\\
+\hspace{1em}dummy of Donation > 0 & 67849 & 0.203 & 0.402\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Government Efficiency}}\\
+\hspace{1em}Current Tax-Welfare Balance & 29272 & -0.137 & 0.889\\
+\hspace{1em}Ideal Tax-Welfare Balance & 29273 & 0.541 & 0.721\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Individual Characteristics}}\\
+\hspace{1em}Age & 67848 & 51.348 & 15.806\\
+\hspace{1em}Female dummy & 67848 & 0.525 & 0.499\\
+\hspace{1em}University graduate & 67842 & 0.411 & 0.492\\
+\hspace{1em}High school graduate & 67842 & 0.350 & 0.477\\
+\hspace{1em}Junior high school graduate & 67842 & 0.238 & 0.426\\
 \bottomrule
 \end{tabular}
 \end{table}
 \end{frame}
 
-\begin{frame}{What is Giving Price?}
-\protect\hypertarget{what-is-giving-price}{}
-Consider allocation between private consumptions (\(x_i\)) and
-charitable giving (\(g_i\)). Let \(y_i\) be pre-tax total income. Then,
-the budget constraint is
-
-\[
-    x_i + g_i = y_i - T_i(y_i, g_i),
-\]
-
-where \(T_i\) is tax amount depending on the pre-tax income and
-charitable giving.
-\end{frame}
-
-\begin{frame}{Determination of Tax Amount}
-\protect\hypertarget{determination-of-tax-amount}{}
-Tax deduction reduces taxable income by giving, that is,
-
-\[
-    T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
-\]
-
-where \(\tau(\cdot)\) is the marginal income tax rate which is
-determined by \(y_i - g_i\).
-
-Tax credit reduces tax amount directly, that is,
-
-\[
-    T_i = \tau(y_i)\cdot y_i - m g_i,
-\]
-
-where \(m \in [0, 1]\) is the tax credit rate.
-\end{frame}
-
-\begin{frame}{Derive Giving Price}
-\protect\hypertarget{derive-giving-price}{}
-Under the tax deduction system, the budget constraint is
-
-\[
-    x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
-\]
-
-Thus, the giving price of tax deduction system is
-\(p_i^{d} = 1 - \tau(y_i - g_i)\).
-
-Under the tax credit system, the budget constraint is
-
-\[
-    x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
-\]
-
-Thus, the giving price of tax credit system is \(p_i^c = 1 - m\).
-\end{frame}
-
-\begin{frame}{Construct Giving Price}
-\protect\hypertarget{construct-giving-price}{}
-In the South Korea, the tax policy about charitable giving drastically
-changed in 2014.
-
+\begin{frame}{Giving Price and Income Distribution}
+\protect\hypertarget{giving-price-and-income-distribution}{}
 \begin{itemize}
 \tightlist
 \item
-  tax deduction (before 2014): \(\text{Price}_i = 1 - \tau(y_i - g_i)\)
+  Figure \ref{fig:showSummaryPriceChange} shows the giving price after 2012 and income distribution in 2013.
 
   \begin{itemize}
   \tightlist
   \item
-    the giving price is endogenous because people can manipulate
-    \(\tau(y_i - g_i)\) using the charitable giving \(g_i\). Since this
-    problem is caused by \emph{last} donations, we use the giving price
-    applying to the \emph{first} donations (\textbf{first price}). The
-    first price is calculate by \(\tau(y_i)\) where \(y_i\) is the
-    annual taxable income reported in the NaSTaB.
+    Blue line shows the giving price in 2012 and 2013, which depends on income
+  \item
+    Red dashed line shows the giving price after 2014, which is not a function of income.
   \end{itemize}
 \item
-  tax credit (after 2014): \(\text{Price}_i = 1 - m\)
+  We can make three groups in terms of the benefit from the 2014 tax reform.
 
   \begin{itemize}
   \tightlist
   \item
-    In the South Korea, the tax credit rate determines exogeneity,
-    \(m = 0.15\).
+    Benefit group: Final taxable income is less than \(1200 \times 10^4\)KRW.
+  \item
+    Neutral group: Final taxable income lies between \((1200 \times 10^4, 4600 \times 10^4)\).
+  \item
+    Loss group: Final taxable income is more than \(4600 \times 10^4\)KRW.
   \end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Income Distribution and Giving Price}
-\protect\hypertarget{income-distribution-and-giving-price}{}
+\begin{frame}{Giving Price and Income Distribution (Cont'd)}
+\protect\hypertarget{giving-price-and-income-distribution-contd}{}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryPriceChange} \caption{Income Distribution and Giving Price in 2013}\label{fig:unnamed-chunk-2}
+
+{\centering \includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/SummaryPriceChange} 
+
+}
+
+\caption{Income Distribution and Giving Price in 2013}\label{fig:showSummaryPriceChange}
 \end{figure}
 \end{frame}
 
-\hypertarget{price-elasticity}{%
-\section{Price Elasticity}\label{price-elasticity}}
+\hypertarget{estimation}{%
+\section{Estimation}\label{estimation}}
 
-\begin{frame}{Baseline Regressions}
-\protect\hypertarget{baseline-regressions}{}
-Our baseline regression equation is
+\begin{frame}{Empirical Strategies}
+\protect\hypertarget{empirical-strategies}{}
+Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin.
 
+\begin{itemize}
+\tightlist
+\item
+  The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price
+\item
+  The elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Elasticitiy of Intensive Margin}
+\protect\hypertarget{elasticitiy-of-intensive-margin}{}
 \[
-    \log(\text{Giving}_{ijt}) = 
-    \alpha_i + \beta_1 \log(\text{Price}_{ijt}) + \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
+\ln g_{it} = \varepsilon_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:intensive}
 \]
 
 \begin{itemize}
 \tightlist
 \item
-  \(\log(\text{Giving}_{ijt})\) is logarithm of individual \(i\)'s
-  charitable giving in year \(t\).
+  \(g_{it}, p_{it}\) and \(y_{it}\) respectively indicates the amount of giving, the giving price, and income of \(i\) in year \(t\)
 \item
-  \(\log(\text{Price}_{ijt})\) is logarithm of individual \(i\)'s giving
-  price in year \(t\).
+  \(\mu_i, \iota_t\) and \(u_{it}\) are individual fixed effect, year fixed effect and error term
 \item
-  \(\beta_1\) represents the price elasticity of giving.
-\item
-  \(\alpha_i\) and \(\lambda_t\) are individual and time fixed effect,
-  respectively.
+  \(X_{it}\) is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into \(X_{it}\) (following @Zeldow2019).
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Result of Baseline Regressions}
-\protect\hypertarget{result-of-baseline-regressions}{}
-We found the \textbf{price effect} of giving (1\% price increase leads
-to about 1.1\% giving decrease)
+\begin{frame}{Elasticitiy of Extensive Margin}
+\protect\hypertarget{elasticitiy-of-extensive-margin}{}
+\[
+D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_it. \label{extensive}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(D_{it}\) is a dummy variable taking 1 if individual \(i\) donates at year \(t\) and 0 otherwise.
+\item
+  Since we use linear probability model, \(\delta = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\). The extensive-margin price elasticity is \(\varepsilon_{EXT} = \hat{\delta}/D_{it}\). Thus, we evaluate it at sample mean of \(D_{it}\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Identification Strategy}
+\protect\hypertarget{identification-strategy}{}
+Our identification assumption is \textbf{the within price variation is exogenous}.
+
+\begin{itemize}
+\tightlist
+\item
+  This is because we use the fixed effect model to obtain elasticities.
+\item
+  Our identification assumption may hold because the major \emph{within} price variation depends on the 2014 tax reform.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    After tax reform, the giving price is constant across individuals and there is no room for manipulation by donations and income.
+  \item
+    Before tax reform (2012 and 2013), the giving price depends on (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For these two reasons, the \emph{within} price is partly endogenous.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Obstacles for Identification}
+\protect\hypertarget{obstacles-for-identification}{}
+Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+
+\begin{enumerate}
+\tightlist
+\item
+  Endogeneity of giving price:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+  \item
+    Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Obstacles for Identification (Cont'd)}
+\protect\hypertarget{obstacles-for-identification-contd}{}
+Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+
+\begin{enumerate}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Simultaneous determination of income and donations:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate.
+  \item
+    We employ lagged values of taxable income and construct an instrument variable, \(\ln (p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
+  \item
+    By fixing income at year \(t - k\), the instrument isolates changes in price from income responses to the tax reform.
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\hypertarget{main-results}{%
+\section{Main Results}\label{main-results}}
+
+\begin{frame}{Price and Income Elasticity}
+\protect\hypertarget{price-and-income-elasticity}{}
+\begin{itemize}
+\tightlist
+\item
+  To show our baseline results graphically, Figure \ref{fig:showElasticityResid} shows average residuals grouped by year and benefit of the 2014 tax reform.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Residuals are obtained from the regression of logged donations on logged annual taxable income, individual and time fixed year.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Price and Income Elasticity: Residuals Plot}
+\protect\hypertarget{price-and-income-elasticity-residuals-plot}{}
+Those who incurring loss owing to the 2014 tax reform drastically decreases thier amount of donations.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/ElasticityResid} 
+
+}
+
+\caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group}\label{fig:showElasticityResid}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Price and Income Elasticity: Estimation Results}
+\protect\hypertarget{price-and-income-elasticity-estimation-results}{}
+We found the \textbf{price effect} of giving (1\% price increase leads to about 1.1\% giving decrease),
+and the \textbf{income effect} of giving(1\% income increase leads to about 5\% giving increase).
 
 \begin{table}
 
-\caption{\label{tab:kableEstimateElasticity}Baseline Regressions}
+\caption{\label{tab:kableEstimateElasticityPart1}Main Results}
 \centering
-\fontsize{9}{11}\selectfont
+\fontsize{7}{9}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
  & (1) & (2) & (3) & (4) & (5)\\
 \midrule
-ln(giving price) & -1.071*** & -1.071*** & -1.229*** & -1.059*** & -1.062***\\
- & (0.201) & (0.201) & (0.227) & (0.226) & (0.226)\\
-Logged Income & Y & Y & Y & Y & Y\\
+ln(giving price) & -1.072*** & -1.264*** & -1.291*** & -1.114*** & -1.241***\\
+ & (0.202) & (0.213) & (0.230) & (0.229) & (0.227)\\
+ln(auunaul taxable income) & 5.392*** & 5.080*** & 5.047*** & 5.116*** & 4.946***\\
+ & (0.970) & (0.964) & (0.964) & (0.966) & (0.949)\\
 Age & N & Y & Y & Y & Y\\
-Year X Educ & N & N & Y & Y & Y\\
+Year X Education & N & N & Y & Y & Y\\
 Year X Gender & N & N & N & Y & Y\\
-Resident Area & N & N & N & N & Y\\
-N & 54213 & 54213 & 54211 & 54211 & 54211\\
+Year X Resident Area & N & N & N & N & Y\\
+N & 53269 & 53269 & 53267 & 53267 & 53267\\
 \bottomrule
 \end{tabular}
 \end{table}
 \end{frame}
 
-\begin{frame}{Robustness Check}
-\protect\hypertarget{robustness-check}{}
-We addressed the following two potential concerns:
-
-\begin{enumerate}
+\begin{frame}{Intensive and Extensive Margin}
+\protect\hypertarget{intensive-and-extensive-margin}{}
+\begin{itemize}
 \tightlist
 \item
-  Income and donations are determined simultaneously
+  To obtain intensive- and extensive-margin elasticity, we repeat the same excercise.
+\item
+  Figure \ref{fig:showIntElasticityResid} shows average residuals grouped by year and benefit of the 2014 tax reform
 
   \begin{itemize}
   \tightlist
   \item
-    This causes both a change of giving price and a change of an amount
-    of donations
-  \item
-    Gruber and Saez (2002) provided that we should use
-    \(\log(\text{Price}_{ijt}/\text{Price}_{ij(t-k)})\) as an
-    insturment.
-  \item
-    Following Alumina et al.~(2020), we estimated the model (5) in the
-    previous slide, using the panel IV model for \(k = 1, 2, 3, 4\).
+    We used those who donated and estimated residuals obtained from the regression logged donations on logged annual taxable income, individual and time fixed year.
   \end{itemize}
 \item
-  The effect of presidential transition on donations
+  Figure \ref{fig:showExtElasticityResid} shows average residuals grouped by year and benefir of the 2014 tax reform.
 
   \begin{itemize}
   \tightlist
   \item
-    The presidential transition is one of our major ommited factor to
-    affect both political trust and charitable giving.
-  \item
-    To shed light on this concern, we used data in 2013 and 2014
-    (President was Park Geun-hye in both years), and estimated the model
-    (5) in the previous slide, using the fixed effect model and the
-    panel IV model for \(k = 1, 2, 3, 4\).
+    We estimated residuals obtained from the regression the donation dummy on logged annual taxable income, individual and time fixed year.
   \end{itemize}
-\end{enumerate}
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Result of Robustness Check 1}
-\protect\hypertarget{result-of-robustness-check-1}{}
-We obtained similar value of price elasticity to baseline results (1\%
-price increase leads to about 1.1\% giving decrease)
+\begin{frame}{Intensive Margin: Residuals Plot}
+\protect\hypertarget{intensive-margin-residuals-plot}{}
+Donors who receive benefit owing to the 2014 tax reform decrease their donations in 2014 and 2015.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/IntElasticityResid} 
+
+}
+
+\caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)}\label{fig:showIntElasticityResid}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Extensive Margin: Residuals Plot}
+\protect\hypertarget{extensive-margin-residuals-plot}{}
+Those who incurring loss owing to the 2014 tax reform drastically were less likely to donate.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.8\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/ExtElasticityResid} 
+
+}
+
+\caption{Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)}\label{fig:showExtElasticityResid}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Intensive and Extensive Margin: Estimation Results}
+\protect\hypertarget{intensive-and-extensive-margin-estimation-results}{}
+The intensive-margin price elasticity is -0.5 \textasciitilde{} -1\%.
 
 \begin{table}
 
-\caption{\label{tab:kableRobust1EstimateElasticity}Panel IV Regressions}
+\caption{\label{tab:kableEstimateElasticityPart2Slide1}Main Results: Intensive-Margin Elasticity}
 \centering
-\begin{tabular}[t]{lcccc}
-\toprule
- & k = 1 & k = 2 & k = 3 & k = 4\\
-\midrule
-ln(giving price) & -1.279*** & -1.155*** & -1.150*** & -0.962***\\
- & (0.478) & (0.414) & (0.369) & (0.340)\\
-F-stat of IV & 10315.94 & 11506.64 & 11569.61 & 9651.75\\
-N & 51548 & 49217 & 46399 & 43301\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Result of Robustness Check 2}
-\protect\hypertarget{result-of-robustness-check-2}{}
-We obtained \textbf{stonger} price effect than baseline (1\% price
-increase leads to about 1.2 \textasciitilde{} 1.6\% giving decrease)
-
-\begin{table}
-
-\caption{\label{tab:kableRobust2EstimateElasticity}Results with data in 2013 and 2014}
-\centering
-\fontsize{9}{11}\selectfont
+\fontsize{7}{9}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{1}{c}{FE} & \multicolumn{4}{c}{Panel IV with FE} \\
-\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-6}
- &  & k = 1 & k = 2 & k = 3 & k = 4\\
+ & (1) & (2) & (3) & (4) & (5)\\
 \midrule
-ln(giving price) & -1.466*** & -1.535*** & -1.683*** & -1.151*** & -1.259***\\
- & (0.327) & (0.360) & (0.378) & (0.385) & (0.400)\\
-F-stat of IV &  & 7420.10 & 4490.74 & 5034.58 & 4990.94\\
-N & 15134 & 13727 & 12902 & 12420 & 11676\\
+ln(giving price) & -0.593*** & -0.838*** & -1.016*** & -0.893*** & -0.904***\\
+ & (0.203) & (0.212) & (0.232) & (0.243) & (0.248)\\
+ln(auunaul taxable income) & 2.015*** & 1.562** & 1.445** & 1.528** & 1.571**\\
+ & (0.675) & (0.655) & (0.647) & (0.651) & (0.653)\\
+Age & N & Y & Y & Y & Y\\
+Year X Education & N & N & Y & Y & Y\\
+Year X Gender & N & N & N & Y & Y\\
+Year X Resident Area & N & N & N & N & Y\\
+N & 11637 & 11637 & 11637 & 11637 & 11637\\
 \bottomrule
 \end{tabular}
 \end{table}
 \end{frame}
 
-\hypertarget{political-trust-and-price-elasticity}{%
-\section{Political Trust and Price
-Elasticity}\label{political-trust-and-price-elasticity}}
-
-\begin{frame}{Estimation of Trust Index}
-\protect\hypertarget{estimation-of-trust-index}{}
-The trust for politicans is time-varying variable because it depends on
-governments' policies. We make time-invarying trust index using the
-fixed effect model.
-
-\[
-    \text{Trust}_{ijt} = \text{Trustid}_{ij} + c_j \cdot \lambda_t + \lambda_t + \epsilon_{ijt}.
-\]
-
-\begin{itemize}
-\tightlist
-\item
-  \(\text{Trust}_{ijt}\): trust for politicians (5-Likert scale)
-\item
-  \(\text{Trustid}_i\): individual fixed effect (\textbf{Trust index})
-\item
-  \(c_j \cdot \lambda_t\) captures local governments' policies effect
-\item
-  \(\lambda_t\) captures the central government policies effect
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Histrogram of Trust Index}
-\protect\hypertarget{histrogram-of-trust-index}{}
-\begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramTrustid} \caption{Histogram of Trust Index}\label{fig:unnamed-chunk-3}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Relationship with Donations and Covariates}
-\protect\hypertarget{relationship-with-donations-and-covariates}{}
-\begin{itemize}
-\tightlist
-\item
-  We made a scatter plot b/w individual average donations and trust
-  index
-
-  \begin{itemize}
-  \tightlist
-  \item
-    No linear relationship
-  \end{itemize}
-\item
-  We tested difference in mean of individual average donations b/w among
-  those whose trust index above and below threshold
-
-  \begin{itemize}
-  \tightlist
-  \item
-    The difference in mean is statistically siginificant at 5\% level if
-    threshold is \(\{0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4\}\).
-  \end{itemize}
-\item
-  We regressed trust index on covariates, using data in 2018
-
-  \begin{itemize}
-  \tightlist
-  \item
-    trust among females \textless{} trust among males
-  \item
-    the positive correlation between income and trust index
-  \item
-    trust index is concave in age
-  \item
-    Those having extreme political views have a distrust of politicians
-    rather than those having moderate political views.
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Relationship b/w Donations and Trust Index}
-\protect\hypertarget{relationship-bw-donations-and-trust-index}{}
-\begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/ScatterTrusidDonations} \caption{Scatter Plot between Donations and Trust Index}\label{fig:unnamed-chunk-4}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Difference in Mean b/w Two Trust Groups}
-\protect\hypertarget{difference-in-mean-bw-two-trust-groups}{}
-\begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/PlotDiffDonationsbwTrustGroup} \caption{Difference in Mean between Trust Group above and below Threshold}\label{fig:unnamed-chunk-5}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Regression of Trust Index on Covariates}
-\protect\hypertarget{regression-of-trust-index-on-covariates}{}
-\begin{table}
-
-\caption{\label{tab:kableRegTrustidOnCovariate}Regression of Standarized Trust Index (Year = 2018)}
-\centering
-\begin{tabular}[t]{lcc}
-\toprule
-Variables & Coefficients & S.E.\\
-\midrule
-Female & 0.036** & (0.015)\\
-Logarithm of income & 0.529* & (0.281)\\
-Age & -0.014*** & (0.003)\\
-Squared age/100 & 0.014*** & (0.002)\\
-High school graduate & 0.018 & (0.023)\\
-University graduate & 0.006 & (0.024)\\
-Extreme right wing & -0.143*** & (0.054)\\
-Right wing & -0.023 & (0.018)\\
-Left wing & -0.050*** & (0.018)\\
-Extreme left wing & -0.424*** & (0.029)\\
-N & 7697 & \\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Subgroup Regressions}
-\protect\hypertarget{subgroup-regressions}{}
-To see the heterogenous price elasticity by political trust, We
-estimated the baseline regression model (5) (see Table
-\ref{tab:kableEstimateElasticity}), using sample grouped by the trust
-index.
-
-\begin{itemize}
-\tightlist
-\item
-  Lowest: 0 \textasciitilde{} 20\% quantile of trust index
-\item
-  Lower: 20 \textasciitilde{} 40\% quantile of trust index
-\item
-  Neutral: 40 \textasciitilde{} 60\% quantile of trust index
-\item
-  Higher: 60 \textasciitilde{} 80\% quantile of trust index
-\item
-  Highest: 80 \textasciitilde{} 100\% quantile of trust index
-\end{itemize}
-
-Covariates are the logarithm of income, age, interactions b/w year and
-education, interactions b/w year and gender, and living are dummy into
-covariates.
-\end{frame}
-
-\begin{frame}{Results of Subgroup Regressions}
-\protect\hypertarget{results-of-subgroup-regressions}{}
-We cound \textbf{NOT} find the price effect for respondents whose trust
-is very low.
+\begin{frame}{Intensive and Extensive Margin: Estimation Results}
+\protect\hypertarget{intensive-and-extensive-margin-estimation-results-1}{}
+The extensive-margin price elasticity is -1.2 \textasciitilde{} -1.4\%.
 
 \begin{table}
 
-\caption{\label{tab:kableEstimateElasticityByTrustGroup}Subgroup Regressions}
+\caption{\label{tab:kableEstimateElasticityPart2Slide2}Main Results: Extensive-Margin Elasticity}
 \centering
-\fontsize{9}{11}\selectfont
+\fontsize{7}{9}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
- & Lowest & Lower & Neutral & Higher & Highest\\
+ & (1) & (2) & (3) & (4) & (5)\\
 \midrule
-ln(giving price) & -0.673 & -0.452 & -1.707*** & -1.130** & -1.397**\\
- & (0.557) & (0.462) & (0.479) & (0.524) & (0.563)\\
-N & 10250 & 10532 & 10286 & 10558 & 9680\\
+Implied price elasiticity & -1.264*** & -1.418*** & -1.343*** & -1.167*** & -1.312***\\
+ & (0.226) & (0.237) & (0.256) & (0.256) & (0.253)\\
+Implied income elasticity & 5.778*** & 5.527*** & 5.531*** & 5.600*** & 5.420***\\
+ & (1.099) & (1.097) & (1.099) & (1.100) & (1.080)\\
+Age & N & Y & Y & Y & Y\\
+Year X Education & N & N & Y & Y & Y\\
+Year X Gender & N & N & N & Y & Y\\
+Year X Resident Area & N & N & N & N & Y\\
+N & 53269 & 53269 & 53267 & 53267 & 53267\\
 \bottomrule
 \end{tabular}
 \end{table}
 \end{frame}
 
-\begin{frame}{Regression on Interaction Term}
-\protect\hypertarget{regression-on-interaction-term}{}
-To check whether price elasticity is statistically siginificant
-different among five trust groups, we estimated the baseline regression
-model (5) including interation term between five trust groups and giving
-price.
-
-\begin{align*}
-    \log(\text{Giving}_{ijt}) 
-    =& \alpha_i + \beta_1 \log(\text{Price}_{ijt}) \\
-    &+ \sum_g \beta_g \log(\text{Price}_{ijt}) \cdot \text{TrustGroup}_{ijg}  \\
-    &+ \delta X_{ijt} + \lambda_t + \epsilon_{ijt}.
-\end{align*}
+\begin{frame}{Robustness Check 1}
+\protect\hypertarget{robustness-check-1}{}
+First potential concern: last price elasticity
 
 \begin{itemize}
 \tightlist
 \item
-  \(\text{TrustGroup}_{ijg}\): taking 1 if individual \(i\) living in
-  \(j\) belongs to the trust group \(g\).
+  Our baseline results show the \textbf{first} price elasticity to avoid the endogeneity of giving price.
 \item
-  \(g \in \{ \text{Lowest}, \text{Lower}, \text{Higher}, \text{Highest} \}\).
+  We estimated the \textbf{last} price elasticity, using the Panel IV method.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The instrument is the first giving price.
+  \item
+    Note that the last giving price is equal to the first giving price under the tax credit system.
+  \end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Regression Result on Interation Term}
-\protect\hypertarget{regression-result-on-interation-term}{}
-There is statistically siginificant difference on price elasticity
-between the lowest group and the nuetral group.
+\begin{frame}{Robustness Check 1: Result}
+\protect\hypertarget{robustness-check-1-result}{}
+Overall last price elasticity increases twofold.
 
 \begin{table}
 
-\caption{\label{tab:kableEstimateInteractionByTrustGroup}Heterogenous Price Elasticity}
+\caption{\label{tab:kableLastElasticity1}Last Price Elasticity: Panel IV}
 \centering
-\begin{tabular}[t]{lcc}
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lccccc}
 \toprule
- & Coefficients & S.E.\\
+ & (1) & (2) & (3) & (4) & (5)\\
 \midrule
-ln(giving price) & -1.702*** & (0.388)\\
-\hspace{1em}X Lowest & 1.345** & (0.527)\\
-\hspace{1em}X Lower & 0.917* & (0.513)\\
-\hspace{1em}X Higher & 0.403 & (0.533)\\
-\hspace{1em}X Highest & 0.350 & (0.534)\\
-N & 51306 & \\
+ln(last giving price) & -2.421*** & -2.536*** & -2.750*** & -2.529*** & -2.650***\\
+ & (0.204) & (0.216) & (0.233) & (0.231) & (0.229)\\
+ln(auunaul taxable income) & 5.258*** & 5.071*** & 4.981*** & 5.058*** & 4.910***\\
+ & (0.961) & (0.961) & (0.959) & (0.961) & (0.948)\\
+Age & N & Y & Y & Y & Y\\
+Year X Education & N & N & Y & Y & Y\\
+Year X Gender & N & N & N & Y & Y\\
+Year X Resident Area & N & N & N & N & Y\\
+N & 52304 & 52304 & 52302 & 52302 & 52302\\
 \bottomrule
 \end{tabular}
 \end{table}
 \end{frame}
 
-\begin{frame}{Potential Concerns of Heterogenous Price Elasticity}
-\protect\hypertarget{potential-concerns-of-heterogenous-price-elasticity}{}
-\begin{itemize}
-\tightlist
-\item
-  There is one potential concern that the presidential transition
-  affects both donation behavior and political trust.
+\begin{frame}{Robustness Check 1: Intensive Margin}
+\protect\hypertarget{robustness-check-1-intensive-margin}{}
+The intensive-margin last price elasticity lies within the range of the first price elasticity.
 
-  \begin{itemize}
-  \tightlist
-  \item
-    In May 2017, South Korean president changed from Park Geun-hye to
-    Moon Jae-in. This presidential transition was due to the impeachment
-    charge against Park Geun-hye. People became distrustful of Park
-    Geun-hye due to the shinking of MV Sewol (April 2014).
-  \end{itemize}
-\item
-  To rule out this confounder, we constructed president-specific trust
-  indexs using either in 2015 and 2016 (Park's Trust index) or data in
-  2017 and 2018 (Moon's Trust index).
-
-  \begin{itemize}
-  \tightlist
-  \item
-    We discussed how to use these indexs later.
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Relationship b/w President-specific Trust Indexs}
-\protect\hypertarget{relationship-bw-president-specific-trust-indexs}{}
-\begin{itemize}
-\tightlist
-\item
-  We made a scatter plot between Park's trust index and Moon's trust
-  index.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Large variation of Moon's trust index among those who have same
-    value of the Park's trust index.
-  \end{itemize}
-\item
-  We tested whether the average individual difference b/w
-  president-specific trust indexs is statistically different from zero.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    We cannot reject the null hypothesis.
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Scatter Plot b/w President-specific Trust Indexs}
-\protect\hypertarget{scatter-plot-bw-president-specific-trust-indexs}{}
-\begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter1Trustid} \caption{Scatter Plot between Trust Index under Park Geun-hye and Moon Jae-in}\label{fig:unnamed-chunk-6}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Result of Pair-wise t-test}
-\protect\hypertarget{result-of-pair-wise-t-test}{}
 \begin{table}
 
-\caption{\label{tab:kableTtestPresidentTrustid}Pair-wise T-test}
+\caption{\label{tab:kableLastElasticity2Slide1}Intensive-Margin Last Price Elasticity: Panel IV}
 \centering
-\begin{tabular}[t]{lccc}
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lccccc}
 \toprule
- & Moon's trust & Park's trust & Difference\\
+ & (1) & (2) & (3) & (4) & (5)\\
 \midrule
-Average & -0.009 & -0.001 & -0.008\\
- & (0.716) & (0.827) & [0.446]\\
+ln(last giving price) & -0.898*** & -0.961*** & -1.197*** & -0.998*** & -1.074***\\
+ & (0.271) & (0.271) & (0.307) & (0.325) & (0.332)\\
+ln(auunaul taxable income) & 2.023*** & 1.638** & 1.460** & 1.530** & 1.572**\\
+ & (0.694) & (0.678) & (0.667) & (0.670) & (0.667)\\
+Age & N & Y & Y & Y & Y\\
+Year X Education & N & N & Y & Y & Y\\
+Year X Gender & N & N & N & Y & Y\\
+Year X Resident Area & N & N & N & N & Y\\
+N & 10672 & 10672 & 10672 & 10672 & 10672\\
 \bottomrule
 \end{tabular}
 \end{table}
 \end{frame}
 
-\begin{frame}{Relationship among Three Trust Indexs}
-\protect\hypertarget{relationship-among-three-trust-indexs}{}
+\begin{frame}{Robustness Check 1: Extensive Margin}
+\protect\hypertarget{robustness-check-1-extensive-margin}{}
+The extensive-margin last price elasticity at sample mean is roughly -3\%.
+
+\begin{table}
+
+\caption{\label{tab:kableLastElasticity2Slide2}Extensive-Margin Last Price Elasticity: Panel IV}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+Implied last price elasiticity & -3.063*** & -3.100*** & -3.167*** & -2.917*** & -3.046***\\
+ & (0.227) & (0.240) & (0.259) & (0.258) & (0.254)\\
+Implied income elasticity & 5.532*** & 5.472*** & 5.426*** & 5.513*** & 5.361***\\
+ & (1.088) & (1.096) & (1.096) & (1.098) & (1.082)\\
+Age & N & Y & Y & Y & Y\\
+Year X Education & N & N & Y & Y & Y\\
+Year X Gender & N & N & N & Y & Y\\
+Year X Resident Area & N & N & N & N & Y\\
+N & 52304 & 52304 & 52302 & 52302 & 52302\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robust Check 2}
+\protect\hypertarget{robust-check-2}{}
+Second potential concern: Price change due to the change of income
+
 \begin{itemize}
 \tightlist
 \item
-  We made a scatter plot between difference of president-specific trust
-  indexs and the original trust index.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    there is large variation of difference of president-specific trust
-    indexs, and there is large variation of the original trust index
-    among those who have similar value of two president-specific trust
-    indexs.
-  \end{itemize}
+  Since the giving price under the tax deduction depends on the change of income, the \emph{within} variation of giving price may be endogenous.
 \item
-  We regressed the original trust index on difference of
-  president-specific trust indexs. We restrict units whose aboslute
-  value of president-specific trust index difference is less than 2 (Abs
-  \textless{} 2), 1 (Abs \textless{} 1), and 0.5 (Abs \textless{} 0.5).
+  To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
 
   \begin{itemize}
   \tightlist
   \item
-    the positive correlations between difference of president-specific
-    trust indexs and the original one. However, this positive
-    correlation is statistically insignigicant if we use units whose
-    president-specific trust indexs have similar values.
+    By this restriction, the \emph{within} price variation of giving price is completely exgonenous.
   \end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and
-Original One}
-\protect\hypertarget{scatter-plot-bw-difference-of-separated-trust-indexs-and-original-one}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter2Trustid.pdf}
-\caption{Scatter Plot between Difference of President-specific Trust
-Indexs and Original One}
-\end{figure}
-\end{frame}
+\begin{frame}{Robustness Check 2: Result}
+\protect\hypertarget{robustness-check-2-result}{}
+Overall price elasticity is -1 \textasciitilde{} -1.7\%.
 
-\begin{frame}{Result of Regressions on Difference b/w President-specific
-Trust}
-\protect\hypertarget{result-of-regressions-on-difference-bw-president-specific-trust}{}
 \begin{table}
 
-\caption{\label{tab:kableRegTrustidOnDiff2Trustid}Regressions of Trust Index on President-specific Trust Index}
-\centering
-\fontsize{9}{11}\selectfont
-\begin{tabular}[t]{lcccc}
-\toprule
- & Full & Abs < 2 & Abs < 1 & Abs < 0.5\\
-\midrule
-Moon's trust - Park's trust & 0.020** & 0.024*** & 0.033** & 0.066*\\
- & (0.008) & (0.009) & (0.016) & (0.038)\\
-Adjusted R-sq & 0.001 & 0.001 & 0.001 & 0.001\\
-N & 7314 & 7128 & 5687 & 3467\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Robustness Check of Heterogenous Price Elasticity}
-\protect\hypertarget{robustness-check-of-heterogenous-price-elasticity}{}
-\begin{enumerate}
-\tightlist
-\item
-  Using data in 2013 and 2014, we estimated the interaction model again
-
-  \begin{itemize}
-  \tightlist
-  \item
-    The president was Park Geun-hye in both 2013 and 2014. Thus, we can
-    exclude the effect of presidential transition on donation behavior.
-  \end{itemize}
-\item
-  Using the park's trust index instead, we estimated the interaction
-  model with data in 2013 and 2014.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Since the trust index represents the trust for politicians under the
-    president Park (but scandalous period), we can rule out the effect
-    of presidential transition on both donations and trust.
-  \end{itemize}
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Result of Robustness Check}
-\protect\hypertarget{result-of-robustness-check}{}
-\begin{table}
-
-\caption{\label{tab:kableRobust1EstimateInteractionByTrustGroup}Robustness Check of Heterogenous Price Elasticity}
+\caption{\label{tab:kableShortElasticity1}Elasticity with Short-Period Data}
 \centering
 \fontsize{8}{10}\selectfont
-\begin{tabular}[t]{lcc}
-\toprule
-\multicolumn{1}{c}{Year} & \multicolumn{2}{c}{2013 and 2014} \\
-\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-3}
-\multicolumn{1}{c}{Trust index} & \multicolumn{1}{c}{Original} & \multicolumn{1}{c}{Park} \\
-\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3}
- & (1) & (2)\\
-\midrule
-ln(giving price) & -2.724*** & -1.702***\\
- & (0.580) & (0.548)\\
-\hspace{1em}X Lowest Trust & 1.689** & 0.458\\
-\hspace{1em} & (0.784) & (0.771)\\
-\hspace{1em}X Lower Trust & 1.081 & 0.445\\
-\hspace{1em} & (0.728) & (0.707)\\
-\hspace{1em}X Higher Trust & 1.787** & 0.050\\
-\hspace{1em} & (0.735) & (0.741)\\
-\hspace{1em}X Highest Trust & 1.533* & -0.188\\
-\hspace{1em} & (0.813) & (0.779)\\
-N & 13788 & 13440\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\hypertarget{tax-welfare-balance-and-price-elasticity}{%
-\section{Tax-welfare Balance and Price
-Elasticity}\label{tax-welfare-balance-and-price-elasticity}}
-
-\begin{frame}{Tax-welfare Balance}
-\protect\hypertarget{tax-welfare-balance}{}
-From the 2015 survey, NaSTaB asks the current and ideal balance between
-tax burden and welfare size.
-
-These variables provide us to investigate the relationship between price
-elasticity and govenrment's efficiency more directly.
-
-Thus, we did same excercise, using the current balance bewteen tax
-burden and welfare size.
-\end{frame}
-
-\begin{frame}{Construct Tax-welfare Balance Index}
-\protect\hypertarget{construct-tax-welfare-balance-index}{}
-Questionnaire of tax-welfare balance index is
-
-\includegraphics[width=0.5\textwidth,height=\textheight]{_assets/BalanceQuestion.jpg}
-
-To rule out government's policies, we use individual fixed effect as the
-\textbf{tax-welare size index}
-\end{frame}
-
-\begin{frame}{Histrogram of Trust Index}
-\protect\hypertarget{histrogram-of-trust-index-1}{}
-\begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/HistogramBalanceid} \caption{Histogram of Tax-Welfare Balance Index}\label{fig:unnamed-chunk-8}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Relationship b/w Donations and Balance Index}
-\protect\hypertarget{relationship-bw-donations-and-balance-index}{}
-\begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/ScatterBalanceidDonations} \caption{Scatter Plot between Donations and Tax-Welfare Balance Index}\label{fig:unnamed-chunk-9}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Difference in Mean b/w Two Trust Groups}
-\protect\hypertarget{difference-in-mean-bw-two-trust-groups-1}{}
-\begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/PlotDiffDonationsbwBalanceGroup} \caption{Difference in Mean between Group above and below Threshold}\label{fig:unnamed-chunk-10}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Regression of Tax Balance Index on Covariates}
-\protect\hypertarget{regression-of-tax-balance-index-on-covariates}{}
-\begin{table}
-
-\caption{\label{tab:kableRegBalanceidOnCovariate}Regression of Taw-Welfare Balance Index (Year = 2018)}
-\centering
-\begin{tabular}[t]{lcc}
-\toprule
-Variables & Coefficients & S.E.\\
-\midrule
-Female & 0.011 & (0.015)\\
-Logarithm of income & -1.821*** & (0.285)\\
-Age & -0.005** & (0.003)\\
-Squared age/100 & 0.009*** & (0.002)\\
-High school graduate & -0.054** & (0.023)\\
-University graduate & -0.076*** & (0.025)\\
-Extreme right wing & 0.056 & (0.055)\\
-Right wing & 0.001 & (0.018)\\
-Left wing & -0.010 & (0.018)\\
-Extreme left wing & 0.015 & (0.029)\\
-N & 7697 & \\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Subgroup Regressions}
-\protect\hypertarget{subgroup-regressions-1}{}
-\begin{table}
-
-\caption{\label{tab:kableEstimateElasticityByBalanceGroup}Subgroup Regressions}
-\centering
-\fontsize{8}{10}\selectfont
-\begin{tabular}[t]{lccccc}
-\toprule
- & S inefficient & Inefficient & Balanced & Efficient & S efficient\\
-\midrule
-ln(giving price) & -1.281*** & -0.773 & -1.429*** & -1.021** & -0.739\\
- & (0.492) & (0.495) & (0.543) & (0.494) & (0.544)\\
-N & 9795 & 11369 & 9561 & 10411 & 10170\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Regression on Interaction Term}
-\protect\hypertarget{regression-on-interaction-term-1}{}
-\begin{table}
-
-\caption{\label{tab:kableEstimateInteractionByBalanceGroup}Heterogenous Price Elasticity among Tax-Welfare Balance}
-\centering
-\begin{tabular}[t]{lcc}
-\toprule
- & Coefficients & S.E.\\
-\midrule
-ln(giving price) & -1.731*** & (0.418)\\
-\hspace{1em}X Strong inefficient & 0.781 & (0.556)\\
-\hspace{1em}X Inefficient & 0.727 & (0.539)\\
-\hspace{1em}X Efficient & 0.486 & (0.529)\\
-\hspace{1em}X Strong Efficient & 1.183** & (0.511)\\
-N & 51306 & \\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Scatter Plot b/w President-specific Balance Indexs}
-\protect\hypertarget{scatter-plot-bw-president-specific-balance-indexs}{}
-\begin{figure}
-\includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter1Balanceid} \caption{Scatter Plot between Balance Index under Park Geun-hye and Moon Jae-in}\label{fig:unnamed-chunk-11}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Result of Pair-wise t-test}
-\protect\hypertarget{result-of-pair-wise-t-test-1}{}
-\begin{table}
-
-\caption{\label{tab:kableTtestPresidentBalanceid}Pair-wise T-test}
-\centering
-\fontsize{9}{11}\selectfont
-\begin{tabular}[t]{lccc}
-\toprule
- & Moon's balance index & Park's balance index & Difference\\
-\midrule
-Average & 0.004 & -0.006 & 0.010\\
- & (0.719) & (0.824) & [0.353]\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Scatter Plot b/w Difference of Separated Trust Indexs and
-Original One}
-\protect\hypertarget{scatter-plot-bw-difference-of-separated-trust-indexs-and-original-one-1}{}
-\begin{figure}
-\centering
-\includegraphics{C:/Users/vge00/Desktop/NaSTaB/_assets/Scatter2Balanceid.pdf}
-\caption{Scatter Plot between Difference of President-specific Balance
-Indexs and Original One}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Result of Regressions on Difference b/w President-specific
-Trust}
-\protect\hypertarget{result-of-regressions-on-difference-bw-president-specific-trust-1}{}
-\begin{table}
-
-\caption{\label{tab:kableRegTrustidOnDiff2Balanceid}Regressions of Balance Index on President-specific Balance Index}
-\centering
-\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lcccc}
 \toprule
- & Full & Abs < 2 & Abs < 1 & Abs < 0.5\\
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
 \midrule
-Moon's index - Park's index & -0.024*** & -0.034*** & -0.055*** & -0.058\\
- & (0.008) & (0.009) & (0.016) & (0.039)\\
-Adjusted R-sq & 0.001 & 0.002 & 0.002 & 0.000\\
-N & 7314 & 7101 & 5515 & 3384\\
+ln(giving price) & -1.014*** & -1.286*** & -1.398*** & -1.686***\\
+ & (0.255) & (0.290) & (0.289) & (0.338)\\
+ln(auunaul taxable income) & 5.108*** & 4.743*** & 4.013** & 3.035\\
+ & (1.009) & (0.990) & (1.948) & (1.992)\\
+Other Controls & N & Y & N & Y\\
+N & 45994 & 45992 & 14893 & 14893\\
 \bottomrule
 \end{tabular}
 \end{table}
 \end{frame}
 
-\begin{frame}{Robustness Check of Heterogenous Price Elasticity}
-\protect\hypertarget{robustness-check-of-heterogenous-price-elasticity-1}{}
+\begin{frame}{Robustness Check 2: Intensive Marign}
+\protect\hypertarget{robustness-check-2-intensive-marign}{}
+The intensive-margin price elasticity is -0.6 \textasciitilde{} -1\%.
+In column (3), the price elasticity is statistically insignificant.
+
 \begin{table}
 
-\caption{\label{tab:kableRobust1EstimateInteractionByBalanceGroup}Robustness Check of Heterogenous Price Elasticity}
+\caption{\label{tab:kableShortElasticity2Slide1}Intensive-Margin Elasticity with Short-Period Data}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
+\midrule
+ln(giving price) & -0.647*** & -1.129*** & -0.394 & -0.712**\\
+ & (0.236) & (0.291) & (0.310) & (0.363)\\
+ln(auunaul taxable income) & 1.943*** & 1.714*** & 1.440 & 1.047\\
+ & (0.662) & (0.649) & (2.975) & (3.072)\\
+Other Controls & N & Y & N & Y\\
+N & 10158 & 10158 & 2922 & 2922\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Extensive Marign}
+\protect\hypertarget{robustness-check-2-extensive-marign}{}
+The extensive-margin price elasticity at sample mean is -1 \textasciitilde{} -2\%.
+
+\begin{table}
+
+\caption{\label{tab:kableShortElasticity2Slide2}Extensive-Margin Elasticity with Short-Period Data}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
+\midrule
+Implied price elasiticity & -1.136*** & -1.300*** & -1.845*** & -2.131***\\
+ & (0.279) & (0.314) & (0.364) & (0.422)\\
+Implied income elasticity & 5.287*** & 4.954*** & 4.457* & 3.196\\
+ & (1.114) & (1.094) & (2.381) & (2.488)\\
+Other Controls & N & Y & N & Y\\
+N & 45994 & 45992 & 14893 & 14893\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 3}
+\protect\hypertarget{robustness-check-3}{}
+Second potential concerns: the change of price due to the change of income
+
+\begin{itemize}
+\tightlist
+\item
+  To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
+\item
+  We can also rule out this problem, using the change in the first giving price.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The change in the first giving price is \(\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
+  \item
+    Since we fix the income \(y_{it-k}\), this variation comes from the tax reform.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 3 (Cont'd)}
+\protect\hypertarget{robustness-check-3-contd}{}
+Our estimation equation is
+\[\Delta^k \ln g_{it} = \delta \Delta^k \ln p_{it} + \gamma \Delta^k \ln y_{it} + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},\]
+where \(\Delta^k Y_{it} = Y_{it} - Y_{it-k}\).
+
+\begin{itemize}
+\tightlist
+\item
+  Note that we cannot estimation the extensive-margin elasticity since it is hard to interapt this estimation equation when we use \(\Delta^k D_{it}\) as an outcome.
+\item
+  We estimate this model for \(k = 1, 2, 3\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 3: Overall Elasticity}
+\protect\hypertarget{robustness-check-3-overall-elasticity}{}
+Overall price elasticity is rougnly -2\%.
+
+\begin{table}
+
+\caption{\label{tab:kablekDiffElasticitySlide1}Overall Elasticity: $k$-difference model}
 \centering
 \fontsize{8}{10}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
-\multicolumn{1}{c}{Year} & \multicolumn{2}{c}{2013 and 2014} & \multicolumn{1}{c}{After 2012} \\
-\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-4}
-\multicolumn{1}{c}{Tax-welfare balance index} & \multicolumn{1}{c}{Original} & \multicolumn{1}{c}{Park} & \multicolumn{1}{c}{Original (Abs<0.5)} \\
+\multicolumn{1}{c}{lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
 \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
  & (1) & (2) & (3)\\
 \midrule
-ln(giving price) & -2.280*** & -0.987* & -1.675***\\
- & (0.681) & (0.560) & (0.614)\\
-\hspace{1em}X Strong inefficient & 1.254 & 0.274 & 1.016\\
-\hspace{1em} & (0.856) & (0.785) & (0.825)\\
-\hspace{1em}X Inefficient & 0.885 & -1.382* & 0.333\\
-\hspace{1em} & (0.800) & (0.740) & (0.852)\\
-\hspace{1em}X Efficient & 0.590 & -0.972 & -0.155\\
-\hspace{1em} & (0.799) & (0.750) & (0.776)\\
-\hspace{1em}X Strong efficient & 0.776 & -0.577 & 1.842**\\
-\hspace{1em} & (0.791) & (0.731) & (0.790)\\
-N & 13788 & 13440 & 21528\\
+Lagged difference of first price (log) & -1.894*** & -2.170*** & -1.752***\\
+ & (0.389) & (0.355) & (0.346)\\
+Lagged difference of annual income (log) & 2.737*** & 4.685*** & 5.307***\\
+ & (1.042) & (1.141) & (1.174)\\
+N & 49014 & 46610 & 44205\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 3: Intensive-Margin Elasticity}
+\protect\hypertarget{robustness-check-3-intensive-margin-elasticity}{}
+The intensive-margin price elasticity is rougnly -2\%.
+
+\begin{table}
+
+\caption{\label{tab:kablekDiffElasticitySlide2}Intensive-Margin Elasticity: $k$-difference model}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+Lagged difference of first price (log) & -1.854** & -2.282*** & -2.163***\\
+ & (0.763) & (0.621) & (0.550)\\
+Lagged difference of annual income (log) & 2.229 & 4.675*** & 5.582**\\
+ & (1.715) & (1.791) & (2.178)\\
+N & 10939 & 10505 & 10043\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\hypertarget{governement-efficient-and-price-elasticity}{%
+\section{Governement Efficient and Price Elasticity}\label{governement-efficient-and-price-elasticity}}
+
+\begin{frame}{Construct Efficiency Index}
+\protect\hypertarget{construct-efficiency-index}{}
+From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level.
+See the following table.
+
+\begin{table}[H]
+\centering\begingroup\fontsize{8}{10}\selectfont
+
+\begin{tabular}{l|cccl|cccl|cccl|ccc}
+\toprule
+Welfare/Tax burden & Low & Middle & High\\
+\midrule
+High & 2 & 1 & 0\\
+Middle & 1 & 0 & -1\\
+Low & 0 & -1 & 2\\
+\bottomrule
+\end{tabular}
+\endgroup{}
+\end{table}
+\end{frame}
+
+\begin{frame}{Construct Efficient Index (Cont'd)}
+\protect\hypertarget{construct-efficient-index-contd}{}
+\begin{itemize}
+\tightlist
+\item
+  The pair of answers reflect the individual's perception about the efficiency of government because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare.
+\item
+  Based on the pair about current perception, we construct an index called efficiency index by the following steps.
+
+  \begin{enumerate}
+  \tightlist
+  \item
+    We assign the number from -2 to 2 for each pair of answers depending on the contents of answers, where -2 is the most inefficient and 2 is the most efficient.
+  \item
+    To construct the individual's persistent perception toward the government, we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect.
+  \item
+    use the obtained fixed effect as the efficiency index
+  \end{enumerate}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Histrogram of Efficient Index}
+\protect\hypertarget{histrogram-of-efficient-index}{}
+\begin{figure}
+
+{\centering \includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/HistogramEfficientid} 
+
+}
+
+\caption{Histogram of Efficient Index}\label{fig:unnamed-chunk-1}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Two Potential Concerns}
+\protect\hypertarget{two-potential-concerns}{}
+\begin{enumerate}
+\tightlist
+\item
+  There is a room for subjects to interpret the questions of tax/welfare balance as questions about the expenditure policy of the government.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
+  \end{itemize}
+\item
+  Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Heterogenous Price Elasticity by Governement Efficiency}
+\protect\hypertarget{heterogenous-price-elasticity-by-governement-efficiency}{}
+To see the heterogenous price elasticity by efficient index,
+we utilize the interaction between the efficiency index and the giving price.
+
+Bothe ways of the analyses use the sepcifications based on the Equation (XX) and (XX) for intensive and extensive margins,
+respectively.
+
+We control individual and time fixed effect,
+and other covariates.
+\end{frame}
+
+\begin{frame}{Heterogenous Price Elasticity: Estimations Results}
+\protect\hypertarget{heterogenous-price-elasticity-estimations-results}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroElasticitySlide1}Heterogenous Elasticity by Perceived Government Efficiency (1)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+ln(giving price) & -1.356*** & -0.284*** & -0.952***\\
+ & (0.336) & (0.076) & (0.334)\\
+ln(giving price) X 2Q Efficient Group & -0.032 & -0.059 & 0.292\\
+ & (0.423) & (0.098) & (0.489)\\
+ln(giving price) X 3Q Efficient Group & 0.353 & 0.095 & -0.285\\
+ & (0.417) & (0.097) & (0.545)\\
+N & 50455 & 50455 & 11327\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Heterogenous Price Elasticity: Implied Elasticity}
+\protect\hypertarget{heterogenous-price-elasticity-implied-elasticity}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroElasticitySlide2}Heterogenous Elasticity by Perceived Government Efficiency (2)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+Implied price elasiticity (1Q efficient group) & -1.356*** & -1.396*** & -0.952***\\
+ & (0.336) & (0.374) & (0.334)\\
+Implied price elasiticity (2Q efficient group) & -1.388*** & -1.686*** & -0.661*\\
+ & (0.330) & (0.378) & (0.394)\\
+Implied price elasiticity (3Q efficient group) & -1.002*** & -0.930** & -1.237***\\
+ & (0.327) & (0.374) & (0.468)\\
+N & 50455 & 50455 & 11327\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 1}
+\protect\hypertarget{robustness-check-1-1}{}
+First Potential Concern: interpretaion of the questions of tax/welfare balance as questions about the expenditure policy of the government
+
+\begin{itemize}
+\tightlist
+\item
+  First, we construct three quantile groups, using the original efficient index.
+\item
+  Second, we rule out the subjects whose efficiency index for the ideal balance question is less than 0 from each group.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 1: Density of Efficient Index}
+\protect\hypertarget{robustness-check-1-density-of-efficient-index}{}
+\begin{figure}
+
+{\centering \includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/_assets/DensityEfficientid} 
+
+}
+
+\caption{Density of Efficient Index Using those whose ideal efficient index > 0}\label{fig:unnamed-chunk-2}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Robustness Check 1: Estimation Results}
+\protect\hypertarget{robustness-check-1-estimation-results}{}
+\begin{table}
+
+\caption{\label{tab:kableSubsetHeteroElasticitySlide1}Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0 (1)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+ln(giving price) & -1.831*** & -0.316*** & -1.303**\\
+ & (0.538) & (0.115) & (0.571)\\
+ln(giving price) X 2Q Efficient Group & 0.339 & 0.045 & 0.308\\
+ & (0.657) & (0.146) & (0.807)\\
+ln(giving price) X 3Q Efficient Group & 1.295** & 0.237* & 0.236\\
+ & (0.586) & (0.135) & (0.834)\\
+N & 23366 & 23366 & 5004\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 1: Implied Price Elasticity}
+\protect\hypertarget{robustness-check-1-implied-price-elasticity}{}
+\begin{table}
+
+\caption{\label{tab:kableSubsetHeteroElasticitySlide2}Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0 (1)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+Implied price elasiticity (1Q efficient group) & -1.831*** & -1.555*** & -1.303**\\
+ & (0.538) & (0.565) & (0.571)\\
+Implied price elasiticity (2Q efficient group) & -1.492*** & -1.335** & -0.995\\
+ & (0.505) & (0.561) & (0.622)\\
+Implied price elasiticity (3Q efficient group) & -0.536 & -0.392 & -1.067\\
+ & (0.416) & (0.500) & (0.680)\\
+N & 23366 & 23366 & 5004\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2}
+\protect\hypertarget{robustness-check-2}{}
+Second potential concern: Last price elasticity
+
+\begin{itemize}
+\tightlist
+\item
+  We repeat same excercise as the panel IV including two interaction terms as endogenous variables.
+\item
+  Exgonenous variables are the interaction between giving price and dummies of efficient index group.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Estimation Results (1)}
+\protect\hypertarget{robustness-check-2-estimation-results-1}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroLastElasticitySlide1}Heterogenous Last Price Elasticity: Panel IV (1)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+ln(last giving price) & -2.604*** & -0.586*** & -1.166***\\
+ & (0.342) & (0.077) & (0.438)\\
+ln(last giving price) X 2Q Efficient Group & -0.272 & -0.104 & 0.043\\
+ & (0.417) & (0.095) & (0.591)\\
+ln(last giving price) X 3Q Efficient Group & -0.010 & -0.038 & 0.111\\
+ & (0.420) & (0.096) & (0.709)\\
+N & 49575 & 49575 & 10447\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Implied Price Elasticity (1)}
+\protect\hypertarget{robustness-check-2-implied-price-elasticity-1}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroLastElasticitySlide2}Heterogenous Last Price Elasticity: Panel IV (2)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+Implied last price elasiticity (1Q efficient group) & -2.604*** & -2.883*** & -1.166***\\
+ & (0.342) & (0.377) & (0.438)\\
+Implied last price elasiticity (2Q efficient group) & -2.876*** & -3.395*** & -1.122**\\
+ & (0.318) & (0.362) & (0.488)\\
+Implied last price elasiticity (3Q efficient group) & -2.614*** & -3.071*** & -1.055*\\
+ & (0.328) & (0.371) & (0.639)\\
+N & 49575 & 49575 & 10447\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Estimation Results (2)}
+\protect\hypertarget{robustness-check-2-estimation-results-2}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroLastElasticitySlide3}Heterogenous Last Price Elasticity: Panel IV (3)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (4) & (5) & (6)\\
+\midrule
+ln(last giving price) & -2.984*** & -0.579*** & -1.681**\\
+ & (0.551) & (0.116) & (0.778)\\
+ln(last giving price) X 2Q Efficient Group & -0.108 & -0.063 & 0.239\\
+ & (0.645) & (0.141) & (1.019)\\
+ln(last giving price) X 3Q Efficient Group & 0.894 & 0.056 & 1.285\\
+ & (0.588) & (0.132) & (1.071)\\
+N & 22974 & 22974 & 4612\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Implied Price Elasticity (2)}
+\protect\hypertarget{robustness-check-2-implied-price-elasticity-2}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroLastElasticitySlide4}Heterogenous Last Price Elasticity: Panel IV (4)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (4) & (5) & (6)\\
+\midrule
+Implied last price elasiticity (1Q efficient group) & -2.984*** & -3.097*** & -1.681**\\
+ & (0.551) & (0.621) & (0.778)\\
+Implied last price elasiticity (2Q efficient group) & -3.092*** & -3.432*** & -1.442*\\
+ & (0.491) & (0.583) & (0.776)\\
+Implied last price elasiticity (3Q efficient group) & -2.091*** & -2.796*** & -0.396\\
+ & (0.414) & (0.533) & (0.892)\\
+N & 22974 & 22974 & 4612\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 3}
+\protect\hypertarget{robustness-check-3-1}{}
+Third potential concerns: Price change due to the change in income
+
+\begin{itemize}
+\tightlist
+\item
+  To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    By this restriction, the \emph{within} price variation of giving price is completely exgonenous.
+  \end{itemize}
+\item
+  We include interactions between giving price and dummies of the efficient quantile group.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 3: Estimation Result (1)}
+\protect\hypertarget{robustness-check-3-estimation-result-1}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroShortElasticitySlide1}Heterogenous Last Price Elasticity: Panel IV (1)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+ln(giving price) & -1.116*** & -0.197** & -1.175***\\
+ & (0.425) & (0.096) & (0.380)\\
+ln(giving price) X 2Q Efficient Group & -0.499 & -0.198 & 0.164\\
+ & (0.544) & (0.124) & (0.558)\\
+ln(giving price) X 3Q Efficient Group & -0.125 & -0.060 & -0.167\\
+ & (0.530) & (0.124) & (0.630)\\
+N & 44115 & 44115 & 9967\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 3: Implied Price Elasticity (1)}
+\protect\hypertarget{robustness-check-3-implied-price-elasticity-1}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroShortElasticitySlide2}Heterogenous Last Price Elasticity: Panel IV}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Full Sample} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+Implied price elasiticity (1Q efficient group) & -1.116*** & -0.951** & -1.175***\\
+ & (0.425) & (0.464) & (0.380)\\
+Implied price elasiticity (2Q efficient group) & -1.615*** & -1.910*** & -1.011**\\
+ & (0.431) & (0.470) & (0.455)\\
+Implied price elasiticity (3Q efficient group) & -1.240*** & -1.242*** & -1.342**\\
+ & (0.413) & (0.470) & (0.549)\\
+N & 44115 & 44115 & 9967\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 3: Estimation Result (3)}
+\protect\hypertarget{robustness-check-3-estimation-result-3}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroShortElasticitySlide3}Heterogenous Last Price Elasticity: Panel IV (3)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (4) & (5) & (6)\\
+\midrule
+ln(giving price) & -1.526** & -0.187 & -1.301*\\
+ & (0.650) & (0.146) & (0.713)\\
+ln(giving price) X 2Q Efficient Group & 0.064 & -0.090 & -0.094\\
+ & (0.863) & (0.192) & (0.974)\\
+ln(giving price) X 3Q Efficient Group & 0.448 & -0.036 & 0.197\\
+ & (0.733) & (0.175) & (0.941)\\
+N & 20441 & 20441 & 4419\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 3: Implied Price Elasticity (4)}
+\protect\hypertarget{robustness-check-3-implied-price-elasticity-4}{}
+\begin{table}
+
+\caption{\label{tab:kableHeteroShortElasticitySlide4}Heterogenous Last Price Elasticity: Panel IV (4)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Ideal Efficient Index > 0} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (4) & (5) & (6)\\
+\midrule
+Implied price elasiticity (1Q efficient group) & -1.526** & -1.000 & -1.301*\\
+ & (0.650) & (0.780) & (0.713)\\
+Implied price elasiticity (2Q efficient group) & -1.462** & -1.480* & -1.394*\\
+ & (0.730) & (0.835) & (0.755)\\
+Implied price elasiticity (3Q efficient group) & -1.078* & -1.193* & -1.103\\
+ & (0.550) & (0.722) & (0.739)\\
+N & 20441 & 20441 & 4419\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 4}
+\protect\hypertarget{robustness-check-4}{}
+Third potential concerns: Price change due to the change in income
+
+\begin{itemize}
+\tightlist
+\item
+  To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
+\item
+  We can also rule out this problem, using the change in the first giving price.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The change in the first giving price is \(\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
+  \item
+    Since we fix the income \(y_{it-k}\), this variation comes from the tax reform.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 4: Estimation Results (1)}
+\protect\hypertarget{robustness-check-4-estimation-results-1}{}
+\begin{table}
+
+\caption{\label{tab:kableHeterokDiffElasticitySlide1}Heterogenous Price Elasticity: $k$-difference Model (1)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+Lagged difference of first price (log) & -1.778*** & -2.884*** & -2.467***\\
+ & (0.553) & (0.520) & (0.509)\\
+\hspace{1em}X 2Q Efficient Group & -0.204 & 0.970 & 0.755\\
+ & (0.747) & (0.687) & (0.648)\\
+\hspace{1em}X 3Q Efficient Group & -0.346 & 1.316** & 1.440**\\
+ & (0.704) & (0.644) & (0.624)\\
+N & 46661 & 44448 & 42198\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 4: Implied Price Elasticity (1)}
+\protect\hypertarget{robustness-check-4-implied-price-elasticity-1}{}
+\begin{table}
+
+\caption{\label{tab:kableHeterokDiffElasticitySlide2}Heterogenous Price Elasticity: $k$-difference Model (2)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+Implied price elasiticity (1Q efficient group) & -1.778*** & -2.884*** & -2.467***\\
+ & (0.553) & (0.520) & (0.509)\\
+Implied price elasiticity (2Q efficient group) & -1.982*** & -1.914*** & -1.712***\\
+ & (0.611) & (0.546) & (0.508)\\
+Implied price elasiticity (3Q efficient group) & -2.123*** & -1.568*** & -1.027**\\
+ & (0.550) & (0.494) & (0.485)\\
+N & 46661 & 44448 & 42198\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 4: Estimation Results (2)}
+\protect\hypertarget{robustness-check-4-estimation-results-2}{}
+\begin{table}
+
+\caption{\label{tab:kableHeterokDiffElasticitySlide3}Heterogenous Price Elasticity: $k$-difference Model (3)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (4) & (5) & (6)\\
+\midrule
+Lagged difference of first price (log) & -1.401 & -2.320** & -2.549***\\
+ & (1.074) & (0.970) & (0.788)\\
+\hspace{1em}X 2Q Efficient Group & -0.113 & -0.035 & 0.942\\
+ & (1.548) & (1.331) & (1.128)\\
+\hspace{1em}X 3Q Efficient Group & -1.439 & 0.218 & 0.302\\
+ & (1.610) & (1.319) & (1.196)\\
+N & 10675 & 10257 & 9811\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 4: Implied Price Elasticity (2)}
+\protect\hypertarget{robustness-check-4-implied-price-elasticity-2}{}
+\begin{table}
+
+\caption{\label{tab:kableHeterokDiffElasticitySlide4}Heterogenous Price Elasticity: $k$-difference Model (4)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (4) & (5) & (6)\\
+\midrule
+Implied price elasiticity (1Q efficient group) & -1.401 & -2.320** & -2.549***\\
+ & (1.074) & (0.970) & (0.788)\\
+Implied price elasiticity (2Q efficient group) & -1.515 & -2.355** & -1.607*\\
+ & (1.230) & (0.986) & (0.885)\\
+Implied price elasiticity (3Q efficient group) & -2.840** & -2.102** & -2.248**\\
+ & (1.317) & (0.995) & (0.973)\\
+N & 10675 & 10257 & 9811\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 4 (Ideal Efficient ID \textgreater{} 0): Estimation Results (1)}
+\protect\hypertarget{robustness-check-4-ideal-efficient-id-0-estimation-results-1}{}
+\begin{table}
+
+\caption{\label{tab:kableSubsetHeterokDiffElasticitySlide1}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (1)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+Lagged difference of first price (log) & -2.215** & -3.269*** & -2.647***\\
+ & (0.872) & (0.794) & (0.821)\\
+\hspace{1em}X 2Q Efficient Group & 0.078 & 0.900 & 0.604\\
+ & (1.233) & (1.070) & (0.972)\\
+\hspace{1em}X 3Q Efficient Group & -0.666 & 2.307*** & 2.242**\\
+ & (1.024) & (0.894) & (0.875)\\
+N & 21583 & 20516 & 19422\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 4 (Ideal Efficient ID \textgreater{} 0): Implied Price Elasticity (1)}
+\protect\hypertarget{robustness-check-4-ideal-efficient-id-0-implied-price-elasticity-1}{}
+\begin{table}
+
+\caption{\label{tab:kableSubsetHeterokDiffElasticitySlide2}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (2)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall Elasticity} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (1) & (2) & (3)\\
+\midrule
+Implied price elasiticity (1Q efficient group) & -2.215** & -3.269*** & -2.647***\\
+ & (0.872) & (0.794) & (0.821)\\
+Implied price elasiticity (2Q efficient group) & -2.137** & -2.369*** & -2.042***\\
+ & (1.064) & (0.869) & (0.725)\\
+Implied price elasiticity (3Q efficient group) & -2.881*** & -0.962 & -0.404\\
+ & (0.795) & (0.633) & (0.590)\\
+N & 21583 & 20516 & 19422\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 4 (Ideal Efficient ID \textgreater{} 0): Estimation Results (2)}
+\protect\hypertarget{robustness-check-4-ideal-efficient-id-0-estimation-results-2}{}
+\begin{table}
+
+\caption{\label{tab:kableSubsetHeterokDiffElasticitySlide3}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (3)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (4) & (5) & (6)\\
+\midrule
+Lagged difference of first price (log) & -0.841 & -4.928*** & -2.227\\
+ & (1.936) & (1.780) & (1.588)\\
+\hspace{1em}X 2Q Efficient Group & -0.752 & 1.312 & -0.954\\
+ & (2.841) & (2.329) & (1.992)\\
+\hspace{1em}X 3Q Efficient Group & -3.101 & 3.154 & 2.071\\
+ & (2.646) & (2.219) & (2.081)\\
+N & 4686 & 4474 & 4245\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 4 (Ideal Efficient ID \textgreater{} 0): Implied Price Elasticity (2)}
+\protect\hypertarget{robustness-check-4-ideal-efficient-id-0-implied-price-elasticity-2}{}
+\begin{table}
+
+\caption{\label{tab:kableSubsetHeterokDiffElasticitySlide4}Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (4)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-Margin Elasticity} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{Lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+ & (4) & (5) & (6)\\
+\midrule
+Implied price elasiticity (1Q efficient group) & -0.841 & -4.928*** & -2.227\\
+ & (1.936) & (1.780) & (1.588)\\
+Implied price elasiticity (2Q efficient group) & -1.592 & -3.616** & -3.182**\\
+ & (2.238) & (1.656) & (1.336)\\
+Implied price elasiticity (3Q efficient group) & -3.942* & -1.775 & -0.156\\
+ & (2.032) & (1.514) & (1.461)\\
+N & 4686 & 4474 & 4245\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1076,7 +1727,10 @@ N & 13788 & 13440 & 21528\\
 \section{Conclusions}\label{conclusions}}
 
 \begin{frame}{Conclusions}
-\protect\hypertarget{conclusions-1}{}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{References}
+\protect\hypertarget{references}{}
 \end{frame}
 
 \end{document}

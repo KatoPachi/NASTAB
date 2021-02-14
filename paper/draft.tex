@@ -1,0 +1,1202 @@
+
+\documentclass[ review  , 3p ]{elsarticle}
+%default = preprint (single sapce), review = doublespace
+%detail class option: https://www.elsevier.com/__data/assets/pdf_file/0008/56843/elsdoc-1.pdf
+
+% eliminate "Preprinted to Elsevier"
+\makeatletter
+\def\ps@pprintTitle{%
+ \let\@oddhead\@empty
+ \let\@evenhead\@empty
+ \def\@oddfoot{\centerline{\thepage}}%
+ \let\@evenfoot\@oddfoot}
+\makeatother
+
+%%% Begin My package additions %%%%%%%%%%%%%%%%%%%
+\usepackage[hyphens]{url}
+
+
+
+\usepackage{lineno} % add
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage{graphicx}
+
+\usepackage{zxjatype}
+\usepackage{xeCJK}
+\setCJKmainfont{ipaexm.ttf}
+\setCJKsansfont{ipaexg.ttf}
+\setCJKmonofont{ipaexg.ttf}
+
+\usepackage{color}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+
+
+%\usepackage{xpatch}
+%\xpatchcmd{\MaketitleBox}{\hrule}{}{}{}% remove first horizontal rule (above abstract)
+%\xpatchcmd{\MaketitleBox}{\hrule}{}{}{}% remoce second horizonral rule (below keywords)
+%%%%%%%%%%%%%%%% end my additions to header
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \usepackage{fontspec}
+  \ifxetex
+    \usepackage{xltxtra,xunicode}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\fi
+% use microtype if available
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+\bibliographystyle{elsarticle-harvard}
+\usepackage{tabularx}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={},
+            pdftitle={Short Paper},
+            colorlinks=false,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+\setcounter{secnumdepth}{5}
+
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[3] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1 \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces\fi
+  % set entry spacing
+  \ifnum #2 > 0
+  \setlength{\parskip}{#2\baselineskip}
+  \fi
+ }%
+ {}
+\usepackage{calc} % for \widthof, \maxof
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\maxof{\widthof{#1}}{\csllabelwidth}}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth}{#1}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+% Pandoc toggle for numbering sections (defaults to be off)
+
+
+% Pandoc header
+
+
+\begin{document}
+  \begin{frontmatter}
+
+    \title{Charitable Giving, Tax Reform, and Government Efficiency\tnoteref{1}}
+            \tnotetext[1]{This research is base on}
+                \author[Osaka University]{
+      Hiroki Kato 
+       \corref{*} }
+     \ead{vge008kh@stundent.econ.osaka-u.ac.jp}   %to avoid auto-link, use \@ instead of @
+        \author[Chiba University]{
+      Tsuyoshi Goto 
+      }
+      %to avoid auto-link, use \@ instead of @
+        \author[Kobe University]{
+      Yong-Rok Kim 
+      }
+      %to avoid auto-link, use \@ instead of @
+            \address[Osaka University]{Graduate School of Economics, Osaka University, Japan}
+        \address[Chiba University]{Graduate School of Economics, Chiba University, Japan}
+        \address[Kobe University]{Graduate School of Economics, Kobe University, Japan}
+            \cortext[*]{Corresponding Author.}
+      
+        \begin{abstract}
+      Brah
+    \end{abstract}
+      
+        \begin{keyword}
+      Charitable giving, Giving price, Tax reform, Governement efficiency, South Korea
+       \JEL{D91, I10, I18} 
+    \end{keyword}
+    
+  \end{frontmatter}
+
+  \hypertarget{introduction}{%
+  \section{Introduction}\label{introduction}}
+
+  In many countries, governments set a tax relief for charitable giving. This is because, if subsidizing charitable giving induces a large increase in donations, it is desirable for public good provision. To evaluate the effect of tax relief, many papers investigate the elasticity of charitable donations with respect to their tax price (Almunia et al., 2020; Auten et al., 2002; Bakija and Heim, 2011; Fack and Landais, 2010; Randolph, 1995). Focusing on the tax deduction or tax credit on the charity, they show that the price elasticity of giving is about -1 or more in terms of absolute value, which means that the tax relief for the charitable giving is good in the sense that 1\% tax relief derives more than 1\% donation.
+
+  However, if the government can provide public good more efficiently than the direct donation, the donation may not be preferable because the public good provision via donation would be costly then.
+  Moreover, when the government is much more efficient than charities, people may not donate so much even if they have a warm-glow preference. Saez (2004) suggests that the change of the relative price between public good provision by donation and government will change the behavior of people and the price elasticity of donation.
+  However, the evaluation about the efficiency of the government is usually subjective and different for people. If someone regard the government as efficient, the perceived relative price of giving would be high for them. Thus, the giving behavior would be affected by the subjective perception towards the government.
+
+  Considering these points, this paper investigates (1) the price elasticity of giving and (2) whether the different perception towards the government cause the different giving behavior using South Korean panel data.
+  Our first main concern is the price elasticity of charity. South Korea (Korea hereafter) experienced the tax reform in 2014, from when the tax relief on charitable giving was conducted by tax credit, though tax deduction had been used before 2014. Thus, we exploit this tax reform as an exogenous policy change to derive the price elasticity of giving. Since the extant research focus on the tax reform within the scheme of tax deduction or tax credit, this paper firstly deals with the tax reform from tax deduction system to tax credit system.
+  Our result classifies that the price elasticity of giving in Korea is -1.07 \textasciitilde{} -1.26, which is within the range of the extant research.
+
+  Our second concern is the relationship between the giving behavior and the perception towards the government. As we explained, people feeling administrative inefficiency would consider the direct donation is more efficient and would have more willingness to donate. Using the Korean field data, we investigate this and show that the amount of donation is not different between those who regard government as inefficient and the others, though the giving price elasticity of the former is more elastic than the latter. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price.
+
+  This paper contributes two strands of charitable giving literature: the elasticity of charitable donations with respect to their tax price and the perception of government's inefficiency. The examples of papers in the first strand are Randolph (1995), Auten et al. (2002), Fack and Landais (2010), Bakija and Heim (2011), and Almunia et al. (2020). They typically use the tax return data, the main part of which is the data about wealthy people. Since our data is based on survey, which reflects the income distribution of population, we believe that we can estimate the giving price elasticity of population more precisely. Using the data with low-income households may be difficult to estimate the giving price elasticity in terms of intensive margin since they are expected to donate less than high-income households. To address this issue, we estimate not only the elasticity of intensive margin, as most of papers do, but also the elasticity of extensive margin following Almunia et al. (2020).
+  Moreover, we use the data of Korea, a non-Western country, which the extant research did not examine\footnote{This point may be important since Kim (2021) reports that the giving behavior is strongly affected by the cultural matter such as the religious belief.}.
+
+  In the second strand, there are some experimental studies and papers considering the tax evasion. Using an experiment, Li et al. (2011) compare people's willingness to give money for private charities and government agencies whose missions are the same. They show that people tend to donate for private charities more than government agency though they do not directly investigate the relationship between people's perception toward the government and giving behavior. Sheremeta and Uler (2020) show that people increase the voluntary public good provision when they face the wasteful government spending in the experimental setting. Although the government in their setting does not provide public good, they suggest that the willingness for donation may increase if people perceive the inefficiency of government. In the tax evasion literature, several paper suggests the perceived inefficiency of government reduce tax morale (Anderson, 2017; Frey and Torgler, 2007; Hammar et al., 2009). We contribute on this literature by showing the relation between the perception of government efficiency and the giving behavior.
+
+  This paper consist of XXX sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 deals with the analysis of giving price elasticity and section 5 shows the analysis of perceptions toward the government. We discuss the result in section 6 and section 7 concludes.
+
+  \hypertarget{institutional-background}{%
+  \section{Institutional background}\label{institutional-background}}
+
+  In this section, we describe the income tax relief for charitable giving in Korea and used dataset.
+
+  \hypertarget{tax-relief-for-charitable-giving-by-tax-deduction-and-tax-credit}{%
+  \subsection{Tax relief for charitable giving by tax deduction and tax credit}\label{tax-relief-for-charitable-giving-by-tax-deduction-and-tax-credit}}
+
+  In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction.
+
+  The tax deduction and tax credit may have different effects on giving behavior. This subsection summarize the difference of tax deduction and tax credit.
+  Consider that a household has a choice between private consumptions (\(x_i\)) and charitable giving (\(g_i\)). Let \(y_i\) be pre-tax total income.
+  Then, the budget constraint is
+
+  \[
+      x_i + g_i = y_i - T_i(y_i, g_i).
+  \]
+  \(T_i\) is tax amount which depends on the pre-tax income and charitable giving.
+  On one hand, tax deduction reduces taxable income by giving, that is,
+
+  \[
+      T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
+  \]
+
+  where \(\tau(\cdot)\) is the marginal income tax rate which is determined by \(y_i - g_i\). The budget constraint will be
+
+  \[
+      x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
+  \]
+
+  Thus, the giving price compared to the price of private consumption is \(p_i^{d} \equiv 1 - \tau(y_i - g_i)\) in tax deduction system. Since the giving price in tax deduction scheme varies depending on (1) the income level and (2) the amount of charitable giving, it is endogenous to them, i.e.~(1) and (2).
+
+  On the other hand, tax credit reduces tax amount directly, that is,
+
+  \[
+      T_i = \tau(y_i)\cdot y_i - m g_i,
+  \]
+
+  where \(m \in [0, 1]\) is the tax credit rate. Under the tax credit system, the budget constraint is
+
+  \[
+      x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
+  \]
+
+  Thus, the giving price of tax credit system will be \(p_i^c = 1 - m\), which is only dependent on the tax credit rate \(m\), which is exogenously determined by the government.
+  Therefore, the giving price in the tax credit system would not be manipulated by donors.
+  ---\textgreater{}
+
+  \hypertarget{korean-tax-reform-in-2014-need-modification-by-kim-san}{%
+  \subsection{Korean tax reform in 2014 (Need modification by Kim san)}\label{korean-tax-reform-in-2014-need-modification-by-kim-san}}
+
+  The tax incentives for charitable giving in Korea stared in 1967 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761\% of GDP) in 2012 according to the national tax statistics.
+  Since the income tax deduction was initially used as a tax incentive and the marginal income tax rate was determined as Table \ref{tab:tabTaxRate}, the minimum giving price before 2014 was 0.62.
+
+  \begin{table}
+
+  \caption{\label{tab:tabTaxRate}Marginal Income Tax Rate}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lccccccc}
+  \toprule
+  Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{} 2013 & 2014 \textasciitilde{} 2016 & 2017 & 2018\\
+  \midrule
+  (A) \textasciitilde{} 1200 & 8\% & 6\% & 6\% & 6\% & 6\% & 6\% & 6\%\\
+  \cmidrule{1-8}
+  (B) 1200 \textasciitilde{} 4600 & 17\% & 16\% & 15\% & 15\% & 15\% & 15\% & 15\%\\
+  \cmidrule{1-8}
+  (C) 4600 \textasciitilde{} 8800 & 26\% & 25\% & 24\% &  & 24\% & 24\% & 24\%\\
+  \cmidrule{1-4}
+  \cmidrule{6-8}
+  (D) 8800 \textasciitilde{} 15000 &  &  &  & \multirow{-2}{*}{\centering\arraybackslash 24\%} & 35\% &  & 35\%\\
+  \cmidrule{1-1}
+  \cmidrule{5-6}
+  \cmidrule{8-8}
+  (E) 15000 \textasciitilde{} 30000 &  &  &  & 35\% &  & \multirow{-2}{*}{\centering\arraybackslash 35\%} & 38\%\\
+  \cmidrule{1-1}
+  \cmidrule{5-5}
+  \cmidrule{7-8}
+  (F) 30000 \textasciitilde{} 50000 &  &  &  &  &  & 38\% & 40\%\\
+  \cmidrule{1-1}
+  \cmidrule{7-8}
+  (G) 50000 \textasciitilde{} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-2}{*}{\centering\arraybackslash 38\%} & \multirow{-3}{*}{\centering\arraybackslash 38\%} & 40\% & 42\%\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: Marginal income tax rates applied from 2008 to 2018 are summarized. The income level is shown in terms of 10,000 KRW, which is approximately 10 United States dollars (USD) at an exchange rate of 1,000 KRW to one USD.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system again, where the tax credit was introduced instead of tax deduction. Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit, which means that the giving price from 2014 is 0.85 irrelevant to the income level.
+
+  Summarizing this, compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%, get benefit from charitable giving under the tax deduction system. However, middle or low income households would enjoy tax relief in tax credit system more than tax deduction system. We exploit this policy change as an identification strategy.
+
+  \hypertarget{data}{%
+  \section{Data}\label{data}}
+
+  \hypertarget{national-survey-of-tax-and-benefit-nastab}{%
+  \subsection{National Survey of Tax and Benefit (NaSTaB)}\label{national-survey-of-tax-and-benefit-nastab}}
+
+  In this paper, we use panel data from the National Survey of Tax and Benefit (NasTaB).
+  NasTaB survey is an annual financial panel survey
+  implemented by The Korea Institute of Taxation and Finance
+  to study the tax burden of households and the benefits that households receive from government.
+  The subjects of this survey are general household and household members living in 15 cities
+  and provinces nationwide.
+  This survey is based on a face-to-face interview.
+  If it is difficult for investigators to meet subjects, another family member answers on behalf of him.\footnote{Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.}
+
+  In the analysis, we use data from 2012 to 2018 since
+  \color{red}
+  we focus on the 2014 tax reform.
+  By this restriction, the most giving price variation relies on the 2014 tax reform because
+  the marginal income tax rate is same in 2012 and 2013.
+  \color{black}
+  In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
+
+  \begin{table}
+
+  \caption{\label{tab:kableSummaryCovariate}Summary Statistics}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{tabular}[t]{lccclcccl}
+  \toprule
+   & N & Mean & Std.Dev. & Min & p25 & Median & p75 & Max\\
+  \midrule
+  \addlinespace[0.3em]
+  \multicolumn{9}{l}{\textbf{Income and Giving Price}}\\
+  \hspace{1em}Annual taxable income (unit: 10,000KRW) & 53269 & 1876.121 & 2700.965 & 0.00 & 0.00 & 900.00 & 2902.445 & 91772.00\\
+  \hspace{1em}Giving Price & 62878 & 0.858 & 0.036 & 0.62 & 0.85 & 0.85 & 0.850 & 0.94\\
+  \addlinespace[0.3em]
+  \multicolumn{9}{l}{\textbf{Charitable Donations}}\\
+  \hspace{1em}Annual charitable giving (unit: 10,000KRW) & 67849 & 29.522 & 132.914 & 0.00 & 0.00 & 0.00 & 0.000 & 10000.00\\
+  \hspace{1em}dummy of Donation > 0 & 67849 & 0.203 & 0.402 & 0.00 & 0.00 & 0.00 & 0.000 & 1.00\\
+  \addlinespace[0.3em]
+  \multicolumn{9}{l}{\textbf{Government Efficiency}}\\
+  \hspace{1em}Current Tax-Welfare Balance & 29272 & -0.137 & 0.889 & -2.00 & -1.00 & 0.00 & 0.000 & 2.00\\
+  \hspace{1em}Ideal Tax-Welfare Balance & 29273 & 0.541 & 0.721 & -2.00 & 0.00 & 0.00 & 1.000 & 2.00\\
+  \addlinespace[0.3em]
+  \multicolumn{9}{l}{\textbf{Individual Characteristics}}\\
+  \hspace{1em}Age & 67848 & 51.348 & 15.806 & 24.00 & 39.00 & 50.00 & 62.000 & 104.00\\
+  \hspace{1em}Female dummy & 67848 & 0.525 & 0.499 & 0.00 & 0.00 & 1.00 & 1.000 & 1.00\\
+  \hspace{1em}University graduate & 67842 & 0.411 & 0.492 & 0.00 & 0.00 & 0.00 & 1.000 & 1.00\\
+  \hspace{1em}High school graduate & 67842 & 0.350 & 0.477 & 0.00 & 0.00 & 0.00 & 1.000 & 1.00\\
+  \hspace{1em}Junior high school graduate & 67842 & 0.238 & 0.426 & 0.00 & 0.00 & 0.00 & 0.000 & 1.00\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+
+  \color{red}
+
+  Table \ref{tab:kableSummaryCovariate} is summary statistics of our sample.
+  We used four types of variables in this paper:
+  sets of variables about Income and Giving Price,
+  Charitable Donations,
+  Government Efficiency,
+  and Individual Characteristics.
+  A set of variables about Government Efficiency is constructed from the value survey of NasTaB data.
+  Current Tax-Welfare Balance shows how the subject perceives the balance between tax burden and received welfare from the government,
+  while Ideal Tax-Welfare Balance indicates what is the ideal balance between tax burden and received welfare for the subject.
+  The higher values of them means that received welfare from the government is higher than tax burden.
+  We explain the details and constructions of these variables later.
+  The variables about Individual Characteristics,
+  which consist from age, gender and final education levels, are used as control variables.
+
+  In the next two subsections,
+  we describe the first two set of variables in detail.
+
+  \hypertarget{income-and-giving-price}{%
+  \subsection{Income and Giving Price}\label{income-and-giving-price}}
+
+  NaSTaB asks respondents to answer the annual income last year.
+  For example, in the 2014 survey, respondents answer the annual income at 2013.
+  In our sample, the average annual taxable income is 18.76 million KRW.
+  According to the National Tax Statistical Yearbook published by Korean National Tax Service,
+  the average annual taxable income is 32.77 million from 2012 to 2018
+  for employees who submited the tax return.
+  Since our sample includes subjects with no labor income, such as housewife,
+  our sample mean of income is lower than average income calculated by the public organizations.
+  In Figure \ref{fig:showSummaryPriceChange},
+  the grey bars show the distribution of annual taxable income in 2013.
+  The income distribution is left-skewed.
+
+  Using this variable, we construct the giving price under the tax deduction system (2012 and 2013).
+  After the tax reform (after 2014), the giving price is 0.85 under the tax credit system,
+  as we explained in the section \ref{institutional-background}.
+  In Figure \ref{fig:showSummaryPriceChange},
+  the blue line shows giving price in 2012 and 2013,
+  while the red dashed line shows the giving price after 2014.
+  From this figure,
+  those whose annual income is less than 1200 in 2013 could receive benefit by the 2014 tax reform
+  bacause the tax reform decreases the giving price.
+  On the other hand,
+  those whose auunal income is greater than 4600 in 2013 had a loss by the 2014 tax reform
+  since the tax reform increases the giving price.
+
+  \begin{figure}[t]
+
+  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryPriceChange} 
+
+  }
+
+  \caption{Income Distribution and Giving Price in 2013}\label{fig:showSummaryPriceChange}
+  \end{figure}
+
+  \hypertarget{charitable-giving}{%
+  \subsection{Charitable Giving}\label{charitable-giving}}
+
+  NaSTaB asks respondents to answer the amount of donations for seven specific purposes last year.
+  Seven specific purposes are
+  policitical parties,
+  educational organizations,
+  social welfare organizations,
+  organizations for culutre and art,
+  religious groups,
+  charity activies organaized by religious group,
+  other purposes.
+  We sum up the amount of donations, and consider it as the annual charitable giving.
+  We use this variable as an first outcome variable when
+  estimating the price effect on the amount of donations among donors (intensive margin).
+
+  Using this variable, we make a dummy variable taking 1 if repsondents donate (Dummy of Donation).
+  This is the second outcome variable
+  to estimate the price effect on the decision of donations (extensive margin).
+
+  Table \ref{tab:kableSummaryCovariate} shows that
+  the average amount of donation is almost 300,000 KRW,
+  and the proportion of donors is roughly 20\%.
+  Figure \ref{fig:showDonationRate} shows the time-series of two variables.
+  The blue line shows the average amount of donation among donors.
+  In each year, its value is nearly 1.5 million KRW,
+  which is 7\% of average annual taxable income.
+  The grey bar shows the proportion of donors.
+  After the tax reform, the proportion of donors decreases by 2\%.
+  After that, the proportion of donors is greter than 20\%.
+  \color{black}
+
+  \begin{figure}[t]
+
+  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/SummaryOutcome} 
+
+  }
+
+  \caption{Proportion of Donors and Average Donations among Donors}\label{fig:showDonationRate}
+  \end{figure}
+
+  \hypertarget{estimation}{%
+  \section{Estimation}\label{estimation}}
+
+  Following Almunia et al. (2020), we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
+
+  We estimate the elasticity of intensive margin using the following specification:
+  \[
+  \ln g_{it} = \varepsilon_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{intensive}
+  \]
+  \(g_{it}, p_{it}\) and \(y_{it}\) respectively indicates the amount of giving, the giving price, and income of \(i\) in year \(t\). \(\mu_i, \iota_t\) and \(u_{it}\) are individual fixed effect, year fixed effect and error term, respectively.
+  The individual fixed effect controls for time-invariant individual characteristics. The year fixed effect controls for events that affect all subjects at the same time. \(X_{it}\) is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into \(X_{it}\), since they will control for events that affects subject with specific characteristics at the same time following Zeldow and Hatfield (2019).
+
+  The elasticity of extensive margin is estimated using the linear probability model such as
+  \[
+  D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_{it}. \label{extensive}
+  \]
+  \(D_{it}\) is a dummy variable taking 1 if individual \(i\) donates at year \(t\) and 0 otherwise.
+  \color{red}
+  Since we use the linear probability model,
+  the estimated coefficient \(\delta\) represents \(\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\).
+  Also, the estimated coefficient \(\gamma\) represents \(\hat{\gamma} = \frac{\partial D_{it}}{\partial y_{it}} y_{it}\).
+  Thus, the extensive-margin price and income elasticity are \(\hat{\delta}/D_{it}\) and \(\hat{gamma}/D_{it}\), respectively.
+  We evaluate the extensive-margin price and income elasticity at sample mean of \(D_{it}\).
+
+  Our identification assumption is the \emph{within} price variation is exogenous because we use the fixed effect model.
+  This assumption may be hold because the major \emph{within} price variation comes from the 2014 tax reform.
+  After the 2014 tax reform (the tax credit system), the giving price is constant across individuals and
+  there is no room for manipulation by donations and income.
+  However, before the 2014 tax reform, the giving price has two potential endogeneity problem:
+  (A) endogeneity of giving price and (B) simulatenous determination of income and donations.
+  By these two reasons, the \emph{within} prive variation is partly endogenous.
+
+  Our identification assumption may violate due to two endogenous problems discussed above.
+  To tackle these problems, we take two methods.
+  First, the giving price is endogenous because
+  the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+  Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+  The first price is formally defined as the giving price \(p^d_i \equiv 1 − \tau (y_i − g_i)\), evaluated at \(g_i = 0\).
+  Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance.
+  Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
+
+  The second issue is simulatenous determination of income and donations.
+  Under the tax deduction system,
+  the change of income have effects on both donations through the income effect and the giving price through the marginal tax rate.
+  Therefore, we employ lagged values of taxable income and construct a variable for the change in the first price of giving as following:
+
+  \[
+  \ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right).
+  \]
+
+  where \(g_{it-k} = 0\).
+  The numerator is the first price that individual \(i\) would have faced in year \(t\) if she had declared her year (t − k) taxable income at that year.
+  By fixing the income at year \(t - k\),
+  the instrument isolates changes in price from income responses to the tax reform.
+  Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
+  \color{black}
+
+  \hypertarget{main-results}{%
+  \section{Main Results}\label{main-results}}
+
+  \hypertarget{price-and-income-elasticity}{%
+  \subsection{Price and Income Elasticity}\label{price-and-income-elasticity}}
+
+  Table \ref{tab:kableEstimateElasticityPart1} shows estimation results of overall elasticity.
+  To get intuition, we do not distinguish elasticities into the intensive-margin one and the extensive-margin one.
+  The column (1) is the baseline estimation, which include individual and time fixed effects.
+  The price elasticity is rougly -1, which is statistically significant different from zero.
+  This implies that 1\% increase of giving price raise charitable giving by 1\%.
+  This result is in line with previous researches which focus on Western countries.
+  The income elasticity is about 5.3, which is statistically significant different from zero.
+  This implies that 1\% increase of annual income raise charitable giving by 5.3\%.
+  The remaining four columns control for events that affects subject with specific characteristics at the same time.
+  As a result, the price elasticity is more elastic than the baseline result.
+  The price elasticity lies between -1.3 and -1.1.
+  On the other hand, the income elasticity is less elastic than the baseline result.
+  The income elasticity lies between -5.1 and -4.9.
+
+  \begin{table}
+
+  \caption{\label{tab:kableEstimateElasticityPart1}Main Results}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lccccc}
+  \toprule
+   & (1) & (2) & (3) & (4) & (5)\\
+  \midrule
+  ln(giving price) & -1.072*** & -1.264*** & -1.291*** & -1.114*** & -1.241***\\
+   & (0.202) & (0.213) & (0.230) & (0.229) & (0.227)\\
+  ln(auunaul taxable income) & 5.392*** & 5.080*** & 5.047*** & 5.116*** & 4.946***\\
+   & (0.970) & (0.964) & (0.964) & (0.966) & (0.949)\\
+  Individual FE & Y & Y & Y & Y & Y\\
+  Time FE & Y & Y & Y & Y & Y\\
+  Age & N & Y & Y & Y & Y\\
+  Year X Education & N & N & Y & Y & Y\\
+  Year X Gender & N & N & N & Y & Y\\
+  Year X Resident Area & N & N & N & N & Y\\
+  N & 53269 & 53269 & 53267 & 53267 & 53267\\
+  R-sq & 0.009 & 0.010 & 0.010 & 0.011 & 0.020\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  Table \ref{tab:kableEstimateElasticityPart2} shows the intensive-margin and the extensive-margin elasticities.
+  The first panel shows the intensive-margin elasticity.
+  Compared to the overall elasticitiy, the price and income elasticitiy are less elastic.
+  Controlling individual and time fixed effects,
+  the price and income elasticity is about -0.6 and about 2,
+  which are statistically significant different from zero (See the column (1)).
+  Moreover, when we include the interaction term between individual characteristics and year dummies,
+  these values vary.
+  The price elasticity lies between -1.1 and -0.8,
+  and the income elasticity lies between 1.4 and 1.6.
+  Anyway, our conlusion is that the amount of donations is insensitive to the giving price among donors.
+
+  The second panel shows the extensive-margin elasticity.
+  By results of overall elasticities and the intensive-margin elasticities,
+  we expect that the extensive-margin price and income elasticity is more elastic than the overall elasticities.
+  In the column (1), the coefficient of logged giving price and logged annual income are -0.257 and 1.175 respectively,
+  which are statistically significant different from zero.
+  Since we use the linear probability model,
+  we need to calculate \(\epsilon^p_{EXT} = -0.257/D_{it}\) and \(\epsilon^y_{EXT} = 1.175/D_{it}\)
+  to obtain the price and income elasticity, respectively.
+  Especially, the coefficient of logged giving price represents the lower-bound of price elasticity
+  because the variable \(D_{it}\) takes either 0 or 1.
+  When we evaluate the price elasticity at the sample mean of \(D_{it}\),
+  the implied price elasticity is -1.264, which is slightly more elastic than the overall one.
+  Also, we evaluate the income elasticity at the sample mean of outcome.
+  The implied income elasticity is 5.778, which is slightly more elastic than the overall one.
+  Although the implied price and income elasticity varies with covariates,
+  results are in line with our expectation.
+  Thus, the decision of donations is sensitive to the giving price and annual income.
+
+  \begin{table}
+
+  \caption{\label{tab:kableEstimateElasticityPart2}Main Results: Intensive- and Extensive-Margin Elasticity}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lccccc}
+  \toprule
+   & (1) & (2) & (3) & (4) & (5)\\
+  \midrule
+  \addlinespace[0.3em]
+  \multicolumn{6}{l}{\textbf{Intensive-Margin Elasticity}}\\
+  \hspace{1em}ln(giving price) & -0.593*** & -0.838*** & -1.016*** & -0.893*** & -0.904***\\
+  \hspace{1em} & (0.203) & (0.212) & (0.232) & (0.243) & (0.248)\\
+  \hspace{1em}ln(auunaul taxable income) & 2.015*** & 1.562** & 1.445** & 1.528** & 1.571**\\
+  \hspace{1em} & (0.675) & (0.655) & (0.647) & (0.651) & (0.653)\\
+  \hspace{1em}N & 11637 & 11637 & 11637 & 11637 & 11637\\
+  \hspace{1em}R-sq & 0.006 & 0.009 & 0.012 & 0.013 & 0.034\\
+  \addlinespace[0.3em]
+  \multicolumn{6}{l}{\textbf{Extensive-Margin Elasticity}}\\
+  \hspace{1em}ln(giving price) & -0.257*** & -0.288*** & -0.273*** & -0.237*** & -0.267***\\
+  \hspace{1em} & (0.046) & (0.048) & (0.052) & (0.052) & (0.051)\\
+  \hspace{1em}ln(auunaul taxable income) & 1.175*** & 1.124*** & 1.125*** & 1.139*** & 1.102***\\
+  \hspace{1em} & (0.223) & (0.223) & (0.223) & (0.224) & (0.220)\\
+  \hspace{1em}Implied price elasiticity & -1.264*** & -1.418*** & -1.343*** & -1.167*** & -1.312***\\
+  \hspace{1em} & (0.226) & (0.237) & (0.256) & (0.256) & (0.253)\\
+  \hspace{1em}Implied income elasticity & 5.778*** & 5.527*** & 5.531*** & 5.600*** & 5.420***\\
+  \hspace{1em} & (1.099) & (1.097) & (1.099) & (1.100) & (1.080)\\
+  \hspace{1em}Individual FE & Y & Y & Y & Y & Y\\
+  \hspace{1em}Time FE & Y & Y & Y & Y & Y\\
+  \hspace{1em}Age & N & Y & Y & Y & Y\\
+  \hspace{1em}Year X Education & N & N & Y & Y & Y\\
+  \hspace{1em}Year X Gender & N & N & N & Y & Y\\
+  \hspace{1em}Year X Resident Area & N & N & N & N & Y\\
+  \hspace{1em}N & 53269 & 53269 & 53267 & 53267 & 53267\\
+  \hspace{1em}R-sq & 0.008 & 0.009 & 0.009 & 0.010 & 0.019\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  In summary, our first conclusion is that
+  the decision of donations is sensitive to the giving price,
+  and the amount of donations is insensitive to the giving price once they decide to donate.
+  In the next subsection, we check the robustness of our first conclusion, using three methods.
+
+  \hypertarget{robustness-check}{%
+  \subsection{Robustness Check}\label{robustness-check}}
+
+  The first robustness check is the last price elasticity.
+  Our main results show that \emph{first} price elasticity to avoid the endogeneity of giving price.
+  However, the first prive elasiticity is not realistic
+  because people face the \emph{last} marginal price when deciding amount of donations.
+  Thus, we estimate the \emph{last} price elasticity, using the Panel IV method.
+  The instrumental variable is the first giving price.
+
+  \color{blue}
+
+  There is one caution to interapt the last price elasticity.
+  Under the tax credit system, the last price elasticity is equivalent to the first one.
+  Since major observation units are observed when the tax credit system is implemented,
+  the last giving price is strongly correlated with the first one.
+  In other words, covariate between the last and first giving price is roughly equal to one.
+  In the first stage, the coefficient of first giving price is roughly 0.98 in any specifications.\footnote{We do not show the first-stage results. Instead, we show the F-statistics of the instrument variable.}
+  Thus, our last price elasiticity may be upper bound of true price elasticity.
+
+  \color{black}
+
+  The last price elasticity is in line with our first conclusion.
+  Table \ref{tab:kableLastElasticity1} shows overall last price elasticity.
+  Compared to the main results, the last price elasticity is more elastic.
+  The aboslute value of estimated coefficient is larger than 2.4,
+  which is statistically significant different from zero.
+  This implies that 1\% increase of last price decreases charitable contributions by 2.4\% or more.
+  Table \ref{tab:kableLastElasticity2} shows the intensive-margin and extensive-margin last price elasticity.
+  In the first panel,
+  the intensive-margin last price elasticity is similar value to the main results.
+  Its abolute value lies between 0.89 and 1.2.
+  These results are statistically different from zero.
+  In the second panel,
+  the coefficient of logged last price, which represents the lower bound of last price elasticity,
+  lies between -0.63 and -0.59.
+  The implied last price elasticity evalueated at the sample mean of \(D_{it}\) is roughly -3.
+  These results are statistically significant different from zero,
+  and more elastic than the first price elasticity.
+
+  \begin{table}
+
+  \caption{\label{tab:kableLastElasticity1}Last Price Elasticity: Panel IV}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lccccc}
+  \toprule
+   & (1) & (2) & (3) & (4) & (5)\\
+  \midrule
+  ln(last giving price) & -2.421*** & -2.536*** & -2.750*** & -2.529*** & -2.650***\\
+   & (0.204) & (0.216) & (0.233) & (0.231) & (0.229)\\
+  ln(auunaul taxable income) & 5.258*** & 5.071*** & 4.981*** & 5.058*** & 4.910***\\
+   & (0.961) & (0.961) & (0.959) & (0.961) & (0.948)\\
+  Individual FE & Y & Y & Y & Y & Y\\
+  Time FE & Y & Y & Y & Y & Y\\
+  Age & N & Y & Y & Y & Y\\
+  Year X Education & N & N & Y & Y & Y\\
+  Year X Gender & N & N & N & Y & Y\\
+  Year X Resident Area & N & N & N & N & Y\\
+  F-statistics of IV & 149708.36 & 133463.98 & 122042.55 & 119684.05 & 115742.55\\
+  N & 52304 & 52304 & 52302 & 52302 & 52302\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  \begin{table}
+
+  \caption{\label{tab:kableLastElasticity2}Intensive- and Extensive-Margin Last Price Elasticity: Panel IV}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lccccc}
+  \toprule
+   & (1) & (2) & (3) & (4) & (5)\\
+  \midrule
+  \addlinespace[0.3em]
+  \multicolumn{6}{l}{\textbf{Intensive-Margin Elasticity}}\\
+  \hspace{1em}ln(last giving price) & -0.898*** & -0.961*** & -1.197*** & -0.998*** & -1.074***\\
+  \hspace{1em} & (0.271) & (0.271) & (0.307) & (0.325) & (0.332)\\
+  \hspace{1em}ln(auunaul taxable income) & 2.023*** & 1.638** & 1.460** & 1.530** & 1.572**\\
+  \hspace{1em} & (0.694) & (0.678) & (0.667) & (0.670) & (0.667)\\
+  \hspace{1em}F-statistics of IV & 8861.30 & 8893.12 & 7522.05 & 6585.00 & 6426.96\\
+  \hspace{1em}N & 10672 & 10672 & 10672 & 10672 & 10672\\
+  \addlinespace[0.3em]
+  \multicolumn{6}{l}{\textbf{Extensive-Margin Elasticity}}\\
+  \hspace{1em}ln(last giving price) & -0.623*** & -0.630*** & -0.644*** & -0.593*** & -0.619***\\
+  \hspace{1em} & (0.046) & (0.049) & (0.053) & (0.052) & (0.052)\\
+  \hspace{1em}ln(auunaul taxable income) & 1.125*** & 1.113*** & 1.103*** & 1.121*** & 1.090***\\
+  \hspace{1em} & (0.221) & (0.223) & (0.223) & (0.223) & (0.220)\\
+  \hspace{1em}Implied last price elasiticity & -3.063*** & -3.100*** & -3.167*** & -2.917*** & -3.046***\\
+  \hspace{1em} & (0.227) & (0.240) & (0.259) & (0.258) & (0.254)\\
+  \hspace{1em}Implied income elasticity & 5.532*** & 5.472*** & 5.426*** & 5.513*** & 5.361***\\
+  \hspace{1em} & (1.088) & (1.096) & (1.096) & (1.098) & (1.082)\\
+  \hspace{1em}Individual FE & Y & Y & Y & Y & Y\\
+  \hspace{1em}Time FE & Y & Y & Y & Y & Y\\
+  \hspace{1em}Age & N & Y & Y & Y & Y\\
+  \hspace{1em}Year X Education & N & N & Y & Y & Y\\
+  \hspace{1em}Year X Gender & N & N & N & Y & Y\\
+  \hspace{1em}Year X Resident Area & N & N & N & N & Y\\
+  \hspace{1em}F-statistics of IV & 149708.36 & 133463.98 & 122042.55 & 119684.05 & 115742.55\\
+  \hspace{1em}N & 52304 & 52304 & 52302 & 52302 & 52302\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  \color{blue}
+
+  The second robustness check is to use data (i) from 2013 to 2018 or (ii) from 2013 to 2014.
+  This robustness check is to tackle with the price change due to the change of income.
+  As discussed before,
+  the change of giving price is caused by both the tax reform and the chanage of income under the tax deduction system.
+  By using subsample restricted by year, the within price variation of giving price is completely exgonenous
+  because we control the annual taxable income.
+
+  \color{black}
+
+  Table \ref{tab:kableShortElasticity1} shows the overall first giving price elasticity.
+  When we use data from 2013 to 2018, the estimated price elasticity is similar value to the main results.
+  On the other hand,
+  when we use data from 2013 to 2014, the estimated price elasticity is more elastic than the main results.
+  The estimated absolute value is roughly -1.7 when we controll covariates and its interaction with year dummies.
+  This value is statistically significant different from zero.
+
+  \begin{table}
+
+  \caption{\label{tab:kableShortElasticity1}Elasticity with Short-Period Data}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lcccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+  \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+   & (1) & (2) & (3) & (4)\\
+  \midrule
+  ln(giving price) & -1.014*** & -1.286*** & -1.398*** & -1.686***\\
+   & (0.255) & (0.290) & (0.289) & (0.338)\\
+  ln(auunaul taxable income) & 5.108*** & 4.743*** & 4.013** & 3.035\\
+   & (1.009) & (0.990) & (1.948) & (1.992)\\
+  Individual FE & Y & Y & Y & Y\\
+  Time FE & Y & Y & Y & Y\\
+  Other Controls & N & Y & N & Y\\
+  N & 45994 & 45992 & 14893 & 14893\\
+  R-sq & 0.009 & 0.018 & 0.013 & 0.024\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  Table \ref{tab:kableShortElasticity2} shows the intensive-margin and the extensive-margin first price elasticity.
+  The first panel shows the intensive-margin elasticity.
+  When we use data from 2012 to 2018, the intensive-margin price elasiticity is similar to the main results,
+  which is statistically significant from zero.
+  However, when we use data from 2013 to 2014 and include only individual and time fixed effects,
+  the estimated coefficient is statistically insignificant different from zero.
+  By controlling covariates and its interaction with year dummies,
+  the intensive-margin price elasticity is -0.712, which is statistically significant.
+  The second panel shows the extensive-margin elasticity.
+  When we use data from 2012 to 2018, the extensive-margin price elasiticity is similart to the main results,
+  which is statistically significant.
+  When we use data from 2013 to 2014, the extensive-margin price elasticitiy is more elastic than the main results.
+  Its abolute value is roughly -2, which is statistically significant.
+  In summary, the second robustness check also leads to our first conlusion.
+
+  \begin{table}
+
+  \caption{\label{tab:kableShortElasticity2}Intensive- and Extensive-Margin Elasticity with Short-Period Data}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lcccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+  \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+   & (1) & (2) & (3) & (4)\\
+  \midrule
+  \addlinespace[0.3em]
+  \multicolumn{5}{l}{\textbf{Intensive-Margin Elasticity}}\\
+  \hspace{1em}ln(giving price) & -0.647*** & -1.129*** & -0.394 & -0.712**\\
+  \hspace{1em} & (0.236) & (0.291) & (0.310) & (0.363)\\
+  \hspace{1em}ln(auunaul taxable income) & 1.943*** & 1.714*** & 1.440 & 1.047\\
+  \hspace{1em} & (0.662) & (0.649) & (2.975) & (3.072)\\
+  \hspace{1em}N & 10158 & 10158 & 2922 & 2922\\
+  \hspace{1em}R-sq & 0.006 & 0.034 & 0.004 & 0.046\\
+  \addlinespace[0.3em]
+  \multicolumn{5}{l}{\textbf{Extensive-Margin Elasticity}}\\
+  \hspace{1em}ln(giving price) & -0.235*** & -0.269*** & -0.331*** & -0.383***\\
+  \hspace{1em} & (0.058) & (0.065) & (0.065) & (0.076)\\
+  \hspace{1em}ln(auunaul taxable income) & 1.093*** & 1.024*** & 0.801* & 0.574\\
+  \hspace{1em} & (0.230) & (0.226) & (0.428) & (0.447)\\
+  \hspace{1em}Implied price elasiticity & -1.136*** & -1.300*** & -1.845*** & -2.131***\\
+  \hspace{1em} & (0.279) & (0.314) & (0.364) & (0.422)\\
+  \hspace{1em}Implied income elasticity & 5.287*** & 4.954*** & 4.457* & 3.196\\
+  \hspace{1em} & (1.114) & (1.094) & (2.381) & (2.488)\\
+  \hspace{1em}Individual FE & Y & Y & Y & Y\\
+  \hspace{1em}Time FE & Y & Y & Y & Y\\
+  \hspace{1em}Other Controls & N & Y & N & Y\\
+  \hspace{1em}N & 45994 & 45992 & 14893 & 14893\\
+  \hspace{1em}R-sq & 0.008 & 0.018 & 0.013 & 0.022\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  The third robustness check is to estimate the \(k\)-th difference model.
+  To tackle with the price change due to the change of income,
+  we estimate the \(k\)-th difference model formulated as follows:
+  \[\Delta^k \ln g_{it} = \delta \Delta^k \ln p_{it} + \gamma \Delta^k \ln y_{it} + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},\]
+  where \(\Delta^k \ln g_{it} = \ln g_{it} - \ln g_{it-k}\) and \(\Delta^k \ln y_{it} = \ln y_{it} - y_{it-k}\).
+
+  \color{blue}
+
+  The our paramater of interest is \(\delta\).
+  The variable \(\Delta^k p_{it}\) is defined as \(\Delta^k p_{it} \equiv \ln p_{it}(y_{it-k}) - \ln p_{it}(y_{it-k})\).\footnote{Under the tax credit system, the giving price does not depend on income \(y_{it-k}\). If the tax credit system is impelemted in year \(t\) and \(t-k\), then the value of \(\Delta^k p_{it}\) takes zero.}
+  The variation of this variable comes from the tax reform only because we fix the annual income at year \(t - k\).
+  Therefore, we can safely interapt this coefficient as the price elasiticity of giving
+  because the \(\Delta^k p_{it}\) is exogenous.
+  Especially, the estimated \(\delta\) implies that
+  1\% increase of the change of giving price leads to \(\hat{\delta}\)\% increase of the change of charitable giving.
+  Note that we do not estimate the extensive-margin elasticity
+  because it is hard to interapt this estimation equation when we use \(\Delta^k D_{it}\) as an outcome variable.
+
+  \color{black}
+
+  Table \ref{tab:kablekDiffElasticity} shows results of \(k\)-th difference model.
+  The first panel shows the overall elasticity.
+  When we take the one year lag (\(k = 1\)), the overall price elasticity is roughly -1.9,
+  which is statistically significant.
+  This elasticity slightly varies when we take the two or more year lag (\(k > 1\)).
+  The overall price elasticity lies between -2.1 and -1.7, which is statistically significant.
+  This implies that the overall price elasticity obtained by this model is more elastic than the main results.
+  The second panel shows the intensive-margin elasticity.
+  When we take the one year lag (\(k = 1\)), the intensive-margin price elasticity is roughly -1.8,
+  which is statistically significant.
+  The absolute value of the price elasticity is more than 2
+  when we take two or more year lag (\(k > 1\)).
+  Thus, contrary to our first conclusion,
+  this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
+
+  \begin{table}
+
+  \caption{\label{tab:kablekDiffElasticity}Estimation of Elasticity: $k$-difference model}
+  \centering
+  \fontsize{7}{9}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{lag $k$} & \multicolumn{1}{c}{$k = 1$} & \multicolumn{1}{c}{$k = 2$} & \multicolumn{1}{c}{$k = 3$} \\
+  \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  \addlinespace[0.3em]
+  \multicolumn{4}{l}{\textbf{Overall Elasticity}}\\
+  \hspace{1em}Lagged difference of first price (log) & -1.894*** & -2.170*** & -1.752***\\
+  \hspace{1em} & (0.389) & (0.355) & (0.346)\\
+  \hspace{1em}Lagged difference of annual income (log) & 2.737*** & 4.685*** & 5.307***\\
+  \hspace{1em} & (1.042) & (1.141) & (1.174)\\
+  \hspace{1em}N & 49014 & 46610 & 44205\\
+  \hspace{1em}R-sq & 0.010 & 0.015 & 0.015\\
+  \addlinespace[0.3em]
+  \multicolumn{4}{l}{\textbf{Intensive-Margin Elasticity}}\\
+  \hspace{1em}Lagged difference of first price (log) & -1.854** & -2.282*** & -2.163***\\
+  \hspace{1em} & (0.763) & (0.621) & (0.550)\\
+  \hspace{1em}Lagged difference of annual income (log) & 2.229 & 4.675*** & 5.582**\\
+  \hspace{1em} & (1.715) & (1.791) & (2.178)\\
+  \hspace{1em}Individual FE & Y & Y & Y\\
+  \hspace{1em}Time FE & Y & Y & Y\\
+  \hspace{1em}Other Controls & Y & Y & Y\\
+  \hspace{1em}N & 10939 & 10505 & 10043\\
+  \hspace{1em}R-sq & 0.066 & 0.073 & 0.055\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  In summary, our three robustness checks are in line with the our first conclusion.
+  The decision to donate is sensitive to the giving price.
+  On the other hand, the amount of donations is insensitive to the giving price once they decide to donate.
+  However, we cannot obtain this conclusion when we use the \(k\)-th difference model.
+  One possibility is that the variable of lagged difference of first price, \(\Delta^k p_{it}\), is less varied.
+  In fact, \color{blue}XXX\color{black}.
+
+  \hypertarget{governement-efficient-and-price-elasticity}{%
+  \section{Governement Efficient and Price Elasticity}\label{governement-efficient-and-price-elasticity}}
+
+  \hypertarget{construct-efficiency-index}{%
+  \subsection{Construct Efficiency Index}\label{construct-efficiency-index}}
+
+  \begin{table}
+
+  \caption{\label{tab:efficientQ}The assigned number for each pair of welfare/tax burden answers}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{l|cccl|cccl|cccl|ccc}
+  \toprule
+  Welfare/Tax burden & Low & Middle & High\\
+  \midrule
+  High & 2 & 1 & 0\\
+  Middle & 1 & 0 & -1\\
+  Low & 0 & -1 & 2\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: The number shows the corresponding efficiency index for each pair of tax burden and welfare level.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level.
+  For current balance, the subjects answer the degree of their current perception about tax burden and welfare level,
+  both of them are scaled by three: high, middle, and low.
+  For ideal balance, the choice set of answer is the same as the current balance, but the subjects answers their ideal tax burden and welfare level.
+  Thus, we can derive the two pair of answers about tax burden and welfare level for each subject, i.e.~the pair about current balance and one about ideal balance.
+
+  We can consider that the pair of answers about current balance reflect the individual's perception about the efficiency of government
+  because the government with low tax burden and high welfare level is clearly more efficient than one with high tax and low welfare.
+  Based on the pair about current perception, we construct an index called efficiency index by the following steps.
+  Firstly, according to Table \ref{tab:efficientQ},
+  we assign the number from -2 to 2 for each pair of answers depending on the contents of answers,
+  where -2 is the most inefficient and 2 is the most efficient.
+  Secondly, to construct the individual's persistent perception toward the government,
+  we regress the assigned number on year fixed effect, the interaction between region and year fixed effect, and individual fixed effect.
+  Then, we use the obtained fixed effect as the efficiency index.
+  We consider that the efficiency index shows the individual's perception toward government for its efficiency.
+
+  In Figure \ref{fig:showDensityEfficientIndex}, the solid line shows the density of efficient index.
+  As the efficient index is higher,
+  individuals are more likely to perceive that the government can provide the public goods efficiency.
+  There are two features about the distribution of efficient index.
+  First, the efficient index is connentrated around zero.
+  This implies that many people thinks the efficiency of government is neutral.
+  Second, the density of those whose the efficient index is less than zero is larger than of
+  those whose the efficient index is greater than zero.
+  This implies that the number of people thinking the government is inefficient is
+  less than people who think the government is efficient.
+
+  \begin{figure}[t]
+
+  {\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NaSTaB/_assets/DensityEfficientid} 
+
+  }
+
+  \caption{Density of Efficient Index}\label{fig:showDensityEfficientIndex}
+  \end{figure}
+
+  There are two potential concerns about the efficient index.
+  The first concern is related with a interpretation of question.
+  The question is that
+  there is a room for subjects to interpret the questions of tax/welfare balance
+  not as questions about the efficiency of the government
+  but as questions about the expenditure policy of the government.
+  If the latter is true,
+  some subjects consider that the government with low tax burden and high welfare level is inefficient because
+  it conducts debt financing.
+
+  To address this issue,
+  we use the question for ideal balance between tax burden and welfare level
+  to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
+  In other words, in the robustness check,
+  we rule out the subjects whose efficiency index for the ideal balance question is less than 0.
+  We check that this refinement enable us to get a clearer result.
+  In Figure \ref{fig:showDensityEfficientIndex},
+  the dashed line shows the density of efficient index
+  using those whose the \emph{ideal} efficient index is greater than zero.
+  Its distribution is similar to the distribution using full sample.
+
+  The second concern is related with the construction of efficient index.
+  The perceived governement efficiency is formed by time-specific events such as governement policies.
+  Thus, instead of the individual fixed effect,
+  we should use the raw answer of the quetion as the efficient index.
+  However, since the tax credit system has been implemented since 2014,
+  there is no variation of giving price from 2015 to 2018.
+  Thus, we cannot estimate the price elasticity.
+
+  To overcome this problem, we use the individual fixed effect as the efficient index.
+  This index does not depend on government policies implemented in a specific year and preference for president.
+  Thus, the efficient index represents persistent perception toward governement efficiency,
+  which is formed by individual education and continuous policies.
+
+  \hypertarget{heterogeneous-price-elasticity-in-governement-efficiency}{%
+  \subsection{Heterogeneous Price Elasticity in Governement Efficiency}\label{heterogeneous-price-elasticity-in-governement-efficiency}}
+
+  To estimate the heterogenous price elasticity in the efficient index,
+  we include interaction terms between the efficient index and the giving price
+  into the model Eq. (@ref\{Intensive\}) and (@ref\{Extensive\}) for intensive and extensive margins, respectively.
+  To construct interaction terms, we partition respondents into three groups based on three quantile of efficient index,
+  and create corresponding three dummy variables.
+
+  Table \ref{tab:kableHeteroElasticity} shows the heterogenous price effect in the efficient index
+  when we use full sample.
+  Column (1) shows the overall elasticities.
+  By calculating implied price elasticitiy for each quantile group,
+  we find that the absolute value of overall price elasiticity is decreasing in the efficient index.
+  This implies that the price elasticitiy becomes more elastic
+  as people think the governement's provision of public goods is inefficient.
+  However,
+  the difference of implied price elasiticity is not statistically significant
+  since two interaction terms between giving price and the quantile group of efficient index are statistically insignificant.
+  Column (2) shows the extensive-margin elasticities.
+  By the implied price elasticity for each group,
+  we find the extensive-margin price elasticity is convex in the efficient index.
+  In other words, those who is the most sensitive to the giving price think that
+  governement efficiency is neutral.
+  However, the difference of implied extensive-margin price elasticity is not statistically significant
+  because coefficients of two interaction terms are not statistically significant.
+  Column (3) shows the intensive-margin elasticities.
+  The implied intensive-margin price elasiticity is concave in the efficient index.
+  This implies those whose the amount of donations is the most sensitive preceive that
+  the government effciency is inefficient or efficient.
+  As overall and extensive-margin elasticities,
+  the difference of implied intensive-margin price elasticity is statistically insignificant.
+
+  \begin{table}
+
+  \caption{\label{tab:kableHeteroElasticity}Heterogenous Elasticity by Perceived Government Efficiency}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  ln(giving price) & -1.356*** & -0.284*** & -0.952***\\
+   & (0.336) & (0.076) & (0.334)\\
+  ln(giving price) X 2Q Efficient Group & -0.032 & -0.059 & 0.292\\
+   & (0.423) & (0.098) & (0.489)\\
+  ln(giving price) X 3Q Efficient Group & 0.353 & 0.095 & -0.285\\
+   & (0.417) & (0.097) & (0.545)\\
+  ln(auunaul taxable income) & 4.943*** & 1.104*** & 1.589**\\
+   & (0.959) & (0.222) & (0.657)\\
+  Implied price elasiticity (1Q efficient group) & -1.356*** & -1.396*** & -0.952***\\
+   & (0.336) & (0.374) & (0.334)\\
+  Implied price elasiticity (2Q efficient group) & -1.388*** & -1.686*** & -0.661*\\
+   & (0.330) & (0.378) & (0.394)\\
+  Implied price elasiticity (3Q efficient group) & -1.002*** & -0.930** & -1.237***\\
+   & (0.327) & (0.374) & (0.468)\\
+  Implied income elasticity & 4.943*** & 5.429*** & 1.589**\\
+   & (0.959) & (1.093) & (0.657)\\
+  Individual FE & Y & Y & Y\\
+  Time FE & Y & Y & Y\\
+  Other Controls & Y & Y & Y\\
+  N & 50455 & 50455 & 11327\\
+  R-sq & 0.020 & 0.020 & 0.034\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  Previous results show that there is no heterogenous price elasticity in the efficient index.
+  This may be caused by existence of respondents
+  interapting the survey questions as the questions about the expenditure policy of the governement.
+  We expect that their decision of donations is sensitive to the giving price
+  if the real governement efficiency is high.
+  They donate if the giving price is low to substitute for the governement expenditure.
+  To rule out this problem, we eliminate those whose the ideal efficient index is less than zero,
+  and estimate the same model in Table \ref{tab:kableHeteroElasticity}.
+
+  Table \ref{tab:kableSubsetHeteroElasticity} shows the heterogenous price elasticity in the efficient index
+  when we use those whose the ideal efficient index is greater than zero.
+  As a result, we found heterogeneity of the overall and extensive-margin price elasticitiy
+  in governement efficiency (column (1) and (2)).
+  In the column (1), the interaction term between the giving price and third quantile efficient group
+  is positive, which is statistically significant.
+  This implies that, compared to those whose the efficient index is low,
+  those whose the efficient index is high are less sensitive to the giving price.
+  In fact, the implied price elasticitiy of the first quantile efficient group is about -1.8,
+  which is statistically significant.
+  On the other hand, the implied price elasticiity of the third quantile efficient group is roughly -0.5,
+  which is not statistically significant.
+  The extensive-margin price elasticitiy takes same pattern in the column (2).
+  The implied price elasticitiy of the first quantile efficient group is about -1.5,
+  which is statistically significant.
+  On the other hand, the implied price elasticiity of the third quantile efficient group is roughly -0.4,
+  which is not statistically significant.
+  Column (3) shows the intensive-margin elasticities.
+  we found there is no heterogenous price effct on the amount of donations among donors.
+
+  \begin{table}
+
+  \caption{\label{tab:kableSubsetHeteroElasticity}Heterogenous Elasticity Using Those whose Ideal Efficient Index > 0}
+  \centering
+  \fontsize{8}{10}\selectfont
+  \begin{threeparttable}
+  \begin{tabular}[t]{lccc}
+  \toprule
+  \multicolumn{1}{c}{ } & \multicolumn{1}{c}{Overall} & \multicolumn{1}{c}{Extensive} & \multicolumn{1}{c}{Intensive} \\
+  \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+   & (1) & (2) & (3)\\
+  \midrule
+  ln(giving price) & -1.831*** & -0.316*** & -1.303**\\
+   & (0.538) & (0.115) & (0.571)\\
+  ln(giving price) X 2Q Efficient Group & 0.339 & 0.045 & 0.308\\
+   & (0.657) & (0.146) & (0.807)\\
+  ln(giving price) X 3Q Efficient Group & 1.295** & 0.237* & 0.236\\
+   & (0.586) & (0.135) & (0.834)\\
+  ln(auunaul taxable income) & 5.686*** & 1.202*** & 3.225*\\
+   & (1.272) & (0.273) & (1.880)\\
+  Implied price elasiticity (1Q efficient group) & -1.831*** & -1.555*** & -1.303**\\
+   & (0.538) & (0.565) & (0.571)\\
+  Implied price elasiticity (2Q efficient group) & -1.492*** & -1.335** & -0.995\\
+   & (0.505) & (0.561) & (0.622)\\
+  Implied price elasiticity (3Q efficient group) & -0.536 & -0.392 & -1.067\\
+   & (0.416) & (0.500) & (0.680)\\
+  Implied income elasticity & 5.686*** & 5.913*** & 3.225*\\
+   & (1.272) & (1.344) & (1.880)\\
+  Individual FE & Y & Y & Y\\
+  Time FE & Y & Y & Y\\
+  Other Controls & Y & Y & Y\\
+  N & 23366 & 23366 & 5004\\
+  R-sq & 0.020 & 0.019 & 0.057\\
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.
+  \end{tablenotes}
+  \end{threeparttable}
+  \end{table}
+
+  \hypertarget{conclusions}{%
+  \section{Conclusions}\label{conclusions}}
+
+  \clearpage
+
+  \hypertarget{references}{%
+  \section*{References}\label{references}}
+  \addcontentsline{toc}{section}{References}
+
+  \hypertarget{refs}{}
+  \begin{CSLReferences}{1}{0}
+  \leavevmode\hypertarget{ref-Almunia2020}{}%
+  Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
+
+  \leavevmode\hypertarget{ref-Anderson2017}{}%
+  Anderson, J.E., 2017. Trust in government and willingness to pay taxes in transition countries. Comparative Economic Studies 59, 1--22. doi:\href{https://doi.org/10.1057/s41294-016-0017-x}{10.1057/s41294-016-0017-x}
+
+  \leavevmode\hypertarget{ref-Auten2002}{}%
+  Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. Charitable giving, income, and taxes: An analysis of panel data. American Economic Review 92, 371--382.
+
+  \leavevmode\hypertarget{ref-Bakija2011}{}%
+  Bakija, J., Heim, B.T., 2011. How does charitable giving respond to incentives and income? New estimates from panel data. National Tax Journal 64, 615--650. doi:\href{https://doi.org/10.17310/ntj.2011.2S.08}{10.17310/ntj.2011.2S.08}
+
+  \leavevmode\hypertarget{ref-Fack2010}{}%
+  Fack, G., Landais, C., 2010. Are tax incentives for charitable giving efficient? Evidence from france. American Economic Journal - Economic Policy 2, 117--141. doi:\href{https://doi.org/10.1257/pol.2.2.117}{10.1257/pol.2.2.117}
+
+  \leavevmode\hypertarget{ref-Frey2007}{}%
+  Frey, B.S., Torgler, B., 2007. Tax morale and conditional cooperation. Journal of Comparative Economics 35, 136--159. doi:\href{https://doi.org/10.1016/j.jce.2006.10.006}{10.1016/j.jce.2006.10.006}
+
+  \leavevmode\hypertarget{ref-Hammar2009}{}%
+  Hammar, H., Jagers, S.C., Nordblom, K., 2009. Perceived tax evasion and the importance of trust. The Journal of Socio-Economics 38, 238--245. doi:\url{https://doi.org/10.1016/j.socec.2008.07.003}
+
+  \leavevmode\hypertarget{ref-Li2011}{}%
+  Li, S.X., Eckel, C.C., Grossman, P.J., Brown, T.L., 2011. Giving to government: Voluntary taxation in the lab. Journal of Public Economics 95, 1190--1201. doi:\href{https://doi.org/10.1016/j.jpubeco.2011.03.005}{10.1016/j.jpubeco.2011.03.005}
+
+  \leavevmode\hypertarget{ref-Randolph1995}{}%
+  Randolph, W.C., 1995. Dynamic income, progressive taxes, and the timing of charitable contributions. Journal of Political Economy 103, 709--738. doi:\href{https://doi.org/10.1086/262000}{10.1086/262000}
+
+  \leavevmode\hypertarget{ref-Saez2004}{}%
+  Saez, E., 2004. The optimal treatment of tax expenditures. Journal of Public Economics 88, 2657--2684. doi:\href{https://doi.org/10.1016/j.jpubeco.2003.09.004}{10.1016/j.jpubeco.2003.09.004}
+
+  \leavevmode\hypertarget{ref-Sheremeta2020}{}%
+  Sheremeta, R.M., Uler, N., 2020. The impact of taxes and wasteful government spending on giving. Experimental Economics. doi:\href{https://doi.org/10.1007/s10683-020-09673-9}{10.1007/s10683-020-09673-9}
+
+  \leavevmode\hypertarget{ref-Zeldow2019}{}%
+  Zeldow, B., Hatfield, L.A., 2019. Confounding and regression adjustment in difference-in-differences. arXiv Preprint.
+
+  \end{CSLReferences}
+
+\end{document}
+
