@@ -224,22 +224,14 @@ knitr::include_graphics(paste(here(), "_assets/SummaryPriceChange.pdf", sep= "/"
 
 ## Charitable Giving
 
-NaSTaB asks respondents to answer the amount of donations for seven specific purposes last year.
-Seven specific purposes are
-policitical parties,
-educational organizations,
-social welfare organizations,
-organizations for culutre and art,
-religious groups,
-charity activies organaized by religious group,
-other purposes.
-We sum up the amount of donations, and consider it as the annual charitable giving.
+NaSTaB asks respondents to answer the amount of donation.[^Question] 
 We use this variable as an first outcome variable when 
 estimating the price effect on the amount of donations among donors (intensive margin).
-
 Using this variable, we make a dummy variable taking 1 if repsondents donate (Dummy of Donation).
 This is the second outcome variable 
 to estimate the price effect on the decision of donations (extensive margin).
+
+[^Question]:Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes.We sum up the amount of donations, and consider it as the annual charitable giving.
 
 Table \@ref(tab:kableSummaryCovariate) shows that 
 the average amount of donation is almost 300,000 KRW,
