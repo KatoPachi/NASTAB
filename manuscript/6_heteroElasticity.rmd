@@ -519,7 +519,7 @@ footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.
 
 Previous results show that there is no heterogenous price elasticity in the efficient index.
 This may be caused by existence of respondents 
-interapting the survey questions as the questions about the expenditure policy of the governement.
+interpreting the survey questions as the questions about the expenditure policy of the government.
 We expect that their decision of donations is sensitive to the giving price 
 if the real governement efficiency is high.
 They donate if the giving price is low to substitute for the governement expenditure.
