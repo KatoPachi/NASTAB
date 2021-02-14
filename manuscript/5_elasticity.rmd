@@ -547,12 +547,11 @@ First potential concern: last price elasticity
     - Note that the last giving price is equal to the first giving price under the tax credit system.
 -->
 
-The first robustness check is the last price elasticity.
+The first robustness check estimates the last price elasticity using the first price of giving as an instrument.
 Our main results show that *first* price elasticity to avoid the endogeneity of giving price.
 However, the first prive elasiticity is not realistic
 because people face the *last* marginal price when deciding amount of donations.
 Thus, we estimate the *last* price elasticity, using the Panel IV method.
-The instrumental variable is the first giving price.
 
 \color{blue} 
 There is one caution to interpret the last price elasticity.
