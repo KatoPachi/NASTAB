@@ -77,7 +77,7 @@ Thus, the extensive-margin price and income elasticity are $\hat{\delta}/D_{it}$
 We evaluate the extensive-margin price and income elasticity at sample mean of $D_{it}$.
 
 Our identification assumption is the *within* price variation is exogenous because we use the fixed effect model.
-This assumption may be hold because the major *within* price variation comes from the 2014 tax reform.
+This assumption may be hold if the major *within* price variation comes only from the 2014 tax reform.
 After the 2014 tax reform (the tax credit system), the giving price is constant across individuals and 
 there is no room for manipulation by donations and income.
 However, before the 2014 tax reform, the giving price has two potential endogeneity problem: 
