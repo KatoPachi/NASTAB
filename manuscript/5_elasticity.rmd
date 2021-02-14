@@ -303,6 +303,7 @@ We found the **price effect** of giving (1\% price increase leads to about 1.1\%
 and the **income effect** of giving(1\% income increase leads to about 5\% giving increase).
 --->
 
+Before the estimation of giving price elasticities for intensive and extensive margin, we estimate the elasticity without distinguishing them. We call this elasticity as overall elasticity.
 Table \@ref(tab:kableEstimateElasticityPart1) shows estimation results of overall elasticity.
 To get intuition, we do not distinguish elasticities into the intensive-margin one and the extensive-margin one.
 The column (1) is the baseline estimation, which include individual and time fixed effects.
