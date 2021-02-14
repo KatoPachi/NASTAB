@@ -549,11 +549,10 @@ First potential concern: last price elasticity
 
 The first robustness check estimates the last price elasticity using the first price of giving as an instrument.
 Our main results show that *first* price elasticity to avoid the endogeneity of giving price.
-However, the first prive elasiticity is not realistic
+However, the first price elasiticity is not realistic
 because people face the *last* marginal price when deciding amount of donations.
 Thus, we estimate the *last* price elasticity, using the Panel IV method.
 
-\color{blue} 
 There is one caution to interpret the last price elasticity.
 Under the tax credit system, the last price elasticity is equivalent to the first one.
 Since major observation units are observed when the tax credit system is implemented,
@@ -949,7 +948,6 @@ kable_styling(font_size = 7)
 ```
 --->
 
-\color{black} 
 The last price elasticity is in line with our first conclusion.
 Table \@ref(tab:kableLastElasticity1) shows overall last price elasticity.
 Compared to the main results, the last price elasticity is more elastic.
@@ -1010,8 +1008,10 @@ Second potential concern: Price change due to the change of income
     - By this restriction, the *within* price variation of giving price is completely exgonenous.
 --->
 
-\color{blue}
-In the second robustness check, we try to control the manipulation of giving price by adjusting income level using two datasets whose ranges are (i) from 2013 to 2018 and (ii) from 2013 to 2014. Under the tax deduction system, the giving price can be manipulated by income level, though it cannot under the tax credit system. Therefore, if we use the dataset which contains data under the the tax deduction system, the estimator may capture the effect of price change which is caused not by tax reform but by price manipulation by income adjustment. To address this issue, we use dataset in which the time range under the tax deduction system is shorter than the baseline analysis. By doing this exercise, we try to suppress the effect which comes from the price change due to the change of income.(この点ですが、普通はむしろTime spanを長くして、TransitonaryなEffectとPersistentなEffectを分けて議論するのが普通だと思います。原稿のバージョンでは意図をくんでごまかして書いています。)
+In the second robustness check, we try to control the manipulation of giving price by adjusting income level using two datasets whose ranges are (i) from 2013 to 2018 and (ii) from 2013 to 2014. Under the tax deduction system, the giving price can be manipulated by income level, though it cannot under the tax credit system. Therefore, if we use the dataset which contains data under the the tax deduction system, the estimator may capture the effect of price change which is caused not by tax reform but by price manipulation by income adjustment. To address this issue, we use dataset in which the time range under the tax deduction system is shorter than the baseline analysis. By doing this exercise, we try to suppress the effect which comes from the price change due to the change of income.
+<!---
+(この点ですが、普通はむしろTime spanを長くして、TransitonaryなEffectとPersistentなEffectを分けて議論するのが普通だと思います。原稿のバージョンでは意図をくんでごまかして書いています。)
+--->
 
 ```{stata ShortElasticity, results = "hide", eval = FALSE}
 * M0: year >= 2013 without cov
@@ -1421,7 +1421,6 @@ add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FAL
 ```
 --->
 
-\color{black}
 Table \@ref(tab:kableShortElasticity1) shows the overall first giving price elasticity.
 When we use data from 2013 to 2018, the estimated price elasticity is similar value to the main results.
 On the other hand,
@@ -1502,7 +1501,7 @@ $$
 $$
 where $\Delta^k \ln g_{it} = \ln g_{it} - \ln g_{it-k}$ and $\Delta^k \ln y_{it} = \ln y_{it} - y_{it-k}$.
 
-\color{blue}
+
 The variable $\Delta^k p_{it}$ is defined as $\Delta^k p_{it} \equiv \ln p_{it}(y_{it-k}) - \ln p_{it}(y_{it-k})$.[^Deltacredit]
 The variation of this variable comes from the tax reform because we fix the annual income at year $t - k$.
 Therefore, we can interpret this coefficient as the giving price elasticity due to the tax reform.
@@ -1678,7 +1677,6 @@ add_header_above(c("lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), 
 ```
 --->
 
-\color{black}
 Table \@ref(tab:kablekDiffElasticity) shows results of $k$-th difference model.
 The first panel shows the overall elasticity.
 When we take the one year lag ($k = 1$), the overall price elasticity is roughly -1.9,
@@ -1713,4 +1711,3 @@ footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.
 
 
 In summary, the result shows that the size of estimated elasticity may vary depending on the estimation methods. This may be because the sample size is small compared to the extant research. However, our three robustness checks are in line with the baseline result, which shows that the price elasticity of intensive margin is less elastic than one of extensive margin. Thus, the obtained results suggest that the decision to donate is sensitive to the giving price, though the amount of donations is insensitive to the giving price once they decide to donate. 
-\color{blue}XXX\color{black}.

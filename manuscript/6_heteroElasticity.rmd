@@ -102,7 +102,7 @@ In Figure \@ref(fig:showDensityEfficientIndex), the solid line shows the density
 As the efficient index is higher, 
 individuals are more likely to perceive that the government can provide the public goods efficiency.
 There are two features about the distribution of efficient index.
-First, the efficient index is connentrated around zero.
+First, the efficient index is concentrated around zero.
 This implies that many people thinks the efficiency of government is neutral.
 Second, the density of those whose the efficient index is less than zero is larger than of 
 those whose the efficient index is greater than zero.
@@ -216,9 +216,9 @@ and other covariates.
 
 To estimate the heterogenous price elasticity in the efficient index, 
 we include interaction terms between the efficient index and the giving price
-into the model Eq. (\@ref{Intensive}) and (\@ref{Extensive}) for intensive and extensive margins, respectively. 
+into the model Eq. (\@ref(eq:intensive)) and (\@ref(eq:extensive)) for intensive and extensive margins, respectively. 
 To construct interaction terms, we partition respondents into three groups based on three quantile of efficient index,
-and create corresponding three dummy variables.
+and create corresponding two dummy variables.
 
 ```{stata HeteroElasticity, results = "hide", eval = FALSE}
 * overall
@@ -797,7 +797,7 @@ which is statistically significant.
 On the other hand, the implied price elasticiity of the third quantile efficient group is roughly -0.4,
 which is not statistically significant.
 Column (3) shows the intensive-margin elasticities.
-we found there is no heterogenous price effct on the amount of donations among donors.
+we found there is no heterogenous price effect on the amount of donations among donors.
 
 ```{r kableSubsetHeteroElasticity, include = TRUE}
 knitr::kable(

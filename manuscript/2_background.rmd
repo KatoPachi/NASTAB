@@ -73,7 +73,9 @@ $$
     T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
 $$
 
-where $\tau(\cdot)$ is the income tax rate which is determined by $y_i - g_i$\footnote{$\tau(\cdot)$ here is a function which shows the average tax rate, which is determined progressively. Since the price elasticity of giving shows the marginal and additional increment for one unit of price reduction increase, we use not average but marginal tax rate to construct the giving price following the literature. Usage of the function of the average tax rate here is for explanatory simplicity.}. The budget constraint will be 
+where $\tau(\cdot)$ is the income tax rate which is determined by $y_i - g_i$.[^ATR] The budget constraint will be 
+
+[^ATR]: $\tau(\cdot)$ here is a function which shows the average tax rate, which is determined progressively. Since the price elasticity of giving shows the marginal and additional increment for one unit of price reduction increase, we use not average but marginal tax rate to construct the giving price following the literature. Usage of the function of the average tax rate here is for explanatory simplicity.
 
 $$
     x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
