@@ -83,7 +83,6 @@ there is no room for manipulation by donations and income.
 However, before the 2014 tax reform, the giving price has two potential endogeneity problem: 
 (A) endogeneity of giving price and (B) simulatenous determination of income and donations.
 
-Our identification assumption may violate due to two endogenous problems discussed above.
 To tackle these problems, we take two methods.
 First, the giving price is endogenous because 
 the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
