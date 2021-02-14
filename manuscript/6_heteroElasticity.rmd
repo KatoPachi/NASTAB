@@ -169,7 +169,7 @@ knitr::include_graphics(paste(here(), "_assets/DensityEfficientid.pdf", sep= "/"
 
 There are two potential concerns about the efficient index.
 The first concern is related with a interpretation of question.
-The question is that 
+Considering the contents of the questions about tax/welfare balance 
 there is a room for subjects to interpret the questions of tax/welfare balance 
 not as questions about the efficiency of the government 
 but as questions about the expenditure policy of the government. 
