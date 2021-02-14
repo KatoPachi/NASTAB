@@ -84,7 +84,7 @@ However, before the 2014 tax reform, the giving price has two potential endogene
 (A) endogeneity of giving price and (B) simulatenous determination of income and donations.
 
 To tackle these problems, we take two methods.
-First, the giving price is endogenous because 
+The first method deals with the possibility that the giving price is endogenous because 
 the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
 Since this issue does not happen for the first one unit of donation, whose price ("first price") cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
 The first price is formally defined as the giving price $p^d_i \equiv 1 − \tau (y_i − g_i)$, evaluated at $g_i = 0$. 
