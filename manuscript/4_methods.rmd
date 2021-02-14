@@ -82,7 +82,6 @@ After the 2014 tax reform (the tax credit system), the giving price is constant 
 there is no room for manipulation by donations and income.
 However, before the 2014 tax reform, the giving price has two potential endogeneity problem: 
 (A) endogeneity of giving price and (B) simulatenous determination of income and donations.
-By these two reasons, the *within* prive variation is partly endogenous.
 
 Our identification assumption may violate due to two endogenous problems discussed above.
 To tackle these problems, we take two methods.
