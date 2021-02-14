@@ -91,7 +91,7 @@ The first price is formally defined as the giving price $p^d_i \equiv 1 − \tau
 Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance. 
 Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
 
-The second issue is simulatenous determination of income and donations.
+The second method deals with the issue related to the simultaneous determination of income and donations.
 Under the tax deduction system,
 the change of income have effects on both donations through the income effect and the giving price through the marginal tax rate.
 Therefore, we employ lagged values of taxable income and construct a variable for the change in the first price of giving as following:
