@@ -59,12 +59,10 @@ If it is difficult for investigators to meet subjects, another family member ans
 
 [^weight]: Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.
 
-In the analysis, we use data from 2012 to 2018 since 
-\color{red}
+In the analysis, we use data from 2013 to 2019 since 
 we focus on the 2014 tax reform. 
 By this restriction, the most giving price variation relies on the 2014 tax reform because
 the marginal income tax rate is same in 2012 and 2013.
-\color{black}
 In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
 
 <!-- For Slides 
@@ -135,7 +133,6 @@ pack_rows("Individual Characteristics", 7, 11)
 ```
 
 
-\color{red}
 Table \@ref(tab:kableSummaryCovariate) is summary statistics of our sample. 
 We used four types of variables in this paper: 
 sets of variables about Income and Giving Price,
@@ -243,7 +240,6 @@ which is 7\% of average annual taxable income.
 The grey bar shows the proportion of donors.
 After the tax reform, the proportion of donors decreases by 2\%.
 After that, the proportion of donors is greter than 20\%.
-\color{black}
 
 ```{stata SummaryOutcome, results = "hide", eval = FALSE}
 frame copy default avgdt

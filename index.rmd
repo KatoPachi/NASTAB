@@ -1,10 +1,10 @@
 ---
 title: |
   Charitable Giving, Tax Reform, and Government Efficiency
-thanks: 
-  - code: 1
-    content: |
-      This research is base on
+#thanks: 
+#  - code: 1
+#    content: |
+#      This research is base on
 author: 
   - name: Hiroki Kato
     affiliation: Osaka University
