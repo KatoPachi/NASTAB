@@ -1,21 +1,9 @@
 #0summary
 
 ## ---- library
-package_load <- function(pkg.name){
-  if (!require(pkg.name, character.only=TRUE)){
-    install.packages(pkg.name)
-  } else {
-    library(pkg.name, character.only = TRUE)
-  }
-}
-
-package_load("readstata13")  
-package_load("tidyverse")
-package_load("rlist")
-package_load("rlang")
-package_load("plm")
-package_load("lmtest")
-package_load("sandwich")
+library(xfun)
+xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
+xfun::pkg_attach2(c("plm", "lmtest", "sandwich"))
 
 ## --- GGTemp
 my_theme <- theme_minimal() +
@@ -50,26 +38,39 @@ my_theme <- theme_minimal() +
     legend.title = element_text(size=12),               
     legend.text = element_text(size=12),                
     legend.key.size = unit(0.5,"cm"),
-    legend.background = element_rect(color = "black"), 
+    #legend.background = element_rect(color = "black"), 
     legend.position = "bottom"
   )
 
 
 ## ---- ReadData
-df <- read.dta13("data/shaped.dta")
-df <- data.frame(df) %>% 
-    mutate(
-        price = case_when(year < 2014 ~ 1 - mtr, TRUE ~ 1 -0.15),
-        log_price = log(price),
-        log_total_g = log(i_total_giving + 1),
-        log_pinc_all = log(lincome + 100000),
-        log_PPP_pubbdg = log(PPP_pubbdg + 1),
-        sqlog_PPP_pubbdg = log_PPP_pubbdg^2,
-        log_PPP_healthbdg = log(PPP_healthbdg + 1),
-        sqlog_PPP_healthbdg = log_PPP_healthbdg^2,
-        political_pref = factor(political_pref, level = c(3, 1, 2, 4, 5))
-    ) %>% 
-    filter(year >= 2012)
+df <- read.dta13("data/shaped.dta") %>% 
+	data.frame() %>% 
+	mutate(
+		price = if_else(year < 2014, 1 - first_mtr, 1 - 0.15),
+		log_price = log(price + 1),
+		log_total_g = log(i_total_giving + 1),
+		log_pinc_all = log(lincome + 100000),
+		gender = gender - 1,
+		univ = if_else(educ == 3, 1, 0),
+		highschool = if_else(educ == 2, 1, 0),
+		juniorhigh = if_else(educ == 1, 1, 0),
+		now_balance = case_when(
+			avg_welfare_tax == 1 ~ 2,
+			avg_welfare_tax %in% c(2, 4) ~ 1,
+			avg_welfare_tax %in% c(3, 5, 7) ~ 0,
+			avg_welfare_tax %in% c(6, 8) ~ -1,
+			avg_welfare_tax == 9 ~ -2
+		),
+		ideal_balance = case_when(
+			opt_welfare_tax == 1 ~ 2,
+			opt_welfare_tax %in% c(2, 4) ~ 1,
+			opt_welfare_tax %in% c(3, 5, 7) ~ 0,
+			opt_welfare_tax %in% c(6, 8) ~ -1,
+			opt_welfare_tax == 9 ~ -2
+		)
+	) %>% 
+	filter(year >= 2012 & age >= 24)
 
 ## ---- SummaryOutcome
 avgext <- df %>% 
@@ -82,73 +83,49 @@ avgint <- df %>%
 	summarize_at(vars(i_total_giving), list(mu=~mean(., na.rm = TRUE)))
 
 ggplot(avgext, aes(x = year, y = mu)) +
-	geom_bar(stat = "identity", fill = "grey80", color = "black") +
-	geom_point(data = avgint, aes(x = year, y = mu/1000), size = 2, color = "blue") +
-	geom_line(data = avgint, aes(x = year, y = mu/1000), size = 1, color = "blue") +
+	geom_bar(aes(fill = "Extensive margin"), stat = "identity", color = "black") +
+	geom_point(data = avgint, aes(x = year, y = mu/1000, color = "Intensive margin"), size = 2) +
+	geom_line(data = avgint, aes(x = year, y = mu/1000, color = "Intensive margin"), size = 1) +
+	geom_hline(aes(yintercept = 0)) +
 	geom_vline(aes(xintercept = 2013.5), color = "red", linetype = 2, size = 1) +
-	scale_y_continuous(sec.axis = sec_axis(~.*1000, name = "Average Donations (Intensive Margin)")) +
+	scale_fill_manual(NULL, values = "grey80") +
+	scale_color_manual(NULL, values = "blue") +
+	scale_y_continuous(sec.axis = sec_axis(~.*1000, name = "Average Amout of Donations among Donors (Intensive margin)")) +
 	scale_x_continuous(breaks = seq(2012, 2018, 1)) +
-	labs(x = "Year", y = "Proportion of Donors") +
+	labs(x = "Year", y = "Proportion of Donors (Extensive margin)") +
 	my_theme
 
 ## ---- SummaryCovariate
 sumcov <- df %>% 
-	mutate(gender = gender - 1) %>% 
-	group_by(year) %>% 
-	summarize_at(vars(gender, age, lincome), list(~mean(., na.rm = TRUE))) %>% 
-	mutate(year = sprintf("Y%1d", year)) %>%
-	pivot_longer(-year, names_to = "vars", values_to = "value") %>% 
-	pivot_wider(names_from = "year", values_from = "value") %>% 
-	mutate_at(vars(starts_with("Y")), list(~sprintf("%1.2f", .))) %>% 
-	mutate(vars = recode(vars, "gender" = "Female", "age" = "Age", "lincome" = "Annual Taxable Income"))
-
-sumedu <- df %>% 
-	filter(!is.na(educ)) %>%
-	group_by(year, educ) %>% 
-	summarize(N = n()) %>% 
-	group_by(year) %>% 
-	mutate(prop = N/sum(N)) %>% 
-	select(-N) %>% 
-	mutate(
-		educ = case_when(
-			educ == 1 ~ "Junior High School Graduate", 
-			educ == 2 ~ "High School Graduate", 
-			TRUE ~ "University Graduate"),
-		year = sprintf("Y%1d", year)
+	summarize_at(
+		vars(lincome, price, i_total_giving, i_ext_giving, now_balance, ideal_balance, age, gender, univ, highschool, juniorhigh),
+		list(
+			N =~ sum(!is.na(.)),
+			mean =~ mean(., na.rm = TRUE),
+			sd =~ sd(., na.rm = TRUE),
+			min =~ min(., na.rm = TRUE),
+			q25 = ~quantile(., prob = .25, na.rm = TRUE),
+			median = ~median(., na.rm = TRUE),
+			q75 = ~quantile(., prob = .75, na.rm = TRUE),
+			max =~ max(., na.rm = TRUE)
+		)
 	) %>% 
-	pivot_wider(names_from = "year", values_from = "prop") %>% 
-	rename(vars = educ) %>% 
-	mutate_at(vars(starts_with("Y")), list(~sprintf("%1.2f", .)))
-
-sumN <- df %>% 
-	group_by(year) %>% 
-	summarize_at(vars(pid, hhid), list(~length(unique(.)))) %>% 
-	mutate(year = sprintf("Y%1d", year)) %>%
-	pivot_longer(-year, names_to = "vars", values_to = "N") %>% 
-	pivot_wider(names_from = "year", values_from = "N") %>% 
-	mutate_at(vars(starts_with("Y")), list(~sprintf("%1d", .))) %>% 
-	mutate(vars = recode(vars, "pid" = "#.Respondents", "hhid" = "#.Households"))
-
-tabsum <- rbind(sumcov, sumedu) %>% rbind(sumN)
+	pivot_longer(
+		everything(),
+		names_to = c("vars", ".value"),
+		names_pattern = "(.*)_(mean|se|sd|min|q25|median|q75|max|sum|N)"
+	)
 
 ## ---- SummaryPriceChange
-sump <- df %>% 
-	filter(year == 2012) %>% 
-	select(lincome, price) %>% 
-	distinct(.keep_all = TRUE) %>% 
-	drop_na() %>% 
-	group_by(price) %>% 
-	filter(lincome == min(lincome))
-
-ggplot(subset(df, year == 2013), aes(x = lincome)) + 
-	geom_histogram(aes(y = ..count../3000), color = "black", fill = "grey90", bins = 100) +
-	geom_step(data = sump, aes(x = lincome, y = price), color = "blue", size = 1) +
-	geom_hline(aes(yintercept = 1 - .15), size = 1, color = "red", linetype = 2) +
-	geom_vline(aes(xintercept = 1200), color = "black", linetype = 2) +
-	geom_vline(aes(xintercept = 4600), color = "black", linetype = 2) +
-	scale_x_continuous(breaks = sump$lincome) +
-	scale_y_continuous(sec.axis = sec_axis(~ .*3000, name = "Count")) +
-	labs(x = "Annual taxable income (Year = 2013)", y = "Giving Price", 
-		caption = "Blue line represents the giving price in 2013. 
-		Red dashed line represents the giving price after 2014") +
-	my_theme
+df %>% 
+	filter(year == 2013) %>% 
+	dplyr::select(lincome, price) %>% 
+	ggplot(aes(x = lincome)) +
+		geom_histogram(aes(y = ..count../sum(..count..)), fill = "grey80", color = "black") +
+		geom_step(aes(y = price*0.5, color = "Giving Price in 2013"), size = 1) +
+		geom_hline(aes(yintercept = (1 - 0.15)*0.5), color = "red", linetype = 2, size = 1) +
+		scale_color_manual(NULL, values = "blue") +
+		scale_y_continuous(breaks = seq(0, 0.5, 0.125), sec.axis = sec_axis(~./0.5, name = "Giving price")) +
+		scale_x_continuous(breaks = c(1200, 4600, 8800, 30000)) +
+		labs(x = "Annual taxable income (10,000KRW)", y = "Relative frequency") +
+		my_theme
