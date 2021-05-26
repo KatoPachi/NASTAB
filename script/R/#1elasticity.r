@@ -1,23 +1,9 @@
 #1elasticity
 
 ## ---- library
-package_load <- function(pkg.name){
-  if (!require(pkg.name, character.only=TRUE)){
-    install.packages(pkg.name)
-  } else {
-    library(pkg.name, character.only = TRUE)
-  }
-}
-
-package_load("readstata13")  
-package_load("tidyverse")
-package_load("rlist")
-package_load("rlang")
-package_load("plm")
-package_load("lmtest")
-package_load("sandwich")
-package_load("lfe")
-package_load("Formula")
+library(xfun)
+xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
+xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula", "car"))
 
 ## --- GGTemp
 my_theme <- theme_minimal() +
@@ -52,212 +38,88 @@ my_theme <- theme_minimal() +
     legend.title = element_text(size=12),               
     legend.text = element_text(size=12),                
     legend.key.size = unit(0.5,"cm"),
-    legend.background = element_rect(color = "black"), 
+    #legend.background = element_rect(color = "black"), 
     legend.position = "bottom"
   )
 
 
-## ---- ReadDataforElasticity
-df <- read.dta13("data/shaped.dta")
-df <- data.frame(df) %>% 
-    mutate(
-        price = case_when(year < 2014 ~ 1 - mtr, TRUE ~ 1 -0.15),
-        log_price = log(price),
-        log_total_g = log(i_total_giving + 1),
-        log_pinc_all = log(lincome + 100000),
-        log_PPP_pubbdg = log(PPP_pubbdg + 1),
-        sqlog_PPP_pubbdg = log_PPP_pubbdg^2,
-        log_PPP_healthbdg = log(PPP_healthbdg + 1),
-        sqlog_PPP_healthbdg = log_PPP_healthbdg^2,
-        political_pref = factor(political_pref, level = c(3, 1, 2, 4, 5))
-    ) 
-df <- df %>% 
-  group_by(pid) %>% 
-  mutate(
-    lag1_price = dplyr::lag(price, n = 1, default = NA, order_by = year),
-    lag2_price = dplyr::lag(price, n = 2, default = NA, order_by = year),
-    lag3_price = dplyr::lag(price, n = 3, default = NA, order_by = year),
-    lag4_price = dplyr::lag(price, n = 4, default = NA, order_by = year)
-  ) %>% 
-  ungroup()
-df <- df %>% 
-  mutate(
-    lag1iv = log(price/lag1_price),
-    lag2iv = log(price/lag2_price),
-    lag3iv = log(price/lag3_price),
-    lag4iv = log(price/lag4_price),
-  )
+## ---- ReadData
+df <- read.dta13("data/shaped.dta") %>% 
+	data.frame() %>% 
+	mutate(
+		log_price = log(price),
+		log_lprice = log(lprice),
+		log_iv1price = log(iv1price),
+    log_iv2price = log(iv2price),
+    log_iv3price = log(iv3price),
+		log_total_g = log(i_total_giving + 1),
+		log_pinc_all = log(lincome + 100000),
+	) %>% 
+	group_by(pid) %>% 
+	mutate(
+		lag1_log_total_g = dplyr::lag(log_total_g, order_by = year),
+		lag2_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 2),
+		lag3_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 3),
+		lag1_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year),
+		lag2_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 2),
+		lag3_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 3),
+		lag1_age = dplyr::lag(age, order_by = year),
+		lag2_age = dplyr::lag(age, order_by = year, n = 2),
+		lag3_age = dplyr::lag(age, order_by = year, n = 3),
+		lag1_sqage = dplyr::lag(sqage, order_by = year),
+		lag2_sqage = dplyr::lag(sqage, order_by = year, n = 2),
+		lag3_sqage = dplyr::lag(sqage, order_by = year, n = 3)
+	) %>% 
+	ungroup() %>% 
+	mutate(
+		log_diff1g = log_total_g - lag1_log_total_g,
+		log_diff2g = log_total_g - lag2_log_total_g,
+		log_diff3g = log_total_g - lag3_log_total_g,
+		log_diff1I = log_pinc_all - lag1_log_pinc_all,
+		log_diff2I = log_pinc_all - lag2_log_pinc_all,
+		log_diff3I = log_pinc_all - lag3_log_pinc_all,
+		diff1_age = age - lag1_age,
+		diff2_age = age - lag2_age,
+		diff3_age = age - lag3_age,
+		diff1_sqage = sqage - lag1_sqage,
+		diff2_sqage = sqage - lag2_sqage,
+		diff3_sqage = sqage - lag3_sqage
+	) %>% 
+	filter(year >= 2012 & age >= 24) 
 
-
-## ---- EstimateElasticity
-#regressions
+## ---- TotalElasticity
+# regressions
 reg <- Formula(log_total_g ~ log_price + log_pinc_all | pid + year)
 
 setreg <- list(
-    base = . ~ . | . | 0 | pid,
-    age = . ~ . + age | . | 0 | pid,
-    educ = . ~ .  + age + factor(year):factor(educ) | . | 0 | pid,
-    gender = . ~ .  + age + factor(year):factor(educ) + factor(year):factor(gender) | . | 0 | pid,
-    living = . ~ . +age+factor(year):factor(educ)+factor(year):factor(gender)+factor(living_area) | . | 0 | pid
+  base = . ~ . | . | 0 | pid,
+  age = . ~ . + age + sqage | . | 0 | pid,
+  educ = . ~ .  + age + sqage + factor(year):factor(educ) | . | 0 | pid,
+  gender = . ~ .  + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) | . | 0 | pid,
+  living = . ~ . + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
+    factor(year):factor(living_area) | . | 0 | pid
 )
 
-basereg <- setreg %>% 
-    purrr::map(~as.formula(update(reg, .))) %>%
-    purrr::map(~lfe::felm(as.formula(.), data = subset(df, year >= 2012)))
-n.basereg <- basereg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
-
-# make tabulation
-keep <- c("log_price") %>% paste(collapse = "|")
-varlist <- exprs(
-  stat == "se" ~ "",
-  vars == "log_price" ~ "ln(giving price)"
-)
-
-coef.basereg <- basereg %>% 
-	purrr::map(function(x)
-    data.frame(
-      vars = rownames(summary(x)$coefficients),
-      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
-        FUN = function(y) case_when(
-          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
-          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
-          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
-          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
-        )
-      ),
-      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
-      stringsAsFactors = FALSE
-    )
-  ) %>% 
-  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
-  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
-	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
-	mutate(vars = case_when(!!!varlist)) %>% 
-  select(-stat)
-
-addline <- rbind(
-  c("Logged Income", "Y", "Y", "Y", "Y", "Y"),
-  c("Age", "N", "Y", "Y", "Y", "Y"),
-  c("Year X Educ", "N", "N", "Y", "Y", "Y"),
-  c("Year X Gender", "N", "N", "N", "Y", "Y"),
-  c("Resident Area", "N", "N", "N", "N", "Y"),
-  c("Obs", n.basereg)
-)
-
-tab.basereg <- rbind(as.matrix(coef.basereg), addline) %>% data.frame()
-
-## ---- Robust1EstimateElasticity
-# regressions
-reg <- Formula(
-  log_total_g ~ log_pinc_all +age+factor(year):factor(educ)+factor(year):factor(gender)+factor(living_area)|
-  pid + year
-)
-
-setreg <- list(
-    lag1 = . ~ .  | . | (log_price ~ lag1iv) | pid,
-    lag2 = . ~ .  | . | (log_price ~ lag2iv) | pid,
-    lag3 = . ~ .  | . | (log_price ~ lag3iv) | pid,
-    lag4 = . ~ .  | . | (log_price ~ lag4iv) | pid
-)
-
-pivreg <- setreg %>% 
-    purrr::map(~as.formula(update(reg, .))) %>%
-    purrr::map(~lfe::felm(as.formula(.), data = subset(df, year >= 2012)))
-
-n.pivreg <- pivreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
-f.pivreg <- pivreg %>% purrr::map(~sprintf("%1.3f", .$stage1$iv1fstat[[1]]["F"])) %>% as_vector()
+elast <- setreg %>% 
+  purrr::map(~as.formula(update(reg, .))) %>%
+  purrr::map(~lfe::felm(as.formula(.), data = df))
 
 # tabulation
-keep <- c("log_price") %>% paste(collapse = "|")
-varlist <- exprs(
-  stat == "se" ~ "",
-  str_detect(vars, "log_price") ~ "ln(giving price)"
+basetab <- ols_regtab(elast, keep_coef = c("log_price", "log_pinc_all"))
+
+addline <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
+  "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
+  "Time FE", "vars", "Y", "Y", "Y", "Y", "Y",
+  "Age", "vars", "N", "Y", "Y", "Y", "Y",
+  "Year x Education", "vars", "N", "N", "Y", "Y", "Y", 
+  "Year x Gender", "vars", "N", "N", "N", "Y", "Y", 
+  "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
 )
 
-coef.pivreg <- pivreg %>% 
-	purrr::map(function(x)
-    data.frame(
-      vars = rownames(summary(x)$coefficients),
-      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
-        FUN = function(y) case_when(
-          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
-          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
-          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
-          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
-        )
-      ),
-      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
-      stringsAsFactors = FALSE
-    )
-  ) %>% 
-  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
-  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
-	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
-	mutate(vars = case_when(!!!varlist)) %>% 
-  select(-stat)
-
-addline <- rbind(
-  c("F-stat of IV", f.pivreg),
-  c("Obs", n.pivreg)
+tab.elast <- bind_rows(
+  basetab$coef,
+  addline,
+  basetab$stat
 )
 
-tab.pivreg <- rbind(as.matrix(coef.pivreg), addline) %>% data.frame()
-
-## ---- Robust2EstimateElasticity
-# regressions
-reg <- Formula(
-  log_total_g ~ log_pinc_all +age+factor(year):factor(educ)+factor(year):factor(gender)+factor(living_area)|
-  pid + year
-)
-
-setreg <- list(
-    base = . ~ . + log_price | . | 0 | pid,
-    lag1 = . ~ .  | . | (log_price ~ lag1iv) | pid,
-    lag2 = . ~ .  | . | (log_price ~ lag2iv) | pid,
-    lag3 = . ~ .  | . | (log_price ~ lag3iv) | pid,
-    lag4 = . ~ .  | . | (log_price ~ lag4iv) | pid
-)
-
-limitreg <- setreg %>% 
-    purrr::map(~as.formula(update(reg, .))) %>%
-    purrr::map(~lfe::felm(as.formula(.), data = subset(df, year == 2013 | year == 2014)))
-
-n.limitreg <- limitreg %>% purrr::map(~sprintf("%1d", nobs(.))) %>% as_vector()
-f.limitreg <- limitreg %>% purrr::map(~sprintf("%1.3f", .$stage1$iv1fstat[[1]]["F"])) %>% as_vector()
-
-# tabulation
-keep <- c("log_price") %>% paste(collapse = "|")
-varlist <- exprs(
-  stat == "se" ~ "",
-  str_detect(vars, "log_price") ~ "ln(giving price)"
-)
-
-coef.limitreg <- limitreg %>% 
-	purrr::map(function(x)
-    data.frame(
-      vars = rownames(summary(x)$coefficients),
-      coef = apply(matrix(summary(x)$coefficients[,4], ncol = 1), MARGIN = 2,
-        FUN = function(y) case_when(
-          y <= .01 ~ sprintf("%1.3f***", summary(x)$coefficients[,1]),
-          y <= .05 ~ sprintf("%1.3f**", summary(x)$coefficients[,1]),
-          y <= .1 ~ sprintf("%1.3f*", summary(x)$coefficients[,1]),
-          TRUE ~ sprintf("%1.3f", summary(x)$coefficients[,1])
-        )
-      ),
-      se = sprintf("(%1.3f)", summary(x)$coefficients[,2]),
-      stringsAsFactors = FALSE
-    )
-  ) %>% 
-  purrr::map(function(x) x[str_detect(x$vars, keep),]) %>%
-  purrr::map(function(x) x %>% mutate(vars = case_when(vars == "`log_price(fit)`" ~ "log_price", TRUE ~ vars))) %>% 
-  purrr::map(function(x) pivot_longer(x, -vars, names_to = "stat", values_to = "val")) %>% 
-	purrr::reduce(full_join, by = c("vars", "stat")) %>% 
-	mutate(vars = case_when(!!!varlist)) %>% 
-  select(-stat)
-
-addline <- rbind(
-  c("F-stat of IV", "",  f.limitreg),
-  c("Obs", n.limitreg)
-)
-
-tab.limitreg <- rbind(as.matrix(coef.limitreg), addline) %>% data.frame()
