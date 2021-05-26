@@ -1,6 +1,6 @@
 
 ## ---- Regression Tables
-ols_regtab <- function(lmobj, keep_coef = NULL, rm_coef = NULL, label_coef = NULL) {
+felm_regtab <- function(lmobj, keep_coef = NULL, rm_coef = NULL, label_coef = NULL) {
 
   coeftab <- lmobj %>%
 	purrr::map(~summary(.)$coefficients) %>%
