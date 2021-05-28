@@ -52,13 +52,13 @@ estimate_elast <- function(outcome, data, implied = FALSE, evaluate_at = NULL) {
   		purrr::map(~list(coef =  .$rhs[2] * coef(.$model)["log_pinc_all"], test = lfe::waldtest(.$model, .$rhs))) %>% 
   		purrr::map(function(x)
     		tibble(
-      		vars = "Implied income elasticity",
-      		coef = x$coef,
-      		se = abs(x$coef)/sqrt(x$test["F"]),
+      				vars = "Implied income elasticity",
+      				coef = x$coef,
+		      		se = abs(x$coef)/sqrt(x$test["F"]),
 					f = x$test["F"],
-      		p = x$test["p.F"]
+      				p = x$test["p.F"]
     		)
-			) 
+		) 
 
 	}
 
@@ -67,7 +67,10 @@ estimate_elast <- function(outcome, data, implied = FALSE, evaluate_at = NULL) {
 }
 
 ## ---- Regression Tables
-felm_regtab_nonchar <- function(felmobj, keep_coef = NULL, rm_coef = NULL, label_coef = NULL) {
+felm_regtab_nonchar <- function(
+	felmobj, keep_coef = NULL, rm_coef = NULL, label_coef = NULL,
+	keep_stat = c("N", "R-squared", "Adjusted R-squared")
+) {
 
 	coeftab <- felmobj %>%
 		purrr::map(~summary(.)$coefficients) %>%
@@ -98,7 +101,8 @@ felm_regtab_nonchar <- function(felmobj, keep_coef = NULL, rm_coef = NULL, label
 			"N", "stat", nobs(.),
 			"R-squared", "stat", summary(.)$r.squared,
 			"Adjusted R-squared", "stat", summary(.)$adj.r.squared
-		))
+		)) %>% 
+		purrr::map(function(x) x %>% dplyr::filter(vars %in% keep_stat))
 	
 	return(list(coef = coeftab, stat = stattab))
 	
@@ -128,4 +132,56 @@ regtab_char <- function(listobj) {
 
 }
 
-fullset_regtab <- function(felmobj)
+fullset_tab <- function(
+	estelaobj, combined = TRUE,
+	keep_coef = NULL, rm_coef = NULL, label_coef = NULL,
+	keep_stat = c("N", "R-squared", "Adjusted R-squared"),
+	addlines = NULL
+) {
+
+	tab_coef_b <- tab_coef_c <- NULL
+	
+	# coefficient and stats tabulation
+	tab_a <- felm_regtab_nonchar(
+		estelaobj$est, keep_coef = keep_coef, rm_coef = rm_coef, label_coef = label_coef, keep_stat = keep_stat
+	)
+	tab_coef_a <- regtab_char(tab_a$coef)
+
+	# implied elasticity tabulation
+	if (!is.null(estelaobj$imp_elast$price)) {
+		tab_coef_b <- regtab_char(estelaobj$imp_elast$price)
+	}
+	if (!is.null(estelaobj$imp_elast$inc)) {
+		tab_coef_c <- regtab_char(estelaobj$imp_elast$inc)
+	}
+
+	# characteristic tabulation of regression stats
+	tab_stat <- tab_a$stat %>% 
+		purrr::map(function(x)
+			mutate(x,
+				val = case_when(
+					vars == "N" ~ sprintf("%1d", as.integer(val)),
+					TRUE ~ sprintf("%1.3f", val)
+				)
+			)
+		) %>% 
+		reduce(full_join, by = c("vars", "stat")) %>%
+		setNames(c("vars", "stat", paste("reg", 1:length(tab_a$stat), sep = "")))
+	
+	# combined table
+	if (combined) {
+		tab_comb <- bind_rows(
+			tab_coef_a,
+			tab_coef_b,
+			tab_coef_c,
+			addlines,
+			tab_stat
+		)
+	}
+
+	return(list(
+		set = tab_comb,
+		parts = list(coef_a = tab_coef_a, coef_b = tab_coef_b, coef_c = tab_coef_c, stats = tab_stat)
+	))
+
+}
