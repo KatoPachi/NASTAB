@@ -4,6 +4,7 @@
 library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
+source("script/R/#0AnalysisFunctions.r")
 
 ## --- GGTemp
 my_theme <- theme_minimal() +
@@ -89,24 +90,9 @@ df <- read.dta13("data/shaped.dta") %>%
 
 ## ---- TotalElasticity
 # regressions
-reg <- Formula(log_total_g ~ log_price + log_pinc_all | pid + year)
-
-setreg <- list(
-  base = . ~ . | . | 0 | pid,
-  age = . ~ . + age + sqage | . | 0 | pid,
-  educ = . ~ .  + age + sqage + factor(year):factor(educ) | . | 0 | pid,
-  gender = . ~ .  + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) | . | 0 | pid,
-  living = . ~ . + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
-    factor(year):factor(living_area) | . | 0 | pid
-)
-
-elast <- setreg %>% 
-  purrr::map(~as.formula(update(reg, .))) %>%
-  purrr::map(~lfe::felm(as.formula(.), data = df))
+elast <- estimate_elast(outcome = "log_total_g", data = df)
 
 # tabulation
-basetab <- felm_regtab(elast, keep_coef = c("log_price", "log_pinc_all"))
-
 addline <- tribble(
   ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
   "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
@@ -117,85 +103,19 @@ addline <- tribble(
   "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
 )
 
-tab.elast <- bind_rows(
-  basetab$coef,
-  addline,
-  basetab$stat
+tab.elast <- fullset_tab(
+  elast, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"), 
+  addlines = addline
 )
 
 ## ---- ExtElasticity
-#regressions
-reg <- Formula(i_ext_giving ~ log_price + log_pinc_all | pid + year)
-
-setreg <- list(
-  base = . ~ . | . | 0 | pid,
-  age = . ~ . + age + sqage | . | 0 | pid,
-  educ = . ~ .  + age + sqage + factor(year):factor(educ) | . | 0 | pid,
-  gender = . ~ .  + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) | . | 0 | pid,
-  living = . ~ . + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
-    factor(year):factor(living_area) | . | 0 | pid
-)
-
-ext_elast <- setreg %>% 
-  purrr::map(~as.formula(update(reg, .))) %>%
-  purrr::map(~lfe::felm(as.formula(.), data = df))
-
-# implied elasticity
-dbar <- 1/mean(df$i_ext_giving, na.rm = TRUE)
-
-imp_ext_elast_p <- ext_elast %>% 
-  purrr::map(~list(model = ., rhs = matrix(c(dbar, numeric(length(coef(.)) - 1)), nrow = 1))) %>% 
-  purrr::map(~list(coef =  .$rhs[1] * coef(.$model)["log_price"], test = lfe::waldtest(.$model, .$rhs))) %>% 
-  purrr::map(function(x)
-    tibble(
-      vars = "Implied price elasticity",
-      coef = x$coef,
-      se = abs(x$coef)/sqrt(x$test["F"]),
-      p = x$test["p.F"]
-    ) %>% 
-    mutate(
-			coef = case_when(
-				p <= .01 ~ sprintf("%1.3f***", coef),
-				p <= .05 ~ sprintf("%1.3f**", coef),
-				p <= .1 ~ sprintf("%1.3f*", coef),
-				TRUE ~ sprintf("%1.3f", coef)
-			),
-			se = sprintf("(%1.3f)", se)
-		) %>% 
-		dplyr::select(-p) %>% 
-		pivot_longer(-vars, names_to = "stat", values_to = "val")
-	) %>% 
-	reduce(full_join, by = c("vars", "stat")) %>%
-	setNames(c("vars", "stat", paste("reg", 1:length(ext_elast), sep = "")))
-
-imp_ext_elast_y <- ext_elast %>% 
-  purrr::map(~list(model = ., rhs = matrix(c(0, dbar, numeric(length(coef(.)) - 2)), nrow = 1))) %>% 
-  purrr::map(~list(coef =  .$rhs[2] * coef(.$model)["log_pinc_all"], test = lfe::waldtest(.$model, .$rhs))) %>% 
-  purrr::map(function(x)
-    tibble(
-      vars = "Implied income elasticity",
-      coef = x$coef,
-      se = abs(x$coef)/sqrt(x$test["F"]),
-      p = x$test["p.F"]
-    ) %>% 
-    mutate(
-			coef = case_when(
-				p <= .01 ~ sprintf("%1.3f***", coef),
-				p <= .05 ~ sprintf("%1.3f**", coef),
-				p <= .1 ~ sprintf("%1.3f*", coef),
-				TRUE ~ sprintf("%1.3f", coef)
-			),
-			se = sprintf("(%1.3f)", se)
-		) %>% 
-		dplyr::select(-p) %>% 
-		pivot_longer(-vars, names_to = "stat", values_to = "val")
-	) %>% 
-	reduce(full_join, by = c("vars", "stat")) %>%
-	setNames(c("vars", "stat", paste("reg", 1:length(ext_elast), sep = "")))
+# regressions
+ext_elast <- estimate_elast(outcome = "i_ext_giving", data = df, implied = TRUE)
 
 # tabulation
-basetab <- felm_regtab(ext_elast, keep_coef = c("log_price", "log_pinc_all"))
-
 addline <- tribble(
   ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
   "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
@@ -206,34 +126,19 @@ addline <- tribble(
   "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
 )
 
-tab.ext_elast <- bind_rows(
-  basetab$coef,
-  imp_ext_elast_p,
-  imp_ext_elast_y,
-  addline,
-  basetab$stat
+tab.ext_elast <- fullset_tab(
+  ext_elast,
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"), 
+  addlines = addline
 )
 
 ## ---- IntElasticity
 # regressions
-reg <- Formula(log_total_g ~ log_price + log_pinc_all | pid + year)
-
-setreg <- list(
-  base = . ~ . | . | 0 | pid,
-  age = . ~ . + age + sqage | . | 0 | pid,
-  educ = . ~ .  + age + sqage + factor(year):factor(educ) | . | 0 | pid,
-  gender = . ~ .  + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) | . | 0 | pid,
-  living = . ~ . + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
-    factor(year):factor(living_area) | . | 0 | pid
-)
-
-int_elast <- setreg %>% 
-  purrr::map(~as.formula(update(reg, .))) %>%
-  purrr::map(~lfe::felm(as.formula(.), data = subset(df, i_ext_giving == 1)))
+int_elast <- estimate_elast(outcome = "log_total_g", data = subset(df, i_ext_giving == 1))
 
 # tabulation
-basetab <- felm_regtab(int_elast, keep_coef = c("log_price", "log_pinc_all"))
-
 addline <- tribble(
   ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
   "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
@@ -244,8 +149,10 @@ addline <- tribble(
   "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
 )
 
-tab.int_elast <- bind_rows(
-  basetab$coef,
-  addline,
-  basetab$stat
+tab.int_elast <- fullset_tab(
+  int_elast,
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"), 
+  addlines = addline
 )
