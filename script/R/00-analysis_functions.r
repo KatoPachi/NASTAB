@@ -7,35 +7,22 @@
 #' implied: estimate implied elasticity and implement F-test for zero implied elasticity using waldtest function (in lfe package)
 #' evaluate_at: numric value which estimate implied elasticity. defualt is average value of outcome.
 
-estimate_elast <- function(outcome, data, implied = FALSE, evaluate_at = NULL) {
+est_felm <- function(y, x, z = list(0), fixef = list(0), cluster = list(0), data, implied_e = FALSE) {
 
 	estimate <- implied_p <- implied_y <- NULL
 
-	reg <- as.formula(paste(outcome, "~ log_price + log_pinc_all | pid + year", sep = "")) %>% Formula()
+	replace_list <- list(y = y, x = x, z = z, fixef = fixef, cluster = cluster) %>% expand.grid()
+	regset <- 1:nrow(replace_list) %>% 
+		purrr::map(~substitute(y ~ x | fixef | z | cluster, unlist(replace_list[.,]))) %>% 
+		setNames(paste("reg", 1:nrow(replace_list), sep = ""))
 
-	setreg <- list(
-		base = . ~ . | . | 0 | pid,
-		age = . ~ . + age + sqage | . | 0 | pid,
-		educ = . ~ .  + age + sqage + factor(year):factor(educ) | . | 0 | pid,
-		gender = . ~ .  + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) | . | 0 | pid,
-		living = . ~ . + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + factor(year):factor(living_area) |
-			. | 0 | pid
-	)
-
-	estimate <- setreg %>% 
-		purrr::map(~as.formula(update(reg, .))) %>%
-		purrr::map(~lfe::felm(as.formula(.), data = data))
+	estimate <- regset %>% purrr::map(~lfe::felm(as.formula(.), data = data))
 	
-	if (implied) {
+	if (implied_e) {
 		
-		if (!is.null(evaluate_at)) {
-			dbar <- evaluate_at
-		} else {
-			dbar <- 1/mean(as_vector(df[outcome]), na.rm = TRUE)
-		}
-
-		implied_p <- estimate %>% 
-			purrr::map(~list(model = ., rhs = matrix(c(dbar, numeric(length(coef(.)) - 1)), nrow = 1))) %>% 
+		implied_p <- estimate %>%
+			purrr::map(~list(model = ., dbar = 1/mean(.$response))) %>%  
+			purrr::map(~list(model = .$model, rhs = matrix(c(.$dbar, numeric(length(coef(.$model)) - 1)), nrow = 1))) %>% 
 			purrr::map(~list(coef =  .$rhs[1] * coef(.$model)["log_price"], test = lfe::waldtest(.$model, .$rhs))) %>% 
 			purrr::map(function(x)
 				tibble(
@@ -48,21 +35,22 @@ estimate_elast <- function(outcome, data, implied = FALSE, evaluate_at = NULL) {
 			)
 
 		implied_y <- estimate %>% 
-  		purrr::map(~list(model = ., rhs = matrix(c(0, dbar, numeric(length(coef(.)) - 2)), nrow = 1))) %>% 
-  		purrr::map(~list(coef =  .$rhs[2] * coef(.$model)["log_pinc_all"], test = lfe::waldtest(.$model, .$rhs))) %>% 
-  		purrr::map(function(x)
-    		tibble(
-      				vars = "Implied income elasticity",
-      				coef = x$coef,
+			purrr::map(~list(model = ., dbar = 1/mean(.$response))) %>%  
+	  		purrr::map(~list(model = .$model, rhs = matrix(c(0, .$dbar, numeric(length(coef(.$model)) - 2)), nrow = 1))) %>% 
+  			purrr::map(~list(coef =  .$rhs[2] * coef(.$model)["log_pinc_all"], test = lfe::waldtest(.$model, .$rhs))) %>% 
+  			purrr::map(function(x)
+    			tibble(
+					vars = "Implied income elasticity",
+					coef = x$coef,
 		      		se = abs(x$coef)/sqrt(x$test["F"]),
 					f = x$test["F"],
       				p = x$test["p.F"]
-    		)
-		) 
+    			)
+			)	 
 
 	}
 
-	return(list(est = estimate, imp_elast = list(price = implied_p, inc = implied_y)))
+	return(list(model = regset, est = estimate, imp_elast = list(price = implied_p, inc = implied_y)))
 	
 }
 

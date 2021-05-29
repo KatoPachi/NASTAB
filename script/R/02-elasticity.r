@@ -4,7 +4,7 @@
 library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
-source("script/R/#0AnalysisFunctions.r")
+source("script/R/00-analysis_functions.r")
 
 ## --- GGTemp
 my_theme <- theme_minimal() +
@@ -88,9 +88,18 @@ df <- read.dta13("data/shaped.dta") %>%
 	) %>% 
 	filter(year >= 2012 & age >= 24) 
 
-## ---- TotalElasticity
-# regressions
-elast <- estimate_elast(outcome = "log_total_g", data = df)
+## ---- BaselineModel
+# regression model
+xlist <- list(
+  quote(log_price + log_pinc_all),
+  quote(log_price + log_pinc_all + age + sqage),
+  quote(log_price + log_pinc_all + age + sqage + factor(year):factor(educ)),
+  quote(log_price + log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender)),
+  quote(log_price + log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
+    factor(year):factor(living_area))
+)
+fixef <- list(quote(year + pid))
+cluster <- list(quote(pid))
 
 # tabulation
 addline <- tribble(
@@ -103,6 +112,17 @@ addline <- tribble(
   "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
 )
 
+## ---- TotalElasticity
+# regressions
+elast <- est_felm(
+  y = list(quote(log_total_g)), 
+  x = xlist, 
+  fixef = fixef, 
+  cluster = cluster, 
+  data = df
+)
+
+# tabulation
 tab.elast <- fullset_tab(
   elast, 
   keep_coef = c("log_price", "log_pinc_all"),
@@ -113,19 +133,16 @@ tab.elast <- fullset_tab(
 
 ## ---- ExtElasticity
 # regressions
-ext_elast <- estimate_elast(outcome = "i_ext_giving", data = df, implied = TRUE)
-
-# tabulation
-addline <- tribble(
-  ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
-  "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
-  "Time FE", "vars", "Y", "Y", "Y", "Y", "Y",
-  "Age", "vars", "N", "Y", "Y", "Y", "Y",
-  "Year x Education", "vars", "N", "N", "Y", "Y", "Y", 
-  "Year x Gender", "vars", "N", "N", "N", "Y", "Y", 
-  "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
+ext_elast <- est_felm(
+  y = list(quote(i_ext_giving)), 
+  x = xlist, 
+  fixef = fixef, 
+  cluster = cluster, 
+  data = df, 
+  implied_e = TRUE
 )
 
+# tabulation
 tab.ext_elast <- fullset_tab(
   ext_elast,
   keep_coef = c("log_price", "log_pinc_all"),
@@ -136,19 +153,15 @@ tab.ext_elast <- fullset_tab(
 
 ## ---- IntElasticity
 # regressions
-int_elast <- estimate_elast(outcome = "log_total_g", data = subset(df, i_ext_giving == 1))
-
-# tabulation
-addline <- tribble(
-  ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
-  "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
-  "Time FE", "vars", "Y", "Y", "Y", "Y", "Y",
-  "Age", "vars", "N", "Y", "Y", "Y", "Y",
-  "Year x Education", "vars", "N", "N", "Y", "Y", "Y", 
-  "Year x Gender", "vars", "N", "N", "N", "Y", "Y", 
-  "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
+int_elast <- est_felm(
+  y = list(quote(log_total_g)), 
+  x = xlist, 
+  fixef = fixef, 
+  cluster = cluster, 
+  data = subset(df, i_ext_giving == 1)
 )
 
+# tabulation
 tab.int_elast <- fullset_tab(
   int_elast,
   keep_coef = c("log_price", "log_pinc_all"),
