@@ -396,3 +396,79 @@ tab.e_elast_rob2_2 <- fullset_tab(
 
 tab.e_elast_rob2 <- full_join(tab.e_elast_rob2_1$set, tab.e_elast_rob2_2$set, by = c("vars", "stat")) %>% 
   dplyr::rename(reg1 = reg1.x, reg2 = reg2.x, reg3 = reg1.y, reg4 = reg2.y) 
+
+## ---- kdiffModel
+ylist_rob3 <- list(quote(log_diff1g), quote(log_diff2g), quote(log_diff3g))
+xlist_rob3 <- list(
+  quote(log_iv1price +  log_diff1I + diff1_age + diff1_sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
+    factor(year):factor(living_area)),
+  quote(log_iv2price +  log_diff2I + diff2_age + diff2_sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
+    factor(year):factor(living_area)),
+  quote(log_iv3price +  log_diff3I + diff3_age + diff3_sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
+    factor(year):factor(living_area))
+)
+fixef_rob3 <- list(quote(year + pid))
+cluster_rob3 <- list(quote(pid))
+
+#tabulation
+addline_rob3 <- tibble(
+  vars = c("Individual FE", "Time FE", "Other controls"),
+  stat = rep("vars", 3),
+  reg1 = rep("Y", 3), reg2 = rep("Y", 3), reg3 = rep("Y", 3),
+  reg4 = rep("Y", 3), reg5 = rep("Y", 3), reg6 = rep("Y", 3),
+  reg7 = rep("Y", 3), reg8 = rep("Y", 3), reg9 = rep("Y", 3)
+)
+
+## ---- kDiffElasticity
+elast_rob3 <- est_felm(
+  y = ylist_rob3, x = xlist_rob3, 
+  fixef = fixef_rob3, cluster = cluster_rob3,
+  data = df
+)
+
+tab.elast_rob3 <- fullset_tab(
+  elast_rob3,
+  keep_coef = c("log_iv", "log_diff"),
+  keep_stat = c("N", "R-squared"),
+  addline = addline_rob3
+)
+
+newtab.elast_rob3 <- tab.elast_rob3$set %>% 
+  dplyr::select(vars, stat, reg1, reg5, reg9) %>% 
+  pivot_longer(reg1:reg9, names_to = "model", values_to = "val") %>% 
+  mutate(
+    vars = case_when(
+      str_detect(vars, "log_iv") ~ "Lagged difference of first price (log)",
+      str_detect(vars, "log_diff") ~ "Lagged difference of annual income (log)",
+      TRUE ~ vars
+    )
+  ) %>% 
+  dplyr::filter(!is.na(val)) %>% 
+  pivot_wider(names_from = "model", values_from = "val")
+
+## ---- kDiffIntElasticity
+i_elast_rob3 <- est_felm(
+  y = ylist_rob3, x = xlist_rob3, 
+  fixef = fixef_rob3, cluster = cluster_rob3,
+  data = subset(df, i_ext_giving == 1)
+)
+
+tab.i_elast_rob3 <- fullset_tab(
+  i_elast_rob3,
+  keep_coef = c("log_iv", "log_diff"),
+  keep_stat = c("N", "R-squared"),
+  addline = addline_rob3
+)
+
+newtab.i_elast_rob3 <- tab.i_elast_rob3$set %>% 
+  dplyr::select(vars, stat, reg1, reg5, reg9) %>% 
+  pivot_longer(reg1:reg9, names_to = "model", values_to = "val") %>% 
+  mutate(
+    vars = case_when(
+      str_detect(vars, "log_iv") ~ "Lagged difference of first price (log)",
+      str_detect(vars, "log_diff") ~ "Lagged difference of annual income (log)",
+      TRUE ~ vars
+    )
+  ) %>% 
+  dplyr::filter(!is.na(val)) %>% 
+  pivot_wider(names_from = "model", values_from = "val")
