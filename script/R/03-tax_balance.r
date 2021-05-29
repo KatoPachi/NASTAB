@@ -1,23 +1,10 @@
 #4TaxWelfare
 
 ## ---- library
-package_load <- function(pkg.name){
-  if (!require(pkg.name, character.only=TRUE)){
-    install.packages(pkg.name)
-  } else {
-    library(pkg.name, character.only = TRUE)
-  }
-}
-
-package_load("readstata13")  
-package_load("tidyverse")
-package_load("rlist")
-package_load("rlang")
-package_load("plm")
-package_load("lmtest")
-package_load("sandwich")
-package_load("lfe")
-package_load("Formula")
+library(xfun)
+xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
+xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
+source("script/R/00-analysis_functions.r")
 
 ## --- GGTemp
 my_theme <- theme_minimal() +
@@ -52,101 +39,56 @@ my_theme <- theme_minimal() +
     legend.title = element_text(size=12),               
     legend.text = element_text(size=12),                
     legend.key.size = unit(0.5,"cm"),
-    legend.background = element_rect(color = "black"), 
+    #legend.background = element_rect(color = "black"), 
     legend.position = "bottom"
   )
 
 
 ## ---- ReadData
-df <- read.dta13("data/shaped.dta")
-df <- data.frame(df) %>% 
-    mutate(
-        price = case_when(year < 2014 ~ 1 - mtr, TRUE ~ 1 -0.15),
-        log_price = log(price),
-        log_total_g = log(i_total_giving + 1),
-        log_pinc_all = log(lincome + 100000),
-        log_PPP_pubbdg = log(PPP_pubbdg + 1),
-        sqlog_PPP_pubbdg = log_PPP_pubbdg^2,
-        log_PPP_healthbdg = log(PPP_healthbdg + 1),
-        sqlog_PPP_healthbdg = log_PPP_healthbdg^2,
-        political_pref = factor(political_pref, level = c(3, 1, 2, 4, 5))
-    ) 
-df <- df %>% 
-  group_by(pid) %>% 
-  mutate(
-    lag1_price = dplyr::lag(price, n = 1, default = NA, order_by = year),
-    lag2_price = dplyr::lag(price, n = 2, default = NA, order_by = year),
-    lag3_price = dplyr::lag(price, n = 3, default = NA, order_by = year),
-    lag4_price = dplyr::lag(price, n = 4, default = NA, order_by = year)
-  ) %>% 
-  ungroup()
-df <- df %>% 
-  mutate(
-    lag1iv = log(price/lag1_price),
-    lag2iv = log(price/lag2_price),
-    lag3iv = log(price/lag3_price),
-    lag4iv = log(price/lag4_price),
-  )
+df <- read.dta13("data/shaped.dta") %>% 
+	data.frame() %>% 
+	mutate(
+		log_price = log(price),
+		log_lprice = log(lprice),
+		log_iv1price = log(iv1price),
+    log_iv2price = log(iv2price),
+    log_iv3price = log(iv3price),
+		log_total_g = log(i_total_giving + 1),
+		log_pinc_all = log(lincome + 100000),
+	) %>% 
+	group_by(pid) %>% 
+	mutate(
+		lag1_log_total_g = dplyr::lag(log_total_g, order_by = year),
+		lag2_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 2),
+		lag3_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 3),
+		lag1_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year),
+		lag2_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 2),
+		lag3_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 3),
+		lag1_age = dplyr::lag(age, order_by = year),
+		lag2_age = dplyr::lag(age, order_by = year, n = 2),
+		lag3_age = dplyr::lag(age, order_by = year, n = 3),
+		lag1_sqage = dplyr::lag(sqage, order_by = year),
+		lag2_sqage = dplyr::lag(sqage, order_by = year, n = 2),
+		lag3_sqage = dplyr::lag(sqage, order_by = year, n = 3)
+	) %>% 
+	ungroup() %>% 
+	mutate(
+		log_diff1g = log_total_g - lag1_log_total_g,
+		log_diff2g = log_total_g - lag2_log_total_g,
+		log_diff3g = log_total_g - lag3_log_total_g,
+		log_diff1I = log_pinc_all - lag1_log_pinc_all,
+		log_diff2I = log_pinc_all - lag2_log_pinc_all,
+		log_diff3I = log_pinc_all - lag3_log_pinc_all,
+		diff1_age = age - lag1_age,
+		diff2_age = age - lag2_age,
+		diff3_age = age - lag3_age,
+		diff1_sqage = sqage - lag1_sqage,
+		diff2_sqage = sqage - lag2_sqage,
+		diff3_sqage = sqage - lag3_sqage
+	) %>% 
+	filter(year >= 2012 & age >= 24) 
 
-## ---- ConstructBalanceTaxWelfare
-estdf <- df %>% 
-	mutate(
-		ideal_welfare = case_when(
-			opt_welfare_tax <= 3 ~ 3,
-			opt_welfare_tax <= 6 ~ 2,
-			opt_welfare_tax <= 9 ~ 1
-		),
-		now_welfare = case_when(
-			avg_welfare_tax <= 3 ~ 3,
-			avg_welfare_tax <= 6 ~ 2,
-			avg_welfare_tax <= 9 ~ 1
-		),
-		ideal_tax = case_when(
-			opt_welfare_tax %in% c(3, 6, 9) ~ 3,
-			opt_welfare_tax %in% c(2, 5, 8) ~ 2,
-			opt_welfare_tax %in% c(1, 4, 7) ~ 1,
-		),
-		now_tax = case_when(
-			avg_welfare_tax %in% c(3, 6, 9) ~ 3,
-			avg_welfare_tax %in% c(2, 5, 8) ~ 2,
-			avg_welfare_tax %in% c(1, 4, 7) ~ 1,
-		),
-		ideal_balance = case_when(
-			opt_welfare_tax == 1 ~ 2,
-			opt_welfare_tax %in% c(2, 4) ~ 1,
-			opt_welfare_tax %in% c(3, 5, 7) ~ 0,
-			opt_welfare_tax %in% c(6, 8) ~ -1,
-			opt_welfare_tax == 9 ~ -2,
-		),
-		now_balance = case_when(
-			avg_welfare_tax == 1 ~ 2,
-			avg_welfare_tax %in% c(2, 4) ~ 1,
-			avg_welfare_tax %in% c(3, 5, 7) ~ 0,
-			avg_welfare_tax %in% c(6, 8) ~ -1,
-			avg_welfare_tax == 9 ~ -2,
-		),
-		
-	) %>% 
-	mutate(
-		diff_welfare = now_welfare - ideal_welfare,
-		diff_tax = now_tax - ideal_tax,
-		diff_balance = now_balance - ideal_balance
-	) %>% 
-	mutate(
-		ideal_balance3 = case_when(
-			ideal_balance < 0 ~ -1,
-			ideal_balance == 0 ~ 0,
-			ideal_balance >0 ~ 1
-		),
-		now_balance3 = case_when(
-			now_balance < 0 ~ -1,
-			now_balance == 0 ~ 0,
-			now_balance >0 ~ 1
-		),
-		diff_balance3 = case_when(
-			diff_balance < 0 ~ 1,
-			diff_balance == 0 ~ 0,
-			diff_balance > 0 ~ -1
-		)
-	)
+balance_dt <- read.dta13("data/shape/balanceid.dta") %>% data.frame()
+
+df <- left_join(df, balance_dt, by = "pid")
 
