@@ -7,7 +7,8 @@
 #' implied: estimate implied elasticity and implement F-test for zero implied elasticity using waldtest function (in lfe package)
 #' evaluate_at: numric value which estimate implied elasticity. defualt is average value of outcome.
 
-est_felm <- function(y, x, z = list(0), fixef = list(0), cluster = list(0), data, implied_e = FALSE) {
+est_felm <- function(y, x, z = list(0), fixef = list(0), cluster = list(0), data, 
+					 implied_e = FALSE, price_var = NULL, income_var = "log_pinc_all") {
 
 	estimate <- implied_p <- implied_y <- NULL
 
@@ -23,7 +24,10 @@ est_felm <- function(y, x, z = list(0), fixef = list(0), cluster = list(0), data
 		implied_p <- estimate %>%
 			purrr::map(~list(model = ., dbar = 1/mean(.$response))) %>%  
 			purrr::map(~list(model = .$model, rhs = matrix(c(.$dbar, numeric(length(coef(.$model)) - 1)), nrow = 1))) %>% 
-			purrr::map(~list(coef =  .$rhs[1] * coef(.$model)["log_price"], test = lfe::waldtest(.$model, .$rhs))) %>% 
+			purrr::map(~list(
+				coef =  .$rhs[1] * coef(.$model)[str_detect(names(coef(.$model)), price_var)], 
+				test = lfe::waldtest(.$model, .$rhs)
+			)) %>% 
 			purrr::map(function(x)
 				tibble(
 					vars = "Implied price elasticity",
@@ -37,7 +41,10 @@ est_felm <- function(y, x, z = list(0), fixef = list(0), cluster = list(0), data
 		implied_y <- estimate %>% 
 			purrr::map(~list(model = ., dbar = 1/mean(.$response))) %>%  
 	  		purrr::map(~list(model = .$model, rhs = matrix(c(0, .$dbar, numeric(length(coef(.$model)) - 2)), nrow = 1))) %>% 
-  			purrr::map(~list(coef =  .$rhs[2] * coef(.$model)["log_pinc_all"], test = lfe::waldtest(.$model, .$rhs))) %>% 
+  			purrr::map(~list(
+				coef =  .$rhs[2] * coef(.$model)[str_detect(names(coef(.$model)), income_var)], 
+				test = lfe::waldtest(.$model, .$rhs)
+			)) %>% 
   			purrr::map(function(x)
     			tibble(
 					vars = "Implied income elasticity",
