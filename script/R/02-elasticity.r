@@ -169,3 +169,112 @@ tab.int_elast <- fullset_tab(
   keep_stat = c("N", "R-squared"), 
   addlines = addline
 )
+
+## ---- LastElasticityModel
+xlist_rob1 <- list(
+  quote(log_pinc_all),
+  quote(log_pinc_all + age + sqage),
+  quote(log_pinc_all + age + sqage + factor(year):factor(educ)),
+  quote(log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender)),
+  quote(log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + factor(year):factor(living_area)) 
+)
+
+z_rob1 <- list(quote((log_lprice ~ log_price)))
+fixef <- list(quote(year + pid))
+cluster <- list(quote(pid))
+
+# tabulation
+addline <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
+  "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
+  "Time FE", "vars", "Y", "Y", "Y", "Y", "Y",
+  "Age", "vars", "N", "Y", "Y", "Y", "Y",
+  "Year x Education", "vars", "N", "N", "Y", "Y", "Y", 
+  "Year x Gender", "vars", "N", "N", "N", "Y", "Y", 
+  "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
+)
+
+## ---- LastElasticity
+elast_rob1 <- est_felm(
+  y = list(quote(log_total_g)),
+  x = xlist_rob1,
+  z = z_rob1,
+  fixef = fixef, cluster = cluster,
+  data = df
+)
+
+# tabulation
+# f-stat (first stage)
+fstat <- elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
+fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
+
+tab.elast_rob1 <- fullset_tab(
+  elast_rob1, 
+  keep_coef = c("log_lprice", "log_pinc_all"),
+  label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N"), 
+  addlines = addline
+)
+
+newtab.elast_rob1 <- bind_rows(
+  tab.elast_rob1$set[1:10,],
+  fstat_line,
+  tab.elast_rob1$set[11,]
+)
+
+## ---- LastExtElasticity
+e_elast_rob1 <- est_felm(
+  y = list(quote(i_ext_giving)),
+  x = xlist_rob1,
+  z = z_rob1,
+  fixef = fixef, cluster = cluster,
+  implied_e = TRUE, price_var = "log_lprice",
+  data = df
+)
+
+# tabulation
+# f-stat (first stage)
+e_fstat <- e_elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
+e_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
+
+tab.e_elast_rob1 <- fullset_tab(
+  e_elast_rob1, 
+  keep_coef = c("log_lprice", "log_pinc_all"),
+  label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N"), 
+  addlines = addline
+)
+
+newtab.e_elast_rob1 <- bind_rows(
+  tab.e_elast_rob1$set[1:10,],
+  e_fstat_line,
+  tab.e_elast_rob1$set[11,]
+)
+
+## ---- LastIntElasticity
+i_elast_rob1 <- est_felm(
+  y = list(quote(log_total_g)),
+  x = xlist_rob1,
+  z = z_rob1,
+  fixef = fixef, cluster = cluster,
+  data = subset(df, i_ext_giving == 1)
+)
+
+# tabulation
+# f-stat (first stage)
+i_fstat <- e_elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
+i_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
+
+tab.i_elast_rob1 <- fullset_tab(
+  i_elast_rob1, 
+  keep_coef = c("log_lprice", "log_pinc_all"),
+  label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N"), 
+  addlines = addline
+)
+
+newtab.i_elast_rob1 <- bind_rows(
+  tab.i_elast_rob1$set[1:10,],
+  i_fstat_line,
+  tab.i_elast_rob1$set[11,]
+)
