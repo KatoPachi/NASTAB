@@ -92,3 +92,24 @@ balance_dt <- read.dta13("data/shape/balanceid.dta") %>% data.frame()
 
 df <- left_join(df, balance_dt, by = "pid")
 
+## ---- HistogramTaxBalanceIndex
+df %>% 
+  dplyr::select(pid, balanceid) %>% 
+  distinct(.keep_all = TRUE) %>% 
+  ggplot(aes(x = balanceid)) + 
+    geom_histogram(aes(y = ..count..), fill = "grey80", color = "black") +
+    labs(x = "Efficient index") +
+    my_theme
+
+## ---- DensityTaxBalanceIndex
+df %>% 
+  dplyr::select(pid, balanceid, ideal_balanceid) %>% 
+  distinct(.keep_all = TRUE) %>% 
+  ggplot(aes(x = balanceid)) +
+    stat_density(aes(linetype = "Full sample"), geom = "line", position = "identity") + 
+    stat_density(
+      data = ~subset(.x, ideal_balanceid > 0), 
+      aes(linetype = "Ideal efficient index > 0"), geom = "line", position = "identity") +
+    labs(x = "Efficient index", linetype = "") +
+    my_theme
+
