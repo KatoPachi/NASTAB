@@ -277,3 +277,122 @@ newtab.i_elast_rob1 <- bind_rows(
   i_fstat_line,
   tab.i_elast_rob1$set[11,]
 )
+
+## ---- ShortModel
+xlist_rob2 <- list(
+  quote(log_price + log_pinc_all),
+  quote(log_price + log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
+    factor(year):factor(living_area))
+)
+
+fixef_rob2 <- list(quote(year + pid))
+cluster_rob2 <- list(quote(pid))
+
+# tabulation
+addline_rob2 <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2,
+  "Individual FE", "vars", "Y", "Y",
+  "Time FE", "vars", "Y", "Y", 
+  "Other Controls", "vars", "N", "Y", 
+)
+
+## ---- ShortElasticity
+elast_rob2_1 <- est_felm(
+  y = list(quote(log_total_g)), x = xlist_rob2,
+  fixef = fixef_rob2, cluster = cluster_rob2,
+  data = subset(df, year >= 2013) 
+)
+
+elast_rob2_2 <- est_felm(
+  y = list(quote(log_total_g)), x = xlist_rob2,
+  fixef = fixef_rob2, cluster = cluster_rob2,
+  data = subset(df, year == 2013 | year == 2014) 
+)
+
+# tabulation
+tab.elast_rob2_1 <- fullset_tab(
+  elast_rob2_1, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_rob2
+)
+
+tab.elast_rob2_2 <- fullset_tab(
+  elast_rob2_2, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_rob2
+)
+
+tab.elast_rob2 <- full_join(tab.elast_rob2_1$set, tab.elast_rob2_2$set, by = c("vars", "stat")) %>% 
+  dplyr::rename(reg1 = reg1.x, reg2 = reg2.x, reg3 = reg1.y, reg4 = reg2.y) 
+
+## ---- ShortIntElasticity
+i_elast_rob2_1 <- est_felm(
+  y = list(quote(log_total_g)), x = xlist_rob2,
+  fixef = fixef_rob2, cluster = cluster_rob2,
+  data = subset(df, year >= 2013 & i_ext_giving == 1) 
+)
+
+i_elast_rob2_2 <- est_felm(
+  y = list(quote(log_total_g)), x = xlist_rob2,
+  fixef = fixef_rob2, cluster = cluster_rob2,
+  data = subset(df, (year == 2013 | year == 2014) & i_ext_giving == 1) 
+)
+
+# tabulation
+tab.i_elast_rob2_1 <- fullset_tab(
+  i_elast_rob2_1, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_rob2
+)
+
+tab.i_elast_rob2_2 <- fullset_tab(
+  i_elast_rob2_2, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_rob2
+)
+
+tab.i_elast_rob2 <- full_join(tab.i_elast_rob2_1$set, tab.i_elast_rob2_2$set, by = c("vars", "stat")) %>% 
+  dplyr::rename(reg1 = reg1.x, reg2 = reg2.x, reg3 = reg1.y, reg4 = reg2.y) 
+
+## ---- ShortExtElasticity
+e_elast_rob2_1 <- est_felm(
+  y = list(quote(i_ext_giving)), x = xlist_rob2,
+  fixef = fixef_rob2, cluster = cluster_rob2,
+  implied_e = TRUE, price_var = "log_price",
+  data = subset(df, year >= 2013) 
+)
+
+e_elast_rob2_2 <- est_felm(
+  y = list(quote(i_ext_giving)), x = xlist_rob2,
+  fixef = fixef_rob2, cluster = cluster_rob2,
+  implied_e = TRUE, price_var = "log_price",
+  data = subset(df, year == 2013 | year == 2014) 
+)
+
+# tabulation
+tab.e_elast_rob2_1 <- fullset_tab(
+  e_elast_rob2_1, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_rob2
+)
+
+tab.e_elast_rob2_2 <- fullset_tab(
+  e_elast_rob2_2, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_rob2
+)
+
+tab.e_elast_rob2 <- full_join(tab.e_elast_rob2_1$set, tab.e_elast_rob2_2$set, by = c("vars", "stat")) %>% 
+  dplyr::rename(reg1 = reg1.x, reg2 = reg2.x, reg3 = reg1.y, reg4 = reg2.y) 
