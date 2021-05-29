@@ -133,18 +133,17 @@ tab.elast <- fullset_tab(
 
 ## ---- ExtElasticity
 # regressions
-ext_elast <- est_felm(
+e_elast <- est_felm(
   y = list(quote(i_ext_giving)), 
   x = xlist, 
-  fixef = fixef, 
-  cluster = cluster, 
-  data = df, 
-  implied_e = TRUE
+  fixef = fixef, cluster = cluster, 
+  implied_e = TRUE, price_var = "log_price",
+  data = df
 )
 
 # tabulation
-tab.ext_elast <- fullset_tab(
-  ext_elast,
+tab.e_elast <- fullset_tab(
+  e_elast,
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"), 
@@ -153,7 +152,7 @@ tab.ext_elast <- fullset_tab(
 
 ## ---- IntElasticity
 # regressions
-int_elast <- est_felm(
+i_elast <- est_felm(
   y = list(quote(log_total_g)), 
   x = xlist, 
   fixef = fixef, 
@@ -162,8 +161,8 @@ int_elast <- est_felm(
 )
 
 # tabulation
-tab.int_elast <- fullset_tab(
-  int_elast,
+tab.i_elast <- fullset_tab(
+  i_elast,
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"), 
