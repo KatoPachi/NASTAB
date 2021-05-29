@@ -192,3 +192,63 @@ tab.e_elast_hetero <- fullset_tab(
 newtab.elast_hetero <- full_join(tab.elast_hetero$set, tab.e_elast_hetero$set, by = c("vars", "stat")) %>% 
   full_join(tab.i_elast_hetero$set, by = c("vars", "stat")) %>% 
   dplyr::rename(reg1 = reg1.x, reg2 = reg1.y, reg3 = reg1)
+
+## ---- IdealHeteroElasticity
+elast_hetero2 <- est_felm(
+  y = list(quote(log_total_g)), x = xlist_hetero,
+  fixef = fixef_hetero, cluster = cluster_hetero,
+  data = subset(merge_df, ideal_balanceid > 0)
+)
+
+i_elast_hetero2 <- est_felm(
+  y = list(quote(log_total_g)), x = xlist_hetero,
+  fixef = fixef_hetero, cluster = cluster_hetero,
+  data = subset(merge_df, i_ext_giving == 1 & ideal_balanceid > 0)
+)
+
+e_elast_hetero2 <- est_felm(
+  y = list(quote(i_ext_giving)), x = xlist_hetero,
+  fixef = fixef_hetero, cluster = cluster_hetero,
+  data = subset(merge_df, ideal_balanceid > 0)
+)
+
+# tabulation
+tab.elast_hetero2 <- fullset_tab(
+  elast_hetero2, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list(
+    "log_price" = "ln(giving price)", 
+    "log_price_int2" = "ln(giving price) x 2Q efficient group", 
+    "log_price_int3" = "ln(giving price) x 3Q efficient group", 
+    "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_hetero
+)
+
+tab.i_elast_hetero2 <- fullset_tab(
+  i_elast_hetero2, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list(
+    "log_price" = "ln(giving price)", 
+    "log_price_int2" = "ln(giving price) x 2Q efficient group", 
+    "log_price_int3" = "ln(giving price) x 3Q efficient group", 
+    "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_hetero
+)
+
+tab.e_elast_hetero2 <- fullset_tab(
+  e_elast_hetero2, 
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list(
+    "log_price" = "ln(giving price)", 
+    "log_price_int2" = "ln(giving price) x 2Q efficient group", 
+    "log_price_int3" = "ln(giving price) x 3Q efficient group", 
+    "log_pinc_all" = "ln(annual taxable income)"), 
+  keep_stat = c("N", "R-squared"),
+  addline = addline_hetero
+)
+
+newtab.elast_hetero2 <- full_join(tab.elast_hetero2$set, tab.e_elast_hetero2$set, by = c("vars", "stat")) %>% 
+  full_join(tab.i_elast_hetero2$set, by = c("vars", "stat")) %>% 
+  dplyr::rename(reg1 = reg1.x, reg2 = reg1.y, reg3 = reg1)
