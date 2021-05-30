@@ -38,3 +38,27 @@ keyword:
   text: "Charitable giving, Giving price, Tax reform, Governement efficiency, South Korea"
   JEL: D91, I10, I18
 ---
+
+```{r setup, include = FALSE, echo = FALSE}
+library(here)
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  echo = FALSE, 
+  cache = FALSE,
+  include = FALSE,
+  fig.width = 10, fig.height = 6,
+  fig.align = "center",
+  fig.pos = "t"
+)
+knitr::opts_knit$set(root.dir = here())
+```
+
+```{r library}
+library(xfun)
+xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
+xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
+xfun::pkg_attach2(c("kableExtra"))
+source("script/R/00-analysis_functions.r")
+options(knitr.kable.NA = "")
+```
