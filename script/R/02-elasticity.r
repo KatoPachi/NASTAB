@@ -101,6 +101,12 @@ xlist <- list(
 fixef <- list(quote(year + pid))
 cluster <- list(quote(pid))
 
+# wald test 
+wald <- list(
+  "Implied price elasticity" = "imp * log_price",
+  "Implied income elasticity" = "imp * log_pinc_all"
+)
+
 # tabulation
 addline <- tribble(
   ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
@@ -115,16 +121,14 @@ addline <- tribble(
 ## ---- TotalElasticity
 # regressions
 elast <- est_felm(
-  y = list(quote(log_total_g)), 
-  x = xlist, 
-  fixef = fixef, 
-  cluster = cluster, 
+  y = list(quote(log_total_g)), x = xlist, 
+  fixef = fixef, cluster = cluster, 
   data = df
 )
 
 # tabulation
 tab.elast <- fullset_tab(
-  elast, 
+  elast$result, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"), 
@@ -134,16 +138,15 @@ tab.elast <- fullset_tab(
 ## ---- ExtElasticity
 # regressions
 e_elast <- est_felm(
-  y = list(quote(i_ext_giving)), 
-  x = xlist, 
+  y = list(quote(i_ext_giving)), x = xlist, 
   fixef = fixef, cluster = cluster, 
-  implied_e = TRUE, price_var = "log_price",
+  wald_hypo = wald,
   data = df
 )
 
 # tabulation
 tab.e_elast <- fullset_tab(
-  e_elast,
+  e_elast$result, e_elast$test,
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"), 
@@ -153,16 +156,14 @@ tab.e_elast <- fullset_tab(
 ## ---- IntElasticity
 # regressions
 i_elast <- est_felm(
-  y = list(quote(log_total_g)), 
-  x = xlist, 
-  fixef = fixef, 
-  cluster = cluster, 
+  y = list(quote(log_total_g)), x = xlist, 
+  fixef = fixef, cluster = cluster, 
   data = subset(df, i_ext_giving == 1)
 )
 
 # tabulation
 tab.i_elast <- fullset_tab(
-  i_elast,
+  i_elast$result,
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"), 
@@ -170,6 +171,7 @@ tab.i_elast <- fullset_tab(
 )
 
 ## ---- LastElasticityModel
+# regeression model
 xlist_rob1 <- list(
   quote(log_pinc_all),
   quote(log_pinc_all + age + sqage),
@@ -179,11 +181,17 @@ xlist_rob1 <- list(
 )
 
 z_rob1 <- list(quote((log_lprice ~ log_price)))
-fixef <- list(quote(year + pid))
-cluster <- list(quote(pid))
+fixef_rob1 <- list(quote(year + pid))
+cluster_rob1 <- list(quote(pid))
+
+# wald test 
+wald_rob1 <- list(
+  "Implied price elasticity" = "imp * `log_lprice(fit)`",
+  "Implied income elasticity" = "imp * log_pinc_all"
+)
 
 # tabulation
-addline <- tribble(
+addline_rob1 <- tribble(
   ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
   "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
   "Time FE", "vars", "Y", "Y", "Y", "Y", "Y",
@@ -195,20 +203,18 @@ addline <- tribble(
 
 ## ---- LastElasticity
 elast_rob1 <- est_felm(
-  y = list(quote(log_total_g)),
-  x = xlist_rob1,
-  z = z_rob1,
-  fixef = fixef, cluster = cluster,
+  y = list(quote(log_total_g)), x = xlist_rob1, z = z_rob1,
+  fixef = fixef_rob1, cluster = cluster_rob1,
   data = df
 )
 
 # tabulation
 # f-stat (first stage)
-fstat <- elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
+fstat <- elast_rob1$result %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
 fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
 
 tab.elast_rob1 <- fullset_tab(
-  elast_rob1, 
+  elast_rob1$result, 
   keep_coef = c("log_lprice", "log_pinc_all"),
   label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N"), 
@@ -223,11 +229,9 @@ newtab.elast_rob1 <- bind_rows(
 
 ## ---- LastExtElasticity
 e_elast_rob1 <- est_felm(
-  y = list(quote(i_ext_giving)),
-  x = xlist_rob1,
-  z = z_rob1,
+  y = list(quote(i_ext_giving)), x = xlist_rob1, z = z_rob1,
   fixef = fixef, cluster = cluster,
-  implied_e = TRUE, price_var = "log_lprice",
+  wald_hypo = wald_rob1,
   data = df
 )
 
@@ -237,7 +241,7 @@ e_fstat <- e_elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]])
 e_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
 
 tab.e_elast_rob1 <- fullset_tab(
-  e_elast_rob1, 
+  e_elast_rob1$result, e_elast_rob1$test, 
   keep_coef = c("log_lprice", "log_pinc_all"),
   label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N"), 
@@ -252,10 +256,8 @@ newtab.e_elast_rob1 <- bind_rows(
 
 ## ---- LastIntElasticity
 i_elast_rob1 <- est_felm(
-  y = list(quote(log_total_g)),
-  x = xlist_rob1,
-  z = z_rob1,
-  fixef = fixef, cluster = cluster,
+  y = list(quote(log_total_g)), x = xlist_rob1, z = z_rob1,
+  fixef = fixef_rob1, cluster = cluster_rob1,
   data = subset(df, i_ext_giving == 1)
 )
 
@@ -265,7 +267,7 @@ i_fstat <- e_elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]])
 i_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
 
 tab.i_elast_rob1 <- fullset_tab(
-  i_elast_rob1, 
+  i_elast_rob1$result, 
   keep_coef = c("log_lprice", "log_pinc_all"),
   label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N"), 
@@ -279,6 +281,7 @@ newtab.i_elast_rob1 <- bind_rows(
 )
 
 ## ---- ShortModel
+# regression model
 xlist_rob2 <- list(
   quote(log_price + log_pinc_all),
   quote(log_price + log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
@@ -287,6 +290,12 @@ xlist_rob2 <- list(
 
 fixef_rob2 <- list(quote(year + pid))
 cluster_rob2 <- list(quote(pid))
+
+# wald test 
+wald_rob2 <- list(
+  "Implied price elasticity" = "imp * log_price",
+  "Implied income elasticity" = "imp * log_pinc_all"
+)
 
 # tabulation
 addline_rob2 <- tribble(
@@ -311,7 +320,7 @@ elast_rob2_2 <- est_felm(
 
 # tabulation
 tab.elast_rob2_1 <- fullset_tab(
-  elast_rob2_1, 
+  elast_rob2_1$result, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"),
@@ -319,7 +328,7 @@ tab.elast_rob2_1 <- fullset_tab(
 )
 
 tab.elast_rob2_2 <- fullset_tab(
-  elast_rob2_2, 
+  elast_rob2_2$result, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"),
@@ -344,7 +353,7 @@ i_elast_rob2_2 <- est_felm(
 
 # tabulation
 tab.i_elast_rob2_1 <- fullset_tab(
-  i_elast_rob2_1, 
+  i_elast_rob2_1$result, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"),
@@ -352,7 +361,7 @@ tab.i_elast_rob2_1 <- fullset_tab(
 )
 
 tab.i_elast_rob2_2 <- fullset_tab(
-  i_elast_rob2_2, 
+  i_elast_rob2_2$result, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"),
@@ -366,20 +375,20 @@ tab.i_elast_rob2 <- full_join(tab.i_elast_rob2_1$set, tab.i_elast_rob2_2$set, by
 e_elast_rob2_1 <- est_felm(
   y = list(quote(i_ext_giving)), x = xlist_rob2,
   fixef = fixef_rob2, cluster = cluster_rob2,
-  implied_e = TRUE, price_var = "log_price",
+  wald_hypo = wald_rob2,
   data = subset(df, year >= 2013) 
 )
 
 e_elast_rob2_2 <- est_felm(
   y = list(quote(i_ext_giving)), x = xlist_rob2,
   fixef = fixef_rob2, cluster = cluster_rob2,
-  implied_e = TRUE, price_var = "log_price",
+  wald_hypo = wald_rob2,
   data = subset(df, year == 2013 | year == 2014) 
 )
 
 # tabulation
 tab.e_elast_rob2_1 <- fullset_tab(
-  e_elast_rob2_1, 
+  e_elast_rob2_1$result, e_elast_rob2_1$test, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"),
@@ -387,7 +396,7 @@ tab.e_elast_rob2_1 <- fullset_tab(
 )
 
 tab.e_elast_rob2_2 <- fullset_tab(
-  e_elast_rob2_2, 
+  e_elast_rob2_2$result, e_elast_rob2_2$test, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
   keep_stat = c("N", "R-squared"),
@@ -427,7 +436,7 @@ elast_rob3 <- est_felm(
 )
 
 tab.elast_rob3 <- fullset_tab(
-  elast_rob3,
+  elast_rob3$result,
   keep_coef = c("log_iv", "log_diff"),
   keep_stat = c("N", "R-squared"),
   addline = addline_rob3
@@ -454,7 +463,7 @@ i_elast_rob3 <- est_felm(
 )
 
 tab.i_elast_rob3 <- fullset_tab(
-  i_elast_rob3,
+  i_elast_rob3$result,
   keep_coef = c("log_iv", "log_diff"),
   keep_stat = c("N", "R-squared"),
   addline = addline_rob3
