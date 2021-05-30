@@ -7,57 +7,80 @@
 #' implied: estimate implied elasticity and implement F-test for zero implied elasticity using waldtest function (in lfe package)
 #' evaluate_at: numric value which estimate implied elasticity. defualt is average value of outcome.
 
-est_felm <- function(y, x, z = list(0), fixef = list(0), cluster = list(0), data, 
-					 implied_e = FALSE, price_var = NULL, income_var = "log_pinc_all") {
+felm_waldtest <- function(felmobj, hypo) {
 
-	estimate <- implied_p <- implied_y <- NULL
+	# understanding hypothesis structure
+	partial_split <- str_split(str_replace_all(hypo, pattern = " ", replacement = ""), pattern = "\\+")
+	perfect_split <- partial_split %>% purrr::map(~str_split(., pattern = "\\*"))
 
+	# calculate sample mean of outcome
+	dbar <- mean(felmobj$response)
+
+	# make matrix of right hand side
+	rhs <- coef(felmobj); rhs[1:length(rhs)] <- 0
+	set_rhs <- lapply(1:length(hypo), function(x) return(rhs))
+
+	for (i in 1:length(hypo)) {
+	   for (j in 1:length(perfect_split[[i]])) {
+		   if (perfect_split[[i]][[j]][[1]] == "imp") {
+		      set_rhs[[i]][perfect_split[[i]][[j]][2]] <- 1/dbar
+		   } else {
+		   	  set_rhs[[i]][perfect_split[[i]][[j]][2]] <- as.numeric(perfect_split[[i]][[j]][[1]])
+		   }
+	   }
+	}
+
+	set_rhs <- set_rhs %>% purrr::map(~matrix(., nrow = 1))
+	
+	wald <- set_rhs %>% 
+		purrr::map(~lfe::waldtest(felmobj, .)) %>% 
+		purrr::map(function(x) tibble(f = x["F"], p = x["p.F"])) %>% 
+		reduce(bind_rows) %>% 
+		mutate(vars = names(hypo))
+	
+	# calculate coefficients
+	eval_text <- perfect_split
+
+	for (i in 1:length(hypo)) {
+	   for (j in 1:length(eval_text[[i]])) {
+		   eval_text[[i]][[j]][2] <- paste("coef(felmobj)['", eval_text[[i]][[j]][2], "']", sep = "")
+	   }
+	}
+
+	eval_text <- eval_text %>% 
+		purrr::map_depth(2, ~str_replace_all(., pattern = "imp", replacement = "(1/dbar)")) %>% 
+		purrr::map_depth(2, ~str_c(., collapse = "*")) %>% 
+		purrr::map(~str_c(unlist(.), collapse = "+")) 
+	
+	coef <- eval_text %>% purrr::map(~eval(parse(text = .))) %>% as_vector()
+	coef_df <- tibble(vars = names(hypo), coef = coef)
+
+	# show result
+	result_df <- left_join(coef_df, wald, by = "vars") %>% 
+		mutate(se = abs(coef)/sqrt(f))
+	
+	return(result_df)
+
+}
+
+
+est_felm <- function(y, x, z = list(0), fixef = list(0), cluster = list(0), data, wald_hypo = NULL) {
+
+	estimate <- wald <- NULL
+
+	# make regression models
 	replace_list <- list(y = y, x = x, z = z, fixef = fixef, cluster = cluster) %>% expand.grid()
 	regset <- 1:nrow(replace_list) %>% 
 		purrr::map(~substitute(y ~ x | fixef | z | cluster, unlist(replace_list[.,]))) %>% 
 		setNames(paste("reg", 1:nrow(replace_list), sep = ""))
 
+	# estimate regression models using felm function
 	estimate <- regset %>% purrr::map(~lfe::felm(as.formula(.), data = data))
-	
-	if (implied_e) {
-		
-		implied_p <- estimate %>%
-			purrr::map(~list(model = ., dbar = 1/mean(.$response))) %>%  
-			purrr::map(~list(model = .$model, rhs = matrix(c(.$dbar, numeric(length(coef(.$model)) - 1)), nrow = 1))) %>% 
-			purrr::map(~list(
-				coef =  .$rhs[1] * coef(.$model)[str_detect(names(coef(.$model)), price_var)], 
-				test = lfe::waldtest(.$model, .$rhs)
-			)) %>% 
-			purrr::map(function(x)
-				tibble(
-					vars = "Implied price elasticity",
-					coef = x$coef,
-					se = abs(x$coef)/sqrt(x$test["F"]),
-					f = x$test["F"],
-					p = x$test["p.F"]
-				)
-			)
 
-		implied_y <- estimate %>% 
-			purrr::map(~list(model = ., dbar = 1/mean(.$response))) %>%  
-	  		purrr::map(~list(model = .$model, rhs = matrix(c(0, .$dbar, numeric(length(coef(.$model)) - 2)), nrow = 1))) %>% 
-  			purrr::map(~list(
-				coef =  .$rhs[2] * coef(.$model)[str_detect(names(coef(.$model)), income_var)], 
-				test = lfe::waldtest(.$model, .$rhs)
-			)) %>% 
-  			purrr::map(function(x)
-    			tibble(
-					vars = "Implied income elasticity",
-					coef = x$coef,
-		      		se = abs(x$coef)/sqrt(x$test["F"]),
-					f = x$test["F"],
-      				p = x$test["p.F"]
-    			)
-			)	 
+	# implement wald-test if wald_hypo is specified
+	if (!is.null(wald_hypo)) {wald <- estimate %>% purrr::map(~felm_waldtest(., wald_hypo))}
 
-	}
-
-	return(list(model = regset, est = estimate, imp_elast = list(price = implied_p, inc = implied_y)))
+	return(list(model = regset, result = estimate, test = wald))
 	
 }
 
@@ -128,30 +151,24 @@ regtab_char <- function(listobj) {
 }
 
 fullset_tab <- function(
-	estelaobj, combined = TRUE,
+	felm_result_list, felm_test_list = NULL, combined = TRUE,
 	keep_coef = NULL, rm_coef = NULL, label_coef = NULL,
 	keep_stat = c("N", "R-squared", "Adjusted R-squared"),
 	addlines = NULL
 ) {
 
-	tab_coef_b <- tab_coef_c <- NULL
+	# list of tabulation parts
+	parts <- vector(mode = "list", length = 4)
+	parts[[3]] <- addlines
 	
 	# coefficient and stats tabulation
-	tab_a <- felm_regtab_nonchar(
-		estelaobj$est, keep_coef = keep_coef, rm_coef = rm_coef, label_coef = label_coef, keep_stat = keep_stat
+	tab_result <- felm_regtab_nonchar(
+		felm_result_list, keep_coef = keep_coef, rm_coef = rm_coef, label_coef = label_coef, keep_stat = keep_stat
 	)
-	tab_coef_a <- regtab_char(tab_a$coef)
 
-	# implied elasticity tabulation
-	if (!is.null(estelaobj$imp_elast$price)) {
-		tab_coef_b <- regtab_char(estelaobj$imp_elast$price)
-	}
-	if (!is.null(estelaobj$imp_elast$inc)) {
-		tab_coef_c <- regtab_char(estelaobj$imp_elast$inc)
-	}
+	tab_result_coef <- regtab_char(tab_result$coef)
 
-	# characteristic tabulation of regression stats
-	tab_stat <- tab_a$stat %>% 
+	tab_result_stat <- tab_result$stat %>% 
 		purrr::map(function(x)
 			mutate(x,
 				val = case_when(
@@ -161,22 +178,21 @@ fullset_tab <- function(
 			)
 		) %>% 
 		reduce(full_join, by = c("vars", "stat")) %>%
-		setNames(c("vars", "stat", paste("reg", 1:length(tab_a$stat), sep = "")))
+		setNames(c("vars", "stat", paste("reg", 1:length(felm_result_list), sep = "")))
+	
+	parts[[1]] <- tab_result_coef; parts[[4]] <- tab_result_stat
+
+	# wald test tabulation if specified
+	if (!is.null(felm_test_list)) {
+		tab_wald <- regtab_char(felm_test_list)
+		parts[[2]] <- tab_wald
+	} else {
+		parts[[2]] <- NULL
+	}
 	
 	# combined table
-	if (combined) {
-		tab_comb <- bind_rows(
-			tab_coef_a,
-			tab_coef_b,
-			tab_coef_c,
-			addlines,
-			tab_stat
-		)
-	}
+	if (combined) {tab_comb <- parts %>% reduce(bind_rows)}
 
-	return(list(
-		set = tab_comb,
-		parts = list(coef_a = tab_coef_a, coef_b = tab_coef_b, coef_c = tab_coef_c, stats = tab_stat)
-	))
+	return(list(set = tab_comb, parts = parts))
 
 }
