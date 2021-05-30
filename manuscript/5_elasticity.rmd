@@ -86,7 +86,7 @@ tab.i_elast <- fullset_tab(
 )
 ```
 
-<!--- Slides
+```{asis, echo = FALSE}
 ## Price and Income Elasticity
 
 - To show our baseline results graphically, Figure \@ref(fig:showElasticityResid) shows average residuals grouped by year and benefit of the 2014 tax reform.
@@ -95,19 +95,20 @@ tab.i_elast <- fullset_tab(
 ## Price and Income Elasticity: Residuals Plot
 
 Those who incurring loss owing to the 2014 tax reform drastically decreases thier amount of donations.
+```
 
 ```{r showElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group", eval = FALSE}
 knitr::include_graphics(paste(here(), "_assets/ElasticityResid.pdf", sep= "/"))
 ```
---->
 
 ## Price and Income Elasticity
 
-<!-- Slide
+```{asis, echo = params$slide}
 We found the **price effect** of giving (1\% price increase leads to about 1.1\% giving decrease),
 and the **income effect** of giving(1\% income increase leads to about 5\% giving increase).
---->
+```
 
+```{asis, echo = !params$slide}
 Before the estimation of giving price elasticities for intensive and extensive margin, we estimate the elasticity without distinguishing them. We call this elasticity as overall elasticity.
 Table \@ref(tab:kableEstimateElasticityPart1) shows estimation results of overall elasticity.
 The column (1) is the baseline estimation, which include individual and time fixed effects.
@@ -121,8 +122,9 @@ As a result, the price elasticity is more elastic than the baseline result.
 The price elasticity lies between -1.3 and -1.1.
 On the other hand, the income elasticity is less elastic than the baseline result.
 The income elasticity lies between -5.1 and -4.9.
+```
 
-```{r kableEstimateElasticityPart1, include = TRUE}
+```{r kableEstimateElasticityPart1}
 # tab.elast$set[-c(5:6, 12),] %>%  #for slides
 tab.elast$set %>%									 #for full paper 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
@@ -139,7 +141,7 @@ tab.elast$set %>%									 #for full paper
 	footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
 ```
 
-<!-- Slide
+```{asis, echo = FALSE}
 ## Intensive and Extensive Margin
 
 - To obtain intensive- and extensive-margin elasticity, we repeat the same excercise.
@@ -151,24 +153,29 @@ tab.elast$set %>%									 #for full paper
 ## Intensive Margin: Residuals Plot
 
 Donors who receive benefit owing to the 2014 tax reform decrease their donations in 2014 and 2015.
+```
 
 ```{r showIntElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Intensive Margin)", eval = FALSE}
 knitr::include_graphics(paste(here(), "_assets/IntElasticityResid.pdf", sep= "/"))
 ```
 
+```{asis, echo = FALSE}
 ## Extensive Margin: Residuals Plot
 
 Those who incurring loss owing to the 2014 tax reform drastically were less likely to donate.
+```
 
 ```{r showExtElasticityResid, include = TRUE, out.width="80%", fig.cap="Average Residuals Grouped by Year and Tax-Reform Benefit Group (Extensive Margin)", eval = FALSE}
 knitr::include_graphics(paste(here(), "_assets/ExtElasticityResid.pdf", sep= "/"))
 ```
 
+```{asis, echo = params$slide}
 ## Intensive and Extensive Margin: Estimation Results
 
 The intensive-margin price elasticity is -0.5 ~ -1\%. 
+```
 
-```{r kableEstimateElasticityPart2Slide1, include = TRUE, eval = FALSE}
+```{r kableEstimateElasticityPart2Slide1, eval = params$slide}
 tab.i_elast$set[-c(5:6, 12),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>% 
@@ -183,11 +190,13 @@ tab.i_elast$set[-c(5:6, 12),] %>%
 	kable_styling(font_size = 7)
 ```
 
+```{asis, echo = params$slide}
 ## Intensive and Extensive Margin: Estimation Results
 
 The extensive-margin price elasticity is -1.2 ~ -1.4\%. 
+```
 
-```{r kableEstimateElasticityPart2Slide2, include = TRUE, eval = FALSE}
+```{r kableEstimateElasticityPart2Slide2, eval = params$slide}
 tab.e_elast$set[c(5:8,11:15),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -201,8 +210,8 @@ tab.e_elast$set[c(5:8,11:15),] %>%
 	) %>% 
 	kable_styling(font_size = 7)
 ```
---->
 
+```{asis, echo = !params$slide}
 Table \@ref(tab:kableEstimateElasticityPart2) shows the intensive-margin and the extensive-margin elasticities.
 The first panel shows the intensive-margin elasticity.
 Compared to the overall elasticitiy, the price and income elasticitiy are less elastic.
@@ -232,8 +241,9 @@ The implied income elasticity is 5.778, which is slightly more elastic than the 
 Although the implied price and income elasticity varies with covariates,
 results are in line with our expectation.
 Thus, the decision of donations is sensitive to the giving price and annual income.
+```
 
-```{r kableEstimateElasticityPart2, include = TRUE}
+```{r kableEstimateElasticityPart2, eval = !params$slide}
 bind_rows(tab.i_elast$parts[[1]], tab.i_elast$parts[[3]], tab.e_elast$set) %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -251,22 +261,25 @@ bind_rows(tab.i_elast$parts[[1]], tab.i_elast$parts[[3]], tab.e_elast$set) %>%
 	footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
 
+```{asis, echo = !params$slide}
 In summary, our first conclusion is that 
 the decision of donations is sensitive to the giving price, 
 and the amount of donations is insensitive to the giving price once they decide to donate.
 In the next subsection, we check the robustness of our first conclusion, using three methods.
+```
 
 ## Robustness Check
 
-<!-- Slide
+```{asis, echo = params$slide}
 First potential concern: last price elasticity
 
 - Our baseline results show the **first** price elasticity to avoid the endogeneity of giving price.
 - We estimated the **last** price elasticity, using the Panel IV method.
     - The instrument is the first giving price.
     - Note that the last giving price is equal to the first giving price under the tax credit system.
--->
+```
 
+```{asis, echo = !params$slide}
 The first robustness check estimates the last price elasticity using the first price of giving as an instrument.
 Our main results show that *first* price elasticity to avoid the endogeneity of giving price.
 However, the first price elasiticity is not realistic
@@ -283,6 +296,7 @@ Thus, our last price elasticity may be upper bound of true price elasticity.
 
 
 [^fstage]: We do not show the first-stage results. Instead, we show the F-statistics of the instrument variable.
+```
 
 ```{r LastElasticityModel}
 # regeression model
@@ -326,7 +340,8 @@ elast_rob1 <- est_felm(
 # tabulation
 # f-stat (first stage)
 fstat <- elast_rob1$result %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
-fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
+fstat_line <- c(vars = "F-statistics of IV", stat = "stat", sprintf("%1.2f", fstat)) %>% 
+  setNames(c("vars", "stat", paste("reg", 1:length(fstat), sep = "")))
 
 tab.elast_rob1 <- fullset_tab(
   elast_rob1$result, 
@@ -353,8 +368,9 @@ e_elast_rob1 <- est_felm(
 
 # tabulation
 # f-stat (first stage)
-e_fstat <- e_elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
-e_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
+e_fstat <- e_elast_rob1$result %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
+e_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", sprintf("%1.2f", e_fstat)) %>% 
+  setNames(c("vars", "stat", paste("reg", 1:length(e_fstat), sep = "")))
 
 tab.e_elast_rob1 <- fullset_tab(
   e_elast_rob1$result, e_elast_rob1$test, 
@@ -380,8 +396,9 @@ i_elast_rob1 <- est_felm(
 
 # tabulation
 # f-stat (first stage)
-i_fstat <- e_elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
-i_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
+i_fstat <- e_elast_rob1$result %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
+i_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", sprintf("%1.2f", i_fstat)) %>% 
+  setNames(c("vars", "stat", paste("reg", 1:length(i_fstat), sep = "")))
 
 tab.i_elast_rob1 <- fullset_tab(
   i_elast_rob1$result, 
@@ -398,12 +415,14 @@ newtab.i_elast_rob1 <- bind_rows(
 )
 ```
 
-<!-- Slide
+```{asis, echo = params$slide}
+
 ## Robustness Check 1: Result
 
 Overall last price elasticity increases twofold.
+```
 
-```{r kableLastElasticity1Slide, include = TRUE, eval = FALSE}
+```{r kableLastElasticity1Slide, eval = params$slide}
 newtab.elast_rob1[-c(5:6, 11),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -419,11 +438,14 @@ newtab.elast_rob1[-c(5:6, 11),] %>%
 	#footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
 ```
 
+```{asis, echo = params$slide}
+
 ## Robustness Check 1: Intensive Margin
 
 The intensive-margin last price elasticity lies within the range of the first price elasticity.
+```
 
-```{r kableLastElasticity2Slide1, include = TRUE, eval = FALSE}
+```{r kableLastElasticity2Slide1, eval = params$slide}
 newtab.i_elast_rob1[-c(5, 6, 11),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -438,11 +460,14 @@ newtab.i_elast_rob1[-c(5, 6, 11),] %>%
 	kable_styling(font_size = 7)
 ```
 
+```{asis, echo = params$slide}
+
 ## Robustness Check 1: Extensive Margin
 
 The extensive-margin last price elasticity at sample mean is roughly -3\%.
+```
 
-```{r kableLastElasticity2Slide2, include = TRUE, eval = FALSE}
+```{r kableLastElasticity2Slide2, eval = params$slide}
 newtab.e_elast_rob1[c(5:8, 11:14, 16),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -456,8 +481,8 @@ newtab.e_elast_rob1[c(5:8, 11:14, 16),] %>%
 	) %>% 
 	kable_styling(font_size = 7)
 ```
---->
 
+```{asis, echo = !params$slide}
 The last price elasticity is in line with our first conclusion.
 Table \@ref(tab:kableLastElasticity1) shows overall last price elasticity.
 Compared to the main results, the last price elasticity is more elastic.
@@ -475,8 +500,9 @@ lies between -0.63 and -0.59.
 The implied last price elasticity evalueated at the sample mean of $D_{it}$ is roughly -3.
 These results are statistically significant different from zero,
 and more elastic than the first price elasticity.
+```
 
-```{r kableLastElasticity1, include = TRUE}
+```{r kableLastElasticity1, eval = !params$slide}
 newtab.elast_rob1 %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -492,7 +518,7 @@ newtab.elast_rob1 %>%
 	footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.", threeparttable = TRUE, escape = FALSE)
 ```
 
-```{r kableLastElasticity2, include = TRUE}
+```{r kableLastElasticity2, eval = !params$slide}
 bind_rows(newtab.i_elast_rob1[-c(5:10),], newtab.e_elast_rob1) %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -511,7 +537,7 @@ bind_rows(newtab.i_elast_rob1[-c(5:10),], newtab.e_elast_rob1) %>%
 ```
 
 
-<!--- Slide
+```{asis, echo = params$slide}
 ## Robust Check 2
 
 Second potential concern: Price change due to the change of income
@@ -519,9 +545,12 @@ Second potential concern: Price change due to the change of income
 - Since the giving price under the tax deduction depends on the change of income, the *within* variation of giving price may be endogenous.
 - To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
     - By this restriction, the *within* price variation of giving price is completely exgonenous.
---->
+```
 
+```{asis, echo = !params$slide}
 In the second robustness check, we try to control the manipulation of giving price by adjusting income level using two datasets whose ranges are (i) from 2013 to 2018 and (ii) from 2013 to 2014. Under the tax deduction system, the giving price can be manipulated by income level, though it cannot under the tax credit system. Therefore, if we use the dataset which contains data under the the tax deduction system, the estimator may capture the effect of price change which is caused not by tax reform but by price manipulation by income adjustment. To address this issue, we use dataset in which the time range under the tax deduction system is shorter than the baseline analysis. By doing this exercise, we try to suppress the effect which comes from the price change due to the change of income.
+```
+
 <!---
 (この点ですが、普通はむしろTime spanを長くして、TransitonaryなEffectとPersistentなEffectを分けて議論するのが普通だと思います。原稿のバージョンでは意図をくんでごまかして書いています。)
 --->
@@ -657,12 +686,13 @@ tab.e_elast_rob2 <- full_join(tab.e_elast_rob2_1$set, tab.e_elast_rob2_2$set, by
   dplyr::rename(reg1 = reg1.x, reg2 = reg2.x, reg3 = reg1.y, reg4 = reg2.y) 
 ```
 
-<!--- Slide
+```{asis, echo = params$slide}
 ## Robustness Check 2: Result
 
 Overall price elasticity is -1 ~ -1.7\%.
+```
 
-```{r kableShortElasticity1Slide, include=TRUE, eval = FALSE}
+```{r kableShortElasticity1Slide, eval = params$slide}
 tab.elast_rob2[-c(5, 6, 9),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -679,13 +709,14 @@ tab.elast_rob2[-c(5, 6, 9),] %>%
 	#footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
 ```
 
-
+```{asis, echo = params$slide}
 ## Robustness Check 2: Intensive Marign
 
 The intensive-margin price elasticity is -0.6 ~ -1\%.
 In column (3), the price elasticity is statistically insignificant.
+```
 
-```{r kableShortElasticity2Slide1, include=TRUE, eval = FALSE}
+```{r kableShortElasticity2Slide1, eval = params$slide}
 tab.i_elast_rob2[-c(5, 6, 9),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -701,11 +732,13 @@ tab.i_elast_rob2[-c(5, 6, 9),] %>%
 	add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) 
 ```
 
+```{asis, echo = params$slide}
 ## Robustness Check 2: Extensive Marign
 
 The extensive-margin price elasticity at sample mean is -1 ~ -2\%.
+```
 
-```{r kableShortElasticity2Slide2, include=TRUE, eval = FALSE}
+```{r kableShortElasticity2Slide2, eval = params$slide}
 tab.e_elast_rob2[c(5:8, 11:12),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -720,16 +753,17 @@ tab.e_elast_rob2[c(5:8, 11:12),] %>%
 	kable_styling(font_size = 8) %>% 
 	add_header_above(c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2), escape = FALSE) 
 ```
---->
 
+```{asis, echo = !params$slide}
 Table \@ref(tab:kableShortElasticity1) shows the overall first giving price elasticity.
 When we use data from 2013 to 2018, the estimated price elasticity is similar value to the main results.
 On the other hand,
 when we use data from 2013 to 2014, the estimated price elasticity is more elastic than the main results.
 The estimated absolute value is roughly -1.7 when we control covariates and its interaction with year dummies.
 This value is statistically significant different from zero.
+```
 
-```{r kableShortElasticity1, include=TRUE}
+```{r kableShortElasticity1, eval = !params$slide}
 tab.elast_rob2 %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -746,6 +780,7 @@ tab.elast_rob2 %>%
 	footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
 ```
 
+```{asis, echo = !params$slide}
 Table \@ref(tab:kableShortElasticity2) shows the intensive-margin and the extensive-margin first price elasticity.
 The first panel shows the intensive-margin elasticity.
 When we use data from 2012 to 2018, the intensive-margin price elasiticity is similar to the main results,
@@ -759,8 +794,9 @@ When we use data from 2012 to 2018, the extensive-margin price elasticity is sim
 which is statistically significant.
 When we use data from 2013 to 2014, the extensive-margin price elasticity is more elastic than the main results.
 Its absolute value is roughly -2, which is statistically significant.
+```
 
-```{r kableShortElasticity2, include=TRUE}
+```{r kableShortElasticity2, eval = !params$slide}
 bind_rows(tab.i_elast_rob2[-c(5:7),], tab.e_elast_rob2) %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>%
@@ -779,7 +815,8 @@ bind_rows(tab.i_elast_rob2[-c(5:7),], tab.e_elast_rob2) %>%
 	footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
 
-<!--- Slide
+
+```{asis, echo = params$slide}
 ## Robustness Check 3
 
 Second potential concerns: the change of price due to the change of income
@@ -797,8 +834,9 @@ where $\Delta^k Y_{it} = Y_{it} - Y_{it-k}$.
 
 - Note that we cannot estimation the extensive-margin elasticity since it is hard to interapt this estimation equation when we use $\Delta^k D_{it}$ as an outcome.
 - We estimate this model for $k = 1, 2, 3$.
---->
+```
 
+```{asis, echo = !params$slide}
 The third robustness check is to estimate the $k$-th difference model. The tax reform may have impacts on the giving price in two ways: one is direct giving price change by tax reform and the other is indirect change via wealth effect, which is induced by tax reform. Thus, to isolate the direct effect of the tax reform, we use the information of income level $k$ years before.
 Concreately speaking, we estimate the $k$-th difference model formulated as follows:
 $$
@@ -814,6 +852,7 @@ In particular, the estimated $\delta$ implies that 1\% increase of the change of
 Note that we do not estimate the extensive-margin elasticity because it is hard to interpret this estimation equation when we use $\Delta^k D_{it}$ as an outcome variable.
 
 [^Deltacredit]: Under the tax credit system, the giving price does not depend on income $y_{it-k}$. If the tax credit system is impelemted in year $t$ and $t-k$, then the value of $\Delta^k p_{it}$ takes zero.
+```
 
 ```{r kdiffModel}
 ylist_rob3 <- list(quote(log_diff1g), quote(log_diff2g), quote(log_diff3g))
@@ -896,12 +935,13 @@ newtab.i_elast_rob3 <- tab.i_elast_rob3$set %>%
 ```
 
 
-<!--- Slide
+```{asis, echo = params$slide}
 ## Robustness Check 3: Overall Elasticity
 
 Overall price elasticity is rougnly -2\%.
+```
 
-```{r kablekDiffElasticitySlide1, include=TRUE, eval=FALSE}
+```{r kablekDiffElasticitySlide1, eval=params$slide}
 newtab.elast_rob3[-c(5:7,9),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>% 
@@ -917,11 +957,13 @@ newtab.elast_rob3[-c(5:7,9),] %>%
 	add_header_above(c("lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) 
 ```
 
+```{asis, echo = params$slide}
 ## Robustness Check 3: Intensive-Margin Elasticity
 
 The intensive-margin price elasticity is rougnly -2\%.
+```
 
-```{r kablekDiffElasticitySlide2, include=TRUE, eval=FALSE}
+```{r kablekDiffElasticitySlide2, eval = params$slide}
 newtab.i_elast_rob3[-c(5:7,9),] %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>% 
@@ -936,8 +978,8 @@ newtab.i_elast_rob3[-c(5:7,9),] %>%
 	kable_styling(font_size = 8) %>% 
 	add_header_above(c("lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) 
 ```
---->
 
+```{asis, echo = !params$slide}
 Table \@ref(tab:kablekDiffElasticity) shows results of $k$-th difference model.
 The first panel shows the overall elasticity.
 When we take the one year lag ($k = 1$), the overall price elasticity is roughly -1.9,
@@ -952,8 +994,9 @@ The absolute value of the price elasticity is more than 2
 when we take two or more year lag ($k > 1$).
 Thus, contrary to our first conclusion,
 this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
+```
 
-```{r kablekDiffElasticity, include=TRUE}
+```{r kablekDiffElasticity, eval = !params$slide}
 bind_rows(newtab.elast_rob3[-c(5:7),], newtab.i_elast_rob3) %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
 	dplyr::select(-stat) %>% 
@@ -972,5 +1015,6 @@ bind_rows(newtab.elast_rob3[-c(5:7),], newtab.i_elast_rob3) %>%
 	footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
 ```
 
-
+```{asis, echo = !params$slide}
 In summary, the result shows that the size of estimated elasticity may vary depending on the estimation methods. This may be because the sample size is small compared to the extant research. However, our three robustness checks are in line with the baseline result, which shows that the price elasticity of intensive margin is less elastic than one of extensive margin. Thus, the obtained results suggest that the decision to donate is sensitive to the giving price, though the amount of donations is insensitive to the giving price once they decide to donate. 
+```

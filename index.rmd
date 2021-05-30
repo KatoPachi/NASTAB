@@ -37,6 +37,8 @@ abstract: |
 keyword:
   text: "Charitable giving, Giving price, Tax reform, Governement efficiency, South Korea"
   JEL: D91, I10, I18
+params:
+  slide: yes
 ---
 
 ```{r setup, include = FALSE, echo = FALSE}
@@ -46,7 +48,7 @@ knitr::opts_chunk$set(
   warning = FALSE, 
   echo = FALSE, 
   cache = FALSE,
-  include = FALSE,
+  include = TRUE,
   fig.width = 10, fig.height = 6,
   fig.align = "center",
   fig.pos = "t"

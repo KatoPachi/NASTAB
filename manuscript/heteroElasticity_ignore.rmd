@@ -1,0 +1,1506 @@
+
+<!-------------------------------------------Ignore this part
+## Robustness Check 2
+
+Second potential concern: Last price elasticity
+
+- We repeat same excercise as the panel IV including two interaction terms as endogenous variables.
+- Exgonenous variables are the interaction between giving price and dummies of efficient index group.
+
+
+```{stata HeteroLastElasticity, results = "hide", eval = FALSE}
+* overall 
+xtivreg log_total_g log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3), ///
+	fe vce(cluster pid)
+
+mat coef0 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef0 = Loglprice_M0 Loglprice2_M0 Loglprice3_M0 Loginc_M0
+
+mat stat0 = e(N) \ e(r2)
+mat colnames stat0 = M0
+mat rownames stat0 = N r2
+
+lincom log_lprice
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M0
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int2
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M0
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int3
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M0
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M0
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef0 : coef0 elas
+
+mat list coef0 
+mat list stat0
+
+* extensive
+xtivreg i_ext_giving log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3), ///
+	fe vce(cluster pid)
+
+mat coef1 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef1 = Loglprice_M1 Loglprice2_M1 Loglprice3_M1 Loginc_M1
+
+mat stat1 = e(N) \ e(r2)
+mat colnames stat1 = M1
+mat rownames stat1 = N r2
+
+sum i_ext_giving
+local mu = r(mean)
+
+lincom log_lprice * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M1
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_lprice + log_lprice_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M1
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_lprice + log_lprice_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M1
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M1
+mat rownames elas4 = e_b e_se e_pval	
+	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef1 : coef1 elas
+
+mat list coef1 
+mat list stat1
+	
+* intensive
+xtivreg log_total_g log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3) ///
+	if i_ext_giving == 1, fe vce(cluster pid)
+
+mat coef2 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef2 = Loglprice_M2 Loglprice2_M2 Loglprice3_M2 Loginc_M2
+
+mat stat2 = e(N) \ e(r2)
+mat colnames stat2 = M2
+mat rownames stat2 = N r2
+
+lincom log_lprice
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M2
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int2
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M2
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int3
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M2
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M2
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef2 : coef2 elas
+
+mat list coef2 
+mat list stat2
+
+* overall (ideal_balanceid >0)
+xtivreg log_total_g log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3) ///
+	if ideal_balanceid > 0, fe vce(cluster pid)
+
+mat coef3 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef3 = Loglprice_M3 Loglprice2_M3 Loglprice3_M3 Loginc_M3
+
+mat stat3 = e(N) \ e(r2)
+mat colnames stat3 = M3
+mat rownames stat3 = N r2
+
+lincom log_lprice
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M3
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int2
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M3
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int3
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M3
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M3
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef3 : coef3 elas
+
+mat list coef3 
+mat list stat3
+
+* extensive (ideal_balanceid > 0)
+xtivreg i_ext_giving log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3) ///
+	if ideal_balanceid > 0, fe vce(cluster pid)
+
+mat coef4 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef4 = Loglprice_M4 Loglprice2_M4 Loglprice3_M4 Loginc_M4
+
+mat stat4 = e(N) \ e(r2)
+mat colnames stat4 = M4
+mat rownames stat4 = N r2
+
+sum i_ext_giving if ideal_balanceid > 0
+local mu = r(mean)
+
+lincom log_lprice * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M4
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_lprice + log_lprice_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M4
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_lprice + log_lprice_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M4
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M4
+mat rownames elas4 = e_b e_se e_pval	
+	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef4 : coef4 elas
+
+mat list coef4
+mat list stat4
+	
+* intensive (ideal_balanceid > 0)
+xtivreg log_total_g log_pinc_all age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	(log_lprice log_lprice_int2 log_lprice_int3 = log_price log_price_int2 log_price_int3) ///
+	if i_ext_giving == 1 & ideal_balanceid > 0, fe vce(cluster pid)
+
+mat coef5 = r(table)["b".."pvalue", "log_lprice".."log_pinc_all"]	
+mat colnames coef5 = Loglprice_M5 Loglprice2_M5 Loglprice3_M5 Loginc_M5
+
+mat stat5 = e(N) \ e(r2)
+mat colnames stat5 = M5
+mat rownames stat5 = N r2
+
+lincom log_lprice
+mat elas1 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas1 = Loglprice_M5
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int2
+mat elas2 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas2 = Loglprice2_M5
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_lprice + log_lprice_int3
+mat elas3 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas3 = Loglprice3_M5
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ (1 - normal(abs(r(estimate)/r(se))))*2
+mat colnames elas4 = Loginc_M5
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef5 : coef5 elas
+
+mat list coef5 
+mat list stat5
+
+* combined result
+mat_capp coeftab : coef0 coef1
+forvalues i = 2(1)5 {
+    mat_capp coeftab : coeftab coef`i'
+}
+
+mat_capp stattab : stat0 stat1
+forvalues i = 2(1)5 {
+    mat_capp stattab : stattab stat`i'
+}
+
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/HeteroLastElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/HeteroLastElasticityStat.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapeHeteroLastElasticity, eval = FALSE}
+tabset <- list(
+	coef = read.dta13("_assets/HeteroLastElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/HeteroLastElasticityStat.dta") %>% data.frame()
+)
+
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-z, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Loglprice" ~ "ln(last giving price)",
+				vars == "Loglprice2" ~ "ln(last giving price) X 2Q Efficient Group",
+				vars == "Loglprice3" ~ "ln(last giving price) X 3Q Efficient Group",
+				vars == "Loginc" ~ "ln(auunaul taxable income)"
+			)
+		) %>% 
+		select(-stat)
+
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Loglprice" ~ "Implied last price elasiticity (1Q efficient group)",
+			vars == "Loglprice2" ~ "Implied last price elasiticity (2Q efficient group)",
+			vars == "Loglprice3" ~ "Implied last price elasiticity (3Q efficient group)",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) %>% 
+	filter(vars == "N")
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M0 = rep("Y", 3),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
+```
+
+## Robustness Check 2: Estimation Results (1)
+
+```{r kableHeteroLastElasticitySlide1, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(1:6, 20),1:4],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE) 
+```
+
+## Robustness Check 2: Implied Price Elasticity (1)
+
+```{r kableHeteroLastElasticitySlide2, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(9:14, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (2)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE) 
+```
+
+## Robustness Check 2: Estimation Results (2)
+
+```{r kableHeteroLastElasticitySlide3, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(1:6, 20),c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (3)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
+```
+
+## Robustness Check 2: Implied Price Elasticity (2)
+
+```{r kableHeteroLastElasticitySlide4, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(9:14, 20),c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (4)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
+```
+
+
+```{r kableHeteroLastElasticity, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3, "Ideal Efficient Index > 0" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The instumental variables are the first giving price in year $t$ and its interaction with the 2Q (3Q) Efficient Group. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
+```
+
+
+
+## Robustness Check 3
+
+Third potential concerns: Price change due to the change in income
+
+- To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
+    - By this restriction, the *within* price variation of giving price is completely exgonenous.
+- We include interactions between giving price and dummies of the efficient quantile group. 
+
+
+```{stata HeteroShortElasticity, results = "hide", eval = FALSE}
+* overall 
+xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if year > 2012, ///
+	fe vce(cluster pid)
+
+mat coef0 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef0 = Logprice_M0 Logprice2_M0 Logprice3_M0 Loginc_M0
+
+mat stat0 = e(N) \ e(r2)
+mat colnames stat0 = M0
+mat rownames stat0 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M0
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M0
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M0
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M0
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef0 : coef0 elas
+
+mat list coef0 
+mat list stat0
+
+* extensive
+xtreg i_ext_giving log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if year > 2012, ///
+	fe vce(cluster pid)
+
+mat coef1 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef1 = Logprice_M1 Logprice2_M1 Logprice3_M1 Loginc_M1
+
+mat stat1 = e(N) \ e(r2)
+mat colnames stat1 = M1
+mat rownames stat1 = N r2
+
+sum i_ext_giving if year > 2012
+local mu = r(mean)
+
+lincom log_price * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M1
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_price + log_price_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M1
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_price + log_price_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M1
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M1
+mat rownames elas4 = e_b e_se e_pval	
+	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef1 : coef1 elas
+
+mat list coef1 
+mat list stat1
+	
+* intensive
+xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if i_ext_giving == 1 & year > 2012, fe vce(cluster pid)
+
+mat coef2 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef2 = Logprice_M2 Logprice2_M2 Logprice3_M2 Loginc_M2
+
+mat stat2 = e(N) \ e(r2)
+mat colnames stat2 = M2
+mat rownames stat2 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M2
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M2
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M2
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M2
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef2 : coef2 elas
+
+mat list coef2 
+mat list stat2
+
+* overall (ideal_balanceid >0)
+xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if ideal_balanceid > 0 & year > 2012, fe vce(cluster pid)
+
+mat coef3 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef3 = Logprice_M3 Logprice2_M3 Logprice3_M3 Loginc_M3
+
+mat stat3 = e(N) \ e(r2)
+mat colnames stat3 = M3
+mat rownames stat3 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M3
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M3
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M3
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M3
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef3 : coef3 elas
+
+mat list coef3 
+mat list stat3
+
+* extensive (ideal_balanceid > 0)
+xtreg i_ext_giving log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if ideal_balanceid > 0 & year > 2012, fe vce(cluster pid)
+
+mat coef4 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef4 = Logprice_M4 Logprice2_M4 Logprice3_M4 Loginc_M4
+
+mat stat4 = e(N) \ e(r2)
+mat colnames stat4 = M4
+mat rownames stat4 = N r2
+
+sum i_ext_giving if ideal_balanceid > 0 & year >= 2012
+local mu = r(mean)
+
+lincom log_price * (1/`mu')
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M4
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom (log_price + log_price_int2) * (1/`mu')
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M4
+mat rownames elas2 = e_b e_se e_pval
+
+lincom (log_price + log_price_int3) * (1/`mu')
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M4
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all * (1/`mu')
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M4
+mat rownames elas4 = e_b e_se e_pval	
+	
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef4 : coef4 elas
+
+mat list coef4
+mat list stat4
+	
+* intensive (ideal_balanceid > 0)
+xtreg log_total_g log_price log_price_int2 log_price_int3 log_pinc_all ///
+	age sqage i.year##i.living_area i.year##i.gender i.year##i.educ ///
+	if i_ext_giving == 1 & ideal_balanceid > 0 & year > 2012, fe vce(cluster pid)
+
+mat coef5 = r(table)["b".."pvalue", "log_price".."log_pinc_all"]	
+mat colnames coef5 = Logprice_M5 Logprice2_M5 Logprice3_M5 Loginc_M5
+
+mat stat5 = e(N) \ e(r2)
+mat colnames stat5 = M5
+mat rownames stat5 = N r2
+
+lincom log_price
+mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas1 = Logprice_M5
+mat rownames elas1 = e_b e_se e_pval	
+
+lincom log_price + log_price_int2
+mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas2 = Logprice2_M5
+mat rownames elas2 = e_b e_se e_pval	
+
+lincom log_price + log_price_int3
+mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas3 = Logprice3_M5
+mat rownames elas3 = e_b e_se e_pval	
+
+lincom log_pinc_all
+mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+mat colnames elas4 = Loginc_M5
+mat rownames elas4 = e_b e_se e_pval	
+
+mat_capp elas : elas1 elas2
+mat_capp elas : elas elas3
+mat_capp elas : elas elas4
+
+mat_rapp coef5 : coef5 elas
+
+mat list coef5 
+mat list stat5
+
+* combined result
+mat_capp coeftab : coef0 coef1
+forvalues i = 2(1)5 {
+    mat_capp coeftab : coeftab coef`i'
+}
+
+mat_capp stattab : stat0 stat1
+forvalues i = 2(1)5 {
+    mat_capp stattab : stattab stat`i'
+}
+
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/HeteroShortElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/HeteroShortElasticityStat.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapeHeteroShortElasticity, eval = FALSE}
+tabset <- list(
+	coef = read.dta13("_assets/HeteroShortElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/HeteroShortElasticityStat.dta") %>% data.frame()
+)
+
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logprice" ~ "ln(giving price)",
+				vars == "Logprice2" ~ "ln(giving price) X 2Q Efficient Group",
+				vars == "Logprice3" ~ "ln(giving price) X 3Q Efficient Group",
+				vars == "Loginc" ~ "ln(auunaul taxable income)"
+			)
+		) %>% 
+		select(-stat)
+
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Loginc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) 
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M0 = rep("Y", 3),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
+```
+
+
+## Robustness Check 3: Estimation Result (1)
+
+```{r kableHeteroShortElasticitySlide1, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(1:6, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE) 
+```
+
+## Robustness Check 3: Implied Price Elasticity (1)
+
+```{r kableHeteroShortElasticitySlide2, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(9:14, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3), escape = FALSE) 
+```
+
+## Robustness Check 3: Estimation Result (3)
+
+```{r kableHeteroShortElasticitySlide3, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(1:6, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (3)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
+```
+
+## Robustness Check 3: Implied Price Elasticity (4)
+
+```{r kableHeteroShortElasticitySlide4, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(9:14, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Last Price Elasticity: Panel IV (4)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Ideal Efficient Index > 0" = 3), escape = FALSE) 
+```
+
+
+```{r kableHeteroShortElasticity, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Heterogenous Price Elasticity with Data after 2012",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1, "Overall" = 1, "Extensive" = 1, "Intensive" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Full Sample" = 3, "Ideal Efficient Index > 0" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero in column (4)-(6). The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
+```
+
+
+## Robustness Check 4
+
+Third potential concerns: Price change due to the change in income
+
+- To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
+- We can also rule out this problem, using the change in the first giving price.
+    - The change in the first giving price is $\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))$ where $g_{it-k} = 0$.
+    - Since we fix the income $y_{it-k}$, this variation comes from the tax reform.
+
+
+```{stata HeterokDiffElasticity, results = "hide", eval = FALSE}
+* overall 
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+    xtreg log_diff`k'g log_iv`k'price log_iv`k'price_int2 log_iv`k'price_int3 log_diff`k'I ///
+		diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area, ///
+		fe vce(cluster pid)
+	
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`k' Logdiffprice2_M`k' Logdiffprice3_M`k' Logdiffinc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	lincom log_iv`k'price
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logdiffprice_M`k'
+	mat rownames elas1 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int2
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Logdiffprice2_M`k'
+	mat rownames elas2 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int3
+	mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas3 = Logdiffprice3_M`k'
+	mat rownames elas3 = e_b e_se e_pval	
+
+	lincom log_diff`k'I
+	mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas4 = Logdiffinc_M`k'
+	mat rownames elas4 = e_b e_se e_pval	
+
+	mat_capp elas : elas1 elas2
+	mat_capp elas : elas elas3
+	mat_capp elas : elas elas4
+	
+	mat_rapp coef : coef elas
+	
+	if `k' == 1 {
+	    mat coeftab = coef
+		mat stattab = stat
+	}
+	else {
+	    mat_capp coeftab : coeftab coef
+		mat_capp stattab : stattab stat
+	}
+	
+}
+
+* intensive
+local j = 4
+forvalues k = 1(1)3 {
+    
+	di "Model `j': lag = `k'"
+	
+    xtreg log_diff`k'g log_iv`k'price log_iv`k'price_int2 log_iv`k'price_int3 log_diff`k'I ///
+		diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+		if i_ext_giving == 1, fe vce(cluster pid)
+	
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`j' Logdiffprice2_M`j' Logdiffprice3_M`j' Logdiffinc_M`j'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`j'
+	mat rownames stat = N r2
+	
+	lincom log_iv`k'price
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logdiffprice_M`j'
+	mat rownames elas1 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int2
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Logdiffprice2_M`j'
+	mat rownames elas2 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int3
+	mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas3 = Logdiffprice3_M`j'
+	mat rownames elas3 = e_b e_se e_pval	
+
+	lincom log_diff`k'I
+	mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas4 = Logdiffinc_M`j'
+	mat rownames elas4 = e_b e_se e_pval	
+
+	mat_capp elas : elas1 elas2
+	mat_capp elas : elas elas3
+	mat_capp elas : elas elas4
+	
+	mat_rapp coef : coef elas
+	
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+	
+	local j = `++j'
+	
+}
+
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/HeterokDiffElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/HeterokDiffElasticityStat.dta, replace) rownames(xvar) names(col)
+```
+
+
+```{stata SubsetHeterokDiffElasticity, results = "hide", eval = FALSE}
+* overall 
+forvalues k = 1(1)3 {
+    
+	di "lag = `k'"
+	
+    xtreg log_diff`k'g log_iv`k'price log_iv`k'price_int2 log_iv`k'price_int3 log_diff`k'I ///
+		diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+		if ideal_balanceid > 0, fe vce(cluster pid)
+	
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`k' Logdiffprice2_M`k' Logdiffprice3_M`k' Logdiffinc_M`k'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`k'
+	mat rownames stat = N r2
+	
+	lincom log_iv`k'price
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logdiffprice_M`k'
+	mat rownames elas1 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int2
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Logdiffprice2_M`k'
+	mat rownames elas2 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int3
+	mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas3 = Logdiffprice3_M`k'
+	mat rownames elas3 = e_b e_se e_pval	
+
+	lincom log_diff`k'I
+	mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas4 = Logdiffinc_M`k'
+	mat rownames elas4 = e_b e_se e_pval	
+
+	mat_capp elas : elas1 elas2
+	mat_capp elas : elas elas3
+	mat_capp elas : elas elas4
+	
+	mat_rapp coef : coef elas
+	
+	if `k' == 1 {
+	    mat coeftab = coef
+		mat stattab = stat
+	}
+	else {
+	    mat_capp coeftab : coeftab coef
+		mat_capp stattab : stattab stat
+	}
+	
+}
+
+* intensive
+local j = 4
+forvalues k = 1(1)3 {
+    
+	di "Model `j': lag = `k'"
+	
+    xtreg log_diff`k'g log_iv`k'price log_iv`k'price_int2 log_iv`k'price_int3 log_diff`k'I ///
+		diff`k'_age diff`k'_sqage i.year##i.educ i.year##i.gender i.year##i.living_area ///
+		if i_ext_giving == 1 & ideal_balanceid > 0, fe vce(cluster pid)
+	
+	mat coef = r(table)["b".."pvalue","log_iv`k'price".."log_diff`k'I"]
+	mat colnames coef = Logdiffprice_M`j' Logdiffprice2_M`j' Logdiffprice3_M`j' Logdiffinc_M`j'
+	
+	mat stat = e(N) \ e(r2)
+	mat colnames stat = M`j'
+	mat rownames stat = N r2
+	
+	lincom log_iv`k'price
+	mat elas1 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas1 = Logdiffprice_M`j'
+	mat rownames elas1 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int2
+	mat elas2 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas2 = Logdiffprice2_M`j'
+	mat rownames elas2 = e_b e_se e_pval	
+
+	lincom log_iv`k'price + log_iv`k'price_int3
+	mat elas3 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas3 = Logdiffprice3_M`j'
+	mat rownames elas3 = e_b e_se e_pval	
+
+	lincom log_diff`k'I
+	mat elas4 = r(estimate) \ r(se) \ ttail(r(df), abs(r(estimate)/r(se)))*2
+	mat colnames elas4 = Logdiffinc_M`j'
+	mat rownames elas4 = e_b e_se e_pval	
+
+	mat_capp elas : elas1 elas2
+	mat_capp elas : elas elas3
+	mat_capp elas : elas elas4
+	
+	mat_rapp coef : coef elas
+	
+	mat_capp coeftab : coeftab coef
+	mat_capp stattab : stattab stat
+	
+	local j = `++j'
+	
+}
+
+mat list coeftab
+mat list stattab
+
+xsvmat coeftab, saving(_assets/SubsetHeterokDiffElasticityCoef.dta, replace) rownames(xvar) names(col)
+xsvmat stattab, saving(_assets/SubsetHeterokDiffElasticityStat.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapeHeterokDiffElasticity, eval = FALSE}
+tabset <- list(
+	coef = read.dta13("_assets/HeterokDiffElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/HeterokDiffElasticityStat.dta") %>% data.frame()
+)
+
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logdiffprice" ~ "Lagged difference of first price (log)",
+				vars == "Logdiffprice2" ~ "X 2Q Efficient Group",
+				vars == "Logdiffprice3" ~ "X 3Q Efficient Group",
+				vars == "Logdiffinc" ~ "Lagged difference of annual income (log)"
+			)
+		) %>% 
+		select(-stat)
+
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logdiffprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logdiffprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logdiffprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Logdiffinc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) 
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3),
+	M6 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
+```
+
+## Robustness Check 4: Estimation Results (1)
+
+```{r kableHeterokDiffElasticitySlide1, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(1:6, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE)
+```
+
+## Robustness Check 4: Implied Price Elasticity (1)
+
+```{r kableHeterokDiffElasticitySlide2, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(9:14, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model (2)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE)
+```
+
+## Robustness Check 4: Estimation Results (2)
+
+```{r kableHeterokDiffElasticitySlide3, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(1:6, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model (3)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE)
+```
+
+## Robustness Check 4: Implied Price Elasticity (2)
+
+```{r kableHeterokDiffElasticitySlide4, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(9:14, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model (4)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE)
+```
+
+```{r kableHeterokDiffElasticity, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.", threeparttable = TRUE, escape = FALSE)
+```
+
+
+## Robustness Check 4 (Ideal Efficient ID > 0): Estimation Results (1)
+
+```{r shapeSubsetHeterokDiffElasticity, eval = FALSE}
+tabset <- list(
+	coef = read.dta13("_assets/SubsetHeterokDiffElasticityCoef.dta") %>% data.frame(),
+	stat = read.dta13("_assets/SubsetHeterokDiffElasticityStat.dta") %>% data.frame()
+)
+
+coeftab <- tabset$coef %>% 
+		filter(!str_detect(xvar, "e_")) %>%
+		pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+		pivot_wider(values_from = "value", names_from = "xvar") %>% 
+		mutate(
+			b = case_when(
+				pvalue <= 0.01 ~ sprintf("%1.3f***", b),
+				pvalue <= 0.05 ~ sprintf("%1.3f**", b),
+				pvalue <= 0.1 ~ sprintf("%1.3f*", b),
+				TRUE ~ sprintf("%1.3f", b)
+			),
+			se = sprintf("(%1.3f)", se)
+		) %>% 
+		select(-t, -pvalue) %>% 
+		pivot_longer(cols = b:se, values_to = "value", names_to = "stat") %>% 
+		pivot_wider(values_from = "value", names_from = "model") %>%
+		mutate(
+			vars = case_when(
+				stat == "se" ~ "",
+				vars == "Logdiffprice" ~ "Lagged difference of first price (log)",
+				vars == "Logdiffprice2" ~ "X 2Q Efficient Group",
+				vars == "Logdiffprice3" ~ "X 3Q Efficient Group",
+				vars == "Logdiffinc" ~ "Lagged difference of annual income (log)"
+			)
+		) %>% 
+		select(-stat)
+
+elastab <- tabset$coef %>% 
+	filter(str_detect(xvar, "e_")) %>%
+	pivot_longer(-xvar, values_to = "value", names_to = c("vars", "model"), names_sep = "_") %>% 
+	pivot_wider(values_from = "value", names_from = "xvar") %>% 
+	mutate(
+		e_b = case_when(
+			e_pval <= 0.01 ~ sprintf("%1.3f***", e_b),
+			e_pval <= 0.05 ~ sprintf("%1.3f**", e_b),
+			e_pval <= 0.1 ~ sprintf("%1.3f*", e_b),
+			TRUE ~ sprintf("%1.3f", e_b)
+		),
+		e_se = sprintf("(%1.3f)", e_se)
+	) %>% 
+	select(-e_pval) %>% 
+	pivot_longer(cols = e_b:e_se, values_to = "value", names_to = "stat") %>% 
+	pivot_wider(values_from = "value", names_from = "model") %>%
+	mutate(
+		vars = case_when(
+			stat == "e_se" ~ "",
+			vars == "Logdiffprice" ~ "Implied price elasiticity (1Q efficient group)",
+			vars == "Logdiffprice2" ~ "Implied price elasiticity (2Q efficient group)",
+			vars == "Logdiffprice3" ~ "Implied price elasiticity (3Q efficient group)",
+			vars == "Logdiffinc" ~ "Implied income elasticity"
+		)
+	) %>% 
+	select(-stat)
+
+stattab <- tabset$stat %>% 
+	mutate_at(
+		vars(-xvar),
+		list(~case_when(xvar == "N" ~ sprintf("%1.0f", .), TRUE ~ sprintf("%1.3f", .)))
+	) %>% 
+	mutate(xvar = recode(xvar, "r" = "R-sq", "r2" = "R-sq", .default = xvar)) %>% 
+	rename(vars = xvar) 
+
+addline <- cbind(
+	vars = c("Individual FE", "Time FE", "Other Controls"),
+	M1 = rep("Y", 3),
+	M2 = rep("Y", 3),
+	M3 = rep("Y", 3),
+	M4 = rep("Y", 3),
+	M5 = rep("Y", 3),
+	M6 = rep("Y", 3)
+)
+
+tab <- rbind(coeftab, elastab) %>% rbind(addline) %>% rbind(stattab)
+```
+
+
+```{r kableSubsetHeterokDiffElasticitySlide1, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(1:6, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (1)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE) 
+```
+
+
+## Robustness Check 4 (Ideal Efficient ID > 0): Implied Price Elasticity (1)
+
+
+```{r kableSubsetHeterokDiffElasticitySlide2, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(9:14, 20), 1:4],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (2)",
+    col.names = c("", "(1)", "(2)", "(3)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3), escape = FALSE) 
+```
+
+## Robustness Check 4 (Ideal Efficient ID > 0): Estimation Results (2)
+
+```{r kableSubsetHeterokDiffElasticitySlide3, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(1:6, 20), c(1,5:7)],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (3)",    
+	col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE) 
+```
+
+
+## Robustness Check 4 (Ideal Efficient ID > 0): Implied Price Elasticity (2)
+
+
+```{r kableSubsetHeterokDiffElasticitySlide4, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab[c(9:14, 20), c(1, 5:7)],
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0 (4)",
+    col.names = c("", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Intensive-Margin Elasticity" = 3), escape = FALSE) 
+```
+
+
+```{r kableSubsetHeterokDiffElasticity, include = TRUE, eval = FALSE}
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Heterogenous Price Elasticity: $k$-difference Model Using Those whose Ideal Efficient Index > 0",
+    col.names = c("", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)"),
+    row.names = FALSE,
+    align = "lcccccc", 
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>% 
+kable_styling(font_size = 8) %>% 
+add_indent(c(3, 5)) %>%
+add_header_above(c("Lag $k$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1, "$k = 1$" = 1, "$k = 2$" = 1, "$k = 3$" = 1), escape = FALSE) %>%
+add_header_above(c(" " = 1, "Overall Elasticity" = 3, "Intensive-Margin Elasticity" = 3), escape = FALSE) %>%
+footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. We drop units whose the ideal efficient index is less than or equal to zero.", threeparttable = TRUE, escape = FALSE)
+```
+
+
+```{stata tTestPresidentEfficientIndex, results = "hide", eval = FALSE}
+frame copy default tdt 
+frame tdt {
+	keep pid moon_balanceid park_balanceid ideal_moon_balanceid ideal_park_balanceid
+	duplicates drop
+}
+
+frame tdt: ttest moon_balanceid == park_balanceid
+mat test1 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
+mat colnames test1 = current
+mat rownames test1 = diff se pval
+
+frame tdt: ttest ideal_moon_balanceid == ideal_park_balanceid
+mat test2 = r(mu_1) - r(mu_2) \ r(se) \ r(p)
+mat colnames test2 = ideal
+mat rownames test2 = diff se pval
+
+mat_capp tabular : test1 test2
+
+mat list tabular
+frame drop tdt
+
+xsvmat tabular, saving(_assets/tTestPresidentEfficientid.dta, replace) rownames(xvar) names(col)
+```
+
+```{r shapetTestPresidentEfficientIndex, eval = FALSE}
+tdt <- read.dta13("_assets/tTestPresidentEfficientid.dta") %>% data.frame()
+```
+---->
