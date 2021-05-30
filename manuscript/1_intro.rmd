@@ -1,24 +1,4 @@
 
-```{r setup, include = FALSE, echo = FALSE}
-library(here)
-knitr::opts_chunk$set(
-  message = FALSE, 
-  warning = FALSE, 
-  echo = FALSE, 
-  cache = FALSE,
-  include = FALSE,
-  fig.width = 10, fig.height = 6,
-  fig.align = "center",
-  fig.pos = "t"
-)
-knitr::opts_knit$set(root.dir = here())
-
-library(tidyverse)
-library(readstata13)
-library(kableExtra)
-options(knitr.kable.NA = "")
-```
-
 # Introduction
 
 <!--- Slides 
