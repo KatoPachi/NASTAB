@@ -14,7 +14,7 @@ bookdown::render_book(
     input = "index.rmd",
     output_format = "bookdown::pdf_book",
     output_file = "slides.pdf",
-    output_dir = "report",
+    output_dir = "docs",
     clean = TRUE,
     encoding = "utf8"
 )
@@ -24,7 +24,7 @@ bookdown::render_book(
     input = "index.rmd",
     output_format = "bookdown::pdf_document2",
     output_file = "draft.pdf",
-    output_dir = "paper",
+    output_dir = "docs",
     clean = TRUE,
     encoding = "utf8"
 )
