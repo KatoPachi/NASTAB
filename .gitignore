@@ -5,6 +5,7 @@
 *.aux
 *.out
 .Rhistory
+.Rprofile
 
 # cache folder
 slides_cache/
