@@ -1,39 +1,57 @@
 # Data
 
-```{stata dataset, collectcode=TRUE, results = "hide", eval = FALSE}
-use "data\shaped.dta", clear
-tsset pid year
+```{r ReadData}
+df <- read.dta13("data/shaped.dta") %>% 
+	data.frame() %>% 
+	mutate(
+		log_price = log(price),
+		log_lprice = log(lprice),
+		log_iv1price = log(iv1price),
+    log_iv2price = log(iv2price),
+    log_iv3price = log(iv3price),
+		log_total_g = log(i_total_giving + 1),
+		log_pinc_all = log(lincome + 100000),
+	) %>% 
+	group_by(pid) %>% 
+	mutate(
+		lag1_log_total_g = dplyr::lag(log_total_g, order_by = year),
+		lag2_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 2),
+		lag3_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 3),
+		lag1_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year),
+		lag2_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 2),
+		lag3_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 3),
+		lag1_age = dplyr::lag(age, order_by = year),
+		lag2_age = dplyr::lag(age, order_by = year, n = 2),
+		lag3_age = dplyr::lag(age, order_by = year, n = 3),
+		lag1_sqage = dplyr::lag(sqage, order_by = year),
+		lag2_sqage = dplyr::lag(sqage, order_by = year, n = 2),
+		lag3_sqage = dplyr::lag(sqage, order_by = year, n = 3)
+	) %>% 
+	ungroup() %>% 
+	mutate(
+		log_diff1g = log_total_g - lag1_log_total_g,
+		log_diff2g = log_total_g - lag2_log_total_g,
+		log_diff3g = log_total_g - lag3_log_total_g,
+		log_diff1I = log_pinc_all - lag1_log_pinc_all,
+		log_diff2I = log_pinc_all - lag2_log_pinc_all,
+		log_diff3I = log_pinc_all - lag3_log_pinc_all,
+		diff1_age = age - lag1_age,
+		diff2_age = age - lag2_age,
+		diff3_age = age - lag3_age,
+		diff1_sqage = sqage - lag1_sqage,
+		diff2_sqage = sqage - lag2_sqage,
+		diff3_sqage = sqage - lag3_sqage
+	) %>% 
+	filter(year >= 2012 & age >= 24) 
 
-gen log_price = ln(price)
-gen log_lprice = ln(lprice)
-gen log_iv1price = ln(iv1price)
-gen log_iv2price = ln(iv2price)
-gen log_iv3price = ln(iv3price)
-gen log_total_g = ln(i_total_giving + 1)
-gen log_pinc_all = ln(lincome + 100000)
+balance_dt <- read.dta13("data/shape/balanceid.dta") %>% data.frame()
 
-forvalues i = 1(1)3 {
-	gen lag`i'_log_total_g = l`i'.log_total_g
-	gen lag`i'_log_pinc_all = l`i'.log_pinc_all
-	gen lag`i'_age = l`i'.age
-	gen lag`i'_sqage = l`i'.sqage
-	
-	gen log_diff`i'g = log_total_g - lag`i'_log_total_g
-	gen log_diff`i'I = log_pinc_all - lag`i'_log_pinc_all
-	gen diff`i'_age = age - lag`i'_age
-	gen diff`i'_sqage = sqage - lag`i'_sqage
-}
-
-keep if year >= 2012 & age >= 24
-
-** ---- merged with balancedt
-merge m:1 pid using "data\shape\balanceid.dta"
-drop _merge
-
-foreach v in log_price log_lprice log_iv1price log_iv2price log_iv3price {
-    gen `v'_int2 = `v' * (balance3 == 2) if !missing(balance3)
-	gen `v'_int3 = `v' * (balance3 == 3) if !missing(balance3)
-}
+merge_df <- left_join(df, balance_dt, by = "pid") %>% 
+  mutate(balance3 = ntile(balanceid, 3)) %>%
+  mutate(
+    log_price_int2 = log_price * (balance3 == 2),
+    log_price_int3 = log_price * (balance3 == 3),
+  )
 ```
 
 ## National Survey of Tax and Benefit (NaSTaB)
@@ -71,34 +89,29 @@ In addition, we exclude the subject of the sample, whose age is under 23, since 
 
 --->
 
-```{stata SummaryCovariate, results = "hide", eval = FALSE}
-local k = 0
-foreach v in lincome price i_total_giving i_ext_giving now_balance ideal_balance age gender univ highschool juniorhigh {
-	local k = `++k'
-	sum `v', detail
-	mat `v' = r(N) \ r(mean) \ r(sd) \ r(min) \ r(p25) \ r(p50) \ r(p75) \ r(max)
-	mat colnames `v' = `v'
-	mat rownames `v' = N mean sd min p25 median p75 max
-	
-	if `k' == 1 {
-	    mat tabular = `v'
-	}
-	else {
-	    mat_capp tabular : tabular `v'
-	}
-}
-
-mat tabular = tabular'
-mat list tabular
-xsvmat tabular, saving(_assets/SummaryCovariate.dta, replace) rownames(xvar) names(col)
-```
-
-```{r shapeSummaryCovariate}
-tabsum <- read.dta13("_assets/SummaryCovariate.dta") %>% data.frame()
-tabsum <- tabsum %>% 
+```{r SummaryCovariate, include=TRUE}
+df %>% 
+	summarize_at(
+		vars(lincome, price, i_total_giving, i_ext_giving, now_balance, ideal_balance, age, gender, univ, highschool, juniorhigh),
+		list(
+			N =~ sum(!is.na(.)),
+			mean =~ mean(., na.rm = TRUE),
+			sd =~ sd(., na.rm = TRUE),
+			min =~ min(., na.rm = TRUE),
+			q25 = ~quantile(., prob = .25, na.rm = TRUE),
+			median = ~median(., na.rm = TRUE),
+			q75 = ~quantile(., prob = .75, na.rm = TRUE),
+			max =~ max(., na.rm = TRUE)
+		)
+	) %>% 
+	pivot_longer(
+		everything(),
+		names_to = c("vars", ".value"),
+		names_pattern = "(.*)_(mean|se|sd|min|q25|median|q75|max|sum|N)"
+	) %>% 
 	mutate(
-		xvar = recode(
-			xvar,
+		vars = recode(
+			vars,
 			"lincome" = "Annual taxable income (unit: 10,000KRW)",
 			"price" = "Giving Price",
 			"i_total_giving" = "Annual charitable giving (unit: 10,000KRW)",
@@ -111,12 +124,8 @@ tabsum <- tabsum %>%
 			"highschool" = "High school graduate",
 			"juniorhigh" = "Junior high school graduate"
 		)
-	)
-```
-
-```{r kableSummaryCovariate, include=TRUE}
-knitr::kable(
-    tabsum,
+	) %>% 
+	knitr::kable(
     format = "latex",
     caption = "Summary Statistics",
     col.names = c("", "N", "Mean", "Std.Dev.", "Min", "p25", "Median", "p75", "Max"),
@@ -124,14 +133,13 @@ knitr::kable(
     align = "lccc", 
     booktabs = TRUE, escape = TRUE, linesep = "",
 		digits = 3
-) %>% 
-kable_styling(font_size = 7) %>% 
-pack_rows("Income and Giving Price", 1, 2) %>% 
-pack_rows("Charitable Donations", 3, 4) %>% 
-pack_rows("Government Efficiency", 5, 6) %>% 
-pack_rows("Individual Characteristics", 7, 11)
+	) %>% 
+	kable_styling(font_size = 7) %>% 
+	pack_rows("Income and Giving Price", 1, 2) %>% 
+	pack_rows("Charitable Donations", 3, 4) %>% 
+	pack_rows("Government Efficiency", 5, 6) %>% 
+	pack_rows("Individual Characteristics", 7, 11)
 ```
-
 
 Table \@ref(tab:kableSummaryCovariate) is summary statistics of our sample. 
 We used four types of variables in this paper: 
@@ -190,34 +198,21 @@ On the other hand,
 those whose auunal income is greater than 4600 in 2013 had a loss by the 2014 tax reform 
 since the tax reform increases the giving price.
 
-```{stata SummaryPriceChange, results = "hide", eval = FALSE}
-frame copy default sump
-frame sump: keep if year == 2013
-frame sump: keep lincome price
-
-frame sump: {
-    twoway ///
-	(line price lincome, yaxis(1) connect(stairstep) sort(lincome) lcolor(blue)) ///
-	(histogram lincome, freq yaxis(2) color(gs10%50) lcolor(black)), ///
-	yline(0.85, lcolor(red) lpattern(-)) ///
-	xline(1200, lcolor(black) lpattern(-))  ///
-	xline(4600, lcolor(black) lpattern(-))  ///
-	ytitle("Giving Price", axis(1)) ///
-	ytitle("Count", axis(2)) ///
-	xtitle("Annual taxable income (10,000KRW)")  ///
-	xlabel(1200 4600 8800 30000) ///
-	legend(label(1 "Giving Price in 2013")) ///
-	graphregion(fcolor(white))
-
-  graph export "_assets/SummaryPriceChange.pdf", replace
-}
+```{r SummaryPriceChange, include = TRUE, out.width="90%", fig.cap="Income Distribution and Giving Price in 2013"}
+df %>% 
+	filter(year == 2013) %>% 
+	dplyr::select(lincome, price) %>% 
+	ggplot(aes(x = lincome)) +
+		geom_histogram(aes(y = ..count../sum(..count..), fill = "Relative frequency"), color = "black") +
+		geom_step(aes(y = price*0.5, color = "Giving Price in 2013"), size = 1) +
+		geom_hline(aes(yintercept = (1 - 0.15)*0.5), color = "red", linetype = 2, size = 1) +
+		scale_color_manual(NULL, values = "blue") +
+		scale_fill_manual(NULL, values = "grey80") +
+		scale_y_continuous(breaks = seq(0, 0.5, 0.125), sec.axis = sec_axis(~./0.5, name = "Giving price")) +
+		scale_x_continuous(breaks = c(1200, 4600, 8800, 30000)) +
+		labs(x = "Annual taxable income (10,000KRW)", y = "Relative frequency") +
+		my_theme
 ```
-
-```{r showSummaryPriceChange, include = TRUE, out.width="90%", fig.cap="Income Distribution and Giving Price in 2013"}
-knitr::include_graphics(paste(here(), "_assets/SummaryPriceChange.pdf", sep= "/"))
-```
-
-
 
 ## Charitable Giving
 
@@ -241,35 +236,28 @@ The grey bar shows the proportion of donors.
 After the tax reform, the proportion of donors decreases by 2\%.
 After that, the proportion of donors is greter than 20\%.
 
-```{stata SummaryOutcome, results = "hide", eval = FALSE}
-frame copy default avgdt
-frame avgdt: by year, sort: egen meanext = mean(i_ext_giving)
-frame avgdt: by year, sort: egen meanint = mean(i_total_giving) if i_ext_giving == 1
-frame avgdt: keep year meanext meanint
-frame avgdt: duplicates drop
-frame avgdt: keep if meanint != .
+```{r SummaryOutcome, include = TRUE, out.width="90%", fig.cap="Proportion of Donors and Average Donations among Donors"}
+avgext <- df %>% 
+	group_by(year) %>% 
+	summarize_at(vars(i_ext_giving), list(mu=~mean(., na.rm = TRUE))) 
 
-frame avgdt: {
-    twoway ///
-	(bar meanext year, color(gs10) lcolor(black) barwidth(0.9) yaxis(1)) ///
-	(connected meanint year, color(blue) yaxis(2)), ///
-	xline(2013.5, lcolor(red) lpattern(-)) ///
-	yscale(range(0 .) axis(1)) ///
-	yscale(range(0 .) axis(2)) ///
-	ylabel(0(.05).2, axis(1)) ///
-	ylabel(0(50)200, axis(2)) ///
-	ytitle("Proportion of donors", axis(1)) ///
-	ytitle("Average donations among donors (10,000KRW)", axis(2)) ///
-	xlabel(2012(1)2018) xtitle("Year")  ///
-	legend(label(1 "Proportion of donors") label(2 "Average donations among donors")) ///
-	graphregion(fcolor(white))
+avgint <- df %>% 
+	filter(i_ext_giving == 1) %>% 
+	group_by(year) %>% 
+	summarize_at(vars(i_total_giving), list(mu=~mean(., na.rm = TRUE)))
 
-  graph export "_assets/SummaryOutcome.pdf", replace
-}
-```
-
-```{r showDonationRate, include = TRUE, out.width="90%", fig.cap="Proportion of Donors and Average Donations among Donors"}
-knitr::include_graphics(paste(here(), "_assets/SummaryOutcome.pdf", sep= "/")) 
+ggplot(avgext, aes(x = year, y = mu)) +
+	geom_bar(aes(fill = "Extensive margin"), stat = "identity", color = "black") +
+	geom_point(data = avgint, aes(x = year, y = mu/1000, color = "Intensive margin"), size = 2) +
+	geom_line(data = avgint, aes(x = year, y = mu/1000, color = "Intensive margin"), size = 1) +
+	geom_hline(aes(yintercept = 0)) +
+	geom_vline(aes(xintercept = 2013.5), color = "red", linetype = 2, size = 1) +
+	scale_fill_manual(NULL, values = "grey80") +
+	scale_color_manual(NULL, values = "blue") +
+	scale_y_continuous(sec.axis = sec_axis(~.*1000, name = "Average Amout of Donations among Donors (Intensive margin)")) +
+	scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+	labs(x = "Year", y = "Proportion of Donors (Extensive margin)") +
+	my_theme
 ```
 <!---
 footnote(general_title = "", general = "Notes: The left and right axises respectively mesure proportion of donors and the average amount donations among donors. Authors made this graph based on NasTaB data.", threeparttable = TRUE, escape = FALSE)
