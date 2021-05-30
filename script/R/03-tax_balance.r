@@ -119,12 +119,28 @@ merge_df %>%
     my_theme
 
 ## ---- HeteroModel
+# regression model
 xlist_hetero <- list(
   quote(log_price + log_price_int2 + log_price_int3 +  log_pinc_all + age + sqage + 
     factor(year):factor(educ) + factor(year):factor(gender) + factor(year):factor(living_area))
 )
 fixef_hetero <- list(quote(year + pid))
 cluster_hetero <- list(quote(pid))
+
+# wald test
+wald_hetero <- list(
+  "Implied price elasticity (1Q efficient group)" = "1*log_price",
+  "Implied price elasticity (2Q efficient group)" = "1*log_price + 1*log_price_int2",
+  "Implied price elasticity (3Q efficient group)" = "1*log_price + 1*log_price_int3",
+  "Implied income elasticity" = "1*log_pinc_all"
+)
+
+e_wald_hetero <- list(
+  "Implied price elasticity (1Q efficient group)" = "imp*log_price",
+  "Implied price elasticity (2Q efficient group)" = "imp*log_price + imp*log_price_int2",
+  "Implied price elasticity (3Q efficient group)" = "imp*log_price + imp*log_price_int3",
+  "Implied income elasticity" = "imp*log_pinc_all"
+)
 
 #tabulation
 addline_hetero <- tibble(
@@ -137,24 +153,27 @@ addline_hetero <- tibble(
 elast_hetero <- est_felm(
   y = list(quote(log_total_g)), x = xlist_hetero,
   fixef = fixef_hetero, cluster = cluster_hetero,
+  wald_hypo = wald_hetero,
   data = merge_df
 )
 
 i_elast_hetero <- est_felm(
   y = list(quote(log_total_g)), x = xlist_hetero,
   fixef = fixef_hetero, cluster = cluster_hetero,
+  wald_hypo = wald_hetero,
   data = subset(merge_df, i_ext_giving == 1)
 )
 
 e_elast_hetero <- est_felm(
   y = list(quote(i_ext_giving)), x = xlist_hetero,
   fixef = fixef_hetero, cluster = cluster_hetero,
+  wald_hypo = e_wald_hetero,
   data = merge_df
 )
 
 # tabulation
 tab.elast_hetero <- fullset_tab(
-  elast_hetero, 
+  elast_hetero$result, elast_hetero$test,
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list(
     "log_price" = "ln(giving price)", 
@@ -166,7 +185,7 @@ tab.elast_hetero <- fullset_tab(
 )
 
 tab.i_elast_hetero <- fullset_tab(
-  i_elast_hetero, 
+  i_elast_hetero$result, i_elast_hetero$test, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list(
     "log_price" = "ln(giving price)", 
@@ -178,7 +197,7 @@ tab.i_elast_hetero <- fullset_tab(
 )
 
 tab.e_elast_hetero <- fullset_tab(
-  e_elast_hetero, 
+  e_elast_hetero$result, e_elast_hetero$test, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list(
     "log_price" = "ln(giving price)", 
@@ -197,24 +216,27 @@ newtab.elast_hetero <- full_join(tab.elast_hetero$set, tab.e_elast_hetero$set, b
 elast_hetero2 <- est_felm(
   y = list(quote(log_total_g)), x = xlist_hetero,
   fixef = fixef_hetero, cluster = cluster_hetero,
+  wald_hypo = wald_hetero,
   data = subset(merge_df, ideal_balanceid > 0)
 )
 
 i_elast_hetero2 <- est_felm(
   y = list(quote(log_total_g)), x = xlist_hetero,
   fixef = fixef_hetero, cluster = cluster_hetero,
+  wald_hypo = wald_hetero,
   data = subset(merge_df, i_ext_giving == 1 & ideal_balanceid > 0)
 )
 
 e_elast_hetero2 <- est_felm(
   y = list(quote(i_ext_giving)), x = xlist_hetero,
   fixef = fixef_hetero, cluster = cluster_hetero,
+  wald_hypo = e_wald_hetero,
   data = subset(merge_df, ideal_balanceid > 0)
 )
 
 # tabulation
 tab.elast_hetero2 <- fullset_tab(
-  elast_hetero2, 
+  elast_hetero2$result, elast_hetero2$test, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list(
     "log_price" = "ln(giving price)", 
@@ -226,7 +248,7 @@ tab.elast_hetero2 <- fullset_tab(
 )
 
 tab.i_elast_hetero2 <- fullset_tab(
-  i_elast_hetero2, 
+  i_elast_hetero2$result, i_elast_hetero2$test, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list(
     "log_price" = "ln(giving price)", 
@@ -238,7 +260,7 @@ tab.i_elast_hetero2 <- fullset_tab(
 )
 
 tab.e_elast_hetero2 <- fullset_tab(
-  e_elast_hetero2, 
+  e_elast_hetero2$result, e_elast_hetero2$test, 
   keep_coef = c("log_price", "log_pinc_all"),
   label_coef = list(
     "log_price" = "ln(giving price)", 
