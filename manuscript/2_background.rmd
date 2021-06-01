@@ -1,7 +1,7 @@
 
-```{asis, echo = !params$slide}
 # Institutional background
 
+```{asis, echo = !params$slide}
 In this section, we describe the income tax relief for charitable giving in Korea and used dataset.
 ```
 
