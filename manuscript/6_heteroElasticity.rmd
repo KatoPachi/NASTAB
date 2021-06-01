@@ -98,8 +98,10 @@ merge_df %>%
 ## Two Potential Concerns
 
 1. There is a room for subjects to interpret the questions of tax/welfare balance as questions about the expenditure policy of the government.
-	- To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
-2. Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。
+    - To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
+2. The perceived governement efficiency is formed by time-specific events such as governement policies. Thus, instead of the individual fixed effect, we should use the raw answer of the quetion as the efficient index.
+    - However, since the tax credit system has been implemented since 2014, there is no variation of giving price from 2015 to 2018.
+    - To overcome this problem, we use the individual fixed effect as the efficient index.
 ```
 
 ```{asis, echo = !params$slide}
@@ -137,14 +139,12 @@ This index does not depend on government policies implemented in a specific year
 Thus, the efficient index represents persistent perception toward governement efficiency,
 which is formed by individual education and continuous policies.
 
-## Heterogeneous Price Elasticity in Governement Efficiency
 ```
 
-```{asis, echo = params$slide}
-To see the heterogenous price elasticity by efficient index,
-we utilize the interaction between the efficiency index and the giving price.
+```{asis, echo = FALSE}
+- To see the heterogenous price elasticity by efficient index, we utilize the interaction between the efficiency index and the giving price.
 
-Bothe ways of the analyses use the sepcifications based on the Equation (XX) and (XX) for intensive and extensive margins,
+Both ways of the analyses use the sepcifications based on the Equation (XX) and (XX) for intensive and extensive margins,
 respectively.
 
 We control individual and time fixed effect,
@@ -152,6 +152,8 @@ and other covariates.
 ```
 
 ```{asis, echo = !params$slide}
+## Heterogeneous Price Elasticity in Governement Efficiency
+
 To estimate the heterogenous price elasticity in the efficient index, 
 we include interaction terms between the efficient index and the giving price
 into the model Eq. (\@ref(eq:intensive)) and (\@ref(eq:extensive)) for intensive and extensive margins, respectively. 
@@ -294,7 +296,7 @@ newtab.elast_hetero[c(9:14, 20), ] %>%
 	kable_styling(font_size = 8) %>% 
 	add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) 
 ```
-```
+
 
 ```{asis, echo = !params$slide}
 Table \@ref(tab:kableHeteroElasticity) shows the heterogenous price effect in the efficient index
@@ -341,8 +343,13 @@ newtab.elast_hetero %>%
 
 ```{asis, echo = params$slide}
 ## Robustness Check 1
+
+- Previous results show that there is no heterogenous price elasticity in the efficient index.
+    - This may be caused by existence of respondents interpreting the survey questions as the questions about the expenditure policy of the government. 
+- To rule out this problem, we eliminate those whose the ideal efficient index is less than zero, and estimate the same model.
 ```
 
+```{asis, eacho = !params$slide}
 Previous results show that there is no heterogenous price elasticity in the efficient index.
 This may be caused by existence of respondents 
 interpreting the survey questions as the questions about the expenditure policy of the government.
@@ -351,6 +358,7 @@ if the real governement efficiency is high.
 They donate if the giving price is low to substitute for the governement expenditure.
 To rule out this problem, we eliminate those whose the ideal efficient index is less than zero,
 and estimate the same model in Table \@ref(tab:kableHeteroElasticity).
+```
 
 ```{r SubsetHeteroElasticity}
 elast_hetero2 <- est_felm(

@@ -383,7 +383,7 @@ tab.e_elast_rob1 <- fullset_tab(
 newtab.e_elast_rob1 <- bind_rows(
   tab.e_elast_rob1$set[1:14,],
   e_fstat_line,
-  tab.e_elast_rob1$set[11,]
+  tab.e_elast_rob1$set[15,]
 )
 ```
 
