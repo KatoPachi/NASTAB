@@ -786,7 +786,7 @@ Age & N & Y & Y & Y & Y\\
 Year x Education & N & N & Y & Y & Y\\
 Year x Gender & N & N & N & Y & Y\\
 Year x Resident Area & N & N & N & N & Y\\
-Age & N & Y & Y & Y & Y\\
+N & 52304 & 52304 & 52302 & 52302 & 52302\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1052,17 +1052,16 @@ Low & 0 & -1 & -2\\
     To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
   \end{itemize}
 \item
-  Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。
+  The perceived governement efficiency is formed by time-specific events such as governement policies. Thus, instead of the individual fixed effect, we should use the raw answer of the quetion as the efficient index.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    However, since the tax credit system has been implemented since 2014, there is no variation of giving price from 2015 to 2018.
+  \item
+    To overcome this problem, we use the individual fixed effect as the efficient index.
+  \end{itemize}
 \end{enumerate}
-
-To see the heterogenous price elasticity by efficient index,
-we utilize the interaction between the efficiency index and the giving price.
-
-Bothe ways of the analyses use the sepcifications based on the Equation (XX) and (XX) for intensive and extensive margins,
-respectively.
-
-We control individual and time fixed effect,
-and other covariates.
 \end{frame}
 
 \begin{frame}{Heterogenous Price Elasticity: Estimations Results}
@@ -1113,20 +1112,23 @@ N & 50455 & 50455 & 11327\\
 \bottomrule
 \end{tabular}
 \end{table}
-
-```
 \end{frame}
 
 \begin{frame}{Robustness Check 1}
 \protect\hypertarget{robustness-check-1}{}
-Previous results show that there is no heterogenous price elasticity in the efficient index.
-This may be caused by existence of respondents
-interpreting the survey questions as the questions about the expenditure policy of the government.
-We expect that their decision of donations is sensitive to the giving price
-if the real governement efficiency is high.
-They donate if the giving price is low to substitute for the governement expenditure.
-To rule out this problem, we eliminate those whose the ideal efficient index is less than zero,
-and estimate the same model in Table \ref{tab:kableHeteroElasticity}.
+\begin{itemize}
+\tightlist
+\item
+  Previous results show that there is no heterogenous price elasticity in the efficient index.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    This may be caused by existence of respondents interpreting the survey questions as the questions about the expenditure policy of the government.
+  \end{itemize}
+\item
+  To rule out this problem, we eliminate those whose the ideal efficient index is less than zero, and estimate the same model.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Robustness Check 1: Estimation Results}
