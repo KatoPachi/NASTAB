@@ -1,78 +1,49 @@
 
 ```{asis, echo = params$slide} 
-## Charitable Giving and Taxiation
-In many countries, governments set a tax relief for charitable giving.
+## Tax incetive of charitable giving 
 
-To evaluate the effect of tax relief, many papers investigate the elasticity of charitable donations with respect to their tax price [@Randolph1995; @Auten2002; @Fack2010; @Bakija2011; @Almunia2020].
+- In many countries, governments set a tax relief for charitable giving.
+    - Tax incentive affects relative price of giving in terms of consumptions. $\to$ allocation b/w private consumptions and donations.
+- Many papers investigate the elasticity of charitable donations w.r.t. their tax price.
+    - @Randolph1995: 
+    - @Auten2002: -0.79~-1.26 (the U.S.)
+    - @Fack2010: -0.15~-0.57 (France)
+    - @Bakija2011: -0.61~-1.1 (the U.S.)
+    - @Duquette2016: -2.15 ~ -5.01 (the U.S.)
+    - @Almunia2020: -0.24~--1.5 (the U.K.)
 
-Focusing on the tax deduction or tax credit on the charity, they show that the price elasticity of giving is about -1 or more in terms of absolute value.
+## Tax incentive and government efficiency
 
-## Charitable Giving and Taxiation
+- At the same time, using tax incentive reduces government's revenue, which leads to a reduction of public goods provision by government.
+- This causes relative ability of public goods provision by government in terms of by donations.
+    - If the government can provide public goods more efficiently than the direct donations, relative ability of public goods provision by government is high
+    - $\to$ this reduces the relative price of public goods provision by governement in terms of by donations [@Saez2004].
+- Tax incentive also affects allocation problem b/w public goods provision by governement and by donations.
+    - @Li2011 and @Sheremeta2020 shows that giving behavior may be affected by perception towards the government
 
-In addition to the tax price charitable donations, the donations may be affected by people's perception towards the government. 
+## Our research questions
 
-This is because the works and missions of private charity often mirror or overlap with one of governments, and the charity is not needed if the government adequately satisfies the needs of society.
+Using the South Korean panel data, we will investigate
 
-Thus, the different perception towards the government may make the different behavior for charitable giving.
+1. the price elasticity of giving
+    - It is worth estimating the price elasticity of donations in non-Western country because the study in non-Western country, where the culture of donation may be different, is few.
+2. whether the different perception towards the government would have different elasticities of giving.
+    - To our knowledge, there is no literature which investigates the relation b/w perception towards governement and price elasticity of giving.
 
-We investigate the relation between tax price elasticity of charitable donations and the different perception towards the government using the South Korean dataset.
+## South Korean tax reform
 
+- We utilize the effect of the 2014 tax reform in South Korea.
+    - ~ 2013: **tax deduction** was adopted to subsidize charitable donation behavior.
+    - 2014 ~: **tax credit** have been adopted.
+    - The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the marginal tax rate, which increases with gross income.
 
 ## Summary in short
 
 Our result classifies that:
 
 - the price elasticity of giving in Korea is -1.07 ~ -1.26, which is within the range of the extant research.
-- the amount of donation is not different between those who regard government as inefficient and the others.
 - the giving price elasticity of those who regard government as inefficient is more elastic than the others. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price. 
 
-## South Korean tax reform
-
-We can utilize the effect of the 2014 tax reform in the South Korea.
-
-- Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
-- After 2014, tax credit have been adopted.
-
-The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the marginal tax rate, which increases with gross income.
-
-In addition, the dataset contains the information about perception towards the government.
-
-
-## Related Literature
-
-This study mainly relates to the two strands of studies.
-
- 1. Research about tax price elasticity of charitable donations
- 2. Research about perception towards the government and donation/tax payment.
-  
-
-## Research about tax price elasticity of charitable donations
-
-Papers in this strand examines the price and income elasticity of charitable donations using the tax deduction applied for donation.
-The estimated price elasticities vary, but the typical one is said as -1 (Andreoni and Payne, 2013).
-  
-  - Auten et al.(2002): -0.79~-1.26 (the U.S.)
-  - Fack and Landais(2010): -0.15~-0.57 (France)
-  - Bakija and Heim (2011): -0.61~-1.1 (the U.S.)
-  - Duquette (2016): -2.15~-5.01 (the U.S.)
-  - Almunia et al.(2020): -0.24~--1.5 (the U.K.)
-  
-The study in non-Western country, where the culture of donation may be different, is few.
-Thus, we firstly examine the elasticity of giving in Korea.
-
-## Research about perception towards the government and donation/tax payment.
-
-Experimental studies show that the giving behavior may be affected by perception towards the government.
-
- - Li et al.(2011) suggest that governmental organizations collect less donation than private charities though they have the same mission and work.
- - Sheremeta and Uler(2020) show that individuals provide public good reacting the wasteful spending of government.
-
-This may be because people with distrust in government think that
-
- 1. the direct donation is more efficient than public service provision or
- 2. people can directly allocate and control their funds by donation, unlike public service provision. 
-
-Thus, people having the different trust in the government would have different elasticities of giving.
 ```
 
 ```{asis, echo = !params$slide}
