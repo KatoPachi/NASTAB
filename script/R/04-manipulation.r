@@ -86,3 +86,14 @@ df <- read.dta13("data/shaped.dta") %>%
 		diff3_sqage = sqage - lag3_sqage
 	) %>% 
 	filter(year >= 2012 & age >= 24) 
+
+mtrdt <- read_csv("data/origin/mtrdt.csv") %>% 
+  mutate(price = 1 - MTR) %>% 
+  arrange(year, lower_income_10000won) %>% 
+  group_by(year) %>% 
+  mutate(to_next_price = dplyr::lead(lower_income_10000won))
+
+df <- df %>% 
+  mutate(price = round(price, 2)) %>% 
+  left_join(mtrdt, by = c("year", "price"))
+
