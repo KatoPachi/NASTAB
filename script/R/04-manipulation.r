@@ -1,6 +1,7 @@
+
 ## ---- library
 library(xfun)
-xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
+xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist", "patchwork"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 source("script/R/00-analysis_functions.r")
 
@@ -43,6 +44,12 @@ my_theme <- theme_minimal() +
 
 
 ## ---- ReadData
+mtrdt <- read_csv("data/origin/mtrdt.csv") %>% 
+  mutate(price = 1 - MTR) %>% 
+  arrange(year, lower_income_10000won) %>% 
+  group_by(year) %>% 
+  mutate(to_next_price = dplyr::lead(lower_income_10000won))
+
 df <- read.dta13("data/shaped.dta") %>% 
 	data.frame() %>% 
 	mutate(
@@ -54,34 +61,64 @@ df <- read.dta13("data/shaped.dta") %>%
 		log_total_g = log(i_total_giving + 1),
 		log_pinc_all = log(lincome + 100000),
 	) %>% 
-	group_by(pid) %>% 
-	mutate(
-		lag1_log_total_g = dplyr::lag(log_total_g, order_by = year),
-		lag2_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 2),
-		lag3_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 3),
-		lag1_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year),
-		lag2_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 2),
-		lag3_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 3),
-		lag1_age = dplyr::lag(age, order_by = year),
-		lag2_age = dplyr::lag(age, order_by = year, n = 2),
-		lag3_age = dplyr::lag(age, order_by = year, n = 3),
-		lag1_sqage = dplyr::lag(sqage, order_by = year),
-		lag2_sqage = dplyr::lag(sqage, order_by = year, n = 2),
-		lag3_sqage = dplyr::lag(sqage, order_by = year, n = 3)
-	) %>% 
-	ungroup() %>% 
-	mutate(
-		log_diff1g = log_total_g - lag1_log_total_g,
-		log_diff2g = log_total_g - lag2_log_total_g,
-		log_diff3g = log_total_g - lag3_log_total_g,
-		log_diff1I = log_pinc_all - lag1_log_pinc_all,
-		log_diff2I = log_pinc_all - lag2_log_pinc_all,
-		log_diff3I = log_pinc_all - lag3_log_pinc_all,
-		diff1_age = age - lag1_age,
-		diff2_age = age - lag2_age,
-		diff3_age = age - lag3_age,
-		diff1_sqage = sqage - lag1_sqage,
-		diff2_sqage = sqage - lag2_sqage,
-		diff3_sqage = sqage - lag3_sqage
-	) %>% 
-	filter(year >= 2012 & age >= 24) 
+	filter(year >= 2012 & age >= 24) %>% 
+  mutate(price = round(price, 2)) %>% 
+  left_join(mtrdt, by = c("year", "price")) %>% 
+  mutate(dist_to_next_price = to_next_price - lincome)
+
+## ---- DensityInc
+df %>% 
+  dplyr::filter(year < 2014 & lincome - i_total_giving > 0) %>% 
+  mutate(segment = round(lincome/100, 0)*100) %>% 
+  dplyr::filter(segment <= 12000) %>% 
+  ggplot() + 
+    # geom_histogram(binwidth = 100, color = "black", fill = "grey80") + 
+    geom_density(aes(x = (lincome - i_total_giving), color = "Annual taxable income - Annual donations"), size = 1) +
+    geom_density(aes(x = lincome, color = "Annual taxable income"), size = 1) +
+    geom_vline(aes(xintercept = 1200), linetype = 2, size = 1) + 
+    geom_vline(aes(xintercept = 4600), linetype = 2, size = 1) + 
+    geom_vline(aes(xintercept = 8800), linetype = 2, size = 1) + 
+    labs(x = "Income (income < 12000)") +
+    my_theme
+
+## ---- ScatterbwIncomeDonation
+df %>% 
+  dplyr::filter(year < 2014) %>% 
+  mutate(segment = round(lincome/100, 0)*100) %>% 
+  group_by(segment) %>% 
+  summarize(mean = mean(i_total_giving, na.rm = TRUE)) %>%
+  dplyr::filter(segment <= 12000) %>% 
+  ggplot(aes(x = segment, y = mean)) +
+    geom_point(size = 2, alpha = 0.8) +
+    geom_vline(aes(xintercept = 1200), linetype = 2, size = 1) + 
+    geom_vline(aes(xintercept = 4600), linetype = 2, size = 1) + 
+    geom_vline(aes(xintercept = 8800), linetype = 2, size = 1) + 
+    labs(x = "Segment of annual taxable income", y = "Mean donation levels in 2013 and 2014") +
+    my_theme
+
+## ---- ScatterbwDistanceDonation
+full <- df %>% 
+  dplyr::filter(0.62 < price & year < 2014) %>%
+  mutate(segment = round(dist_to_next_price/100, 0)*100) %>% 
+  group_by(segment) %>% 
+  summarize(mean = mean(i_total_giving, na.rm = TRUE)) %>% 
+  ggplot(aes(x = segment, y = mean)) +
+    geom_point(size = 2, alpha = 0.8) +
+    my_theme
+  
+sub <- df %>%
+  dplyr::filter(0.65 < price & year < 2014) %>% 
+  mutate(segment = round(dist_to_next_price/100, 0)*100) %>% 
+  group_by(price, segment) %>% 
+  summarize(mean = mean(i_total_giving, na.rm = TRUE)) %>% 
+  ungroup() %>%
+  mutate(price = factor(price, labels = sprintf("giving price = %1.2f", unique(price)))) %>% 
+  ggplot(aes(x = segment, y = mean)) +
+    geom_point(size = 2, alpha = 0.8) +
+    facet_wrap(~price, ncol = 1) +
+    my_theme
+
+(full + sub) & 
+  labs(x = "Segment of distance to next lower giving price", y = "Mean donation levels") &
+  plot_annotation(tag_levels = "A")
+
