@@ -145,7 +145,7 @@ distregs <- list(
   reg1 = log_total_g ~ dist_to_next_price + log_pinc_all | 0 | 0 | pid,
   reg2 = log_total_g ~ dist_to_next_price + log_pinc_all | year | 0 | pid,
   reg3 = log_total_g ~ dist_to_next_price + log_pinc_all | year + pid | 0 | pid,
-  reg4 = log_total_g ~ log(dist_to_next_price) + log_pinc_all + 
+  reg4 = log_total_g ~ log(dist_to_next_price) + log_pinc_all +
     age + sqage + factor(year):factor(educ) + factor(year):factor(gender) +
     factor(year):factor(living_area) | year + pid | 0 | pid
 )
@@ -162,3 +162,29 @@ est_distregs_ext <- distregs %>%
   purrr::map(~update(as.Formula(.), i_ext_giving ~ .)) %>%
   purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
 
+## ---- lpriceIV
+lpregs <- list(
+  reg1 = log_total_g ~ log_pinc_all |
+    year + pid | (log_lprice ~ log_price) | pid,
+  reg2 = log_total_g ~ log_pinc_all + age + sqage |
+    year + pid | (log_lprice ~ log_price) | pid,
+  reg3 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) |
+    year + pid | (log_lprice ~ log_price) | pid,
+  reg4 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) +
+    factor(year):factor(gender) |
+    year + pid | (log_lprice ~ log_price) | pid,
+  reg5 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) +
+    factor(year):factor(gender) + factor(year):factor(living_area) |
+    year + pid | (log_lprice ~ log_price) | pid
+)
+
+est_lpregs <- lpregs %>% purrr::map(~felm(., data = df))
+
+est_lpregs_int <- lpregs %>%
+  purrr::map(
+    ~felm(., data = df %>% dplyr::filter(i_ext_giving == 1))
+  )
+
+est_lpregs_ext <- lpregs %>%
+  purrr::map(~update(as.Formula(.), i_ext_giving ~ .)) %>%
+  purrr::map(~felm(., data = df))
