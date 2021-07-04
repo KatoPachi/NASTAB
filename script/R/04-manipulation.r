@@ -61,6 +61,14 @@ df <- read.dta13("data/shaped.dta") %>%
     log_total_g = log(i_total_giving + 1),
     log_pinc_all = log(lincome + 100000),
   ) %>%
+  mutate(
+    blacket2 = if_else(lincome >= 1200, 1, 0),
+    run2 = lincome - 1200,
+    blacket3 = if_else(lincome >= 4600, 1, 0),
+    run3 = lincome - 4600,
+    blacket4 = if_else(lincome >= 8800, 1, 0),
+    run4 = lincome - 8800,
+  ) %>%
   filter(year >= 2012 & age >= 24) %>%
   mutate(price = round(price, 2)) %>%
   left_join(mtrdt, by = c("year", "price")) %>%
@@ -90,7 +98,7 @@ df %>%
   dplyr::filter(year < 2014) %>%
   mutate(segment = round(lincome / 100, 0) * 100) %>%
   group_by(segment) %>%
-  summarize(mean = mean(i_total_giving, na.rm = TRUE)) %>%
+  summarize(mean = mean(log_total_g, na.rm = TRUE)) %>%
   dplyr::filter(segment <= 12000) %>%
   ggplot(aes(x = segment, y = mean)) +
     geom_point(size = 2, alpha = 0.8) +
@@ -99,7 +107,7 @@ df %>%
     geom_vline(aes(xintercept = 8800), linetype = 2, size = 1) +
     labs(
       x = "Segment of annual taxable income",
-      y = "Mean donation levels in 2013 and 2014") +
+      y = "Mean logged donation levels in 2012 and 2013") +
     my_theme
 
 ## ---- ScatterbwDistanceDonation
@@ -107,7 +115,7 @@ full <- df %>%
   dplyr::filter(0.62 < price & year < 2014) %>%
   mutate(segment = round(dist_to_next_price / 100, 0) * 100) %>%
   group_by(segment) %>%
-  summarize(mean = mean(i_total_giving, na.rm = TRUE)) %>%
+  summarize(mean = mean(log_total_g, na.rm = TRUE)) %>%
   ggplot(aes(x = segment, y = mean)) +
     geom_point(size = 2, alpha = 0.8) +
     my_theme
@@ -116,7 +124,7 @@ sub <- df %>%
   dplyr::filter(0.65 < price & year < 2014) %>%
   mutate(segment = round(dist_to_next_price / 100, 0) * 100) %>%
   group_by(price, segment) %>%
-  summarize(mean = mean(i_total_giving, na.rm = TRUE)) %>%
+  summarize(mean = mean(log_total_g, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(price = factor(
     price, labels = sprintf("giving price = %1.2f", unique(price))
@@ -129,5 +137,21 @@ sub <- df %>%
 (full + sub) &
   labs(
     x = "Segment of distance to next lower giving price",
-    y = "Mean donation levels") &
+    y = "Mean logged donation levels in 2012 and 2013") &
   plot_annotation(tag_levels = "A")
+
+## ---- distregs
+distregs <- list(
+  reg1 = log_total_g ~ dist_to_next_price + log_pinc_all | 0 | 0 | pid,
+  reg2 = log_total_g ~ dist_to_next_price + log_pinc_all | year | 0 | pid,
+  reg3 = log_total_g ~ dist_to_next_price + log_pinc_all | year + pid | 0 | pid,
+  reg4 = log_total_g ~ log(dist_to_next_price) + log_pinc_all + 
+    age + sqage + factor(year):factor(educ) + factor(year):factor(gender) +
+    factor(year):factor(living_area) | year + pid | 0 | pid
+)
+
+est_distregs <- distregs %>%
+  purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
+
+summary(est_distregs$reg4)
+
