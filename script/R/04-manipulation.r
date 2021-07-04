@@ -153,5 +153,12 @@ distregs <- list(
 est_distregs <- distregs %>%
   purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
 
-summary(est_distregs$reg4)
+est_distregs_int <- distregs %>%
+  purrr::map(
+    ~felm(., data = df %>% dplyr::filter(year < 2014 & i_ext_giving == 1))
+  )
+
+est_distregs_ext <- distregs %>%
+  purrr::map(~update(as.Formula(.), i_ext_giving ~ .)) %>%
+  purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
 
