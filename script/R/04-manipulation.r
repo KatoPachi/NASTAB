@@ -1,11 +1,11 @@
 
-## ---- library
+#+ library
 library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist", "patchwork"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 source("script/R/00-analysis_functions.r")
 
-## --- GGTemp
+#+ GGTemp
 my_theme <- theme_minimal() +
   theme(
     # setting: background
@@ -43,7 +43,7 @@ my_theme <- theme_minimal() +
   )
 
 
-## ---- ReadData
+#+ ReadData
 mtrdt <- read_csv("data/origin/mtrdt.csv") %>%
   mutate(price = 1 - MTR) %>%
   arrange(year, lower_income_10000won) %>%
@@ -74,7 +74,7 @@ df <- read.dta13("data/shaped.dta") %>%
   left_join(mtrdt, by = c("year", "price")) %>%
   mutate(dist_to_next_price = to_next_price - lincome)
 
-## ---- DensityInc
+#+ DensityInc
 df %>%
   dplyr::filter(year < 2014 & lincome - i_total_giving > 0) %>%
   mutate(segment = round(lincome / 100, 0) * 100) %>%
@@ -93,7 +93,7 @@ df %>%
     labs(x = "Income (income < 12000)") +
     my_theme
 
-## ---- ScatterbwIncomeDonation
+#+ ScatterbwIncomeDonation
 df %>%
   dplyr::filter(year < 2014) %>%
   mutate(segment = round(lincome / 100, 0) * 100) %>%
@@ -110,7 +110,7 @@ df %>%
       y = "Mean logged donation levels in 2012 and 2013") +
     my_theme
 
-## ---- ScatterbwDistanceDonation
+#+ ScatterbwDistanceDonation
 full <- df %>%
   dplyr::filter(0.62 < price & year < 2014) %>%
   mutate(segment = round(dist_to_next_price / 100, 0) * 100) %>%
@@ -140,7 +140,7 @@ sub <- df %>%
     y = "Mean logged donation levels in 2012 and 2013") &
   plot_annotation(tag_levels = "A")
 
-## ---- distregs
+#+ distregs
 distregs <- list(
   reg1 = log_total_g ~ dist_to_next_price + log_pinc_all | 0 | 0 | pid,
   reg2 = log_total_g ~ dist_to_next_price + log_pinc_all | year | 0 | pid,
@@ -162,7 +162,7 @@ est_distregs_ext <- distregs %>%
   purrr::map(~update(as.Formula(.), i_ext_giving ~ .)) %>%
   purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
 
-## ---- lpriceIV
+#+ lpriceIV
 lpregs <- list(
   reg1 = log_total_g ~ log_pinc_all |
     year + pid | (log_lprice ~ log_price) | pid,
@@ -187,4 +187,22 @@ est_lpregs_int <- lpregs %>%
 
 est_lpregs_ext <- lpregs %>%
   purrr::map(~update(as.Formula(.), i_ext_giving ~ .)) %>%
+  purrr::map(~felm(., data = df))
+
+#+ lpriceIV2
+df2 <- df %>%
+  mutate(dist_to_next_price = if_else(year >= 2014, 0, dist_to_next_price))
+
+est_lpregs2 <- lpregs %>%
+  purrr::map(~update(as.Formula(.), . ~ . + dist_to_next_price)) %>%
+  purrr::map(~felm(., data = df2))
+
+est_lpregs2_int <- lpregs %>%
+  purrr::map(~update(as.Formula(.), . ~ . + dist_to_next_price)) %>%
+  purrr::map(
+    ~felm(., data = df %>% dplyr::filter(i_ext_giving == 1))
+  )
+
+est_lpregs2_ext <- lpregs %>%
+  purrr::map(~update(as.Formula(.), i_ext_giving ~ . + dist_to_next_price)) %>%
   purrr::map(~felm(., data = df))
