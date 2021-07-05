@@ -206,3 +206,32 @@ est_lpregs2_int <- lpregs %>%
 est_lpregs2_ext <- lpregs %>%
   purrr::map(~update(as.Formula(.), i_ext_giving ~ . + dist_to_next_price)) %>%
   purrr::map(~felm(., data = df))
+
+#+ lprice3
+lpregs3 <- list(
+  reg1 = log_total_g ~ log_pinc_all |
+    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid,
+  reg2 = log_total_g ~ log_pinc_all + age + sqage |
+    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid,
+  reg3 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) |
+    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid,
+  reg4 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) +
+    factor(year):factor(gender) |
+    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid,
+  reg5 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) +
+    factor(year):factor(gender) + factor(year):factor(living_area) |
+    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid
+)
+
+df3 <- df %>%
+  mutate(dist_to_next_price = if_else(year >= 2014, 1, dist_to_next_price))
+
+est_lpregs3 <- lpregs3 %>%
+  purrr::map(~felm(., data = df3))
+
+est_lpregs3_int <- lpregs3 %>%
+  purrr::map(~felm(., data = df3 %>% dplyr::filter(i_ext_giving == 1)))
+
+est_lpregs3_ext <- lpregs3 %>%
+  purrr::map(~update(Formula(.), i_ext_giving ~ .)) %>%
+  purrr::map(~felm(., data = df3))
