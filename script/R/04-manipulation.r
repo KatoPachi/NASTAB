@@ -1,11 +1,18 @@
+#' # Issue #72: RDDアプローチで弾力性を推定したい
+#'
+#' [リンク](https://github.com/KatoPachi/NASTAB/issues/72#issue-909426778)
 
-#+ library
+#' ## セットアップ：パッケージとggplot2のテンプレート
+#'
+#' パッケージのロード
+#+
 library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist", "patchwork"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 source("script/R/00-analysis_functions.r")
 
-#+ GGTemp
+#' 以下、ggplot2のテンプレート
+#+
 my_theme <- theme_minimal() +
   theme(
     # setting: background
@@ -42,8 +49,13 @@ my_theme <- theme_minimal() +
     legend.position = "bottom"
   )
 
-
-#+ ReadData
+#' ## データの読み込み
+#'
+#' 1. `mtrdt.csv`の所得税率(`MTR`)から寄付の相対価格(`price`)を作成
+#' 2. 一段低い寄付価格ブラケットの最低所得（`lower_income_10000won`）を`to_next_price`とする
+#' 3. ナスタブデータとマージして、一段低い寄付価格ブラケットに移動するために必要な寄付額（`dist_to_next_price`）を作成
+#'      - `dist_to_next_price = to_next_price - lincome`
+#+
 mtrdt <- read_csv("data/origin/mtrdt.csv") %>%
   mutate(price = 1 - MTR) %>%
   arrange(year, lower_income_10000won) %>%
@@ -61,20 +73,24 @@ df <- read.dta13("data/shaped.dta") %>%
     log_total_g = log(i_total_giving + 1),
     log_pinc_all = log(lincome + 100000),
   ) %>%
-  mutate(
-    blacket2 = if_else(lincome >= 1200, 1, 0),
-    run2 = lincome - 1200,
-    blacket3 = if_else(lincome >= 4600, 1, 0),
-    run3 = lincome - 4600,
-    blacket4 = if_else(lincome >= 8800, 1, 0),
-    run4 = lincome - 8800,
-  ) %>%
   filter(year >= 2012 & age >= 24) %>%
   mutate(price = round(price, 2)) %>%
   left_join(mtrdt, by = c("year", "price")) %>%
   mutate(dist_to_next_price = to_next_price - lincome)
 
-#+ DensityInc
+#' 以下に2012年と2013年の所得税率と寄付価格に関する情報を示しておく
+#+
+mtrdt %>% dplyr::filter(year == 2012 | year == 2013)
+
+#' ## 課税前所得と課税後所得の密度分布
+#'
+#' 所得税ブラケットの境界線で密度が著しく上昇しているかどうかを目視で確認する（Bunching）
+#'
+#' - 12000Kウォンの境界線の若干右側で密度が高くなるが、スムーズな動きをしているように見える
+#' - 46000Kウォンと88000Kウォンでも密度関数が境界線上で著しく跳ね上がるような動きをしていない
+#'
+#' 所得によるBunchingは見られない。サーベイ調査だからか？
+#+
 df %>%
   dplyr::filter(year < 2014 & lincome - i_total_giving > 0) %>%
   mutate(segment = round(lincome / 100, 0) * 100) %>%
@@ -93,7 +109,15 @@ df %>%
     labs(x = "Income (income < 12000)") +
     my_theme
 
-#+ ScatterbwIncomeDonation
+#' ## 所得と寄付の相関図
+#'
+#' 境界線上で寄付額が非連続に増加（もしくは減少）しているならば、そのRDD効果を推定することで寄付の弾性値を推測できる
+#'
+#' - 1000ウォン区間を作成し、各区間の寄付の対数値の平均をプロット
+#' - 2012年と2013年をまとめてプロット
+#'
+#' 結果として、ブラケットの境界線上で寄付額の対数値平均がジャンプしているようなことはないと見える
+#+
 df %>%
   dplyr::filter(year < 2014) %>%
   mutate(segment = round(lincome / 100, 0) * 100) %>%
@@ -110,41 +134,67 @@ df %>%
       y = "Mean logged donation levels in 2012 and 2013") +
     my_theme
 
-#+ ScatterbwDistanceDonation
+#' ## Next lower blacketと寄付額の相関
+#'
+#' 1段階安い寄付価格に移動するために必要な寄付額と実際の寄付額の関係を確認する
+#'
+#' - 寄付額の操作のインセンティブはbracketのボーダーまでの距離で異なるかを確認する
+#'
+#' 以下の図は2つのパネルで構成されている
+#'
+#' - パネルAはすべてのブラケットのデータを用いてプロットしたもの
+#' - パネルBは各ブラケットにサンプルを分割してプロットしたもの
+#' - ボーダーまでの距離を100ウォン単位で分割し、その平均寄付額をプロットしている
+#' - 点線の左側の領域は、1段階安い寄付価格ブラケットに移動できるだけの寄付をしている
+#'
+#' 結果
+#'
+#' - ボーダーまでの距離が2000Kウォン以内の人以外はブラケットに移動するのに十分な寄付をしていない
+#' - パネルAをみると、正の相関をしているように見えるが、これは所得効果によるものと考えられる
+#'    - ボーダーまでの距離が100000Kウォンを超える人の所得は最低でも88000Kウォンであるから
+#' - 課税前のブラケットの寄付価格が0.76のブラケットは負の相関をしている（ように見える）
+#+
 full <- df %>%
   dplyr::filter(0.62 < price & year < 2014) %>%
   mutate(segment = round(dist_to_next_price / 100, 0) * 100) %>%
   group_by(segment) %>%
-  summarize(mean = mean(log_total_g, na.rm = TRUE)) %>%
+  summarize(mean = mean(i_total_giving, na.rm = TRUE)) %>%
   ggplot(aes(x = segment, y = mean)) +
     geom_point(size = 2, alpha = 0.8) +
+    geom_abline(aes(intercept = 0, slope = 1), linetype = 2) +
     my_theme
   
 sub <- df %>%
   dplyr::filter(0.65 < price & year < 2014) %>%
   mutate(segment = round(dist_to_next_price / 100, 0) * 100) %>%
   group_by(price, segment) %>%
-  summarize(mean = mean(log_total_g, na.rm = TRUE)) %>%
+  summarize(mean = mean(i_total_giving, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(price = factor(
     price, labels = sprintf("giving price = %1.2f", unique(price))
   )) %>%
   ggplot(aes(x = segment, y = mean)) +
     geom_point(size = 2, alpha = 0.8) +
+    geom_abline(aes(intercept = 0, slope = 1), linetype = 2) +
     facet_wrap(~price, ncol = 1) +
     my_theme
 
 (full + sub) &
   labs(
     x = "Segment of distance to next lower giving price",
-    y = "Mean logged donation levels in 2012 and 2013") &
+    y = "Mean donation levels in 2012 and 2013") &
   plot_annotation(tag_levels = "A")
 
-#+ distregs
+#' ## Next lower blacketによる寄付額の回帰分析
+#'
+#' 上図の結果を回帰モデルを使って統計的に有意なものであるかを確認する
+#' $$ \text{i_total_giving}_{it} = \beta + \text{dist_to_next_price} + \gamma X_{it} + \mu_i + \eta_t + \epsilon_{it} $$
+#+
 distregs <- list(
-  reg1 = log_total_g ~ dist_to_next_price + log_pinc_all | 0 | 0 | pid,
-  reg2 = log_total_g ~ dist_to_next_price + log_pinc_all | year | 0 | pid,
-  reg3 = log_total_g ~ dist_to_next_price + log_pinc_all | year + pid | 0 | pid,
+  reg1 = i_total_giving ~ dist_to_next_price + log_pinc_all | 0 | 0 | pid,
+  reg2 = i_total_giving ~ dist_to_next_price + log_pinc_all | year | 0 | pid,
+  reg3 = i_total_giving ~ dist_to_next_price + log_pinc_all |
+    year + pid | 0 | pid,
   reg4 = log_total_g ~ log(dist_to_next_price) + log_pinc_all +
     age + sqage + factor(year):factor(educ) + factor(year):factor(gender) +
     factor(year):factor(living_area) | year + pid | 0 | pid
@@ -152,15 +202,17 @@ distregs <- list(
 
 est_distregs <- distregs %>%
   purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
-
 est_distregs_int <- distregs %>%
   purrr::map(
     ~felm(., data = df %>% dplyr::filter(year < 2014 & i_ext_giving == 1))
   )
-
 est_distregs_ext <- distregs %>%
   purrr::map(~update(as.Formula(.), i_ext_giving ~ .)) %>%
   purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
+
+fullset_tab(est_distregs, keep_coef = "dist_to_next_price")$set
+fullset_tab(est_distregs_int, keep_coef = "dist_to_next_price")$set
+fullset_tab(est_distregs_ext, keep_coef = "dist_to_next_price")$set
 
 #+ lpriceIV
 lpregs <- list(
