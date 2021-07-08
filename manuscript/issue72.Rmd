@@ -1,3 +1,21 @@
+---
+title: "Issue #72: RDDアプローチで弾力性を推定したい"
+author: "加藤 大貴"
+date: "Latest update: 2021/7/8"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include = FALSE, echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = TRUE
+)
+```
+
 # Issue #72: RDDアプローチで弾力性を推定したい
 
 [リンク](https://github.com/KatoPachi/NASTAB/issues/72#issue-909426778)
