@@ -1,10 +1,14 @@
-## ---- library
+#' Issue #71: Intensive marginの推定のときに寄付していない人を考慮できていない問題
+#'
+#' パッケージのロード。Censored regressionは`censReg`パッケージを使う
+#+
 library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
-xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
+xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula", "censReg"))
 source("script/R/00-analysis_functions.r")
 
-## --- GGTemp
+#' 以下、`ggplot2`のテンプレート
+#+
 my_theme <- theme_minimal() +
   theme(
     # setting: background
@@ -41,8 +45,8 @@ my_theme <- theme_minimal() +
     legend.position = "bottom"
   )
 
-
-## ---- ReadData
+#' データの読み込み
+#+
 df <- read.dta13("data/shaped.dta") %>%
     data.frame() %>%
     mutate(
@@ -54,34 +58,61 @@ df <- read.dta13("data/shaped.dta") %>%
         log_total_g = log(i_total_giving + 1),
         log_pinc_all = log(lincome + 100000),
     ) %>%
-    group_by(pid) %>%
-    mutate(
-        lag1_log_total_g = dplyr::lag(log_total_g, order_by = year),
-        lag2_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 2),
-        lag3_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 3),
-        lag1_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year),
-        lag2_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 2),
-        lag3_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 3),
-        lag1_age = dplyr::lag(age, order_by = year),
-        lag2_age = dplyr::lag(age, order_by = year, n = 2),
-        lag3_age = dplyr::lag(age, order_by = year, n = 3),
-        lag1_sqage = dplyr::lag(sqage, order_by = year),
-        lag2_sqage = dplyr::lag(sqage, order_by = year, n = 2),
-        lag3_sqage = dplyr::lag(sqage, order_by = year, n = 3)
-    ) %>%
-    ungroup() %>%
-    mutate(
-        log_diff1g = log_total_g - lag1_log_total_g,
-        log_diff2g = log_total_g - lag2_log_total_g,
-        log_diff3g = log_total_g - lag3_log_total_g,
-        log_diff1I = log_pinc_all - lag1_log_pinc_all,
-        log_diff2I = log_pinc_all - lag2_log_pinc_all,
-        log_diff3I = log_pinc_all - lag3_log_pinc_all,
-        diff1_age = age - lag1_age,
-        diff2_age = age - lag2_age,
-        diff3_age = age - lag3_age,
-        diff1_sqage = sqage - lag1_sqage,
-        diff2_sqage = sqage - lag2_sqage,
-        diff3_sqage = sqage - lag3_sqage
-    ) %>%
     filter(year >= 2012 & age >= 24)
+
+#' ## Intensive-margin elasticityの推定
+#'
+#' ### Reminder
+#'
+#' 比較のためにベースラインのモデル結果を示す
+#'
+#+
+xlist <- list(
+  quote(log_price + log_pinc_all),
+  quote(log_price + log_pinc_all + age + sqage),
+  quote(log_price + log_pinc_all + age + sqage + factor(year):factor(educ)),
+  quote(
+    log_price + log_pinc_all + age + sqage + 
+    factor(year):factor(educ) + factor(year):factor(gender)
+  ),
+  quote(
+    log_price + log_pinc_all + age + sqage + factor(year):factor(educ) + 
+    factor(year):factor(gender) + factor(year):factor(living_area)
+  )
+)
+fixef <- list(quote(year + pid))
+cluster <- list(quote(pid))
+
+covnote <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
+  "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
+  "Time FE", "vars", "Y", "Y", "Y", "Y", "Y",
+  "Age", "vars", "N", "Y", "Y", "Y", "Y",
+  "Year x Education", "vars", "N", "N", "Y", "Y", "Y",
+  "Year x Gender", "vars", "N", "N", "N", "Y", "Y",
+  "Year x Resident Area", "vars", "N", "N", "N", "N", "Y"
+)
+
+i_elast <- est_felm(
+  y = list(quote(log_total_g)), x = xlist,
+  fixef = fixef, cluster = cluster,
+  data = subset(df, i_ext_giving == 1)
+)
+
+fullset_tab(
+  i_elast$result,
+  keep_coef = c("log_price", "log_pinc_all"),
+  label_coef = list(
+    "log_price" = "ln(giving price)",
+    "log_pinc_all" = "ln(annual taxable income)"
+  )
+)$set %>%
+bind_rows(covnote) %>%
+mutate(vars = if_else(stat == "se", "", vars)) %>%
+dplyr::select(-stat) %>%
+kable(
+  title = "Itensive margin (Those who give)",
+  align = "lccccc"
+) %>%
+add_header_above(c("", "log(Giving amount)" = 5), escape = FALSE)
+
