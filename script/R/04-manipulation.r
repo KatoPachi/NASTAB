@@ -277,7 +277,11 @@ fullset_tab(est_distregs_ext, keep_coef = "dist_to_next_price")$set %>%
     escape = FALSE
   )
 
-#+ lpriceIV
+#' ## Last-price elasticity with IV
+#' ### Reminder
+#'
+#' Last priceの弾力性を推定するIVモデルの結果をリマインドしておく
+#+
 lpregs <- list(
   reg1 = log_total_g ~ log_pinc_all |
     year + pid | (log_lprice ~ log_price) | pid,
@@ -293,60 +297,230 @@ lpregs <- list(
     year + pid | (log_lprice ~ log_price) | pid
 )
 
-est_lpregs <- lpregs %>% purrr::map(~felm(., data = df))
+covnote2 <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
+  "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
+  "Time FE", "vars", "Y", "Y", "Y", "Y", "Y",
+  "Age", "vars", "N", "Y", "Y", "Y", "Y",
+  "Year x Education", "vars", "N", "N", "Y", "Y", "Y",
+  "Year x Gender", "vars", "N", "N", "N", "Y", "Y",
+  "Year x Resident Area", "vars", "N", "N", "N", "N", "Y"
+)
 
+#+
+est_lpregs <- lpregs %>% purrr::map(~ felm(., data = df))
+
+fullset_tab(est_lpregs, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Full sample",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+   c("", "log(Giving amount)" = 5),
+   escape = FALSE
+  )
+
+#+
 est_lpregs_int <- lpregs %>%
   purrr::map(
     ~felm(., data = df %>% dplyr::filter(i_ext_giving == 1))
   )
 
-est_lpregs_ext <- lpregs %>%
-  purrr::map(~update(as.Formula(.), i_ext_giving ~ .)) %>%
-  purrr::map(~felm(., data = df))
+fullset_tab(est_lpregs_int, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Intentive margin (Those who give)",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+   c("", "log(Giving amount)" = 5),
+   escape = FALSE
+  )
 
-#+ lpriceIV2
+#+
+est_lpregs_ext <- lpregs %>%
+  purrr::map(~ update(as.Formula(.), i_ext_giving ~ .)) %>%
+  purrr::map(~ felm(., data = df))
+
+fullset_tab(est_lpregs_ext, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Extensive margin (Whether to give)",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+   c("", "1 = Give" = 5),
+   escape = FALSE
+  )
+
+#' ### Last price with ivにdistance to next lower blacketをダイレクトにコントロールする
+#'
+#' next lower blacketまでの距離を共変量としてコントールしてLast priceの弾力性を推定する
+#' ただし、2014年以降のtax credit制度ではこの問題は生じないので、
+#' `dist_to_next_price = 0`とした
+#+
 df2 <- df %>%
   mutate(dist_to_next_price = if_else(year >= 2014, 0, dist_to_next_price))
 
+#' Overall elasticityは1\%程度弾力的になる
+#+
 est_lpregs2 <- lpregs %>%
   purrr::map(~update(as.Formula(.), . ~ . + dist_to_next_price)) %>%
   purrr::map(~felm(., data = df2))
 
+fullset_tab(est_lpregs2, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Full sample",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+    c("", "log(Giving amount)" = 5),
+    escape = FALSE
+  )
+
+#' inventisive-margin elasticityは非弾力的になり、統計的に非有意となる
+#+
 est_lpregs2_int <- lpregs %>%
   purrr::map(~update(as.Formula(.), . ~ . + dist_to_next_price)) %>%
   purrr::map(
     ~felm(., data = df %>% dplyr::filter(i_ext_giving == 1))
   )
 
+fullset_tab(est_lpregs2_int, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Intentisive margin (Those who give)",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+    c("", "log(Giving amount)" = 5),
+    escape = FALSE
+  )
+
+#' extensive-margin elasticityは弾力的になる
+#+
 est_lpregs2_ext <- lpregs %>%
   purrr::map(~update(as.Formula(.), i_ext_giving ~ . + dist_to_next_price)) %>%
   purrr::map(~felm(., data = df))
 
-#+ lprice3
+fullset_tab(est_lpregs2_ext, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Extensive margin (Whether to give)",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+    c("", "1 = Give" = 5),
+    escape = FALSE
+  )
+
+#' ### distance to next lower blacketとFirst priceの交差項をIVにした
+#'
+#' Last priceのIVとして、
+#' (1) first price、
+#' (2) first priceとdistance to next lower blacketの交差項
+#' を用いた
+#'
+#' 同様に、2014年以降の税額控除ではこの問題が生じないので、
+#' `dist_to_next_price = 0`とした
+#+
 lpregs3 <- list(
   reg1 = log_total_g ~ log_pinc_all |
-    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid,
+    year + pid | (log_lprice ~ log_price + log_price:dist_to_next_price) | pid,
   reg2 = log_total_g ~ log_pinc_all + age + sqage |
-    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid,
+    year + pid | (log_lprice ~ log_price + log_price:dist_to_next_price) | pid,
   reg3 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) |
-    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid,
+    year + pid | (log_lprice ~ log_price + log_price:dist_to_next_price) | pid,
   reg4 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) +
     factor(year):factor(gender) |
-    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid,
+    year + pid | (log_lprice ~ log_price + log_price:dist_to_next_price) | pid,
   reg5 = log_total_g ~ log_pinc_all + age + sqage + factor(year):factor(educ) +
     factor(year):factor(gender) + factor(year):factor(living_area) |
-    year + pid | (log_lprice ~ log_price * dist_to_next_price) | pid
+    year + pid | (log_lprice ~ log_price + log_price:dist_to_next_price) | pid
 )
 
-df3 <- df %>%
-  mutate(dist_to_next_price = if_else(year >= 2014, 1, dist_to_next_price))
+#' Overall elasticityは以前の結果とさほど変わらない
+#+
+est_lpregs3 <- lpregs3 %>% purrr::map(~felm(., data = df2))
 
-est_lpregs3 <- lpregs3 %>%
-  purrr::map(~felm(., data = df3))
+fullset_tab(est_lpregs3, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Full sample",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+    c("", "log(Giving amount)" = 5),
+    escape = FALSE
+  )
 
+#' Intesive-margin elasticityはやっぱり変わらない
+#+
 est_lpregs3_int <- lpregs3 %>%
-  purrr::map(~felm(., data = df3 %>% dplyr::filter(i_ext_giving == 1)))
+  purrr::map(~felm(., data = df2 %>% dplyr::filter(i_ext_giving == 1)))
 
+fullset_tab(est_lpregs3_int, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Intensive margin (Those who give)",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+    c("", "log(Giving amount)" = 5),
+    escape = FALSE
+  )
+
+#' Extensive-margin elasticityもやっぱり変わりない
+#+
 est_lpregs3_ext <- lpregs3 %>%
   purrr::map(~update(Formula(.), i_ext_giving ~ .)) %>%
-  purrr::map(~felm(., data = df3))
+  purrr::map(~felm(., data = df2))
+
+fullset_tab(est_lpregs3_ext, keep_coef = "log_lprice")$set %>%
+  bind_rows(covnote2) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Extensive margin (Whether to give)",
+    col.names = c("", sprintf("(%1d)", 1:5)),
+    align = "lccccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+    c("", "1 = Give" = 5),
+    escape = FALSE
+  )
