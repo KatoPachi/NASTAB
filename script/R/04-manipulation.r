@@ -9,6 +9,7 @@
 library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist", "patchwork"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
+xfun::pkg_attach2("kableExtra")
 source("script/R/00-analysis_functions.r")
 
 #' 以下、ggplot2のテンプレート
@@ -200,6 +201,13 @@ distregs <- list(
     factor(year):factor(living_area) | year + pid | 0 | pid
 )
 
+covnote <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4,
+  "Individual FE", "vars", "N", "N", "Y", "Y",
+  "Time FE", "vars", "N", "Y", "Y", "Y",
+  "Other covariates", "vars", "N", "N", "N", "Y"
+)
+
 est_distregs <- distregs %>%
   purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
 est_distregs_int <- distregs %>%
@@ -210,9 +218,64 @@ est_distregs_ext <- distregs %>%
   purrr::map(~update(as.Formula(.), i_ext_giving ~ .)) %>%
   purrr::map(~felm(., data = df %>% dplyr::filter(year < 2014)))
 
-fullset_tab(est_distregs, keep_coef = "dist_to_next_price")$set
-fullset_tab(est_distregs_int, keep_coef = "dist_to_next_price")$set
-fullset_tab(est_distregs_ext, keep_coef = "dist_to_next_price")$set
+#' 2012年と2013年のサンプルを用いた結果、Next lower blacketまでの距離と寄付額に相関はない
+#+
+fullset_tab(est_distregs, keep_coef = "dist_to_next_price")$set %>%
+  bind_rows(covnote) %>%
+  mutate_at(
+    c("reg1", "reg2", "reg3", "reg4"), list(~ifelse(is.na(.), "", .))
+  ) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Full sample",
+    col.names = c("", sprintf("(%1d)", 1:4)),
+    align = "lcccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+   c("", "Giving amount" = 3, "log(Giving amount)" = 1),
+   escape = FALSE
+  )
+
+#' 2012年と2013年かつ寄付した人のみに限定すると、正の相関が確認できる。
+#' しかし、個人固定効果を取ると、その相関がなくなる（やはりあまり関係がないか）
+#+
+fullset_tab(est_distregs_int, keep_coef = "dist_to_next_price")$set %>%
+  bind_rows(covnote) %>%
+  mutate_at(
+    c("reg1", "reg2", "reg3", "reg4"), list(~ ifelse(is.na(.), "", .))
+  ) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Intentisive margin (Those who give)",
+    col.names = c("", sprintf("(%1d)", 1:4)),
+    align = "lcccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+    c("", "Giving amount" = 3, "log(Giving amount)" = 1),
+    escape = FALSE
+  )
+
+#' 2012年と2013年にサンプルを限定し、寄付したかどうかを示すダミー変数をアウトカム変数とした
+#' その結果、個人固定効果を取ると負の相関が統計的に非有意となる（やはり関係ない？）
+#+
+fullset_tab(est_distregs_ext, keep_coef = "dist_to_next_price")$set %>%
+  bind_rows(covnote) %>%
+  mutate_at(
+    c("reg1", "reg2", "reg3", "reg4"), list(~ ifelse(is.na(.), "", .))
+  ) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    title = "Extensive margin (Whether to give)",
+    col.names = c("", sprintf("(%1d)", 1:4)),
+    align = "lcccc",
+    format = "html"
+  ) %>%
+  add_header_above(
+    c("", "1 = Giving" = 4),
+    escape = FALSE
+  )
 
 #+ lpriceIV
 lpregs <- list(
