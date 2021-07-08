@@ -29,7 +29,7 @@ library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist", "patchwork"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 xfun::pkg_attach2("kableExtra")
-source("script/R/00-analysis_functions.r")
+source("../script/R/00-analysis_functions.r")
 ```
 
 以下、ggplot2のテンプレート
@@ -80,13 +80,13 @@ my_theme <- theme_minimal() +
      - `dist_to_next_price = to_next_price - lincome`
 
 ```{r }
-mtrdt <- read_csv("data/origin/mtrdt.csv") %>%
+mtrdt <- read_csv("../data/origin/mtrdt.csv") %>%
   mutate(price = 1 - MTR) %>%
   arrange(year, lower_income_10000won) %>%
   group_by(year) %>%
   mutate(to_next_price = dplyr::lead(lower_income_10000won))
 
-df <- read.dta13("data/shaped.dta") %>%
+df <- read.dta13("../data/shaped.dta") %>%
   data.frame() %>%
   mutate(
     log_price = log(price),
