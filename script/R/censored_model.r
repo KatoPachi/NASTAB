@@ -131,7 +131,7 @@ add_header_above(c("", "log(Giving amount)" = 5), escape = FALSE)
 #' 
 #+
 
-pdf <- df %>% pdata.frame(df, c("pid", "year"))
+pdf <- pdata.frame(df, c("pid", "year"))
 
 censmodel <- list(
   reg1 = log_total_g ~ log_price + log_pinc_all,
