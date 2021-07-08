@@ -8,6 +8,13 @@ knitr::spin(
 #'
 #+ Rmd File to Output
 
+# HTML file
+rmarkdown::render(
+    "./manuscript/issue71.rmd",
+    output_file = "issue71.html",
+    output_dir = "report"
+)
+
 # preview chapter
 bookdown::preview_chapter(
     input = "manuscript/6_heteroElasticity.rmd", 
