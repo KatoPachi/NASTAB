@@ -77,8 +77,7 @@ If it is difficult for investigators to meet subjects, another family member ans
 
 [^weight]: Note that NasTaB data is constructed as the subjects represent the population of Korean society. This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. Moreover, note that subjects are not limited to the tax payer or income earner reflecting the population.
 
-In the analysis, we use data from 2013 to 2019 since 
-we focus on the 2014 tax reform. This is because, as Table \@ref(tab:tabTaxRate) shows, the giving price before 2014 was changed frequently and incorporating the data before 2012 captures the effects of another tax reform than the reform in 2014. Note that, since tax credit was introduced after 2014 and the credit rate was unchanged since 2014, the giving price does not depend on the income tax rate after 2014.
+In the analysis, we use data from 2013 to 2019 since we focus on the 2014 tax reform. This is because, as Table \@ref(tab:tabTaxRate) shows, the giving price before 2014 was changed frequently and incorporating the data before 2012 captures the effects of another tax reform than the reform in 2014. Note that, since tax credit was introduced after 2014 and the credit rate was unchanged since 2014, the giving price does not depend on the income tax rate after 2014.
 In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
 
 <!-- For Slides 
