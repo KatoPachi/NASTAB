@@ -36,6 +36,7 @@ footnote(general_title = "", general = "Notes: The number shows the correspondin
 	3. use the obtained fixed effect as the efficiency index
 --->
 
+<!-- 効率性の話はしないので消去
 From the 2015 survey, NaSTaB asks the current and ideal balance between tax burden and welfare level. 
 For current balance, the subjects answer the degree of their current perception about tax burden and welfare level, 
 both of them are scaled by three: high, middle, and low. 
@@ -63,7 +64,7 @@ Second, the density of those whose the efficient index is less than zero is larg
 those whose the efficient index is greater than zero.
 This implies that the number of people thinking the government is inefficient is 
 less than people who think the government is efficient.
-
+--->
 <!--- Slide
 ## Histrogram of Efficient Index
 --->
@@ -98,7 +99,7 @@ merge_df %>%
 	- To address this issue, we use the question for ideal balance between tax burden and welfare level to rule out the subjects who consider that the higher welfare level than the tax burden is unfavorable.
 2. Efficiency indexの構成方法にかかわる問題をここに書こうかと思います。上記では固定効果をとっている理由をPersistentな政府へのperceptionを見たいからとしていますが、別にそれぞれの時点でのperceptionをとっても構わないだろうとツッコミが来ると思うので、なぜ固定効果をとっているのかなどを書いてもらえればと思います。
 --->
-
+<!-- 効率性の話はしないので消去
 There are two potential concerns about the efficient index.
 The first concern is related with a interpretation of question.
 Considering the contents of the questions about tax/welfare balance 
@@ -134,7 +135,7 @@ Thus, the efficient index represents persistent perception toward governement ef
 which is formed by individual education and continuous policies.
 
 ## Heterogeneous Price Elasticity in Governement Efficiency
-
+--->
 <!--- Slide
 To see the heterogenous price elasticity by efficient index,
 we utilize the interaction between the efficiency index and the giving price.
@@ -145,7 +146,7 @@ respectively.
 We control individual and time fixed effect,
 and other covariates.
 --->
-
+<!--- 効率性の話はしないので消去
 To estimate the heterogenous price elasticity in the efficient index, 
 we include interaction terms between the efficient index and the giving price
 into the model Eq. (\@ref(eq:intensive)) and (\@ref(eq:extensive)) for intensive and extensive margins, respectively. 
@@ -247,7 +248,7 @@ newtab.elast_hetero <- full_join(tab.elast_hetero$set, tab.e_elast_hetero$set, b
   full_join(tab.i_elast_hetero$set, by = c("vars", "stat")) %>% 
   dplyr::rename(reg1 = reg1.x, reg2 = reg1.y, reg3 = reg1)
 ```
-
+--->
 <!-- Slide
 ## Heterogenous Price Elasticity: Estimations Results
 
@@ -285,7 +286,7 @@ newtab.elast_hetero[c(9:14, 20), ] %>%
 	add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) 
 ```
 --->
-
+<!--- 効率性の話はしないので消去
 Table \@ref(tab:kableHeteroElasticity) shows the heterogenous price effect in the efficient index
 when we use full sample.
 Column (1) shows the overall elasticities.
@@ -326,11 +327,11 @@ newtab.elast_hetero %>%
 	add_header_above(c(" " = 1, "Overall" = 1, "Extensive" = 1, "Intensive"), escape = FALSE) %>%
 	footnote(general_title = "", general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The 2Q (3Q) Efficient Group is a dummy varaible taking 1 if individual $i$ belongs to the second (third) quanitle of efficient index. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-margin elasticity is evaluated at the sample mean of $D_{ijt}$.", threeparttable = TRUE, escape = FALSE)
 ```
-
+--->
 <!--- Slide
 ## Robustness Check 1
 --->
-
+<!--- 効率性の話はしないので消去
 Previous results show that there is no heterogenous price elasticity in the efficient index.
 This may be caused by existence of respondents 
 interpreting the survey questions as the questions about the expenditure policy of the government.
@@ -403,7 +404,7 @@ newtab.elast_hetero2 <- full_join(tab.elast_hetero2$set, tab.e_elast_hetero2$set
   full_join(tab.i_elast_hetero2$set, by = c("vars", "stat")) %>% 
   dplyr::rename(reg1 = reg1.x, reg2 = reg1.y, reg3 = reg1)
 ```
-
+--->
 <!-- Slide
 ## Robustness Check 1: Estimation Results
 
@@ -440,7 +441,7 @@ newtab.elast_hetero2[c(9:14, 20), ] %>%
 	kable_styling(font_size = 8)
 ```
 --->
-
+<!--- 効率性の話はしないので消去
 Table \@ref(tab:kableSubsetHeteroElasticity) shows the heterogenous price elasticity in the efficient index
 when we use those whose the ideal efficient index is greater than zero.
 As a result, we found heterogeneity of the overall and extensive-margin price elasticitiy 
@@ -460,7 +461,7 @@ On the other hand, the implied price elasticiity of the third quantile efficient
 which is not statistically significant.
 Column (3) shows the intensive-margin elasticities.
 we found there is no heterogenous price effect on the amount of donations among donors.
-
+--->
 ```{r kableSubsetHeteroElasticity, include = TRUE}
 newtab.elast_hetero2 %>% 
 	mutate(vars = if_else(stat == "se", "", vars)) %>% 
