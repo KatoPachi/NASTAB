@@ -30,7 +30,7 @@ est_felm <- function(y, x, z = 0, fixef = 0, cluster = 0, data) {
 
   if (z != 0) {
     zeq <- as.character(z)
-    zeq <- paste(zeq[1], "~", zeq[3]) %>% paste("(", ., ")")
+    zeq <- paste(zeq[2], "~", zeq[3]) %>% paste("(", ., ")")
   }
 
   if (cluster != 0) {

@@ -183,116 +183,115 @@ extensive %>%
   ) %>%
   kable_styling()
 
+#' ## Robustness Check
+#'
+#' The first robustness check estimates the last price elasticity
+#' using the first price of giving as an instrument.
+#'
+#' Compared to the main results, the last price elasticity is more elastic.
+#' The aboslute value of estimated coefficient is larger than 2.4,
+#' which is statistically significant different from zero.
+#'
+#+
+overall_iv <- xlist %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ .,
+    x = update(., ~ . - log_price),
+    z = log_lprice ~ log_price,
+    fixef = ~ year + pid, cluster = ~ pid,
+    data = df
+  ))
 
-## ---- LastElasticityModel
-# regeression model
-xlist_rob1 <- list(
-  quote(log_pinc_all),
-  quote(log_pinc_all + age + sqage),
-  quote(log_pinc_all + age + sqage + factor(year):factor(educ)),
-  quote(log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender)),
-  quote(log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + factor(year):factor(living_area)) 
-)
+overall_iv %>%
+  felm_regtab(
+    keep_coef = c("log_lprice", "log_pinc_all"),
+    label_coef = list(
+      "`log_lprice(fit)`" = "ln(last giving price)",
+      "log_pinc_all" = "ln(annual taxable income)"
+    )
+  ) %>%
+  regtab_addline(list(xlist_tab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    align = "lccccc"
+  ) %>%
+  kable_styling()
 
-z_rob1 <- list(quote((log_lprice ~ log_price)))
-fixef_rob1 <- list(quote(year + pid))
-cluster_rob1 <- list(quote(pid))
+#'
+#' The intensive-margin elasticity of last price is
+#' similar value to the main results.
+#'
+#+
+intensive_iv <- xlist %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ .,
+    x = update(., ~ . - log_price),
+    z = log_lprice ~ log_price,
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1)
+  ))
 
-# wald test 
-wald_rob1 <- list(
-  "Implied price elasticity" = "imp * `log_lprice(fit)`",
-  "Implied income elasticity" = "imp * log_pinc_all"
-)
+intensive_iv %>%
+  felm_regtab(
+    keep_coef = c("log_lprice", "log_pinc_all"),
+    label_coef = list(
+      "`log_lprice(fit)`" = "ln(last giving price)",
+      "log_pinc_all" = "ln(annual taxable income)"
+    )
+  ) %>%
+  regtab_addline(list(xlist_tab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    align = "lccccc"
+  ) %>%
+  kable_styling()
 
-# tabulation
-addline_rob1 <- tribble(
-  ~vars, ~stat, ~reg1, ~reg2, ~reg3, ~reg4, ~reg5,
-  "Individual FE", "vars", "Y", "Y", "Y", "Y", "Y",
-  "Time FE", "vars", "Y", "Y", "Y", "Y", "Y",
-  "Age", "vars", "N", "Y", "Y", "Y", "Y",
-  "Year x Education", "vars", "N", "N", "Y", "Y", "Y", 
-  "Year x Gender", "vars", "N", "N", "N", "Y", "Y", 
-  "Year x Resident Area", "vars", "N", "N", "N", "N", "Y" 
-)
+#'
+#' The implied last price elasticity
+#' evalueated at the sample mean is roughly -3.
+#'
+#+
+extensive_iv <- xlist %>%
+  purrr::map(~ est_felm(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - log_price),
+    z = log_lprice ~ log_price,
+    fixef = ~ year + pid, cluster = ~pid,
+    data = df
+  ))
 
-## ---- LastElasticity
-elast_rob1 <- est_felm(
-  y = list(quote(log_total_g)), x = xlist_rob1, z = z_rob1,
-  fixef = fixef_rob1, cluster = cluster_rob1,
-  data = df
-)
+extiv_wald <- extensive_iv %>%
+  purrr::map(~ felm_wald(
+    .,
+    hypo = list(
+      "Implied price elasticity" = "imp * `log_lprice(fit)`",
+      "Implied income elasticity" = "imp * log_pinc_all"
+    ),
+    args = list(imp = 1 / mean(.$response)),
+  )) %>%
+  reduce(full_join, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(extensive)))))
 
-# tabulation
-# f-stat (first stage)
-fstat <- elast_rob1$result %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
-fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
-
-tab.elast_rob1 <- fullset_tab(
-  elast_rob1$result, 
-  keep_coef = c("log_lprice", "log_pinc_all"),
-  label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N"), 
-  addlines = addline
-)
-
-newtab.elast_rob1 <- bind_rows(
-  tab.elast_rob1$set[1:10,],
-  fstat_line,
-  tab.elast_rob1$set[11,]
-)
-
-## ---- LastExtElasticity
-e_elast_rob1 <- est_felm(
-  y = list(quote(i_ext_giving)), x = xlist_rob1, z = z_rob1,
-  fixef = fixef, cluster = cluster,
-  wald_hypo = wald_rob1,
-  data = df
-)
-
-# tabulation
-# f-stat (first stage)
-e_fstat <- e_elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
-e_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
-
-tab.e_elast_rob1 <- fullset_tab(
-  e_elast_rob1$result, e_elast_rob1$test, 
-  keep_coef = c("log_lprice", "log_pinc_all"),
-  label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N"), 
-  addlines = addline
-)
-
-newtab.e_elast_rob1 <- bind_rows(
-  tab.e_elast_rob1$set[1:10,],
-  e_fstat_line,
-  tab.e_elast_rob1$set[11,]
-)
-
-## ---- LastIntElasticity
-i_elast_rob1 <- est_felm(
-  y = list(quote(log_total_g)), x = xlist_rob1, z = z_rob1,
-  fixef = fixef_rob1, cluster = cluster_rob1,
-  data = subset(df, i_ext_giving == 1)
-)
-
-# tabulation
-# f-stat (first stage)
-i_fstat <- e_elast_rob1$est %>% purrr::map(~.$stage1$iv1fstat$log_lprice[["F"]]) %>% as_vector()
-i_fstat_line <- c(vars = "F-statistics of IV", stat = "stat", fstat)
-
-tab.i_elast_rob1 <- fullset_tab(
-  i_elast_rob1$result, 
-  keep_coef = c("log_lprice", "log_pinc_all"),
-  label_coef = list("`log_lprice(fit)`" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N"), 
-  addlines = addline
-)
-
-newtab.i_elast_rob1 <- bind_rows(
-  tab.i_elast_rob1$set[1:10,],
-  i_fstat_line,
-  tab.i_elast_rob1$set[11,]
-)
+extensive_iv %>%
+  felm_regtab(
+    keep_coef = c("log_lprice", "log_pinc_all"),
+    label_coef = list(
+      "`log_lprice(fit)`" = "ln(last giving price)",
+      "log_pinc_all" = "ln(annual taxable income)"
+    )
+  ) %>%
+  regtab_addline(list(extiv_wald, xlist_tab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    align = "lccccc"
+  ) %>%
+  kable_styling()
 
 ## ---- ShortModel
 # regression model
