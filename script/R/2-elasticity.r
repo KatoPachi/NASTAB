@@ -402,7 +402,7 @@ list(intensive_s1, intensive_s2) %>%
 #' When we use data from 2013 to 2018,
 #' the extensive-margin price elasticity is similar to
 #' the main results, which is statistically significant.
-#' When we use data from 2013 to 2014, 
+#' When we use data from 2013 to 2014,
 #' the extensive-margin price elasticity is more elastic than the main results.
 #'
 #+
@@ -451,78 +451,116 @@ list(extensive_s1, extensive_s2) %>%
   ) %>%
   kable_styling()
 
-## ---- kdiffModel
-ylist_rob3 <- list(quote(log_diff1g), quote(log_diff2g), quote(log_diff3g))
-xlist_rob3 <- list(
-  quote(log_iv1price +  log_diff1I + diff1_age + diff1_sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
-    factor(year):factor(living_area)),
-  quote(log_iv2price +  log_diff2I + diff2_age + diff2_sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
-    factor(year):factor(living_area)),
-  quote(log_iv3price +  log_diff3I + diff3_age + diff3_sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
-    factor(year):factor(living_area))
+#'
+#' The third robustness check is
+#' to estimate the k-th difference model.
+#' The tax reform may have impacts on the giving price in two ways:
+#' one is direct giving price change by tax reform and
+#' the other is indirect change via wealth effect,
+#' which is induced by tax reform.
+#' Thus, to isolate the direct effect of the tax reform,
+#' we use the information of income level k years before.
+#'
+#+
+kdiff <- list(
+  lag1 = list(
+    y = log_diff1g ~ .,
+    x = ~ log_iv1price + log_diff1I + diff1_age + diff1_sqage
+  ),
+  lag2 = list(
+    y = log_diff2g ~ .,
+    x = ~ log_iv2price + log_diff2I + diff2_age + diff2_sqage
+  ),
+  lag3 = list(
+    y = log_diff3g ~ .,
+    x = ~ log_iv3price + log_diff3I + diff3_age + diff3_sqage
+  )
 )
-fixef_rob3 <- list(quote(year + pid))
-cluster_rob3 <- list(quote(pid))
 
-#tabulation
-addline_rob3 <- tibble(
+kdiff_tab <- tibble(
   vars = c("Individual FE", "Time FE", "Other controls"),
   stat = rep("vars", 3),
-  reg1 = rep("Y", 3), reg2 = rep("Y", 3), reg3 = rep("Y", 3),
-  reg4 = rep("Y", 3), reg5 = rep("Y", 3), reg6 = rep("Y", 3),
-  reg7 = rep("Y", 3), reg8 = rep("Y", 3), reg9 = rep("Y", 3)
+  reg1 = rep("Y", 3), reg2 = rep("Y", 3), reg3 = rep("Y", 3)
 )
 
-## ---- kDiffElasticity
-elast_rob3 <- est_felm(
-  y = ylist_rob3, x = xlist_rob3, 
-  fixef = fixef_rob3, cluster = cluster_rob3,
-  data = df
-)
+#'
+#' When we take the one year lag (k = 1),
+#' the overall price elasticity is roughly -1.9,
+#' which is statistically significant.
+#' This elasticity slightly varies
+#' when we take the two or more year lag (k > 1).
+#'
+#+
+overall_kdiff <- kdiff %>%
+  purrr::map(~ est_felm(
+    y = .$y,
+    x = update(
+      .$x,
+      ~ . + factor(year):factor(educ) + factor(year):factor(gender) +
+        factor(year):factor(living_area)
+    ),
+    fixef = ~ pid + year, cluster = ~ pid,
+    data = df
+  ))
 
-tab.elast_rob3 <- fullset_tab(
-  elast_rob3$result,
-  keep_coef = c("log_iv", "log_diff"),
-  keep_stat = c("N", "R-squared"),
-  addline = addline_rob3
-)
-
-newtab.elast_rob3 <- tab.elast_rob3$set %>% 
-  dplyr::select(vars, stat, reg1, reg5, reg9) %>% 
-  pivot_longer(reg1:reg9, names_to = "model", values_to = "val") %>% 
-  mutate(
-    vars = case_when(
-      str_detect(vars, "log_iv") ~ "Lagged difference of first price (log)",
-      str_detect(vars, "log_diff") ~ "Lagged difference of annual income (log)",
-      TRUE ~ vars
+overall_kdiff %>%
+  felm_regtab(
+    keep_coef = c("log_iv", "log_diff"),
+    label_coef = list(
+      "log_iv1price" = "1-year lagged difference of first price (log)",
+      "log_iv2price" = "2-year lagged difference of first price (log)",
+      "log_iv3price" = "3-year lagged difference of first price (log)",
+      "log_diff1I" = "1-year lagged difference of annual income (log)",
+      "log_diff2I" = "2-year lagged difference of annual income (log)",
+      "log_diff3I" = "3-year lagged difference of annual income (log)"
     )
-  ) %>% 
-  dplyr::filter(!is.na(val)) %>% 
-  pivot_wider(names_from = "model", values_from = "val")
+  ) %>%
+  regtab_addline(list(kdiff_tab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(kdiff)))),
+    align = "lccc"
+  ) %>%
+  kable_styling()
 
-## ---- kDiffIntElasticity
-i_elast_rob3 <- est_felm(
-  y = ylist_rob3, x = xlist_rob3, 
-  fixef = fixef_rob3, cluster = cluster_rob3,
-  data = subset(df, i_ext_giving == 1)
-)
+#'
+#' When we take the one year lag (k = 1),
+#' the intensive-margin price elasticity is roughly -1.8,
+#' which is statistically significant.
+#' The absolute value of the price elasticity is more than 2
+#' when we take two or more year lag (k > 1)
+#'
+#+
+intensive_kdiff <- kdiff %>%
+  purrr::map(~ est_felm(
+    y = .$y,
+    x = update(
+      .$x,
+      ~ . + factor(year):factor(educ) + factor(year):factor(gender) +
+        factor(year):factor(living_area)
+    ),
+    fixef = ~ pid + year, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1)
+  ))
 
-tab.i_elast_rob3 <- fullset_tab(
-  i_elast_rob3$result,
-  keep_coef = c("log_iv", "log_diff"),
-  keep_stat = c("N", "R-squared"),
-  addline = addline_rob3
-)
-
-newtab.i_elast_rob3 <- tab.i_elast_rob3$set %>% 
-  dplyr::select(vars, stat, reg1, reg5, reg9) %>% 
-  pivot_longer(reg1:reg9, names_to = "model", values_to = "val") %>% 
-  mutate(
-    vars = case_when(
-      str_detect(vars, "log_iv") ~ "Lagged difference of first price (log)",
-      str_detect(vars, "log_diff") ~ "Lagged difference of annual income (log)",
-      TRUE ~ vars
+intensive_kdiff %>%
+  felm_regtab(
+    keep_coef = c("log_iv", "log_diff"),
+    label_coef = list(
+      "log_iv1price" = "1-year lagged difference of first price (log)",
+      "log_iv2price" = "2-year lagged difference of first price (log)",
+      "log_iv3price" = "3-year lagged difference of first price (log)",
+      "log_diff1I" = "1-year lagged difference of annual income (log)",
+      "log_diff2I" = "2-year lagged difference of annual income (log)",
+      "log_diff3I" = "3-year lagged difference of annual income (log)"
     )
-  ) %>% 
-  dplyr::filter(!is.na(val)) %>% 
-  pivot_wider(names_from = "model", values_from = "val")
+  ) %>%
+  regtab_addline(list(kdiff_tab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(kdiff)))),
+    align = "lccc"
+  ) %>%
+  kable_styling()
