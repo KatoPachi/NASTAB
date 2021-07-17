@@ -103,7 +103,7 @@ overall %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc"
   ) %>%
   kable_styling()
@@ -132,7 +132,7 @@ intensive %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc"
   ) %>%
   kable_styling()
@@ -164,7 +164,7 @@ ext_wald <- extensive %>%
     args = list(imp = 1 / mean(.$response)),
   )) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(extensive)))))
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist)))))
 
 extensive %>%
   felm_regtab(
@@ -178,7 +178,7 @@ extensive %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc"
   ) %>%
   kable_styling()
@@ -214,7 +214,7 @@ overall_iv %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc"
   ) %>%
   kable_styling()
@@ -245,7 +245,7 @@ intensive_iv %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc"
   ) %>%
   kable_styling()
@@ -274,7 +274,7 @@ extiv_wald <- extensive_iv %>%
     args = list(imp = 1 / mean(.$response)),
   )) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(extensive)))))
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist)))))
 
 extensive_iv %>%
   felm_regtab(
@@ -288,7 +288,7 @@ extensive_iv %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(overall)))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc"
   ) %>%
   kable_styling()
@@ -349,7 +349,7 @@ list(overall_s1, overall_s2) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(4))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist2) * 2))),
     align = "lcccc"
   ) %>%
   kable_styling()
@@ -393,7 +393,7 @@ list(intensive_s1, intensive_s2) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(4))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist2) * 2))),
     align = "lcccc"
   ) %>%
   kable_styling()
@@ -431,7 +431,7 @@ exts_wald <- list(extensive_s1, extensive_s2) %>%
     args = list(imp = 1 / mean(.$response)),
   )) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(4))))
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist2) * 2))))
 
 list(extensive_s1, extensive_s2) %>%
   flatten() %>%
@@ -446,7 +446,7 @@ list(extensive_s1, extensive_s2) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(4))),
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist2) * 2))),
     align = "lccccc"
   ) %>%
   kable_styling()
