@@ -293,131 +293,163 @@ extensive_iv %>%
   ) %>%
   kable_styling()
 
-## ---- ShortModel
-# regression model
-xlist_rob2 <- list(
-  quote(log_price + log_pinc_all),
-  quote(log_price + log_pinc_all + age + sqage + factor(year):factor(educ) + factor(year):factor(gender) + 
-    factor(year):factor(living_area))
+#'
+#' The second robustness check is to control the manupulation of giving price
+#' by adjusting income level using two datasets whose
+#' ranges are from (i) 2013 to 2018 and (ii) from 2013 to 2014.
+#+
+xlist2 <- list(
+  ~ log_price + log_pinc_all,
+  ~ log_price + log_pinc_all + age + sqage + factor(year):factor(educ) +
+    factor(year):factor(gender) + factor(year):factor(living_area)
 )
 
-fixef_rob2 <- list(quote(year + pid))
-cluster_rob2 <- list(quote(pid))
-
-# wald test 
-wald_rob2 <- list(
-  "Implied price elasticity" = "imp * log_price",
-  "Implied income elasticity" = "imp * log_pinc_all"
-)
-
-# tabulation
-addline_rob2 <- tribble(
+xlist2_tab <- tribble(
   ~vars, ~stat, ~reg1, ~reg2,
   "Individual FE", "vars", "Y", "Y",
-  "Time FE", "vars", "Y", "Y", 
-  "Other Controls", "vars", "N", "Y", 
+  "Time FE", "vars", "Y", "Y",
+  "Other Controls", "vars", "N", "Y",
 )
 
-## ---- ShortElasticity
-elast_rob2_1 <- est_felm(
-  y = list(quote(log_total_g)), x = xlist_rob2,
-  fixef = fixef_rob2, cluster = cluster_rob2,
-  data = subset(df, year >= 2013) 
-)
+xlist2_duptab <- xlist2_tab %>%
+  full_join(xlist2_tab, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(4))))
 
-elast_rob2_2 <- est_felm(
-  y = list(quote(log_total_g)), x = xlist_rob2,
-  fixef = fixef_rob2, cluster = cluster_rob2,
-  data = subset(df, year == 2013 | year == 2014) 
-)
+#'
+#' When we use data from 2013 to 2018, the estimated
+#' price elasticity is similar value to the main results.
+#' On the other hand, when we use data from 2013 to 2014,
+#' the estimated price elasticity is more elastic than the main results.
+#'
+#+
+overall_s1 <- xlist2 %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ ., x = .,
+    fixef = ~ year + pid, cluster = ~ pid,
+    data = subset(df, year >= 2013)
+  ))
 
-# tabulation
-tab.elast_rob2_1 <- fullset_tab(
-  elast_rob2_1$result, 
-  keep_coef = c("log_price", "log_pinc_all"),
-  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N", "R-squared"),
-  addline = addline_rob2
-)
+overall_s2 <- xlist2 %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ ., x = .,
+    fixef = ~ year + pid, cluster = ~ pid,
+    data = subset(df, year == 2013 | year == 2014)
+  ))
 
-tab.elast_rob2_2 <- fullset_tab(
-  elast_rob2_2$result, 
-  keep_coef = c("log_price", "log_pinc_all"),
-  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N", "R-squared"),
-  addline = addline_rob2
-)
+list(overall_s1, overall_s2) %>%
+  flatten() %>%
+  felm_regtab(
+    keep_coef = c("log_price", "log_pinc_all"),
+    label_coef = list(
+      "log_price" = "ln(giving price)",
+      "log_pinc_all" = "ln(annual taxable income)"
+    )
+  ) %>%
+  regtab_addline(list(xlist2_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(4))),
+    align = "lcccc"
+  ) %>%
+  kable_styling()
 
-tab.elast_rob2 <- full_join(tab.elast_rob2_1$set, tab.elast_rob2_2$set, by = c("vars", "stat")) %>% 
-  dplyr::rename(reg1 = reg1.x, reg2 = reg2.x, reg3 = reg1.y, reg4 = reg2.y) 
+#'
+#' When we use data from 2013 to 2018,
+#' the intensive-margin price elasiticity is
+#' similar to the main results, which is statistically significant from zero.
+#' However, when we use data from 2013 to 2014 and
+#' include only individual and time fixed effects,
+#' the estimated coefficient is statistically insignificant different from zero.
+#' By controlling covariates and its interaction with year dummies,
+#' the intensive-margin price elasticity is -0.712,
+#' which is statistically significant.
+#'
+#+
+intensive_s1 <- xlist2 %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ ., x = .,
+    fixef = ~ year + pid, cluster = ~ pid,
+    data = subset(df, year >= 2013 & i_ext_giving == 1)
+  ))
 
-## ---- ShortIntElasticity
-i_elast_rob2_1 <- est_felm(
-  y = list(quote(log_total_g)), x = xlist_rob2,
-  fixef = fixef_rob2, cluster = cluster_rob2,
-  data = subset(df, year >= 2013 & i_ext_giving == 1) 
-)
+intensive_s2 <- xlist2 %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ ., x = .,
+    fixef = ~ year + pid, cluster = ~ pid,
+    data = subset(df, (year == 2013 | year == 2014) & i_ext_giving == 1)
+  ))
 
-i_elast_rob2_2 <- est_felm(
-  y = list(quote(log_total_g)), x = xlist_rob2,
-  fixef = fixef_rob2, cluster = cluster_rob2,
-  data = subset(df, (year == 2013 | year == 2014) & i_ext_giving == 1) 
-)
+list(intensive_s1, intensive_s2) %>%
+  flatten() %>%
+  felm_regtab(
+    keep_coef = c("log_price", "log_pinc_all"),
+    label_coef = list(
+      "log_price" = "ln(giving price)",
+      "log_pinc_all" = "ln(annual taxable income)"
+    )
+  ) %>%
+  regtab_addline(list(xlist2_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(4))),
+    align = "lcccc"
+  ) %>%
+  kable_styling()
 
-# tabulation
-tab.i_elast_rob2_1 <- fullset_tab(
-  i_elast_rob2_1$result, 
-  keep_coef = c("log_price", "log_pinc_all"),
-  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N", "R-squared"),
-  addline = addline_rob2
-)
+#'
+#' When we use data from 2013 to 2018,
+#' the extensive-margin price elasticity is similar to
+#' the main results, which is statistically significant.
+#' When we use data from 2013 to 2014, 
+#' the extensive-margin price elasticity is more elastic than the main results.
+#'
+#+
+extensive_s1 <- xlist2 %>%
+  purrr::map(~ est_felm(
+    y = i_ext_giving ~ ., x = .,
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, year >= 2013)
+  ))
 
-tab.i_elast_rob2_2 <- fullset_tab(
-  i_elast_rob2_2$result, 
-  keep_coef = c("log_price", "log_pinc_all"),
-  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N", "R-squared"),
-  addline = addline_rob2
-)
+extensive_s2 <- xlist2 %>%
+  purrr::map(~ est_felm(
+    y = i_ext_giving ~ ., x = .,
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, year == 2013 | year == 2014)
+  ))
 
-tab.i_elast_rob2 <- full_join(tab.i_elast_rob2_1$set, tab.i_elast_rob2_2$set, by = c("vars", "stat")) %>% 
-  dplyr::rename(reg1 = reg1.x, reg2 = reg2.x, reg3 = reg1.y, reg4 = reg2.y) 
+exts_wald <- list(extensive_s1, extensive_s2) %>%
+  flatten() %>%
+  purrr::map(~ felm_wald(
+    .,
+    hypo = list(
+      "Implied price elasticity" = "imp * log_price",
+      "Implied income elasticity" = "imp * log_pinc_all"
+    ),
+    args = list(imp = 1 / mean(.$response)),
+  )) %>%
+  reduce(full_join, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(4))))
 
-## ---- ShortExtElasticity
-e_elast_rob2_1 <- est_felm(
-  y = list(quote(i_ext_giving)), x = xlist_rob2,
-  fixef = fixef_rob2, cluster = cluster_rob2,
-  wald_hypo = wald_rob2,
-  data = subset(df, year >= 2013) 
-)
-
-e_elast_rob2_2 <- est_felm(
-  y = list(quote(i_ext_giving)), x = xlist_rob2,
-  fixef = fixef_rob2, cluster = cluster_rob2,
-  wald_hypo = wald_rob2,
-  data = subset(df, year == 2013 | year == 2014) 
-)
-
-# tabulation
-tab.e_elast_rob2_1 <- fullset_tab(
-  e_elast_rob2_1$result, e_elast_rob2_1$test, 
-  keep_coef = c("log_price", "log_pinc_all"),
-  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N", "R-squared"),
-  addline = addline_rob2
-)
-
-tab.e_elast_rob2_2 <- fullset_tab(
-  e_elast_rob2_2$result, e_elast_rob2_2$test, 
-  keep_coef = c("log_price", "log_pinc_all"),
-  label_coef = list("log_price" = "ln(giving price)", "log_pinc_all" = "ln(annual taxable income)"), 
-  keep_stat = c("N", "R-squared"),
-  addline = addline_rob2
-)
-
-tab.e_elast_rob2 <- full_join(tab.e_elast_rob2_1$set, tab.e_elast_rob2_2$set, by = c("vars", "stat")) %>% 
-  dplyr::rename(reg1 = reg1.x, reg2 = reg2.x, reg3 = reg1.y, reg4 = reg2.y) 
+list(extensive_s1, extensive_s2) %>%
+  flatten() %>%
+  felm_regtab(
+    keep_coef = c("log_price", "log_pinc_all"),
+    label_coef = list(
+      "log_price" = "ln(giving price)",
+      "log_pinc_all" = "ln(annual taxable income)"
+    )
+  ) %>%
+  regtab_addline(list(exts_wald, xlist2_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(4))),
+    align = "lccccc"
+  ) %>%
+  kable_styling()
 
 ## ---- kdiffModel
 ylist_rob3 <- list(quote(log_diff1g), quote(log_diff2g), quote(log_diff3g))
