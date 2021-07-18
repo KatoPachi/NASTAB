@@ -271,3 +271,65 @@ list(estiv_benefit1, estiv_benefit2) %>%
   ) %>%
   add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
   kable_styling()
+
+#' ## 雇用形態を操作変数としてIV推定（Cross-sectional data）
+#'
+#' 2012~2018年までのデータを用いた価格弾力性の推定（baseline model）を用いて、
+#' Fixed effectを推定する。
+#' これを共変量でダイレクトのコントロールしてみる。
+#+
+overall <- est_felm(
+  y = log_total_g ~ .,
+  x = ~ log_price + log_pinc_all + age + sqage + factor(year):factor(educ) +
+    factor(year):factor(gender) + factor(year):factor(living_area),
+  fixef = ~ year + pid, cluster = ~ pid,
+  data = df
+)
+
+fedt <- getfe(overall) %>%
+  tibble() %>%
+  dplyr::filter(fe == "pid") %>%
+  mutate(pid = as.numeric(as.character(idx))) %>%
+  dplyr::select(effect, pid)
+
+df <- df %>% left_join(fedt, by = "pid")
+
+#'
+#' Panel IVではなく、2014~2017年の各年でデータを分割してIV推定を行う
+#'
+#+
+yeq <- log_total_g ~ .
+xeq <- ~ employee + log_pinc_all + age + sqage + effect +
+  factor(educ) + factor(gender) + factor(indust)
+zeq <- ext_benefit ~ employee
+
+estiv3_benefit <- df %>%
+  dplyr::filter(2014 <= year & year <= 2017) %>%
+  group_by(year) %>%
+  do(iv = est_felm(y = yeq, x = xeq, z = zeq, data = .))
+
+estiv3_fstat <- estiv3_benefit$iv %>%
+  purrr::map(~ .$stage1$iv1fstat$ext_benefit["F"]) %>%
+  as_vector() %>%
+  matrix(nrow = 1) %>%
+  data.frame() %>%
+  setNames(paste0("reg", seq_len(nrow(estiv3_benefit))))
+
+iv3fstat_tab <- estiv3_fstat %>%
+  mutate_all(list(~ sprintf("%1.3f", .))) %>%
+  mutate(vars = "Fstat of IV", stat = "vars")
+
+estiv3_benefit$iv %>%
+  felm_regtab(
+    .,
+    keep_coef = "ext_benefit",
+    label_coef = list("`ext_benefit(fit)`" = "Receive tax benefit")
+  ) %>%
+  regtab_addline(list(iv3fstat_tab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("Year = %4d", 2014:2017)),
+    align = "lcccc"
+  ) %>%
+  kable_styling()
