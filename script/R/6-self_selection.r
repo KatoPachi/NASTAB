@@ -78,3 +78,128 @@ df %>%
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(y = "share of receiving tax benefit", linetype = "", shape = "") +
   ggtemp()
+
+#' ## 雇用形態を操作変数としてIV推定
+#'
+#' 以下の就業形態に関する変数を用いる
+#'
+#' - `p_aa005`：雇用形態（1=常用職2=臨時職日雇い3=自営業4=無給家族従事者）
+#' - `paa008`：産業
+#'     - 農業
+#'     - 林業や漁業
+#'     - 鉱業
+#'     - 製造業
+#'     - 電気、ガスおよび水道事業
+#'     - 下水∙、廃棄物処理、原料再生および環境ボクウォンオプ
+#'     - 建設業
+#'     - 卸売や小売業
+#'     - 運輸業
+#'     - 宿泊と飲食店業
+#'     - 出版、映像、放送通信や情報サービス業
+#'     - 金融および保険業
+#'     - 不動産業及び賃貸業
+#'     - 専門科学および技術サービス業
+#'     - 事業施設管理および事業支援サービス業
+#'     - 公共行政、国防や、社会保障、行政
+#'     - 教育サービス業
+#'     - 保険業や社会福祉サービス業
+#'     - 芸術、スポーツや余暇関連サービス業
+#'     - 協会や団体、修理および個人サービス業
+#'     - 世帯内雇用活動と違って分類されていない者が消費、生産活動
+#'     - 国際および外国機関
+#'
+#' `p_aa005`で常用職かどうかのダミー変数を作成する。`paa008`は共変量としてコントロールする
+#+
+original <- read.dta13("data/merge/merge.dta") %>%
+  data.frame() %>%
+  dplyr::select(pid, year, p_aa005, paa008) %>%
+  mutate(employee = if_else(p_aa005 == 1, 1, 0)) %>%
+  rename(indust = paa008) %>%
+  dplyr::select(-p_aa005)
+
+df <- df %>%
+  left_join(original, by = c("pid", "year"))
+
+#'
+#' employeeかどうかで控除申請に差があるかどうかを記述統計で確認する
+#'
+#' この図のメッセージ：self-employedと比較して、employeeの方が申請している
+#'
+#+
+df %>%
+  dplyr::filter(!is.na(employee)) %>%
+  group_by(year, employee) %>%
+  summarize_at(vars(ext_benefit), list(~ mean(., na.rm = TRUE))) %>%
+  mutate(employee = factor(employee)) %>%
+  ggplot(aes(x = year, y = ext_benefit, group = employee)) +
+  geom_point(aes(shape = employee), color = "black", size = 3) +
+  geom_line(aes(linetype = employee), size = 1) +
+  geom_vline(aes(xintercept = 2013.5)) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(y = "share of receiving tax benefit") +
+  ggtemp()
+
+#'
+#' 2014~2017年に限定してemployeeが申請控除に与える影響を線形確率モデルで推定する
+#' はじめに、雇用形態にwithin-variationがある人の割合を見ておく
+#'
+#+
+df %>%
+  group_by(pid) %>%
+  summarize_at(vars(employee), list(~sd(., na.rm = TRUE))) %>%
+  mutate(employee = if_else(employee > 0, 1, 0)) %>%
+  ungroup() %>%
+  with(table(employee)) %>%
+  kable() %>%
+  kable_styling()
+
+#'
+#' 申請控除の線形確率モデルのメッセージ：
+#' employeeは控除申請に正の影響を与えるが、個人固定効果を加えるとその効果がなくなる
+#'
+#+
+xlist <- list(
+  ~ employee,
+  ~ employee + log_pinc_all + age + sqage +
+    factor(year):factor(educ) + factor(year):factor(gender),
+  ~ employee + log_pinc_all + age + sqage +
+    factor(year):factor(educ) + factor(year):factor(gender) + factor(indust)
+)
+
+xlist_tab <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3,
+  "Time FE", "vars", "Y", "Y", "Y",
+  "log(income)", "vars", "N", "Y", "Y",
+  "Age", "vars", "N", "Y", "Y",
+  "Year x Education", "vars", "N", "Y", "Y",
+  "Year x Gender", "vars", "N", "Y", "Y",
+  "Year x Resident Area", "vars", "N", "Y", "Y",
+  "Dummy of industry", "vars", "N", "N", "Y"
+)
+
+est_benefit1 <- xlist %>%
+  purrr::map(~ est_felm(
+    y = ext_benefit ~ ., x = .,
+    fixef = ~ year, cluster = ~ pid,
+    data = subset(df, 2014 <= year & year <= 2017)
+  ))
+
+est_benefit2 <- xlist %>%
+  purrr::map(~ est_felm(
+    y = ext_benefit ~ ., x = .,
+    fixef = ~year + pid, cluster = ~pid,
+    data = subset(df, 2014 <= year & year <= 2017)
+  ))
+
+list(est_benefit1, est_benefit2) %>%
+  purrr::map(~ felm_regtab(., keep_coef = "employee")) %>%
+  purrr::map(~ regtab_addline(., list(xlist_tab))) %>%
+  reduce(full_join, by = c("vars", "stat")) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
+    align = "lcccccc"
+  ) %>%
+  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
+  kable_styling()
