@@ -79,7 +79,7 @@ df %>%
   labs(y = "share of receiving tax benefit", linetype = "", shape = "") +
   ggtemp()
 
-#' ## 雇用形態を操作変数としてIV推定
+#' ## 雇用形態を操作変数としてIV推定（Panel data）
 #'
 #' 以下の就業形態に関する変数を用いる
 #'
@@ -140,6 +140,8 @@ df %>%
   ggtemp()
 
 #'
+#' ### First-stage estimation
+#'
 #' 2014~2017年に限定してemployeeが申請控除に与える影響を線形確率モデルで推定する
 #' はじめに、雇用形態にwithin-variationがある人の割合を見ておく
 #'
@@ -195,6 +197,72 @@ list(est_benefit1, est_benefit2) %>%
   purrr::map(~ felm_regtab(., keep_coef = "employee")) %>%
   purrr::map(~ regtab_addline(., list(xlist_tab))) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
+    align = "lcccccc"
+  ) %>%
+  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
+  kable_styling()
+
+#' ### Panel IV Results
+#'
+#' Panel IVのメッセージ：
+#'個人固定効果を除いてもtax receiveの効果は統計的に非有意であった。
+#'
+#+
+estiv_benefit1 <- xlist %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee),
+    z = ext_benefit ~ employee,
+    fixef = ~ year, cluster = ~ hhid,
+    data = df
+  ))
+
+estiv_benefit2 <- xlist %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee),
+    z = ext_benefit ~ employee,
+    fixef = ~year + pid, cluster = ~ hhid,
+    data = df
+  ))
+
+ivfstat <- list(estiv_benefit1, estiv_benefit2) %>%
+  purrr::map_depth(2, ~ .$stage1$iv1fstat$ext_benefit["F"]) %>%
+  purrr::map(~ as_vector(.)) %>%
+  as_vector() %>%
+  matrix(nrow = 1) %>%
+  data.frame() %>%
+  setNames(paste0("reg", seq_len(length(xlist) * 2)))
+
+ivfstat_tab <- ivfstat %>%
+  mutate_all(list(~ sprintf("%1.3f", .))) %>%
+  mutate(vars = "Fstat of IV", stat = "vars")
+
+waldtest <- list(estiv_benefit1, estiv_benefit2) %>%
+  purrr::map_depth(2, ~ felm_wald(
+    .,
+    hypo = list("Implied elasticity" = "a * `ext_benefit(fit)`"),
+    args = list(a = 1 / log(1 - 0.15))
+  )) %>%
+  purrr::map(~ reduce(., full_join, by = c("vars", "stat"))) %>%
+  reduce(full_join, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
+
+xlist_duptab <- xlist_tab %>%
+  full_join(xlist_tab, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
+
+list(estiv_benefit1, estiv_benefit2) %>%
+  flatten() %>%
+  felm_regtab(
+    keep_coef = "ext_benefit",
+    label_coef = list("`ext_benefit(fit)`" = "Receive tax benefit")
+  ) %>%
+  regtab_addline(list(waldtest, ivfstat_tab, xlist_duptab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
