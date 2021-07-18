@@ -209,7 +209,8 @@ list(est_benefit1, est_benefit2) %>%
 #' ### Panel IV Results
 #'
 #' Panel IVのメッセージ：
-#'個人固定効果を除いてもtax receiveの効果は統計的に非有意であった。
+#' 個人固定効果を除いてもtax receiveの効果は統計的に非有意であった。
+#' というか、(1)値を除いて、F値が弱すぎる
 #'
 #+
 estiv_benefit1 <- xlist %>%
@@ -218,7 +219,7 @@ estiv_benefit1 <- xlist %>%
     x = update(., ~ . - employee),
     z = ext_benefit ~ employee,
     fixef = ~ year, cluster = ~ hhid,
-    data = df
+    data = subset(df, 2014 <= year & year <= 2017)
   ))
 
 estiv_benefit2 <- xlist %>%
@@ -227,7 +228,7 @@ estiv_benefit2 <- xlist %>%
     x = update(., ~ . - employee),
     z = ext_benefit ~ employee,
     fixef = ~year + pid, cluster = ~ hhid,
-    data = df
+    data = subset(df, 2014 <= year & year <= 2017)
   ))
 
 ivfstat <- list(estiv_benefit1, estiv_benefit2) %>%
@@ -293,6 +294,55 @@ fedt <- getfe(overall) %>%
   dplyr::select(effect, pid)
 
 df <- df %>% left_join(fedt, by = "pid")
+
+#'
+#' Panel IVでやった結果が以下の通り
+#' この表のメッセージは、「さっきと結果はさほど変わらない」
+#'
+#+
+estiv_benefit3 <- xlist %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + effect),
+    z = ext_benefit ~ employee,
+    fixef = ~ year, cluster = ~hhid,
+    data = subset(df, 2014 <= year & year <= 2017)
+  ))
+
+ivfstat <- estiv_benefit3 %>%
+  purrr::map(~ .$stage1$iv1fstat$ext_benefit["F"]) %>%
+  as_vector() %>%
+  matrix(nrow = 1) %>%
+  data.frame() %>%
+  setNames(paste0("reg", seq_len(length(xlist))))
+
+ivfstat_tab2 <- ivfstat %>%
+  mutate_all(list(~ sprintf("%1.3f", .))) %>%
+  mutate(vars = "Fstat of IV", stat = "vars")
+
+waldtest2 <- estiv_benefit3 %>%
+  purrr::map(~ felm_wald(
+    .,
+    hypo = list("Implied elasticity" = "a * `ext_benefit(fit)`"),
+    args = list(a = 1 / log(1 - 0.15))
+  )) %>%
+  reduce(full_join, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist)))))
+
+estiv_benefit3 %>%
+  felm_regtab(
+    keep_coef = "ext_benefit",
+    label_coef = list("`ext_benefit(fit)`" = "Receive tax benefit")
+  ) %>%
+  regtab_addline(list(waldtest2, ivfstat_tab2, xlist_tab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc"
+  ) %>%
+  add_header_above(c("", "w/o individual FE but w/ estimated FE" = 3)) %>%
+  kable_styling()
 
 #'
 #' Panel IVではなく、2014~2017年の各年でデータを分割してIV推定を行う
