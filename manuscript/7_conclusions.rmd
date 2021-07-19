@@ -1,9 +1,9 @@
 # Conclusions
 
-In this paper, we investigate the giving price elasticity and its heterogeneity as for perception towards the government using South Korean panel data. As a result, we obtain two findings.
+In this paper, we investigate the giving price elasticity using South Korean panel data. As a result, we obtain the following findings.
 
-Firstly, the estimation shows that the giving price elasticity in Korea is larger than 1 in the sense of absolute value. Although the estimated values seem vulnerable for the estimation method, most of results show that the giving price elasticity is more elastic for extensive margin than intensive margin. This implies that the policymakers should consider not only how much donors additionally pay (intensive margin) but also how many people will be donors (extensive margin) for tax reform.
+Firstly, the estimation shows that the giving price elasticity in Korea is larger than 1 in the sense of absolute value. Since the standard theoretical literature suggests that if the price elasticity is more elastic than 1 in the sense of absolute value, the subsidy for the charitable giving should be increased [@Saez2004]. Thus, the result suggests that the Korean government should increase the subsidy for the charitable giving.
 
-Secondly, we show that the giving price elasticity for those who think that the government is inefficient is more elastic than the others. Although the previous research shows that those who do not believe the efficiency of the government would donate more than the others, our result firstly shows that such a behavior may depend on the giving price. 
+Secondly, we find that, although some of the estimated values seem vulnerable depending on the estimation method, most of the results show that the giving price elasticity is more elastic for extensive margin than intensive margin. Since the extensive margin was not paid much attention to in the literature, this result suggests that the consideration about the extensive margin is important.
 
-From the results, we show that the giving price elasticity would be affected by the efficiency of the government. However, researchers may find the difference of giving behavior as for the other dimensions of heterogeneities. To understand the giving behavior and to contribute the policy making, more sophisticated research is neeeded.
+From the results, we firstly show the giving price elasticity in Korea. However, many things to be considered are remaining. To understand the giving behavior and to contribute the policy making, more sophisticated research is needed.
