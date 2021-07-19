@@ -208,6 +208,39 @@ list(est_benefit1, est_benefit2) %>%
 
 #' ### Panel IV Results
 #'
+#' 推定モデルは
+#'
+#' $$
+#' \ln g_{it}^*
+#' = \alpha_i + \delta_i \ln(1 - m D_{it}^*) +
+#' X_{it} \beta + \lambda_t + \epsilon_{it}
+#' $$
+#'
+#' Switching regression modelの考え方を使えば、
+#'
+#' $$
+#' \ln g_{it}^*
+#' = \alpha_i + \delta_i \ln(1 - m) D_{it}^* +
+#' X_{it} \beta + \lambda_t + \epsilon_{it}
+#' $$
+#'
+#' よって、
+#'
+#' $$
+#' \ln g_{it}^*
+#' = \alpha_i + \gamma_i D_{it}^* +
+#' X_{it} \beta + \lambda_t + \epsilon_{it}
+#' $$
+#'
+#' ここで、推定したいパラメータは$\gamma_i = \delta_i \ln (1-m)$であり、
+#' implied elasticityは
+#'
+#' $$
+#'  \delta_i = \frac{\hat{\gamma}_i}{\ln (1 - m)}
+#' $$
+#'
+#' で得られる
+#'
 #' Panel IVのメッセージ：
 #' 個人固定効果を除いてもtax receiveの効果は統計的に非有意であった。
 #' というか、(1)値を除いて、F値が弱すぎる
