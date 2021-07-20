@@ -1,6 +1,6 @@
 ---
 title: |
-  Charitable Giving, Tax Reform, and Government Efficiency
+  Charitable Giving, Tax Reform, and Self-selection of Tax Report: Evidence from South Korea
 #thanks: 
 #  - code: 1
 #    content: |
@@ -28,75 +28,50 @@ footnote:
   - code: \*
     text: "Corresponding Author."
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
-bibliography: manuscript/Ref.bib
+bibliography: Rmarkdown/Ref.bib
 csl: template/elsevier-harvard.csl
-review: yes  #Elsevier Template
-classoption: 3p  #Elsevier Template
 abstract: |
   This paper investigates (1) the price elasticity of giving and (2) whether the different perception towards the government cause the different giving behavior using South Korean panel data. Our result classifies that the price elasticity of giving in Korea is -0.59 ~ -1.01 for intensive margin and -1.17 ~ -1.48 for extensive margin. We also show that the amount of donation is not different between those who regard government as inefficient and the others, though the giving price elasticity of the former is more elastic than the latter. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price. 
 keyword:
   text: "Charitable giving, Giving price, Tax reform, Governement efficiency, South Korea"
   JEL: D91, I10, I18
+documentclass: article
+output:
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    number_sections: yes
+    keep_tex: yes
+    fig_caption: yes
+    toc: false
+    dev: cairo_pdf
+    includes:
+      in_header: 
+        - template/draft_header.tex
 ---
 
 ```{r setup, include = FALSE, echo = FALSE}
-library(here)
 knitr::opts_chunk$set(
-  message = FALSE, 
-  warning = FALSE, 
-  echo = FALSE, 
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
   cache = FALSE,
-  include = FALSE,
+  include = TRUE,
   fig.width = 10, fig.height = 6,
-  fig.align = "center",
-  fig.pos = "t"
+  fig.align = "center", fig.pos = "t"
 )
+
+library(here)
 knitr::opts_knit$set(root.dir = here())
+
+doctype <- "draft"
 ```
 
-```{r library}
-library(xfun)
-xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
-xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
-xfun::pkg_attach2(c("kableExtra"))
-source("script/R/00-analysis_functions.r")
-options(knitr.kable.NA = "")
+```{r child = "Rmarkdown/introduction.Rmd"}
 ```
 
-```{r GGTemp}
-my_theme <- theme_minimal() +
-  theme(
-    # setting: background
-    plot.background = element_rect(
-      #fill="#87CEEB50", 
-      color = "transparent"
-    ),
-    
-    # setting: plot
-    panel.border = element_rect(color = "white", fill = NA),
-    panel.background = element_rect(fill = "white"),   
-    panel.grid = element_line(color = "grey80"),
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.minor.y = element_blank(),
-    
-    # setting: text
-    plot.title = element_text(hjust=0.5,size=20),       
-    plot.caption = element_text(size=11),       
-    
-    # setting: axis
-    axis.text = element_text(color="black",size=13),    
-    axis.title = element_text(size=13),
-    axis.ticks.length = unit(0.25, "cm"),
-    axis.ticks.x = element_line(),
-    axis.ticks.y = element_line(),
-    axis.line = element_line(),
-    
-    # setting: legend
-    legend.title = element_text(size=12),               
-    legend.text = element_text(size=12),                
-    legend.key.size = unit(0.5,"cm"),
-    #legend.background = element_rect(color = "black"), 
-    legend.position = "bottom"
-  )
+```{r child = "Rmarkdown/1-summary.Rmd"}
 ```
+
+\clearpage
+
+# References {#references .unnumbered .allowframebreaks}
