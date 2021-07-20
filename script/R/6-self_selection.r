@@ -152,7 +152,8 @@ xlist <- list(
   ~ employee + log_pinc_all + age + sqage +
     factor(year):factor(educ) + factor(year):factor(gender),
   ~ employee + log_pinc_all + age + sqage +
-    factor(year):factor(educ) + factor(year):factor(gender) + factor(indust)
+    factor(year):factor(educ) + factor(year):factor(gender) +
+    factor(year):factor(indust)
 )
 
 xlist_tab <- tribble(
@@ -238,8 +239,8 @@ estiv_benefit1 <- xlist %>%
     y = log_total_g ~ .,
     x = update(., ~ . - employee),
     z = int_price_benefit ~ employee,
-    fixef = ~ year, cluster = ~ hhid,
-    data = subset(df, 2014 <= year & year <= 2017)
+    fixef = ~ year, cluster = ~ pid,
+    data = df
   ))
 
 estiv_benefit2 <- xlist %>%
@@ -247,8 +248,8 @@ estiv_benefit2 <- xlist %>%
     y = log_total_g ~ .,
     x = update(., ~ . - employee),
     z = int_price_benefit ~ employee,
-    fixef = ~year + pid, cluster = ~ hhid,
-    data = subset(df, 2014 <= year & year <= 2017)
+    fixef = ~year + pid, cluster = ~ pid,
+    data = df
   ))
 
 ivfstat <- list(estiv_benefit1, estiv_benefit2) %>%
@@ -263,16 +264,6 @@ ivfstat_tab <- ivfstat %>%
   mutate_all(list(~ sprintf("%1.3f", .))) %>%
   mutate(vars = "Fstat of IV", stat = "vars")
 
-waldtest <- list(estiv_benefit1, estiv_benefit2) %>%
-  purrr::map_depth(2, ~ felm_wald(
-    .,
-    hypo = list("Implied elasticity" = "a * `int_price_benefit(fit)`"),
-    args = list(a = 1 / log(1 - 0.15))
-  )) %>%
-  purrr::map(~ reduce(., full_join, by = c("vars", "stat"))) %>%
-  reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
-
 xlist_duptab <- xlist_tab %>%
   full_join(xlist_tab, by = c("vars", "stat")) %>%
   setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
@@ -281,9 +272,119 @@ list(estiv_benefit1, estiv_benefit2) %>%
   flatten() %>%
   felm_regtab(
     keep_coef = "int_price_benefit",
-    label_coef = list("`int_price_benefit(fit)`" = "Receive tax benefit")
+    label_coef = list("`int_price_benefit(fit)`" = "Report x log(first price)")
   ) %>%
-  regtab_addline(list(waldtest, ivfstat_tab, xlist_duptab)) %>%
+  regtab_addline(list(ivfstat_tab, xlist_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
+    align = "lcccccc"
+  ) %>%
+  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
+  kable_styling()
+
+#'
+#' extensive-marginを検証する
+#'
+#+
+estiv_benefit1_ext <- xlist %>%
+  purrr::map(~ est_felm(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - employee),
+    z = int_price_benefit ~ employee,
+    fixef = ~year, cluster = ~pid,
+    data = df
+  ))
+
+estiv_benefit2_ext <- xlist %>%
+  purrr::map(~ est_felm(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - employee),
+    z = int_price_benefit ~ employee,
+    fixef = ~ year + pid, cluster = ~pid,
+    data = df
+  ))
+
+waldtest_ext <- list(estiv_benefit1_ext, estiv_benefit2_ext) %>%
+  purrr::map_depth(2, ~ felm_wald(
+    .,
+    hypo = list("Implied elasticity" = "a * `int_price_benefit(fit)`"),
+    args = list(a = 1 / mean(.$response))
+  )) %>%
+  purrr::map(~ reduce(., full_join, by = c("vars", "stat"))) %>%
+  reduce(full_join, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
+
+ivfstat_ext <- list(estiv_benefit1_ext, estiv_benefit2_ext) %>%
+  purrr::map_depth(2, ~ .$stage1$iv1fstat$int_price_benefit["F"]) %>%
+  purrr::map(~ as_vector(.)) %>%
+  as_vector() %>%
+  matrix(nrow = 1) %>%
+  data.frame() %>%
+  setNames(paste0("reg", seq_len(length(xlist) * 2)))
+
+ivfstat_ext_tab <- ivfstat_ext %>%
+  mutate_all(list(~ sprintf("%1.3f", .))) %>%
+  mutate(vars = "Fstat of IV", stat = "vars")
+
+list(estiv_benefit1_ext, estiv_benefit2_ext) %>%
+  flatten() %>%
+  felm_regtab(
+    keep_coef = "int_price_benefit",
+    label_coef = list("`int_price_benefit(fit)`" = "Report x log(first price)")
+  ) %>%
+  regtab_addline(list(waldtest_ext, ivfstat_tab, xlist_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
+    align = "lcccccc"
+  ) %>%
+  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
+  kable_styling()
+
+#'
+#' intensive-marginを検証する
+#'
+#+
+estiv_benefit1_int <- xlist %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee),
+    z = int_price_benefit ~ employee,
+    fixef = ~year, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1)
+  ))
+
+estiv_benefit2_int <- xlist %>%
+  purrr::map(~ est_felm(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee),
+    z = int_price_benefit ~ employee,
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1)
+  ))
+
+ivfstat_int <- list(estiv_benefit1_int, estiv_benefit2_int) %>%
+  purrr::map_depth(2, ~ .$stage1$iv1fstat$int_price_benefit["F"]) %>%
+  purrr::map(~ as_vector(.)) %>%
+  as_vector() %>%
+  matrix(nrow = 1) %>%
+  data.frame() %>%
+  setNames(paste0("reg", seq_len(length(xlist) * 2)))
+
+ivfstat_int_tab <- ivfstat_int %>%
+  mutate_all(list(~ sprintf("%1.3f", .))) %>%
+  mutate(vars = "Fstat of IV", stat = "vars")
+
+list(estiv_benefit1_int, estiv_benefit2_int) %>%
+  flatten() %>%
+  felm_regtab(
+    keep_coef = "int_price_benefit",
+    label_coef = list("`int_price_benefit(fit)`" = "Report x log(first price)")
+  ) %>%
+  regtab_addline(list(ivfstat_int_tab, xlist_duptab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
