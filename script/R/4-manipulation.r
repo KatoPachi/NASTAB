@@ -10,45 +10,8 @@ library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist", "patchwork"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 xfun::pkg_attach2("kableExtra")
-source("script/R/00-analysis_functions.r")
 
-#' 以下、ggplot2のテンプレート
-#+
-my_theme <- theme_minimal() +
-  theme(
-    # setting: background
-    plot.background = element_rect(
-      #fill="#87CEEB50",
-      color = "transparent"
-    ),
-
-    # setting: plot
-    panel.border = element_rect(color = "white", fill = NA),
-    panel.background = element_rect(fill = "white"),
-    panel.grid = element_line(color = "grey80"),
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.minor.y = element_blank(),
-
-    # setting: text
-    plot.title = element_text(hjust = 0.5, size = 20),
-    plot.caption = element_text(size = 11),
-
-    # setting: axis
-    axis.text = element_text(color = "black", size = 13),
-    axis.title = element_text(size = 13),
-    axis.ticks.length = unit(0.25, "cm"),
-    axis.ticks.x = element_line(),
-    axis.ticks.y = element_line(),
-    axis.line = element_line(),
-
-    # setting: legend
-    legend.title = element_text(size = 12),
-    legend.text = element_text(size = 12),
-    legend.key.size = unit(0.5, "cm"),
-    #legend.background = element_rect(color = "black"),
-    legend.position = "bottom"
-  )
+lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 
 #' ## データの読み込み
 #'

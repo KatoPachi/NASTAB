@@ -1,7 +1,7 @@
 #' from R script to Rmd file
 #+
 knitr::spin(
-    "./script/R/censored_model.r",
+    "./script/R/6-self_selection.r",
     knit = FALSE
 )
 
@@ -10,8 +10,8 @@ knitr::spin(
 
 # HTML file
 rmarkdown::render(
-    "./manuscript/issue71.rmd",
-    output_file = "issue71.html",
+    "./manuscript/6-self_selection.rmd",
+    output_file = "issue76.html",
     output_dir = "report"
 )
 
