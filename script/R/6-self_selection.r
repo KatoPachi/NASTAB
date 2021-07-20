@@ -4,7 +4,9 @@
 #+
 library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
-xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula", "censReg"))
+xfun::pkg_attach2(
+  c("plm", "lmtest", "fixest", "sandwich", "lfe", "Formula", "censReg")
+)
 xfun::pkg_attach2("kableExtra")
 
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
@@ -23,6 +25,7 @@ df <- read.dta13("data/shaped.dta") %>%
     log_pinc_all = log(lincome + 100000),
     ext_benefit = if_else(year >= 2014, ext_credit_giving, ext_deduct_giving)
   ) %>%
+  mutate(int_price_benefit = log_price * ext_benefit) %>%
   filter(year >= 2012 & age >= 24)
 
 #'
@@ -140,22 +143,6 @@ df %>%
   ggtemp()
 
 #'
-#' ### First-stage estimation
-#'
-#' 2014~2017年に限定してemployeeが申請控除に与える影響を線形確率モデルで推定する
-#' はじめに、雇用形態にwithin-variationがある人の割合を見ておく
-#'
-#+
-df %>%
-  group_by(pid) %>%
-  summarize_at(vars(employee), list(~sd(., na.rm = TRUE))) %>%
-  mutate(employee = if_else(employee > 0, 1, 0)) %>%
-  ungroup() %>%
-  with(table(employee)) %>%
-  kable() %>%
-  kable_styling()
-
-#'
 #' 申請控除の線形確率モデルのメッセージ：
 #' employeeは控除申請に正の影響を与えるが、個人固定効果を加えるとその効果がなくなる
 #'
@@ -181,14 +168,14 @@ xlist_tab <- tribble(
 
 est_benefit1 <- xlist %>%
   purrr::map(~ est_felm(
-    y = ext_benefit ~ ., x = .,
+    y = int_price_benefit ~ ., x = .,
     fixef = ~ year, cluster = ~ pid,
     data = subset(df, 2014 <= year & year <= 2017)
   ))
 
 est_benefit2 <- xlist %>%
   purrr::map(~ est_felm(
-    y = ext_benefit ~ ., x = .,
+    y = int_price_benefit ~ ., x = .,
     fixef = ~year + pid, cluster = ~pid,
     data = subset(df, 2014 <= year & year <= 2017)
   ))
@@ -250,7 +237,7 @@ estiv_benefit1 <- xlist %>%
   purrr::map(~ est_felm(
     y = log_total_g ~ .,
     x = update(., ~ . - employee),
-    z = ext_benefit ~ employee,
+    z = int_price_benefit ~ employee,
     fixef = ~ year, cluster = ~ hhid,
     data = subset(df, 2014 <= year & year <= 2017)
   ))
@@ -259,13 +246,13 @@ estiv_benefit2 <- xlist %>%
   purrr::map(~ est_felm(
     y = log_total_g ~ .,
     x = update(., ~ . - employee),
-    z = ext_benefit ~ employee,
+    z = int_price_benefit ~ employee,
     fixef = ~year + pid, cluster = ~ hhid,
     data = subset(df, 2014 <= year & year <= 2017)
   ))
 
 ivfstat <- list(estiv_benefit1, estiv_benefit2) %>%
-  purrr::map_depth(2, ~ .$stage1$iv1fstat$ext_benefit["F"]) %>%
+  purrr::map_depth(2, ~ .$stage1$iv1fstat$int_price_benefit["F"]) %>%
   purrr::map(~ as_vector(.)) %>%
   as_vector() %>%
   matrix(nrow = 1) %>%
@@ -279,7 +266,7 @@ ivfstat_tab <- ivfstat %>%
 waldtest <- list(estiv_benefit1, estiv_benefit2) %>%
   purrr::map_depth(2, ~ felm_wald(
     .,
-    hypo = list("Implied elasticity" = "a * `ext_benefit(fit)`"),
+    hypo = list("Implied elasticity" = "a * `int_price_benefit(fit)`"),
     args = list(a = 1 / log(1 - 0.15))
   )) %>%
   purrr::map(~ reduce(., full_join, by = c("vars", "stat"))) %>%
@@ -293,8 +280,8 @@ xlist_duptab <- xlist_tab %>%
 list(estiv_benefit1, estiv_benefit2) %>%
   flatten() %>%
   felm_regtab(
-    keep_coef = "ext_benefit",
-    label_coef = list("`ext_benefit(fit)`" = "Receive tax benefit")
+    keep_coef = "int_price_benefit",
+    label_coef = list("`int_price_benefit(fit)`" = "Receive tax benefit")
   ) %>%
   regtab_addline(list(waldtest, ivfstat_tab, xlist_duptab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
@@ -304,115 +291,4 @@ list(estiv_benefit1, estiv_benefit2) %>%
     align = "lcccccc"
   ) %>%
   add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
-
-#' ## 雇用形態を操作変数としてIV推定（Cross-sectional data）
-#'
-#' 2012~2018年までのデータを用いた価格弾力性の推定（baseline model）を用いて、
-#' Fixed effectを推定する。
-#' これを共変量でダイレクトのコントロールしてみる。
-#+
-overall <- est_felm(
-  y = log_total_g ~ .,
-  x = ~ log_price + log_pinc_all + age + sqage + factor(year):factor(educ) +
-    factor(year):factor(gender) + factor(year):factor(living_area),
-  fixef = ~ year + pid, cluster = ~ pid,
-  data = df
-)
-
-fedt <- getfe(overall) %>%
-  tibble() %>%
-  dplyr::filter(fe == "pid") %>%
-  mutate(pid = as.numeric(as.character(idx))) %>%
-  dplyr::select(effect, pid)
-
-df <- df %>% left_join(fedt, by = "pid")
-
-#'
-#' Panel IVでやった結果が以下の通り
-#' この表のメッセージは、「さっきと結果はさほど変わらない」
-#'
-#+
-estiv_benefit3 <- xlist %>%
-  purrr::map(~ est_felm(
-    y = log_total_g ~ .,
-    x = update(., ~ . - employee + effect),
-    z = ext_benefit ~ employee,
-    fixef = ~ year, cluster = ~hhid,
-    data = subset(df, 2014 <= year & year <= 2017)
-  ))
-
-ivfstat <- estiv_benefit3 %>%
-  purrr::map(~ .$stage1$iv1fstat$ext_benefit["F"]) %>%
-  as_vector() %>%
-  matrix(nrow = 1) %>%
-  data.frame() %>%
-  setNames(paste0("reg", seq_len(length(xlist))))
-
-ivfstat_tab2 <- ivfstat %>%
-  mutate_all(list(~ sprintf("%1.3f", .))) %>%
-  mutate(vars = "Fstat of IV", stat = "vars")
-
-waldtest2 <- estiv_benefit3 %>%
-  purrr::map(~ felm_wald(
-    .,
-    hypo = list("Implied elasticity" = "a * `ext_benefit(fit)`"),
-    args = list(a = 1 / log(1 - 0.15))
-  )) %>%
-  reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist)))))
-
-estiv_benefit3 %>%
-  felm_regtab(
-    keep_coef = "ext_benefit",
-    label_coef = list("`ext_benefit(fit)`" = "Receive tax benefit")
-  ) %>%
-  regtab_addline(list(waldtest2, ivfstat_tab2, xlist_tab)) %>%
-  mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
-  kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
-    align = "lccc"
-  ) %>%
-  add_header_above(c("", "w/o individual FE but w/ estimated FE" = 3)) %>%
-  kable_styling()
-
-#'
-#' Panel IVではなく、2014~2017年の各年でデータを分割してIV推定を行う
-#'
-#+
-yeq <- log_total_g ~ .
-xeq <- ~ employee + log_pinc_all + age + sqage + effect +
-  factor(educ) + factor(gender) + factor(indust)
-zeq <- ext_benefit ~ employee
-
-estiv3_benefit <- df %>%
-  dplyr::filter(2014 <= year & year <= 2017) %>%
-  group_by(year) %>%
-  do(iv = est_felm(y = yeq, x = xeq, z = zeq, data = .))
-
-estiv3_fstat <- estiv3_benefit$iv %>%
-  purrr::map(~ .$stage1$iv1fstat$ext_benefit["F"]) %>%
-  as_vector() %>%
-  matrix(nrow = 1) %>%
-  data.frame() %>%
-  setNames(paste0("reg", seq_len(nrow(estiv3_benefit))))
-
-iv3fstat_tab <- estiv3_fstat %>%
-  mutate_all(list(~ sprintf("%1.3f", .))) %>%
-  mutate(vars = "Fstat of IV", stat = "vars")
-
-estiv3_benefit$iv %>%
-  felm_regtab(
-    .,
-    keep_coef = "ext_benefit",
-    label_coef = list("`ext_benefit(fit)`" = "Receive tax benefit")
-  ) %>%
-  regtab_addline(list(iv3fstat_tab)) %>%
-  mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
-  kable(
-    col.names = c("", sprintf("Year = %4d", 2014:2017)),
-    align = "lcccc"
-  ) %>%
   kable_styling()
