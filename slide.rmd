@@ -1,0 +1,72 @@
+---
+title: |
+  Charitable Giving, Tax Reform, and Self-selection of Tax Report: Evidence from South Korea
+#thanks: 
+#  - code: 1
+#    content: |
+#      This research is base on
+author: 
+  - name: Hiroki Kato
+    affiliation: Osaka University
+    e-mail: vge008kh\@stundent.econ.osaka-u.ac.jp
+    code: 1
+    footnote: \*
+  - name: Tsuyoshi Goto
+    affiliation: Chiba University
+    code: 2
+  - name: Yong-Rok Kim
+    affiliation: Kobe University
+    code: 3
+address:
+  - code: Osaka University
+    address: Graduate School of Economics, Osaka University, Japan
+  - code: Chiba University
+    address: Graduate School of Social Sciences, Chiba University, Japan
+  - code: Kobe University
+    address: Graduate School of Economics, Kobe University, Japan
+footnote:
+  - code: \*
+    text: "Corresponding Author."
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+bibliography: Rmarkdown/Ref.bib
+csl: template/elsevier-harvard.csl
+classoption: "aspectratio=169"
+output:
+  bookdown::pdf_book:
+    base_format: "function(..., number_sections) rmarkdown::beamer_presentation(...)"
+    number_sections: false
+    latex_engine: xelatex
+    keep_tex: true
+    toc: false
+    slide_level: 2
+    includes:
+      in_header:
+        - template/slide_header.tex
+---
+
+```{r setup, include = FALSE, echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE,
+  fig.width = 10, fig.height = 6,
+  fig.align = "center", fig.pos = "t"
+)
+
+library(here)
+knitr::opts_knit$set(root.dir = here())
+
+doctype <- "slide"
+```
+
+```{r child = "Rmarkdown/introduction.Rmd"}
+```
+
+```{r child = "Rmarkdown/1-summary.Rmd"}
+```
+
+\clearpage
+
+# References {#references .unnumbered .allowframebreaks}
