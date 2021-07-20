@@ -3,7 +3,7 @@
 #' パッケージのロード
 #+
 library(xfun)
-xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
+xfun::pkg_attach2(c("tidyverse", "rlist"))
 xfun::pkg_attach2(
   c("plm", "lmtest", "fixest", "sandwich", "lfe", "Formula", "censReg")
 )
@@ -13,20 +13,20 @@ lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 
 #' データのロード
 #+
-df <- read.dta13("data/shaped.dta") %>%
-  data.frame() %>%
-  mutate(
-    log_price = log(price),
-    log_lprice = log(lprice),
-    log_iv1price = log(iv1price),
-    log_iv2price = log(iv2price),
-    log_iv3price = log(iv3price),
-    log_total_g = log(i_total_giving + 1),
-    log_pinc_all = log(lincome + 100000),
-    ext_benefit = if_else(year >= 2014, ext_credit_giving, ext_deduct_giving)
-  ) %>%
-  mutate(int_price_benefit = log_price * ext_benefit) %>%
-  filter(year >= 2012 & age >= 24)
+df <- readr::read_csv(
+  "data/shaped2.csv",
+  col_types = cols(
+    ext_credit_giving = col_double(),
+    krw_credit_giving = col_double(),
+    trust_politician = col_double(),
+    political_pref = col_double(),
+    addtax = col_double(),
+    avg_welfare_tax = col_double(),
+    opt_welfare_tax = col_double(),
+    now_balance = col_double(),
+    ideal_balance = col_double()
+  )
+)
 
 #'
 #' ## 寄付の税申告ファクトの整理

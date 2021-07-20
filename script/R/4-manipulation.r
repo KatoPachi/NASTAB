@@ -7,7 +7,7 @@
 #' パッケージのロード
 #+
 library(xfun)
-xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist", "patchwork"))
+xfun::pkg_attach2(c("tidyverse", "rlist", "patchwork"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 xfun::pkg_attach2("kableExtra")
 
@@ -26,18 +26,22 @@ mtrdt <- read_csv("data/origin/mtrdt.csv") %>%
   group_by(year) %>%
   mutate(to_next_price = dplyr::lead(lower_income_10000won))
 
-df <- read.dta13("data/shaped.dta") %>%
-  data.frame() %>%
-  mutate(
-    log_price = log(price),
-    log_lprice = log(lprice),
-    log_iv1price = log(iv1price),
-    log_iv2price = log(iv2price),
-    log_iv3price = log(iv3price),
-    log_total_g = log(i_total_giving + 1),
-    log_pinc_all = log(lincome + 100000),
-  ) %>%
-  filter(year >= 2012 & age >= 24) %>%
+df <- readr::read_csv(
+  "data/shaped2.csv",
+  col_types = cols(
+    ext_credit_giving = col_double(),
+    krw_credit_giving = col_double(),
+    trust_politician = col_double(),
+    political_pref = col_double(),
+    addtax = col_double(),
+    avg_welfare_tax = col_double(),
+    opt_welfare_tax = col_double(),
+    now_balance = col_double(),
+    ideal_balance = col_double()
+  )
+)
+
+df <- df %>%
   mutate(price = round(price, 2)) %>%
   left_join(mtrdt, by = c("year", "price")) %>%
   mutate(dist_to_next_price = to_next_price - lincome)
