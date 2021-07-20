@@ -1,7 +1,7 @@
 #' from R script to Rmd file
 #+
 knitr::spin(
-    "./script/R/6-self_selection.r",
+    "./script/R/1-summary.r",
     knit = FALSE
 )
 
