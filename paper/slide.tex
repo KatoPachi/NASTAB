@@ -8,6 +8,8 @@
 \usepackage{pgfpages}
 \setbeamertemplate{caption}[numbered]
 \setbeamertemplate{caption label separator}{: }
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[page number]
 \setbeamercolor{caption name}{fg=normal text.fg}
 \beamertemplatenavigationsymbolsempty
 % Prevent slide breaks in the middle of a paragraph
@@ -43,15 +45,21 @@
 \AtBeginSubsection{
   \frame{\subsectionpage}
 }
+\usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{amsmath}
-\usepackage{ifxetex,ifluatex}
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+\usepackage{iftex}
+\ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
-  \usepackage{amssymb}
 \else % if luatex or xetex
+  \ifXeTeX
+    \usepackage{xltxtra} 
+    \usepackage{xeCJK}
+    \setCJKmainfont{ipaexm.ttf}
+    \setCJKsansfont{ipaexg.ttf}
+    \setCJKmonofont{ipaexg.ttf}
+  \fi
   \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
@@ -81,53 +89,47 @@
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
 \newif\ifbibliography
-\usepackage{longtable,booktabs}
+\usepackage{longtable,booktabs,array}
+\usepackage{threeparttable, threeparttablex, multirow}
 \usepackage{calc} % for calculating minipage widths
 \usepackage{caption}
 % Make caption package work with longtable
 \makeatletter
 \def\fnum@table{\tablename~\thetable}
 \makeatother
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-\setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{footline}[page number]
-
-\usepackage{bookmark}
-\usepackage{booktabs}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage{multirow}
-\usepackage{array}
-
-\usepackage{xltxtra} 
-% \usepackage{zxjatype} 
-\usepackage{xeCJK}
-\setCJKmainfont{ipaexm.ttf}
-\setCJKsansfont{ipaexg.ttf}
-\setCJKmonofont{ipaexg.ttf}
-
-% \usepackage{zxjatype}
-% \setCJKmainfont[]{Meiryo}
-% \setsansfont[Scale = 1.1]{Calibri}  % or Arial (Scale = 1)
-\ifluatex
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
 \newlength{\cslhangindent}
 \setlength{\cslhangindent}{1.5em}
 \newlength{\csllabelwidth}
 \setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
 \newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
  {% don't indent paragraphs
   \setlength{\parindent}{0pt}
   % turn on hanging indent if param 1 is 1
-  \ifodd #1 \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces\fi
-  % set entry spacing
-  \ifnum #2 > 0
-  \setlength{\parskip}{#2\baselineskip}
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
   \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
  }%
  {}
 \usepackage{calc}
@@ -135,10 +137,17 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
 
 \title{Charitable Giving, Tax Reform, and Self-selection of Tax Report: Evidence from South Korea}
-\author{true \and true \and true}
+
+
+            \author[shortname]{ Hiroki Kato  Tsuyoshi Goto  Yong-Rok Kim }
+        
 \date{2021/07/21}
+
 
 \begin{document}
 \frame{\titlepage}

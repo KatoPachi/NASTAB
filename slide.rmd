@@ -31,6 +31,7 @@ date: "`r format(Sys.time(), '%Y/%m/%d')`"
 bibliography: Rmarkdown/Ref.bib
 csl: template/elsevier-harvard.csl
 classoption: "aspectratio=169"
+graphics: yes
 output:
   bookdown::pdf_book:
     base_format: "function(..., number_sections) rmarkdown::beamer_presentation(...)"
@@ -39,9 +40,7 @@ output:
     keep_tex: true
     toc: false
     slide_level: 2
-    includes:
-      in_header:
-        - template/slide_header.tex
+    template: template/default_authblk.tex
 ---
 
 ```{r setup, include = FALSE, echo = FALSE}

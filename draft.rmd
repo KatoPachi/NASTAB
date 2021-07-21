@@ -36,6 +36,7 @@ keyword:
   text: "Charitable giving, Giving price, Tax reform, Governement efficiency, South Korea"
   JEL: D91, I10, I18
 documentclass: article
+graphics: yes
 output:
   bookdown::pdf_document2:
     latex_engine: xelatex
@@ -44,9 +45,7 @@ output:
     fig_caption: yes
     toc: false
     dev: cairo_pdf
-    includes:
-      in_header: 
-        - template/draft_header.tex
+    template: template/default_authblk.tex
 ---
 
 ```{r setup, include = FALSE, echo = FALSE}
@@ -60,8 +59,8 @@ knitr::opts_chunk$set(
   fig.align = "center", fig.pos = "t"
 )
 
-library(here)
-knitr::opts_knit$set(root.dir = here())
+library(here); knitr::opts_knit$set(root.dir = here())
+xfun::pkg_attach2(c("tidyverse", "kableExtra"))
 
 doctype <- "draft"
 ```
