@@ -21,10 +21,6 @@ df <- df %>%
     log_total_g = log(i_total_giving + 1),
     log_pinc_all = log(lincome + 100000)
   ) %>%
-  mutate(
-    ext_benefit = if_else(year >= 2014, ext_credit_giving, ext_deduct_giving),
-    int_price_benefit = log_price * ext_benefit
-  ) %>%
   group_by(pid) %>%
   mutate(
     lag1_log_total_g = dplyr::lag(log_total_g, order_by = year),
@@ -60,18 +56,42 @@ df <- df %>%
 #+
 df <- df %>% filter(year >= 2012 & age >= 24)
 
-#' 雇用データを加えるために、オリジナルのデータを処理する
+#' 雇用データと総合所得の申請変数を加えるために、オリジナルのデータを処理する
 #+
 original <- haven::read_dta("data/merge/merge.dta") %>%
   as_tibble() %>%
-  dplyr::select(pid, year, p_aa005, paa008) %>%
+  dplyr::select(pid, year, p_aa005, paa008, pda207, pda209) %>%
   mutate(employee = if_else(p_aa005 == 1, 1, 0)) %>%
+  mutate(
+    ext_deduct_giving_tincome = case_when(
+      as.numeric(pda207) == -9 ~ NA_real_,
+      as.numeric(pda207) == 1 ~ 1,
+      as.numeric(pda207) == 2 ~ 0,
+      TRUE ~ NA_real_
+    ),
+    ext_credit_giving_tincome = case_when(
+      as.numeric(pda209) == -9 ~ NA_real_,
+      as.numeric(pda209) == 1 ~ 1,
+      as.numeric(pda209) == 2 ~ 0,
+      TRUE ~ NA_real_
+    ),
+    ext_benefit_tinc = if_else(
+      year >= 2014, ext_credit_giving_tincome, ext_deduct_giving_tincome
+    )
+  ) %>%
   rename(indust = paa008) %>%
-  dplyr::select(-p_aa005)
+  dplyr::select(-p_aa005, -pda207, -pda209)
 
 #' 既存のデータにマージする
 #+
-df <- df %>% left_join(original, by = c("pid", "year"))
+df <- df %>%
+  left_join(original, by = c("pid", "year")) %>%
+  mutate() %>%
+  mutate(
+    ext_benefit = if_else(year >= 2014, ext_credit_giving, ext_deduct_giving),
+    ext_benefit = if_else(ext_benefit == 1 | ext_benefit_tinc == 1, 1, 0),
+    int_price_benefit = log_price * ext_benefit
+  )
 
 #' CSVファイルに書き出す
 #+

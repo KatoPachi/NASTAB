@@ -4,9 +4,7 @@
 #+
 library(xfun)
 xfun::pkg_attach2(c("tidyverse", "rlist"))
-xfun::pkg_attach2(
-  c("plm", "lmtest", "fixest", "sandwich", "lfe", "Formula", "censReg")
-)
+xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula", "censReg"))
 xfun::pkg_attach2("kableExtra")
 
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
@@ -112,17 +110,6 @@ df %>%
 #'     - 国際および外国機関
 #'
 #' `p_aa005`で常用職かどうかのダミー変数を作成する。`paa008`は共変量としてコントロールする
-#+
-original <- read.dta13("data/merge/merge.dta") %>%
-  data.frame() %>%
-  dplyr::select(pid, year, p_aa005, paa008) %>%
-  mutate(employee = if_else(p_aa005 == 1, 1, 0)) %>%
-  rename(indust = paa008) %>%
-  dplyr::select(-p_aa005)
-
-df <- df %>%
-  left_join(original, by = c("pid", "year"))
-
 #'
 #' employeeかどうかで控除申請に差があるかどうかを記述統計で確認する
 #'
