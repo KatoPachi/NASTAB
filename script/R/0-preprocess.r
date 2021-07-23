@@ -107,7 +107,11 @@ df <- df %>%
     ext_benefit_t = if_else(
       year >= 2014, ext_credit_giving_tincome, ext_deduct_giving_tincome
     ),
-    ext_benefit_tl = if_else(ext_benefit_t == 1 | ext_benefit_l == 1, 1, 0),
+    ext_benefit_tl = case_when(
+      ext_benefit_l == 1 ~ 1,
+      ext_benefit_t == 1 ~ 1,
+      ext_benefit_t == 0 & ext_benefit_l == 0 ~ 0
+    ),
     int_price_benefit = log_price * ext_benefit_tl
   )
 
