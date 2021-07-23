@@ -38,47 +38,23 @@ df <- readr::read_csv(
 #' **メッセージ：税制改革以降のtax reportは過半数を下回る。**
 #+
 df %>%
-  with(table(year, ext_benefit_tl, useNA = "always")) %>%
-  kable(
-    col.names = c("Not tax report", "Tax report", "NA"),
-    align = "ccc"
-  ) %>%
-  kable_styling()
-
-#'
-#' 2013年の相対寄付価格と比較して、
-#' 2014年の制度改革によって、寄付価格が増加・変化しない・減少するグループに分けて、
-#' 税控除申請比率の推移を確認する。
-#'
-#' **メッセージ：2013年の相対寄付価格が低いほど、申請比率は高い**
-#'
-#+
-df %>%
-  group_by(year, credit_neutral, credit_benefit, credit_loss) %>%
-  summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
-  ungroup() %>%
-  mutate(group = case_when(
-    credit_loss == 1 ~ "loss",
-    credit_neutral == 1 ~ "neutral",
-    credit_benefit == 1 ~ "benefit"
-  )) %>%
-  mutate(group = factor(
-    group,
-    levels = c("loss", "neutral", "benefit"),
-    labels = c(
-      "2013 giving price < 0.85",
-      "2013 giving price = 0.85",
-      "2013 giving price > 0.85"
+  group_by(year) %>%
+  summarize_at(
+    vars(ext_benefit_t, ext_benefit_tl), 
+    list(
+      Yes = ~sum((. == 1), na.rm = TRUE),
+      No = ~sum((. == 0), na.rm = TRUE)
     )
-  )) %>%
-  filter(!is.na(group)) %>%
-  ggplot(aes(x = year, y = ext_benefit_tl, group = group)) +
-  geom_point(aes(shape = group), color = "black", size = 3) +
-  geom_line(aes(linetype = group), size = 1) +
-  geom_vline(aes(xintercept = 2013.5)) +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
-  labs(y = "share of tax report", linetype = "", shape = "") +
-  ggtemp()
+  ) %>%
+  kable(
+    col.names = c(
+      "Year", "Labor inc", "Labor and Total inc",
+      "Labor inc", "Labor and Total inc"
+    ),
+    align = "lcccc"
+  ) %>%
+  add_header_above(c("", "Tax report" = 2, "No tax report" = 2)) %>%
+  kable_styling()
 
 #'
 #' 以下の就業形態に関する変数を用いる
@@ -109,9 +85,32 @@ df %>%
 #'     - 国際および外国機関
 #'
 #' `p_aa005`で常用職かどうかのダミー変数を作成する。`paa008`は共変量としてコントロールする。
-#' employeeかどうかで控除申請に差があるかどうかを記述統計で確認する。
 #'
-#' **メッセージ：self-employedと比較して、employeeの方が申請している**
+#' employeeかどうかで控除申請に差があるかどうかを記述統計で確認する。
+#' 初めに労働所得で控除申請している比率を示す。
+#' 
+#' メッセージ：労働者の方がtax reportする比率が自営業者よりも高い
+#'
+#+
+df %>%
+  dplyr::filter(!is.na(employee)) %>%
+  group_by(year, employee) %>%
+  summarize_at(vars(ext_benefit_t), list(~ mean(., na.rm = TRUE))) %>%
+  mutate(employee = factor(employee)) %>%
+  ggplot(aes(x = year, y = ext_benefit_t, group = employee)) +
+  geom_point(aes(shape = employee), color = "black", size = 3) +
+  geom_line(aes(linetype = employee), size = 1) +
+  geom_vline(aes(xintercept = 2013.5)) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(y = "share of tax report") +
+  ggtemp()
+
+#'
+#' 次に、総合所得もしくは労働所得の項目で控除申請しているかどうかの比率を示す
+#' 
+#' この図のメッセージ
+#' - 労働者の申請比率はほぼ100%に近くなる = 総合所得で税控除を申請している
+#' - 自営業者の申請比率は変化していない
 #'
 #+
 df %>%
@@ -126,6 +125,7 @@ df %>%
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(y = "share of tax report") +
   ggtemp()
+
 
 #'
 #' ## Simple Panel Data Model
