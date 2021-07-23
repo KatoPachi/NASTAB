@@ -64,16 +64,12 @@ original <- haven::read_dta("data/merge/merge.dta") %>%
   mutate(employee = if_else(p_aa005 == 1, 1, 0)) %>%
   mutate(
     ext_deduct_giving_tincome = case_when(
-      as.numeric(pda207) == -9 ~ NA_real_,
       as.numeric(pda207) == 1 ~ 1,
-      as.numeric(pda207) == 2 ~ 0,
-      TRUE ~ NA_real_
+      as.numeric(pda207) == 2 ~ 0
     ),
     ext_credit_giving_tincome = case_when(
-      as.numeric(pda209) == -9 ~ NA_real_,
       as.numeric(pda209) == 1 ~ 1,
-      as.numeric(pda209) == 2 ~ 0,
-      TRUE ~ NA_real_
+      as.numeric(pda209) == 2 ~ 0
     ),
     ext_benefit_tinc = if_else(
       year >= 2014, ext_credit_giving_tincome, ext_deduct_giving_tincome
@@ -86,11 +82,33 @@ original <- haven::read_dta("data/merge/merge.dta") %>%
 #+
 df <- df %>%
   left_join(original, by = c("pid", "year")) %>%
-  mutate() %>%
   mutate(
-    ext_benefit = if_else(year >= 2014, ext_credit_giving, ext_deduct_giving),
-    ext_benefit = if_else(ext_benefit == 1 | ext_benefit_tinc == 1, 1, 0),
-    int_price_benefit = log_price * ext_benefit
+    ext_credit_giving_tincome = case_when(
+      !is.na(ext_credit_giving_tincome) ~ ext_credit_giving_tincome,
+      tincome == 0 ~ 0
+    ),
+    ext_deduct_giving_tincome = case_when(
+      !is.na(ext_deduct_giving_tincome) ~ ext_deduct_giving_tincome,
+      tincome == 0 ~ 0
+    ),
+    ext_credit_giving = case_when(
+      !is.na(ext_credit_giving) ~ ext_credit_giving,
+      lincome == 0 ~ 0
+    ),
+    ext_deduct_giving = case_when(
+      !is.na(ext_deduct_giving) ~ ext_deduct_giving,
+      lincome == 0 ~ 0
+    ),
+  ) %>%
+  mutate(
+    ext_benefit_l = if_else(
+      year >= 2014, ext_credit_giving, ext_deduct_giving
+    ),
+    ext_benefit_t = if_else(
+      year >= 2014, ext_credit_giving_tincome, ext_deduct_giving_tincome
+    ),
+    ext_benefit_tl = if_else(ext_benefit_t == 1 | ext_benefit_l == 1, 1, 0),
+    int_price_benefit = log_price * ext_benefit_tl
   )
 
 #' CSVファイルに書き出す
