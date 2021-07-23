@@ -128,6 +128,69 @@ df %>%
   ggtemp()
 
 #'
+#' ## Simple Panel Data Model
+#'
+#' Panel IVを使う意義として、スタンダードな固定効果モデルの推定結果を示す。
+#' 推定モデルは
+#'
+#' $$
+#' \log g_{it}
+#' = \alpha_{2i} + \delta D_{it} \log p_{it} + X_{it} \beta_2
+#' + \lambda_{2t} + \epsilon_{it}
+#' $$
+#'
+#' 統計的推論では個人レベルのクラスター標準誤差を使用する。
+#'
+#' Simple panel data modelのメッセージ
+#' - 全体の弾力性とintensive-margin elasticityはITTの時よりも過大推定
+#' - Extensive-margin elasticityはITTの弾性値の時よりも過小推定
+#' - Tax reportが絡むと弾性値が変わるので、「reportした人とそうでない人の異質性」か「観察不可能な要因との交絡」が考えられる
+#'
+#+
+simplemodel <- list(
+  overall = list(y = log_total_g ~ ., data = subset(df, year <= 2017)),
+  ext = list(y = i_ext_giving ~ ., data = subset(df, year <= 2017)),
+  ext = list(
+    y = log_total_g ~ .,
+    data = subset(df, i_ext_giving == 1 & year <= 2017)
+  )
+)
+
+est_simplemodel <- simplemodel %>%
+  purrr::map(~ fit_fixest(
+    y = .$y,
+    x = ~ log_price:ext_benefit_tl + log_pinc_all + age + sqage +
+      factor(year):factor(educ) + factor(year):factor(gender) +
+      factor(year):factor(indust),
+    fixef = ~year + pid, cluster = ~pid, data = .$data
+  )) %>%
+  regtab_fixest(
+    keep_coef = "log_price:ext_benefit_tl",
+    label_coef = list("log_price:ext_benefit_tl" = "Report x log(first price)")
+  )
+
+simplemodel_tab <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3,
+  "Individual and time FE", "vars", "Y", "Y", "Y",
+  "log(income)", "vars", "Y", "Y", "Y",
+  "Age", "vars", "Y", "Y", "Y",
+  "Year x Education", "vars", "Y", "Y", "Y",
+  "Year x Gender", "vars", "Y", "Y", "Y",
+  "Year x Resident Area", "vars", "Y", "Y", "Y",
+  "Year x Dummy of industry", "vars", "Y", "Y", "Y"
+)
+
+est_simplemodel %>%
+  regtab_addline(list(simplemodel_tab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("", "Overall", "Extensive", "Intensive"),
+    align = "lccc"
+  ) %>%
+  kable_styling()
+
+#'
 #' ## Panel IV: Endog var is tax report x giving price and IV is employed dummy.
 #'
 #' $\log g_{it}$を寄付の対数値、$\ln p_{it}$は寄付の相対価格（first price）とする。
@@ -173,7 +236,7 @@ xlist_tab <- tribble(
   "Year x Education", "vars", "N", "Y", "Y",
   "Year x Gender", "vars", "N", "Y", "Y",
   "Year x Resident Area", "vars", "N", "Y", "Y",
-  "Dummy of industry", "vars", "N", "N", "Y"
+  "Year x Dummy of industry", "vars", "N", "N", "Y"
 )
 
 est_xreport1 <- xlist %>%
