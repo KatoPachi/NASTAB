@@ -146,7 +146,7 @@
 
             \author[shortname]{ Hiroki Kato  Tsuyoshi Goto  Yong-Rok Kim }
         
-\date{2021/07/21}
+\date{2021/07/24}
 
 
 \begin{document}
@@ -397,9 +397,11 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \begin{frame}{Summary Statistics}
 \protect\hypertarget{summary-statistics}{}
 \begin{table}
-\centering\begingroup\fontsize{7}{9}\selectfont
 
-\begin{tabular}{lcccccc}
+\caption{\label{tab:SummaryCovariate}Descriptive Statistics}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lcccccc}
 \toprule
  & N & Mean & Std.Dev. & Min & Median & Max\\
 \midrule
@@ -411,7 +413,7 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \multicolumn{7}{l}{\textbf{Income, giving price, and tax report}}\\
 \hspace{1em}Annual taxable income (unit: 10,000KRW) & 53269 & 1876.12 & 2700.97 & 0.00 & 900.00 & 91772.00\\
 \hspace{1em}First giving price & 62877 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
-\hspace{1em}Dummy of tax report & 18596 & 0.30 & 0.46 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Dummy of tax report & 12172 & 0.48 & 0.50 & 0.00 & 0.00 & 1.00\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
 \hspace{1em}Age & 67848 & 51.35 & 15.81 & 24.00 & 50.00 & 104.00\\
@@ -422,7 +424,6 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \hspace{1em}Junior high school graduate dummy & 67842 & 0.24 & 0.43 & 0.00 & 0.00 & 1.00\\
 \bottomrule
 \end{tabular}
-\endgroup{}
 \end{table}
 \end{frame}
 
@@ -443,7 +444,7 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \begin{itemize}
 \tightlist
 \item
-  Figure \ref{fig:showSummaryPriceChange} shows the giving price after 2012 and income distribution in 2013.
+  Figure \ref{fig:SummaryPriceChange} shows the giving price after 2012 and income distribution in 2013.
 
   \begin{itemize}
   \tightlist
@@ -477,6 +478,115 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 
 \caption{Income Distribution and Giving Price in 2013}\label{fig:SummaryPriceChange}
 \end{figure}
+\end{frame}
+
+\hypertarget{estimation}{%
+\section{Estimation}\label{estimation}}
+
+\begin{frame}{Estimation}
+Following Almunia et al. (2020), we estimate giving price elasticity for intensive margin and extensive margin.
+
+\begin{itemize}
+\tightlist
+\item
+  The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price
+\item
+  The elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Elasticitiy of Intensive Margin}
+\protect\hypertarget{elasticitiy-of-intensive-margin}{}
+\[
+\ln g_{it} = \varepsilon_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:intensive}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(g_{it}, p_{it}\) and \(y_{it}\) respectively indicates the amount of giving, the giving price, and income of \(i\) in year \(t\)
+\item
+  \(\mu_i, \iota_t\) and \(u_{it}\) are individual fixed effect, year fixed effect and error term
+\item
+  \(X_{it}\) is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into \(X_{it}\) (following Zeldow and Hatfield (2019)).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Elasticitiy of Extensive Margin}
+\protect\hypertarget{elasticitiy-of-extensive-margin}{}
+\[
+D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_it. \label{extensive}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(D_{it}\) is a dummy variable taking 1 if individual \(i\) donates at year \(t\) and 0 otherwise.
+\item
+  Since we use linear probability model, \(\delta = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\). The extensive-margin price elasticity is \(\varepsilon_{EXT} = \hat{\delta}/D_{it}\). Thus, we evaluate it at sample mean of \(D_{it}\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Identification Strategy}
+\protect\hypertarget{identification-strategy}{}
+Our identification assumption is \textbf{the within price variation is exogenous}.
+
+\begin{itemize}
+\tightlist
+\item
+  This is because we use the fixed effect model to obtain elasticities.
+\item
+  Our identification assumption may hold because the major \emph{within} price variation depends on the 2014 tax reform.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    After tax reform, the giving price is constant across individuals and there is no room for manipulation by donations and income.
+  \item
+    Before tax reform (2012 and 2013), the giving price depends on (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For these two reasons, the \emph{within} price is partly endogenous.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Obstacles for Identification}
+\protect\hypertarget{obstacles-for-identification}{}
+Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+
+\begin{enumerate}
+\tightlist
+\item
+  Endogeneity of giving price:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+  \item
+    Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Obstacles for Identification (Cont'd)}
+\protect\hypertarget{obstacles-for-identification-contd}{}
+Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+
+\begin{enumerate}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Simultaneous determination of income and donations:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate.
+  \item
+    We employ lagged values of taxable income and construct an instrument variable, \(\ln (p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
+  \item
+    By fixing income at year \(t - k\), the instrument isolates changes in price from income responses to the tax reform.
+  \end{itemize}
+\end{enumerate}
 
 \clearpage
 \end{frame}
@@ -502,6 +612,9 @@ Fack, G., Landais, C., 2010. Are tax incentives for charitable giving efficient?
 
 \leavevmode\hypertarget{ref-Randolph1995}{}%
 Randolph, W.C., 1995. Dynamic income, progressive taxes, and the timing of charitable contributions. Journal of Political Economy 103, 709--738. doi:\href{https://doi.org/10.1086/262000}{10.1086/262000}
+
+\leavevmode\hypertarget{ref-Zeldow2019}{}%
+Zeldow, B., Hatfield, L.A., 2019. Confounding and regression adjustment in difference-in-differences. arXiv Preprint.
 
 \end{CSLReferences}
 \end{frame}

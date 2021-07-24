@@ -71,6 +71,9 @@ doctype <- "draft"
 ```{r child = "Rmarkdown/1-summary.Rmd"}
 ```
 
+```{r child = "Rmarkdown/estimation.Rmd"}
+```
+
 \clearpage
 
 # References {#references .unnumbered .allowframebreaks}
