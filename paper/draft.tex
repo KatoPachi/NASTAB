@@ -3,6 +3,8 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[
+  11pt,
+  a4paper,
 ]{article}
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
@@ -26,16 +28,6 @@
   \usepackage[]{microtype}
   \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\makeatletter
-\@ifundefined{KOMAClassName}{% if non-KOMA class
-  \IfFileExists{parskip.sty}{%
-    \usepackage{parskip}
-  }{% else
-    \setlength{\parindent}{0pt}
-    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
-}{% if KOMA class
-  \KOMAoptions{parskip=half}}
-\makeatother
 \usepackage{xcolor}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
@@ -44,6 +36,12 @@
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
+\usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+
+\usepackage{setspace}
+\renewcommand{\baselinestretch}{1.5}
+\usepackage{float}
+
 \usepackage{longtable,booktabs,array}
 \usepackage{threeparttable, threeparttablex, multirow}
 \usepackage{calc} % for calculating minipage widths
@@ -104,20 +102,31 @@
 
       \usepackage{authblk}
                             \author[]{Hiroki Kato}
-                                      \affil{Osaka University}
+                                      \affil{Graduate School of Economics, Osaka University, Japan \thanks{vge008kh@stundent.econ.osaka-u.ac.jp}}
                                                     \author[]{Tsuyoshi Goto}
-                                      \affil{Chiba University}
+                                      \affil{Graduate School of Social Sciences, Chiba University, Japan}
                                                     \author[]{Yong-Rok Kim}
-                                      \affil{Kobe University}
+                                      \affil{Graduate School of Economics, Kobe University, Japan}
                               
-\date{2021/07/24}
+\date{2021/07/25}
 
 
 \begin{document}
-\maketitle
-\begin{abstract}
-This paper investigates (1) the price elasticity of giving and (2) whether the different perception towards the government cause the different giving behavior using South Korean panel data. Our result classifies that the price elasticity of giving in Korea is -0.59 \textasciitilde{} -1.01 for intensive margin and -1.17 \textasciitilde{} -1.48 for extensive margin. We also show that the amount of donation is not different between those who regard government as inefficient and the others, though the giving price elasticity of the former is more elastic than the latter. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price.
-\end{abstract}
+\begin{spacing}{1}
+  \maketitle
+\end{spacing}
+\begin{spacing}{1}
+  \begin{abstract}
+    This paper investigates (1) the price elasticity of giving and (2) whether the different perception towards the government cause the different giving behavior using South Korean panel data. Our result classifies that the price elasticity of giving in Korea is -0.59 \textasciitilde{} -1.01 for intensive margin and -1.17 \textasciitilde{} -1.48 for extensive margin. We also show that the amount of donation is not different between those who regard government as inefficient and the others, though the giving price elasticity of the former is more elastic than the latter. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price.
+    
+            \noindent
+    \textbf{Keywords}: Charitable giving, Giving price, Tax reform, South Korea, 
+        
+        \noindent
+    \textbf{JEL Codes}: D91, I10, I18, 
+        
+  \end{abstract}
+\end{spacing}
 
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}

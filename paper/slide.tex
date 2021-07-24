@@ -4,7 +4,8 @@
 %
 \documentclass[
   ignorenonframetext,
-  aspectratio=169]{beamer}
+  aspectratio=169,
+]{beamer}
 \usepackage{pgfpages}
 \setbeamertemplate{caption}[numbered]
 \setbeamertemplate{caption label separator}{: }
@@ -88,6 +89,10 @@
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
+
+\usepackage{setspace}
+\usepackage{float}
+
 \newif\ifbibliography
 \usepackage{longtable,booktabs,array}
 \usepackage{threeparttable, threeparttablex, multirow}
@@ -145,8 +150,9 @@
 
 
             \author[shortname]{ Hiroki Kato  Tsuyoshi Goto  Yong-Rok Kim }
-        
-\date{2021/07/24}
+            \institute[shortinst]{ \inst{} Osaka University \and  \inst{} Chiba University \and  \inst{} Kobe University \and }
+  
+\date{2021/07/25}
 
 
 \begin{document}
