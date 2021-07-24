@@ -38,9 +38,10 @@ df <- readr::read_csv(
 #' **メッセージ：税制改革以降のtax reportは過半数を下回る。**
 #+
 df %>%
+  dplyr::filter(year <= 2017) %>%
   group_by(year) %>%
   summarize_at(
-    vars(ext_benefit_t, ext_benefit_tl), 
+    vars(ext_benefit_t, ext_benefit_tl),
     list(
       Yes = ~sum((. == 1), na.rm = TRUE),
       No = ~sum((. == 0), na.rm = TRUE)
@@ -88,11 +89,12 @@ df %>%
 #'
 #' employeeかどうかで控除申請に差があるかどうかを記述統計で確認する。
 #' 初めに労働所得で控除申請している比率を示す。
-#' 
+#'
 #' メッセージ：労働者の方がtax reportする比率が自営業者よりも高い
 #'
 #+
 df %>%
+  dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(employee)) %>%
   group_by(year, employee) %>%
   summarize_at(vars(ext_benefit_t), list(~ mean(., na.rm = TRUE))) %>%
@@ -107,13 +109,14 @@ df %>%
 
 #'
 #' 次に、総合所得もしくは労働所得の項目で控除申請しているかどうかの比率を示す
-#' 
+#'
 #' この図のメッセージ
 #' - 労働者の申請比率はほぼ100%に近くなる = 総合所得で税控除を申請している
 #' - 自営業者の申請比率は変化していない
 #'
 #+
 df %>%
+  dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(employee)) %>%
   group_by(year, employee) %>%
   summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
