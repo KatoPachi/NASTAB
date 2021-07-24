@@ -430,6 +430,503 @@ By fixing the income at year \(t - k\),
 the instrument isolates changes in price from income responses to the tax reform.
 Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
 
+\hypertarget{main-results}{%
+\section{Main Results}\label{main-results}}
+
+\hypertarget{price-and-income-elasticity}{%
+\subsection{Price and Income Elasticity}\label{price-and-income-elasticity}}
+
+Before the estimation of giving price elasticities for intensive and extensive margin, we estimate the elasticity without distinguishing them. We call this elasticity as overall elasticity.
+Table \ref{tab:MainOverall} shows estimation results of overall elasticity.
+The column (1) is the baseline estimation, which include individual and time fixed effects.
+The price elasticity is rougly -1, which is statistically significant different from zero.
+This implies that 1\% increase of giving price raise charitable giving by 1\%.
+This result is in line with previous researches which focus on Western countries.
+The income elasticity is about 5.3, which is statistically significant different from zero.
+This implies that 1\% increase of annual income raise charitable giving by 5.3\%.
+The remaining four columns control for events that affects subject with specific characteristics at the same time.
+As a result, the price elasticity is more elastic than the baseline result.
+The price elasticity lies between -1.3 and -1.1.
+On the other hand, the income elasticity is less elastic than the baseline result.
+The income elasticity lies between -5.1 and -4.9.
+
+\begin{table}
+
+\caption{\label{tab:MainOverall}Main Results: Overall Elasticity of First Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(giving price) & -1.072*** & -1.264*** & -1.291*** & -1.114*** & -1.241***\\
+ & (0.202) & (0.213) & (0.230) & (0.229) & (0.227)\\
+ln(annual taxable income) & 5.393*** & 5.080*** & 5.047*** & 5.116*** & 4.946***\\
+ & (0.970) & (0.964) & (0.964) & (0.966) & (0.949)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 53269 & 53269 & 53267 & 53267 & 53267\\
+Adjusted R-squared & 0.526 & 0.526 & 0.526 & 0.527 & 0.530\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Table \ref{tab:MainIntensive} shows the intensive-margin and the extensive-margin elasticities.
+The first panel shows the intensive-margin elasticity.
+Compared to the overall elasticitiy, the price and income elasticitiy are less elastic.
+Controlling individual and time fixed effects,
+the price and income elasticity is about -0.6 and about 2,
+which are statistically significant different from zero (See the column (1)).
+Moreover, when we include the interaction term between individual characteristics and year dummies,
+these values vary.
+The price elasticity lies between -1.1 and -0.8,
+and the income elasticity lies between 1.4 and 1.6.
+Anyway, our conlusion is that the amount of donations is insensitive to the giving price among donors.
+
+\begin{table}
+
+\caption{\label{tab:MainIntensive}Main Results: Intensive-Margin Elasticity of First Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(giving price) & -0.593*** & -0.838*** & -1.016*** & -0.893*** & -0.904***\\
+ & (0.203) & (0.212) & (0.232) & (0.243) & (0.249)\\
+ln(annual taxable income) & 2.015*** & 1.562** & 1.445** & 1.528** & 1.571**\\
+ & (0.675) & (0.655) & (0.647) & (0.651) & (0.653)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 11637 & 11637 & 11637 & 11637 & 11637\\
+Adjusted R-squared & 0.675 & 0.675 & 0.676 & 0.676 & 0.678\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Table \ref{tab:MainExtensive} shows the extensive-margin elasticity.
+By results of overall elasticities and the intensive-margin elasticities,
+we expect that the extensive-margin price and income elasticity is more elastic than the overall elasticities.
+In the column (1), the coefficient of logged giving price and logged annual income are -0.257 and 1.175 respectively,
+which are statistically significant different from zero.
+Since we use the linear probability model,
+we need to calculate \(\epsilon^p_{EXT} = -0.257/D_{it}\) and \(\epsilon^y_{EXT} = 1.175/D_{it}\)
+to obtain the price and income elasticity, respectively.
+Especially, the coefficient of logged giving price represents the lower-bound of price elasticity
+because the variable \(D_{it}\) takes either 0 or 1.
+When we evaluate the price elasticity at the sample mean of \(D_{it}\),
+the implied price elasticity is -1.264, which is slightly more elastic than the overall one.
+Also, we evaluate the income elasticity at the sample mean of outcome.
+The implied income elasticity is 5.778, which is slightly more elastic than the overall one.
+Although the implied price and income elasticity varies with covariates,
+results are in line with our expectation.
+Thus, the decision of donations is sensitive to the giving price and annual income.
+
+\begin{table}
+
+\caption{\label{tab:MainExtensive}Main Results: Extensive-Margin Elasticity of First Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(giving price) & -0.257*** & -0.288*** & -0.273*** & -0.237*** & -0.267***\\
+ & (0.046) & (0.048) & (0.052) & (0.052) & (0.051)\\
+ln(annual taxable income) & 1.175*** & 1.124*** & 1.125*** & 1.139*** & 1.102***\\
+ & (0.223) & (0.223) & (0.223) & (0.224) & (0.220)\\
+ &  &  &  &  & \\
+Implied price elasticity & -1.176*** & -1.320*** & -1.250*** & -1.086*** & -1.221***\\
+ & (0.210) & (0.221) & (0.239) & (0.238) & (0.235)\\
+Implied income elasticity & 5.379*** & 5.145*** & 5.148*** & 5.212*** & 5.045***\\
+ & (1.023) & (1.021) & (1.023) & (1.024) & (1.005)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 53269 & 53269 & 53267 & 53267 & 53267\\
+Adjusted R-squared & 0.458 & 0.458 & 0.458 & 0.458 & 0.462\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+In summary, our first conclusion is that
+the decision of donations is sensitive to the giving price,
+and the amount of donations is insensitive to the giving price once they decide to donate.
+In the next subsection, we check the robustness of our first conclusion, using three methods.
+
+\hypertarget{robustness-check}{%
+\subsection{Robustness Check}\label{robustness-check}}
+
+The first robustness check estimates the last price elasticity using the first price of giving as an instrument.
+Our main results show that \emph{first} price elasticity to avoid the endogeneity of giving price.
+However, the first price elasiticity is not realistic
+because people face the \emph{last} marginal price when deciding amount of donations.
+Thus, we estimate the \emph{last} price elasticity, using the Panel IV method.
+
+There is one caution to interpret the last price elasticity.
+Under the tax credit system, the last price elasticity is equivalent to the first one.
+Since major observation units are observed when the tax credit system is implemented,
+the last giving price is strongly correlated with the first one.
+In other words, covariates between the last and first giving price is roughly equal to one.
+In the first stage, the coefficient of first giving price is roughly 0.98 in any specifications.\footnote{We do not show the first-stage results. Instead, we show the F-statistics of the instrument variable.}
+Thus, our last price elasticity may be upper bound of true price elasticity.
+
+\begin{table}
+
+\caption{\label{tab:LastOverall}Overall Elasticity of Last Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(last giving price) & -2.421*** & -2.536*** & -2.750*** & -2.529*** & -2.650***\\
+ & (0.204) & (0.216) & (0.233) & (0.231) & (0.229)\\
+ln(annual taxable income) & 5.258*** & 5.072*** & 4.981*** & 5.058*** & 4.910***\\
+ & (0.961) & (0.961) & (0.959) & (0.961) & (0.948)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 52304 & 52304 & 52302 & 52302 & 52302\\
+Adjusted R-squared & 0.529 & 0.529 & 0.529 & 0.530 & 0.533\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:LastIntensive}Intensive-Margin Elasticity of Last Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(last giving price) & -0.898*** & -0.961*** & -1.197*** & -0.998*** & -1.074***\\
+ & (0.271) & (0.271) & (0.307) & (0.325) & (0.332)\\
+ln(annual taxable income) & 2.024*** & 1.638** & 1.460** & 1.530** & 1.572**\\
+ & (0.694) & (0.678) & (0.667) & (0.670) & (0.667)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 10672 & 10672 & 10672 & 10672 & 10672\\
+Adjusted R-squared & 0.671 & 0.671 & 0.672 & 0.672 & 0.674\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:LastExtensive}Extensive-Margin Elasticity of Last Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(last giving price) & -0.623*** & -0.630*** & -0.644*** & -0.593*** & -0.619***\\
+ & (0.046) & (0.049) & (0.053) & (0.052) & (0.052)\\
+ln(annual taxable income) & 1.125*** & 1.113*** & 1.103*** & 1.121*** & 1.090***\\
+ & (0.221) & (0.223) & (0.223) & (0.223) & (0.220)\\
+ &  &  &  &  & \\
+Implied price elasticity & -3.052*** & -3.090*** & -3.156*** & -2.907*** & -3.035***\\
+ & (0.227) & (0.239) & (0.258) & (0.257) & (0.254)\\
+Implied income elasticity & 5.514*** & 5.453*** & 5.407*** & 5.494*** & 5.343***\\
+ & (1.084) & (1.092) & (1.092) & (1.095) & (1.078)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 52304 & 52304 & 52302 & 52302 & 52302\\
+Adjusted R-squared & 0.464 & 0.464 & 0.464 & 0.465 & 0.469\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The last price elasticity is in line with our first conclusion.
+Table \ref{tab:LastOverall} shows overall last price elasticity.
+Compared to the main results, the last price elasticity is more elastic.
+The aboslute value of estimated coefficient is larger than 2.4,
+which is statistically significant different from zero.
+This implies that 1\% increase of last price decreases charitable contributions by 2.4\% or more.
+Table \ref{tab:LastIntensive} and \ref{tab:LastExtensive} shows
+the intensive-margin and extensive-margin last price elasticity.
+In the first panel,
+the intensive-margin last price elasticity is similar value to the main results.
+Its abolute value lies between 0.89 and 1.2.
+These results are statistically different from zero.
+In the second panel,
+the coefficient of logged last price, which represents the lower bound of last price elasticity,
+lies between -0.63 and -0.59.
+The implied last price elasticity evalueated at the sample mean of \(D_{it}\) is roughly -3.
+These results are statistically significant different from zero,
+and more elastic than the first price elasticity.
+
+In the second robustness check, we try to control the manipulation of giving price by adjusting income level using two datasets whose ranges are (i) from 2013 to 2018 and (ii) from 2013 to 2014. Under the tax deduction system, the giving price can be manipulated by income level, though it cannot under the tax credit system. Therefore, if we use the dataset which contains data under the the tax deduction system, the estimator may capture the effect of price change which is caused not by tax reform but by price manipulation by income adjustment. To address this issue, we use dataset in which the time range under the tax deduction system is shorter than the baseline analysis. By doing this exercise, we try to suppress the effect which comes from the price change due to the change of income.
+
+Table \ref{tab:ShortOverall} shows the overall first giving price elasticity.
+When we use data from 2013 to 2018, the estimated price elasticity is similar value to the main results.
+On the other hand,
+when we use data from 2013 to 2014, the estimated price elasticity is more elastic than the main results.
+The estimated absolute value is roughly -1.7 when we control covariates and its interaction with year dummies.
+This value is statistically significant different from zero.
+
+\begin{table}
+
+\caption{\label{tab:ShortOverall}Overall Elasticity with Short-Period Panel}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
+\midrule
+ln(giving price) & -1.014*** & -1.286*** & -1.398*** & -1.686***\\
+ & (0.255) & (0.290) & (0.289) & (0.338)\\
+ln(annual taxable income) & 5.108*** & 4.743*** & 4.013** & 3.035\\
+ & (1.009) & (0.990) & (1.948) & (1.992)\\
+Individual FE & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y\\
+Other Controls & N & Y & N & Y\\
+N & 45994 & 45992 & 14893 & 14893\\
+Adjusted R-squared & 0.535 & 0.538 & 0.590 & 0.592\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:ShortIntensive}Intensive-Margin Elasticity with Short-Period Panel}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
+\midrule
+ln(giving price) & -0.647*** & -1.129*** & -0.394 & -0.712**\\
+ & (0.236) & (0.291) & (0.310) & (0.363)\\
+ln(annual taxable income) & 1.943*** & 1.714*** & 1.440 & 1.047\\
+ & (0.662) & (0.649) & (2.975) & (3.072)\\
+Individual FE & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y\\
+Other Controls & N & Y & N & Y\\
+N & 10158 & 10158 & 2922 & 2922\\
+Adjusted R-squared & 0.684 & 0.687 & 0.735 & 0.737\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:ShortExtensive}Extensive-Margin Elasticity with Short-Period Panel}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
+\midrule
+ln(giving price) & -0.235*** & -0.269*** & -0.331*** & -0.383***\\
+ & (0.058) & (0.065) & (0.065) & (0.076)\\
+ln(annual taxable income) & 1.093*** & 1.024*** & 0.801* & 0.574\\
+ & (0.230) & (0.226) & (0.428) & (0.447)\\
+ &  &  &  & \\
+Implied price elasticity & -1.064*** & -1.217*** & -1.689*** & -1.951***\\
+ & (0.262) & (0.294) & (0.333) & (0.387)\\
+Implied income elasticity & 4.951*** & 4.638*** & 4.082* & 2.926\\
+ & (1.043) & (1.024) & (2.181) & (2.279)\\
+Individual FE & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y\\
+Other Controls & N & Y & N & Y\\
+N & 45994 & 45992 & 14893 & 14893\\
+Adjusted R-squared & 0.465 & 0.469 & 0.524 & 0.525\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Table \ref{tab:ShortIntensive} and \ref{tab:ShortExtensive} shows
+the intensive-margin and the extensive-margin first price elasticity.
+The first panel shows the intensive-margin elasticity.
+When we use data from 2012 to 2018, the intensive-margin price elasiticity is similar to the main results,
+which is statistically significant from zero.
+However, when we use data from 2013 to 2014 and include only individual and time fixed effects,
+the estimated coefficient is statistically insignificant different from zero.
+By controlling covariates and its interaction with year dummies,
+the intensive-margin price elasticity is -0.712, which is statistically significant.
+The second panel shows the extensive-margin elasticity.
+When we use data from 2012 to 2018, the extensive-margin price elasticity is similar to the main results,
+which is statistically significant.
+When we use data from 2013 to 2014, the extensive-margin price elasticity is more elastic than the main results.
+Its absolute value is roughly -2, which is statistically significant.
+
+The third robustness check is to estimate the \(k\)-th difference model. The tax reform may have impacts on the giving price in two ways: one is direct giving price change by tax reform and the other is indirect change via wealth effect, which is induced by tax reform. Thus, to isolate the direct effect of the tax reform, we use the information of income level \(k\) years before.
+Concreately speaking, we estimate the \(k\)-th difference model formulated as follows:
+\[
+\Delta^k \ln g_{it} = \delta \Delta^k \ln p_{it} + \gamma \Delta^k \ln y_{it} + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},
+\]
+where \(\Delta^k \ln g_{it} = \ln g_{it} - \ln g_{it-k}\) and \(\Delta^k \ln y_{it} = \ln y_{it} - y_{it-k}\).
+
+The variable \(\Delta^k p_{it}\) is defined as \(\Delta^k p_{it} \equiv \ln p_{it}(y_{it-k}) - \ln p_{it}(y_{it-k})\).\footnote{Under the tax credit system, the giving price does not depend on income \(y_{it-k}\). If the tax credit system is impelemted in year \(t\) and \(t-k\), then the value of \(\Delta^k p_{it}\) takes zero.}
+The variation of this variable comes from the tax reform because we fix the annual income at year \(t - k\).
+Therefore, we can interpret this coefficient as the giving price elasticity due to the tax reform.
+In particular, the estimated \(\delta\) implies that 1\% increase of the change of giving price leads to \(\hat{\delta}\)\% increase of the change of charitable giving.
+Note that we do not estimate the extensive-margin elasticity because it is hard to interpret this estimation equation when we use \(\Delta^k D_{it}\) as an outcome variable.
+
+\begin{table}
+
+\caption{\label{tab:kdiffOverall}Estimation of Overall Elasticity with $k$-th Difference Model}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+1-year lagged difference of first price (log) & -1.894*** &  & \\
+ & (0.389) &  & \\
+1-year lagged difference of annual income (log) & 2.737*** &  & \\
+ & (1.042) &  & \\
+2-year lagged difference of first price (log) &  & -2.158*** & \\
+ &  & (0.355) & \\
+2-year lagged difference of annual income (log) &  & 4.661*** & \\
+ &  & (1.139) & \\
+3-year lagged difference of first price (log) &  &  & -1.805***\\
+ &  &  & (0.345)\\
+3-year lagged difference of annual income (log) &  &  & 5.422***\\
+ &  &  & (1.181)\\
+Individual FE & Y & Y & Y\\
+Time FE & Y & Y & Y\\
+Other controls & Y & Y & Y\\
+N & 49014 & 46587 & 44142\\
+Adjusted R-squared & -0.153 & -0.082 & -0.024\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:kdiffIntensive}Estimation of Intensitve-Margin Elasticity with $k$th Difference Model}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+1-year lagged difference of first price (log) & -1.852** &  & \\
+ & (0.763) &  & \\
+1-year lagged difference of annual income (log) & 2.222 &  & \\
+ & (1.715) &  & \\
+2-year lagged difference of first price (log) &  & -2.274*** & \\
+ &  & (0.621) & \\
+2-year lagged difference of annual income (log) &  & 4.601** & \\
+ &  & (1.789) & \\
+3-year lagged difference of first price (log) &  &  & -2.243***\\
+ &  &  & (0.550)\\
+3-year lagged difference of annual income (log) &  &  & 5.826***\\
+ &  &  & (2.166)\\
+Individual FE & Y & Y & Y\\
+Time FE & Y & Y & Y\\
+Other controls & Y & Y & Y\\
+N & 10939 & 10505 & 10040\\
+Adjusted R-squared & 0.137 & 0.191 & 0.220\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Table \ref{tab:kdiffOverall} and \ref{tab:kdiffIntensive} shows results of \(k\)-th difference model.
+The first panel shows the overall elasticity.
+When we take the one year lag (\(k = 1\)), the overall price elasticity is roughly -1.9,
+which is statistically significant.
+This elasticity slightly varies when we take the two or more year lag (\(k > 1\)).
+The overall price elasticity lies between -2.1 and -1.7, which is statistically significant.
+This implies that the overall price elasticity obtained by this model is more elastic than the main results.
+The second panel shows the intensive-margin elasticity.
+When we take the one year lag (\(k = 1\)), the intensive-margin price elasticity is roughly -1.8,
+which is statistically significant.
+The absolute value of the price elasticity is more than 2
+when we take two or more year lag (\(k > 1\)).
+Thus, contrary to our first conclusion,
+this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
+
+In summary, the result shows that the size of estimated elasticity may vary depending on the estimation methods. This may be because the sample size is small compared to the extant research. However, our three robustness checks are in line with the baseline result, which shows that the price elasticity of intensive margin is less elastic than one of extensive margin. Thus, the obtained results suggest that the decision to donate is sensitive to the giving price, though the amount of donations is insensitive to the giving price once they decide to donate.
+
 \clearpage
 
 \hypertarget{references}{%
