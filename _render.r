@@ -1,7 +1,7 @@
 #' from R script to Rmd file
 #+
 knitr::spin(
-    "./script/R/2-elasticity.r",
+    "./script/R/3-tax_balance.r",
     knit = FALSE
 )
 
