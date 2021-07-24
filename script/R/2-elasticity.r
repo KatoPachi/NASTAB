@@ -1,15 +1,14 @@
 #1elasticity
 
-# /* パッケージのロード
+#+
 library(xfun)
 xfun::pkg_attach2(c("tidyverse", "rlist"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 xfun::pkg_attach2("kableExtra")
 
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
-# */
 
-# /* データの読み込み
+#+
 df <- readr::read_csv(
   "data/shaped2.csv",
   col_types = cols(
@@ -24,7 +23,6 @@ df <- readr::read_csv(
     ideal_balance = col_double()
   )
 )
-# */
 
 #' ## Price and Income Elasticity
 #'
@@ -57,14 +55,14 @@ xlist_tab <- tribble(
 #'
 #+
 overall <- xlist %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ ., x = .,
     fixef = ~ year + pid, cluster = ~pid,
     data = df
   ))
 
 overall %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_price", "log_pinc_all"),
     label_coef = list(
       "log_price" = "ln(giving price)",
@@ -86,14 +84,14 @@ overall %>%
 #'
 #+
 intensive <- xlist %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ ., x = .,
     fixef = ~ year + pid, cluster = ~pid,
     data = subset(df, i_ext_giving == 1)
   ))
 
 intensive %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_price", "log_pinc_all"),
     label_coef = list(
       "log_price" = "ln(giving price)",
@@ -120,33 +118,49 @@ intensive %>%
 #'
 #+
 extensive <- xlist %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = i_ext_giving ~ ., x = .,
     fixef = ~ year + pid, cluster = ~pid,
     data = df
   ))
 
 ext_wald <- extensive %>%
-  purrr::map(~ felm_wald(
-    .,
-    hypo = list(
-      "Implied price elasticity" = "imp * log_price",
-      "Implied income elasticity" = "imp * log_pinc_all"
-    ),
-    args = list(imp = 1 / mean(.$response)),
+  purrr::map(~ tibble(
+    vars = c("Implied price elasticity", "Implied income elasticity"),
+    coef = coef(.)[c("log_price", "log_pinc_all")],
+    se = fixest::se(.)[c("log_price", "log_pinc_all")],
+    invmu = mean(model.matrix(., type = "lhs")),
+    p = fixest::pvalue(.)[c("log_price", "log_pinc_all")]
   )) %>%
+  purrr::map(function(x)
+    x %>%
+      mutate(
+        coef = case_when(
+          p <= .01 ~ sprintf("%1.3f***", coef / invmu),
+          p <= .05 ~ sprintf("%1.3f**", coef / invmu),
+          p <= .1 ~ sprintf("%1.3f*", coef / invmu),
+          TRUE ~ sprintf("%1.3f", coef / invmu)
+        ),
+        se = sprintf("(%1.3f)", se / invmu)
+      ) %>%
+      dplyr::select(-p, -invmu) %>%
+      pivot_longer(-vars, names_to = "stat", values_to = "val")
+  ) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist)))))
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(extensive)))))
+
+margin <- rep("", ncol(ext_wald))
+names(margin) <- c("vars", "stat", paste0("reg", seq_len(length(extensive))))
 
 extensive %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_price", "log_pinc_all"),
     label_coef = list(
       "log_price" = "ln(giving price)",
       "log_pinc_all" = "ln(annual taxable income)"
     )
   ) %>%
-  regtab_addline(list(ext_wald, xlist_tab)) %>%
+  regtab_addline(list(bind_rows(margin, ext_wald), xlist_tab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
@@ -166,7 +180,7 @@ extensive %>%
 #'
 #+
 overall_iv <- xlist %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ .,
     x = update(., ~ . - log_price),
     z = log_lprice ~ log_price,
@@ -175,10 +189,10 @@ overall_iv <- xlist %>%
   ))
 
 overall_iv %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_lprice", "log_pinc_all"),
     label_coef = list(
-      "`log_lprice(fit)`" = "ln(last giving price)",
+      "fit_log_lprice" = "ln(last giving price)",
       "log_pinc_all" = "ln(annual taxable income)"
     )
   ) %>%
@@ -197,7 +211,7 @@ overall_iv %>%
 #'
 #+
 intensive_iv <- xlist %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ .,
     x = update(., ~ . - log_price),
     z = log_lprice ~ log_price,
@@ -206,10 +220,10 @@ intensive_iv <- xlist %>%
   ))
 
 intensive_iv %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_lprice", "log_pinc_all"),
     label_coef = list(
-      "`log_lprice(fit)`" = "ln(last giving price)",
+      "fit_log_lprice" = "ln(last giving price)",
       "log_pinc_all" = "ln(annual taxable income)"
     )
   ) %>%
@@ -228,7 +242,7 @@ intensive_iv %>%
 #'
 #+
 extensive_iv <- xlist %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = i_ext_giving ~ .,
     x = update(., ~ . - log_price),
     z = log_lprice ~ log_price,
@@ -237,26 +251,42 @@ extensive_iv <- xlist %>%
   ))
 
 extiv_wald <- extensive_iv %>%
-  purrr::map(~ felm_wald(
-    .,
-    hypo = list(
-      "Implied price elasticity" = "imp * `log_lprice(fit)`",
-      "Implied income elasticity" = "imp * log_pinc_all"
-    ),
-    args = list(imp = 1 / mean(.$response)),
+  purrr::map(~ tibble(
+    vars = c("Implied price elasticity", "Implied income elasticity"),
+    coef = coef(.)[c("fit_log_lprice", "log_pinc_all")],
+    se = fixest::se(.)[c("fit_log_lprice", "log_pinc_all")],
+    invmu = mean(model.matrix(., type = "lhs")),
+    p = fixest::pvalue(.)[c("fit_log_lprice", "log_pinc_all")]
   )) %>%
+  purrr::map(function(x)
+    x %>%
+      mutate(
+        coef = case_when(
+          p <= .01 ~ sprintf("%1.3f***", coef / invmu),
+          p <= .05 ~ sprintf("%1.3f**", coef / invmu),
+          p <= .1 ~ sprintf("%1.3f*", coef / invmu),
+          TRUE ~ sprintf("%1.3f", coef / invmu)
+        ),
+        se = sprintf("(%1.3f)", se / invmu)
+      ) %>%
+      dplyr::select(-p, -invmu) %>%
+      pivot_longer(-vars, names_to = "stat", values_to = "val")
+  ) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist)))))
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(extensive)))))
+
+margin <- rep("", ncol(extiv_wald))
+names(margin) <- c("vars", "stat", paste0("reg", seq_len(length(extensive))))
 
 extensive_iv %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_lprice", "log_pinc_all"),
     label_coef = list(
-      "`log_lprice(fit)`" = "ln(last giving price)",
+      "fit_log_lprice" = "ln(last giving price)",
       "log_pinc_all" = "ln(annual taxable income)"
     )
   ) %>%
-  regtab_addline(list(extiv_wald, xlist_tab)) %>%
+  regtab_addline(list(bind_rows(margin, extiv_wald), xlist_tab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
@@ -295,14 +325,14 @@ xlist2_duptab <- xlist2_tab %>%
 #'
 #+
 overall_s1 <- xlist2 %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ ., x = .,
     fixef = ~ year + pid, cluster = ~ pid,
     data = subset(df, year >= 2013)
   ))
 
 overall_s2 <- xlist2 %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ ., x = .,
     fixef = ~ year + pid, cluster = ~ pid,
     data = subset(df, year == 2013 | year == 2014)
@@ -310,7 +340,7 @@ overall_s2 <- xlist2 %>%
 
 list(overall_s1, overall_s2) %>%
   flatten() %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_price", "log_pinc_all"),
     label_coef = list(
       "log_price" = "ln(giving price)",
@@ -339,14 +369,14 @@ list(overall_s1, overall_s2) %>%
 #'
 #+
 intensive_s1 <- xlist2 %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ ., x = .,
     fixef = ~ year + pid, cluster = ~ pid,
     data = subset(df, year >= 2013 & i_ext_giving == 1)
   ))
 
 intensive_s2 <- xlist2 %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ ., x = .,
     fixef = ~ year + pid, cluster = ~ pid,
     data = subset(df, (year == 2013 | year == 2014) & i_ext_giving == 1)
@@ -354,7 +384,7 @@ intensive_s2 <- xlist2 %>%
 
 list(intensive_s1, intensive_s2) %>%
   flatten() %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_price", "log_pinc_all"),
     label_coef = list(
       "log_price" = "ln(giving price)",
@@ -379,14 +409,14 @@ list(intensive_s1, intensive_s2) %>%
 #'
 #+
 extensive_s1 <- xlist2 %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = i_ext_giving ~ ., x = .,
     fixef = ~ year + pid, cluster = ~pid,
     data = subset(df, year >= 2013)
   ))
 
 extensive_s2 <- xlist2 %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = i_ext_giving ~ ., x = .,
     fixef = ~ year + pid, cluster = ~pid,
     data = subset(df, year == 2013 | year == 2014)
@@ -394,27 +424,43 @@ extensive_s2 <- xlist2 %>%
 
 exts_wald <- list(extensive_s1, extensive_s2) %>%
   flatten() %>%
-  purrr::map(~ felm_wald(
-    .,
-    hypo = list(
-      "Implied price elasticity" = "imp * log_price",
-      "Implied income elasticity" = "imp * log_pinc_all"
-    ),
-    args = list(imp = 1 / mean(.$response)),
+  purrr::map(~ tibble(
+    vars = c("Implied price elasticity", "Implied income elasticity"),
+    coef = coef(.)[c("log_price", "log_pinc_all")],
+    se = fixest::se(.)[c("log_price", "log_pinc_all")],
+    invmu = mean(model.matrix(., type = "lhs")),
+    p = fixest::pvalue(.)[c("log_price", "log_pinc_all")]
   )) %>%
+  purrr::map(function(x)
+    x %>%
+      mutate(
+        coef = case_when(
+          p <= .01 ~ sprintf("%1.3f***", coef / invmu),
+          p <= .05 ~ sprintf("%1.3f**", coef / invmu),
+          p <= .1 ~ sprintf("%1.3f*", coef / invmu),
+          TRUE ~ sprintf("%1.3f", coef / invmu)
+        ),
+        se = sprintf("(%1.3f)", se / invmu)
+      ) %>%
+      dplyr::select(-p, -invmu) %>%
+      pivot_longer(-vars, names_to = "stat", values_to = "val")
+  ) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist2) * 2))))
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(extensive)))))
+
+margin <- rep("", ncol(exts_wald))
+names(margin) <- c("vars", "stat", paste0("reg", seq_len(length(xlist2) * 2)))
 
 list(extensive_s1, extensive_s2) %>%
   flatten() %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_price", "log_pinc_all"),
     label_coef = list(
       "log_price" = "ln(giving price)",
       "log_pinc_all" = "ln(annual taxable income)"
     )
   ) %>%
-  regtab_addline(list(exts_wald, xlist2_duptab)) %>%
+  regtab_addline(list(bind_rows(margin, exts_wald), xlist2_duptab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
@@ -464,7 +510,7 @@ kdiff_tab <- tibble(
 #'
 #+
 overall_kdiff <- kdiff %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = .$y,
     x = update(
       .$x,
@@ -476,7 +522,7 @@ overall_kdiff <- kdiff %>%
   ))
 
 overall_kdiff %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_iv", "log_diff"),
     label_coef = list(
       "log_iv1price" = "1-year lagged difference of first price (log)",
@@ -505,7 +551,7 @@ overall_kdiff %>%
 #'
 #+
 intensive_kdiff <- kdiff %>%
-  purrr::map(~ est_felm(
+  purrr::map(~ fit_fixest(
     y = .$y,
     x = update(
       .$x,
@@ -517,7 +563,7 @@ intensive_kdiff <- kdiff %>%
   ))
 
 intensive_kdiff %>%
-  felm_regtab(
+  regtab_fixest(
     keep_coef = c("log_iv", "log_diff"),
     label_coef = list(
       "log_iv1price" = "1-year lagged difference of first price (log)",
