@@ -1,0 +1,119 @@
+# Estimation
+
+<!--- For Slides
+
+Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin.
+
+- The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price
+- The elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
+
+## Elasticitiy of Intensive Margin 
+
+$$
+\ln g_{it} = \varepsilon_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:intensive)
+$$
+
+- $g_{it}, p_{it}$ and $y_{it}$ respectively indicates the amount of giving, the giving price, and income of $i$ in year $t$
+- $\mu_i, \iota_t$ and $u_{it}$ are individual fixed effect, year fixed effect and error term
+- $X_{it}$ is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into $X_{it}$ (following @Zeldow2019).
+
+## Elasticitiy of Extensive Margin
+
+$$
+D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_it. \label{extensive}
+$$
+
+- $D_{it}$ is a dummy variable taking 1 if individual $i$ donates at year $t$ and 0 otherwise.
+- Since we use linear probability model, $\delta = \frac{\partial D_{it}}{\partial p_{it}} p_{it}$. The extensive-margin price elasticity is $\varepsilon_{EXT} = \hat{\delta}/D_{it}$. Thus, we evaluate it at sample mean of $D_{it}$.
+
+## Identification Strategy 
+
+Our identification assumption is **the within price variation is exogenous**.
+
+- This is because we use the fixed effect model to obtain elasticities.
+- Our identification assumption may hold because the major *within* price variation depends on the 2014 tax reform.
+    - After tax reform, the giving price is constant across individuals and there is no room for manipulation by donations and income.
+    - Before tax reform (2012 and 2013), the giving price depends on (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For these two reasons, the *within* price is partly endogenous.
+
+## Obstacles for Identification
+
+Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+
+1. Endogeneity of giving price: 
+    - The tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+    - Since this issue does not happen for the first one unit of donation, whose price ("first price") cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+
+## Obstacles for Identification (Cont'd)
+
+Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+
+2. Simultaneous determination of income and donations:
+    - The change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate.
+    - We employ lagged values of taxable income and construct an instrument variable, $\ln (p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))$ where $g_{it-k} = 0$.
+    - By fixing income at year $t - k$, the instrument isolates changes in price from income responses to the tax reform.
+
+ --->
+
+
+Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price. 
+
+We estimate the elasticity of intensive margin using the following specification:
+
+\begin{equation}
+    \ln g_{it} = \varepsilon_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:intensive)
+\end{equation}
+
+$g_{it}, p_{it}$ and $y_{it}$ respectively indicates the amount of giving, the giving price, and income of $i$ in year $t$.  $\mu_i, \iota_t$ and $u_{it}$ are individual fixed effect, year fixed effect and error term, respectively. 
+The individual fixed effect controls for time-invariant individual characteristics. The year fixed effect controls for events that affect all subjects at the same time. $X_{it}$ is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into $X_{it}$, since they will control for events that affects subject with specific characteristics at the same time following @Zeldow2019.
+
+The elasticity of extensive margin is estimated using the linear probability model such as
+
+\begin{equation}
+D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_{it}. (\#eq:extensive)
+\end{equation}
+
+$D_{it}$ is a dummy variable taking 1 if individual $i$ donates at year $t$ and 0 otherwise.
+Since we use the linear probability model, 
+the estimated coefficient $\delta$ represents $\hat{\delta} =  \frac{\partial D_{it}}{\partial p_{it}} p_{it}$.
+Also, the estimated coefficient $\gamma$ represents $\hat{\gamma} = \frac{\partial D_{it}}{\partial y_{it}} y_{it}$.
+Thus, the extensive-margin price and income elasticity are $\hat{\delta}/D_{it}$ and $\hat{\gamma}/D_{it}$, respectively.
+We evaluate the extensive-margin price and income elasticity at sample mean of $D_{it}$.
+
+Our identification assumption is the *within* price variation is exogenous because we use the fixed effect model.
+This assumption may be hold if the major *within* price variation comes only from the 2014 tax reform.
+After the 2014 tax reform (the tax credit system), the giving price is constant across individuals and 
+there is no room for manipulation by donations and income.
+However, before the 2014 tax reform, the giving price has two potential endogeneity problem: 
+(A) endogeneity of giving price and (B) simulatenous determination of income and donations.
+
+To tackle these problems, we take two methods.
+The first method deals with the possibility that the giving price is endogenous because 
+the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+Since this issue does not happen for the first one unit of donation, whose price ("first price") cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+The first price is formally defined as the giving price $p_i^d \equiv 1 - \tau (y_i - g_i)$, evaluated at $g_i = 0$. 
+Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance. 
+Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
+
+The second method deals with the issue related to the simultaneous determination of income and donations.
+Under the tax deduction system,
+the change of income have effects on both donations through the income effect and the giving price through the marginal tax rate.
+Therefore, we employ lagged values of taxable income and construct a variable for the change in the first price of giving as following:
+
+$$
+\ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right).
+$$
+
+where $g_{it-k} = 0$.
+The numerator is the first price that individual $i$ would have faced in year $t$ if she had declared her year $(t - k)$ taxable income at that year. 
+By fixing the income at year $t - k$, 
+the instrument isolates changes in price from income responses to the tax reform. 
+Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
+
+
+
+<!--
+ここらへんの議論ですが、以下の点、要検討です。これらが解決しないと残差プロットの図を出す意味は殆どないと思います。
+ 
+ - 残差プロットの図がIntensive marginについて、期待される図とはかなり異なる結果を出しているので、どう議論しようか悩みどころです。
+ - 平行トレンドについてですが、ここでは政策変更前の期間が1期しかないので、チェックできません。なので、個人的には政府の効率性の議論にかかわらず、期間を延長して分析・図を見せるのもありだと思います。とりあえずのバージョンでは平行トレンドについては書きません。
+--->

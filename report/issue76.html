@@ -228,12 +228,12 @@ div.tocify {
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
 <div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
+<div class="col-sm-12 col-md-4 col-lg-3">
 <div id="TOC" class="tocify">
 </div>
 </div>
 
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+<div class="toc-content col-sm-12 col-md-8 col-lg-9">
 
 
 
@@ -244,366 +244,99 @@ div.tocify {
 
 <h1 class="title toc-ignore">Issue #76: ITTの問題を克服するために、PSM-DIDのストラテジーを利用した推定</h1>
 <h4 class="author">加藤 大貴</h4>
-<h4 class="date">Latest update: 2021/7/19</h4>
+<h4 class="date">Latest update: 2021/07/24</h4>
 
 </div>
 
 
 <p>パッケージのロード</p>
-<pre class="r"><code>library(xfun)
-xfun::pkg_attach2(c(&quot;readstata13&quot;, &quot;tidyverse&quot;, &quot;rlist&quot;))
-xfun::pkg_attach2(c(&quot;plm&quot;, &quot;lmtest&quot;, &quot;sandwich&quot;, &quot;lfe&quot;, &quot;Formula&quot;, &quot;censReg&quot;))
+<pre class="r"><code>knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE
+)
+
+library(here)
+knitr::opts_knit$set(root.dir = here())
+
+library(xfun)
+xfun::pkg_attach2(c(&quot;tidyverse&quot;, &quot;rlist&quot;))
+xfun::pkg_attach2(c(&quot;lmtest&quot;, &quot;sandwich&quot;, &quot;lfe&quot;, &quot;Formula&quot;, &quot;fixest&quot;))
 xfun::pkg_attach2(&quot;kableExtra&quot;)
 
-lapply(Sys.glob(file.path(&quot;../script/R/functions&quot;, &quot;*.r&quot;)), source)</code></pre>
-<pre><code>## [[1]]
-## [[1]]$value
-## function(y, x, z = 0, fixef = 0, cluster = 0, data) {
-## 
-##   # make regression model
-##   yvar &lt;- all.vars(y)[1]
-##   xeq &lt;- as.character(x)[-1]
-##   yxeq &lt;- paste(yvar, &quot;~&quot;, xeq)
-## 
-##   fixeq &lt;- zeq &lt;- clusteq &lt;- &quot;0&quot;
-## 
-##   if (fixef != 0) {
-##     fixeq &lt;- all.vars(fixef) %&gt;% paste(collapse = &quot; + &quot;)
-##   }
-## 
-##   if (z != 0) {
-##     zeq &lt;- as.character(z)
-##     zeq &lt;- paste(zeq[2], &quot;~&quot;, zeq[3]) %&gt;% paste(&quot;(&quot;, ., &quot;)&quot;)
-##   }
-## 
-##   if (cluster != 0) {
-##     clusteq &lt;- all.vars(cluster) %&gt;% paste(collapse = &quot; + &quot;)
-##   }
-## 
-##   model &lt;- paste(yxeq, &quot;|&quot;, fixeq, &quot;|&quot;, zeq, &quot;|&quot;, clusteq)
-## 
-##   # estimate fixed effect model using felm function provided by {lfe}
-##   est_model &lt;- lfe::felm(as.formula(model), data = data)
-## 
-##   return(est_model)
-## 
-## }
-## 
-## [[1]]$visible
-## [1] FALSE
-## 
-## 
-## [[2]]
-## [[2]]$value
-## function(
-##   felmobj, keep_coef = NULL, rm_coef = NULL, label_coef = NULL,
-##   bindtab = FALSE) {
-## 
-##   # make coeftab: coefficient, star, and standard errors in parenthesis
-##   coeftab &lt;- felmobj %&gt;%
-##     purrr::map(~ summary(.)$coefficients) %&gt;%
-##     purrr::map(function(x)
-##       tibble(
-##         vars = rownames(x),
-##         coef = x[, 1],
-##         se = x[, 2],
-##         p = x[, 4]
-##       ) %&gt;%
-##       mutate(
-##         coef = case_when(
-##           p &lt;= .01 ~ sprintf(&quot;%1.3f***&quot;, coef),
-##           p &lt;= .05 ~ sprintf(&quot;%1.3f**&quot;, coef),
-##           p &lt;= .1 ~ sprintf(&quot;%1.3f*&quot;, coef),
-##           TRUE ~ sprintf(&quot;%1.3f&quot;, coef)
-##         ),
-##         se = sprintf(&quot;(%1.3f)&quot;, se)
-##       ) %&gt;%
-##       dplyr::select(-p) %&gt;%
-##       pivot_longer(-vars, names_to = &quot;stat&quot;, values_to = &quot;val&quot;)
-##     ) %&gt;%
-##     reduce(full_join, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
-##     setNames(c(&quot;vars&quot;, &quot;stat&quot;, paste0(&quot;reg&quot;, seq_len(length(felmobj)))))
-## 
-##   # keep variables in coeftab
-##   if (!is.null(keep_coef)) {
-##     strings &lt;- keep_coef %&gt;% paste(collapse = &quot;|&quot;)
-##     coeftab &lt;- coeftab[stringr::str_detect(coeftab$vars, strings), ]
-##   }
-## 
-##   # drop variables from coeftab
-##   if (!is.null(rm_coef)) {
-##     strings &lt;- rm_coef %&gt;% paste(collapse = &quot;|&quot;)
-##     coeftab &lt;- coeftab[!stringr::str_detect(coeftab$vars, strings), ]
-##   }
-## 
-##   # rename variables
-##   if (!is.null(label_coef)) {
-##     coeftab &lt;- coeftab %&gt;%
-##       mutate(vars = dplyr::recode(vars, !!!label_coef, .default = vars))
-##   }
-## 
-##   # make tabulation of regression stats (R2 and N)
-##   stattab &lt;- felmobj %&gt;%
-##     purrr::map(~tibble(
-##       vars = c(&quot;N&quot;, &quot;R-squared&quot;),
-##       stat = c(&quot;stat&quot;, &quot;stat&quot;),
-##       val = c(sprintf(&quot;%3d&quot;, nobs(.)), sprintf(&quot;%1.3f&quot;, summary(.)$r.squared))
-##     )) %&gt;%
-##     reduce(full_join, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
-##     setNames(c(&quot;vars&quot;, &quot;stat&quot;, paste0(&quot;reg&quot;, seq_len(length(felmobj)))))
-## 
-##   # if bindtab = FALSE, return coeftab and stattab separately
-##   # if bindtab = TRUE, return coeftab combined with stattab
-##   if (bindtab) {
-##     return(dplyr::bind_rows(coeftab, stattab))
-##   } else {
-##     return(list(coef = coeftab, stat = stattab))
-##   }
-## 
-## }
-## 
-## [[2]]$visible
-## [1] FALSE
-## 
-## 
-## [[3]]
-## [[3]]$value
-## function(felmobj, hypo, args = NULL, tab = TRUE) {
-## 
-##   # understanding hypothesis structure
-##   perfect_split &lt;- hypo %&gt;%
-##     stringr::str_replace_all(pattern = &quot; &quot;, replacement = &quot;&quot;) %&gt;%
-##     stringr::str_split(pattern = &quot;\\+&quot;) %&gt;%
-##     purrr::map(~ stringr::str_split(., pattern = &quot;\\*&quot;))
-## 
-##   # make matrix of left-hand side
-##   lhs &lt;- coef(felmobj); lhs[seq_len(length(lhs))] &lt;- 0
-##   set_lhs &lt;- lapply(seq_len(length(hypo)), function(x) return(lhs))
-## 
-##   for (i in seq_len(length(hypo))) {
-##     for (j in seq_len(length(perfect_split[[i]]))) {
-##       if (perfect_split[[i]][[j]][[1]] %in% names(args)) {
-##         key &lt;- perfect_split[[i]][[j]][[1]]
-##         set_lhs[[i]][perfect_split[[i]][[j]][2]] &lt;- args[[key]]
-##       } else {
-##         val &lt;- as.numeric(perfect_split[[i]][[j]][[1]])
-##         set_lhs[[i]][perfect_split[[i]][[j]][2]] &lt;- val
-##       }
-##     }
-##   }
-## 
-##   set_lhs &lt;- set_lhs %&gt;% purrr::map(~ matrix(., nrow = 1))
-## 
-##   # implement wald test via waldtest fucntion
-##   wald &lt;- set_lhs %&gt;%
-##     purrr::map(~ lfe::waldtest(felmobj, .)) %&gt;%
-##     purrr::map(function(x) tibble(f = x[&quot;F&quot;], p = x[&quot;p.F&quot;])) %&gt;%
-##     reduce(bind_rows) %&gt;%
-##     mutate(vars = names(hypo))
-## 
-##   # calculate coefficient
-##   tf &lt;- !is.nan(coef(felmobj))
-## 
-##   estimate &lt;- set_lhs %&gt;%
-##     purrr::map(~ .[tf] %*% coef(felmobj)[tf]) %&gt;%
-##     as_vector() %&gt;%
-##     tibble(coef = ., vars = names(hypo))
-## 
-##   # calculate se
-##   result &lt;- dplyr::left_join(estimate, wald, by = &quot;vars&quot;) %&gt;%
-##     mutate(se = abs(coef) / sqrt(f))
-## 
-##   # make tabulation if TRUE
-##   if (tab) {
-## 
-##     result &lt;- result %&gt;%
-##       mutate(
-##         coef = case_when(
-##           p &lt;= .01 ~ sprintf(&quot;%1.3f***&quot;, coef),
-##           p &lt;= .05 ~ sprintf(&quot;%1.3f**&quot;, coef),
-##           p &lt;= .1 ~ sprintf(&quot;%1.3f*&quot;, coef),
-##           TRUE ~ sprintf(&quot;%1.3f&quot;, coef)
-##         ),
-##         se = sprintf(&quot;(%1.3f)&quot;, se)
-##       ) %&gt;%
-##       dplyr::select(-p, -f) %&gt;%
-##       pivot_longer(-vars, names_to = &quot;stat&quot;, values_to = &quot;val&quot;)
-## 
-##   }
-## 
-##   return(result)
-## 
-## }
-## 
-## [[3]]$visible
-## [1] FALSE
-## 
-## 
-## [[4]]
-## [[4]]$value
-## function(flip = FALSE) {
-## 
-##   my_theme &lt;- theme_minimal() +
-##     theme(
-##       panel.grid.major.x = element_blank(),
-##       panel.grid.minor.x = element_blank(),
-##       panel.grid.minor.y = element_blank(),
-##       axis.text = element_text(color = &quot;black&quot;, size = 13),
-##       axis.title = element_text(size = 13),
-##       axis.ticks.length = unit(0.25, &quot;cm&quot;),
-##       axis.ticks.x = element_line(),
-##       axis.ticks.y = element_line(),
-##       axis.line = element_line(),
-##       legend.text = element_text(size = 13),
-##       legend.key.size = unit(1, &quot;cm&quot;),
-##       legend.position = &quot;bottom&quot;
-##     )
-## 
-##   if (flip) {
-##     my_theme &lt;- my_theme +
-##       theme(
-##         panel.grid.major.y = element_blank(),
-##         panel.grid.major.x = element_line()
-##       )
-##   }
-## 
-##   return(my_theme)
-## 
-## }
-## 
-## [[4]]$visible
-## [1] FALSE
-## 
-## 
-## [[5]]
-## [[5]]$value
-## function(regtab, addtab) {
-## 
-##   fulltab &lt;- regtab$coef
-## 
-##   for (i in seq_len(length(addtab))) {
-##     fulltab &lt;- dplyr::bind_rows(fulltab, addtab[[i]])
-##   }
-## 
-##   fulltab &lt;- dplyr::bind_rows(fulltab, regtab$stat)
-## 
-##   return(fulltab)
-## 
-## }
-## 
-## [[5]]$visible
-## [1] FALSE
-## 
-## 
-## [[6]]
-## [[6]]$value
-## function(x, na.rm = FALSE) {
-## 
-##   # na.rm = TRUE, we remove NA using na.omit()
-##   if (na.rm) x &lt;- na.omit(x)
-## 
-##   # calculate and return se
-##   sqrt(var(x) / length(x))
-## 
-## }
-## 
-## [[6]]$visible
-## [1] FALSE
-## 
-## 
-## [[7]]
-## [[7]]$value
-## function(
-##     data, vars,
-##     stat = c(
-##         &quot;mean&quot;, &quot;se&quot;, &quot;sd&quot;, &quot;min&quot;, &quot;q25&quot;, &quot;median&quot;, &quot;q75&quot;, &quot;max&quot;, &quot;sum&quot;, &quot;N&quot;
-##     )
-## ) {
-## 
-##   tab &lt;- data %&gt;%
-##     dplyr::summarize_at(
-##       vars,
-##       list(
-##         mean = ~mean(., na.rm = TRUE),
-##         se = ~se(., na.rm = TRUE),
-##         sd = ~sd(., na.rm = TRUE),
-##         min = ~min(., na.rm = TRUE),
-##         q25 = ~quantile(., prob = .25, na.rm = TRUE),
-##         median = ~median(., na.rm = TRUE),
-##         q75 = ~quantile(., prob = .75, na.rm = TRUE),
-##         max = ~max(., na.rm = TRUE),
-##         sum = ~sum(., na.rm = TRUE),
-##         N = ~sum(!is.na(.))
-##       )
-##     )
-## 
-##     if (length(vars) == 1) {
-## 
-##         tab &lt;- tab %&gt;%
-##           mutate(vars = vars) %&gt;%
-##           dplyr::select(c(&quot;vars&quot;, stat))
-## 
-##     } else {
-## 
-##         pattern &lt;- &quot;(.*)_(mean|se|sd|min|q25|median|q75|max|sum|N)&quot;
-## 
-##         tab &lt;- tab %&gt;%
-##           pivot_longer(
-##             everything(),
-##             names_to = c(&quot;vars&quot;, &quot;.value&quot;),
-##             names_pattern = pattern
-##           ) %&gt;%
-##           dplyr::select(c(&quot;vars&quot;, stat))
-## 
-##     }
-## 
-##     return(tab)
-## 
-## }
-## 
-## [[7]]$visible
-## [1] FALSE</code></pre>
+lapply(Sys.glob(file.path(&quot;script/R/functions&quot;, &quot;*.r&quot;)), source)</code></pre>
+<pre><code>## list()</code></pre>
 <p>データのロード</p>
-<pre class="r"><code>df &lt;- read.dta13(&quot;../data/shaped.dta&quot;) %&gt;%
-  data.frame() %&gt;%
-  mutate(
-    log_price = log(price),
-    log_lprice = log(lprice),
-    log_iv1price = log(iv1price),
-    log_iv2price = log(iv2price),
-    log_iv3price = log(iv3price),
-    log_total_g = log(i_total_giving + 1),
-    log_pinc_all = log(lincome + 100000),
-    ext_benefit = if_else(year &gt;= 2014, ext_credit_giving, ext_deduct_giving)
-  ) %&gt;%
-  filter(year &gt;= 2012 &amp; age &gt;= 24)</code></pre>
+<pre class="r"><code>df &lt;- readr::read_csv(
+  &quot;data/shaped2.csv&quot;,
+  col_types = cols(
+    ext_credit_giving = col_double(),
+    krw_credit_giving = col_double(),
+    trust_politician = col_double(),
+    political_pref = col_double(),
+    addtax = col_double(),
+    avg_welfare_tax = col_double(),
+    opt_welfare_tax = col_double(),
+    now_balance = col_double(),
+    ideal_balance = col_double()
+  )
+)</code></pre>
 <div id="寄付の税申告ファクトの整理" class="section level2">
 <h2>寄付の税申告ファクトの整理</h2>
+<p>勤労所得もしくは総合所得において寄付の控除申告をしたかどうかをクロス集計で確認する。 勤労所得もしくは控除申告がN/Aの扱いは以下の通り</p>
 <ul>
-<li>2012~2013年：所得控除の申請をしたかどうか</li>
-<li>2014年：税額控除の申請をしたかどうか</li>
+<li>勤労所得もしくは総合所得が0ならば、控除申告はなしとみなす</li>
+<li>それ以外の場合、欠損値としてみなす（「回答したくない」と「申告していない」を区別できないから）</li>
 </ul>
-<p>以下の表はそのクロス集計</p>
+<p><strong>メッセージ：税制改革以降のtax reportは過半数を下回る。</strong></p>
 <pre class="r"><code>df %&gt;%
-  with(table(year, ext_benefit, useNA = &quot;always&quot;)) %&gt;%
-  kable(
-    col.names = c(&quot;Not receive benefit&quot;, &quot;Receive benefit&quot;, &quot;NA&quot;),
-    align = &quot;ccc&quot;
+  group_by(year) %&gt;%
+  summarize_at(
+    vars(ext_benefit_t, ext_benefit_tl), 
+    list(
+      Yes = ~sum((. == 1), na.rm = TRUE),
+      No = ~sum((. == 0), na.rm = TRUE)
+    )
   ) %&gt;%
+  kable(
+    col.names = c(
+      &quot;Year&quot;, &quot;Labor inc&quot;, &quot;Labor and Total inc&quot;,
+      &quot;Labor inc&quot;, &quot;Labor and Total inc&quot;
+    ),
+    align = &quot;lcccc&quot;
+  ) %&gt;%
+  add_header_above(c(&quot;&quot;, &quot;Tax report&quot; = 2, &quot;No tax report&quot; = 2)) %&gt;%
   kable_styling()</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Tax report
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+No tax report
+</div>
+</th>
+</tr>
+<tr>
 <th style="text-align:left;">
+Year
 </th>
 <th style="text-align:center;">
-Not receive benefit
+Labor inc
 </th>
 <th style="text-align:center;">
-Receive benefit
+Labor and Total inc
 </th>
 <th style="text-align:center;">
-NA
+Labor inc
+</th>
+<th style="text-align:center;">
+Labor and Total inc
 </th>
 </tr>
 </thead>
@@ -613,13 +346,16 @@ NA
 2012
 </td>
 <td style="text-align:center;">
-1774
+73
 </td>
 <td style="text-align:center;">
-944
+1015
 </td>
 <td style="text-align:center;">
-7135
+1007
+</td>
+<td style="text-align:center;">
+985
 </td>
 </tr>
 <tr>
@@ -627,13 +363,16 @@ NA
 2013
 </td>
 <td style="text-align:center;">
-1920
+84
 </td>
 <td style="text-align:center;">
-951
+1033
 </td>
 <td style="text-align:center;">
-6946
+994
+</td>
+<td style="text-align:center;">
+978
 </td>
 </tr>
 <tr>
@@ -641,13 +380,16 @@ NA
 2014
 </td>
 <td style="text-align:center;">
-2254
+19
 </td>
 <td style="text-align:center;">
-703
+721
 </td>
 <td style="text-align:center;">
-6811
+1021
+</td>
+<td style="text-align:center;">
+988
 </td>
 </tr>
 <tr>
@@ -655,13 +397,16 @@ NA
 2015
 </td>
 <td style="text-align:center;">
-2279
+25
 </td>
 <td style="text-align:center;">
-764
+785
 </td>
 <td style="text-align:center;">
-6692
+1082
+</td>
+<td style="text-align:center;">
+1049
 </td>
 </tr>
 <tr>
@@ -669,13 +414,16 @@ NA
 2016
 </td>
 <td style="text-align:center;">
-2344
+29
 </td>
 <td style="text-align:center;">
-761
+787
 </td>
 <td style="text-align:center;">
-6495
+1072
+</td>
+<td style="text-align:center;">
+1031
 </td>
 </tr>
 <tr>
@@ -683,13 +431,16 @@ NA
 2017
 </td>
 <td style="text-align:center;">
-2360
+28
 </td>
 <td style="text-align:center;">
-824
+851
 </td>
 <td style="text-align:center;">
-6368
+1122
+</td>
+<td style="text-align:center;">
+1076
 </td>
 </tr>
 <tr>
@@ -697,67 +448,20 @@ NA
 2018
 </td>
 <td style="text-align:center;">
-31
+17
 </td>
 <td style="text-align:center;">
-687
+703
 </td>
 <td style="text-align:center;">
-8805
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-NA
+172
 </td>
 <td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
-</td>
-<td style="text-align:center;">
-0
+170
 </td>
 </tr>
 </tbody>
 </table>
-<p>2013年の相対寄付価格と比較して、 2014年の制度改革によって、寄付価格が増加・変化しない・減少するグループに分けて、 税控除申請比率の推移を確認する。</p>
-<p>この図のメッセージ</p>
-<ul>
-<li>2013年の相対寄付価格が低いほど、申請比率は高い（グループ間比較）</li>
-<li>2014年の制度改革によって相対寄付価格が減少したグループは控除申請比率が高まった（前後比較）</li>
-</ul>
-<pre class="r"><code>df %&gt;%
-  group_by(year, credit_neutral, credit_benefit, credit_loss) %&gt;%
-  summarize_at(vars(ext_benefit), list(~ mean(., na.rm = TRUE))) %&gt;%
-  ungroup() %&gt;%
-  mutate(group = case_when(
-    credit_loss == 1 ~ &quot;loss&quot;,
-    credit_neutral == 1 ~ &quot;neutral&quot;,
-    credit_benefit == 1 ~ &quot;benefit&quot;
-  )) %&gt;%
-  mutate(group = factor(
-    group,
-    levels = c(&quot;loss&quot;, &quot;neutral&quot;, &quot;benefit&quot;),
-    labels = c(
-      &quot;2013 giving price &lt; 0.85&quot;,
-      &quot;2013 giving price = 0.85&quot;,
-      &quot;2013 giving price &gt; 0.85&quot;
-    )
-  )) %&gt;%
-  filter(!is.na(group)) %&gt;%
-  ggplot(aes(x = year, y = ext_benefit, group = group)) +
-  geom_point(aes(shape = group), color = &quot;black&quot;, size = 3) +
-  geom_line(aes(linetype = group), size = 1) +
-  geom_vline(aes(xintercept = 2013.5)) +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
-  labs(y = &quot;share of receiving tax benefit&quot;, linetype = &quot;&quot;, shape = &quot;&quot;) +
-  ggtemp()</code></pre>
-<p><img src="data:image/png;base64,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" width="672" /></p>
-</div>
-<div id="雇用形態を操作変数としてiv推定panel-data" class="section level2">
-<h2>雇用形態を操作変数としてIV推定（Panel data）</h2>
 <p>以下の就業形態に関する変数を用いる</p>
 <ul>
 <li><code>p_aa005</code>：雇用形態（1=常用職2=臨時職日雇い3=自営業4=無給家族従事者）</li>
@@ -787,85 +491,299 @@ NA
 <li>国際および外国機関</li>
 </ul></li>
 </ul>
-<p><code>p_aa005</code>で常用職かどうかのダミー変数を作成する。<code>paa008</code>は共変量としてコントロールする</p>
-<pre class="r"><code>original &lt;- read.dta13(&quot;../data/merge/merge.dta&quot;) %&gt;%
-  data.frame() %&gt;%
-  dplyr::select(pid, year, p_aa005, paa008) %&gt;%
-  mutate(employee = if_else(p_aa005 == 1, 1, 0)) %&gt;%
-  rename(indust = paa008) %&gt;%
-  dplyr::select(-p_aa005)</code></pre>
-<pre><code>## Warning in read.dta13(&quot;../data/merge/merge.dta&quot;): 
-##    Missing factor labels for variables
-## 
-##    hcr016
-## 
-##    No labels have beend assigned.
-##    Set option &#39;generate.factors=TRUE&#39; to generate labels.</code></pre>
-<pre class="r"><code>df &lt;- df %&gt;%
-  left_join(original, by = c(&quot;pid&quot;, &quot;year&quot;))</code></pre>
-<p>employeeかどうかで控除申請に差があるかどうかを記述統計で確認する</p>
-<p>この図のメッセージ：self-employedと比較して、employeeの方が申請している</p>
+<p><code>p_aa005</code>で常用職かどうかのダミー変数を作成する。<code>paa008</code>は共変量としてコントロールする。</p>
+<p>employeeかどうかで控除申請に差があるかどうかを記述統計で確認する。 初めに労働所得で控除申請している比率を示す。</p>
+<p><strong>メッセージ：労働者の方がtax reportする比率が自営業者よりも高い</strong></p>
 <pre class="r"><code>df %&gt;%
   dplyr::filter(!is.na(employee)) %&gt;%
   group_by(year, employee) %&gt;%
-  summarize_at(vars(ext_benefit), list(~ mean(., na.rm = TRUE))) %&gt;%
+  summarize_at(vars(ext_benefit_t), list(~ mean(., na.rm = TRUE))) %&gt;%
   mutate(employee = factor(employee)) %&gt;%
-  ggplot(aes(x = year, y = ext_benefit, group = employee)) +
+  ggplot(aes(x = year, y = ext_benefit_t, group = employee)) +
   geom_point(aes(shape = employee), color = &quot;black&quot;, size = 3) +
   geom_line(aes(linetype = employee), size = 1) +
   geom_vline(aes(xintercept = 2013.5)) +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
-  labs(y = &quot;share of receiving tax benefit&quot;) +
+  labs(y = &quot;share of tax report&quot;) +
   ggtemp()</code></pre>
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAA7VBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZpAAZrY6AAA6ADo6AGY6OgA6Ojo6OmY6OpA6ZmY6ZpA6ZrY6kJA6kLY6kNtmAABmADpmOgBmOjpmOmZmOpBmZjpmZmZmZpBmkGZmkJBmkLZmkNtmtrZmtttmtv+QOgCQZgCQZjqQZmaQkGaQkLaQtraQttuQ27aQ29uQ2/+2ZgC2Zjq2kDq2kGa2kJC2tpC2tra2ttu229u22/+2///bkDrbkGbbtmbbtpDbtrbbttvb27bb29vb2//b/7bb/9vb///r6+v/tmb/25D/27b/29v//7b//9v////BmGz4AAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3da4PURpancZVdXmoG2IZtGNht3EtPweDuZseFPbahc8EL7qaLgszv/3FWoUumUreUIqSIcyKe3wu7KisvoZOKPxG6ZjsAgJUsdAMAQCsCFAAsEaAAYIkABQBLBCgAWCJAAcASAQoAlghQALBEgAKAJQIUACwRoABgiQAFAEsEKABYkhegmbwmaUMJAT/kdTV6vzNKCPghr6vR+51RQsAPeV2N3u+MEgJ+yOtq9H5nlBDwQ15Xo/c7o4SAH/K6Gr3fGSUE/JDX1ej9zigh4Ie8rkbvd0YJAT/kdTV6vzNKCPghr6vR+51RQsAPeV2N3u+MEgJ+yOtq9H5nlBDwQ15Xo/c7o4SAH/K6Gr3fGSUE/JDX1ej9zigh4Ie8rkbvd0YJAT/kdTV6vzNKCPghr6vR+51RQsAPeV2N3u+MEgJ+yOtq9H5nlBDww7mrbbJvPvY9vn33OMuyuy8/jj7U1yJ6vytKCPjh2tU+XfQH6M2jrHT+ZuSh3hbR+11RQsAPx6725WHWG6Dm8cpXfxt8qL9F9H5XlBA4oUiiBd7G6dU3JhT7AvQqy86eftxtf8j/fmvwof4W0ftdUUJg1H4w5/xGLi9+e5H1B2g+sc+eFT9d57H5/cBDAy2i97uihMCIrMnxrexfevMi//TbvQG6OQwy84Hng4GHBlpE73dFCYFhWbZcgtq/2gwpswfXfQG6fV6PNovxpnlCz0NDLaL3u6KEwDAxAXr+pj8Mvzw8TNKrn3seGmoRvd8VJQQGZW1Ob2b9yk//crkbGE3m2brf0V4NPXseGmoRvd8VJQQGCQnQUm+ANh+s0rLnoaEW0ftdUUJgSCc/nbrLWgF6OFCp3GXU81D5+T3+CTeUEBjimDg+AnTTTcuehwjQtVBCYEhcAdrF/NMZJQSGKJjCE6BhUUJgiIIAnbENtKdF9H5XlBAYtGR+shc+RpQQGCQ/QJvXuMvT0hw13/PQUIvo/a4oITBswfxcJ0C/PDwcNX84E6n90FCL6P2uKCEwTHyAci58WJQQGLFcfq4ToK1LL90aeGigRfR+V5QQGLVQfK4VoOZKTZf13w/XA209NNAier8rSgiMWSo+1wpQM8jM7neuSN9+qL9F9H5XlBAYs1B67hYO0Kv9L9wTKSRKCIwRH6DclTMkSgiMWGr+vlsvQKubwN+57NwX/uihvhbR+11RQmDEcvnpHKDLo/c7o4TACAIUYyghMKIM0EV6ibyuRu93RgmBYYsdBLojQKNECYFh1QCUAEU/SggMW+o0zuK93N9iYfR+Z5QQGLTYefDFm7m/xcLo/c4oITBouSuJ7AjQKFFCYBABinGUEBi04MXsCNAoUUJgSJYtmaDyuhq93xklBIYQoDiBEgJDskUTVF5Xo/c7o4TAgHZ+EqBoo4TAgE6Ahr2p3PLo/c4oITCAAMUplBAY0A1Qp94ir6vR+51RQqBfT346dRd5XY3e74wSAv0IUJxECYF+vQHq0F/kdTV6vzNKCPTqz08CFE2UEOg1EKD2HUZeV6P3O6OEQC8CFKdRQqDXUIBa9xh5XY3e74wSAn3qsHTe+X54xyXeZFH0fmeUEOizeH4SoDGihEAfAhQTUEKgxyE4l8pPAjRGlBDosdzA8/CWy77dAuj9zigh0IMAxRSUEOhBgGIKSgh0Lbjv6PCey77dAuj9zigh0LVCfhKgMaKEQBcBikkoIdCxxgyeAI0RJQQ61shPAjRGlBDoIEAxDSUEOsoAXbhzyOtq9H5nlBBoW+Tyn913Xe6tFkLvd0YJgbZ6AEqA4gRKCLStMgAlQGNECYGWdWbwBGiMKCHQ0pjBL/q2S77ZIuj9zigh0LLOAJQAjRElBFoIUExFCYFjK+UnARojSggcI0AxGSUEjh1uJ7fw+y77dgug9zujhMCRVa7EVLzxCu/pht7vjBICR9bKTwI0RpQQOEKAYjpKCBwhQDEdJQSaVtsESoDGiBICTavlJwEaI0oINBGgmIESAg3rzeAJ0BhRQqBhvfwkQGNECYEGRqCYgxICDeucBl++9fJv6Yje74wSAgcrXUekfO/l39IRvd8ZJQQOVsxPAjRGlBA4IEAxCyUE9tbMTwI0RpQQ2CNAMQ8lBPYIUMxDCYG9NfOTAI0RJQRqqw5ACdAYUUKgtmp+EqAxooRAbcX03BGgUaKEQGXN4eeOAI0SJQQq6+YnARojSghUCFDMRQmBCgGKuSghUFp5EygBGiNKCJRWzk8CNEaUECgRoJiNEgKFtWfwBGiMKCFQWDs/CdAYUUKgsOppnMUHrPfWluj9zighUCBAMR8lBIzV83NqgH5+/8uKjThC73dGCQEjWIB+eZh99bejX7/5uGIrmuj9zighYKyen9MDtPnrquj9zighsPMxAJ0YoG8zAlQRSgjswgRoHp29mMLrQQmBnY8ZfM8IdNMfoA9WbUazRfR+V5QQ2AUK0O3zvvy8v2orjlpE73dFCQEv+dm3DXT74cOH9w+zr15/qP22bhtaLaL3u6KEgIfzOHdTdyL5RO93RgmBoAG6/fXnX3ztNWqh9zujhICXGTyncsaIEgJeBqAEaIwoIRAmQLffPfn2Y/G/lm85DlQNSgh4mcF3ArTae9Q9nJ4zkfSghICX/CRAY0QJgTAByhQ+ApQQCBOg4dH7nVFCJM/PJtDuCPR59tX3q3/qGHq/M0qI1HnKz8FtoI/v3OVMJK0oIVIXOkA5lVMxSojEZQED9Ox7AlQ3SojE+crPvm2g2dnTn3+6yM7++nOTt1Pj6f3OKCESFyxAh66nzHGgilBCpM3bDL4boP3XUyZANaGESFvAAN3t3j25c+d2/ulf32nytlOe3u+MEiJp/vKTCyrHiBIiaQQoXFBCpC14gHJFes0oIdLmLT85Fz5GlBBpkxGgn3+8bfa+f3l86XMwSu93RgmRNgkBun1VHb705WF27vH6IvR+Z5QQSfO3CXQ4QOvjQYsALU7v9ITe74wSImn+8nM4QK/y1Lz8e7Ez/u1Fln3jbRZP73dGCZE0AQH66cKMOqujmfJfsmd+2kPvXwAlRMo8zuAHAzQfgD44HA66ybJbftpD718AJUTKPObn4HGgz4+uapcPQb3N4en9zighUiYgQFvXVfZ5YhK93xklRLLylZ8AhRNKiFTtLx/n6/P6H25dmJ4pvCqUEKnynJ9jO5GesRNJKUqIRPkegA4G6KY49PMwkzf75D21iN7vihIiUWIC1GTmrY9lgN488nhBenq/O0qIRPnOz+Ezka7zVpz94SI7++Nj0yBvx9HT+91RQqTJ+wB05GIib5t3RPI2gaf3L4ASIk2SArSYuZfOX3prD71/AZQQScpEBehut/3pSe4vb3w1pkDvd0YJkST/+ckV6WNECZEoApTe744SIlUEKL3fGSVEqjzn50iA3jxu7obnXHhFKCFSJSZAN1lGgCpFCZEqKQFqLkJPgCpFCZEo35tAxy4mkt177fN2xjV6vzNKiET5zs+RK9L7u/7SMXq/M0qIREkJ0Op6oCHQ+51RQqTJ+wz+xBXpQ6D3O6OESJP3/ByZwhOgalFCJKdY6cUEaHVF+hDo/c4oIVLTOGDI7+cOPO7zLkjH6P3OKCFSIy1AzYH094MkKL3fGSVEYkLl5+A20O+e3M7b8vWTvW+5K6calBCJkRag5pZIJ89E2r4zp8vffdmJ1uvWa8vr2V8dHhg7RIre74wSIjEaA3R/xfrz9hWXewPUHJtPgHpBCZGWYPk5MoVv6UzhGxnbDtd2gD5rPZ8AXRclRFrEBegE+Yz87OnH3faHbOysTzPuLGfwU/fr0/udUUIkpYpOVQFqLtdUHil6PTaizGO2is3riWfX0/udUUIkJVM4At0c8vBq+LbHjXDdTLw5Mr3fGSVEYkINQEcD9POPt832zS+PL7tTbzM1r09Vus6GJudmu+eD7gvGW0Tvd0UJkSBhAbp9Ve0gylPwvDNFb16uafjSTYcJ/PTrO9H7nVFCpCfIDH44QOujjooA7Wbfp4vDvvfBweVhO2m5D+kfb/Mh7dm98fvM0/udUUKkJ0h+Dgeo2cl++ffiqnZvL7pz9Oa0fTBArxr7jfIXnNcHjo5uC6X3O6OESI+sAM0HjPmos7osaHMkWTnapz6wF6l8j8rRTeoOz856/BNuKCHS4yk7JgZomYn1dZU3nUOQNhMC9Kr1nOzu63y4asazhzgmQFdACZEcX9kxLUDzWbkZPNYB2j0IfkKAmm2nz5q/PDj8OHJIPfNPZ5QQyQkzgz9xS486QLt3+JgQoJuhnDya2ndbRO93RQmRHGUBenob6OEkzr6/DB8SSu93RgmRmjAHMZ26K+fwFP70XviRcebIqUv0/gVQQqSjXNsD5eeJeyIN70RqRmq1wbRlcAZPgK6NEiIZAS8kUnz8wONl/B1m8u3Ea07qe08yGp7Bn7hjHb3fGSVEMoQGqMnMWx/LmDRXTm5f8vPkufCtVG0+Z/ysTnq/M0qIVDTzU1KAFhdFPvvDRXb2R3Pfju6I8fhqTN0L1V0fh25zi+im9wYh+xbR+11RQqQi8AB05GIib/tPHaqZs5Mui5/6rwfa2mxqRqzVENS8cuRkTnq/M0qIVFTJKTBAD/c8ys5f9vzZnFp0f/iK9O0dRWZEe27ORPrxYnQASu93RwmRiNAz+PELKm9/MndD+kv/1ZN67onUuHpd99CmiTflpPe7o4RIROgZvMM9kXruyjkaoLtXWfv5/S2i97uihEhDPfKUG6CfR+4DV94X/s7hevUnrp988+J2Zu4jf6JF9H5XlBBpkB2g719cFBPuE1dAXhi93xklRCoO+SktQA/7kLLs3pT7ES/VInq/K0qIpITLz+EA/XTRPIzpfGS3+dItove7ooRIisAALW6JdO/1x3pL56Rbui/TInq/K0qIlAScwQ8GqDls87L+ZdN3KtJa6P3OKCFSEjA/x67GdGvot3XR+51RQqREYIC2jkJq3sR4bfR+Z5QQKZEZoM3E7F6Rfj30fmeUEAkJuQmUAI0RJURCQubniSvS1/IpPNtA9aCESIjIAD2+C9LV+PU/FkXvd0YJEb96LQ86gx+9oPL+wiCvsjNvRzHR+91RQkRvn5tB87MToNtff668MEfS/zX/4buL7Ozpz7/4OpuT3u+MEiJ6QgO0cZXPY+xE0oMSInaHiTsB2moRvd8VJUTsjgegcgJ0+92Tft8yhVeDEiJ2QgagLlekXwm93xklROSkzOAJ0BhRQkROygyeAI0RJUTcxAxACdAYUULEjQAdRu93RgkRuzo2CdA2er8zSohEhN4ESoDGiBIiEaHzkwCNESVEIgjQDnq/M0qINASfwROgMaKESEPw/CRAY0QJkQYCtIve74wSIg0EaBe93xklRBLCbwIdCtDtL60H3v0rl7NTgxIiCeHzc/iunPebl6/bvuJ6oIpQQsSrsXZLDtDs/HAbuZtHXFBZE0qIaDWm7QJm8CMBmmUPql/+70WWNe/RuXKL6P2uKCGi1Q7Q0M0ZeNwMOrNv3uQ/bZ/nP539yV+LQpdEP0qIWDVHnZIDdLf9weTm5e6dGX6ev/HYotAl0Y8SIlZqAnS3+2Si845p4+99Td+N4CXRjxIiVu38DL2qj31+MXn3O/zc0fsXQAkRKWkD0PED6YsxaD6N9yp8TdSjhIiUpgDdvipbm933OYOn97ujhIhTJz+Dr+nDDSj2w5//p0nRxiGhHloUvCbqUULESdwAdDBAi53wxdjz7UXjkFAfLQpfFO0oIWJ1CE3RAVoe/Flu/bx57nVPkoCiaEcJET/RAWrORDpk5ibjVE5NKCGiJ2MT6EiANg/+/PSIAFWEEiJ6MvJzMED/5/F+o+0rAlQPSojoyQ7Qrl+5mIgalBCxEzKD54r0MaKEiJ2Q/DwRoB9qv/6ZK9LrQQkRO/kB+u5R1sQ2UD0oIWInPkA3WUaAKkUJETkpm0AHA7S4jkjDvdfeWiShLLpRQsTnaK2Wkp+DAZoPQM9emhOSzr4vrqns71xOGXVRjRIiOsdjTukBak7lNJl5lWXPiuGotxk8vd8dJUR0jgJUzAx+5EykM3Mo/aaZo55aJKIuqlFCxEboAHQkQIsx53WW3Tr8z0+LZBRGM0qI2CgN0Hzybu5nnP/KbY31oISIzXFkig/Q7fMyQKvkrPPUS4tkFEYzSojI9AxAZazkwwFabAOtgpQAVYUSIjJSZ/BjhzEVWz2viiD1uRteSmUUo4SISyZ1Bj96IP29N/Vu+KuMbaCKUELERewMfvxUznzUaYL0d3/IPB5JL6UyilFCxEboAHQ4QM1Njc20feP5VHh6vztKiJipCNDd7v1jk5rl3eHP/N3YWExp9KKEiJmSAK3d/PjtS18bQHf0/gVQQkRM0iZQrkgfI0qIiEnKz6kB+vn9L+u240BObdSihIiYhgBtHTnPqZyqUELES9QMfnqAciC9HpQQ8RKVnxMD9C239NCEEiJewgM0j85eTOH1oISIl/AA7dxNrsKZSHpQQsSjtTbL2gTaE6Dmbh5d9/21SE5xtKKEiEY7MGXlZ9820O2HDx/eP8y+ev2h9pvXFgmqjlKUENHQF6CGz93uLZKqoxQlRCx681PQ+j10QeVff/7F4+mbTZKqoxQlRCyED0A5lTNGlBCxaAcmAXqKqPLoRAkRic6MnQA9RVR5dKKEiIT0TaAEaIwoIeIgfgBKgMaIEiIOBOh8suqjEiVELHryU9TaLaoxBVn1UYkSIk7i8pMAjRElRJwI0NOEFUgjSog4EaCnCSuQRpQQUZK3CZQAjRElRJTk5ScBGiNKiCjpCdAvj++0PXn6xk+LhFVIIUqIGAmcwY9czq7HuY8IlVYhhSghYiQwP+cFaHb2vYcWSSuRPpQQMVIUoLvPH37M8/Lezx8+/Prni7zZv//55xeZl1vLiSuRPpQQ+nXXYk0Bau4td6tKy+2r8q7Gn/IkfbZ+i6SVSB9KCPW6GzwlbgIdDNA8LBujzavyrpwmVNdvkbQS6UMJod5AgIZqzpChBl0dDTarOD1O1bVaJK5G6lBCaNcz3NQUoK2bylW/ernVnLwaqUMJoZ2SGTwBGiNKCO2UDEBHArR5yFI+d6/2IhGgClBCKKdlBj+2DfRW57drH8cxCSySNpQQyqkP0Dwrix3vhU1W7FK6edh4bL0WySuSNpQQug3lp7wVe6hF2+fm1M2/fsj99Kg4gn77ws+pSAKLpA0lhG5qBqDDB9J/eXR0FvzfyrM71z8MlN7vjhJCu05aagvQ4vyj2v2P5enx99c/k5Pe744SIjZCZ/Cj1wPd/tdjcxr8nadFbG6/++tvXloksErKUELERmh+ckHlGFFCxIYAnUpkmXShhIgNATqVyDLpQgkRGambQEcC9OZxcze8h1OQ6hZJLJMulBCRkZqfo9cDJUCVooSIjLoANRdPJkCVooSIi9gZ/Ni58Nm91x4O++yQWSdVKCHiIjY/hwLUnMnp4ayjPkILpQklhF59a6+6AG1dzs4noYXShBJCrd7ZusYA9bbRs0VooTShhFCrL0DlbgIdmcIToGpRQmilbAA68aZyPkmtlCKUEFrFEqBebsDZS2qlFKGE0GowP4Wu02MH0vu4eF2X1EopQgmhlLYB6OA20O+e3M4b/fWTvW99panYUulBCaFULAFaXH6eM5GUooTQqX+yToDOapHUUulBCaHT8ABU6io9PIVvYQqvByWEVsoGoFwPNEaUEBEhQGeRWys1KCHiIXoGT4DGiBIiHqLzkwCNESVEPHQF6Pa7YncRO5E0o4SIh64ArS7DxGFMmlFCREP2JlACNEaUENGQnZ9M4WNECRENZQEanuRqKUEJEQvhM3gCNEaUEPr0r7XC85MAjRElhD79Uak0QL/82/3f/DZkT3S5dKCEUGfkQkySV+eRqzGdv/TblIroculACaGOzgHoicvZ3XvjtzWG7HqpQAmhTlwBurt5cVG0/eunvu/rIbteKlBCaDMwV1cboLn3j8uFuvvaX3N29P4FUEJoM5Kfotfm0cZt394uFuDM5x4l2fVSgRJCG6UD0JOHMX3+sZzK+9ujJLxgGlBCKKN1Bj/lONCbF5wLrwslhDJaZ/CTDqQvRqEEqB6UEOroHICeDtBtNYf/79298dt3ZjfT3Zd9++mvDtdxOvt+wvMbLRJeMQUoIaKgP0DfPRo+mOnmUZWQ592jRbfPuwE69vxmi4RXTAFKiCgoD9D3L7KRw+kblwztTu+b1xOtAnT0+c0WCa+YApQQMVCwCXQ4QOvd719fDsy480n6WT4w3f6QP+lW+4+fLrJvPs54frNFwiumACVEDBTk51CA1lPw4XM584jMnhU/XTc2c9auOyE5/vxmi6SXTD5KiBgoDtBivn0+trtnc4jIfGz5oPvXB3Oe32yR9JLJRwkRAQ0z+OEAPXH2kRmiPqt+zoeUrfl6869Tnn/UIuklk48SIgIa8nNwCv/LidflQ9T9PLz585RHun89apH4molHCREBzQF60qeLw7707njT7EP6hzmR/qzeiDr+/KMWia+ZeJQQEYg6QJvT8G4g5n89r4/6fDDh+UctEl8z8SghFBlYXVVsArW+rfHRbvbOXqFN1vBg7PlZj3/CDSWEHkOdXmgWnAjQLw+LqXbzQPjeg983owFqTuQ0lxHdvjUHkz4beT4BugJKCD0I0E6Amlc/OPxo5u7jgXvUIvGjdvEoIdQYmqnrmMFbT+EnB+Kni2KXOwHqESWEGqMB6r85cznsRJoWiNUeo8nPp/e7o4RQYygo4w/QiXvVy7RkL7xHlBBaDM7UIw/Q5tVC8kAcOTC+DNDpz9dQNeEoIbRQvgl0NEA//3jb7Dz68rjngkzVzqb65/EAfTbn+RqqJhwlhBLaB6AjAbp9Ve19z/PuvJN3o+e2Nx+o0pJz4T2ihFAi3gCtL2hXBGjPiPH46krH166r9rzXzyuGnmPPP26RhrLJRgmhxkh+aliNB9torn98+fdi4m2Ohu8MGc31PS+Ln7rX9zThW73APO3Bqecft0hD2WSjhFBOS34OBmg5iKy2XB4uhtxgzja6P3CF+Twjs/PX1R3pqm2fY88/apGKuolGCaGc+gAt953Xu342PZnXc4+jq/3As+emnNwTyRtKCOW0B2h1pFEdoD23OOq7y+YhQHevsvYfuSunN5QQuqnZBDpyS4/qlPgiQJsHIR2U93m/czjIqRGgu5sXtzNzE/ix5/e3SEXdRKOE0E1NfjoF6Eot0lE4ySghdIshQE9O4ddqkY7CSUYJoZqeGfzYTqRn4zuRVmuRjsJJRgmhmp78HAzQTbE5s3F10JEbES/cIiWVE4wSQrUIAtRk5q2PZYCa3efeNoHS+91RQigwvJpGEKDFsfBnf7jIzv5odp2PXH5u8RYpqZxglBDyDW/oVLQJdORiIm+zBm8TeHr/Aigh5DsRoL6bY2mknfsD37Pzl8PPWpya0slFCSHeyDAzkgDd7bY/mbsh/WX0xKHFqSmdXJQQ4sUxg7e+Iv161JROLkoI8eIYgBKgMaKEkC6SGTwBGiNKCOkSCNDtu/9Vngd/dv83b+2h9y+AEkK4U/mpZg0eOYzpYn8hkezsTx5bpKZ2YlFCCBfLAHQ4QDdZdghQnweCKiqeVJQQ4g2mZBwBau7icfan8gpM5oDQsbsYLdwiPcWTihJCLV0z+LGrMR0uYGduEsfVmPSghFBLV36euKVHjeuBqkIJoVYcAdq6BD1XpFeFEkItAtSRpuoJRQmhlbJNoCNT+OYV7K4zpvCKUEJopSw/2YkUI0oIrWIJUHMY0zfVZZhunnMYkyqUEEppm8GPH0ifff27J0/+cJsD6ZWhhFBKW36OnMr5qnlF+vseW6SqfiJRQgg2tnpGFKC7d1yRXilKCLlGZ+kxBehut/31v548efqLr/3vJV31E4kSQq6xAFW3CZTrgcaIEkKsuAagBGiMKCHESihAP/9421zS7svjS5+TeGUFlIgSQqyT+alr5R1u7bbcDZ8H6MPs3NtRoPT+BVBCSBXZAHQ4QM3ZR/sA9XgcPb3fHSWEVMkE6FWempd/Ly4i8vbC46nw9H53lBBCjU/SIwrQTxdm1Fldhcmc1/ls4InLt0hZBQWihBDq9ABU2bo7cjGRB4fL2G24mIgmlBBixTUAPXFF+jpAuSK9KpQQGkUUoFVy1gHKBZVVoYRQSOMMngCNESWEQhrzcyRAmcKrRQmhUEwBanYiPWMnklKUEApFFaCb4tDPw0ze3xWV9dVQHEoIfVRuAh0MUJOZtz6WAXrzKPO3CZTe744SQh+V+Tl8JtJ1vjRnf7jIzv742CyYt+Po6f3uKCH0iSxAd2+bt/Twd0sker87Sgh1dM7gxy5nd8MtPZSihBBofLXUmZ8nbunx05PcX974akxBYxWFoYSQ58QQM8YADUJjFYWhhJAnrQC9On/p915yexqrKAwlhDhT8lPhejt8MRGPO96PaKyiMJQQ4sQ5AD1xLnwIKssoCyWEOCcSkgBdisoyykIJIU2kM/gT58KHoLKMslBCSBPpDH74VM5H2dml15bUdNZRFEoIYU6NMKML0M/v/yNfojtP9r7lcnZqUEIIk1qAmmuJHOOCynpQQohzOj9VrrUEaIQoIXRRm5+Dx4F+96SFKbwelBC6RBegASktpCSUEKroncEToDGihFBFb34SoDGihFCFAF2Q1koKQgmhCgG6IK2VFIQSQhPFm0AJ0BhRQmiiOD8J0BhRQmhCgC5JbSnloIQQ5NTqqHkGT4DGiBJCjpP5qDk/CdAYUULIQYD6pbeWYlBCiHF6gh5VgG6fZ199H6QlNctaqv0GVqB3dUR0pg1A1a6x7YZX9/L48vjOXVW39FD8FSyPWkCMuAeggwGq7Z5Imr+DxVELSBH5DL4vQM++1xegur+EpVEKSBH5DL5vG2h29vTnny6ys7/+3PSL6OuB6v4SliIhj64AACAASURBVEYpIETsA9DuvpdN+1L0Gq5Inyn/Z2xhVAJCpBegZgiqLUD3jVyhORpRCIhxqlsq77g9TX/35M6d2/lCfX2nydtOeQLUGYWAFto77vBN5fTsRGqMk9do0GpWa62yOiBh+rrtMQI0mPWaq6sOSJm6btsydFfOX/3tdm+ZXc6jTbWrNGkdBCiSp67Xtslr+9xytnZ2rdOoFazYWkVVQNp09dkeY42/eXFhFu/re2+8NWfnHKDNl4v+dghQQHQXnWK48dtXh0y653E6P7OenfxsB6jQUF1zwCxiAYHTpHRHa4ONPz4e9Bt/CeojQMOH6qqbHHSvkkjHiqMITwYbf5Uv2PnL33a7D+8e5T/e8teiWfXs5qdtgPoNVQIU0D8AHQzQTxdZdr/+JZ/Mn3m7SOisgvbkZ+P1ckO1N+8Xo3ydRBwmrIbxBuhVc9pupvMPPDVoyQA9PKXvFQs+NqPFnXbPfu2Ud1/hTYFZJqzeq/UAf4aOA80j89nh12uPW0HnFLQ3P+f/w+c9VOe1djbl6ySiMDVAPTVnJdPORPJ5YpKPAB18r763XvCx/mZbNXd8URZ/S2CeKes2AbqCGRUdyM/lvpOVQpUARfSSD9DmbqNPFyIDNAj3AF0t7w+ftfQ7AjNNzU/l66rubaBSEKDAkUQGoIN74TfNSyjn41Ghe+EFGwzQPkt/9LLvB8yVeoCa40C/qc6Bv3ku9jhQZTwlaMwlhAqT81P7qjrY/uLeSPf++vPPP70wP3kbgEbf+wlQxC+VAejIxUReNfv3/cGnLd8i9TUdxQgUSTi9UkceoLu3F3XvPrv016DYe//JAF1g+SMvIeIQe4Dudu++M7eT+/alr8YU9Nd0zOmNoAusVXGXEHGIYhNoBFekj8wSc/rESwgVoshPAlSaJTaLJl5CqECAriOCorpYYsdS4iWEBnHM4AlQcQhQpCCO/CRABWIKj/gRoCuJoarOWivXzJpQQohHgK4khqouoBWgs1Y2SgjpItkESoBqMHerKCVEQJNWv0jykwDVYO6eeUqIcKatqAToWqIo67IIUOgxaUWNZQZPgOowbw5PCRFMWgNQAlQNAhQaEKB7n3+8ba5L/+Xxpa/beRhx1HUVUw9tooQIZlo0JhCg2/KCoHmAPszOvV2Pnt4/1cgqSAkRyowBaBRr6eBCmNvK7QPU4x096P3TjO1WooQIJbEZ/HCAXpnrKP+9uB+8ubKyt5ty0vunGdszTwkRyMShZfwB+unCjDq/FAFa3GHu2cATl29RHIVdGwEKgVKbwQ8G6FVxH7kqQM0d5m55a1EchV3f8ByeEiKYtAagQwG6fV5s9qwDNB+CepvDx1JZHwhQaBR/gFbJWQdo/X8vLYqksp70HdpECSEaAbpmiyKpbAjVikkJIVlEm0BHApQpvDoj+5UAMWJaRUd2Ij1jJ5IyY3vmASliWkOHlmNTHPp5mMmbffKeWhRLaf0jQKFAVGvo0HKYzLz1sQzQm0eZv02gBKgL8hPiRbWGDi7Idb6QZ3+4yM7++Ngsr7fj6AlQR+3Vk3pCljQCdPe2MSH0N4Gnwy+gcz+lYC0BOhIJ0GLmXjp/6a9BBKi7ZgmZ1MMHs4JNW8viWh9HF2T705PcX974akwhntoG0xeglBUrMuvXxNUsrpVR3pJEVNxQ+gOUumI1BGjL1flLn5ehb4iouKF07ykf10oLaWasZJGti8MXE/G44/1IRMUNpVVC8hMrmxugHprkyfi58CHEVN1AuiXk0CasaM4shwBdWUzVDeTkJe7iWodPSGdJQ5m1nT2NAK3OhQ8hpuoGcqqESW0UTWU5A5oToLGteYOncj7Kzi69tqQWU3UDmRqgSZQ6jaUMKeUB6GCAfn7/H/mC3nmy9y2Xs1NjeoDGX+s0ljIoArTLXEvkGBdU1uNkCQlQ2VQ1+Cgmpj3ZR7M8IUAjNHlTVPylVrmcqhrcyokpz/bSLk+GjgP97kkLU3g9pp+TPPtFyugcaKtpcHuURYAKEFd9g5hawu4ZSydfYdmiUFRuqpDZ4FarerJzSqVlLpsDeQsTV32DsCnhpA6gbeWfPDASRVyD+8poF6D6voxT5C1MXPUNwilAx16sbeWfPrUUJGyDx8Oy77E5Carsq5hgfGk+1H7987+yE0mNtQJU2+o/eWAkiccGzw/LvsfmJKiur2KK4aV59+ioKj174bfvzN0+7vZftun9i9v5H+88Pfzx6vBm5pbJgy2Kq8Ah2JXw9PqvbPWfPjCSZKUGLxOWrcf6Y/RUI5ZbKAEGl2bTqko3QPdXrD/vXnHZXM2pyspnnYcI0JVZl3B8/daTRIO9u/0UeabkkM17OD82/kEDVe57vvViiTS0OJ8ujmty73X7GY1DRTvh2gzL+pz65qGlBOiq3Drf4Bu59+yFjQfAeNd2Do+VTMmh/hf1vccyj01pbH+Vx9sZg6HFyQegZy9NEOZZ9+6i765y+Yz8LJ+gb3/Ia3Kr+7fs/m95kP54sY/XPJK/mXIsaWwVDmCxEh6t8BYde0HzA2C8a6/y2JKLOfRuKy+HbWMHyjza9hgMHUj/vMzM8qJMefZ1BplmiFqOLa87I0oz2Lw8PO1B/bR2zva3KLIKB7BUCY87hGt3O/VBPZ+77M6NVYPH5bGh1ksKyyWE/vw1DCxOHoFFKG6aOXpkc8jDq/YANc/K/WDzqn7eZuLNkWOrcACLB6h5w94Ysn3Tvs9Y+rE+Pj5XZpslENgkZ8MBWow5q2Fjd/TYvOdHMy8Lzays/zj5JiHRldi/NQJ0oE9PeG2Ax3b9odTfSCFtHjT//aRS0sxZTgRoteEy/7W1/bIeorZ/7qgDdPRJRy2KrcT+LVfCQ+cci6JQwTOh4WPNns7bso03evAx2+Xyy+07EGp4G2gRoFVydu/w0dwsOjq4rKf6Jor/8fZ2lp3dG7/PfHQl9m/REpZrvV3HXvAxm1aPNHkdzss73mgvy7Ae5c3vNxygxXixCtJugDan7WMBWu+NMi84rw8cHd0WGl+NvVu6hKsH6LLN3Q1H0uIftIhJ6alfdAtkDC1QPXC8KoK0uxv+aKtoZy/S0fPKVx4dmH94dt9K80+4Wb6E41/TrMeWblo8Yu8LcSzQxAA1hx+ZuXa5P+iqvZuouRN+LEDNAU0P6udkd1/nQ9K35hD9/YA19pUmCAkBirn6ahxTRSNZnokBWowY87GjCdLf/SHrJOS0ADUT+DJ5D0la/DhySH18o3zvFi9hb9de+DOS1x+goVu1nMgWpzK4RNtX5eS7mnq3D6SfFKAmP3suQpKH8sgO+QiL7JuXAF34I5LXn58R1TmupamNLNH7xyb8TJD2nLw+ZRuoudpI362Uxg8JjbDIvi2/Eynqng0fIl1pJizRzY/fdq9YN2EvvJn9n/deRXRkpxMBugACFOJEus7YLlLz0iD1MU/H3maDmzoJ0HUtXMLoJ5fwINJVxnaRmkeG9p5kZLad3h/YVdRzan2jRRFW2TNKCHEI0COj58LnzJbT5iiz+ZzxszpjrLJnlBDSxDppGV6kmxdH11Qe2Q1/1b1Qnbmc6GXzgeae903/vqW6RRFW2TNKCGkizc/hAL1ubfBqR57ZRXRZP7M9oLxu3MqjdDgitHGJ0P4WxVhmvyghpEktQNu39OiOGa/KjZx9V6Q3h8q3N3KaQD5/fXyR+v4WxVhmvyghhIl1Bj8YoCYeu/dBauq5J1J9xuemL3sn3pST3u+OEkKYWPNz7JYep27A0b0rZxWgR7eUO+Trq6z9/P4WRVlnryghhEktQCdd/ri8L/ydy/0e+CpAm/ffbA5Qb4pbxd99eaJFUdbZK0oIYRIM0LHtlGuKs85eUULIEu0m0FNXpA8gzjp7RQkhS7T5OXZB5Um3gFtepIX2iRJClvQCtHsbOV8iLbRPlBCixDuDHz6Q/tNFditIgkZaaJ8oIUSJNz87Abr97knFHKT09ZO9b32laayV9ogSQpSEArR9CNLwmUirtSjSSntECSEKAUqAakIJIUnEm0BHpvAtTOH1oISQJOL8tL4e6HqiLbU/lBCSEKA+RVtqfyghBIl5Bk+AxogSQpCY83NSgP62eiua4q21N5QQgiQboP/P7DcqLlp3z+Mh9fHW2htKCDminsEPB+j2h+LIpeqwpq9GL+G5bIuirbU3lBByRJ2fwwF6VR76WV9H3t+J8REX2xdKCDnSDNBP5Z2LzAD0m4/mF2/XZoq42L5QQsiRZoBuykFndcfNzekbfCzXoniL7QslhBhxbwIduyeSGXNWE/l8COptDh9xsX2hhBAj7vw8cUuP+t5yPu/wEXO1PaGEECPpADUbPx/sCFBlKCGkiHwGfyJAr7NyJp8HKQGqByWEFJHn58g2ULPzqNoEaoKUbaB6UEJIkWiAmuh8UBzEZDaBmk2hD7y1KOZy+0EJIUWqAWom7797VM7gb56XBzN5alHM5faDEkKI2DeBjp6JVJ2BVJzN6W0ASu93RwkhROz5OXIu/HOz6OfV6fD3PbYo6np7QQkhRLoButu9//O3v5j/f/m3e/4uJULvXwAlhAzRz+C5oHKMKCFkiD4/CdAYUULIQID6F3nBfaCEkIEA9S/ygvtACSFC/JtACdAYUUKIEH9+EqAxooQQgQANIPaKe0AJIUECM3gCNEaUEBIkkJ8EaIwoISQgQEOIvuTro4SQgAANIfqSr48SQoAUNoESoDGihBAghfwkQGNECSEAARpE/DVfHSVEeEnM4AnQGFFChJdEfhKgMaKECI8ADSOBoq+NEiI8AjSMBIq+NkqI4NLYBEqAxogSIrg08pMAjRElRHAEaCApVH1llBChJTKDJ0BjRAkRWiL5SYDGiBIiNAI0lCTKvi5KiNAI0FCSKPu6KCECS2UTKAEaI0qIwFLJz1gCNJnvaxJKgcCS6ZDyFtKi7lltheZoRCEQVjrdUd5Czq571rRKk7ShDAgrnb4obynnFj7LSNAWqoCw0umK8paSAHVGFRBWOl1R3lLOLHzWtlKzNKEICCqhnihvKQlQZxQBQSXUEeUt5rzKd/IzlS9uDDVAUAn1Q3mL6RygyXx3g5IvAIJKqRPKW8wlAjTxJE11uSFDSl1P3nIuGqBpBmlqywtZUupy8pZzlQBNK0kTWUwIlU5P0x+gsxM0hSCNfPEgWwI97EDeci5xGFPiSRrnUkGJaPtVH3kLuuiZSGkGaVxLA2Wi609j5C3oKqdypjUkjWIhoFQ03WgSeQu67tWYkghS1Y2Hctp7zzzyltTP9UCjHpJqbDNiobTTWJK3pJ6vSB9jkipqKqKjq6+4krekgYofU5AqaCJipaSPLEXekoYufgRJKrdliJ7onrE8eYsqpfprB+mKK5qUEiJBBGhg4qq/SpKuOooVV0IkQ/bcbHnyFlVu9ZcLUvfx64m3X/49gSkSy08C1ILzkNR63Dq5gYu/JTAJARqaovLbBikBilgRoKEpLP/MIenEcapLe5Z+R2CSlYYEcslbVs3ln5GkBCgilFp+EqCrCJygMZQQKhGgwUVVfwIUsykOoXVmVJLJW9go6+83RaMsYSrW+lfVC7UNtyZvaeP+ArzEaNwljNqaExMPlDbbgbyljf4LWH8wGn0Jo7XapMQTna12IW9p4/8CJiSo24oYfwljpTxAdbbaibyljf8LmBqg1mtj/CWM1HL/hoahsc2O5C1uAt9Aby9ZMEYTKGGcCFB15C1uAt/ASC9ZJEYTKGGUnP/lDExhk53JW9wUvoETfcQ1RVMoYYzc/tkMT1lzFyFvedP4CiZ0D/sYTaOEURn9srUkqY5WLkve8qbyFUxb26x6VColjMKU6FQSpLJbtw55y5vcVzDBzP5ECVWYH52yk1Rko9Ymb3mT+womm9yZKKFwztEpMkgltcUbeQuc3ncwy5SeRAnFsohGNUkqoAn+yVvg9L4DC+PdiBJKNCX7RgNReJBKyHD/5C1wet+BLXl9CL2mp92kL3F6kHpdC9Jc7eQtcYJfghMxHQhds+Nt1rcnK0jTXOHkLXGCX8ICQvcetFgHmsXXNj1I11wX0lzX5C1xgl/CUkJ1HRxx/Rrsv66QSZroWiZviRP8EpZFjAbjObMs27FOoxJdveQtcorfwsKKHfEienIypETnrGYt2sZE1yx5i5zit7CwxgGhEnt1XIRG57G1g1TY4nokb5FT/BYWtsIV8tClIjpbVklS4cu8KnnLnOTXsKw1LpGHJo3ZeWy5IFW36IuSt8QJfglLG7tOk0u/T7OLHNMfncemB+m0w/r9tj48eQuc3newuJOXC7WKgGT7SCW26GyxDdLY6jCTvAVO7ztY3PSjDafHQcq9JPLoPDY9SPsvdRK6/Z7JW97kvoLlzbl70sRkSLWXpBSdLTOSNJ2idMhb3uS+guXNLeGEDpFeLyEmKiToGHmLm9o3sAK7EtJLKuku+ThWjR7yFje1b2AFDiVMO0BTXOb5klw1hshb3NS+gRU4lzCiEJ3aUv1L6h/FIkCjtEwJp6Wo7D40pUVKFkWm5Csmb3FT+wZWsGQJHWI0eB6d+mRBTVUr9bLJW97kvoLlLV7CJSPUX1yNfIL3tkQr9eLJW97kvoLlaQzQYUu1esqiLFSvlCReQXkLnN53sLjlS9ibNE6xuISZbXZ5MwxJvIzyFji972BxngJ0xtN9m9WIpYuVmLRrKW+JE/wSlrbaHW/c+8kC4bigBQuUspTrKW+Zk/waliU4QKd+wNqWX4CkpVtTeUud6BexpNUDbvm3n/rJRCdEkbc+sYo7W6eE8iKI7ERo8lYq1nNna5VQTwoRoPBD3krFeu6MEhrkJ9Ynb61iRXdGCQ0CFOuTt1axojujhAXyE6uTt1qxpjujhAUCFKuTt1qxpjujhCXyE2uTt16xqjujhDXiE+uSt2axsjujhAfEJ9Ykb91idXdGCQE/5HU1er8zSgj4Ia+r0fudUULAD3ldjd7vjBICfsjravR+Z5QQ8ENeV6P3O6OEgB/yuhq93xklBPyQ19Xo/c4oIeCHS1fbvnucZdndlx8n/nH0+YcW0ftdUULAD4eudvOoOk3u/M2kP44+v9Eier8rSgj4Yd/Vvjzcn2j81d8m/HH0+c0W0ftdUULAD/uudpVlZ08/7rY/5Il4a8IfR5/fbBG93xUlBPyw7mqfLrLsWfHTdZ6M35/84+jzj1pE73dFCQE/rLva5jCOzMeWD07+cfT5Ry2i97uihIAftl1t+7weUBZDym8+nvjj6POPW0Tvd0UJAT9su9qXh4d5ePPnoT+OPv+4RfR+V5QQ8MO2q326OOxLb44uh/44+vzjFtH7XVFCwA/brtachncCseePo88/bhG93xUlBPxwCNDDsUjtvUI9fxx6fufm3bl/wg0lBFayUIBuxgK0549DzydAV0AJgZUIC9Au5p/OKCHgh8QABQCZFgrQpbaBkqAA9FguQFfaC29H4ayVJnuhsM002YdlmuxwHGgzEI8PjO/54+jzF5DsF+iVwiZrbDNN9iFsgH55eDgwvu9MpPYfR5+/gGS/QK8UNlljm2myD2EDdL1z4e0k+wV6pbDJGttMk30IG6CtqyvdOvnH0ee7S/YL9EphkzW2mSb7EDhAzfU9L4ufBq4H2vrj6PPdJfsFeqWwyRrbTJN9CBygZhyZ3R+5In37j6PPd5bsF+iVwiZrbDNN9iF0gPbc4+hqv3HT4Z5IdpL9Ar1S2GSNbabJPoQO0J67bB4C1OGunHaS/QK9UthkjW2myT4ED9DqPu93Lvd71K+aR8u3/9j70GKS/QK9UthkjW2myT6ED1BJkv0CvVLYZI1tpsk+EKBNyX6BXilsssY202QfCNCmZL9ArxQ2WWObabIPBGhTsl+gVwqbrLHNNNkHArQp2S/QK4VN1thmmuwDAdqU7BfolcIma2wzTfaBAG1K9gv0SmGTNbaZJvtAgDYl+wV6pbDJGttMk30gQAEgKAIUACwRoABgiQAFAEsEKABYIkABwBIBCgCWCFAAsKQlQN+/uG0uxvy0c33muy/b12feHN00ueeFnlg3+fOP+QvP7r320soj1k0uXa1wt8CTbNt8tb/DjPdW25f55sWFWTVWuKXDCVZNvs6OPfDWXMO6ytsfZ0SGjgA1d5Wv1vX65vKDdwj5dNGoRt8L/bBu8u7tRfWse55D377JpVVut3rCAmuG71bbl3n7IkwU2TY5ZIDaV/m67n+TVgsVAdpc2bOqHEP3qDOPH+4r0vNC4U1urnXdMZ7MJh8e8x2g9m1uPMtvq+2b3HylipW5HaAeG71I/5uyXqgI0OKOyL+ZsfXFftnzx86edu+SfPOwGTx9LxTeZPNtnr/M5/GvMs8DDesmN17vO0Dt29w3hPbCvsnmlWb2/k7NynxgAs3n2uzU/84uP5YvnLCGaAhQs0yX5Y/5al9+D+aH8h+Wo4ljOf2tl7vvhcKbvNvsf9747Sb2Td7Vz/AeoA5tvj7qRP7YN/mwCpv3ULEyH1z5nU/ZN/nwt+uLKWNmDQF6fTymLNb7zWH9v9qvTTdmG9HtoylE54V+WDfZ/Et9mHH4zCPrJpfy1fPrC98B6tDmjfcNiSX7JjcyaOM1jhzXjOotvK4a9k3ufdYIDQHaXNeryjRy5lAs809M9uD6aD1rv1B6k/MH6mGn5wC1bnIhf+rZ//Hb4J1Lm5tP88q6yWZQVT+rsZZIbvKe5yGzS5MbqTnp31gNAdpULWszXPY/59U4fzOUlH4DtOeTZzc5f5LXLV0N85ucr2zPPCd+y7w2h21rZVaTg220PWK3MnuewB+b1+QYR6BN1fI1/wne/9Py6V/MZo+BpNwE2uZl32S/Gx2OzG5y/sxbgUNpXptNHP3j7e0wB1XWZjU53ArcZLUyH7Y+hjB7xahW4k+TtkgpC9B6Z97IbKw/jXzvBex+8swmv3/keVdrw+wml4PloAE6s835z+f1UYFh1ou5TS4mlMWR4AEz325lDjgUmN/kq2ovvNm5NKHVygL0ukqVo32ox0Pt/gC9DhZHNk0uNs14P5C+2Z55Tb4q1segATqzzZvm8YmBEnRek80f9keC3w+0alj1v2lDubXMbfL21X69mFJlXQG63xi9mRmg3rdidz95TpOLQ4Kyu4EGGrObXK2bIQN0bpvNcYJ3X+/KgUaY+eXMJud/+PfDkeBhRnR2/S/oAHR+k4sjQM0heX+a8v6qAtSMvMslnRmghxf6Ztfk66+fPA42NJrd5HwdLX4OGKBz29z4B7XvpCofZja5PLXGTC537x4Fyny7lbl5+IB385tczv4K5xNGMJoC1BSjmofPC9DGCz2zbvKuPGEiQILOb3J9DZFwAepQ5lAzzLlNLgL0qzf7nwNkvmWV/R60emx+k01+mjMBt2YP44TQUBSgN43dKrO2wdwE2x9j3eSC51ORSvObvD9cLliAupU5yCGh85t8lR0dB+q/0pZVDrf71qbJjX+bzI+nNz3oCdDin4Y6T+bsBTx6oVfWTS6FmPvMb/Lh+MRQAepY5mnH+y3LoslXWc9hOB7ZVjngLiSLJjdbO6nlagL07eClIMxJMI3lbH+Bxy/0ybrJNf8926LJR/uzswBb59Io8/FMWEeTC+Fm8DZNHonZfloCdHN8VEHzLJ3WwKf1BbZe6JF1k/e8dxObJocO0EXK7LfNVk1uH6wof80ohJvBWzV5ZEtpPyUB2r62W++JrX2/er8o3OAnT2vy7H8Bl2TV5MAB6l5m71se7JrceyaNL9b9L9yGcU/9T0eAbswBHO1HGqesNrf1HhWn+0JfLJs8exvMgqyrXAnRVxYos+99dZZNbg7lFK0Zoc5g8dX/VATodfeOHGb78OX+j98fP7l5wp7vW3kMf/KkJjf2Avo+QNG6yrUAAbpAmT1fKda+zJv936btH16Oy5oR6BT+BVaMaQeLaQjQ3r3RV+UWjvblpTuHS4fJT+smFychlcehXfi9hqJ9kxvvEOCCyg5lfh3gXgX2TS6ulW6usm4OpFezZgQ4xGHn3v+mn66gIUBbW9nK1X3oBietLcLdF8pucrntpuZz64NDkyv+A9ShzaFuyunQ5MY5Ml5DyWXNCHTd1YX63/3Tn6QgQI/uD3VY+KFb7F0fjcF7Xii5ycb+y/e69dapySXvAerU5n1HmXLCnowm75817TRtCU0OE6BOTf6/9b9Tk6qsIECb909sVKO6yfOdy1Y/vj7aiNj3QsFNLhT3he+5e/Wq3Jpcv4XfAHVr882Lssz+2rtzLnPxrK+f/uatvTvHJofZCb9E/5tYZQUBCgAyEaAAYIkABQBLBCgAWCJAAcASAQoAlghQALBEgAKAJQIUACwRoABgiQAFAEsEKABYIkABwBIBCgCWCFAAsESAAoAlAhQALBGgAGCJAAUASwQoAFgiQAHAEgEKAJYIUOh2dOPcq/ou5DcvLrLs7F7j/t/vzCOHm9Vu8mduX11kZ3f933UX8SBAoVwemg+qH/MwLW4Bvn1V3xH8fnW/75tH9SNnZcKaAL0qfidAYY8AhXKfLrJvqpi8zrJb+f+2z7O9W8Uf8mTdKxMzD9A7xa/1awELBCiUy+OyGkWa4DTjy40ZeuZT9c9mIFqMTvOx5tllnpTbHy+qR8xzst9/3H3+LVzLoR8BCu029Rw+H4uaGbwZbpbzdDMk7T5SjDk32WHmD9giQKHdfg6/KWfsm3rivqv3Kl0fZup5ltYBytZPOCNAoV09h69n8Ptd8bsiOo/HmfV+pg1bP7EAAhTqVXP4agbf3IV02I1kbD/89N1Ftg/QW4NvCExEgEK9alpe5Wg7QMuB5vsXt+sHCFAshgCFfldmDt+cybcD9HAYKAGKJRGg0K/Y0lnvS6o3hTZUh4He+d3//uXvDwlQLIcAhX7FHH5/NNNV5wClTXUY6O5oJxIBCmcEKCKQz+H/c388fXMHe5mqjUi9ZgqPBRGgiEAei//jYR2bny72eZn/45sLNwAABy1JREFUWG4dbTxAgGI5BCgiUO44qkeZ5iIh56+rEzdv7Q5nchbndhKgWA4BihhsmtdVau6HL9LSjDtbVxMhQLEEAhQx+HRxdMT8izosz8srgm724fnvhwuOEKBwRoAiBu1jl94Xl0+++7L+vbzA8t2XH/tOmAdsEaCIQX10EuAVAYoYXDOgRAgEKCJwuKgy4BMBCv3MPZC4OB0CIEChXHWM0rPTzwSWRoBCufJKIdyeAyEQoFDOzN+/vgzdCqSJAAUASwQoAFgiQAHAEgEKAJYIUACwRIACgCUCFAAsEaAAYIkABQBLBCgAWCJAAcASAQoAlghQALBEgAKAJQIUACwRoABgiQAFAEsEKABYIkABwBIBCgCWCFAAsESAAoAlAhQALBGgAGCJAAUASwQoAFgiQAHAEgEKAJYIUACwRIACgCUCFAAsEaAAYIkABQBLBCgAWCJAAcASAQoAlghQALBEgAKAJQIUACwRoABgiQAFAEsEKABYIkABwBIBCgCWCFAAsESAAoAlAhQALBGgAGCJAAUASwQoAFgiQAHAEgEKAJYIUACwRIACgCUCFAAsEaAAYIkABQBLBCgAWCJAAcASAQoAlghQALBEgAKAJQIUACwRoABgiQAFAEsEKABYIkABwBIBCiyMTpUOvmtgWVlGr0oGXzVwZPvucR6Bd19+tH0D1wDdZN9YfzY8I0CBpptHWen8jd0bFC92aMCnCwJUDwIUK7sKkQfWKfblYVb76m9+P/rQAAJUDQIUKwsQoPsMnP/Sqyw7e/pxt/0hf/Uth8+2ealxYwKcAFWDAMXKvAdo1jTztfn8OXtW/HSdJ+n3Dp9u8dLc24uMANWEAMXKfAdoljkk6OYw7szHog8cPn3+S/Ph54v8hbcJUEUIUKxMU4Bun9cD0GIIatFw67Hvrhz+Zg/sPhdhEKBYmecAzdrmvPjLw8O8vfmzzafPfWkRoOdvLIMbYRCgmOrmRT5COrtXHt2Tj9Vu7d49yh+4n/f24tDJ8i957jzY/pg/8/xl+bJ9gDZfn2dFOT/On36r8+Y9v0/mFKB5s/b73pujUasPn/na/NP/5XJnO/JFGAQoJtrUwXDf/JbHy3+7Kn//6m+vyh+KAVueiL9/Xv5e5kAdoPXrz/5UPqt8NI+sZ5037/7eo5OUcwy8ZzO8xgK07436PqT3eaNVJkB1IUAxzaYcYn5+VYaaiZcsH3xu89+/zu79Vhz4Yzp+cSCl+f1VtT+mCtD89eevd7v3j8pYuqrmx5tiyNd6887vfVYK0MOxSyN7kQhQlAhQTJKPFKto2RTRZwK0iBcTmOVfroosbP5eZORVnatlLOQvNE+7LnO02BLQefP2773WCNDNogGaEaDRI0AxyWa/cbDMvCoHd4exZBV2eVJWf6g2b5YBekjCcvNn9cdyBt9+8/bvvQhQhEeAYopmkBWJmD9QdfOrOu2u6wC91Xzi/r91Ju5ztZy75/9tv3nnw3opCNDeDyRAY0KAYorGKeJZdhx63QCtY6f8Sytv6x+LOXz5Lu0373zYHFOzstfUbaDTPnnmhx/aQICqQYBiilkBWu+73hwFaGtQWQxEyxm8qACdtBd+2icToPEjQDFFY2Jech6BFo9f1/udjt6882GzuERY81JyeTtnHUjfl582CUqAakKAYopGAO4fmBCgI9tAi6dfFT+237zzYbO4JNhhD9j8M5EI0BQRoJhkv6+9irexAK36fxWl9V74ej58fTj+6ffVdL/95u3f53EIMIdz4fvz0yJBCVBNCFBMcpjclkdwjgVoNQQdPQ60+MPXF+WP7Tdv/z6XfXodX43JYUOCPQJUEwIU02zKs9vrE45GAzT7/cfi0mwPyr+3z0Sqpvh5UhyOlz96887vs9nuwTEXRLqsW2d1PVBnBKgmBCgm2p+eXnTvsQD93UX5xHog2nMuvGGi9lnvm3d/98ac33/f5Yr0zghQTQhQTHXz4nZmbldZ/DK6E6m4MHB9JaXW1Zju/7Z/w6vGIUpHb97zuy/u90RyRYBqQoBiWY298KdsAo3xRjnfldMVAaoJAYplTQ/QfBBrsYNodeV94e9chgoxAlQTAhTLmh6gny4CTZKBpRCgWNbkAL15bnPTNkASAhTLmhigm3B7aYDFEKBY1sQAvQ63lwZYDAEKAJYIUACwRIACgCUCFAAsEaAAYIkABQBLBCgAWCJAAcASAQoAlghQALBEgAKAJQIUACwRoABgiQAFAEsEKABYIkABwBIBCgCWCFAAsESAAoAlAhQALBGgAGCJAAUASwQoAFgiQAHAEgEKAJYIUACwRIACgCUCFAAsEaAAYIkABQBLBCgAWCJAAcASAQoAlghQALBEgAKAJQIUACwRoABgiQAFAEsEKABYIkABwBIBCgCWCFAAsESAAoAlAhQALBGgAGCJAAUASwQoAFgiQAHAEgEKAJYIUACw9P8BCGVFhqsN7TwAAAAASUVORK5CYII=" width="672" /></p>
-<div id="first-stage-estimation" class="section level3">
-<h3>First-stage estimation</h3>
-<p>2014~2017年に限定してemployeeが申請控除に与える影響を線形確率モデルで推定する はじめに、雇用形態にwithin-variationがある人の割合を見ておく</p>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<p>次に、総合所得もしくは労働所得の項目で控除申請しているかどうかの比率を示す</p>
+<p>この図のメッセージ</p>
+<ul>
+<li>労働者の申請比率はほぼ100%に近くなる = 総合所得で税控除を申請している</li>
+<li>自営業者の申請比率は変化していない</li>
+</ul>
 <pre class="r"><code>df %&gt;%
-  group_by(pid) %&gt;%
-  summarize_at(vars(employee), list(~sd(., na.rm = TRUE))) %&gt;%
-  mutate(employee = if_else(employee &gt; 0, 1, 0)) %&gt;%
-  ungroup() %&gt;%
-  with(table(employee)) %&gt;%
-  kable() %&gt;%
+  dplyr::filter(!is.na(employee)) %&gt;%
+  group_by(year, employee) %&gt;%
+  summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %&gt;%
+  mutate(employee = factor(employee)) %&gt;%
+  ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
+  geom_point(aes(shape = employee), color = &quot;black&quot;, size = 3) +
+  geom_line(aes(linetype = employee), size = 1) +
+  geom_vline(aes(xintercept = 2013.5)) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(y = &quot;share of tax report&quot;) +
+  ggtemp()</code></pre>
+<p><img src="data:image/png;base64,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+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oIaPiLGuk3o4WAhr+okX4zWgho+Isa6TejhYCGv6iRfjNaCGj4ixrpN6OFgIa/qJF+M1oI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6HoRtHU/0PwXX8+KH6tPXv33scKn1/7ZmAxfJIRjgMaEAYpuFsXR7ZsDjloHaPKHz/mp2Z4Wv68eibRexU8nxW5/+b0nP/j30UK34GQnRLrcVBd0PlAzBmhMGKDoaHt4eh7vtgH6+1lxx82CaM2x8Jls1L6offLDf8tkx/c/sZyR3owBGhMGKLq6ffUgyS5Xmf+jdSNSfmLgzZmUKmdjevLr9gnnpV2U9p685t8q9msiWTFAY8IARb9KW+HvshhpGa+V+aqcVgzQmDBA0a/uAzRdiA3YQDS44rrwDy/HGmIM0JgwQNGv7gP0ZjbSSjLQFwYo+tV5gN6+DLloG+AJAxT96jhAF+NtpQF6wwBFvzoO0OvxttIAvWGAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABGKAAkAgBigABPr/A+iBW9Rn1DkAAAAASUVORK5CYII=" width="672" /></p>
+</div>
+<div id="simple-panel-data-model" class="section level2">
+<h2>Simple Panel Data Model</h2>
+<p>Panel IVを使う意義として、スタンダードな固定効果モデルの推定結果を示す。 推定モデルは</p>
+<p><span class="math display">\[
+\log g_{it}
+= \alpha_{2i} + \delta D_{it} \log p_{it} + X_{it} \beta_2
++ \lambda_{2t} + \epsilon_{it}
+\]</span></p>
+<p>統計的推論では個人レベルのクラスター標準誤差を使用する。</p>
+<p>Simple panel data modelのメッセージ</p>
+<ul>
+<li>全体の弾力性とintensive-margin elasticityはITTの時よりも過大推定</li>
+<li>Extensive-margin elasticityはITTの弾性値の時よりも過小推定</li>
+<li>Tax reportが絡むと弾性値が変わるので、「reportした人とそうでない人の異質性」か「観察不可能な要因との交絡」が考えられる</li>
+</ul>
+<pre class="r"><code>simplemodel &lt;- list(
+  overall = list(y = log_total_g ~ ., data = subset(df, year &lt;= 2017)),
+  ext = list(y = i_ext_giving ~ ., data = subset(df, year &lt;= 2017)),
+  ext = list(
+    y = log_total_g ~ .,
+    data = subset(df, i_ext_giving == 1 &amp; year &lt;= 2017)
+  )
+)
+
+est_simplemodel &lt;- simplemodel %&gt;%
+  purrr::map(~ fit_fixest(
+    y = .$y,
+    x = ~ log_price:ext_benefit_tl + log_pinc_all + age + sqage +
+      factor(year):factor(educ) + factor(year):factor(gender) +
+      factor(year):factor(indust),
+    fixef = ~year + pid, cluster = ~pid, data = .$data
+  )) %&gt;%
+  regtab_fixest(
+    keep_coef = &quot;log_price:ext_benefit_tl&quot;,
+    label_coef = list(&quot;log_price:ext_benefit_tl&quot; = &quot;Report x log(first price)&quot;)
+  )
+
+simplemodel_tab &lt;- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3,
+  &quot;Individual and time FE&quot;, &quot;vars&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;,
+  &quot;log(income)&quot;, &quot;vars&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;,
+  &quot;Age&quot;, &quot;vars&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;,
+  &quot;Year x Education&quot;, &quot;vars&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;,
+  &quot;Year x Gender&quot;, &quot;vars&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;,
+  &quot;Year x Resident Area&quot;, &quot;vars&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;,
+  &quot;Year x Dummy of industry&quot;, &quot;vars&quot;, &quot;Y&quot;, &quot;Y&quot;, &quot;Y&quot;
+)
+
+est_simplemodel %&gt;%
+  regtab_addline(list(simplemodel_tab)) %&gt;%
+  mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
+  dplyr::select(-stat) %&gt;%
+  kable(
+    col.names = c(&quot;&quot;, &quot;Overall&quot;, &quot;Extensive&quot;, &quot;Intensive&quot;),
+    align = &quot;lccc&quot;
+  ) %&gt;%
   kable_styling()</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
-employee
 </th>
-<th style="text-align:right;">
-Freq
+<th style="text-align:center;">
+Overall
+</th>
+<th style="text-align:center;">
+Extensive
+</th>
+<th style="text-align:center;">
+Intensive
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
-0
+Report x log(first price)
 </td>
-<td style="text-align:right;">
-5458
+<td style="text-align:center;">
+-4.108***
+</td>
+<td style="text-align:center;">
+-0.879***
+</td>
+<td style="text-align:center;">
+-1.524***
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-1
 </td>
-<td style="text-align:right;">
-2021
+<td style="text-align:center;">
+(0.595)
+</td>
+<td style="text-align:center;">
+(0.135)
+</td>
+<td style="text-align:center;">
+(0.400)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Individual and time FE
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(income)
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Education
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Gender
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Resident Area
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Dummy of industry
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+N
+</td>
+<td style="text-align:center;">
+10964
+</td>
+<td style="text-align:center;">
+10964
+</td>
+<td style="text-align:center;">
+4619
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Adjusted R-squared
+</td>
+<td style="text-align:center;">
+0.568
+</td>
+<td style="text-align:center;">
+0.516
+</td>
+<td style="text-align:center;">
+0.727
 </td>
 </tr>
 </tbody>
 </table>
-<p>申請控除の線形確率モデルのメッセージ： employeeは控除申請に正の影響を与えるが、個人固定効果を加えるとその効果がなくなる</p>
+</div>
+<div id="panel-iv-endog-var-is-tax-report-x-giving-price-and-iv-is-employed-dummy." class="section level2">
+<h2>Panel IV: Endog var is tax report x giving price and IV is employed dummy.</h2>
+<p><span class="math inline">\(\log g_{it}\)</span>を寄付の対数値、<span class="math inline">\(\ln p_{it}\)</span>は寄付の相対価格（first price）とする。 <span class="math inline">\(D_{it}\)</span>はtax reportのダミー変数とする。 Panel IVの推定において、個人固定効果<span class="math inline">\(\alpha\)</span>と時間固定効果<span class="math inline">\(\lambda\)</span>はコントロールする。 仮説検定では、個人レベルでクラスターした標準誤差を使用する。</p>
+<p>Second stage:</p>
+<p><span class="math display">\[
+\log g_{it}
+= \alpha_{2i} + \delta D_{it} \log p_{it} + X_{it} \beta_2
++ \lambda_{2t} + \epsilon_{it}
+\]</span></p>
+<p>First stage:</p>
+<p><span class="math display">\[
+D_{it} \log p_{it}
+= \alpha_{1i} + \gamma \text{Employed}_{it} + X_{it} \beta_1
++ \lambda_{1t} + \eta_{it}
+\]</span></p>
+<p>Panel first-stageのメッセージ</p>
+<ul>
+<li>自営業者より労働者はtax reportをして寄付の相対価格を下げている</li>
+<li>個人固定効果をコントロールしても統計的に有意（F-値は最低でも70）</li>
+</ul>
 <pre class="r"><code>xlist &lt;- list(
   ~ employee,
   ~ employee + log_pinc_all + age + sqage +
     factor(year):factor(educ) + factor(year):factor(gender),
   ~ employee + log_pinc_all + age + sqage +
-    factor(year):factor(educ) + factor(year):factor(gender) + factor(indust)
+    factor(year):factor(educ) + factor(year):factor(gender) +
+    factor(year):factor(indust)
 )
 
 xlist_tab &lt;- tribble(
@@ -876,33 +794,25 @@ xlist_tab &lt;- tribble(
   &quot;Year x Education&quot;, &quot;vars&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;Y&quot;,
   &quot;Year x Gender&quot;, &quot;vars&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;Y&quot;,
   &quot;Year x Resident Area&quot;, &quot;vars&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;Y&quot;,
-  &quot;Dummy of industry&quot;, &quot;vars&quot;, &quot;N&quot;, &quot;N&quot;, &quot;Y&quot;
+  &quot;Year x Dummy of industry&quot;, &quot;vars&quot;, &quot;N&quot;, &quot;N&quot;, &quot;Y&quot;
 )
 
-est_benefit1 &lt;- xlist %&gt;%
-  purrr::map(~ est_felm(
-    y = ext_benefit ~ ., x = .,
+est_xreport1 &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = int_price_benefit ~ ., x = .,
     fixef = ~ year, cluster = ~ pid,
-    data = subset(df, 2014 &lt;= year &amp; year &lt;= 2017)
-  ))</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
+    data = subset(df, year &lt;= 2017)
+  ))
 
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
-<pre class="r"><code>est_benefit2 &lt;- xlist %&gt;%
-  purrr::map(~ est_felm(
-    y = ext_benefit ~ ., x = .,
+est_xreport2 &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = int_price_benefit ~ ., x = .,
     fixef = ~year + pid, cluster = ~pid,
-    data = subset(df, 2014 &lt;= year &amp; year &lt;= 2017)
-  ))</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
+    data = subset(df, year &lt;= 2017)
+  ))
 
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
-<pre class="r"><code>list(est_benefit1, est_benefit2) %&gt;%
-  purrr::map(~ felm_regtab(., keep_coef = &quot;employee&quot;)) %&gt;%
+list(est_xreport1, est_xreport2) %&gt;%
+  purrr::map(~ regtab_fixest(., keep_coef = &quot;employee&quot;)) %&gt;%
   purrr::map(~ regtab_addline(., list(xlist_tab))) %&gt;%
   reduce(full_join, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
   mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
@@ -913,29 +823,6 @@ est_benefit1 &lt;- xlist %&gt;%
   ) %&gt;%
   add_header_above(c(&quot;&quot;, &quot;w/o individual FE&quot; = 3, &quot;w/ individual FE&quot; = 3)) %&gt;%
   kable_styling()</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -981,44 +868,44 @@ w/ individual FE
 employee
 </td>
 <td style="text-align:center;">
-0.197***
+-0.182***
 </td>
 <td style="text-align:center;">
-0.049***
+-0.129***
 </td>
 <td style="text-align:center;">
-0.054***
+-0.126***
 </td>
 <td style="text-align:center;">
-0.010
+-0.098***
 </td>
 <td style="text-align:center;">
--0.001
+-0.091***
 </td>
 <td style="text-align:center;">
--0.003
+-0.084***
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(0.012)
+(0.001)
 </td>
 <td style="text-align:center;">
-(0.013)
+(0.005)
 </td>
 <td style="text-align:center;">
-(0.013)
+(0.005)
 </td>
 <td style="text-align:center;">
-(0.015)
+(0.010)
 </td>
 <td style="text-align:center;">
-(0.015)
+(0.010)
 </td>
 <td style="text-align:center;">
-(0.016)
+(0.010)
 </td>
 </tr>
 <tr>
@@ -1161,7 +1048,7 @@ Y
 </tr>
 <tr>
 <td style="text-align:left;">
-Dummy of industry
+Year x Dummy of industry
 </td>
 <td style="text-align:center;">
 N
@@ -1187,45 +1074,45 @@ Y
 N
 </td>
 <td style="text-align:center;">
-12134
+11087
 </td>
 <td style="text-align:center;">
-12125
+11085
 </td>
 <td style="text-align:center;">
-11870
+10942
 </td>
 <td style="text-align:center;">
-12134
+11087
 </td>
 <td style="text-align:center;">
-12125
+11085
 </td>
 <td style="text-align:center;">
-11870
+10942
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-R-squared
+Adjusted R-squared
 </td>
 <td style="text-align:center;">
-0.011
+0.810
 </td>
 <td style="text-align:center;">
-0.177
+0.854
 </td>
 <td style="text-align:center;">
-0.200
+0.866
 </td>
 <td style="text-align:center;">
-0.749
+0.854
 </td>
 <td style="text-align:center;">
-0.753
+0.869
 </td>
 <td style="text-align:center;">
-0.758
+0.883
 </td>
 </tr>
 </tbody>
@@ -1236,73 +1123,31 @@ R-squared
 </ol></li>
 </ol></li>
 </ol>
-</div>
-<div id="panel-iv-results" class="section level3">
-<h3>Panel IV Results</h3>
-<p>推定モデルは</p>
-<p><span class="math display">\[
-\ln g_{it}^*
-= \alpha_i + \delta_i \ln(1 - m D_{it}^*) +
-X_{it} \beta + \lambda_t + \epsilon_{it}
-\]</span></p>
-<p>Switching regression modelの考え方を使えば、</p>
-<p><span class="math display">\[
-\ln g_{it}^*
-= \alpha_i + \delta_i \ln(1 - m) D_{it}^* +
-X_{it} \beta + \lambda_t + \epsilon_{it}
-\]</span></p>
-<p>よって、</p>
-<p><span class="math display">\[
-\ln g_{it}^*
-= \alpha_i + \gamma_i D_{it}^* +
-X_{it} \beta + \lambda_t + \epsilon_{it}
-\]</span></p>
-<p>ここで、推定したいパラメータは<span class="math inline">\(\gamma_i = \delta_i \ln (1-m)\)</span>であり、 implied elasticityは</p>
-<p><span class="math display">\[
- \delta_i = \frac{\hat{\gamma}_i}{\ln (1 - m)}
-\]</span></p>
-<p>で得られる</p>
-<p>Panel IVのメッセージ： 個人固定効果を除いてもtax receiveの効果は統計的に非有意であった。 というか、(1)値を除いて、F値が弱すぎる</p>
-<pre class="r"><code>estiv_benefit1 &lt;- xlist %&gt;%
-  purrr::map(~ est_felm(
+<p>Panel IVの推定結果のメッセージ</p>
+<ul>
+<li>弾力性は10%。1%の相対価格の上昇が寄付額を10%程度下げる</li>
+<li>ITTで考えていたよりもかなり弾力的な結果となる</li>
+</ul>
+<pre class="r"><code>ivest_xreport1 &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ .,
     x = update(., ~ . - employee),
-    z = ext_benefit ~ employee,
-    fixef = ~ year, cluster = ~ hhid,
-    data = subset(df, 2014 &lt;= year &amp; year &lt;= 2017)
-  ))</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
+    z = int_price_benefit ~ employee,
+    fixef = ~ year, cluster = ~ pid,
+    data = subset(df, year &lt;= 2017)
+  ))
 
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
-<pre class="r"><code>estiv_benefit2 &lt;- xlist %&gt;%
-  purrr::map(~ est_felm(
+ivest_xreport2 &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
     y = log_total_g ~ .,
     x = update(., ~ . - employee),
-    z = ext_benefit ~ employee,
-    fixef = ~year + pid, cluster = ~ hhid,
-    data = subset(df, 2014 &lt;= year &amp; year &lt;= 2017)
-  ))</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
+    z = int_price_benefit ~ employee,
+    fixef = ~year + pid, cluster = ~ pid,
+    data = subset(df, year &lt;= 2017)
+  ))
 
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
-<pre class="r"><code>ivfstat &lt;- list(estiv_benefit1, estiv_benefit2) %&gt;%
-  purrr::map_depth(2, ~ .$stage1$iv1fstat$ext_benefit[&quot;F&quot;]) %&gt;%
+ivfstat &lt;- list(ivest_xreport1, ivest_xreport2) %&gt;%
+  purrr::map_depth(2, ~ fitstat(., ~ ivwald)$ivwald1$stat) %&gt;%
   purrr::map(~ as_vector(.)) %&gt;%
   as_vector() %&gt;%
   matrix(nrow = 1) %&gt;%
@@ -1313,27 +1158,17 @@ ivfstat_tab &lt;- ivfstat %&gt;%
   mutate_all(list(~ sprintf(&quot;%1.3f&quot;, .))) %&gt;%
   mutate(vars = &quot;Fstat of IV&quot;, stat = &quot;vars&quot;)
 
-waldtest &lt;- list(estiv_benefit1, estiv_benefit2) %&gt;%
-  purrr::map_depth(2, ~ felm_wald(
-    .,
-    hypo = list(&quot;Implied elasticity&quot; = &quot;a * `ext_benefit(fit)`&quot;),
-    args = list(a = 1 / log(1 - 0.15))
-  )) %&gt;%
-  purrr::map(~ reduce(., full_join, by = c(&quot;vars&quot;, &quot;stat&quot;))) %&gt;%
-  reduce(full_join, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
-  setNames(c(&quot;vars&quot;, &quot;stat&quot;, paste0(&quot;reg&quot;, seq_len(length(xlist) * 2))))
-
 xlist_duptab &lt;- xlist_tab %&gt;%
   full_join(xlist_tab, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
   setNames(c(&quot;vars&quot;, &quot;stat&quot;, paste0(&quot;reg&quot;, seq_len(length(xlist) * 2))))
 
-list(estiv_benefit1, estiv_benefit2) %&gt;%
+list(ivest_xreport1, ivest_xreport2) %&gt;%
   flatten() %&gt;%
-  felm_regtab(
-    keep_coef = &quot;ext_benefit&quot;,
-    label_coef = list(&quot;`ext_benefit(fit)`&quot; = &quot;Receive tax benefit&quot;)
+  regtab_fixest(
+    keep_coef = &quot;int_price_benefit&quot;,
+    label_coef = list(&quot;fit_int_price_benefit&quot; = &quot;Report x log(first price)&quot;)
   ) %&gt;%
-  regtab_addline(list(waldtest, ivfstat_tab, xlist_duptab)) %&gt;%
+  regtab_addline(list(ivfstat_tab, xlist_duptab)) %&gt;%
   mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
   dplyr::select(-stat) %&gt;%
   kable(
@@ -1342,29 +1177,6 @@ list(estiv_benefit1, estiv_benefit2) %&gt;%
   ) %&gt;%
   add_header_above(c(&quot;&quot;, &quot;w/o individual FE&quot; = 3, &quot;w/ individual FE&quot; = 3)) %&gt;%
   kable_styling()</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -1407,92 +1219,47 @@ w/ individual FE
 <tbody>
 <tr>
 <td style="text-align:left;">
-Receive tax benefit
+Report x log(first price)
 </td>
 <td style="text-align:center;">
-1.311***
+-11.115***
 </td>
 <td style="text-align:center;">
-0.003
+-11.501***
 </td>
 <td style="text-align:center;">
-0.836
+-9.909***
 </td>
 <td style="text-align:center;">
--0.835
+-8.680***
 </td>
 <td style="text-align:center;">
-19.000
+-9.265***
 </td>
 <td style="text-align:center;">
-4.236
+-10.434***
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(0.458)
+(0.333)
 </td>
 <td style="text-align:center;">
-(1.878)
+(0.855)
 </td>
 <td style="text-align:center;">
-(1.665)
+(0.991)
 </td>
 <td style="text-align:center;">
-(10.622)
+(1.971)
 </td>
 <td style="text-align:center;">
-(267.525)
+(2.295)
 </td>
 <td style="text-align:center;">
-(36.135)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Implied elasticity
-</td>
-<td style="text-align:center;">
--8.069***
-</td>
-<td style="text-align:center;">
--0.016
-</td>
-<td style="text-align:center;">
--5.147
-</td>
-<td style="text-align:center;">
-5.140
-</td>
-<td style="text-align:center;">
--116.908
-</td>
-<td style="text-align:center;">
--26.067
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-</td>
-<td style="text-align:center;">
-(2.815)
-</td>
-<td style="text-align:center;">
-(11.558)
-</td>
-<td style="text-align:center;">
-(10.244)
-</td>
-<td style="text-align:center;">
-(65.358)
-</td>
-<td style="text-align:center;">
-(1646.115)
-</td>
-<td style="text-align:center;">
-(222.343)
+(2.519)
 </td>
 </tr>
 <tr>
@@ -1500,22 +1267,22 @@ Implied elasticity
 Fstat of IV
 </td>
 <td style="text-align:center;">
-269.244
+29639.292
 </td>
 <td style="text-align:center;">
-15.029
+757.364
 </td>
 <td style="text-align:center;">
-17.419
+627.749
 </td>
 <td style="text-align:center;">
-0.285
+106.708
 </td>
 <td style="text-align:center;">
-0.005
+91.591
 </td>
 <td style="text-align:center;">
-0.027
+72.246
 </td>
 </tr>
 <tr>
@@ -1658,7 +1425,7 @@ Y
 </tr>
 <tr>
 <td style="text-align:left;">
-Dummy of industry
+Year x Dummy of industry
 </td>
 <td style="text-align:center;">
 N
@@ -1684,45 +1451,45 @@ Y
 N
 </td>
 <td style="text-align:center;">
-12134
+11087
 </td>
 <td style="text-align:center;">
-12125
+11085
 </td>
 <td style="text-align:center;">
-11870
+10942
 </td>
 <td style="text-align:center;">
-12134
+11087
 </td>
 <td style="text-align:center;">
-12125
+11085
 </td>
 <td style="text-align:center;">
-11870
+10942
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-R-squared
+Adjusted R-squared
 </td>
 <td style="text-align:center;">
-0.178
+0.211
 </td>
 <td style="text-align:center;">
-0.093
+0.226
 </td>
 <td style="text-align:center;">
-0.208
+0.243
 </td>
 <td style="text-align:center;">
-0.653
+0.557
 </td>
 <td style="text-align:center;">
--2.860
+0.559
 </td>
 <td style="text-align:center;">
-0.594
+0.558
 </td>
 </tr>
 </tbody>
@@ -1733,92 +1500,87 @@ R-squared
 </ol></li>
 </ol></li>
 </ol>
-</div>
-</div>
-<div id="雇用形態を操作変数としてiv推定cross-sectional-data" class="section level2">
-<h2>雇用形態を操作変数としてIV推定（Cross-sectional data）</h2>
-<p>2012~2018年までのデータを用いた価格弾力性の推定（baseline model）を用いて、 Fixed effectを推定する。 これを共変量でダイレクトのコントロールしてみる。</p>
-<pre class="r"><code>overall &lt;- est_felm(
-  y = log_total_g ~ .,
-  x = ~ log_price + log_pinc_all + age + sqage + factor(year):factor(educ) +
-    factor(year):factor(gender) + factor(year):factor(living_area),
-  fixef = ~ year + pid, cluster = ~ pid,
-  data = df
-)</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
-<pre class="r"><code>fedt &lt;- getfe(overall) %&gt;%
-  tibble() %&gt;%
-  dplyr::filter(fe == &quot;pid&quot;) %&gt;%
-  mutate(pid = as.numeric(as.character(idx))) %&gt;%
-  dplyr::select(effect, pid)
+<p>extensive-margin elasticityのPanel IVの結果</p>
+<ul>
+<li>価格1%上昇によって、寄付する確率を1%下げる</li>
+<li>この結果はITTで考えた推定結果と非常に似ている。</li>
+</ul>
+<pre class="r"><code>ivest_xreport1_ext &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - employee),
+    z = int_price_benefit ~ employee,
+    fixef = ~year, cluster = ~pid,
+    data = subset(df, year &lt;= 2017)
+  ))
 
-df &lt;- df %&gt;% left_join(fedt, by = &quot;pid&quot;)</code></pre>
-<p>Panel IVでやった結果が以下の通り この表のメッセージは、「さっきと結果はさほど変わらない」</p>
-<pre class="r"><code>estiv_benefit3 &lt;- xlist %&gt;%
-  purrr::map(~ est_felm(
-    y = log_total_g ~ .,
-    x = update(., ~ . - employee + effect),
-    z = ext_benefit ~ employee,
-    fixef = ~ year, cluster = ~hhid,
-    data = subset(df, 2014 &lt;= year &amp; year &lt;= 2017)
-  ))</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
+ivest_xreport2_ext &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - employee),
+    z = int_price_benefit ~ employee,
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, year &lt;= 2017)
+  ))
 
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
+waldtest_ext &lt;- list(ivest_xreport1_ext, ivest_xreport2_ext) %&gt;%
+  purrr::map_depth(2, ~ tibble(
+    vars = &quot;Implied price elasticity&quot;,
+    coef = coef(.)[&quot;fit_int_price_benefit&quot;],
+    se = fixest::se(.)[&quot;fit_int_price_benefit&quot;],
+    invmu = 1 / mean(model.matrix(., type = &quot;lhs&quot;)),
+    p = fixest::pvalue(.)[&quot;fit_int_price_benefit&quot;]
+  )) %&gt;%
+  purrr::map_depth(2, function(x)
+    x %&gt;%
+      mutate(
+        coef = case_when(
+          p &lt;= .01 ~ sprintf(&quot;%1.3f***&quot;, coef / invmu),
+          p &lt;= .05 ~ sprintf(&quot;%1.3f**&quot;, coef / invmu),
+          p &lt;= .1 ~ sprintf(&quot;%1.3f*&quot;, coef / invmu),
+          TRUE ~ sprintf(&quot;%1.3f&quot;, coef / invmu)
+        ),
+        se = sprintf(&quot;(%1.3f)&quot;, se / invmu)
+      ) %&gt;%
+      dplyr::select(-p, -invmu) %&gt;%
+      pivot_longer(-vars, names_to = &quot;stat&quot;, values_to = &quot;val&quot;)
+  ) %&gt;%
+  purrr::map(~ reduce(., full_join, by = c(&quot;vars&quot;, &quot;stat&quot;))) %&gt;%
+  reduce(full_join, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
+  setNames(c(&quot;vars&quot;, &quot;stat&quot;, paste0(&quot;reg&quot;, seq_len(length(xlist) * 2)))) %&gt;%
+  bind_rows(
+    c(vars = &quot;&quot;, stat = &quot;&quot;, reg1 = &quot;&quot;, reg2 = &quot;&quot;,
+      reg3 = &quot;&quot;, reg4 = &quot;&quot;, reg5 = &quot;&quot;, reg6 = &quot;&quot;),
+    .
+  )
 
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
-<pre class="r"><code>ivfstat &lt;- estiv_benefit3 %&gt;%
-  purrr::map(~ .$stage1$iv1fstat$ext_benefit[&quot;F&quot;]) %&gt;%
+ivfstat_ext &lt;- list(ivest_xreport1_ext, ivest_xreport2_ext) %&gt;%
+  purrr::map_depth(2, ~ fitstat(., ~ ivwald)$ivwald1$stat) %&gt;%
+  purrr::map(~ as_vector(.)) %&gt;%
   as_vector() %&gt;%
   matrix(nrow = 1) %&gt;%
   data.frame() %&gt;%
-  setNames(paste0(&quot;reg&quot;, seq_len(length(xlist))))
+  setNames(paste0(&quot;reg&quot;, seq_len(length(xlist) * 2)))
 
-ivfstat_tab2 &lt;- ivfstat %&gt;%
+ivfstat_ext_tab &lt;- ivfstat_ext %&gt;%
   mutate_all(list(~ sprintf(&quot;%1.3f&quot;, .))) %&gt;%
   mutate(vars = &quot;Fstat of IV&quot;, stat = &quot;vars&quot;)
 
-waldtest2 &lt;- estiv_benefit3 %&gt;%
-  purrr::map(~ felm_wald(
-    .,
-    hypo = list(&quot;Implied elasticity&quot; = &quot;a * `ext_benefit(fit)`&quot;),
-    args = list(a = 1 / log(1 - 0.15))
-  )) %&gt;%
-  reduce(full_join, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
-  setNames(c(&quot;vars&quot;, &quot;stat&quot;, paste0(&quot;reg&quot;, seq_len(length(xlist)))))
-
-estiv_benefit3 %&gt;%
-  felm_regtab(
-    keep_coef = &quot;ext_benefit&quot;,
-    label_coef = list(&quot;`ext_benefit(fit)`&quot; = &quot;Receive tax benefit&quot;)
+list(ivest_xreport1_ext, ivest_xreport2_ext) %&gt;%
+  flatten() %&gt;%
+  regtab_fixest(
+    keep_coef = &quot;int_price_benefit&quot;,
+    label_coef = list(&quot;fit_int_price_benefit&quot; = &quot;Report x log(first price)&quot;)
   ) %&gt;%
-  regtab_addline(list(waldtest2, ivfstat_tab2, xlist_tab)) %&gt;%
+  regtab_addline(list(waldtest_ext, ivfstat_tab, xlist_duptab)) %&gt;%
   mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
   dplyr::select(-stat) %&gt;%
   kable(
-    col.names = c(&quot;&quot;, sprintf(&quot;(%1d)&quot;, seq_len(length(xlist)))),
-    align = &quot;lccc&quot;
+    col.names = c(&quot;&quot;, sprintf(&quot;(%1d)&quot;, seq_len(length(xlist) * 2))),
+    align = &quot;lcccccc&quot;
   ) %&gt;%
-  add_header_above(c(&quot;&quot;, &quot;w/o individual FE but w/ estimated FE&quot; = 3)) %&gt;%
+  add_header_above(c(&quot;&quot;, &quot;w/o individual FE&quot; = 3, &quot;w/ individual FE&quot; = 3)) %&gt;%
   kable_styling()</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -1826,7 +1588,12 @@ estiv_benefit3 %&gt;%
 </th>
 <th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
 <div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
-w/o individual FE but w/ estimated FE
+w/o individual FE
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/ individual FE
 </div>
 </th>
 </tr>
@@ -1842,61 +1609,122 @@ w/o individual FE but w/ estimated FE
 <th style="text-align:center;">
 <ol start="3" style="list-style-type: decimal">
 <li></th>
+<th style="text-align:center;">
+<ol start="4" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="5" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="6" style="list-style-type: decimal">
+<li></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
-Receive tax benefit
+Report x log(first price)
 </td>
 <td style="text-align:center;">
-0.922**
+-2.816***
 </td>
 <td style="text-align:center;">
-0.371
+-3.557***
 </td>
 <td style="text-align:center;">
-0.073
+-3.363***
+</td>
+<td style="text-align:center;">
+-2.633***
+</td>
+<td style="text-align:center;">
+-3.046***
+</td>
+<td style="text-align:center;">
+-3.569***
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(0.412)
+(0.061)
 </td>
 <td style="text-align:center;">
-(0.886)
+(0.155)
 </td>
 <td style="text-align:center;">
-(0.958)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Implied elasticity
+(0.171)
 </td>
 <td style="text-align:center;">
--5.671**
+(0.473)
 </td>
 <td style="text-align:center;">
--2.282
+(0.547)
 </td>
 <td style="text-align:center;">
--0.450
+(0.614)
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(2.534)
 </td>
 <td style="text-align:center;">
-(5.453)
 </td>
 <td style="text-align:center;">
-(5.892)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Implied price elasticity
+</td>
+<td style="text-align:center;">
+-1.186***
+</td>
+<td style="text-align:center;">
+-1.498***
+</td>
+<td style="text-align:center;">
+-1.417***
+</td>
+<td style="text-align:center;">
+-1.109***
+</td>
+<td style="text-align:center;">
+-1.283***
+</td>
+<td style="text-align:center;">
+-1.504***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.065)
+</td>
+<td style="text-align:center;">
+(0.072)
+</td>
+<td style="text-align:center;">
+(0.199)
+</td>
+<td style="text-align:center;">
+(0.231)
+</td>
+<td style="text-align:center;">
+(0.259)
 </td>
 </tr>
 <tr>
@@ -1904,18 +1732,36 @@ Implied elasticity
 Fstat of IV
 </td>
 <td style="text-align:center;">
-225.773
+29639.292
 </td>
 <td style="text-align:center;">
-15.038
+757.364
 </td>
 <td style="text-align:center;">
-13.696
+627.749
+</td>
+<td style="text-align:center;">
+106.708
+</td>
+<td style="text-align:center;">
+91.591
+</td>
+<td style="text-align:center;">
+72.246
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 Time FE
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
 </td>
 <td style="text-align:center;">
 Y
@@ -1940,10 +1786,28 @@ Y
 <td style="text-align:center;">
 Y
 </td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
 Age
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
 </td>
 <td style="text-align:center;">
 N
@@ -1968,10 +1832,28 @@ Y
 <td style="text-align:center;">
 Y
 </td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
 Year x Gender
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
 </td>
 <td style="text-align:center;">
 N
@@ -1996,10 +1878,28 @@ Y
 <td style="text-align:center;">
 Y
 </td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Dummy of industry
+Year x Dummy of industry
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
 </td>
 <td style="text-align:center;">
 N
@@ -2016,143 +1916,188 @@ Y
 N
 </td>
 <td style="text-align:center;">
-12131
+11087
 </td>
 <td style="text-align:center;">
-12125
+11085
 </td>
 <td style="text-align:center;">
-11870
+10942
+</td>
+<td style="text-align:center;">
+11087
+</td>
+<td style="text-align:center;">
+11085
+</td>
+<td style="text-align:center;">
+10942
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-R-squared
+Adjusted R-squared
 </td>
 <td style="text-align:center;">
-0.303
+0.262
 </td>
 <td style="text-align:center;">
-0.618
+0.262
 </td>
 <td style="text-align:center;">
-0.614
+0.281
+</td>
+<td style="text-align:center;">
+0.488
+</td>
+<td style="text-align:center;">
+0.483
+</td>
+<td style="text-align:center;">
+0.477
 </td>
 </tr>
 </tbody>
 </table></li>
 </ol></li>
 </ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
 </ol>
-<p>Panel IVではなく、2014~2017年の各年でデータを分割してIV推定を行う</p>
-<pre class="r"><code>yeq &lt;- log_total_g ~ .
-xeq &lt;- ~ employee + log_pinc_all + age + sqage + effect +
-  factor(educ) + factor(gender) + factor(indust)
-zeq &lt;- ext_benefit ~ employee
+<p>intensive-margin elasticityのPanel IVの結果</p>
+<ul>
+<li>個人固定効果を除くと価格の上昇が寄付の増加を促す（個人固定効果を入れていないのが原因？何らかの解釈が可能？）</li>
+<li>個人固定効果を入れると統計的に非有意となる（弱操作変数の影響とは考えにくい）</li>
+</ul>
+<pre class="r"><code>ivest_xreport1_int &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee),
+    z = int_price_benefit ~ employee,
+    fixef = ~year, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1 &amp; year &lt;= 2017)
+  ))
 
-estiv3_benefit &lt;- df %&gt;%
-  dplyr::filter(2014 &lt;= year &amp; year &lt;= 2017) %&gt;%
-  group_by(year) %&gt;%
-  do(iv = est_felm(y = yeq, x = xeq, z = zeq, data = .))</code></pre>
-<pre><code>## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
+ivest_xreport2_int &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee),
+    z = int_price_benefit ~ employee,
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1 &amp; year &lt;= 2017)
+  ))
 
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite
-
-## Warning in chol.default(mat, pivot = TRUE, tol = tol): the matrix is either rank-deficient
-## or indefinite</code></pre>
-<pre class="r"><code>estiv3_fstat &lt;- estiv3_benefit$iv %&gt;%
-  purrr::map(~ .$stage1$iv1fstat$ext_benefit[&quot;F&quot;]) %&gt;%
+ivfstat_int &lt;- list(ivest_xreport1_int, ivest_xreport2_int) %&gt;%
+  purrr::map_depth(2, ~ fitstat(., ~ ivwald)$ivwald1$stat) %&gt;%
+  purrr::map(~ as_vector(.)) %&gt;%
   as_vector() %&gt;%
   matrix(nrow = 1) %&gt;%
   data.frame() %&gt;%
-  setNames(paste0(&quot;reg&quot;, seq_len(nrow(estiv3_benefit))))
+  setNames(paste0(&quot;reg&quot;, seq_len(length(xlist) * 2)))
 
-iv3fstat_tab &lt;- estiv3_fstat %&gt;%
+ivfstat_int_tab &lt;- ivfstat_int %&gt;%
   mutate_all(list(~ sprintf(&quot;%1.3f&quot;, .))) %&gt;%
   mutate(vars = &quot;Fstat of IV&quot;, stat = &quot;vars&quot;)
 
-estiv3_benefit$iv %&gt;%
-  felm_regtab(
-    .,
-    keep_coef = &quot;ext_benefit&quot;,
-    label_coef = list(&quot;`ext_benefit(fit)`&quot; = &quot;Receive tax benefit&quot;)
+list(ivest_xreport1_int, ivest_xreport2_int) %&gt;%
+  flatten() %&gt;%
+  regtab_fixest(
+    keep_coef = &quot;int_price_benefit&quot;,
+    label_coef = list(&quot;fit_int_price_benefit&quot; = &quot;Report x log(first price)&quot;)
   ) %&gt;%
-  regtab_addline(list(iv3fstat_tab)) %&gt;%
+  regtab_addline(list(ivfstat_int_tab, xlist_duptab)) %&gt;%
   mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
   dplyr::select(-stat) %&gt;%
   kable(
-    col.names = c(&quot;&quot;, sprintf(&quot;Year = %4d&quot;, 2014:2017)),
-    align = &quot;lcccc&quot;
+    col.names = c(&quot;&quot;, sprintf(&quot;(%1d)&quot;, seq_len(length(xlist) * 2))),
+    align = &quot;lcccccc&quot;
   ) %&gt;%
+  add_header_above(c(&quot;&quot;, &quot;w/o individual FE&quot; = 3, &quot;w/ individual FE&quot; = 3)) %&gt;%
   kable_styling()</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/o individual FE
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/ individual FE
+</div>
+</th>
+</tr>
+<tr>
 <th style="text-align:left;">
 </th>
 <th style="text-align:center;">
-Year = 2014
-</th>
+<ol style="list-style-type: decimal">
+<li></th>
 <th style="text-align:center;">
-Year = 2015
-</th>
+<ol start="2" style="list-style-type: decimal">
+<li></th>
 <th style="text-align:center;">
-Year = 2016
-</th>
+<ol start="3" style="list-style-type: decimal">
+<li></th>
 <th style="text-align:center;">
-Year = 2017
-</th>
+<ol start="4" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="5" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="6" style="list-style-type: decimal">
+<li></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
-Receive tax benefit
+Report x log(first price)
 </td>
 <td style="text-align:center;">
-0.125
+2.187***
 </td>
 <td style="text-align:center;">
--0.754***
+6.933***
 </td>
 <td style="text-align:center;">
--0.413
+9.092***
 </td>
 <td style="text-align:center;">
-0.731***
+-2.041
+</td>
+<td style="text-align:center;">
+-1.041
+</td>
+<td style="text-align:center;">
+0.316
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(0.247)
+(0.450)
 </td>
 <td style="text-align:center;">
-(0.264)
+(1.145)
 </td>
 <td style="text-align:center;">
-(0.262)
+(1.367)
 </td>
 <td style="text-align:center;">
-(0.210)
+(1.881)
+</td>
+<td style="text-align:center;">
+(2.422)
+</td>
+<td style="text-align:center;">
+(2.473)
 </td>
 </tr>
 <tr>
@@ -2160,16 +2105,183 @@ Receive tax benefit
 Fstat of IV
 </td>
 <td style="text-align:center;">
-4.415
+6270.046
 </td>
 <td style="text-align:center;">
-2.127
+658.215
 </td>
 <td style="text-align:center;">
-0.548
+508.078
 </td>
 <td style="text-align:center;">
-4.811
+47.349
+</td>
+<td style="text-align:center;">
+35.683
+</td>
+<td style="text-align:center;">
+27.741
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Time FE
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(income)
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Education
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Gender
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Resident Area
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Dummy of industry
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
 </td>
 </tr>
 <tr>
@@ -2177,37 +2289,1510 @@ Fstat of IV
 N
 </td>
 <td style="text-align:center;">
-2848
+4669
 </td>
 <td style="text-align:center;">
-2941
+4669
 </td>
 <td style="text-align:center;">
-3013
+4611
 </td>
 <td style="text-align:center;">
-3068
+4669
+</td>
+<td style="text-align:center;">
+4669
+</td>
+<td style="text-align:center;">
+4611
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-R-squared
+Adjusted R-squared
 </td>
 <td style="text-align:center;">
-0.601
+-0.015
 </td>
 <td style="text-align:center;">
-0.562
+-0.017
 </td>
 <td style="text-align:center;">
-0.608
+-0.027
 </td>
 <td style="text-align:center;">
-0.663
+0.724
+</td>
+<td style="text-align:center;">
+0.726
+</td>
+<td style="text-align:center;">
+0.724
 </td>
 </tr>
 </tbody>
-</table>
+</table></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol>
+</div>
+<div id="panel-iv-endog-var-is-tax-report-and-iv-is-employed-dummy." class="section level2">
+<h2>Panel IV: Endog var is tax report and IV is employed dummy.</h2>
+<p><span class="math inline">\(\log g_{it}\)</span>を寄付の対数値、<span class="math inline">\(\ln p_{it}\)</span>は寄付の相対価格（first price）とする。 <span class="math inline">\(D_{it}\)</span>はtax reportのダミー変数とし、first-stageの予測値を<span class="math inline">\(\hat{D}_{it}\)</span>とする。 Panel IVの推定において、個人固定効果<span class="math inline">\(\alpha\)</span>と時間固定効果<span class="math inline">\(\lambda\)</span>はコントロールする。 仮説検定では、個人レベルでクラスターした標準誤差を使用する。</p>
+<p>Second stage:</p>
+<p><span class="math display">\[
+\log g_{it}
+= \alpha_{2i} + \delta \hat{D}_{it} \log p_{it} + X_{it} \beta_2
++ \lambda_{2t} + \epsilon_{it}
+\]</span></p>
+<p>First stage:</p>
+<p><span class="math display">\[
+D_{it}
+= \alpha_{1i} + \gamma \text{Employed}_{it} + X_{it} \beta_1
++ \lambda_{1t} + \eta_{it}
+\]</span></p>
+<p>Panel first-stageのメッセージ</p>
+<ul>
+<li>自営業者より労働者がtax reportする確率は約50%高い</li>
+<li>個人固定効果をコントロールしても統計的に有意（F-値は最低でも80）</li>
+</ul>
+<pre class="r"><code>est_report1 &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = ext_benefit_tl ~ ., x = .,
+    fixef = ~ year, cluster = ~ pid,
+    data = subset(df, year &lt;= 2017)
+  ))
+
+est_report2 &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = ext_benefit_tl ~ ., x = .,
+    fixef = ~year + pid, cluster = ~pid,
+    data = subset(df, year &lt;= 2017)
+  ))
+
+list(est_report1, est_report2) %&gt;%
+  purrr::map(~ regtab_fixest(., keep_coef = &quot;employee&quot;)) %&gt;%
+  purrr::map(~ regtab_addline(., list(xlist_tab))) %&gt;%
+  reduce(full_join, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
+  mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
+  dplyr::select(-stat) %&gt;%
+  kable(
+    col.names = c(&quot;&quot;, sprintf(&quot;(%1d)&quot;, seq_len(length(xlist) * 2))),
+    align = &quot;lcccccc&quot;
+  ) %&gt;%
+  add_header_above(c(&quot;&quot;, &quot;w/o individual FE&quot; = 3, &quot;w/ individual FE&quot; = 3)) %&gt;%
+  kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/o individual FE
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/ individual FE
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+<ol style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="2" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="3" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="4" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="5" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="6" style="list-style-type: decimal">
+<li></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+employee
+</td>
+<td style="text-align:center;">
+0.941***
+</td>
+<td style="text-align:center;">
+0.867***
+</td>
+<td style="text-align:center;">
+0.852***
+</td>
+<td style="text-align:center;">
+0.508***
+</td>
+<td style="text-align:center;">
+0.464***
+</td>
+<td style="text-align:center;">
+0.457***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.004)
+</td>
+<td style="text-align:center;">
+(0.012)
+</td>
+<td style="text-align:center;">
+(0.014)
+</td>
+<td style="text-align:center;">
+(0.047)
+</td>
+<td style="text-align:center;">
+(0.049)
+</td>
+<td style="text-align:center;">
+(0.050)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Time FE
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(income)
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Education
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Gender
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Resident Area
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Dummy of industry
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+N
+</td>
+<td style="text-align:center;">
+11088
+</td>
+<td style="text-align:center;">
+11085
+</td>
+<td style="text-align:center;">
+10942
+</td>
+<td style="text-align:center;">
+11088
+</td>
+<td style="text-align:center;">
+11085
+</td>
+<td style="text-align:center;">
+10942
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Adjusted R-squared
+</td>
+<td style="text-align:center;">
+0.882
+</td>
+<td style="text-align:center;">
+0.885
+</td>
+<td style="text-align:center;">
+0.888
+</td>
+<td style="text-align:center;">
+0.918
+</td>
+<td style="text-align:center;">
+0.919
+</td>
+<td style="text-align:center;">
+0.920
+</td>
+</tr>
+</tbody>
+</table></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol>
+<p>上の表の(6)の予測値を<span class="math inline">\(\hat{D}_{it}\)</span>とする。</p>
+<pre class="r"><code>df$p_ext_benefit_tl &lt;- predict(est_report2[[3]], df)</code></pre>
+<p>Panel IVの推定結果のメッセージ</p>
+<ul>
+<li>ITTとして推定した弾性値（約1%）より若干弾力的である</li>
+<li>Tax reportをしていない人の価格は必ず<span class="math inline">\(\log 1\)</span>であることを考えれば、納得できる結果</li>
+</ul>
+<pre class="r"><code>ivest_report1 &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~ year, cluster = ~ pid,
+    data = subset(df, year &lt;= 2017)
+  ))
+
+ivest_report2 &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~year + pid, cluster = ~ pid,
+    data = subset(df, year &lt;= 2017)
+  ))
+
+list(ivest_report1, ivest_report2) %&gt;%
+  flatten() %&gt;%
+  regtab_fixest(
+    keep_coef = &quot;log_price&quot;,
+    label_coef = list(
+      &quot;log_price:p_ext_benefit_tl&quot; = &quot;Propensity of Report x log(first price)&quot;
+    )
+  ) %&gt;%
+  regtab_addline(list(xlist_duptab)) %&gt;%
+  mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
+  dplyr::select(-stat) %&gt;%
+  kable(
+    col.names = c(&quot;&quot;, sprintf(&quot;(%1d)&quot;, seq_len(length(xlist) * 2))),
+    align = &quot;lcccccc&quot;
+  ) %&gt;%
+  add_header_above(c(&quot;&quot;, &quot;w/o individual FE&quot; = 3, &quot;w/ individual FE&quot; = 3)) %&gt;%
+  kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/o individual FE
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/ individual FE
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+<ol style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="2" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="3" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="4" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="5" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="6" style="list-style-type: decimal">
+<li></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Propensity of Report x log(first price)
+</td>
+<td style="text-align:center;">
+-7.894***
+</td>
+<td style="text-align:center;">
+-5.935***
+</td>
+<td style="text-align:center;">
+-5.194***
+</td>
+<td style="text-align:center;">
+-2.364***
+</td>
+<td style="text-align:center;">
+-1.710***
+</td>
+<td style="text-align:center;">
+-1.603***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.266)
+</td>
+<td style="text-align:center;">
+(0.459)
+</td>
+<td style="text-align:center;">
+(0.481)
+</td>
+<td style="text-align:center;">
+(0.401)
+</td>
+<td style="text-align:center;">
+(0.447)
+</td>
+<td style="text-align:center;">
+(0.466)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Time FE
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(income)
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Education
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Gender
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Resident Area
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Dummy of industry
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+N
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Adjusted R-squared
+</td>
+<td style="text-align:center;">
+0.121
+</td>
+<td style="text-align:center;">
+0.144
+</td>
+<td style="text-align:center;">
+0.156
+</td>
+<td style="text-align:center;">
+0.511
+</td>
+<td style="text-align:center;">
+0.513
+</td>
+<td style="text-align:center;">
+0.514
+</td>
+</tr>
+</tbody>
+</table></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol>
+<p>extensive-margin elasticityのPanel IVの結果</p>
+<ul>
+<li>ITTとして想定したベースラインの結果（-1.4 ~ -1.2%）より、非弾力的になる（0.1%）</li>
+<li>extensive-marginの弾力性はtax reportをしていない人に特に強い影響を与えるのか？</li>
+</ul>
+<pre class="r"><code>ivest_report1_ext &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~year, cluster = ~pid,
+    data = subset(df, year &lt;= 2017)
+  ))
+
+ivest_report2_ext &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, year &lt;= 2017)
+  ))
+
+waldtest_ext &lt;- list(ivest_report1_ext, ivest_report2_ext) %&gt;%
+  purrr::map_depth(2, ~ tibble(
+    vars = &quot;Implied price elasticity&quot;,
+    coef = coef(.)[&quot;log_price:p_ext_benefit_tl&quot;],
+    se = fixest::se(.)[&quot;log_price:p_ext_benefit_tl&quot;],
+    invmu = 1 / mean(model.matrix(., type = &quot;lhs&quot;)),
+    p = fixest::pvalue(.)[&quot;log_price:p_ext_benefit_tl&quot;]
+  )) %&gt;%
+  purrr::map_depth(2, function(x)
+    x %&gt;%
+      mutate(
+        coef = case_when(
+          p &lt;= .01 ~ sprintf(&quot;%1.3f***&quot;, coef / invmu),
+          p &lt;= .05 ~ sprintf(&quot;%1.3f**&quot;, coef / invmu),
+          p &lt;= .1 ~ sprintf(&quot;%1.3f*&quot;, coef / invmu),
+          TRUE ~ sprintf(&quot;%1.3f&quot;, coef / invmu)
+        ),
+        se = sprintf(&quot;(%1.3f)&quot;, se / invmu)
+      ) %&gt;%
+      dplyr::select(-p, -invmu) %&gt;%
+      pivot_longer(-vars, names_to = &quot;stat&quot;, values_to = &quot;val&quot;)
+  ) %&gt;%
+  purrr::map(~ reduce(., full_join, by = c(&quot;vars&quot;, &quot;stat&quot;))) %&gt;%
+  reduce(full_join, by = c(&quot;vars&quot;, &quot;stat&quot;)) %&gt;%
+  setNames(c(&quot;vars&quot;, &quot;stat&quot;, paste0(&quot;reg&quot;, seq_len(length(xlist) * 2)))) %&gt;%
+  bind_rows(
+    c(vars = &quot;&quot;, stat = &quot;&quot;, reg1 = &quot;&quot;, reg2 = &quot;&quot;,
+      reg3 = &quot;&quot;, reg4 = &quot;&quot;, reg5 = &quot;&quot;, reg6 = &quot;&quot;),
+    .
+  )
+
+list(ivest_report1_ext, ivest_report2_ext) %&gt;%
+  flatten() %&gt;%
+  regtab_fixest(
+    keep_coef = &quot;log_price&quot;,
+    label_coef = list(
+      &quot;log_price:p_ext_benefit_tl&quot; = &quot;Propensity of Report x log(first price)&quot;
+    )
+  ) %&gt;%
+  regtab_addline(list(waldtest_ext, xlist_duptab)) %&gt;%
+  mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
+  dplyr::select(-stat) %&gt;%
+  kable(
+    col.names = c(&quot;&quot;, sprintf(&quot;(%1d)&quot;, seq_len(length(xlist) * 2))),
+    align = &quot;lcccccc&quot;
+  ) %&gt;%
+  add_header_above(c(&quot;&quot;, &quot;w/o individual FE&quot; = 3, &quot;w/ individual FE&quot; = 3)) %&gt;%
+  kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/o individual FE
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/ individual FE
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+<ol style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="2" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="3" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="4" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="5" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="6" style="list-style-type: decimal">
+<li></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Propensity of Report x log(first price)
+</td>
+<td style="text-align:center;">
+-1.899***
+</td>
+<td style="text-align:center;">
+-1.539***
+</td>
+<td style="text-align:center;">
+-1.375***
+</td>
+<td style="text-align:center;">
+-0.506***
+</td>
+<td style="text-align:center;">
+-0.347***
+</td>
+<td style="text-align:center;">
+-0.319***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.052)
+</td>
+<td style="text-align:center;">
+(0.090)
+</td>
+<td style="text-align:center;">
+(0.094)
+</td>
+<td style="text-align:center;">
+(0.090)
+</td>
+<td style="text-align:center;">
+(0.104)
+</td>
+<td style="text-align:center;">
+(0.110)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Implied price elasticity
+</td>
+<td style="text-align:center;">
+-0.655***
+</td>
+<td style="text-align:center;">
+-0.530***
+</td>
+<td style="text-align:center;">
+-0.474***
+</td>
+<td style="text-align:center;">
+-0.174***
+</td>
+<td style="text-align:center;">
+-0.120***
+</td>
+<td style="text-align:center;">
+-0.110***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.018)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.032)
+</td>
+<td style="text-align:center;">
+(0.031)
+</td>
+<td style="text-align:center;">
+(0.036)
+</td>
+<td style="text-align:center;">
+(0.038)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Time FE
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(income)
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Education
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Gender
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Resident Area
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Dummy of industry
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+N
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+<td style="text-align:center;">
+16946
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Adjusted R-squared
+</td>
+<td style="text-align:center;">
+0.147
+</td>
+<td style="text-align:center;">
+0.166
+</td>
+<td style="text-align:center;">
+0.179
+</td>
+<td style="text-align:center;">
+0.426
+</td>
+<td style="text-align:center;">
+0.427
+</td>
+<td style="text-align:center;">
+0.428
+</td>
+</tr>
+</tbody>
+</table></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol>
+<p>intensive-margin elasticityのPanel IVの結果</p>
+<ul>
+<li>個人固定効果を加えると、ITTとして想定した弾性値（-1 ~ -0.5%）と似たような結果を取る</li>
+<li>Intenstive-margin elasticityはtax reportをする人に特に影響を与えるのか？</li>
+</ul>
+<pre class="r"><code>ivest_report1_int &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~year, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1 &amp; year &lt;= 2017)
+  ))
+
+ivest_report2_int &lt;- xlist %&gt;%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1 &amp; year &lt;= 2017)
+  ))
+
+list(ivest_report1_int, ivest_report2_int) %&gt;%
+  flatten() %&gt;%
+  regtab_fixest(
+    keep_coef = &quot;log_price&quot;,
+    label_coef = list(
+      &quot;log_price:p_ext_benefit_tl&quot; = &quot;Propensity of Report x log(first price)&quot;
+    )
+  ) %&gt;%
+  regtab_addline(list(xlist_duptab)) %&gt;%
+  mutate(vars = if_else(stat == &quot;se&quot;, &quot;&quot;, vars)) %&gt;%
+  dplyr::select(-stat) %&gt;%
+  kable(
+    col.names = c(&quot;&quot;, sprintf(&quot;(%1d)&quot;, seq_len(length(xlist) * 2))),
+    align = &quot;lcccccc&quot;
+  ) %&gt;%
+  add_header_above(c(&quot;&quot;, &quot;w/o individual FE&quot; = 3, &quot;w/ individual FE&quot; = 3)) %&gt;%
+  kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/o individual FE
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+w/ individual FE
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+<ol style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="2" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="3" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="4" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="5" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="6" style="list-style-type: decimal">
+<li></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Propensity of Report x log(first price)
+</td>
+<td style="text-align:center;">
+0.049
+</td>
+<td style="text-align:center;">
+0.893**
+</td>
+<td style="text-align:center;">
+1.151**
+</td>
+<td style="text-align:center;">
+-1.161***
+</td>
+<td style="text-align:center;">
+-0.947***
+</td>
+<td style="text-align:center;">
+-0.987***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.326)
+</td>
+<td style="text-align:center;">
+(0.447)
+</td>
+<td style="text-align:center;">
+(0.486)
+</td>
+<td style="text-align:center;">
+(0.284)
+</td>
+<td style="text-align:center;">
+(0.318)
+</td>
+<td style="text-align:center;">
+(0.342)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Time FE
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(income)
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Education
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Gender
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Resident Area
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Year x Dummy of industry
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+Y
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+N
+</td>
+<td style="text-align:center;">
+5840
+</td>
+<td style="text-align:center;">
+5840
+</td>
+<td style="text-align:center;">
+5840
+</td>
+<td style="text-align:center;">
+5840
+</td>
+<td style="text-align:center;">
+5840
+</td>
+<td style="text-align:center;">
+5840
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Adjusted R-squared
+</td>
+<td style="text-align:center;">
+-0.000
+</td>
+<td style="text-align:center;">
+0.027
+</td>
+<td style="text-align:center;">
+0.035
+</td>
+<td style="text-align:center;">
+0.696
+</td>
+<td style="text-align:center;">
+0.698
+</td>
+<td style="text-align:center;">
+0.697
+</td>
+</tr>
+</tbody>
+</table></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol>
 </div>
 
 
@@ -2248,9 +3833,6 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')

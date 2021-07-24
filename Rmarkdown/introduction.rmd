@@ -1,0 +1,260 @@
+
+# Introduction
+
+```{asis, echo = doctype == "slide"}
+## Charitable Giving and Taxiation
+In many countries, governments set a tax relief for charitable giving.
+
+To evaluate the effect of tax relief, many papers investigate the elasticity of charitable donations with respect to their tax price [@Randolph1995; @Auten2002; @Fack2010; @Bakija2011; @Almunia2020].
+
+Focusing on the tax deduction or tax credit on the charity, they show that the price elasticity of giving is about -1 or more in terms of absolute value.
+
+## Charitable Giving and Taxiation
+
+In addition to the tax price charitable donations, the donations may be affected by people's perception towards the government. 
+
+This is because the works and missions of private charity often mirror or overlap with one of governments, and the charity is not needed if the government adequately satisfies the needs of society.
+
+Thus, the different perception towards the government may make the different behavior for charitable giving.
+
+We investigate the relation between tax price elasticity of charitable donations and the different perception towards the government using the South Korean dataset.
+
+
+## Summary in short
+
+Our result classifies that:
+
+- the price elasticity of giving in Korea is -1.07 ~ -1.26, which is within the range of the extant research.
+- the amount of donation is not different between those who regard government as inefficient and the others.
+- the giving price elasticity of those who regard government as inefficient is more elastic than the others. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price. 
+
+## South Korean tax reform
+
+We can utilize the effect of the 2014 tax reform in the South Korea.
+
+- Before 2014, tax deduction was adopted to subsidize charitable donation behavior.
+- After 2014, tax credit have been adopted.
+
+The main difference is that tax credits reduce taxes directly, while tax deductions indirectly lower the tax burden by decreasing the marginal tax rate, which increases with gross income.
+
+In addition, the dataset contains the information about perception towards the government.
+
+
+## Related Literature
+
+This study mainly relates to the two strands of studies.
+
+ 1. Research about tax price elasticity of charitable donations
+ 2. Research about perception towards the government and donation/tax payment.
+  
+
+## Research about tax price elasticity of charitable donations
+
+Papers in this strand examines the price and income elasticity of charitable donations using the tax deduction applied for donation.
+The estimated price elasticities vary, but the typical one is said as -1 (Andreoni and Payne, 2013).
+  
+  - Auten et al.(2002): -0.79~-1.26 (the U.S.)
+  - Fack and Landais(2010): -0.15~-0.57 (France)
+  - Bakija and Heim (2011): -0.61~-1.1 (the U.S.)
+  - Duquette (2016): -2.15~-5.01 (the U.S.)
+  - Almunia et al.(2020): -0.24~--1.5 (the U.K.)
+  
+The study in non-Western country, where the culture of donation may be different, is few.
+Thus, we firstly examine the elasticity of giving in Korea.
+
+## Research about perception towards the government and donation/tax payment.
+
+Experimental studies show that the giving behavior may be affected by perception towards the government.
+
+ - Li et al.(2011) suggest that governmental organizations collect less donation than private charities though they have the same mission and work.
+ - Sheremeta and Uler(2020) show that individuals provide public good reacting the wasteful spending of government.
+
+This may be because people with distrust in government think that
+
+ 1. the direct donation is more efficient than public service provision or
+ 2. people can directly allocate and control their funds by donation, unlike public service provision. 
+
+Thus, people having the different trust in the government would have different elasticities of giving.
+```
+
+```{asis, echo = doctype == "draft"}
+In many countries, governments set a tax relief for charitable giving. This is because, if subsidizing charitable giving induces a large increase in donations, it is desirable for public good provision. To evaluate the effect of tax relief, many papers investigate the elasticity of charitable donations with respect to their tax price [@Randolph1995; @Auten2002; @Fack2010; @Bakija2011; @Almunia2020]. Focusing on the tax deduction or tax credit on the charity, they show that the price elasticity of giving is about -1 or more in terms of absolute value, which means that the tax relief for the charitable giving is good in the sense that 1\% tax relief derives more than 1\% donation.
+
+However, if the government can provide public good more efficiently than the direct donation, the donation may not be preferable because the public good provision via donation would be costly then.
+Moreover, when the government is much more efficient than charities, people may not donate so much even if they have a warm-glow preference. @Saez2004 suggests that the change of the relative price between public good provision by donation and government will change the behavior of people and the price elasticity of donation. 
+However, the evaluation about the efficiency of the government is usually subjective and different for people. If someones regard the government as efficient, the perceived relative price of giving would be high for them. Thus, the giving behavior would be affected by the subjective perception towards the government.
+
+Considering these points, this paper investigates (1) the price elasticity of giving and (2) whether the different perception towards the government cause the different giving behavior using South Korean panel data. 
+Our first main concern is the price elasticity of charity. South Korea (Korea hereafter) experienced the tax reform in 2014, from when the tax relief on charitable giving was conducted by tax credit, though tax deduction had been used before 2014. Thus, we exploit this tax reform as an exogenous policy change to derive the price elasticity of giving. Since the extant research focus on the tax reform within the scheme of tax deduction or tax credit, this paper firstly deals with the tax reform from tax deduction system to tax credit system.
+Our result classifies that the price elasticity of giving in Korea is -0.59 ~ -1.01 for intensive margin and -1.17 ~ -1.48 for extensive margin. 
+
+Our second concern is the relationship between the giving behavior and the perception towards the government. As we explained, people feeling administrative inefficiency would consider the direct donation is more efficient and would have more willingness to donate. Using the Korean field data, we investigate this and show that  the giving price elasticity of those who regard government as inefficient is more elastic than the others. This means that those who think of government as inefficient have more willingness to donate for 1\% reduction of giving price. 
+
+This paper contributes two strands of charitable giving literature: the elasticity of charitable donations with respect to their tax price and the perception of government's inefficiency. The examples of papers in the first strand are @Randolph1995, @Auten2002, @Fack2010, @Bakija2011, and @Almunia2020. They typically use the tax return data, the main part of which is the data about wealthy people. Since our data is based on survey, which reflects the income distribution of population, we believe that we can estimate the giving price elasticity of population more precisely. Using the data with low-income households may be difficult to estimate the giving price elasticity in terms of intensive margin since they are expected to donate less than high-income households. To address this issue, we estimate not only the elasticity of intensive margin, as most of papers do, but also the elasticity of extensive margin following @Almunia2020. 
+Moreover, we use the data of Korea, a non-Western country, which the extant research did not examine.[^Culture] 
+
+[^Culture]:This point may be important since @Kim2021 reports that the giving behavior is strongly affected by the cultural matter such as the religious belief.
+
+In the second strand, there are some experimental studies and papers considering the tax evasion. Using an experiment, @Li2011 compare people's willingness to give money for private charities and government agencies whose missions are the same. They show that people tend to donate for private charities more than government agency though they do not directly investigate the relationship between people's perception toward the government and giving behavior. @Sheremeta2020 show that people increase the voluntary public good provision when they face the wasteful government spending in the experimental setting. Although the government in their setting does not provide public good, they suggest that the willingness for donation may increase if people perceive the inefficiency of government. In the tax evasion literature, several paper suggests the perceived inefficiency of government reduce tax morale [@Frey2007; @Hammar2009; @Anderson2017]. We contribute on this literature by showing the relation between the perception of government efficiency and the giving behavior. 
+
+This paper consist of seven sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of giving price elasticity and section 6 shows the analysis of perceptions toward the government. Section 7 concludes.
+```
+
+# Institutional background
+
+```{asis, echo = doctype == "slide"}
+## Tax relief for charitable giving by tax deduction and tax credit
+
+In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction. 
+
+The tax deduction and tax credit may have different effects on giving behavior. 
+This section summarize the difference of tax deduction and tax credit.
+
+## Budget Set
+
+Consider that a household has a choice between private consumptions ($x_i$) and charitable giving ($g_i$). Let $y_i$ be pre-tax total income.
+Then, the budget constraint is 
+
+$$
+    x_i + g_i = y_i - T_i(y_i, g_i).
+$$
+$T_i$ is tax amount which depends on the pre-tax income and charitable giving.
+
+## Tax Deduction
+
+Tax deduction reduces taxable income by giving, that is,
+
+$$
+    T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
+$$
+
+where $\tau(\cdot)$ is the marginal income tax rate which is determined by $y_i - g_i$. The budget constraint will be 
+
+$$
+    x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
+$$
+
+The relative price of giving is $p_i^{d} \equiv 1 - \tau(y_i - g_i)$.
+Since the giving price in tax deduction scheme varies depending on (1) the income level and (2) the amount of charitable giving, it is endogenous to them.
+
+## Tax Credit
+
+Tax credit reduces tax amount directly, that is,
+
+$$
+    T_i = \tau(y_i)\cdot y_i - m g_i,
+$$
+
+where $m \in [0, 1]$ is the tax credit rate. Under the tax credit system, the budget constraint is 
+
+$$
+    x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
+$$
+
+The relative price of giving is $p_i^c = 1 - m$, 
+which is only dependent on the tax credit rate $m$, which is exogenously determined by the government.
+
+## Korean tax reform in 2014
+
+- The tax incentives for charitable giving in Korea stared in 2000 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761% of GDP) in 2012 according to the national tax statistics.
+- Since the income tax deduction was initially used as a tax incentive and the marginal income tax rate was determined as Table \@ref(tab:tabTaxRate), the minimum giving price before 2014 was 0.62. 
+
+## Marginal income tax rate
+```
+
+```{asis, echo = doctype == "draft"}
+In this section, we describe the income tax relief for charitable giving in Korea and used dataset.
+
+## Tax relief for charitable giving by tax deduction and tax credit
+
+In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction. 
+
+The tax deduction and tax credit may have different effects on giving behavior. This subsection summarize the difference of tax deduction and tax credit.
+Consider that a household has a choice between private consumptions ($x_i$) and charitable giving ($g_i$). Let $y_i$ be pre-tax total income.
+Then, the budget constraint is 
+
+$$
+    x_i + g_i = y_i - T_i(y_i, g_i).
+$$
+$T_i$ is tax amount which depends on the pre-tax income and charitable giving.
+On one hand, tax deduction reduces taxable income by giving. The amount of tax is
+
+$$
+    T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
+$$
+
+where $\tau(\cdot)$ is the income tax rate which is determined by $y_i - g_i$.[^ATR] The budget constraint will be 
+
+[^ATR]: $\tau(\cdot)$ here is a function which shows the average tax rate, which is determined progressively. Since the price elasticity of giving shows the marginal and additional increment for one unit of price reduction increase, we use not average but marginal tax rate to construct the giving price following the literature. Usage of the function of the average tax rate here is for explanatory simplicity.
+
+$$
+    x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
+$$
+
+Thus, the giving price compared to the price of private consumption is $p_i^{d} \equiv 1 - \tau(y_i - g_i)$ in tax deduction system. Since the giving price in tax deduction scheme varies depending on (1) the income level and (2) the amount of charitable giving, it is endogenous to them, i.e. (1) and (2).
+
+On the other hand, tax credit reduces tax amount directly, that is,
+
+$$
+    T_i = \tau(y_i)\cdot y_i - m g_i,
+$$
+
+where $m \in [0, 1]$ is the tax credit rate. Under the tax credit system, the budget constraint is 
+
+$$
+    x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
+$$
+
+Thus, the giving price of tax credit system will be $p_i^c = 1 - m$, which is only dependent on the tax credit rate $m$, which is exogenously determined by the government.
+Therefore, the giving price in the tax credit system would not be manipulated by donors.
+```
+
+```{r tabTaxRate, include=TRUE}
+tab <- data.frame(
+    inc = c(
+        "(A) ~ 1200", "(B) 1200 ~ 4600", "(C) 4600 ~ 8800", "(D) 8800 ~ 15000",
+        "(E) 15000 ~ 30000", "(F) 30000 ~ 50000", "(G) 50000 ~"),
+    Y08 = c("8%", "17%", "26%", rep("35%", 4)),
+    Y09 = c("6%", "16%", "25%", rep("35%", 4)),
+    Y1011 = c("6%", "15%", "24%", rep("35%", 4)),
+    Y1213 = c("6%", "15%", "24%", rep("35%", 2), rep("38%", 2)),
+    Y1416 = c("6%", "15%", "24%", "35%", rep("38%", 3)),
+    Y17 = c("6%", "15%", "24%", rep("35%", 2), "38%", "40%"),
+    Y18 = c("6%", "15%", "24%", "35%", "38%", "40%", "42%")
+)
+
+knitr::kable(
+    tab,
+    format = "latex",
+    caption = "Marginal Income Tax Rate",
+    col.names = c(
+      "Income/Year", "2008", "2009", "2010 ~ 2011",
+      "2012 ~ 2013", "2014 ~ 2016", "2017", "2018"
+    ),
+    row.names = FALSE,
+    align = "lccccccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>%
+kable_styling(font_size = 7) %>%
+collapse_rows(columns = 2:8, valign = "middle", latex_hline = "full") %>%
+footnote(general_title = "", general = "Notes: Marginal income tax rates applied from 2008 to 2018 are summarized. The income level is shown in terms of 10,000 KRW, which is approximately 10 United States dollars (USD) at an exchange rate of 1,000 KRW to one USD.", threeparttable = TRUE, escape = FALSE)
+```
+
+```{asis, echo = doctype == "draft"}
+## Our Identification Strategy
+
+In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system again, where the tax credit was introduced instead of tax deduction. Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit, which means that the giving price from 2014 is 0.85 irrelevant to the income level.
+
+Summarizing this, compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%, get benefit from charitable giving under the tax deduction system. However, middle or low income households would enjoy tax relief in tax credit system more than tax deduction system. We exploit this policy change as an identification strategy.
+```
+
+```{asis, echo = doctype == "draft"}
+## Korean tax reform in 2014
+
+The tax incentives for charitable giving in Korea stared in 1967 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761% of GDP) in 2012 according to the national tax statistics.
+Since the income tax deduction was initially used as a tax incentive and the marginal income tax rate was determined as Table \@ref(tab:tabTaxRate), the minimum giving price before 2014 was 0.62.
+
+In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system again, where the tax credit was introduced instead of tax deduction. Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit, which means that the giving price from 2014 is 0.85 irrelevant to the income level.
+
+Summarizing this, compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%, get benefit from charitable giving under the tax deduction system. However, middle or low income households would enjoy tax relief in tax credit system more than tax deduction system. We exploit this policy change as an identification strategy.
+```

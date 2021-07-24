@@ -3,7 +3,7 @@
 
 # /* パッケージのロード
 library(xfun)
-xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
+xfun::pkg_attach2(c("tidyverse", "rlist"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 xfun::pkg_attach2("kableExtra")
 
@@ -11,48 +11,20 @@ lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 # */
 
 # /* データの読み込み
-df <- read.dta13("data/shaped.dta") %>%
-  data.frame() %>%
-  mutate(
-    log_price = log(price),
-    log_lprice = log(lprice),
-    log_iv1price = log(iv1price),
-    log_iv2price = log(iv2price),
-    log_iv3price = log(iv3price),
-    log_total_g = log(i_total_giving + 1),
-    log_pinc_all = log(lincome + 100000)
-  ) %>%
-  group_by(pid) %>%
-  mutate(
-    lag1_log_total_g = dplyr::lag(log_total_g, order_by = year),
-    lag2_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 2),
-    lag3_log_total_g = dplyr::lag(log_total_g, order_by = year, n = 3),
-    lag1_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year),
-    lag2_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 2),
-    lag3_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 3),
-    lag1_age = dplyr::lag(age, order_by = year),
-    lag2_age = dplyr::lag(age, order_by = year, n = 2),
-    lag3_age = dplyr::lag(age, order_by = year, n = 3),
-    lag1_sqage = dplyr::lag(sqage, order_by = year),
-    lag2_sqage = dplyr::lag(sqage, order_by = year, n = 2),
-    lag3_sqage = dplyr::lag(sqage, order_by = year, n = 3)
-  ) %>%
-  ungroup() %>%
-  mutate(
-    log_diff1g = log_total_g - lag1_log_total_g,
-    log_diff2g = log_total_g - lag2_log_total_g,
-    log_diff3g = log_total_g - lag3_log_total_g,
-    log_diff1I = log_pinc_all - lag1_log_pinc_all,
-    log_diff2I = log_pinc_all - lag2_log_pinc_all,
-    log_diff3I = log_pinc_all - lag3_log_pinc_all,
-    diff1_age = age - lag1_age,
-    diff2_age = age - lag2_age,
-    diff3_age = age - lag3_age,
-    diff1_sqage = sqage - lag1_sqage,
-    diff2_sqage = sqage - lag2_sqage,
-    diff3_sqage = sqage - lag3_sqage
-  ) %>%
-  filter(year >= 2012 & age >= 24)
+df <- readr::read_csv(
+  "data/shaped2.csv",
+  col_types = cols(
+    ext_credit_giving = col_double(),
+    krw_credit_giving = col_double(),
+    trust_politician = col_double(),
+    political_pref = col_double(),
+    addtax = col_double(),
+    avg_welfare_tax = col_double(),
+    opt_welfare_tax = col_double(),
+    now_balance = col_double(),
+    ideal_balance = col_double()
+  )
+)
 # */
 
 #' # Government Efficiency and Price Elasticity
