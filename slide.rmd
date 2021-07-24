@@ -54,8 +54,9 @@ knitr::opts_chunk$set(
   fig.align = "center", fig.pos = "t"
 )
 
-library(here)
-knitr::opts_knit$set(root.dir = here())
+library(here); knitr::opts_knit$set(root.dir = here())
+xfun::pkg_attach2(c("tidyverse", "kableExtra"))
+options(knitr.kable.NA = " ")
 
 doctype <- "slide"
 ```
@@ -67,6 +68,9 @@ doctype <- "slide"
 ```
 
 ```{r child = "Rmarkdown/estimation.Rmd"}
+```
+
+```{r child = "Rmarkdown/2-elasticity.Rmd"}
 ```
 
 \clearpage
