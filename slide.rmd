@@ -73,6 +73,9 @@ doctype <- "slide"
 ```{r child = "Rmarkdown/2-elasticity.Rmd"}
 ```
 
+```{r child="Rmarkdown/conclusion.Rmd"}
+```
+
 \clearpage
 
 # References {#references .unnumbered .allowframebreaks}
