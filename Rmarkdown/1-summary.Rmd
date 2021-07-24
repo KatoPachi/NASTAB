@@ -57,7 +57,7 @@ By this restriction, the most giving price variation relies on the 2014 tax refo
 the marginal income tax rate is same in 2012 and 2013.
 In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
 
-Table \@ref(tab:kableSummaryCovariate) is summary statistics of our sample. 
+Table \@ref(tab:SummaryCovariate) is summary statistics of our sample. 
 We used four types of variables in this paper: 
 sets of variables about Income and Giving Price,
 Charitable Donations, 
@@ -78,7 +78,7 @@ we describe the first two set of variables in detail.
 ```{r SummaryCovariate}
 x <- c(
   "i_total_giving", "i_ext_giving",
-  "lincome", "price", "ext_benefit",
+  "lincome", "price", "ext_benefit_tl",
   # "now_balance", "ideal_balance",
   "age", "gender", "employee",
   "univ", "highschool", "juniorhigh"
@@ -91,7 +91,7 @@ df %>%
       vars,
       "lincome" = "Annual taxable income (unit: 10,000KRW)",
       "price" = "First giving price",
-      "ext_benefit" = "Dummy of tax report",
+      "ext_benefit_tl" = "Dummy of tax report",
       "i_total_giving" = "Annual charitable giving (unit: 10,000KRW)",
       "i_ext_giving" = "Dummy of Donation > 0",
       "age" = "Age",
@@ -103,6 +103,7 @@ df %>%
     )
   ) %>%
   kable(
+    caption = "Descriptive Statistics",
     format = "latex",
     col.names = c("", "N", "Mean", "Std.Dev.", "Min", "Median", "Max"),
     align = "lcccccc", digits = 2,
@@ -126,10 +127,10 @@ to estimate the price effect on the decision of donations (extensive margin).
 
 [^Question]:Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes.We sum up the amount of donations, and consider it as the annual charitable giving.
 
-Table \@ref(tab:kableSummaryCovariate) shows that 
+Table \@ref(tab:SummaryCovariate) shows that 
 the average amount of donation is almost 300,000 KRW,
 and the proportion of donors is roughly 20\%.
-Figure \@ref(fig:showDonationRate) shows the time-series of two variables.
+Figure \@ref(fig:SummaryOutcome) shows the time-series of two variables.
 The blue line shows the average amount of donation among donors.
 In each year, its value is nearly 1.5 million KRW,
 which is 7\% of average annual taxable income.
@@ -175,7 +176,7 @@ ggplot(avgext, aes(x = year, y = mu)) +
 ## Income and Giving Price
 
 ```{asis, echo = doctype == "slide"}
-- Figure \@ref(fig:showSummaryPriceChange) shows the giving price after 2012 and income distribution in 2013.
+- Figure \@ref(fig:SummaryPriceChange) shows the giving price after 2012 and income distribution in 2013.
 	- Blue line shows the giving price in 2012 and 2013, which depends on income
 	- Red dashed line shows the giving price after 2014, which is not a function of income.
 - We can make three groups in terms of the benefit from the 2014 tax reform.
@@ -195,14 +196,14 @@ the average annual taxable income is 32.77 million from 2012 to 2018
 for employees who submited the tax return.
 Since our sample includes subjects with no labor income, such as housewife,
 our sample mean of income is lower than average income calculated by the public organizations.
-In Figure \@ref(fig:showSummaryPriceChange),
+In Figure \@ref(fig:SummaryPriceChange),
 the grey bars show the distribution of annual taxable income in 2013.
 The income distribution is left-skewed.
 
 Using this variable, we construct the giving price under the tax deduction system (2012 and 2013).
 After the tax reform (after 2014), the giving price is 0.85 under the tax credit system, 
 as we explained in the section \@ref(institutional-background).
-In Figure \@ref(fig:showSummaryPriceChange),
+In Figure \@ref(fig:SummaryPriceChange),
 the blue line shows giving price in 2012 and 2013,
 while the red dashed line shows the giving price after 2014.
 From this figure, 

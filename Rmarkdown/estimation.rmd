@@ -1,7 +1,13 @@
 # Estimation
 
-<!--- For Slides
+<!--
+ここらへんの議論ですが、以下の点、要検討です。これらが解決しないと残差プロットの図を出す意味は殆どないと思います。
+ 
+ - 残差プロットの図がIntensive marginについて、期待される図とはかなり異なる結果を出しているので、どう議論しようか悩みどころです。
+ - 平行トレンドについてですが、ここでは政策変更前の期間が1期しかないので、チェックできません。なので、個人的には政府の効率性の議論にかかわらず、期間を延長して分析・図を見せるのもありだと思います。とりあえずのバージョンでは平行トレンドについては書きません。
+--->
 
+```{asis, echo = doctype == "slide"}
 Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin.
 
 - The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price
@@ -51,10 +57,9 @@ Our identification assumption may violate due to two endogenous problems under t
     - The change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate.
     - We employ lagged values of taxable income and construct an instrument variable, $\ln (p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))$ where $g_{it-k} = 0$.
     - By fixing income at year $t - k$, the instrument isolates changes in price from income responses to the tax reform.
+```
 
- --->
-
-
+```{asis, echo = doctype == "draft"}
 Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price. 
 
 We estimate the elasticity of intensive margin using the following specification:
@@ -108,12 +113,4 @@ The numerator is the first price that individual $i$ would have faced in year $t
 By fixing the income at year $t - k$, 
 the instrument isolates changes in price from income responses to the tax reform. 
 Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
-
-
-
-<!--
-ここらへんの議論ですが、以下の点、要検討です。これらが解決しないと残差プロットの図を出す意味は殆どないと思います。
- 
- - 残差プロットの図がIntensive marginについて、期待される図とはかなり異なる結果を出しているので、どう議論しようか悩みどころです。
- - 平行トレンドについてですが、ここでは政策変更前の期間が1期しかないので、チェックできません。なので、個人的には政府の効率性の議論にかかわらず、期間を延長して分析・図を見せるのもありだと思います。とりあえずのバージョンでは平行トレンドについては書きません。
---->
+```
