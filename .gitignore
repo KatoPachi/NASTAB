@@ -1,9 +1,15 @@
+# tex-related files
 *.log
 *.fff
 *.spl
 *.ttt
 *.aux
 *.out
+*.fdb_latexmk
+*.fls
+*.bib.bak
+
+# R-related files
 .Rhistory
 .Rprofile
 

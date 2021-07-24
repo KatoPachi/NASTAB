@@ -1,3 +1,0 @@
-\clearpage
-
-# References {#references .unnumbered .allowframebreaks}
