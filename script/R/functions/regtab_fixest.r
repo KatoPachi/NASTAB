@@ -66,7 +66,7 @@ regtab_fixest <- function(
     purrr::map(~tibble(
       vars = c("N", "Adjusted R-squared"),
       stat = c("stat", "stat"),
-      val = c(sprintf("%1d", nobs(.)), sprintf("%1.3f", r2(.)["ar2"]))
+      val = c(sprintf("%1d", nobs(.)), sprintf("%1.3f", fixest::r2(.)["ar2"]))
     )) %>%
     reduce(full_join, by = c("vars", "stat")) %>%
     setNames(c("vars", "stat", paste0("reg", seq_len(length(fixestobj)))))

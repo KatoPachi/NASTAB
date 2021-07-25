@@ -4,7 +4,7 @@
 ```{r }
 library(xfun)
 xfun::pkg_attach2(c("tidyverse", "rlist"))
-xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
+xfun::pkg_attach2(c("plm", "lmtest", "fixest", "sandwich", "lfe", "Formula"))
 xfun::pkg_attach2("kableExtra")
 
 invisible(lapply(Sys.glob(file.path("script/R/functions", "*.r")), source))
