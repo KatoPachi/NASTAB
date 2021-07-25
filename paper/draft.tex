@@ -365,58 +365,89 @@ Table \ref{tab:SummaryCovariate} shows the proportion of tax deduction is about 
 \hypertarget{estimation}{%
 \section{Estimation}\label{estimation}}
 
-Following Almunia et al. (2020), we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
-
-We estimate the elasticity of intensive margin using the following specification:
+Following Almunia et al. (2020), we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price. We estimate the elasticity of intensive margin using the following specification:
 
 \begin{equation}
-    \ln g_{it} = \varepsilon_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:intensive}
+    \ln g_{it} = \varepsilon^{int}_p R_{it} \ln p_{it} + \varepsilon^{int}_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:intensive}
 \end{equation}
 
-\(g_{it}, p_{it}\) and \(y_{it}\) respectively indicates the amount of giving, the giving price, and income of \(i\) in year \(t\). \(\mu_i, \iota_t\) and \(u_{it}\) are individual fixed effect, year fixed effect and error term, respectively.
+\(g_{it}, p_{it}\) and \(y_{it}\) respectively indicates the amount of giving, the giving price, and income of \(i\) in year \(t\).
+\(R_{it}\) is a dummy taking one if individual \(i\) applied for a tax deduction in year \(t\).
+\(\mu_i, \iota_t\) and \(u_{it}\) are individual fixed effect, year fixed effect and error term, respectively.
 The individual fixed effect controls for time-invariant individual characteristics. The year fixed effect controls for events that affect all subjects at the same time. \(X_{it}\) is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into \(X_{it}\), since they will control for events that affects subject with specific characteristics at the same time following Zeldow and Hatfield (2019).
 
-The elasticity of extensive margin is estimated using the linear probability model such as
+On the other hand,
+the elasticity of extensive margin is estimated using the linear probability model such as
 
 \begin{equation}
-D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_{it}. \label{eq:extensive}
+D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\iota_t +v_{it}. \label{eq:extensive}
 \end{equation}
 
 \(D_{it}\) is a dummy variable taking 1 if individual \(i\) donates at year \(t\) and 0 otherwise.
 Since we use the linear probability model,
 the estimated coefficient \(\delta\) represents \(\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\).
 Also, the estimated coefficient \(\gamma\) represents \(\hat{\gamma} = \frac{\partial D_{it}}{\partial y_{it}} y_{it}\).
-Thus, the extensive-margin price and income elasticity are \(\hat{\delta}/D_{it}\) and \(\hat{\gamma}/D_{it}\), respectively.
-We evaluate the extensive-margin price and income elasticity at sample mean of \(D_{it}\).
+Thus, the implied extensive-margin price and income elasticity are obtained by
+\(\hat{\delta}/\bar{D}\) and \(\hat{\gamma}/\bar{D}\), respectively,
+where \(\bar{D}\) is sample average of outcome variable \(D_{it}\).
 
-Our identification assumption is the \emph{within} price variation is exogenous because we use the fixed effect model.
-This assumption may be hold if the major \emph{within} price variation comes only from the 2014 tax reform.
-After the 2014 tax reform (the tax credit system), the giving price is constant across individuals and
-there is no room for manipulation by donations and income.
-However, before the 2014 tax reform, the giving price has two potential endogeneity problem:
-(A) endogeneity of giving price and (B) simulatenous determination of income and donations.
+As shown in the section \ref{institutional-background},
+the giving price \(p_{it}\) is defined as follows:
 
-To tackle these problems, we take two methods.
-The first method deals with the possibility that the giving price is endogenous because
-the tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+\begin{align}
+  p_{it}(y_{it}, g_{it}) =
+  \begin{cases}
+    1 - \tau_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
+    1 - m \quad\text{if}\quad t \ge 2014
+  \end{cases}, \label{eq:price}
+\end{align}
+where \(\tau_t(\cdot)\) is average tax rate in year \(t\).
+
+Our identification assumption is that the \emph{within} price variation is exogenous due to the fixed effect model.
+From the equation \eqref{eq:price},
+the within price variation comes from the 2014 tax reform, the within variation of giving \(g_{it}\) and income \(y_{it}\).
+Moreover, by the equation \eqref{eq:intensive} and \eqref{eq:extensive},
+the within price variation comes from tax report \(R_{it}\).
+Since these three variables are self-selected,
+we need to solve three potential endogeneity problem to hold our identification assumption.
+
+As a benchmark, we estimate the equation \eqref{eq:intensive} and \eqref{eq:extensive},
+assuming that \(R_{it} = 1\) for all \(i\).
+This means that we see individuals who did not apply for a tax deduction as those who applied for a tax deduction.
+In the treatment effect literature, this effect is sometimes called ``intention-to-treat'' effect (ITT).
+By this assumption,
+we can solve the issue that the self-selection of tax deduction (\(R_{it}\)) affects the giving price.
+Later, we relax this assumption, using the instrumental variable strategy.
+
+Next, we deal with the the possibility that the giving price is endogenous because
+the tax payer can reduce their giving price by reducing their amount of donation
+and shifting themselves to the lower tax bracket in the tax deduction system (self-selection of \(g_{it}\)).
 Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
-The first price is formally defined as the giving price \(p_i^d \equiv 1 - \tau (y_i - g_i)\), evaluated at \(g_i = 0\).
-Moreover, this issue does not happen in the tax credit system because the giving price in the tax credit system is exogenously determined by the rate of tax credit allowance.
-Therefore, we construct the giving price in the tax credit system based on the rate of tax credit allowance.
+The first price is obtained by \(p^f_{it} = p_{it}(y_{it}, g_{it})\) evalueated at \(g_{it} = 0\).
+As long as income \(y_{it}\) is exogenous, the within giving price \(p^f_{it}\) is also exogenous.
+Thus, assuming income \(y_{it}\) is exogenous variable,
+we first estimate the first-price elasticity with the equation \eqref{eq:intensive} and \eqref{eq:extensive}
+which replace \(\ln p_{it}\) with \(\ln p^f_{it}\).
+Moreover, we also estimate the last-price elasticity, using the first price \(p^f_{it}\) as an instrument.
 
-The second method deals with the issue related to the simultaneous determination of income and donations.
+We can justify the first price method, assuming that income is exogenous.
+The second approach relaxes this assumption.
 Under the tax deduction system,
-the change of income have effects on both donations through the income effect and the giving price through the marginal tax rate.
-Therefore, we employ lagged values of taxable income and construct a variable for the change in the first price of giving as following:
+the change of income have effects on both donations through the income effect
+and the giving price through the marginal tax rate.
+Therefore,
+we employ lagged values of taxable income and
+construct a variable for the change in the first price of giving as following:
 
 \[
 \ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right).
 \]
 
 where \(g_{it-k} = 0\).
-The numerator is the first price that individual \(i\) would have faced in year \(t\) if she had declared her year \((t - k)\) taxable income at that year.
-By fixing the income at year \(t - k\),
-the instrument isolates changes in price from income responses to the tax reform.
+The numerator is the first price that individual \(i\) would have faced in year \(t\)
+if she had declared her year \((t - k)\) taxable income at that year.
+By fixing the income at year \(t - k\), the instrument isolates changes in price from income responses to the tax reform.
 Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
 
 \hypertarget{main-results}{%
