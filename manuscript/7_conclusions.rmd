@@ -4,6 +4,6 @@ In this paper, we investigate the giving price elasticity using South Korean pan
 
 Firstly, the estimation shows that the giving price elasticity in Korea is larger than 1 in the sense of absolute value. Since the standard theoretical literature suggests that if the price elasticity is more elastic than 1 in the sense of absolute value, the subsidy for the charitable giving should be increased [@Saez2004]. Thus, the result suggests that the Korean government should increase the subsidy for the charitable giving.
 
-Secondly, we find that, although some of the estimated values seem vulnerable depending on the estimation method, most of the results show that the giving price elasticity is more elastic for extensive margin than intensive margin. Since the extensive margin was not paid much attention to in the literature, this result suggests that the consideration about the extensive margin is important.
+Secondly, we find that the estimated price elasticity using the effetive giving price takes very different values from the estimated elasticity using the applicable giving price. It implies that the declaration cost, which has been ignored, is large and mitigate the effect of tax relief.   
 
 From the results, we firstly show the giving price elasticity in Korea. However, many things to be considered are remaining. To understand the giving behavior and to contribute the policy making, more sophisticated research is needed.
