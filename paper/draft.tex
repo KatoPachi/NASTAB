@@ -313,7 +313,7 @@ After that, the proportion of donors is greter than 20\%.
 
 \begin{figure}[t]
 
-{\centering \includegraphics[width=1\linewidth]{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryOutcome-1} 
+{\centering \includegraphics[width=1\linewidth]{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryOutcome-1} 
 
 }
 
@@ -355,7 +355,7 @@ Table \ref{tab:SummaryCovariate} shows the proportion of tax deduction is about 
 
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPriceChange-1} 
+{\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPriceChange-1} 
 
 }
 
@@ -415,15 +415,17 @@ we need to solve three potential endogeneity problem to hold our identification 
 As a benchmark, we estimate the equation \eqref{eq:intensive} and \eqref{eq:extensive},
 assuming that \(R_{it} = 1\) for all \(i\).
 This means that we see individuals who did not apply for a tax deduction as those who applied for a tax deduction.
-In the treatment effect literature, this effect is sometimes called ``intention-to-treat'' effect (ITT).
+In the treatment effect literature, this is sometimes called ``intention-to-treat'' effect (ITT).
 By this assumption,
 we can solve the issue that the self-selection of tax deduction (\(R_{it}\)) affects the giving price.
 Later, we relax this assumption, using the instrumental variable strategy.
 
 Next, we deal with the the possibility that the giving price is endogenous because
 the tax payer can reduce their giving price by reducing their amount of donation
-and shifting themselves to the lower tax bracket in the tax deduction system (self-selection of \(g_{it}\)).
-Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+and shifting themselves to the lower tax bracket in the tax deduction system.
+Since this issue does not happen for the first one unit of donation,
+whose price (``first price'') cannot be changed by adjusting the donation,
+we use this first price as the giving price in the estimation.
 The first price is obtained by \(p^f_{it} = p_{it}(y_{it}, g_{it})\) evalueated at \(g_{it} = 0\).
 As long as income \(y_{it}\) is exogenous, the within giving price \(p^f_{it}\) is also exogenous.
 Thus, assuming income \(y_{it}\) is exogenous variable,
@@ -440,15 +442,27 @@ Therefore,
 we employ lagged values of taxable income and
 construct a variable for the change in the first price of giving as following:
 
-\[
-\ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right).
-\]
-
+\begin{align}
+  \Delta^k \ln p_{it} = \ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right),
+  \label{eq:laggedp}
+\end{align}
 where \(g_{it-k} = 0\).
 The numerator is the first price that individual \(i\) would have faced in year \(t\)
 if she had declared her year \((t - k)\) taxable income at that year.
 By fixing the income at year \(t - k\), the instrument isolates changes in price from income responses to the tax reform.
 Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
+
+Using this lagged variable, we estimate the \(k\)-th difference model formualted as follows:
+
+\begin{align}
+  \Delta^k \ln g_{it} = \varepsilon_p \Delta^k \ln p_{it} + \varepsilon_y \Delta^k \ln y_{it} 
+  + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},
+\end{align}
+where \(\Delta^k \ln g_{it} = \ln g_{it} - \ln g_{it-k}\),
+and \(\Delta^k \ln y_{it} = \ln y_{it} - \ln y_{it-k}\).
+The variation of \(\Delta^k \ln p_{it}\) comes from the tax reform because we fix the annual income at year \(t - k\).
+Therefore, we can interpret this coefficient as the giving price elasticity due to the tax reform.
+Note that we do not estimate the extensive-margin elasticity because it is hard to interpret this estimation equation when we use \(\Delta^k D_{it}\) as an outcome variable.
 
 \hypertarget{main-results}{%
 \section{Main Results}\label{main-results}}
@@ -966,43 +980,43 @@ From the results, we show that the giving price elasticity would be affected by 
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
-\leavevmode\hypertarget{ref-Almunia2020}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Almunia2020}{}}%
 Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
 
-\leavevmode\hypertarget{ref-Anderson2017}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Anderson2017}{}}%
 Anderson, J.E., 2017. Trust in government and willingness to pay taxes in transition countries. Comparative Economic Studies 59, 1--22. doi:\href{https://doi.org/10.1057/s41294-016-0017-x}{10.1057/s41294-016-0017-x}
 
-\leavevmode\hypertarget{ref-Auten2002}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Auten2002}{}}%
 Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. Charitable giving, income, and taxes: An analysis of panel data. American Economic Review 92, 371--382.
 
-\leavevmode\hypertarget{ref-Bakija2011}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Bakija2011}{}}%
 Bakija, J., Heim, B.T., 2011. How does charitable giving respond to incentives and income? New estimates from panel data. National Tax Journal 64, 615--650. doi:\href{https://doi.org/10.17310/ntj.2011.2S.08}{10.17310/ntj.2011.2S.08}
 
-\leavevmode\hypertarget{ref-Fack2010}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Fack2010}{}}%
 Fack, G., Landais, C., 2010. Are tax incentives for charitable giving efficient? Evidence from france. American Economic Journal - Economic Policy 2, 117--141. doi:\href{https://doi.org/10.1257/pol.2.2.117}{10.1257/pol.2.2.117}
 
-\leavevmode\hypertarget{ref-Frey2007}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Frey2007}{}}%
 Frey, B.S., Torgler, B., 2007. Tax morale and conditional cooperation. Journal of Comparative Economics 35, 136--159. doi:\href{https://doi.org/10.1016/j.jce.2006.10.006}{10.1016/j.jce.2006.10.006}
 
-\leavevmode\hypertarget{ref-Hammar2009}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Hammar2009}{}}%
 Hammar, H., Jagers, S.C., Nordblom, K., 2009. Perceived tax evasion and the importance of trust. The Journal of Socio-Economics 38, 238--245. doi:\url{https://doi.org/10.1016/j.socec.2008.07.003}
 
-\leavevmode\hypertarget{ref-Kim2021}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Kim2021}{}}%
 Kim, Y., 2021. Politics, religion, and tax incentives for charitable giving in south korea. Korean Economic Review 37, 141--155. doi:\href{https://doi.org/10.22841/kerdoi.2021.37.1.006}{10.22841/kerdoi.2021.37.1.006}
 
-\leavevmode\hypertarget{ref-Li2011}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Li2011}{}}%
 Li, S.X., Eckel, C.C., Grossman, P.J., Brown, T.L., 2011. Giving to government: Voluntary taxation in the lab. Journal of Public Economics 95, 1190--1201. doi:\href{https://doi.org/10.1016/j.jpubeco.2011.03.005}{10.1016/j.jpubeco.2011.03.005}
 
-\leavevmode\hypertarget{ref-Randolph1995}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Randolph1995}{}}%
 Randolph, W.C., 1995. Dynamic income, progressive taxes, and the timing of charitable contributions. Journal of Political Economy 103, 709--738. doi:\href{https://doi.org/10.1086/262000}{10.1086/262000}
 
-\leavevmode\hypertarget{ref-Saez2004}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Saez2004}{}}%
 Saez, E., 2004. The optimal treatment of tax expenditures. Journal of Public Economics 88, 2657--2684. doi:\href{https://doi.org/10.1016/j.jpubeco.2003.09.004}{10.1016/j.jpubeco.2003.09.004}
 
-\leavevmode\hypertarget{ref-Sheremeta2020}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Sheremeta2020}{}}%
 Sheremeta, R.M., Uler, N., 2020. The impact of taxes and wasteful government spending on giving. Experimental Economics. doi:\href{https://doi.org/10.1007/s10683-020-09673-9}{10.1007/s10683-020-09673-9}
 
-\leavevmode\hypertarget{ref-Zeldow2019}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Zeldow2019}{}}%
 Zeldow, B., Hatfield, L.A., 2019. Confounding and regression adjustment in difference-in-differences. arXiv Preprint.
 
 \end{CSLReferences}

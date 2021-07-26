@@ -110,15 +110,17 @@ we need to solve three potential endogeneity problem to hold our identification 
 As a benchmark, we estimate the equation \@ref(eq:intensive) and \@ref(eq:extensive),
 assuming that $R_{it} = 1$ for all $i$.
 This means that we see individuals who did not apply for a tax deduction as those who applied for a tax deduction.
-In the treatment effect literature, this effect is sometimes called "intention-to-treat" effect (ITT).
+In the treatment effect literature, this is sometimes called "intention-to-treat" effect (ITT).
 By this assumption,
 we can solve the issue that the self-selection of tax deduction ($R_{it}$) affects the giving price.
 Later, we relax this assumption, using the instrumental variable strategy.
 
 Next, we deal with the the possibility that the giving price is endogenous because 
 the tax payer can reduce their giving price by reducing their amount of donation
-and shifting themselves to the lower tax bracket in the tax deduction system (self-selection of $g_{it}$).
-Since this issue does not happen for the first one unit of donation, whose price ("first price") cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+and shifting themselves to the lower tax bracket in the tax deduction system.
+Since this issue does not happen for the first one unit of donation,
+whose price ("first price") cannot be changed by adjusting the donation,
+we use this first price as the giving price in the estimation.
 The first price is obtained by $p^f_{it} = p_{it}(y_{it}, g_{it})$ evalueated at $g_{it} = 0$.
 As long as income $y_{it}$ is exogenous, the within giving price $p^f_{it}$ is also exogenous.
 Thus, assuming income $y_{it}$ is exogenous variable,
@@ -135,13 +137,25 @@ Therefore,
 we employ lagged values of taxable income and
 construct a variable for the change in the first price of giving as following:
 
-$$
-\ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right).
-$$
-
+\begin{align}
+  \Delta^k \ln p_{it} = \ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right),
+  (\#eq:laggedp)
+\end{align}
 where $g_{it-k} = 0$.
 The numerator is the first price that individual $i$ would have faced in year $t$
 if she had declared her year $(t - k)$ taxable income at that year. 
 By fixing the income at year $t - k$, the instrument isolates changes in price from income responses to the tax reform. 
 Note that this problem does not happen for the tax credit system, where the giving price is the same across all individuals.
+
+Using this lagged variable, we estimate the $k$-th difference model formualted as follows:
+
+\begin{align}
+  \Delta^k \ln g_{it} = \varepsilon_p \Delta^k \ln p_{it} + \varepsilon_y \Delta^k \ln y_{it} 
+  + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},
+\end{align}
+where $\Delta^k \ln g_{it} = \ln g_{it} - \ln g_{it-k}$,
+and $\Delta^k \ln y_{it} = \ln y_{it} - \ln y_{it-k}$.
+The variation of $\Delta^k \ln p_{it}$ comes from the tax reform because we fix the annual income at year $t - k$.
+Therefore, we can interpret this coefficient as the giving price elasticity due to the tax reform.
+Note that we do not estimate the extensive-margin elasticity because it is hard to interpret this estimation equation when we use $\Delta^k D_{it}$ as an outcome variable.
 ```
