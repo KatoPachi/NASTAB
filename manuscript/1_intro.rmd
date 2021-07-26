@@ -95,4 +95,4 @@ Secondly, by using the survey data, which cannot be manipulated, we could consid
 
 Thirdly, this paper is the first paper to examine the giving price elasticity in a non-Western country. While the giving behavior may be affected by the cultural matter such as the religious belief, the estimated price elasticity in this paper is in line with the result of the extant papers.
 
-This paper consist of seven sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of giving price elasticity and section 6 shows the analysis of perceptions toward the government. Section 7 concludes.
+This paper consist of seven sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of price elasticity using the applicable giving price and section 6 shows the analysis using the effective giving price. Section 7 concludes.
