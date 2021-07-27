@@ -69,8 +69,8 @@ Following @Almunia2020, we estimate giving price elasticity for intensive margin
 
 $g_{it}, p_{it}$ and $y_{it}$ respectively indicates the amount of giving, the giving price, and income of $i$ in year $t$.
 $R_{it}$ is a dummy taking one if individual $i$ applied for a tax deduction in year $t$.
-$\mu_i, \iota_t$ and $u_{it}$ are individual fixed effect, year fixed effect and error term, respectively. 
-The individual fixed effect controls for time-invariant individual characteristics. The year fixed effect controls for events that affect all subjects at the same time. $X_{it}$ is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into $X_{it}$, since they will control for events that affects subject with specific characteristics at the same time following @Zeldow2019.
+$\mu_i, \iota_t$ and $u_{it}$ are individual fixed effect, year fixed effect, and the error term, respectively. 
+The individual fixed effect controls for time-invariant individual characteristics. The year fixed effect controls for events that affect all subjects at the same time. $X_{it}$ is a vector of covariates that include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into $X_{it}$, since they will control for events that affect subject with specific characteristics at the same time following @Zeldow2019.
 
 On the other hand,
 the elasticity of extensive margin is estimated using the linear probability model such as
@@ -105,20 +105,20 @@ the within price variation comes from the 2014 tax reform, the within variation 
 Moreover, by the equation \@ref(eq:intensive) and \@ref(eq:extensive),
 the within price variation comes from tax report $R_{it}$.
 Since these three variables are self-selected,
-we need to solve three potential endogeneity problem to hold our identification assumption.
+we need to solve three potential endogeneity problems to hold our identification assumption.
 
 As a benchmark, we estimate the equation \@ref(eq:intensive) and \@ref(eq:extensive),
 assuming that $R_{it} = 1$ for all $i$.
 This means that we see individuals who did not apply for a tax deduction as those who applied for a tax deduction.
-In the treatment effect literature, this is sometimes called "intention-to-treat" effect (ITT).
+In the treatment effect literature, this is sometimes called the "intention-to-treat" effect (ITT).
 By this assumption,
-we can solve the issue that the self-selection of tax deduction ($R_{it}$) affects the giving price.
+we can solve the issue that the self-selection of a tax deduction ($R_{it}$) affects the giving price.
 Later, we relax this assumption, using the instrumental variable strategy.
 
-Next, we deal with the the possibility that the giving price is endogenous because 
-the tax payer can reduce their giving price by reducing their amount of donation
+Next, we deal with the possibility that the giving price is endogenous because 
+the taxpayer can reduce their giving price by reducing their amount of donation
 and shifting themselves to the lower tax bracket in the tax deduction system.
-Since this issue does not happen for the first one unit of donation,
+Since this issue does not happen for the first unit of donation,
 whose price ("first price") cannot be changed by adjusting the donation,
 we use this first price as the giving price in the estimation.
 The first price is obtained by $p^f_{it} = p_{it}(y_{it}, g_{it})$ evalueated at $g_{it} = 0$.
