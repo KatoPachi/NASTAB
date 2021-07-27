@@ -2,10 +2,15 @@
 # if you want to preview this file,
 # 1. specify doctype: "draft" or "slide"
 # 2. replace knitr format = "html"
+library(here); knitr::opts_knit$set(root.dir = here())
 doctype <- "draft"
-options(
-  knitr.kable.NA = " ",
-  knitr.table.format = "html"
+options(knitr.kable.NA = " ", knitr.table.format = "html")
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE
 )
 ```
 
