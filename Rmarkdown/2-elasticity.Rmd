@@ -1,5 +1,15 @@
-# Main Results
+```{r eval = FALSE}
+# if you want to preview this file,
+# 1. specify doctype: "draft" or "slide"
+# 2. replace knitr format = "html"
+doctype <- "draft"
+options(
+  knitr.kable.NA = " ",
+  knitr.table.format = "html"
+)
+```
 
+# Price and Income Elasticitiy: ITT Approach
 
 ```{r }
 library(xfun)
@@ -27,7 +37,17 @@ df <- readr::read_csv(
 )
 ```
 
-## Price and Income Elasticity
+```{asis, echo = doctype == "draft"}
+In this section, as a benchmark, we first report the price effect on donations, using the ITT approach.
+Reducing the relative price of giving through a tax deduction includes self-selection.
+The ITT approach sees respondents who did not apply for a tax deduction in a specific year as those who applied for it.
+In our main results, we report estimation results of price effect, using the first price method.
+As robustness, we report the last price effect using the first price as an instrumental variable,
+the first price effect with short-period panel to focus on the 2014 tax reform more precisely,
+and the $k$-th difference model to avoid the problem that income affects the giving price.
+```
+
+## Results
 
 ```{r }
 xlist <- list(
@@ -58,15 +78,17 @@ and the **income effect** of giving(1\% income increase leads to about 5\% givin
 ```
 
 ```{asis, echo = doctype == "draft"}
-Before the estimation of giving price elasticities for intensive and extensive margin, we estimate the elasticity without distinguishing them. We call this elasticity as overall elasticity.
+Before the estimation of giving price elasticities for intensive and extensive margin,
+we estimate the elasticity without distinguishing them. 
+We call this elasticity overall elasticity.
 Table \@ref(tab:MainOverall) shows estimation results of overall elasticity.
-The column (1) is the baseline estimation, which include individual and time fixed effects.
-The price elasticity is rougly -1, which is statistically significant different from zero.
-This implies that 1\% increase of giving price raise charitable giving by 1\%.
-This result is in line with previous researches which focus on Western countries.
-The income elasticity is about 5.3, which is statistically significant different from zero.
-This implies that 1\% increase of annual income raise charitable giving by 5.3\%.
-The remaining four columns control for events that affects subject with specific characteristics at the same time.
+Column (1) is the baseline estimation, which includes individual and time fixed effects.
+The price elasticity is roughly -1, which is statistically significantly different from zero.
+This implies that a 1\% increase of giving price raises charitable giving by 1\%.
+This result is in line with previous researches which focuses on Western countries.
+The income elasticity is about 5.3, which is statistically significantly different from zero.
+This implies that a 1\% increase of annual income raises charitable giving by 5.3\%.
+The remaining four columns control for events that affect subjects with specific characteristics at the same time.
 As a result, the price elasticity is more elastic than the baseline result.
 The price elasticity lies between -1.3 and -1.1.
 On the other hand, the income elasticity is less elastic than the baseline result.
@@ -93,8 +115,7 @@ overall %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
-    caption = "Main Results: Overall Elasticity of First Price",
+    caption = "Overall Elasticity of First Price",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
@@ -115,17 +136,16 @@ The intensive-margin price elasticity is -0.5 ~ -1\%.
 ```
 
 ```{asis, echo = doctype == "draft"}
-Table \@ref(tab:MainIntensive) shows the intensive-margin and the extensive-margin elasticities.
-The first panel shows the intensive-margin elasticity.
-Compared to the overall elasticitiy, the price and income elasticitiy are less elastic.
+Table \@ref(tab:MainIntensive) shows the intensive-margin elasticities.
+Compared to the overall elasticity, the price and income elasticities are less elastic.
 Controlling individual and time fixed effects, 
-the price and income elasticity is about -0.6 and about 2,
-which are statistically significant different from zero (See the column (1)).
+the price and income elasticity are about -0.6 and about 2, respectively,
+which are statistically significantly different from zero (See column (1)).
 Moreover, when we include the interaction term between individual characteristics and year dummies,
 these values vary.
 The price elasticity lies between -1.1 and -0.8,
 and the income elasticity lies between 1.4 and 1.6.
-Anyway, our conlusion is that the amount of donations is insensitive to the giving price among donors.
+Anyway, we conclude that the amount of donations is insensitive to the giving price among donors.
 ```
 
 ```{r MainIntensive}
@@ -148,8 +168,7 @@ intensive %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
-    caption = "Main Results: Intensive-Margin Elasticity of First Price",
+    caption = "Intensive-Margin Elasticity of First Price",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
@@ -170,23 +189,25 @@ The extensive-margin price elasticity is -1.2 ~ -1.4\%.
 ```
 
 ```{asis, echo = doctype == "draft"}
-Table \@ref(tab:MainExtensive) shows the extensive-margin elasticity.
-By results of overall elasticities and the intensive-margin elasticities,
+Table \@ref(tab:MainExtensive) shows the extensive-margin elasticities.
+As a result of overall elasticities and the intensive-margin elasticities,
 we expect that the extensive-margin price and income elasticity is more elastic than the overall elasticities.
-In the column (1), the coefficient of logged giving price and logged annual income are -0.257 and 1.175 respectively,
-which are statistically significant different from zero.
-Since we use the linear probability model,
-we need to calculate $\epsilon^p_{EXT} = -0.257/D_{it}$ and $\epsilon^y_{EXT} = 1.175/D_{it}$
-to obtain the price and income elasticity, respectively. 
-Especially, the coefficient of logged giving price represents the lower-bound of price elasticity
-because the variable $D_{it}$ takes either 0 or 1.
+In column (1), the coefficient of logged giving price and logged annual income are -0.257 and 1.175 respectively,
+which are statistically significantly different from zero.
+Due to the linear probability model,
+the coefficient of logged giving price and logged income represents the lower bound of price and income elasticity, respectively.
 When we evaluate the price elasticity at the sample mean of $D_{it}$,
 the implied price elasticity is -1.264, which is slightly more elastic than the overall one.
-Also, we evaluate the income elasticity at the sample mean of outcome.
+Also, we evaluate the income elasticity at the sample mean of the outcome.
 The implied income elasticity is 5.778, which is slightly more elastic than the overall one.
-Although the implied price and income elasticity varies with covariates,
-results are in line with our expectation.
+Although the implied price and income elasticity vary with covariates,
+the results are in line with our expectations.
 Thus, the decision of donations is sensitive to the giving price and annual income.
+
+In summary, our first conclusion is that 
+the decision of donations is sensitive to the giving price, 
+and the amount of donations is insensitive to the giving price once they decide to donate.
+In the next subsection, we check the robustness of our first conclusion, using three methods.
 ```
 
 ```{r MainExtensive}
@@ -237,8 +258,7 @@ extensive %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
-    caption = "Main Results: Extensive-Margin Elasticity of First Price",
+    caption = "Extensive-Margin Elasticity of First Price",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
@@ -252,12 +272,6 @@ extensive %>%
   )
 ```
 
-```{asis, echo = doctype == "draft"}
-In summary, our first conclusion is that 
-the decision of donations is sensitive to the giving price, 
-and the amount of donations is insensitive to the giving price once they decide to donate.
-In the next subsection, we check the robustness of our first conclusion, using three methods.
-```
 
 ## Robustness Check
 
@@ -272,25 +286,6 @@ First potential concern: last price elasticity
 ## Robustness Check 1: Result
 
 Overall last price elasticity increases twofold.
-```
-
-```{asis, echo = doctype == "draft"}
-The first robustness check estimates the last price elasticity using the first price of giving as an instrument.
-Our main results show that *first* price elasticity to avoid the endogeneity of giving price.
-However, the first price elasiticity is not realistic
-because people face the *last* marginal price when deciding amount of donations.
-Thus, we estimate the *last* price elasticity, using the Panel IV method.
-
-There is one caution to interpret the last price elasticity.
-Under the tax credit system, the last price elasticity is equivalent to the first one.
-Since major observation units are observed when the tax credit system is implemented,
-the last giving price is strongly correlated with the first one.
-In other words, covariates between the last and first giving price is roughly equal to one.
-In the first stage, the coefficient of first giving price is roughly 0.98 in any specifications. [^fstage]
-Thus, our last price elasticity may be upper bound of true price elasticity.
-
-
-[^fstage]: We do not show the first-stage results. Instead, we show the F-statistics of the instrument variable.
 ```
 
 ```{r LastOverall}
@@ -315,7 +310,6 @@ overall_iv %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
     caption = "Overall Elasticity of Last Price",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc",
@@ -358,7 +352,6 @@ intensive_iv %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
     caption = "Intensive-Margin Elasticity of Last Price",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc",
@@ -429,7 +422,6 @@ extensive_iv %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
     caption = "Extensive-Margin Elasticity of Last Price",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccccc",
@@ -444,25 +436,49 @@ extensive_iv %>%
   )
 ```
 
+```{r}
+iv1coef <- list(overall_iv, intensive_iv, extensive_iv) %>%
+  purrr::map_depth(2, ~.$iv_first_stage$log_lprice$coeftable["log_price",1]) %>%
+  purrr::map(~as_vector(.)) %>%
+  as_vector() %>%
+  min()
+
+iv1wald <- list(overall_iv, intensive_iv, extensive_iv) %>%
+  purrr::map_depth(2, ~fitstat(., ~ ivwald)$ivwald1$stat) %>%
+  purrr::map(~as_vector(.)) %>%
+  as_vector() %>%
+  min()
+```
+
 ```{asis, echo = doctype == "draft"}
-The last price elasticity is in line with our first conclusion.
-Table \@ref(tab:LastOverall) shows overall last price elasticity.
+*Last Price Elasticity.*
+The first robustness check estimates the last price elasticity using the first price of giving as an instrument.
+Our main results show that first price elasticity to avoid the problem that giving price depends on an amount of giving.
+However, the first price elasticity is not realistic because people face the last marginal price when deciding on an amount of donation.
+Thus, we estimate the last price elasticity, using the first price as an instrumental variable.
+The last giving price is strongly correlated with the first one because
+major observation units are observed when the tax credit system is implemented,
+and the last price is equivalent to the first one in the case of the tax credit system.
+In fact, in any specifications, the coefficient of the first price is greater than 0.952, <!-- check iv1coef -->
+and its F-statistics is greater than 6425.96. <!-- check iv1wald -->
+Our estimates of the last price effect are not caused by a weak instrument problem.
+As a result, the intensive-margin elasticity of the last price takes a similar value to the case of the first price, while
+the overall elasticity and extensive-margin elasticity of the last price are more elastic than the case of the first price.
+Table \@ref(tab:LastOverall) shows the overall last price elasticity.
 Compared to the main results, the last price elasticity is more elastic.
-The aboslute value of estimated coefficient is larger than 2.4,
-which is statistically significant different from zero.
-This implies that 1\% increase of last price decreases charitable contributions by 2.4\% or more.
+The absolute value of the estimated coefficient is larger than 2.4,
+which is statistically significantly different from zero.
+This implies that a 1\% increase of last price decreases charitable contributions by 2.4\% or more.
 Table \@ref(tab:LastIntensive) and \@ref(tab:LastExtensive) shows
 the intensive-margin and extensive-margin last price elasticity.
-In the first panel, 
-the intensive-margin last price elasticity is similar value to the main results.
-Its abolute value lies between 0.89 and 1.2.
+the intensive-margin last price elasticity is a similar value to the main results.
+Its absolute value lies between 0.89 and 1.2.
 These results are statistically different from zero.
-In the second panel,
+About the extensive-margin elasticities,
 the coefficient of logged last price, which represents the lower bound of last price elasticity,
 lies between -0.63 and -0.59.
-The implied last price elasticity evalueated at the sample mean of $D_{it}$ is roughly -3.
-These results are statistically significant different from zero,
-and more elastic than the first price elasticity.
+The implied last price elasticity evaluated at the sample mean of $D_{it}$ is roughly -3.
+These results are statistically significantly different from zero, and more elastic than the first price elasticity.
 ```
 
 ```{asis, echo = doctype == "slide"}
@@ -474,14 +490,6 @@ Second potential concern: Price change due to the change of income
 - To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
     - By this restriction, the *within* price variation of giving price is completely exgonenous.
 ```
-
-```{asis, echo = doctype == "draft"}
-In the second robustness check, we try to control the manipulation of giving price by adjusting income level using two datasets whose ranges are (i) from 2013 to 2018 and (ii) from 2013 to 2014. Under the tax deduction system, the giving price can be manipulated by income level, though it cannot under the tax credit system. Therefore, if we use the dataset which contains data under the the tax deduction system, the estimator may capture the effect of price change which is caused not by tax reform but by price manipulation by income adjustment. To address this issue, we use dataset in which the time range under the tax deduction system is shorter than the baseline analysis. By doing this exercise, we try to suppress the effect which comes from the price change due to the change of income.
-```
-
-<!---
-(この点ですが、普通はむしろTime spanを長くして、TransitonaryなEffectとPersistentなEffectを分けて議論するのが普通だと思います。原稿のバージョンでは意図をくんでごまかして書いています。)
---->
 
 ```{r }
 xlist2 <- list(
@@ -506,15 +514,6 @@ xlist2_duptab <- xlist2_tab %>%
 ## Robustness Check 2: Result
 
 Overall price elasticity is -1 ~ -1.7\%.
-```
-
-```{asis, echo = doctype == "draft"}
-Table \@ref(tab:ShortOverall) shows the overall first giving price elasticity.
-When we use data from 2013 to 2018, the estimated price elasticity is similar value to the main results.
-On the other hand,
-when we use data from 2013 to 2014, the estimated price elasticity is more elastic than the main results.
-The estimated absolute value is roughly -1.7 when we control covariates and its interaction with year dummies.
-This value is statistically significant different from zero.
 ```
 
 ```{r ShortOverall}
@@ -545,7 +544,6 @@ list(overall_s1, overall_s2) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
     caption = "Overall Elasticity with Short-Period Panel",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist2) * 2))),
     align = "lcccc",
@@ -599,7 +597,6 @@ list(intensive_s1, intensive_s2) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
     caption = "Intensive-Margin Elasticity with Short-Period Panel",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist2) * 2))),
     align = "lcccc",
@@ -681,7 +678,6 @@ list(extensive_s1, extensive_s2) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
     caption = "Extensive-Margin Elasticity with Short-Period Panel",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist2) * 2))),
     align = "lcccc",
@@ -701,17 +697,38 @@ list(extensive_s1, extensive_s2) %>%
 ```
 
 ```{asis, echo = doctype == "draft"}
+<!---
+<要修正ポイント>：この点ですが、普通はむしろTime spanを長くして、TransitonaryなEffectとPersistentなEffectを分けて議論するのが普通だと思います。原稿のバージョンでは意図をくんでごまかして書いています。
+--->
+
+*Short-Period Panel.*
+The second robustness check try to control the manipulation of giving price by adjusting income level,
+using two datasets whose ranges are (i) from 2013 to 2018 and (ii) from 2013 to 2014.
+Under the tax deduction system,
+the giving price can be manipulated by income level,
+though it cannot be under the tax credit system.
+Therefore, if we use the dataset which contains data under the tax deduction system,
+the estimator may capture the effect of price change
+which is caused not by tax reform but by price manipulation by income adjustment.
+To address this issue,
+we use a dataset in which the time range under the tax deduction system is shorter than the baseline analysis.
+By doing this exercise, we try to suppress the effect which comes from the price change due to the change of income.
+Table \@ref(tab:ShortOverall) shows the overall first giving price elasticity.
+When we use data from 2013 to 2018, the estimated price elasticity is a similar value to the main results.
+On the other hand,
+when we use data from 2013 to 2014, the estimated price elasticity is more elastic than the main results.
+The estimated absolute value is roughly -1.7 when we control covariates and their interaction with year dummies.
+This value is statistically significantly different from zero.
 Table \@ref(tab:ShortIntensive) and \@ref(tab:ShortExtensive) shows
 the intensive-margin and the extensive-margin first price elasticity.
-The first panel shows the intensive-margin elasticity.
-When we use data from 2012 to 2018, the intensive-margin price elasiticity is similar to the main results,
+When we use data from 2012 to 2018, the intensive-margin price elasticity is similar to the main results,
 which is statistically significant from zero.
 However, when we use data from 2013 to 2014 and include only individual and time fixed effects,
-the estimated coefficient is statistically insignificant different from zero.
-By controlling covariates and its interaction with year dummies,
+the estimated coefficient is statistically insignificantly different from zero.
+By controlling covariates and their interaction with year dummies,
 the intensive-margin price elasticity is -0.712, which is statistically significant.
-The second panel shows the extensive-margin elasticity.
-When we use data from 2012 to 2018, the extensive-margin price elasticity is similar to the main results,
+About the extensive-margin price effect,
+when we use data from 2012 to 2018, the extensive-margin price elasticity is similar to the main results,
 which is statistically significant.
 When we use data from 2013 to 2014, the extensive-margin price elasticity is more elastic than the main results.
 Its absolute value is roughly -2, which is statistically significant.
@@ -735,24 +752,6 @@ where $\Delta^k Y_{it} = Y_{it} - Y_{it-k}$.
 
 - Note that we cannot estimation the extensive-margin elasticity since it is hard to interapt this estimation equation when we use $\Delta^k D_{it}$ as an outcome.
 - We estimate this model for $k = 1, 2, 3$.
-```
-
-```{asis, echo = doctype == "draft"}
-The third robustness check is to estimate the $k$-th difference model. The tax reform may have impacts on the giving price in two ways: one is direct giving price change by tax reform and the other is indirect change via wealth effect, which is induced by tax reform. Thus, to isolate the direct effect of the tax reform, we use the information of income level $k$ years before.
-Concreately speaking, we estimate the $k$-th difference model formulated as follows:
-$$
-\Delta^k \ln g_{it} = \delta \Delta^k \ln p_{it} + \gamma \Delta^k \ln y_{it} + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},
-$$
-where $\Delta^k \ln g_{it} = \ln g_{it} - \ln g_{it-k}$ and $\Delta^k \ln y_{it} = \ln y_{it} - y_{it-k}$.
-
-
-The variable $\Delta^k p_{it}$ is defined as $\Delta^k p_{it} \equiv \ln p_{it}(y_{it-k}) - \ln p_{it}(y_{it-k})$.[^Deltacredit]
-The variation of this variable comes from the tax reform because we fix the annual income at year $t - k$.
-Therefore, we can interpret this coefficient as the giving price elasticity due to the tax reform.
-In particular, the estimated $\delta$ implies that 1\% increase of the change of giving price leads to $\hat{\delta}$\% increase of the change of charitable giving.
-Note that we do not estimate the extensive-margin elasticity because it is hard to interpret this estimation equation when we use $\Delta^k D_{it}$ as an outcome variable.
-
-[^Deltacredit]: Under the tax credit system, the giving price does not depend on income $y_{it-k}$. If the tax credit system is impelemted in year $t$ and $t-k$, then the value of $\Delta^k p_{it}$ takes zero.
 ```
 
 ```{r }
@@ -814,7 +813,6 @@ overall_kdiff %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
     caption = "Estimation of Overall Elasticity with $k$-th Difference Model",
     col.names = c("", sprintf("(%1d)", seq_len(length(kdiff)))),
     align = "lccc",
@@ -864,7 +862,6 @@ intensive_kdiff %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%
   kable(
-    format = "latex",
     caption =
       "Estimation of Intensitve-Margin Elasticity with $k$th Difference Model",
     col.names = c("", sprintf("(%1d)", seq_len(length(kdiff)))),
@@ -881,20 +878,33 @@ intensive_kdiff %>%
 ```
 
 ```{asis, echo = doctype == "draft"}
+*$k$-th difference model.*
+The third robustness check is to estimate the $k$-th difference model.
+As explained in section \@ref(empirical-strategy), the giving price depends on income.
+Thus, there are two paths that income affects charitable giving: (i) income effect; (ii) giving price via manipulation.
+To tackel with this endogeneity problem, we employ lagged value of giving price fixing income at year $t-k$,
+that is, $\Delta^k \ln p_{it} = ln p_{it}(y_{it-k}) - \ln p_{it-k}(y_{it-k})$.[^DeltaCredit]
+By fixing income, the variation of this lagged variable completely depends on tax reform.
+Using this variable,
+we estimate the $k$-th difference model \@ref(eq:kdiff) shown in the section \@ref(empirical-strategy). 
 Table \@ref(tab:kdiffOverall) and \@ref(tab:kdiffIntensive) shows results of $k$-th difference model.
-The first panel shows the overall elasticity.
-When we take the one year lag ($k = 1$), the overall price elasticity is roughly -1.9,
+About the overall elasticity,
+when we take the one-year lag ($k = 1$), the overall price elasticity is roughly -1.9,
 which is statistically significant.
 This elasticity slightly varies when we take the two or more year lag ($k > 1$).
 The overall price elasticity lies between -2.1 and -1.7, which is statistically significant.
 This implies that the overall price elasticity obtained by this model is more elastic than the main results.
-The second panel shows the intensive-margin elasticity.
-When we take the one year lag ($k = 1$), the intensive-margin price elasticity is roughly -1.8,
+About the intensive-margin elasticity,
+when we take the one-year lag ($k = 1$), the intensive-margin price elasticity is roughly -1.8,
 which is statistically significant.
 The absolute value of the price elasticity is more than 2
-when we take two or more year lag ($k > 1$).
+when we take two or more years lag ($k > 1$).
 Thus, contrary to our first conclusion,
 this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
 
+[^DeltaCredit]: Under the tax credit system, the giving price does not depend on income $y_{it-k}$. If the tax credit system is implemented in year $t$ and $t-k$, then the value of $\Delta^k p_{it}$ takes zero.
+
+<!--
 In summary, the result shows that the size of estimated elasticity may vary depending on the estimation methods. This may be because the sample size is small compared to the extant research. However, our three robustness checks are in line with the baseline result, which shows that the price elasticity of intensive margin is less elastic than one of extensive margin. Thus, the obtained results suggest that the decision to donate is sensitive to the giving price, though the amount of donations is insensitive to the giving price once they decide to donate. 
+--->
 ```

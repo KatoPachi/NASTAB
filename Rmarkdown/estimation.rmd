@@ -1,4 +1,15 @@
-# Estimation
+```{r eval = FALSE}
+# if you want to preview this file,
+# 1. specify doctype: "draft" or "slide"
+# 2. replace knitr format = "html"
+doctype <- "draft"
+options(
+  knitr.kable.NA = " ",
+  knitr.table.format = "html"
+)
+```
+
+# Empirical Strategy
 
 <!--
 ここらへんの議論ですが、以下の点、要検討です。これらが解決しないと残差プロットの図を出す意味は殆どないと思います。
@@ -108,11 +119,14 @@ Since these three variables are self-selected,
 we need to solve three potential endogeneity problems to hold our identification assumption.
 
 As a benchmark, we estimate the equation \@ref(eq:intensive) and \@ref(eq:extensive),
-assuming that $R_{it} = 1$ for all $i$.
+assuming that $R_{it} = 1$ for all $i$ and $t$.
 This means that we see individuals who did not apply for a tax deduction as those who applied for a tax deduction.
-In the treatment effect literature, this is sometimes called the "intention-to-treat" effect (ITT).
-By this assumption,
-we can solve the issue that the self-selection of a tax deduction ($R_{it}$) affects the giving price.
+In the context of treatment effect literature,
+we can see the relative price of giving as a treatment assignment.
+However, individuals can choose whether to receive this treatment by appling for a tax deduction.
+Although assuming $R_{it} = 1$ for all $i$ and $t$ can ignore this self-selection problem,
+the estimates of price effect includes the *true* price effect and effect of self-selection of a tax deduction.
+this treatment effect is sometimes called the "intention-to-treat" effect (ITT).
 Later, we relax this assumption, using the instrumental variable strategy.
 
 Next, we deal with the possibility that the giving price is endogenous because 
@@ -151,7 +165,7 @@ Using this lagged variable, we estimate the $k$-th difference model formualted a
 
 \begin{align}
   \Delta^k \ln g_{it} = \varepsilon_p \Delta^k \ln p_{it} + \varepsilon_y \Delta^k \ln y_{it} 
-  + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},
+  + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it}, (\#eq:kdiff)
 \end{align}
 where $\Delta^k \ln g_{it} = \ln g_{it} - \ln g_{it-k}$,
 and $\Delta^k \ln y_{it} = \ln y_{it} - \ln y_{it-k}$.
