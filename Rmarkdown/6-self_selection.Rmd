@@ -224,7 +224,7 @@ est_report2 <- xlist %>%
     data = subset(df, year <= 2017)
   ))
 
-list(est_xreport1, est_xreport2) %>%
+list(est_report1, est_report2) %>%
   purrr::map(~ regtab_fixest(., keep_coef = "employee")) %>%
   purrr::map(~ regtab_addline(., list(xlist_tab))) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
@@ -259,7 +259,7 @@ For the second stage, we obtain the prediceted value of $R_{it}$, using the mode
 df$p_ext_benefit_tl <- predict(est_report2[[3]], df)
 ```
 
-```{r }
+```{r OverallMain}
 ivest_report1 <- xlist %>%
   purrr::map(~ fit_fixest(
     y = log_total_g ~ .,
@@ -275,6 +275,10 @@ ivest_report2 <- xlist %>%
     fixef = ~year + pid, cluster = ~ pid,
     data = subset(df, year <= 2017)
   ))
+
+xlist_duptab <- xlist_tab %>%
+  full_join(xlist_tab, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
 
 list(ivest_report1, ivest_report2) %>%
   flatten() %>%
@@ -302,11 +306,21 @@ list(ivest_report1, ivest_report2) %>%
   )
 ```
 
-intensive-margin elasticityのPanel IVの結果
-
-- 個人固定効果を加えると、ITTとして想定した弾性値（-1 ~ -0.5%）と似たような結果を取る
-- Intenstive-margin elasticityはtax reportをする人に特に影響を与えるのか？
-
+```{asis, echo = doctype == "draft"}
+Table \@ref(tab:OverallReport) reports overall elasiticties controlling the self-selection of tax report.
+When we only include individual and time fixed effects, the overall elasticity is -2.364.
+When we control same covariates as the model (5) in Table \@ref(tab:OverallMain),
+the overall elasticity is -1.710,
+which is more elastic than the baseline results shown in Table \@ref(tab:OverallMain).
+We can naturally interpret this result.
+The relative price of giving among those who did not apply for a tax deduction
+is always one regardless of donations and income.
+The standard economic theory predicts that
+an amount of donations among those who did not apply for a tax deduction is lower than
+among those who did.
+Thus, when we see those who did not apply for a tax deduction as those who did,
+the ITT approach, shown in Table \@ref(tab:OverallMain), underestimates the true price effect.
+```
 
 ```{r }
 ivest_report1_int <- xlist %>%
@@ -335,7 +349,6 @@ list(ivest_report1_int, ivest_report2_int) %>%
   ) %>%
   regtab_addline(list(xlist_duptab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
   dplyr::select(- (stat:reg3)) %>%
   kable(
     caption = "Second-Stage Result (Intensive-Margin Price Elasticity)",
