@@ -75,6 +75,9 @@ doctype <- "draft"
 ```{r child = "Rmarkdown/2-elasticity.Rmd"}
 ```
 
+```{r child = "Rmarkdown/6-self_selection.Rmd"}
+```
+
 ```{r child="Rmarkdown/conclusion.Rmd"}
 ```
 

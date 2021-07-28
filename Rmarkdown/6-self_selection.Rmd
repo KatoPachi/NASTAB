@@ -1,4 +1,4 @@
-```{r eval = TRUE}
+```{r eval = FALSE}
 # if you want to preview this file,
 # 1. specify doctype: "draft" or "slide"
 # 2. replace knitr format = "html"
@@ -52,14 +52,14 @@ which shows that the price elasticity of intensive margin is less elastic than o
 Thus, the obtained results suggest that the decision to donate is sensitive to the giving price,
 though the amount of donations is insensitive to the giving price once they decide to donate. 
 
-These results are obtained by ITT approach.
+These results are obtained by the ITT approach.
 This means that our estimates obtained in the previous section reflect not only
 the true price effect of tax incentive but also the effect of self-selection of applying for a tax deduction.
-Since the tax reform affects not only relative price of giving but also decision-making of a tax deduction,
+Since the tax reform affects not the only relative price of giving but also the decision-making of a tax deduction,
 previous results have some policy implications.
 If we explicitly control the self-selection of a tax deduction,
-we may obtain further policy implications about tax incentive of charitable giving.
-In this section, we report results of the panel IV method which controlls the self-selection of a tax deduction.
+we may obtain further policy implications about the tax incentive of charitable giving.
+In this section, we report the results of the panel IV method which controls the self-selection of a tax deduction.
 ```
 
 ## Instrumental Variable of Tax Deduction
@@ -81,7 +81,8 @@ df %>%
       "Year", "Labor income", "Labor and Total income",
       "Labor income", "Labor and Total income"
     ),
-    align = "lcccc"
+    align = "lcccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
   add_header_above(
     c("", "Applying for a tax deduction" = 2, "Not applying for a tax deduction" = 2)
@@ -90,19 +91,19 @@ df %>%
 ```
 
 ```{asis, echo = doctype == "draft"}
-Before describing the strategy of instrumental variable in detail,
+Before describing the strategy of instrumental variables in detail,
 we show descriptive statistics of a tax deduction.
 NaSTaB asks respondents to answer whether to apply for a tax deduction
 in the case of labor income and total income separately.
 \@ref(tab:SummaryDeduct) shows the number of tax deduct among donors in our sample.[^year18]
 When we only use information about tax deduction in the case of labor income,
-the majority of respondents did not apply for a tax deduction (see the first and third column).
+the majority of respondents did not apply for a tax deduction (see the first and third columns).
 When we use information about tax deduction in the case of both labor and total income,
 we make a dummy taking 1 if respondents applied for a tax deduction in the case of
 either labor or total income.
-As a result, more than half of respondents applied for a tax deduction.
+As a result, more than half of the respondents applied for a tax deduction.
 
-[^year18]: Due to small sample, we rule out observations in 2018.
+[^year18]: Due to the small sample, we rule out observations in 2018.
 ```
 
 ```{r eval = FALSE}
@@ -143,17 +144,16 @@ df %>%
 ```{asis, echo = doctype == "draft"}
 If there is no (physical or psychological) cost to apply for a tax deduction,
 then all individuals should apply for a tax deduction. 
-However, as shown in \@ref(tab:SummaryDeduct),
-applying for a tax deduction may incur some costs because 
-some respondents did not applied for a tax deduction.
-Employment status is one dimension of variation of applyed cost.
+However, as shown in Table \@ref(tab:SummaryDeduct),
+applying for a tax deduction may incur some costs because some respondents did not apply for a tax deduction.
+Employment status is one dimension of variation of applied cost.
 Those who are employed in a firm can ask a firm to apply for a tax deduction instead,
-while those who are self-employed needs to apply for it by themselves.
-In fact, \@ref(fig:DeductByEmployee) shows that
-the proportion of applying for a tax deduction among employee is higher than among others.
+while those who are self-employed need to apply for it by themselves.
+Figure \@ref(fig:DeductByEmployee) shows that
+the proportion of applying for a tax deduction among employees is higher than among others.
 Thus, we use employment status as an instrument of a tax deduction.
 
-Our estimation strategy is the panel IV method.
+Our estimation strategy is the panel IV method to estimate the true price effect.
 The equation of the first stage is as follows:
 
 \begin{align}
@@ -174,15 +174,15 @@ When we estimate the extensive-margin elasticity,
 an outcome variable $Y_{it}$ is a dummy of giving, $D_{it}$.
 When we estimate the intensive-margin elasticity,
 an outcome variable $Y_{it}$ is a logged value of giving, $\ln g_{it}$.
-The variable $\ln p^f_{it}$ is a first price of charitable giving
-to avoid the problem that giving price depends on charitable giving.
+The variable $\ln p^f_{it}$ is the first price of charitable giving
+to avoid the problem that the giving price depends on charitable giving.
 
 The instrumental vairbale $\text{Employed}_{it}$ must hold independence of $u_{it}$ conditional on covariates.
 There are two potential sources to violate this assumption.
 First, the employment status may produce income variation.
-If this is true, then the employment status affects charitable giving through income effect.
-Second, an opprtunity of giving may depend on employment status.
-For example, a doctor and a public servant may have more opprtunities to donate than others.
+If this is true, then the employment status affects charitable giving through an income effect.
+Second, an opportunity of giving may depend on employment status.
+For example, a doctor and a public servant may have more opportunities to donate than others.
 If so, the instrument is correlated with $u_{it}$.
 To avoid this problem, we control the interaction between year dummies and industry dummies.
 ```
@@ -247,19 +247,19 @@ list(est_report1, est_report2) %>%
 
 ```{asis, echo = doctype == "draft"}
 Table \@ref(tab:stage1Report) shows estimation results of the first stage.
-As a result, employed dummy is strongly positively correlated with applying for a tax deduction.
-In any specification, employed dummy increase the probability of tax deduction by more than 45 percent points.
+As a result, the employed dummy is strongly positively correlated with applying for a tax deduction.
+In any specification, employed dummy increases the probability of tax deduction by more than 45 percentage points.
 Moreover, the ratio of coefficient to standard error is greater than nine.
-This implies that F-statistics of instrument is greater than 81.
-Thus, our panel IV method does not have a weak instument problem.
-For the second stage, we obtain the prediceted value of $R_{it}$, using the model (3).
+This implies that the F-statistics of the instrument is greater than 81.
+Thus, our panel IV method does not have a weak instrument problem.
+For the second stage, we obtain the predicted value of $R_{it}$, using the model (3).
 ```
 
 ```{r }
 df$p_ext_benefit_tl <- predict(est_report2[[3]], df)
 ```
 
-```{r OverallMain}
+```{r OverallReport}
 ivest_report1 <- xlist %>%
   purrr::map(~ fit_fixest(
     y = log_total_g ~ .,
@@ -306,23 +306,7 @@ list(ivest_report1, ivest_report2) %>%
   )
 ```
 
-```{asis, echo = doctype == "draft"}
-Table \@ref(tab:OverallReport) reports overall elasiticties controlling the self-selection of tax report.
-When we only include individual and time fixed effects, the overall elasticity is -2.364.
-When we control same covariates as the model (5) in Table \@ref(tab:OverallMain),
-the overall elasticity is -1.710,
-which is more elastic than the baseline results shown in Table \@ref(tab:OverallMain).
-We can naturally interpret this result.
-The relative price of giving among those who did not apply for a tax deduction
-is always one regardless of donations and income.
-The standard economic theory predicts that
-an amount of donations among those who did not apply for a tax deduction is lower than
-among those who did.
-Thus, when we see those who did not apply for a tax deduction as those who did,
-the ITT approach, shown in Table \@ref(tab:OverallMain), underestimates the true price effect.
-```
-
-```{r }
+```{r IntensiveReport}
 ivest_report1_int <- xlist %>%
   purrr::map(~ fit_fixest(
     y = log_total_g ~ .,
@@ -366,7 +350,7 @@ list(ivest_report1_int, ivest_report2_int) %>%
 ```
 
 
-```{r }
+```{r ExtensiveReport}
 ivest_report1_ext <- xlist %>%
   purrr::map(~ fit_fixest(
     y = i_ext_giving ~ .,
@@ -431,7 +415,7 @@ list(ivest_report1_ext, ivest_report2_ext) %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling() %>%
+  kable_styling(font_size = 7) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report). The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.",
@@ -440,3 +424,33 @@ list(ivest_report1_ext, ivest_report2_ext) %>%
   )
 ```
 
+```{asis, echo = doctype == "draft"}
+Table \@ref(tab:OverallReport) reports overall elasticities controlling the self-selection of the tax report.
+The estimated elasticities are similar value to the benchmark results shown in Table \@ref(tab:MainOverall).
+When we only include individual and time fixed effects, the overall elasticity is -2.364.
+When we control the same covariates as the model (5) in Table \@ref(tab:MainOverall),
+the overall elasticity is -1.710.
+These values are statistically significant,
+and slightly more elastic than the benchmark results
+(see the column (1) and (5) in Table \@ref(tab:MainOverall)).
+Since those who did not apply for the tax deduction did not receive the tax incentive actually,
+these results can be naturally interactable.
+Furthermore, when we control the interaction term between year dummies and industry dummies,
+the result does not change.
+
+In Table \@ref(tab:IntensiveReport) and Table \@ref(tab:ExtensiveReport),
+we show the intensive-margin elasticity and the extensive-margin elasticity.
+The estimated elasticities are quite similar to the benchmark results
+shown in Table \@ref(tab:MainIntensive) and Table \@ref(tab:MainExtensive).
+Column (2) of Table \@ref(tab:IntensiveReport) uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \@ref(tab:MainIntensive)).
+About the extensive-margin elasticity,
+column (2) of Table \@ref(tab:ExtensiveReport) uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \@ref(tab:MainExtensive)).
+When we further control for the interaction between year dummies and industry dummies,
+we can obtain similar estimated values.
+
+We estimate the true price effect using panel IV.
+As a result, we obtain similar results to the benchmark results
+shown in Table \@ref(tab:MainOverall), Table \@ref(tab:MainIntensive), and Table \@ref(tab:MainExtensive).
+```
