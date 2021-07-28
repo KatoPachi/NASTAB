@@ -313,7 +313,7 @@ After that, the proportion of donors is greter than 20\%.
 
 \begin{figure}[t]
 
-{\centering \includegraphics[width=1\linewidth]{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryOutcome-1} 
+{\centering \includegraphics[width=1\linewidth]{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryOutcome-1} 
 
 }
 
@@ -355,7 +355,7 @@ Table \ref{tab:SummaryCovariate} shows the proportion of tax deduction is about 
 
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.9\linewidth]{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPriceChange-1} 
+{\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPriceChange-1} 
 
 }
 
@@ -968,6 +968,273 @@ when we take two or more years lag (\(k > 1\)).
 Thus, contrary to our first conclusion,
 this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
 
+\hypertarget{price-elasicity-with-tax-report}{%
+\section{Price Elasicity with Tax Report}\label{price-elasicity-with-tax-report}}
+
+In the previous section,
+the result shows that the size of estimated elasticity may vary depending on the estimation methods.
+This may be because the sample size is small compared to the extant research.
+However, our three robustness checks are in line with the baseline result,
+which shows that the price elasticity of intensive margin is less elastic than one of extensive margin.
+Thus, the obtained results suggest that the decision to donate is sensitive to the giving price,
+though the amount of donations is insensitive to the giving price once they decide to donate.
+
+These results are obtained by the ITT approach.
+This means that our estimates obtained in the previous section reflect not only
+the true price effect of tax incentive but also the effect of self-selection of applying for a tax deduction.
+Since the tax reform affects not the only relative price of giving but also the decision-making of a tax deduction,
+previous results have some policy implications.
+If we explicitly control the self-selection of a tax deduction,
+we may obtain further policy implications about the tax incentive of charitable giving.
+In this section, we report the results of the panel IV method which controls the self-selection of a tax deduction.
+
+\hypertarget{instrumental-variable-of-tax-deduction}{%
+\subsection{Instrumental Variable of Tax Deduction}\label{instrumental-variable-of-tax-deduction}}
+
+\begin{table}
+
+\caption{\label{tab:SummaryDeduct}Descriptive Statistics of Tax Deduction among Donors}
+\centering
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{} & \multicolumn{2}{c}{Applying for a tax deduction} & \multicolumn{2}{c}{Not applying for a tax deduction} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+Year & Labor income & Labor and Total income & Labor income & Labor and Total income\\
+\midrule
+2012 & 53 & 740 & 142 & 136\\
+2013 & 67 & 778 & 157 & 156\\
+2014 & 14 & 443 & 159 & 150\\
+2015 & 21 & 520 & 199 & 191\\
+2016 & 23 & 555 & 211 & 201\\
+2017 & 17 & 657 & 224 & 211\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Before describing the strategy of instrumental variables in detail,
+we show descriptive statistics of a tax deduction.
+NaSTaB asks respondents to answer whether to apply for a tax deduction
+in the case of labor income and total income separately.
+\ref{tab:SummaryDeduct} shows the number of tax deduct among donors in our sample.\footnote{Due to the small sample, we rule out observations in 2018.}
+When we only use information about tax deduction in the case of labor income,
+the majority of respondents did not apply for a tax deduction (see the first and third columns).
+When we use information about tax deduction in the case of both labor and total income,
+we make a dummy taking 1 if respondents applied for a tax deduction in the case of
+either labor or total income.
+As a result, more than half of the respondents applied for a tax deduction.
+
+\begin{figure}[t]
+
+{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/DeductByEmployee-1} 
+
+}
+
+\caption{Proportion of Applying for a Tax Deduction Grouped by Employment Status. Notes: We restrict sample to those who donated.}\label{fig:DeductByEmployee}
+\end{figure}
+
+If there is no (physical or psychological) cost to apply for a tax deduction,
+then all individuals should apply for a tax deduction.
+However, as shown in Table \ref{tab:SummaryDeduct},
+applying for a tax deduction may incur some costs because some respondents did not apply for a tax deduction.
+Employment status is one dimension of variation of applied cost.
+Those who are employed in a firm can ask a firm to apply for a tax deduction instead,
+while those who are self-employed need to apply for it by themselves.
+Figure \ref{fig:DeductByEmployee} shows that
+the proportion of applying for a tax deduction among employees is higher than among others.
+Thus, we use employment status as an instrument of a tax deduction.
+
+Our estimation strategy is the panel IV method to estimate the true price effect.
+The equation of the first stage is as follows:
+
+\begin{align}
+  R_{it}
+  = \alpha_{1i} + \lambda \text{Employee}_{it} + X_{it} \beta_1
+  + \mu_{i1} + \iota_{t1} + \eta_{it} \label{eq:stage1}
+\end{align}
+where \(R_{it}\) is a dummy of tax deduction, and \(\text{Employee}_{it}\) is a dummy of employee.
+After estimating this equation, we calcluate the fitted value of \(R_{it}\) denoted by \(\hat{R}_{it}\).
+Using the fitted value \(\hat{R}_{it}\), we estimat the following second-stage equation:
+
+\begin{equation}
+    Y_{it} = \varepsilon^{int}_p \hat{R}_{it} \ln p^f_{it} + \varepsilon^{int}_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:stage2}
+\end{equation}
+where \(Y_{it}\) is an outcome variable.
+When we estimate the extensive-margin elasticity,
+an outcome variable \(Y_{it}\) is a dummy of giving, \(D_{it}\).
+When we estimate the intensive-margin elasticity,
+an outcome variable \(Y_{it}\) is a logged value of giving, \(\ln g_{it}\).
+The variable \(\ln p^f_{it}\) is the first price of charitable giving
+to avoid the problem that the giving price depends on charitable giving.
+
+The instrumental vairbale \(\text{Employed}_{it}\) must hold independence of \(u_{it}\) conditional on covariates.
+There are two potential sources to violate this assumption.
+First, the employment status may produce income variation.
+If this is true, then the employment status affects charitable giving through an income effect.
+Second, an opportunity of giving may depend on employment status.
+For example, a doctor and a public servant may have more opportunities to donate than others.
+If so, the instrument is correlated with \(u_{it}\).
+To avoid this problem, we control the interaction between year dummies and industry dummies.
+
+\hypertarget{results-1}{%
+\subsection{Results}\label{results-1}}
+
+\begin{table}
+
+\caption{\label{tab:stage1Report}First-Stage Result: Effect of Employee on Tax Deduction}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+employee & 0.508*** & 0.464*** & 0.457***\\
+ & (0.047) & (0.049) & (0.050)\\
+Individual and time FE & Y & Y & Y\\
+log(income) & N & Y & Y\\
+Age & N & Y & Y\\
+Year x Education & N & Y & Y\\
+Year x Gender & N & Y & Y\\
+Year x Resident Area & N & Y & Y\\
+Year x Dummy of industry & N & N & Y\\
+N & 11088 & 11085 & 10942\\
+Adjusted R-squared & 0.918 & 0.919 & 0.920\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Table \ref{tab:stage1Report} shows estimation results of the first stage.
+As a result, the employed dummy is strongly positively correlated with applying for a tax deduction.
+In any specification, employed dummy increases the probability of tax deduction by more than 45 percentage points.
+Moreover, the ratio of coefficient to standard error is greater than nine.
+This implies that the F-statistics of the instrument is greater than 81.
+Thus, our panel IV method does not have a weak instrument problem.
+For the second stage, we obtain the predicted value of \(R_{it}\), using the model (3).
+
+\begin{table}
+
+\caption{\label{tab:OverallReport}Second-Stage Result (Overall Price Elasticity)}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+Propensity of Deduction x log(first price) & -2.364*** & -1.710*** & -1.603***\\
+ & (0.401) & (0.447) & (0.466)\\
+Individual and time FE & Y & Y & Y\\
+log(income) & N & Y & Y\\
+Age & N & Y & Y\\
+Year x Education & N & Y & Y\\
+Year x Gender & N & Y & Y\\
+Year x Resident Area & N & Y & Y\\
+Year x Dummy of industry & N & N & Y\\
+N & 16946 & 16946 & 16946\\
+Adjusted R-squared & 0.511 & 0.513 & 0.514\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \ref{tab:stage1Report}.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:IntensiveReport}Second-Stage Result (Intensive-Margin Price Elasticity)}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+Propensity of Report x log(first price) & -1.161*** & -0.947*** & -0.987***\\
+ & (0.284) & (0.318) & (0.342)\\
+Individual and time FE & Y & Y & Y\\
+log(income) & N & Y & Y\\
+Age & N & Y & Y\\
+Year x Education & N & Y & Y\\
+Year x Gender & N & Y & Y\\
+Year x Resident Area & N & Y & Y\\
+Year x Dummy of industry & N & N & Y\\
+N & 5840 & 5840 & 5840\\
+Adjusted R-squared & 0.696 & 0.698 & 0.697\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \ref{tab:stage1Report}.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:ExtensiveReport}Second-Stage Result (Extensive-Margin Price Elasticity)}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+Propensity of Deduction x log(first price) & -0.506*** & -0.347*** & -0.319***\\
+ & (0.090) & (0.104) & (0.110)\\
+ &  &  & \\
+Implied price elasticity & -1.469*** & -1.008*** & -0.926***\\
+ & (0.262) & (0.301) & (0.320)\\
+Individual and time FE & Y & Y & Y\\
+log(income) & N & Y & Y\\
+Age & N & Y & Y\\
+Year x Education & N & Y & Y\\
+Year x Gender & N & Y & Y\\
+Year x Resident Area & N & Y & Y\\
+Year x Dummy of industry & N & N & Y\\
+N & 16946 & 16946 & 16946\\
+Adjusted R-squared & 0.426 & 0.427 & 0.428\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \ref{tab:stage1Report}. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+Table \ref{tab:OverallReport} reports overall elasticities controlling the self-selection of the tax report.
+The estimated elasticities are similar value to the benchmark results shown in Table \ref{tab:MainOverall}.
+When we only include individual and time fixed effects, the overall elasticity is -2.364.
+When we control the same covariates as the model (5) in Table \ref{tab:MainOverall},
+the overall elasticity is -1.710.
+These values are statistically significant,
+and slightly more elastic than the benchmark results
+(see the column (1) and (5) in Table \ref{tab:MainOverall}).
+Since those who did not apply for the tax deduction did not receive the tax incentive actually,
+these results can be naturally interactable.
+Furthermore, when we control the interaction term between year dummies and industry dummies,
+the result does not change.
+
+In Table \ref{tab:IntensiveReport} and Table \ref{tab:ExtensiveReport},
+we show the intensive-margin elasticity and the extensive-margin elasticity.
+The estimated elasticities are quite similar to the benchmark results
+shown in Table \ref{tab:MainIntensive} and Table \ref{tab:MainExtensive}.
+Column (2) of Table \ref{tab:IntensiveReport} uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \ref{tab:MainIntensive}).
+About the extensive-margin elasticity,
+column (2) of Table \ref{tab:ExtensiveReport} uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \ref{tab:MainExtensive}).
+When we further control for the interaction between year dummies and industry dummies,
+we can obtain similar estimated values.
+
+We estimate the true price effect using panel IV.
+As a result, we obtain similar results to the benchmark results
+shown in Table \ref{tab:MainOverall}, Table \ref{tab:MainIntensive}, and Table \ref{tab:MainExtensive}.
+
 \hypertarget{conclusions}{%
 \section{Conclusions}\label{conclusions}}
 
@@ -987,43 +1254,43 @@ From the results, we show that the giving price elasticity would be affected by 
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
-\leavevmode\hypertarget{ref-Almunia2020}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Almunia2020}{}}%
 Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
 
-\leavevmode\hypertarget{ref-Anderson2017}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Anderson2017}{}}%
 Anderson, J.E., 2017. Trust in government and willingness to pay taxes in transition countries. Comparative Economic Studies 59, 1--22. doi:\href{https://doi.org/10.1057/s41294-016-0017-x}{10.1057/s41294-016-0017-x}
 
-\leavevmode\hypertarget{ref-Auten2002}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Auten2002}{}}%
 Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. Charitable giving, income, and taxes: An analysis of panel data. American Economic Review 92, 371--382.
 
-\leavevmode\hypertarget{ref-Bakija2011}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Bakija2011}{}}%
 Bakija, J., Heim, B.T., 2011. How does charitable giving respond to incentives and income? New estimates from panel data. National Tax Journal 64, 615--650. doi:\href{https://doi.org/10.17310/ntj.2011.2S.08}{10.17310/ntj.2011.2S.08}
 
-\leavevmode\hypertarget{ref-Fack2010}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Fack2010}{}}%
 Fack, G., Landais, C., 2010. Are tax incentives for charitable giving efficient? Evidence from france. American Economic Journal - Economic Policy 2, 117--141. doi:\href{https://doi.org/10.1257/pol.2.2.117}{10.1257/pol.2.2.117}
 
-\leavevmode\hypertarget{ref-Frey2007}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Frey2007}{}}%
 Frey, B.S., Torgler, B., 2007. Tax morale and conditional cooperation. Journal of Comparative Economics 35, 136--159. doi:\href{https://doi.org/10.1016/j.jce.2006.10.006}{10.1016/j.jce.2006.10.006}
 
-\leavevmode\hypertarget{ref-Hammar2009}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Hammar2009}{}}%
 Hammar, H., Jagers, S.C., Nordblom, K., 2009. Perceived tax evasion and the importance of trust. The Journal of Socio-Economics 38, 238--245. doi:\url{https://doi.org/10.1016/j.socec.2008.07.003}
 
-\leavevmode\hypertarget{ref-Kim2021}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Kim2021}{}}%
 Kim, Y., 2021. Politics, religion, and tax incentives for charitable giving in south korea. Korean Economic Review 37, 141--155. doi:\href{https://doi.org/10.22841/kerdoi.2021.37.1.006}{10.22841/kerdoi.2021.37.1.006}
 
-\leavevmode\hypertarget{ref-Li2011}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Li2011}{}}%
 Li, S.X., Eckel, C.C., Grossman, P.J., Brown, T.L., 2011. Giving to government: Voluntary taxation in the lab. Journal of Public Economics 95, 1190--1201. doi:\href{https://doi.org/10.1016/j.jpubeco.2011.03.005}{10.1016/j.jpubeco.2011.03.005}
 
-\leavevmode\hypertarget{ref-Randolph1995}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Randolph1995}{}}%
 Randolph, W.C., 1995. Dynamic income, progressive taxes, and the timing of charitable contributions. Journal of Political Economy 103, 709--738. doi:\href{https://doi.org/10.1086/262000}{10.1086/262000}
 
-\leavevmode\hypertarget{ref-Saez2004}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Saez2004}{}}%
 Saez, E., 2004. The optimal treatment of tax expenditures. Journal of Public Economics 88, 2657--2684. doi:\href{https://doi.org/10.1016/j.jpubeco.2003.09.004}{10.1016/j.jpubeco.2003.09.004}
 
-\leavevmode\hypertarget{ref-Sheremeta2020}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Sheremeta2020}{}}%
 Sheremeta, R.M., Uler, N., 2020. The impact of taxes and wasteful government spending on giving. Experimental Economics. doi:\href{https://doi.org/10.1007/s10683-020-09673-9}{10.1007/s10683-020-09673-9}
 
-\leavevmode\hypertarget{ref-Zeldow2019}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-Zeldow2019}{}}%
 Zeldow, B., Hatfield, L.A., 2019. Confounding and regression adjustment in difference-in-differences. arXiv Preprint.
 
 \end{CSLReferences}
