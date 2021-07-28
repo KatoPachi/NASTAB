@@ -908,8 +908,4 @@ Thus, contrary to our first conclusion,
 this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
 
 [^DeltaCredit]: Under the tax credit system, the giving price does not depend on income $y_{it-k}$. If the tax credit system is implemented in year $t$ and $t-k$, then the value of $\Delta^k p_{it}$ takes zero.
-
-<!--
-In summary, the result shows that the size of estimated elasticity may vary depending on the estimation methods. This may be because the sample size is small compared to the extant research. However, our three robustness checks are in line with the baseline result, which shows that the price elasticity of intensive margin is less elastic than one of extensive margin. Thus, the obtained results suggest that the decision to donate is sensitive to the giving price, though the amount of donations is insensitive to the giving price once they decide to donate. 
---->
 ```
