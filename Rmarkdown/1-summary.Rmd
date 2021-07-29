@@ -64,7 +64,7 @@ The NaSTaB data is constructed as the subjects represent the population of Korea
 This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research. 
 Moreover, note that subjects are not limited to the taxpayer or income earner reflecting the population.
 
-In the analysis, we use data from 2013 to 2019 since we focus on the 2014 tax reform. This is because, as Table \@ref(tab:tabTaxRate) shows, the giving price before 2014 was changed frequently and incorporating the data before 2012 captures the effects of another tax reform than the reform in 2014. Note that, since tax credit was introduced after 2014 and the credit rate was unchanged since 2014, the giving price does not depend on the income tax rate after 2014.
+In the analysis, we use data from 2013 to 2017 since we focus on the 2014 tax reform. This is because, as Table \@ref(tab:tabTaxRate) shows, the giving price before 2014 was changed frequently and incorporating the data before 2012 captures the effects of another tax reform than the reform in 2014. Note that, since tax credit was introduced after 2014 and the credit rate was unchanged since 2014, the giving price does not depend on the income tax rate after 2014.
 In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or assets.
 
 [^interview]: If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
@@ -121,13 +121,13 @@ The first panel of this table shows variables about charitable giving.
 The NaSTaB asks respondents to answer the amount of donation last year.
 This is the first outcome variables.
 Using this, we make a dummy taking 1 if respondent donated last year.
-This is the second outcome variables to estimate the price effect on the decision of donations (extensive margin).
+This is the second outcome variables to estimate the price effect on the decision of donations.
 Table \@ref(tab:SummaryCovariate) shows that 
-the average amount of donation is almost 300,000 KRW,
+the average amount of donation is almost 300,000 KRW (300 USD),
 and the proportion of donors is roughly 20\%.
 Figure \@ref(fig:SummaryOutcome) shows the time-series of two variables.
 The blue line shows the average amount of donation among donors.
-In each year, its value is nearly 1.5 million KRW,
+In each year, its value is nearly 1.5 million KRW (1,500 USD),
 which is 7\% of average annual taxable income.
 The gray bar shows the proportion of donors.
 After the tax reform, the proportion of donors decreases by 2\%.
@@ -147,13 +147,13 @@ avgint <- df %>%
   summarize_at(vars(i_total_giving), list(mu = ~mean(., na.rm = TRUE)))
 
 ggplot(avgext, aes(x = year, y = mu)) +
-  geom_bar(aes(fill = "Extensive margin"), stat = "identity", color = "black") +
+  geom_bar(aes(fill = "Proportion of Donors"), stat = "identity", color = "black") +
   geom_point(
-    data = avgint, aes(x = year, y = mu / 1000, color = "Intensive margin"),
+    data = avgint, aes(x = year, y = mu / 1000, color = "Average amount of Donations among Donors"),
     size = 2
   ) +
   geom_line(
-    data = avgint, aes(x = year, y = mu / 1000, color = "Intensive margin"),
+    data = avgint, aes(x = year, y = mu / 1000, color = "Average amount of Donations among Donors"),
     size = 1
 
   ) +
@@ -163,10 +163,10 @@ ggplot(avgext, aes(x = year, y = mu)) +
   scale_color_manual(NULL, values = "blue") +
   scale_y_continuous(sec.axis = sec_axis(
     ~. * 1000,
-    name = "Average Amout of Donations among Donors (Intensive margin)"
+    name = "Average amount of Donations among Donors"
   )) +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
-  labs(x = "Year", y = "Proportion of Donors (Extensive margin)") +
+  labs(x = "Year", y = "Proportion of Donors") +
   ggtemp()
 ```
 
@@ -187,15 +187,15 @@ ggplot(avgext, aes(x = year, y = mu)) +
 ```{asis, echo = doctype == "draft"}
 The second panel of Table \@ref(tab:SummaryCovariate) shows variables about income, tax report, and the giving price.
 NaSTaB asks respondents to answer the annual labor income last year.
-In our sample, the average annual taxable income is 18.76 million KRW.
+In our sample, the average annual taxable income is 18.76 million KRW (18,760 USD).
 According to the National Tax Statistical Yearbook published by Korean National Tax Service,
-the average annual taxable income is 32.77 million from 2012 to 2018
+the average annual taxable income is 32.77 million (32,770 USD) from 2012 to 2018
 for employees who submitted the tax return.
 Since our sample includes subjects with no labor income, such as housewives,
 our sample mean of income is lower than the average income calculated by the public organizations.
 In Figure \@ref(fig:SummaryPriceChange),
 the gray bars show the distribution of annual taxable income in 2013.
-The income distribution is left-skewed.
+The income distribution is right-skewed.
 
 Using this variable, we construct the giving price under the tax deduction system (2012 and 2013).[^fprice]
 After the tax reform (after 2014), the giving price is 0.85 regardless of labor income. 
@@ -204,10 +204,10 @@ In Figure \@ref(fig:SummaryPriceChange),
 the blue line shows the giving price in 2012 and 2013,
 while the red dashed line shows the giving price after 2014.
 From this figure, 
-those whose annual income is less than 120,000,000 KRW in 2013 could receive benefit from the 2014 tax reform
+those whose annual income is less than 120,000,000 KRW (120,000 USD) in 2013 could receive benefit from the 2014 tax reform
 because the tax reform decreases the giving price.
 On the other hand,
-those whose annual income is greater than 460,000,000 KRW in 2013 had a loss by the 2014 tax reform 
+those whose annual income is greater than 460,000,000 KRW (460,000 USD) in 2013 had a loss by the 2014 tax reform 
 since the tax reform increases the giving price.
 
 [^fprice]: The giving price shown in Table \@ref(tab:SummaryCovariate) is the *first* giving price. The giving price can be manipulated by an amount of donation. To avoid this endogeneity, we use the giving price where the amount of donation is zero. We will discuss this issue in the next section.

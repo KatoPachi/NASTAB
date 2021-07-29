@@ -153,8 +153,8 @@ We can justify the first price method, assuming that income is exogenous.
 The second approach relaxes this assumption.
 Under the tax deduction system,
 the change of income have effects on both donations through the income effect
-and the giving price through the marginal tax rate.
-Therefore, 
+and the giving price through the marginal tax rate [@Randolph1995; @Auten2002; @Bakija2011].
+Therefore, following @Bakija2011,
 we employ lagged values of taxable income and
 construct a variable for the change in the first price of giving as following:
 
