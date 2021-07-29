@@ -60,19 +60,30 @@ which is only dependent on the tax credit rate $m$, which is exogenously determi
 In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction. 
 
 The tax deduction and tax credit may have different effects on giving behavior. This subsection summarize the difference of tax deduction and tax credit.
-Consider that a household has a choice between private consumptions ($x_i$) and charitable giving ($g_i$). Let $y_i$ be pre-tax total income.
+Consider that a household has a choice between private consumption ($x_i$) and charitable giving ($g_i$). Let $y_i$ be pre-tax total income.
 Then, the budget constraint is 
 
 $$
-    x_i + g_i = y_i - D_iT_i(y_i, g_i) - (1-D_i)T_i(y_i).
+    x_i + g_i = y_i − D_iK - D_iT_i(y_i, g_i) - (1-D_i)T_i(y_i).
 $$
 $T_i$ is tax amount which depends on the pre-tax income and charitable giving.
-$D_i$ is the dummy which takes 1 if $i$ declares the tax relief and 0 otherwise. 
+$D_i$ is the dummy which takes 1 if $i$ declares the tax relief and 0 otherwise. $K$ is a cost for the declaration of charitable giving, which may not be monetary cost but is converted to pecuniary terms. 
+
+Tax payers declare their charitable giving if its benefit exceeds its cost, which means
+
+$$
+D_i=\begin{cases}
+1 \text{ if }T_i(y_i, g_i) - T_i(y_i)>K\\
+0 \text{ if }T_i(y_i, g_i) - T_i(y_i)\le K.
+\end{cases}
+$$
+This means that the decision of declaration depends on $y_i$, $g_i$ and $K$, where $g_i$ is considered to be much easier for tax payers to adjust than the others.
+
 On one hand, tax deduction reduces taxable income by giving. The amount of tax is
 
 $$
     T_i(y_i, g_i) &= \tau(y_i - g_i) \cdot (y_i - g_i)
-    T_i(y_i) &= \tau(y_i) \cdot (y_i - g_i),
+    T_i(y_i) &= \tau(y_i) \cdot (y_i),
 $$
 
 where $\tau(\cdot)$ is the income tax rate which is determined by $y_i - g_i$ or $y_i$.[^ATR] The budget constraint will be 
@@ -80,7 +91,7 @@ where $\tau(\cdot)$ is the income tax rate which is determined by $y_i - g_i$ or
 [^ATR]: $\tau(\cdot)$ here is a function which shows the average tax rate, which is determined progressively. Since the price elasticity of giving shows the marginal and additional increment for one unit of price reduction increase, we use not average but marginal tax rate to construct the giving price following the literature. Usage of the function of the average tax rate here is for explanatory simplicity.
 
 $$
-    x_i + [1 - D_i\tau(y_i - g_i)-(1-D_i)\tau(y_i)]g_i = [1 - D_i\tau(y_i - g_i)-(1-D_i)\tau(y_i)] y_i.
+    x_i + [1 - D_i\tau(y_i - g_i)-(1-D_i)\tau(y_i)]g_i = [1 - D_i\tau(y_i - g_i)-(1-D_i)\tau(y_i)] y_i− D_iK.
 $$
 
 Thus, the giving price compared to the price of private consumption is $p_i^{d} \equiv 1 - D_i\tau(y_i - g_i)-(1-D_i)\tau(y_i)$ in tax deduction system. Since the giving price in tax deduction scheme varies depending on (1) the income level, (2) the amount of charitable giving, and (3) declaration of tax relief, it is endogenous to them, i.e. (1), (2), and (3).
@@ -88,19 +99,21 @@ Thus, the giving price compared to the price of private consumption is $p_i^{d} 
 On the other hand, tax credit reduces tax amount directly, that is,
 
 $$
-    T_i = \tau(y_i)\cdot y_i - D_im g_i,
+    T_i = \tau(y_i)\cdot y_i - D_im g_i ,
 $$
 
 where $m \in [0, 1]$ is the tax credit rate. Under the tax credit system, the budget constraint is 
 
 $$
-    x_i + (1 - D_im) g_i = [1 - \tau(y_i)] y_i.
+    x_i + (1 - D_im) g_i = [1 - \tau(y_i)] y_i − D_iK.
 $$
 
 Thus, the giving price of tax credit system will be $p_i^c = 1 - D_im$, which is only dependent on the tax credit rate $m$, which is exogenously determined by the government, and declaration $D_i$.
 Therefore, the giving price in the tax credit system would not be manipulated by donors except the declaration.
 
-In the literature of giving tax relief, many papers implicitly assume that all tax payers automatically enjoy tax relief for charitable giving, i.e. $D_i=1$ for all $i$\footnote{As an exception, @Almunia2020 considers the declaration by using the stractural estimation.}. This means that the estimated price elasticity in the extant papers usually shows ITT since the tax relief is intended to be applied, although researchers do not know whether it is really applied or not. In section 5, we assume $D_i=1$ for all $i$ following the extant research and estimate ITT as a baseline result. In section 6, we remove this assumption and $D_i$ can be 0 or 1 depending on each $i$.
+In the literature of giving tax relief, many papers implicitly assume that $K=0$ and all tax payers should enjoy tax relief for charitable giving, i.e. $D_i=1$ for all $i$\footnote{As an exception, @Rehavi2013 and @Almunia2020 respectively consider the declaration by using the survey data and the stractural estimation.}. As a result, the observed amount of the charitable giving $g_i$ may be different from the realized amount of the charitable giving $g_i$.
+
+To overcome this issue, we use two ways of estimations. In section 5, we assume $D_i=1$ for all $i$ following the extant research and estimate ITT as a baseline result. The difference between this analysis and the extant research is that the observed charitable giving $g_i$ in the former is not limited to declared one, but $g_i$ in the latter is limited to declared one. In section 6, we remove the assumption of $D_i$ and $D_i$ can be 0 or 1 depending on each $i$, which is the difference from the extant research. 
 
 ## Korean tax system and tax reform in 2014
 
