@@ -209,8 +209,8 @@ This means that the decision of declaration depends on $y_i$, $g_i$ and $K$, whe
 On one hand, tax deduction reduces taxable income by giving. The amount of tax is
 
 $$
-    T_i(y_i, g_i) &= \tau(y_i - g_i) \cdot (y_i - g_i)
-    T_i(y_i) &= \tau(y_i) \cdot (y_i),
+    T_i(y_i, g_i) = \tau(y_i - g_i) \cdot (y_i - g_i)
+    T_i(y_i) = \tau(y_i) \cdot (y_i),
 $$
 
 where $\tau(\cdot)$ is the income tax rate which is determined by $y_i - g_i$ or $y_i$.[^ATR] The budget constraint will be 
