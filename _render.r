@@ -1,7 +1,7 @@
 #' from R script to Rmd file
 #+
 knitr::spin(
-    "./script/R/censored_model.r",
+    "./script/R/3-tax_balance.r",
     knit = FALSE
 )
 
@@ -10,35 +10,21 @@ knitr::spin(
 
 # HTML file
 rmarkdown::render(
-    "./manuscript/issue71.rmd",
-    output_file = "issue71.html",
+    "./Rmarkdown/6-self_selection.rmd",
+    output_file = "issue76.html",
     output_dir = "report"
 )
 
-# preview chapter
-bookdown::preview_chapter(
-    input = "manuscript/6_heteroElasticity.rmd", 
-    output_format = "bookdown::pdf_book",
-    output_dir = "report",
-    output_file = "chapter5.pdf"
-)
-
-# pdf (slides)
-bookdown::render_book(
-    input = "index.rmd",
-    output_format = "bookdown::pdf_book",
-    output_file = "slides.pdf",
-    output_dir = "report",
-    clean = TRUE,
-    encoding = "utf8"
-)
-
-# pdf (paper)
-bookdown::render_book(
-    input = "index.rmd",
-    output_format = "bookdown::pdf_document2",
+# knit draft.rmd
+rmarkdown::render(
+    "draft.Rmd",
     output_file = "draft.pdf",
-    output_dir = "paper",
-    clean = TRUE,
-    encoding = "utf8"
+    output_dir = "paper"
+)
+
+# knit slide.rmd
+rmarkdown::render(
+    "slide.Rmd",
+    output_file = "slide.pdf",
+    output_dir = "paper"
 )
