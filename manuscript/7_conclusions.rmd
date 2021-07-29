@@ -2,8 +2,8 @@
 
 In this paper, we investigate the giving price elasticity using South Korean panel data. As a result, we obtain the following findings.
 
-Firstly, the estimation shows that the giving price elasticity in Korea is larger than 1 in the sense of absolute value. Since the standard theoretical literature suggests that if the price elasticity is more elastic than 1 in the sense of absolute value, the subsidy for the charitable giving should be increased [@Saez2004]. Thus, the result suggests that the Korean government should increase the subsidy for the charitable giving.
+Firstly, our baseline estimation shows that the giving price elasticity in Korea is around -1 even if we take into account the existence of the undeclared charitable giving. Since the literature of the tax expenditure for charitable giving suggests that the price elasticity is around -1, the result suggests that the effect coming from the existence of the undeclared charitable giving cost may be limited. Since the price elasticity is around -1, which suggests the cloud out of public good is limited according to @Saez2004, we can conclude that the subsidy for the charitable giving in Korea works well.
 
-Secondly, we find that the estimated price elasticity using the effetive giving price takes very different values from the estimated elasticity using the applicable giving price. It implies that the declaration cost, which has been ignored, is large and mitigate the effect of tax relief.   
+Secondly, we find that the estimated price elasticity using the effective giving price takes the similar values from the estimated elasticity in the extant research. It implies that the effect from the declaration cost, which has been ignored, is not so large. Moreover, as well as the baseline result, this result shows that the price elasticity is around -1, which derives the same conclusions as the baseline result.
 
 From the results, we firstly show the giving price elasticity in Korea. However, many things to be considered are remaining. To understand the giving behavior and to contribute the policy making, more sophisticated research is needed.
