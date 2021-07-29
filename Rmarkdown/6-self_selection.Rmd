@@ -1,0 +1,456 @@
+```{r eval = FALSE}
+# if you want to preview this file,
+# 1. specify doctype: "draft" or "slide"
+# 2. replace knitr format = "html"
+library(here); knitr::opts_knit$set(root.dir = here())
+doctype <- "draft"
+options(knitr.kable.NA = " ", knitr.table.format = "html")
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE
+)
+```
+
+# Price Elasicity with Tax Report
+
+```{r message = FALSE, warning=FALSE}
+library(xfun)
+xfun::pkg_attach2(c("tidyverse", "rlist"))
+xfun::pkg_attach2(c("lmtest", "sandwich", "lfe", "Formula", "fixest"))
+xfun::pkg_attach2("kableExtra")
+
+invisible(lapply(Sys.glob(file.path("script/R/functions", "*.r")), source))
+```
+
+```{r }
+df <- readr::read_csv(
+  "data/shaped2.csv",
+  col_types = cols(
+    ext_credit_giving = col_double(),
+    krw_credit_giving = col_double(),
+    trust_politician = col_double(),
+    political_pref = col_double(),
+    addtax = col_double(),
+    avg_welfare_tax = col_double(),
+    opt_welfare_tax = col_double(),
+    now_balance = col_double(),
+    ideal_balance = col_double()
+  )
+)
+```
+
+
+```{asis, echo = doctype == "draft"}
+In the previous section,
+the result shows that the size of estimated elasticity may vary depending on the estimation methods.
+This may be because the sample size is small compared to the extant research.
+However, our three robustness checks are in line with the baseline result,
+which shows that the price elasticity of intensive margin is less elastic than one of extensive margin.
+Thus, the obtained results suggest that the decision to donate is sensitive to the giving price,
+though the amount of donations is insensitive to the giving price once they decide to donate. 
+
+These results are obtained by the ITT approach.
+This means that our estimates obtained in the previous section reflect not only
+the true price effect of tax incentive but also the effect of self-selection of applying for a tax deduction.
+Since the tax reform affects not the only relative price of giving but also the decision-making of a tax deduction,
+previous results have some policy implications.
+If we explicitly control the self-selection of a tax deduction,
+we may obtain further policy implications about the tax incentive of charitable giving.
+In this section, we report the results of the panel IV method which controls the self-selection of a tax deduction.
+```
+
+## Instrumental Variable of Tax Deduction
+
+```{r SummaryDeduct}
+df %>%
+  dplyr::filter(year < 2018 & i_total_giving > 0) %>%
+  group_by(year) %>%
+  summarize_at(
+    vars(ext_benefit_t, ext_benefit_tl), 
+    list(
+      Yes = ~sum((. == 1), na.rm = TRUE),
+      No = ~sum((. == 0), na.rm = TRUE)
+    )
+  ) %>%
+  kable(
+    caption = "Descriptive Statistics of Tax Deduction among Donors",
+    col.names = c(
+      "Year", "Labor income", "Labor and Total income",
+      "Labor income", "Labor and Total income"
+    ),
+    align = "lcccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+  ) %>%
+  add_header_above(
+    c("", "Applying for a tax deduction" = 2, "Not applying for a tax deduction" = 2)
+  ) %>%
+  kable_styling()
+```
+
+```{asis, echo = doctype == "draft"}
+Before describing the strategy of instrumental variables in detail,
+we show descriptive statistics of a tax deduction.
+NaSTaB asks respondents to answer whether to apply for a tax deduction
+in the case of labor income and total income separately.
+\@ref(tab:SummaryDeduct) shows the number of tax deduct among donors in our sample.[^year18]
+When we only use information about tax deduction in the case of labor income,
+the majority of respondents did not apply for a tax deduction (see the first and third columns).
+When we use information about tax deduction in the case of both labor and total income,
+we make a dummy taking 1 if respondents applied for a tax deduction in the case of
+either labor or total income.
+As a result, more than half of the respondents applied for a tax deduction.
+
+[^year18]: Due to the small sample, we rule out observations in 2018.
+```
+
+```{r eval = FALSE}
+df %>%
+  dplyr::filter(!is.na(employee)) %>%
+  group_by(year, employee) %>%
+  summarize_at(vars(ext_benefit_t), list(~ mean(., na.rm = TRUE))) %>%
+  mutate(employee = factor(employee)) %>%
+  ggplot(aes(x = year, y = ext_benefit_t, group = employee)) +
+  geom_point(aes(shape = employee), color = "black", size = 3) +
+  geom_line(aes(linetype = employee), size = 1) +
+  geom_vline(aes(xintercept = 2013.5)) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(y = "share of tax report") +
+  ggtemp()
+```
+
+```{r DeductByEmployee, fig.cap="Proportion of Applying for a Tax Deduction Grouped by Employment Status. Notes: We restrict sample to those who donated."}
+df %>%
+  dplyr::filter(!is.na(employee)) %>%
+  dplyr::filter(year < 2018 & i_total_giving > 0) %>%
+  group_by(year, employee) %>%
+  summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
+  mutate(employee = factor(employee, labels = c("Others", "Employees"))) %>%
+  ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
+  geom_point(aes(shape = employee), color = "black", size = 3) +
+  geom_line(aes(linetype = employee), size = 1) +
+  geom_vline(aes(xintercept = 2013.5)) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(
+    y = "share of tax report", 
+    shape = "Employment Status", 
+    linetype = "Employment Status"
+  ) +
+  ggtemp()
+```
+
+```{asis, echo = doctype == "draft"}
+If there is no (physical or psychological) cost to apply for a tax deduction,
+then all individuals should apply for a tax deduction. 
+However, as shown in Table \@ref(tab:SummaryDeduct),
+applying for a tax deduction may incur some costs because some respondents did not apply for a tax deduction.
+Employment status is one dimension of variation of applied cost.
+Those who are employed in a firm can ask a firm to apply for a tax deduction instead,
+while those who are self-employed need to apply for it by themselves.
+Figure \@ref(fig:DeductByEmployee) shows that
+the proportion of applying for a tax deduction among employees is higher than among others.
+Thus, we use employment status as an instrument of a tax deduction.
+
+Our estimation strategy is the panel IV method to estimate the true price effect.
+The equation of the first stage is as follows:
+
+\begin{align}
+  R_{it}
+  = \alpha_{1i} + \lambda \text{Employee}_{it} + X_{it} \beta_1
+  + \mu_{i1} + \iota_{t1} + \eta_{it} (\#eq:stage1)
+\end{align}
+where $R_{it}$ is a dummy of tax deduction, and $\text{Employee}_{it}$ is a dummy of employee.
+After estimating this equation, we calcluate the fitted value of $R_{it}$ denoted by $\hat{R}_{it}$.
+Using the fitted value $\hat{R}_{it}$, we estimat the following second-stage equation:
+
+\begin{equation}
+    Y_{it} = \varepsilon^{int}_p \hat{R}_{it} \ln p^f_{it} + \varepsilon^{int}_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:stage2)
+\end{equation}
+where $Y_{it}$ is an outcome variable.
+When we estimate the extensive-margin elasticity,
+an outcome variable $Y_{it}$ is a dummy of giving, $D_{it}$.
+When we estimate the intensive-margin elasticity,
+an outcome variable $Y_{it}$ is a logged value of giving, $\ln g_{it}$.
+The variable $\ln p^f_{it}$ is the first price of charitable giving
+to avoid the problem that the giving price depends on charitable giving.
+
+The instrumental vairbale $\text{Employed}_{it}$ must hold independence of $u_{it}$ conditional on covariates.
+There are two potential sources to violate this assumption.
+First, the employment status may produce income variation.
+If this is true, then the employment status affects charitable giving through an income effect.
+Second, an opportunity of giving may depend on employment status.
+For example, a doctor and a public servant may have more opportunities to donate than others.
+If so, the instrument is correlated with $u_{it}$.
+To avoid this problem, we control the interaction between year dummies and industry dummies.
+```
+
+## Results
+
+```{r stage1Report}
+xlist <- list(
+  ~ employee,
+  ~ employee + log_pinc_all + age + sqage +
+    factor(year):factor(educ) + factor(year):factor(gender),
+  ~ employee + log_pinc_all + age + sqage +
+    factor(year):factor(educ) + factor(year):factor(gender) +
+    factor(year):factor(indust)
+)
+
+xlist_tab <- tribble(
+  ~vars, ~stat, ~reg1, ~reg2, ~reg3,
+  "Individual and time FE", "vars", "Y", "Y", "Y",
+  "log(income)", "vars", "N", "Y", "Y",
+  "Age", "vars", "N", "Y", "Y",
+  "Year x Education", "vars", "N", "Y", "Y",
+  "Year x Gender", "vars", "N", "Y", "Y",
+  "Year x Resident Area", "vars", "N", "Y", "Y",
+  "Year x Dummy of industry", "vars", "N", "N", "Y"
+)
+
+est_report1 <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = ext_benefit_tl ~ ., x = .,
+    fixef = ~ year, cluster = ~ pid,
+    data = subset(df, year <= 2017)
+  ))
+
+est_report2 <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = ext_benefit_tl ~ ., x = .,
+    fixef = ~year + pid, cluster = ~pid,
+    data = subset(df, year <= 2017)
+  ))
+
+list(est_report1, est_report2) %>%
+  purrr::map(~ regtab_fixest(., keep_coef = "employee")) %>%
+  purrr::map(~ regtab_addline(., list(xlist_tab))) %>%
+  reduce(full_join, by = c("vars", "stat")) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(-stat, -reg1.x, -reg2.x, -reg3.x) %>%
+  kable(
+    caption = "First-Stage Result: Effect of Employee on Tax Deduction",
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+  ) %>%
+  kable_styling(font_size = 7) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+```{asis, echo = doctype == "draft"}
+Table \@ref(tab:stage1Report) shows estimation results of the first stage.
+As a result, the employed dummy is strongly positively correlated with applying for a tax deduction.
+In any specification, employed dummy increases the probability of tax deduction by more than 45 percentage points.
+Moreover, the ratio of coefficient to standard error is greater than nine.
+This implies that the F-statistics of the instrument is greater than 81.
+Thus, our panel IV method does not have a weak instrument problem.
+For the second stage, we obtain the predicted value of $R_{it}$, using the model (3).
+```
+
+```{r }
+df$p_ext_benefit_tl <- predict(est_report2[[3]], df)
+```
+
+```{r OverallReport}
+ivest_report1 <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~ year, cluster = ~ pid,
+    data = subset(df, year <= 2017)
+  ))
+
+ivest_report2 <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~year + pid, cluster = ~ pid,
+    data = subset(df, year <= 2017)
+  ))
+
+xlist_duptab <- xlist_tab %>%
+  full_join(xlist_tab, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
+
+list(ivest_report1, ivest_report2) %>%
+  flatten() %>%
+  regtab_fixest(
+    keep_coef = "log_price",
+    label_coef = list(
+      "log_price:p_ext_benefit_tl" = "Propensity of Deduction x log(first price)"
+    )
+  ) %>%
+  regtab_addline(list(xlist_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(- (stat:reg3)) %>%
+  kable(
+    caption = "Second-Stage Result (Overall Price Elasticity)",
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+  ) %>%
+  kable_styling(font_size = 7) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report).",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+```{r IntensiveReport}
+ivest_report1_int <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~year, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1 & year <= 2017)
+  ))
+
+ivest_report2_int <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1 & year <= 2017)
+  ))
+
+list(ivest_report1_int, ivest_report2_int) %>%
+  flatten() %>%
+  regtab_fixest(
+    keep_coef = "log_price",
+    label_coef = list(
+      "log_price:p_ext_benefit_tl" = "Propensity of Report x log(first price)"
+    )
+  ) %>%
+  regtab_addline(list(xlist_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(- (stat:reg3)) %>%
+  kable(
+    caption = "Second-Stage Result (Intensive-Margin Price Elasticity)",
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+  ) %>%
+  kable_styling(font_size = 7) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report).",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+
+```{r ExtensiveReport}
+ivest_report1_ext <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~year, cluster = ~pid,
+    data = subset(df, year <= 2017)
+  ))
+
+ivest_report2_ext <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = i_ext_giving ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, year <= 2017)
+  ))
+
+waldtest_ext <- list(ivest_report1_ext, ivest_report2_ext) %>%
+  purrr::map_depth(2, ~ tibble(
+    vars = "Implied price elasticity",
+    coef = coef(.)["log_price:p_ext_benefit_tl"],
+    se = fixest::se(.)["log_price:p_ext_benefit_tl"],
+    invmu = mean(model.matrix(., type = "lhs")),
+    p = fixest::pvalue(.)["log_price:p_ext_benefit_tl"]
+  )) %>%
+  purrr::map_depth(2, function(x)
+    x %>%
+      mutate(
+        coef = case_when(
+          p <= .01 ~ sprintf("%1.3f***", coef / invmu),
+          p <= .05 ~ sprintf("%1.3f**", coef / invmu),
+          p <= .1 ~ sprintf("%1.3f*", coef / invmu),
+          TRUE ~ sprintf("%1.3f", coef / invmu)
+        ),
+        se = sprintf("(%1.3f)", se / invmu)
+      ) %>%
+      dplyr::select(-p, -invmu) %>%
+      pivot_longer(-vars, names_to = "stat", values_to = "val")
+  ) %>%
+  purrr::map(~ reduce(., full_join, by = c("vars", "stat"))) %>%
+  reduce(full_join, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2)))) %>%
+  bind_rows(
+    c(vars = "", stat = "", reg1 = "", reg2 = "",
+      reg3 = "", reg4 = "", reg5 = "", reg6 = ""),
+    .
+  )
+
+list(ivest_report1_ext, ivest_report2_ext) %>%
+  flatten() %>%
+  regtab_fixest(
+    keep_coef = "log_price",
+    label_coef = list(
+      "log_price:p_ext_benefit_tl" = "Propensity of Deduction x log(first price)"
+    )
+  ) %>%
+  regtab_addline(list(waldtest_ext, xlist_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(- (stat:reg3)) %>%
+  kable(
+    caption = "Second-Stage Result (Extensive-Margin Price Elasticity)",
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+  ) %>%
+  kable_styling(font_size = 7) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report). The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+```{asis, echo = doctype == "draft"}
+Table \@ref(tab:OverallReport) reports overall elasticities controlling the self-selection of the tax report.
+The estimated elasticities are similar value to the benchmark results shown in Table \@ref(tab:MainOverall).
+When we only include individual and time fixed effects, the overall elasticity is -2.364.
+When we control the same covariates as the model (5) in Table \@ref(tab:MainOverall),
+the overall elasticity is -1.710.
+These values are statistically significant,
+and slightly more elastic than the benchmark results
+(see the column (1) and (5) in Table \@ref(tab:MainOverall)).
+Since those who did not apply for the tax deduction did not receive the tax incentive actually,
+these results can be naturally interactable.
+Furthermore, when we control the interaction term between year dummies and industry dummies,
+the result does not change.
+
+In Table \@ref(tab:IntensiveReport) and Table \@ref(tab:ExtensiveReport),
+we show the intensive-margin elasticity and the extensive-margin elasticity.
+The estimated elasticities are quite similar to the benchmark results
+shown in Table \@ref(tab:MainIntensive) and Table \@ref(tab:MainExtensive).
+Column (2) of Table \@ref(tab:IntensiveReport) uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \@ref(tab:MainIntensive)).
+About the extensive-margin elasticity,
+column (2) of Table \@ref(tab:ExtensiveReport) uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \@ref(tab:MainExtensive)).
+When we further control for the interaction between year dummies and industry dummies,
+we can obtain similar estimated values.
+
+We estimate the true price effect using panel IV.
+As a result, we obtain similar results to the benchmark results
+shown in Table \@ref(tab:MainOverall), Table \@ref(tab:MainIntensive), and Table \@ref(tab:MainExtensive).
+```

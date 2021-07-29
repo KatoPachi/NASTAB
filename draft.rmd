@@ -1,0 +1,86 @@
+---
+title: |
+  Charitable Giving, Tax Reform, and Self-selection of Tax Report: Evidence from South Korea
+author: 
+  - name: Hiroki Kato
+    affiliation: Graduate School of Economics, Osaka University, Japan
+    email: vge008kh\@stundent.econ.osaka-u.ac.jp
+  - name: Tsuyoshi Goto
+    affiliation: Graduate School of Social Sciences, Chiba University, Japan
+  - name: Yong-Rok Kim
+    affiliation: Graduate School of Economics, Kobe University, Japan
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+bibliography: Rmarkdown/Ref.bib
+csl: template/elsevier-harvard.csl
+abstract: |
+  This paper investigates the price elasticity of charitable giving utilizing South Korean tax reform in 2014, when the tax relief on charitable giving changed from tax deduction to tax credit. Although the extant research ignores whether tax payers really declare their tax relief on charitable givieng, this paper considers it by focusing on the difference of declaration cost between wage earners and self-employed workers in Korea. By utilizing this difference as an instrument variable (IV), we estimate an "effective" giving price, which is calculated by the existence of declaration and tax rate, and compare the estimation using it with the baseline estimation using the "applicable" giving price, which the extant papers have been used. As a result, we find that the estimation using the "effective" price is almost the same for the baseline one in terms of intensive margins while the estimated price elasticity using the "effective" price is much smaller than the baseline one in terms of extensive margins. This implies that the declaration cost of tax relief is larger than the literature assumed. 
+keyword:
+  words:
+    - Charitable giving
+    - Giving price
+    - Tax reform
+    - South Korea
+  JEL: 
+    - D91
+    - I10
+    - I18
+documentclass: article
+papersize: a4
+fontsize: 11pt
+geometry: "left=3cm,right=3cm,top=3cm,bottom=3cm"
+graphics: yes
+indent: yes
+linespace: 1.5
+output:
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    number_sections: yes
+    keep_tex: yes
+    fig_caption: yes
+    toc: false
+    dev: cairo_pdf
+    template: template/default_authblk.tex
+---
+
+```{r setup, include = FALSE, echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE,
+  fig.width = 10, fig.height = 6,
+  fig.align = "center", fig.pos = "t"
+)
+
+library(here); knitr::opts_knit$set(root.dir = here())
+xfun::pkg_attach2(c("tidyverse", "kableExtra"))
+options(
+  knitr.kable.NA = " ",
+  knitr.table.format = "latex"
+)
+
+doctype <- "draft"
+```
+
+```{r child = "Rmarkdown/introduction.Rmd"}
+```
+
+```{r child = "Rmarkdown/1-summary.Rmd"}
+```
+
+```{r child = "Rmarkdown/estimation.Rmd"}
+```
+
+```{r child = "Rmarkdown/2-elasticity.Rmd"}
+```
+
+```{r child = "Rmarkdown/6-self_selection.Rmd"}
+```
+
+```{r child="Rmarkdown/conclusion.Rmd"}
+```
+
+\clearpage
+
+# References {#references .unnumbered .allowframebreaks}
