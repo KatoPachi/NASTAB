@@ -76,7 +76,9 @@ Our identification assumption may violate due to two endogenous problems under t
 ```
 
 ```{asis, echo = doctype == "draft"}
-Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price. We estimate the elasticity of intensive margin using the following specification:
+To estimate the giving price elasticity for intensive margin and extensive margin, we use DID analysis which exploit the fact that the giving price was unified in 2014 while the price was different for tax payers with different incomes.
+
+Following @Almunia2020, we estimate the giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
 
 \begin{equation}
     \ln g_{it} = \varepsilon^{int}_p R_{it} \ln p_{it} + \varepsilon^{int}_y \ln y_{it} 
