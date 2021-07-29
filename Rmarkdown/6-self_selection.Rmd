@@ -43,24 +43,6 @@ df <- readr::read_csv(
 ```
 
 
-```{asis, echo = doctype == "draft"}
-In the previous section,
-the result shows that the size of estimated elasticity may vary depending on the estimation methods.
-This may be because the sample size is small compared to the extant research.
-However, our three robustness checks are in line with the baseline result,
-which shows that the price elasticity of intensive margin is less elastic than one of extensive margin.
-Thus, the obtained results suggest that the decision to donate is sensitive to the giving price,
-though the amount of donations is insensitive to the giving price once they decide to donate. 
-
-These results are obtained by the ITT approach.
-This means that our estimates obtained in the previous section reflect not only
-the true price effect of tax incentive but also the effect of self-selection of applying for a tax deduction.
-Since the tax reform affects not the only relative price of giving but also the decision-making of a tax deduction,
-previous results have some policy implications.
-If we explicitly control the self-selection of a tax deduction,
-we may obtain further policy implications about the tax incentive of charitable giving.
-In this section, we report the results of the panel IV method which controls the self-selection of a tax deduction.
-```
 
 ## Instrumental Variable of Tax Deduction
 
@@ -158,12 +140,12 @@ The equation of the first stage is as follows:
 
 \begin{align}
   R_{it}
-  = \alpha_{1i} + \lambda \text{Employee}_{it} + X_{it} \beta_1
+  = \alpha_{1i} + \lambda \text{Employed}_{it} + X_{it} \beta_1
   + \mu_{i1} + \iota_{t1} + \eta_{it} (\#eq:stage1)
 \end{align}
-where $R_{it}$ is a dummy of tax deduction, and $\text{Employee}_{it}$ is a dummy of employee.
+where $R_{it}$ is a dummy of tax deduction, and $\text{Employed}_{it}$ is a dummy of employee.
 After estimating this equation, we calcluate the fitted value of $R_{it}$ denoted by $\hat{R}_{it}$.
-Using the fitted value $\hat{R}_{it}$, we estimat the following second-stage equation:
+Using the fitted value $\hat{R}_{it}$, we estimate the following second-stage equation:
 
 \begin{equation}
     Y_{it} = \varepsilon^{int}_p \hat{R}_{it} \ln p^f_{it} + \varepsilon^{int}_y \ln y_{it} 
@@ -177,7 +159,7 @@ an outcome variable $Y_{it}$ is a logged value of giving, $\ln g_{it}$.
 The variable $\ln p^f_{it}$ is the first price of charitable giving
 to avoid the problem that the giving price depends on charitable giving.
 
-The instrumental vairbale $\text{Employed}_{it}$ must hold independence of $u_{it}$ conditional on covariates.
+The instrumental variable $\text{Employed}_{it}$ must hold independence of $u_{it}$ conditional on covariates.
 There are two potential sources to violate this assumption.
 First, the employment status may produce income variation.
 If this is true, then the employment status affects charitable giving through an income effect.
