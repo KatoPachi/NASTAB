@@ -264,6 +264,13 @@ $else$
 \usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
 $endif$
 $endif$
+
+\usepackage{setspace}
+$if(linespace)$
+\renewcommand{\baselinestretch}{$linespace$}
+$endif$
+\usepackage{float}
+
 $if(beamer)$
 \newif\ifbibliography
 $endif$
@@ -499,12 +506,29 @@ $if(title)$
 $if(beamer)$
 \frame{\titlepage}
 $else$
-\maketitle
+\begin{spacing}{1}
+  \maketitle
+\end{spacing}
 $endif$
 $if(abstract)$
-\begin{abstract}
-$abstract$
-\end{abstract}
+\begin{spacing}{1}
+  \begin{abstract}
+    $abstract$
+    
+    $if(keyword)$
+    $if(keyword.words)$
+    \noindent
+    \textbf{Keywords}: $for(keyword.words)$$keyword.words$, $endfor$
+    $endif$
+    
+    $if(keyword.JEL)$
+    \noindent
+    \textbf{JEL Codes}: $for(keyword.JEL)$$keyword.JEL$, $endfor$
+    $endif$
+    $endif$
+
+  \end{abstract}
+\end{spacing}
 $endif$
 $endif$
 

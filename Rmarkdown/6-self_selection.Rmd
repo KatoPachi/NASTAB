@@ -1,33 +1,29 @@
----
-title: "Issue #76: ITTの問題を克服するために、PSM-DIDのストラテジーを利用した推定"
-author: "加藤 大貴"
-date: "Latest update: `r format(Sys.time(), '%Y/%m/%d')`"
-output: 
-  html_document:
-    toc: true
-    toc_float: true
----
-
-パッケージのロード
-
-```{r message = FALSE, warning=FALSE}
+```{r eval = FALSE}
+# if you want to preview this file,
+# 1. specify doctype: "draft" or "slide"
+# 2. replace knitr format = "html"
+library(here); knitr::opts_knit$set(root.dir = here())
+doctype <- "draft"
+options(knitr.kable.NA = " ", knitr.table.format = "html")
 knitr::opts_chunk$set(
   message = FALSE,
-  warning = FALSE
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE
 )
+```
 
-library(here)
-knitr::opts_knit$set(root.dir = here())
+# Price Elasicity with Tax Report
 
+```{r message = FALSE, warning=FALSE}
 library(xfun)
 xfun::pkg_attach2(c("tidyverse", "rlist"))
 xfun::pkg_attach2(c("lmtest", "sandwich", "lfe", "Formula", "fixest"))
 xfun::pkg_attach2("kableExtra")
 
-lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
+invisible(lapply(Sys.glob(file.path("script/R/functions", "*.r")), source))
 ```
-
-データのロード
 
 ```{r }
 df <- readr::read_csv(
@@ -47,18 +43,12 @@ df <- readr::read_csv(
 ```
 
 
-## 寄付の税申告ファクトの整理
 
-勤労所得もしくは総合所得において寄付の控除申告をしたかどうかをクロス集計で確認する。
-勤労所得もしくは控除申告がN/Aの扱いは以下の通り
+## Instrumental Variable of Declaration of a Tax Releif
 
-- 勤労所得もしくは総合所得が0ならば、控除申告はなしとみなす
-- それ以外の場合、欠損値としてみなす（「回答したくない」と「申告していない」を区別できないから）
-
-**メッセージ：税制改革以降のtax reportは過半数を下回る。**
-
-```{r }
+```{r SummaryDeduct}
 df %>%
+  dplyr::filter(year < 2018 & i_total_giving > 0) %>%
   group_by(year) %>%
   summarize_at(
     vars(ext_benefit_t, ext_benefit_tl), 
@@ -68,53 +58,37 @@ df %>%
     )
   ) %>%
   kable(
+    caption = "Descriptive Statistics of Declaration among Donors",
     col.names = c(
-      "Year", "Labor inc", "Labor and Total inc",
-      "Labor inc", "Labor and Total inc"
+      "Year", "Labor income", "Labor and Total income",
+      "Labor income", "Labor and Total income"
     ),
-    align = "lcccc"
+    align = "lcccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  add_header_above(c("", "Tax report" = 2, "No tax report" = 2)) %>%
+  add_header_above(
+    c("", "Declaring a tax relief" = 2, "Not declaring a tax relief" = 2)
+  ) %>%
   kable_styling()
 ```
 
+```{asis, echo = doctype == "draft"}
+Before describing the strategy of instrumental variables in detail,
+we show descriptive statistics of a declaration of a tax relief.
+NaSTaB asks respondents to answer whether to declare a tax relief
+in the case of labor income and total income separately.
+Table \@ref(tab:SummaryDeduct) shows the number of tax deduct among donors in our sample.[^year18]
+When we only use information about declaration in the case of labor income,
+the majority of respondents did not declare a tax relief (see the first and third columns).
+When we use information about declaration in the case of both labor and total income,
+we make a dummy taking 1 if respondents declared a tax relief in the case of
+either labor or total income.
+As a result, more than half of the respondents declared a tax relief.
 
-以下の就業形態に関する変数を用いる
+[^year18]: Due to the small sample, we rule out observations in 2018.
+```
 
-- `p_aa005`：雇用形態（1=常用職2=臨時職日雇い3=自営業4=無給家族従事者）
-- `paa008`：産業
-    - 農業
-    - 林業や漁業
-    - 鉱業
-    - 製造業
-    - 電気、ガスおよび水道事業
-    - 下水∙、廃棄物処理、原料再生および環境ボクウォンオプ
-    - 建設業
-    - 卸売や小売業
-    - 運輸業
-    - 宿泊と飲食店業
-    - 出版、映像、放送通信や情報サービス業
-    - 金融および保険業
-    - 不動産業及び賃貸業
-    - 専門科学および技術サービス業
-    - 事業施設管理および事業支援サービス業
-    - 公共行政、国防や、社会保障、行政
-    - 教育サービス業
-    - 保険業や社会福祉サービス業
-    - 芸術、スポーツや余暇関連サービス業
-    - 協会や団体、修理および個人サービス業
-    - 世帯内雇用活動と違って分類されていない者が消費、生産活動
-    - 国際および外国機関
-
-`p_aa005`で常用職かどうかのダミー変数を作成する。`paa008`は共変量としてコントロールする。
-
-employeeかどうかで控除申請に差があるかどうかを記述統計で確認する。
-初めに労働所得で控除申請している比率を示す。
-
-**メッセージ：労働者の方がtax reportする比率が自営業者よりも高い**
-
-
-```{r }
+```{r eval = FALSE}
 df %>%
   dplyr::filter(!is.na(employee)) %>%
   group_by(year, employee) %>%
@@ -129,127 +103,74 @@ df %>%
   ggtemp()
 ```
 
-
-次に、総合所得もしくは労働所得の項目で控除申請しているかどうかの比率を示す
-
-この図のメッセージ
-
-- 労働者の申請比率はほぼ100%に近くなる = 総合所得で税控除を申請している
-- 自営業者の申請比率は変化していない
-
-
-```{r }
+```{r DeductByEmployee, fig.cap="Proportion of declaring a tax relief Grouped by Employment Status. Notes: We restrict sample to those who donated."}
 df %>%
   dplyr::filter(!is.na(employee)) %>%
+  dplyr::filter(year < 2018 & i_total_giving > 0) %>%
   group_by(year, employee) %>%
   summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
-  mutate(employee = factor(employee)) %>%
+  mutate(employee = factor(employee, labels = c("Others", "Employees"))) %>%
   ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
   geom_point(aes(shape = employee), color = "black", size = 3) +
   geom_line(aes(linetype = employee), size = 1) +
   geom_vline(aes(xintercept = 2013.5)) +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
-  labs(y = "share of tax report") +
+  labs(
+    y = "share of tax report", 
+    shape = "Employment Status", 
+    linetype = "Employment Status"
+  ) +
   ggtemp()
 ```
 
+```{asis, echo = doctype == "draft"}
+If there is no (physical or psychological) cost to declare a tax relief,
+then all individuals should declare a tax relief. 
+However, as shown in Table \@ref(tab:SummaryDeduct),
+declaring a tax relief may incur some costs because some respondents did not declare a tax relief.
+Employment status is one dimension of variation of applied cost.
+For the declaration, self-employed workers have to retain the certificate until they submit tax return although wage earners can declare tax relief and submit the certificate through their company at any time.
+Figure \@ref(fig:DeductByEmployee) shows that
+the proportion of declaring a tax relief among employees is higher than the others.
+Thus, we use employment status as an instrument of a declaration.
 
-## Simple Panel Data Model
+Our estimation strategy is the panel IV method to estimate the true price effect.
+The equation of the first stage is as follows:
 
-Panel IVを使う意義として、スタンダードな固定効果モデルの推定結果を示す。
-推定モデルは
+\begin{align}
+  R_{it}
+  = \alpha_{1i} + \lambda \text{Employed}_{it} + X_{it} \beta_1
+  + \mu_{i1} + \iota_{t1} + \eta_{it} (\#eq:stage1)
+\end{align}
+where $R_{it}$ is a dummy of declaration, and $\text{Employed}_{it}$ is a dummy of employee.
+After estimating this equation, we calcluate the fitted value of $R_{it}$ denoted by $\hat{R}_{it}$.
+Using the fitted value $\hat{R}_{it}$, we estimate the following second-stage equation:
 
-$$
-\log g_{it}
-= \alpha_{2i} + \delta D_{it} \log p_{it} + X_{it} \beta_2
-+ \lambda_{2t} + \epsilon_{it}
-$$
+\begin{equation}
+    Y_{it} = \varepsilon^{int}_p \hat{R}_{it} \ln p^f_{it} + \varepsilon^{int}_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:stage2)
+\end{equation}
+where $Y_{it}$ is an outcome variable.
+When we estimate the extensive-margin elasticity,
+an outcome variable $Y_{it}$ is a dummy of giving, $D_{it}$.
+When we estimate the intensive-margin elasticity,
+an outcome variable $Y_{it}$ is a logged value of giving, $\ln g_{it}$.
+The variable $\ln p^f_{it}$ is the first price of charitable giving
+to avoid the problem that the giving price depends on charitable giving.
 
-統計的推論では個人レベルのクラスター標準誤差を使用する。
-
-Simple panel data modelのメッセージ
-
-- 全体の弾力性とintensive-margin elasticityはITTの時よりも過大推定
-- Extensive-margin elasticityはITTの弾性値の時よりも過小推定
-- Tax reportが絡むと弾性値が変わるので、「reportした人とそうでない人の異質性」か「観察不可能な要因との交絡」が考えられる
-
-
-```{r }
-simplemodel <- list(
-  overall = list(y = log_total_g ~ ., data = subset(df, year <= 2017)),
-  ext = list(y = i_ext_giving ~ ., data = subset(df, year <= 2017)),
-  ext = list(
-    y = log_total_g ~ .,
-    data = subset(df, i_ext_giving == 1 & year <= 2017)
-  )
-)
-
-est_simplemodel <- simplemodel %>%
-  purrr::map(~ fit_fixest(
-    y = .$y,
-    x = ~ log_price:ext_benefit_tl + log_pinc_all + age + sqage +
-      factor(year):factor(educ) + factor(year):factor(gender) +
-      factor(year):factor(indust),
-    fixef = ~year + pid, cluster = ~pid, data = .$data
-  )) %>%
-  regtab_fixest(
-    keep_coef = "log_price:ext_benefit_tl",
-    label_coef = list("log_price:ext_benefit_tl" = "Report x log(first price)")
-  )
-
-simplemodel_tab <- tribble(
-  ~vars, ~stat, ~reg1, ~reg2, ~reg3,
-  "Individual and time FE", "vars", "Y", "Y", "Y",
-  "log(income)", "vars", "Y", "Y", "Y",
-  "Age", "vars", "Y", "Y", "Y",
-  "Year x Education", "vars", "Y", "Y", "Y",
-  "Year x Gender", "vars", "Y", "Y", "Y",
-  "Year x Resident Area", "vars", "Y", "Y", "Y",
-  "Year x Dummy of industry", "vars", "Y", "Y", "Y"
-)
-
-est_simplemodel %>%
-  regtab_addline(list(simplemodel_tab)) %>%
-  mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
-  kable(
-    col.names = c("", "Overall", "Extensive", "Intensive"),
-    align = "lccc"
-  ) %>%
-  kable_styling()
+The instrumental variable $\text{Employed}_{it}$ must hold independence of $u_{it}$ conditional on covariates.
+There are two potential sources to violate this assumption.
+First, the employment status may produce income variation.
+If this is true, then the employment status affects charitable giving through an income effect.
+Second, an opportunity of giving may depend on employment status.
+For example, a doctor and a public servant may tend to donate than the others.
+If so, the instrument is correlated with $u_{it}$.
+To avoid this problem, we control incomes and the interaction between year dummies and industry dummies.
 ```
 
+## Results
 
-## Panel IV: Endog var is tax report x giving price and IV is employed dummy.
-
-$\log g_{it}$を寄付の対数値、$\ln p_{it}$は寄付の相対価格（first price）とする。
-$D_{it}$はtax reportのダミー変数とする。
-Panel IVの推定において、個人固定効果$\alpha$と時間固定効果$\lambda$はコントロールする。
-仮説検定では、個人レベルでクラスターした標準誤差を使用する。
-
-Second stage:
-
-$$
-\log g_{it}
-= \alpha_{2i} + \delta D_{it} \log p_{it} + X_{it} \beta_2
-+ \lambda_{2t} + \epsilon_{it}
-$$
-
-First stage:
-
-$$
-D_{it} \log p_{it}
-= \alpha_{1i} + \gamma \text{Employed}_{it} + X_{it} \beta_1
-+ \lambda_{1t} + \eta_{it}
-$$
-
-Panel first-stageのメッセージ
-
-- 自営業者より労働者はtax reportをして寄付の相対価格を下げている
-- 個人固定効果をコントロールしても統計的に有意（F-値は最低でも70）
-
-
-```{r }
+```{r stage1Report}
 xlist <- list(
   ~ employee,
   ~ employee + log_pinc_all + age + sqage +
@@ -261,7 +182,7 @@ xlist <- list(
 
 xlist_tab <- tribble(
   ~vars, ~stat, ~reg1, ~reg2, ~reg3,
-  "Time FE", "vars", "Y", "Y", "Y",
+  "Individual and time FE", "vars", "Y", "Y", "Y",
   "log(income)", "vars", "N", "Y", "Y",
   "Age", "vars", "N", "Y", "Y",
   "Year x Education", "vars", "N", "Y", "Y",
@@ -270,264 +191,6 @@ xlist_tab <- tribble(
   "Year x Dummy of industry", "vars", "N", "N", "Y"
 )
 
-est_xreport1 <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = int_price_benefit ~ ., x = .,
-    fixef = ~ year, cluster = ~ pid,
-    data = subset(df, year <= 2017)
-  ))
-
-est_xreport2 <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = int_price_benefit ~ ., x = .,
-    fixef = ~year + pid, cluster = ~pid,
-    data = subset(df, year <= 2017)
-  ))
-
-list(est_xreport1, est_xreport2) %>%
-  purrr::map(~ regtab_fixest(., keep_coef = "employee")) %>%
-  purrr::map(~ regtab_addline(., list(xlist_tab))) %>%
-  reduce(full_join, by = c("vars", "stat")) %>%
-  mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
-  kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
-    align = "lcccccc"
-  ) %>%
-  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
-```
-
-
-Panel IVの推定結果のメッセージ
-
-- 弾力性は10%。1%の相対価格の上昇が寄付額を10%程度下げる
-- ITTで考えていたよりもかなり弾力的な結果となる
-
-```{r }
-ivest_xreport1 <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = log_total_g ~ .,
-    x = update(., ~ . - employee),
-    z = int_price_benefit ~ employee,
-    fixef = ~ year, cluster = ~ pid,
-    data = subset(df, year <= 2017)
-  ))
-
-ivest_xreport2 <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = log_total_g ~ .,
-    x = update(., ~ . - employee),
-    z = int_price_benefit ~ employee,
-    fixef = ~year + pid, cluster = ~ pid,
-    data = subset(df, year <= 2017)
-  ))
-
-ivfstat <- list(ivest_xreport1, ivest_xreport2) %>%
-  purrr::map_depth(2, ~ fitstat(., ~ ivwald)$ivwald1$stat) %>%
-  purrr::map(~ as_vector(.)) %>%
-  as_vector() %>%
-  matrix(nrow = 1) %>%
-  data.frame() %>%
-  setNames(paste0("reg", seq_len(length(xlist) * 2)))
-
-ivfstat_tab <- ivfstat %>%
-  mutate_all(list(~ sprintf("%1.3f", .))) %>%
-  mutate(vars = "Fstat of IV", stat = "vars")
-
-xlist_duptab <- xlist_tab %>%
-  full_join(xlist_tab, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
-
-list(ivest_xreport1, ivest_xreport2) %>%
-  flatten() %>%
-  regtab_fixest(
-    keep_coef = "int_price_benefit",
-    label_coef = list("fit_int_price_benefit" = "Report x log(first price)")
-  ) %>%
-  regtab_addline(list(ivfstat_tab, xlist_duptab)) %>%
-  mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
-  kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
-    align = "lcccccc"
-  ) %>%
-  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
-```
-
-
-extensive-margin elasticityのPanel IVの結果
-
-- 価格1%上昇によって、寄付する確率を1%下げる
-- この結果はITTで考えた推定結果と非常に似ている。
-
-
-```{r }
-ivest_xreport1_ext <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = i_ext_giving ~ .,
-    x = update(., ~ . - employee),
-    z = int_price_benefit ~ employee,
-    fixef = ~year, cluster = ~pid,
-    data = subset(df, year <= 2017)
-  ))
-
-ivest_xreport2_ext <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = i_ext_giving ~ .,
-    x = update(., ~ . - employee),
-    z = int_price_benefit ~ employee,
-    fixef = ~ year + pid, cluster = ~pid,
-    data = subset(df, year <= 2017)
-  ))
-
-waldtest_ext <- list(ivest_xreport1_ext, ivest_xreport2_ext) %>%
-  purrr::map_depth(2, ~ tibble(
-    vars = "Implied price elasticity",
-    coef = coef(.)["fit_int_price_benefit"],
-    se = fixest::se(.)["fit_int_price_benefit"],
-    invmu = 1 / mean(model.matrix(., type = "lhs")),
-    p = fixest::pvalue(.)["fit_int_price_benefit"]
-  )) %>%
-  purrr::map_depth(2, function(x)
-    x %>%
-      mutate(
-        coef = case_when(
-          p <= .01 ~ sprintf("%1.3f***", coef / invmu),
-          p <= .05 ~ sprintf("%1.3f**", coef / invmu),
-          p <= .1 ~ sprintf("%1.3f*", coef / invmu),
-          TRUE ~ sprintf("%1.3f", coef / invmu)
-        ),
-        se = sprintf("(%1.3f)", se / invmu)
-      ) %>%
-      dplyr::select(-p, -invmu) %>%
-      pivot_longer(-vars, names_to = "stat", values_to = "val")
-  ) %>%
-  purrr::map(~ reduce(., full_join, by = c("vars", "stat"))) %>%
-  reduce(full_join, by = c("vars", "stat")) %>%
-  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2)))) %>%
-  bind_rows(
-    c(vars = "", stat = "", reg1 = "", reg2 = "",
-      reg3 = "", reg4 = "", reg5 = "", reg6 = ""),
-    .
-  )
-
-ivfstat_ext <- list(ivest_xreport1_ext, ivest_xreport2_ext) %>%
-  purrr::map_depth(2, ~ fitstat(., ~ ivwald)$ivwald1$stat) %>%
-  purrr::map(~ as_vector(.)) %>%
-  as_vector() %>%
-  matrix(nrow = 1) %>%
-  data.frame() %>%
-  setNames(paste0("reg", seq_len(length(xlist) * 2)))
-
-ivfstat_ext_tab <- ivfstat_ext %>%
-  mutate_all(list(~ sprintf("%1.3f", .))) %>%
-  mutate(vars = "Fstat of IV", stat = "vars")
-
-list(ivest_xreport1_ext, ivest_xreport2_ext) %>%
-  flatten() %>%
-  regtab_fixest(
-    keep_coef = "int_price_benefit",
-    label_coef = list("fit_int_price_benefit" = "Report x log(first price)")
-  ) %>%
-  regtab_addline(list(waldtest_ext, ivfstat_tab, xlist_duptab)) %>%
-  mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
-  kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
-    align = "lcccccc"
-  ) %>%
-  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
-```
-
-
-intensive-margin elasticityのPanel IVの結果
-
-- 個人固定効果を除くと価格の上昇が寄付の増加を促す（個人固定効果を入れていないのが原因？何らかの解釈が可能？）
-- 個人固定効果を入れると統計的に非有意となる（弱操作変数の影響とは考えにくい）
-
-
-```{r }
-ivest_xreport1_int <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = log_total_g ~ .,
-    x = update(., ~ . - employee),
-    z = int_price_benefit ~ employee,
-    fixef = ~year, cluster = ~pid,
-    data = subset(df, i_ext_giving == 1 & year <= 2017)
-  ))
-
-ivest_xreport2_int <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = log_total_g ~ .,
-    x = update(., ~ . - employee),
-    z = int_price_benefit ~ employee,
-    fixef = ~ year + pid, cluster = ~pid,
-    data = subset(df, i_ext_giving == 1 & year <= 2017)
-  ))
-
-ivfstat_int <- list(ivest_xreport1_int, ivest_xreport2_int) %>%
-  purrr::map_depth(2, ~ fitstat(., ~ ivwald)$ivwald1$stat) %>%
-  purrr::map(~ as_vector(.)) %>%
-  as_vector() %>%
-  matrix(nrow = 1) %>%
-  data.frame() %>%
-  setNames(paste0("reg", seq_len(length(xlist) * 2)))
-
-ivfstat_int_tab <- ivfstat_int %>%
-  mutate_all(list(~ sprintf("%1.3f", .))) %>%
-  mutate(vars = "Fstat of IV", stat = "vars")
-
-list(ivest_xreport1_int, ivest_xreport2_int) %>%
-  flatten() %>%
-  regtab_fixest(
-    keep_coef = "int_price_benefit",
-    label_coef = list("fit_int_price_benefit" = "Report x log(first price)")
-  ) %>%
-  regtab_addline(list(ivfstat_int_tab, xlist_duptab)) %>%
-  mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
-  kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
-    align = "lcccccc"
-  ) %>%
-  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
-```
-
-
-## Panel IV: Endog var is tax report and IV is employed dummy.
-
-$\log g_{it}$を寄付の対数値、$\ln p_{it}$は寄付の相対価格（first price）とする。
-$D_{it}$はtax reportのダミー変数とし、first-stageの予測値を$\hat{D}_{it}$とする。
-Panel IVの推定において、個人固定効果$\alpha$と時間固定効果$\lambda$はコントロールする。
-仮説検定では、個人レベルでクラスターした標準誤差を使用する。
-
-Second stage:
-
-$$
-\log g_{it}
-= \alpha_{2i} + \delta \hat{D}_{it} \log p_{it} + X_{it} \beta_2
-+ \lambda_{2t} + \epsilon_{it}
-$$
-
-First stage:
-
-$$
-D_{it}
-= \alpha_{1i} + \gamma \text{Employed}_{it} + X_{it} \beta_1
-+ \lambda_{1t} + \eta_{it}
-$$
-
-Panel first-stageのメッセージ
-
-- 自営業者より労働者がtax reportする確率は約50%高い
-- 個人固定効果をコントロールしても統計的に有意（F-値は最低でも80）
-
-
-```{r }
 est_report1 <- xlist %>%
   purrr::map(~ fit_fixest(
     y = ext_benefit_tl ~ ., x = .,
@@ -547,29 +210,37 @@ list(est_report1, est_report2) %>%
   purrr::map(~ regtab_addline(., list(xlist_tab))) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
+  dplyr::select(-stat, -reg1.x, -reg2.x, -reg3.x) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
-    align = "lcccccc"
+    caption = "First-Stage Result: Effect of Employee on Declaration",
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
+  kable_styling(font_size = 7) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 ```
 
-
-上の表の(6)の予測値を$\hat{D}_{it}$とする。
+```{asis, echo = doctype == "draft"}
+Table \@ref(tab:stage1Report) shows estimation results of the first stage.
+As a result, the employed dummy is strongly positively correlated with declaring a tax relief.
+In any specification, employed dummy increases the probability of declaration by more than 45 percentage points.
+Moreover, the ratio of coefficient to standard error is greater than nine.
+This implies that the F-statistics of the instrument is greater than 81 for any specification.
+Thus, our panel IV method does not have a weak instrument problem.
+For the second stage, we obtain the predicted value of $R_{it}$, using the model (3).
+```
 
 ```{r }
 df$p_ext_benefit_tl <- predict(est_report2[[3]], df)
 ```
 
-
-Panel IVの推定結果のメッセージ
-
-- ITTとして推定した弾性値（約1%）より若干弾力的である
-- Tax reportをしていない人の価格は必ず$\log 1$であることを考えれば、納得できる結果
-
-```{r }
+```{r OverallReport}
 ivest_report1 <- xlist %>%
   purrr::map(~ fit_fixest(
     y = log_total_g ~ .,
@@ -586,7 +257,54 @@ ivest_report2 <- xlist %>%
     data = subset(df, year <= 2017)
   ))
 
+xlist_duptab <- xlist_tab %>%
+  full_join(xlist_tab, by = c("vars", "stat")) %>%
+  setNames(c("vars", "stat", paste0("reg", seq_len(length(xlist) * 2))))
+
 list(ivest_report1, ivest_report2) %>%
+  flatten() %>%
+  regtab_fixest(
+    keep_coef = "log_price",
+    label_coef = list(
+      "log_price:p_ext_benefit_tl" = "Propensity of Deduction x log(first price)"
+    )
+  ) %>%
+  regtab_addline(list(xlist_duptab)) %>%
+  mutate(vars = if_else(stat == "se", "", vars)) %>%
+  dplyr::select(- (stat:reg3)) %>%
+  kable(
+    caption = "Second-Stage Result (Overall Price Elasticity)",
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+  ) %>%
+  kable_styling(font_size = 7) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report).",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+```{r IntensiveReport}
+ivest_report1_int <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~year, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1 & year <= 2017)
+  ))
+
+ivest_report2_int <- xlist %>%
+  purrr::map(~ fit_fixest(
+    y = log_total_g ~ .,
+    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
+    fixef = ~ year + pid, cluster = ~pid,
+    data = subset(df, i_ext_giving == 1 & year <= 2017)
+  ))
+
+list(ivest_report1_int, ivest_report2_int) %>%
   flatten() %>%
   regtab_fixest(
     keep_coef = "log_price",
@@ -596,23 +314,24 @@ list(ivest_report1, ivest_report2) %>%
   ) %>%
   regtab_addline(list(xlist_duptab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
+  dplyr::select(- (stat:reg3)) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
-    align = "lcccccc"
+    caption = "Second-Stage Result (Intensive-Margin Price Elasticity)",
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
+  kable_styling(font_size = 7) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report).",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 ```
 
 
-extensive-margin elasticityのPanel IVの結果
-
-- ITTとして想定したベースラインの結果（-1.4 ~ -1.2%）より、非弾力的になる（0.1%）
-- extensive-marginの弾力性はtax reportをしていない人に特に強い影響を与えるのか？
-
-
-```{r }
+```{r ExtensiveReport}
 ivest_report1_ext <- xlist %>%
   purrr::map(~ fit_fixest(
     y = i_ext_giving ~ .,
@@ -634,7 +353,7 @@ waldtest_ext <- list(ivest_report1_ext, ivest_report2_ext) %>%
     vars = "Implied price elasticity",
     coef = coef(.)["log_price:p_ext_benefit_tl"],
     se = fixest::se(.)["log_price:p_ext_benefit_tl"],
-    invmu = 1 / mean(model.matrix(., type = "lhs")),
+    invmu = mean(model.matrix(., type = "lhs")),
     p = fixest::pvalue(.)["log_price:p_ext_benefit_tl"]
   )) %>%
   purrr::map_depth(2, function(x)
@@ -665,60 +384,54 @@ list(ivest_report1_ext, ivest_report2_ext) %>%
   regtab_fixest(
     keep_coef = "log_price",
     label_coef = list(
-      "log_price:p_ext_benefit_tl" = "Propensity of Report x log(first price)"
+      "log_price:p_ext_benefit_tl" = "Propensity of Deduction x log(first price)"
     )
   ) %>%
   regtab_addline(list(waldtest_ext, xlist_duptab)) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
+  dplyr::select(- (stat:reg3)) %>%
   kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
-    align = "lcccccc"
+    caption = "Second-Stage Result (Extensive-Margin Price Elasticity)",
+    col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
+    align = "lccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
+  kable_styling(font_size = 7) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report). The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 ```
 
+```{asis, echo = doctype == "draft"}
+Table \@ref(tab:OverallReport) reports overall elasticities controlling the self-selection of the tax report.
+The estimated elasticities are similar value to the benchmark results shown in Table \@ref(tab:MainOverall).
+When we only include individual and time fixed effects, the overall elasticity is -2.364.
+When we control the same covariates as the model (5) in Table \@ref(tab:MainOverall),
+the overall elasticity is -1.710.
+These values are statistically significant,
+and slightly more elastic than the benchmark results
+(see the column (1) and (5) in Table \@ref(tab:MainOverall)).
+Since those who did not apply for the Declaration did not receive the tax incentive actually,
+these results can be naturally interpretable.
+Furthermore, when we control the interaction term between year dummies and industry dummies,
+the result does not change.
 
-intensive-margin elasticityのPanel IVの結果
+In Table \@ref(tab:IntensiveReport) and Table \@ref(tab:ExtensiveReport),
+we show the intensive-margin elasticity and the extensive-margin elasticity.
+The estimated elasticities are quite similar to the benchmark results
+shown in Table \@ref(tab:MainIntensive) and Table \@ref(tab:MainExtensive).
+Column (2) of Table \@ref(tab:IntensiveReport) uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \@ref(tab:MainIntensive)).
+About the extensive-margin elasticity,
+column (2) of Table \@ref(tab:ExtensiveReport) uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \@ref(tab:MainExtensive)).
+When we further control for the interaction between year dummies and industry dummies,
+we can obtain similar estimated values.
 
-- 個人固定効果を加えると、ITTとして想定した弾性値（-1 ~ -0.5%）と似たような結果を取る
-- Intenstive-margin elasticityはtax reportをする人に特に影響を与えるのか？
-
-
-```{r }
-ivest_report1_int <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = log_total_g ~ .,
-    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
-    fixef = ~year, cluster = ~pid,
-    data = subset(df, i_ext_giving == 1 & year <= 2017)
-  ))
-
-ivest_report2_int <- xlist %>%
-  purrr::map(~ fit_fixest(
-    y = log_total_g ~ .,
-    x = update(., ~ . - employee + log_price:p_ext_benefit_tl),
-    fixef = ~ year + pid, cluster = ~pid,
-    data = subset(df, i_ext_giving == 1 & year <= 2017)
-  ))
-
-list(ivest_report1_int, ivest_report2_int) %>%
-  flatten() %>%
-  regtab_fixest(
-    keep_coef = "log_price",
-    label_coef = list(
-      "log_price:p_ext_benefit_tl" = "Propensity of Report x log(first price)"
-    )
-  ) %>%
-  regtab_addline(list(xlist_duptab)) %>%
-  mutate(vars = if_else(stat == "se", "", vars)) %>%
-  dplyr::select(-stat) %>%
-  kable(
-    col.names = c("", sprintf("(%1d)", seq_len(length(xlist) * 2))),
-    align = "lcccccc"
-  ) %>%
-  add_header_above(c("", "w/o individual FE" = 3, "w/ individual FE" = 3)) %>%
-  kable_styling()
+We estimate the true price effect using panel IV.
+As a result, we obtain similar results to the benchmark results
+shown in Table \@ref(tab:MainOverall), Table \@ref(tab:MainIntensive), and Table \@ref(tab:MainExtensive).
 ```
-

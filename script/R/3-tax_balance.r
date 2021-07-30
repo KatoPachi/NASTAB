@@ -1,16 +1,15 @@
 #4TaxWelfare
 
 
-# /* パッケージのロード
+#+
 library(xfun)
 xfun::pkg_attach2(c("tidyverse", "rlist"))
 xfun::pkg_attach2(c("plm", "lmtest", "sandwich", "lfe", "Formula"))
 xfun::pkg_attach2("kableExtra")
 
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
-# */
 
-# /* データの読み込み
+#+
 df <- readr::read_csv(
   "data/shaped2.csv",
   col_types = cols(
@@ -25,7 +24,6 @@ df <- readr::read_csv(
     ideal_balance = col_double()
   )
 )
-# */
 
 #' # Government Efficiency and Price Elasticity
 #'
