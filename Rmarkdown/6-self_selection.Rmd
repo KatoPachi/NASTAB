@@ -69,7 +69,7 @@ df %>%
   add_header_above(
     c("", "Declaring a tax relief" = 2, "Not declaring a tax relief" = 2)
   ) %>%
-  kable_styling()
+  kable_styling(font_size = 9)
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -231,7 +231,7 @@ est_report <- list(est_report1, est_report2)
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.",
@@ -292,7 +292,7 @@ list(ivest_report1, ivest_report2) %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report).",
@@ -335,7 +335,7 @@ list(ivest_report1_int, ivest_report2_int) %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report).",
@@ -410,7 +410,7 @@ list(ivest_report1_ext, ivest_report2_ext) %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report). The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.",

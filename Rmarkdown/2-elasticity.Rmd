@@ -125,7 +125,7 @@ overall %>%
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.",
@@ -178,7 +178,7 @@ intensive %>%
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.",
@@ -268,7 +268,7 @@ extensive %>%
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.",
@@ -320,7 +320,7 @@ overall_iv %>%
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.",
@@ -362,7 +362,7 @@ intensive_iv %>%
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.",
@@ -432,7 +432,7 @@ extensive_iv %>%
     align = "lccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.",
@@ -554,7 +554,7 @@ list(overall_s1, overall_s2) %>%
     align = "lcccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
 	add_header_above(
     c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2),
     escape = FALSE
@@ -607,7 +607,7 @@ list(intensive_s1, intensive_s2) %>%
     align = "lcccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
 	add_header_above(
     c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2),
     escape = FALSE
@@ -688,7 +688,7 @@ list(extensive_s1, extensive_s2) %>%
     align = "lcccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
 	add_header_above(
     c(" " = 1, "After 2012" = 2, "2013 and 2014" = 2),
     escape = FALSE
@@ -823,7 +823,7 @@ overall_kdiff %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
 	footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.",
@@ -873,7 +873,7 @@ intensive_kdiff %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
 	footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\\\\ln(\\\\text{Price}^k_{ijt}) - \\\\ln(\\\\text{Price}_{ij(t-k)})$, where $\\\\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\\\\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\\\\ln(\\\\text{Income}_{ijt}) - \\\\ln(\\\\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.",
