@@ -44,7 +44,7 @@ df <- readr::read_csv(
 
 ```{asis, echo = doctype == "draft"}
 In this section, as a benchmark, we first report the price effect on donations, using the ITT approach.
-Reducing the relative price of giving through a tax deduction includes self-selection.
+Reducing the relative price of giving through a tax deduction includes self-selection of declaration.
 The ITT approach sees respondents who did not apply for a tax deduction in a specific year as those who applied for it.
 In our main results, we report estimation results of price effect, using the first price method.
 As robustness, we report the last price effect using the first price as an instrumental variable,
@@ -922,7 +922,7 @@ Thus, the obtained results suggest that the decision to donate is sensitive to t
 though the amount of donations is insensitive to the giving price once they decide to donate. 
 
 These results are obtained by the ITT approach.
-This means that our estimates obtained in the previous section reflect not only
+This means that our estimates obtained in this section reflect not only
 the true price effect of tax incentive but also the effect of self-selection of applying for a tax deduction.
 Since the tax reform affects not the only relative price of giving but also the decision-making of a tax deduction,
 previous results have some policy implications.

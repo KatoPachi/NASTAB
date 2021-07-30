@@ -77,7 +77,7 @@ Before describing the strategy of instrumental variables in detail,
 we show descriptive statistics of a tax deduction.
 NaSTaB asks respondents to answer whether to apply for a tax deduction
 in the case of labor income and total income separately.
-\@ref(tab:SummaryDeduct) shows the number of tax deduct among donors in our sample.[^year18]
+Table \@ref(tab:SummaryDeduct) shows the number of tax deduct among donors in our sample.[^year18]
 When we only use information about tax deduction in the case of labor income,
 the majority of respondents did not apply for a tax deduction (see the first and third columns).
 When we use information about tax deduction in the case of both labor and total income,
@@ -129,10 +129,9 @@ then all individuals should apply for a tax deduction.
 However, as shown in Table \@ref(tab:SummaryDeduct),
 applying for a tax deduction may incur some costs because some respondents did not apply for a tax deduction.
 Employment status is one dimension of variation of applied cost.
-Those who are employed in a firm can ask a firm to apply for a tax deduction instead,
-while those who are self-employed need to apply for it by themselves.
+For the declaration, self-employed workers have to retain the certificate until they submit tax return although wage earners can declare tax relief and submit the certificate through their company at any time.
 Figure \@ref(fig:DeductByEmployee) shows that
-the proportion of applying for a tax deduction among employees is higher than among others.
+the proportion of applying for a tax deduction among employees is higher than the others.
 Thus, we use employment status as an instrument of a tax deduction.
 
 Our estimation strategy is the panel IV method to estimate the true price effect.
@@ -164,9 +163,9 @@ There are two potential sources to violate this assumption.
 First, the employment status may produce income variation.
 If this is true, then the employment status affects charitable giving through an income effect.
 Second, an opportunity of giving may depend on employment status.
-For example, a doctor and a public servant may have more opportunities to donate than others.
+For example, a doctor and a public servant may tend to donate than the others.
 If so, the instrument is correlated with $u_{it}$.
-To avoid this problem, we control the interaction between year dummies and industry dummies.
+To avoid this problem, we control incomes and the interaction between year dummies and industry dummies.
 ```
 
 ## Results
@@ -232,7 +231,7 @@ Table \@ref(tab:stage1Report) shows estimation results of the first stage.
 As a result, the employed dummy is strongly positively correlated with applying for a tax deduction.
 In any specification, employed dummy increases the probability of tax deduction by more than 45 percentage points.
 Moreover, the ratio of coefficient to standard error is greater than nine.
-This implies that the F-statistics of the instrument is greater than 81.
+This implies that the F-statistics of the instrument is greater than 81 for any specification.
 Thus, our panel IV method does not have a weak instrument problem.
 For the second stage, we obtain the predicted value of $R_{it}$, using the model (3).
 ```
@@ -416,7 +415,7 @@ These values are statistically significant,
 and slightly more elastic than the benchmark results
 (see the column (1) and (5) in Table \@ref(tab:MainOverall)).
 Since those who did not apply for the tax deduction did not receive the tax incentive actually,
-these results can be naturally interactable.
+these results can be naturally interpretable.
 Furthermore, when we control the interaction term between year dummies and industry dummies,
 the result does not change.
 

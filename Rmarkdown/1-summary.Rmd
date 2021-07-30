@@ -130,7 +130,7 @@ The blue line shows the average amount of donation among donors.
 In each year, its value is nearly 1.5 million KRW (1,500 USD),
 which is 7\% of average annual taxable income.
 The gray bar shows the proportion of donors.
-After the tax reform, the proportion of donors decreases by 2\%.
+After the tax reform, the proportion of donors decreases by 2\% point.
 After that, the proportion of donors is greter than 20\%.
 
 [^Question]: Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes. We sum up the amount of donations, and consider it as the annual charitable giving.
@@ -216,7 +216,7 @@ The NaSTaB also asks respondents to answer whether they applied for a tax deduct
 Although this variable is unique, the sample size is relatively small due to unanswering.
 This survey investigates separately for the case of *total* income (for example, business income, dividend income, rental income) 
 and the case of *labor* income.
-We make a dummy taking one if respondents applied for a business income deduction of giving
+We make a dummy taking one if respondents applied for a total income deduction of giving
 or a labor income deduction of giving.
 Table \@ref(tab:SummaryCovariate) shows the proportion of tax deduction is about 48\%.
 ```
