@@ -505,9 +505,24 @@ est_report2 <- xlist %>%
     data = subset(df, year <= 2017)
   ))
 
-list(est_report1, est_report2) %>%
-  purrr::map(~ regtab_fixest(., keep_coef = "employee")) %>%
-  purrr::map(~ regtab_addline(., list(xlist_tab))) %>%
+wald_iv <- list(est_report1, est_report2) %>%
+  purrr::map_depth(2, ~ summary(.)$coeftable["employee", 3]^2) %>%
+  purrr::map( 
+    ~ c("F-stat of a dummy of employee", "stats", sprintf("%1.2f", as_vector(.)))
+  ) %>%
+  purrr::map( 
+    ~ setNames(., c("vars", "stat", paste0("reg", seq_len(length(xlist)))))
+  )
+
+est_report <- list(est_report1, est_report2) 
+
+1:2 %>%
+  purrr::map(
+    function(x)
+    est_report[[x]] %>%
+      regtab_fixest(keep_coef = "employee") %>%
+      regtab_addline(., list(xlist_tab, wald_iv[[x]]))
+  ) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat) %>%

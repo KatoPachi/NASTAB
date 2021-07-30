@@ -103,7 +103,7 @@ df %>%
     align = "lcccccc", digits = 2,
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   pack_rows("Charitable Donations", 1, 2) %>%
   pack_rows("Income, giving price, and tax report", 3, 5) %>%
   pack_rows("Individual Characteristics", 6, 11)
