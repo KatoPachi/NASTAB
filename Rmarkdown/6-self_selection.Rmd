@@ -69,7 +69,7 @@ df %>%
   add_header_above(
     c("", "Declaring a tax relief" = 2, "Not declaring a tax relief" = 2)
   ) %>%
-  kable_styling()
+  kable_styling(font_size = 9)
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -204,10 +204,24 @@ est_report2 <- xlist %>%
     fixef = ~year + pid, cluster = ~pid,
     data = subset(df, year <= 2017)
   ))
+wald_iv <- list(est_report1, est_report2) %>%
+  purrr::map_depth(2, ~ summary(.)$coeftable["employee", 3]^2) %>%
+  purrr::map( 
+    ~ c("F-stat of a dummy of employee", "stats", sprintf("%1.2f", as_vector(.)))
+  ) %>%
+  purrr::map( 
+    ~ setNames(., c("vars", "stat", paste0("reg", seq_len(length(xlist)))))
+  )
 
-list(est_report1, est_report2) %>%
-  purrr::map(~ regtab_fixest(., keep_coef = "employee")) %>%
-  purrr::map(~ regtab_addline(., list(xlist_tab))) %>%
+est_report <- list(est_report1, est_report2) 
+
+1:2 %>%
+  purrr::map(
+    function(x)
+    est_report[[x]] %>%
+      regtab_fixest(keep_coef = "employee") %>%
+      regtab_addline(., list(xlist_tab, wald_iv[[x]]))
+  ) %>%
   reduce(full_join, by = c("vars", "stat")) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat, -reg1.x, -reg2.x, -reg3.x) %>%
@@ -217,7 +231,7 @@ list(est_report1, est_report2) %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.",
@@ -278,7 +292,7 @@ list(ivest_report1, ivest_report2) %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report).",
@@ -321,7 +335,7 @@ list(ivest_report1_int, ivest_report2_int) %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report).",
@@ -396,7 +410,7 @@ list(ivest_report1_ext, ivest_report2_ext) %>%
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
-  kable_styling(font_size = 7) %>%
+  kable_styling(font_size = 9) %>%
   footnote(
     general_title = "",
     general = "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. Propensity of Deduction is the predicted value of $R_{it}$ calculated by the model (3) in Table \\@ref(tab:stage1Report). The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.",

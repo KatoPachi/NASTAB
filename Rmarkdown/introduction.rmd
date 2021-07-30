@@ -271,7 +271,7 @@ knitr::kable(
     align = "lccccccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
 ) %>%
-kable_styling(font_size = 7) %>%
+kable_styling(font_size = 9) %>%
 collapse_rows(columns = 2:8, valign = "middle", latex_hline = "full") %>%
 footnote(general_title = "", general = "Notes: Marginal income tax rates applied from 2008 to 2018 are summarized. The income level is shown in terms of 10,000 KRW, which is approximately 10 United States dollars (USD) at an exchange rate of 1,000 KRW to one USD.", threeparttable = TRUE, escape = FALSE)
 ```
