@@ -93,20 +93,6 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -202,8 +188,11 @@ This means that the decision of declaration depends on \(y_i\), \(g_i\) and \(K\
 On one hand, tax deduction reduces taxable income by giving. The amount of tax is
 
 \begin{align}
-    &T_i(y_i, g_i) = \tau(y_i - g_i) \cdot (y_i - g_i)\notag\\
-    \text{or \ }&T_i(y_i) = \tau(y_i) \cdot (y_i)\notag,
+    T_i(y_i, g_i) = \tau(y_i - g_i) \cdot (y_i - g_i),
+\end{align}
+or,
+\begin{align}
+    T_i(y_i) = \tau(y_i) \cdot (y_i),
 \end{align}
 
 where \(\tau(\cdot)\) is the income tax rate which is determined by \(y_i - g_i\) or \(y_i\).\footnote{\(\tau(\cdot)\) here is a function which shows the average tax rate, which is determined progressively. Since the price elasticity of giving shows the marginal and additional increment for one unit of price reduction increase, we use not average but marginal tax rate to construct the giving price following the literature. Usage of the function of the average tax rate here is for explanatory simplicity.} The budget constraint will be
@@ -310,7 +299,7 @@ In addition, we exclude the subject of the sample, whose age is under 23, since 
 \multicolumn{7}{l}{\textbf{Income, giving price, and tax report}}\\
 \hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 53269 & 1876.12 & 2700.97 & 0.00 & 900.00 & 91772.00\\
 \hspace{1em}First giving price & 62877 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
-\hspace{1em}Dummy of tax report of charitable giving & 12172 & 0.48 & 0.50 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Dummy of declaration of a tax relief & 12172 & 0.48 & 0.50 & 0.00 & 0.00 & 1.00\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
 \hspace{1em}Age & 67848 & 51.35 & 15.81 & 24.00 & 50.00 & 104.00\\
@@ -337,7 +326,7 @@ The blue line shows the average amount of donation among donors.
 In each year, its value is nearly 1.5 million KRW (1,500 USD),
 which is 7\% of average annual taxable income.
 The gray bar shows the proportion of donors.
-After the tax reform, the proportion of donors decreases by 2\% point.
+After the tax reform, the proportion of donors decreases by 2 percentage points.
 After that, the proportion of donors is greter than 20\%.
 
 \begin{figure}[t]
@@ -374,13 +363,13 @@ On the other hand,
 those whose annual income is greater than 460,000,000 KRW (460,000 USD) in 2013 had a loss by the 2014 tax reform
 since the tax reform increases the giving price.
 
-The NaSTaB also asks respondents to answer whether they applied for a tax deduction of giving.
+The NaSTaB also asks respondents to answer whether they declared a tax relief of giving.
 Although this variable is unique, the sample size is relatively small due to unanswering.
 This survey investigates separately for the case of \emph{total} income (for example, business income, dividend income, rental income)
 and the case of \emph{labor} income.
 We make a dummy taking one if respondents applied for a total income deduction of giving
 or a labor income deduction of giving.
-Table \ref{tab:SummaryCovariate} shows the proportion of tax deduction is about 48\%.
+Table \ref{tab:SummaryCovariate} shows the proportion of declaration is about 48\%.
 
 \begin{figure}[t]
 
@@ -404,7 +393,7 @@ Following Almunia et al. (2020), we estimate the giving price elasticity for int
 \end{equation}
 
 \(g_{it}, p_{it}\) and \(y_{it}\) respectively indicates the amount of giving, the giving price, and income of \(i\) in year \(t\).
-\(R_{it}\) is a dummy taking one if individual \(i\) applied for a tax deduction in year \(t\).
+\(R_{it}\) is a dummy taking one if individual \(i\) declared a tax relief in year \(t\).
 \(\mu_i, \iota_t\) and \(u_{it}\) are individual fixed effect, year fixed effect, and the error term, respectively.
 The individual fixed effect controls for time-invariant individual characteristics. The year fixed effect controls for events that affect all subjects at the same time. \(X_{it}\) is a vector of covariates, which consist of age, education, and gender, and their interaction terms between year fixed effect. The interaction terms between covariates and year fixed effect will control for events that affect subject with specific characteristics at the same time (Zeldow and Hatfield, 2021).
 
@@ -477,10 +466,10 @@ we employ lagged values of taxable income and
 construct a variable for the change in the first price of giving as following:
 
 \begin{align}
-  \Delta^k \ln p_{it} = \ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right),
+  \Delta^k \ln p_{it} = \ln \left(\frac{p^f_{it}(y_{it-k})}{p^f_{it-k}(y_{it-k})}\right),
   \label{eq:laggedp}
 \end{align}
-where \(g_{it-k} = 0\).
+
 The numerator is the first price that individual \(i\) would have faced in year \(t\)
 if she had declared her year \((t - k)\) taxable income at that year.
 By fixing the income at year \(t - k\), this variable isolates changes in price from income responses to the tax reform.
@@ -503,7 +492,7 @@ Note that we do not estimate the extensive-margin elasticity because it is hard 
 
 In this section, as a benchmark, we first report the price effect on donations, using the ITT approach.
 Reducing the relative price of giving through a tax deduction includes self-selection of declaration.
-The ITT approach sees respondents who did not apply for a tax deduction in a specific year as those who applied for it.
+The ITT approach sees respondents who did not declare a tax relief in a specific year as those who applied for it.
 In our main results, we report estimation results of price effect, using the first price method.
 As robustness, we report the last price effect using the first price as an instrumental variable,
 the first price effect with short-period panel to focus on the 2014 tax reform more precisely,
@@ -1012,26 +1001,26 @@ though the amount of donations is insensitive to the giving price once they deci
 
 These results are obtained by the ITT approach.
 This means that our estimates obtained in this section reflect not only
-the true price effect of tax incentive but also the effect of self-selection of applying for a tax deduction.
-Since the tax reform affects not the only relative price of giving but also the decision-making of a tax deduction,
+the true price effect of tax incentive but also the effect of self-selection of declaration.
+Since the tax reform affects not the only relative price of giving but also the decision-making of a declaration,
 previous results have some policy implications.
-If we explicitly control the self-selection of a tax deduction,
+If we explicitly control the self-selection of a declaration,
 we may obtain further policy implications about the tax incentive of charitable giving.
-In the next section, we report the results of the panel IV method which controls the self-selection of a tax deduction.
+In the next section, we report the results of the panel IV method which controls the self-selection of a declaration.
 
 \hypertarget{price-elasicity-with-tax-report}{%
 \section{Price Elasicity with Tax Report}\label{price-elasicity-with-tax-report}}
 
-\hypertarget{instrumental-variable-of-tax-deduction}{%
-\subsection{Instrumental Variable of Tax Deduction}\label{instrumental-variable-of-tax-deduction}}
+\hypertarget{instrumental-variable-of-declaration-of-a-tax-releif}{%
+\subsection{Instrumental Variable of Declaration of a Tax Releif}\label{instrumental-variable-of-declaration-of-a-tax-releif}}
 
 \begin{table}
 
-\caption{\label{tab:SummaryDeduct}Descriptive Statistics of Tax Deduction among Donors}
+\caption{\label{tab:SummaryDeduct}Descriptive Statistics of Declaration among Donors}
 \centering
 \begin{tabular}[t]{lcccc}
 \toprule
-\multicolumn{1}{c}{} & \multicolumn{2}{c}{Applying for a tax deduction} & \multicolumn{2}{c}{Not applying for a tax deduction} \\
+\multicolumn{1}{c}{} & \multicolumn{2}{c}{Declaring a tax relief} & \multicolumn{2}{c}{Not declaring a tax relief} \\
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
 Year & Labor income & Labor and Total income & Labor income & Labor and Total income\\
 \midrule
@@ -1046,16 +1035,16 @@ Year & Labor income & Labor and Total income & Labor income & Labor and Total in
 \end{table}
 
 Before describing the strategy of instrumental variables in detail,
-we show descriptive statistics of a tax deduction.
-NaSTaB asks respondents to answer whether to apply for a tax deduction
+we show descriptive statistics of a declaration of a tax relief.
+NaSTaB asks respondents to answer whether to declare a tax relief
 in the case of labor income and total income separately.
 Table \ref{tab:SummaryDeduct} shows the number of tax deduct among donors in our sample.\footnote{Due to the small sample, we rule out observations in 2018.}
-When we only use information about tax deduction in the case of labor income,
-the majority of respondents did not apply for a tax deduction (see the first and third columns).
-When we use information about tax deduction in the case of both labor and total income,
-we make a dummy taking 1 if respondents applied for a tax deduction in the case of
+When we only use information about declaration in the case of labor income,
+the majority of respondents did not declare a tax relief (see the first and third columns).
+When we use information about declaration in the case of both labor and total income,
+we make a dummy taking 1 if respondents declared a tax relief in the case of
 either labor or total income.
-As a result, more than half of the respondents applied for a tax deduction.
+As a result, more than half of the respondents declared a tax relief.
 
 \begin{figure}[t]
 
@@ -1063,18 +1052,18 @@ As a result, more than half of the respondents applied for a tax deduction.
 
 }
 
-\caption{Proportion of Applying for a Tax Deduction Grouped by Employment Status. Notes: We restrict sample to those who donated.}\label{fig:DeductByEmployee}
+\caption{Proportion of declaring a tax relief Grouped by Employment Status. Notes: We restrict sample to those who donated.}\label{fig:DeductByEmployee}
 \end{figure}
 
-If there is no (physical or psychological) cost to apply for a tax deduction,
-then all individuals should apply for a tax deduction.
+If there is no (physical or psychological) cost to declare a tax relief,
+then all individuals should declare a tax relief.
 However, as shown in Table \ref{tab:SummaryDeduct},
-applying for a tax deduction may incur some costs because some respondents did not apply for a tax deduction.
+declaring a tax relief may incur some costs because some respondents did not declare a tax relief.
 Employment status is one dimension of variation of applied cost.
 For the declaration, self-employed workers have to retain the certificate until they submit tax return although wage earners can declare tax relief and submit the certificate through their company at any time.
 Figure \ref{fig:DeductByEmployee} shows that
-the proportion of applying for a tax deduction among employees is higher than the others.
-Thus, we use employment status as an instrument of a tax deduction.
+the proportion of declaring a tax relief among employees is higher than the others.
+Thus, we use employment status as an instrument of a declaration.
 
 Our estimation strategy is the panel IV method to estimate the true price effect.
 The equation of the first stage is as follows:
@@ -1084,7 +1073,7 @@ The equation of the first stage is as follows:
   = \alpha_{1i} + \lambda \text{Employed}_{it} + X_{it} \beta_1
   + \mu_{i1} + \iota_{t1} + \eta_{it} \label{eq:stage1}
 \end{align}
-where \(R_{it}\) is a dummy of tax deduction, and \(\text{Employed}_{it}\) is a dummy of employee.
+where \(R_{it}\) is a dummy of declaration, and \(\text{Employed}_{it}\) is a dummy of employee.
 After estimating this equation, we calcluate the fitted value of \(R_{it}\) denoted by \(\hat{R}_{it}\).
 Using the fitted value \(\hat{R}_{it}\), we estimate the following second-stage equation:
 
@@ -1114,7 +1103,7 @@ To avoid this problem, we control incomes and the interaction between year dummi
 
 \begin{table}
 
-\caption{\label{tab:stage1Report}First-Stage Result: Effect of Employee on Tax Deduction}
+\caption{\label{tab:stage1Report}First-Stage Result: Effect of Employee on Declaration}
 \centering
 \fontsize{7}{9}\selectfont
 \begin{threeparttable}
@@ -1142,8 +1131,8 @@ Adjusted R-squared & 0.918 & 0.919 & 0.920\\
 \end{table}
 
 Table \ref{tab:stage1Report} shows estimation results of the first stage.
-As a result, the employed dummy is strongly positively correlated with applying for a tax deduction.
-In any specification, employed dummy increases the probability of tax deduction by more than 45 percentage points.
+As a result, the employed dummy is strongly positively correlated with declaring a tax relief.
+In any specification, employed dummy increases the probability of declaration by more than 45 percentage points.
 Moreover, the ratio of coefficient to standard error is greater than nine.
 This implies that the F-statistics of the instrument is greater than 81 for any specification.
 Thus, our panel IV method does not have a weak instrument problem.
@@ -1247,7 +1236,7 @@ the overall elasticity is -1.710.
 These values are statistically significant,
 and slightly more elastic than the benchmark results
 (see the column (1) and (5) in Table \ref{tab:MainOverall}).
-Since those who did not apply for the tax deduction did not receive the tax incentive actually,
+Since those who did not apply for the Declaration did not receive the tax incentive actually,
 these results can be naturally interpretable.
 Furthermore, when we control the interaction term between year dummies and industry dummies,
 the result does not change.
