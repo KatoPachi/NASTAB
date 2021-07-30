@@ -1,6 +1,6 @@
 ---
 title: |
-  Charitable Giving, Tax Reform, and Self-selection of Tax Report: Evidence from South Korea
+  Charitable Giving, Tax Reform, and Self-selection of Tax Relief: Evidence from South Korea
 author: 
   - name: Hiroki Kato
     affiliation: Graduate School of Economics, Osaka University, Japan
