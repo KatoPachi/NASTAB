@@ -45,7 +45,7 @@ df <- readr::read_csv(
 ```{asis, echo = doctype == "draft"}
 In this section, as a benchmark, we first report the price effect on donations, using the ITT approach.
 Reducing the relative price of giving through a tax deduction includes self-selection of declaration.
-The ITT approach sees respondents who did not apply for a tax deduction in a specific year as those who applied for it.
+The ITT approach sees respondents who did not declare a tax relief in a specific year as those who applied for it.
 In our main results, we report estimation results of price effect, using the first price method.
 As robustness, we report the last price effect using the first price as an instrumental variable,
 the first price effect with short-period panel to focus on the 2014 tax reform more precisely,
@@ -923,10 +923,10 @@ though the amount of donations is insensitive to the giving price once they deci
 
 These results are obtained by the ITT approach.
 This means that our estimates obtained in this section reflect not only
-the true price effect of tax incentive but also the effect of self-selection of applying for a tax deduction.
-Since the tax reform affects not the only relative price of giving but also the decision-making of a tax deduction,
+the true price effect of tax incentive but also the effect of self-selection of declaration.
+Since the tax reform affects not the only relative price of giving but also the decision-making of a declaration,
 previous results have some policy implications.
-If we explicitly control the self-selection of a tax deduction,
+If we explicitly control the self-selection of a declaration,
 we may obtain further policy implications about the tax incentive of charitable giving.
-In the next section, we report the results of the panel IV method which controls the self-selection of a tax deduction.
+In the next section, we report the results of the panel IV method which controls the self-selection of a declaration.
 ```

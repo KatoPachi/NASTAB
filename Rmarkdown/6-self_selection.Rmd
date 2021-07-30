@@ -44,7 +44,7 @@ df <- readr::read_csv(
 
 
 
-## Instrumental Variable of Tax Deduction
+## Instrumental Variable of Declaration of a Tax Releif
 
 ```{r SummaryDeduct}
 df %>%
@@ -58,7 +58,7 @@ df %>%
     )
   ) %>%
   kable(
-    caption = "Descriptive Statistics of Tax Deduction among Donors",
+    caption = "Descriptive Statistics of Declaration among Donors",
     col.names = c(
       "Year", "Labor income", "Labor and Total income",
       "Labor income", "Labor and Total income"
@@ -67,23 +67,23 @@ df %>%
     booktabs = TRUE, escape = TRUE, linesep = ""
   ) %>%
   add_header_above(
-    c("", "Applying for a tax deduction" = 2, "Not applying for a tax deduction" = 2)
+    c("", "Declaring a tax relief" = 2, "Not declaring a tax relief" = 2)
   ) %>%
   kable_styling()
 ```
 
 ```{asis, echo = doctype == "draft"}
 Before describing the strategy of instrumental variables in detail,
-we show descriptive statistics of a tax deduction.
-NaSTaB asks respondents to answer whether to apply for a tax deduction
+we show descriptive statistics of a declaration of a tax relief.
+NaSTaB asks respondents to answer whether to declare a tax relief
 in the case of labor income and total income separately.
 Table \@ref(tab:SummaryDeduct) shows the number of tax deduct among donors in our sample.[^year18]
-When we only use information about tax deduction in the case of labor income,
-the majority of respondents did not apply for a tax deduction (see the first and third columns).
-When we use information about tax deduction in the case of both labor and total income,
-we make a dummy taking 1 if respondents applied for a tax deduction in the case of
+When we only use information about declaration in the case of labor income,
+the majority of respondents did not declare a tax relief (see the first and third columns).
+When we use information about declaration in the case of both labor and total income,
+we make a dummy taking 1 if respondents declared a tax relief in the case of
 either labor or total income.
-As a result, more than half of the respondents applied for a tax deduction.
+As a result, more than half of the respondents declared a tax relief.
 
 [^year18]: Due to the small sample, we rule out observations in 2018.
 ```
@@ -103,7 +103,7 @@ df %>%
   ggtemp()
 ```
 
-```{r DeductByEmployee, fig.cap="Proportion of Applying for a Tax Deduction Grouped by Employment Status. Notes: We restrict sample to those who donated."}
+```{r DeductByEmployee, fig.cap="Proportion of declaring a tax relief Grouped by Employment Status. Notes: We restrict sample to those who donated."}
 df %>%
   dplyr::filter(!is.na(employee)) %>%
   dplyr::filter(year < 2018 & i_total_giving > 0) %>%
@@ -124,15 +124,15 @@ df %>%
 ```
 
 ```{asis, echo = doctype == "draft"}
-If there is no (physical or psychological) cost to apply for a tax deduction,
-then all individuals should apply for a tax deduction. 
+If there is no (physical or psychological) cost to declare a tax relief,
+then all individuals should declare a tax relief. 
 However, as shown in Table \@ref(tab:SummaryDeduct),
-applying for a tax deduction may incur some costs because some respondents did not apply for a tax deduction.
+declaring a tax relief may incur some costs because some respondents did not declare a tax relief.
 Employment status is one dimension of variation of applied cost.
 For the declaration, self-employed workers have to retain the certificate until they submit tax return although wage earners can declare tax relief and submit the certificate through their company at any time.
 Figure \@ref(fig:DeductByEmployee) shows that
-the proportion of applying for a tax deduction among employees is higher than the others.
-Thus, we use employment status as an instrument of a tax deduction.
+the proportion of declaring a tax relief among employees is higher than the others.
+Thus, we use employment status as an instrument of a declaration.
 
 Our estimation strategy is the panel IV method to estimate the true price effect.
 The equation of the first stage is as follows:
@@ -142,7 +142,7 @@ The equation of the first stage is as follows:
   = \alpha_{1i} + \lambda \text{Employed}_{it} + X_{it} \beta_1
   + \mu_{i1} + \iota_{t1} + \eta_{it} (\#eq:stage1)
 \end{align}
-where $R_{it}$ is a dummy of tax deduction, and $\text{Employed}_{it}$ is a dummy of employee.
+where $R_{it}$ is a dummy of declaration, and $\text{Employed}_{it}$ is a dummy of employee.
 After estimating this equation, we calcluate the fitted value of $R_{it}$ denoted by $\hat{R}_{it}$.
 Using the fitted value $\hat{R}_{it}$, we estimate the following second-stage equation:
 
@@ -212,7 +212,7 @@ list(est_report1, est_report2) %>%
   mutate(vars = if_else(stat == "se", "", vars)) %>%
   dplyr::select(-stat, -reg1.x, -reg2.x, -reg3.x) %>%
   kable(
-    caption = "First-Stage Result: Effect of Employee on Tax Deduction",
+    caption = "First-Stage Result: Effect of Employee on Declaration",
     col.names = c("", sprintf("(%1d)", seq_len(length(xlist)))),
     align = "lccc",
     booktabs = TRUE, escape = TRUE, linesep = ""
@@ -228,8 +228,8 @@ list(est_report1, est_report2) %>%
 
 ```{asis, echo = doctype == "draft"}
 Table \@ref(tab:stage1Report) shows estimation results of the first stage.
-As a result, the employed dummy is strongly positively correlated with applying for a tax deduction.
-In any specification, employed dummy increases the probability of tax deduction by more than 45 percentage points.
+As a result, the employed dummy is strongly positively correlated with declaring a tax relief.
+In any specification, employed dummy increases the probability of declaration by more than 45 percentage points.
 Moreover, the ratio of coefficient to standard error is greater than nine.
 This implies that the F-statistics of the instrument is greater than 81 for any specification.
 Thus, our panel IV method does not have a weak instrument problem.
@@ -414,7 +414,7 @@ the overall elasticity is -1.710.
 These values are statistically significant,
 and slightly more elastic than the benchmark results
 (see the column (1) and (5) in Table \@ref(tab:MainOverall)).
-Since those who did not apply for the tax deduction did not receive the tax incentive actually,
+Since those who did not apply for the Declaration did not receive the tax incentive actually,
 these results can be naturally interpretable.
 Furthermore, when we control the interaction term between year dummies and industry dummies,
 the result does not change.
