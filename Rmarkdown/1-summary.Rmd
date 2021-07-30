@@ -86,7 +86,7 @@ df %>%
       vars,
       "lincome" = "Annual taxable labor income (unit: 10,000KRW)",
       "price" = "First giving price",
-      "ext_benefit_tl" = "Dummy of tax report of charitable giving",
+      "ext_benefit_tl" = "Dummy of declaration of a tax relief",
       "i_total_giving" = "Annual charitable giving (unit: 10,000KRW)",
       "i_ext_giving" = "Dummy of Donation > 0",
       "age" = "Age",
@@ -130,7 +130,7 @@ The blue line shows the average amount of donation among donors.
 In each year, its value is nearly 1.5 million KRW (1,500 USD),
 which is 7\% of average annual taxable income.
 The gray bar shows the proportion of donors.
-After the tax reform, the proportion of donors decreases by 2\% point.
+After the tax reform, the proportion of donors decreases by 2 percentage points.
 After that, the proportion of donors is greter than 20\%.
 
 [^Question]: Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes. We sum up the amount of donations, and consider it as the annual charitable giving.
@@ -212,13 +212,13 @@ since the tax reform increases the giving price.
 
 [^fprice]: The giving price shown in Table \@ref(tab:SummaryCovariate) is the *first* giving price. The giving price can be manipulated by an amount of donation. To avoid this endogeneity, we use the giving price where the amount of donation is zero. We will discuss this issue in the next section.
 
-The NaSTaB also asks respondents to answer whether they applied for a tax deduction of giving.
+The NaSTaB also asks respondents to answer whether they declared a tax relief of giving.
 Although this variable is unique, the sample size is relatively small due to unanswering.
 This survey investigates separately for the case of *total* income (for example, business income, dividend income, rental income) 
 and the case of *labor* income.
 We make a dummy taking one if respondents applied for a total income deduction of giving
 or a labor income deduction of giving.
-Table \@ref(tab:SummaryCovariate) shows the proportion of tax deduction is about 48\%.
+Table \@ref(tab:SummaryCovariate) shows the proportion of declaration is about 48\%.
 ```
 
 ```{r SummaryPriceChange, out.width="90%", fig.cap="Income Distribution and Giving Price in 2013"}

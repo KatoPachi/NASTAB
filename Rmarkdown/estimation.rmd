@@ -86,7 +86,7 @@ Following @Almunia2020, we estimate the giving price elasticity for intensive ma
 \end{equation}
 
 $g_{it}, p_{it}$ and $y_{it}$ respectively indicates the amount of giving, the giving price, and income of $i$ in year $t$.
-$R_{it}$ is a dummy taking one if individual $i$ applied for a tax deduction in year $t$.
+$R_{it}$ is a dummy taking one if individual $i$ declared a tax relief in year $t$.
 $\mu_i, \iota_t$ and $u_{it}$ are individual fixed effect, year fixed effect, and the error term, respectively. 
 The individual fixed effect controls for time-invariant individual characteristics. The year fixed effect controls for events that affect all subjects at the same time. $X_{it}$ is a vector of covariates, which consist of age, education, and gender, and their interaction terms between year fixed effect. The interaction terms between covariates and year fixed effect will control for events that affect subject with specific characteristics at the same time [@Zeldow2019].
 
@@ -159,10 +159,10 @@ we employ lagged values of taxable income and
 construct a variable for the change in the first price of giving as following:
 
 \begin{align}
-  \Delta^k \ln p_{it} = \ln \left(\frac{p_{it}(y_{it-k} - g_{it-k})}{p_{it-k}(y_{it-k} - g_{it-k})}\right),
+  \Delta^k \ln p_{it} = \ln \left(\frac{p^f_{it}(y_{it-k})}{p^f_{it-k}(y_{it-k})}\right),
   (\#eq:laggedp)
 \end{align}
-where $g_{it-k} = 0$.
+
 The numerator is the first price that individual $i$ would have faced in year $t$
 if she had declared her year $(t - k)$ taxable income at that year. 
 By fixing the income at year $t - k$, this variable isolates changes in price from income responses to the tax reform. 
