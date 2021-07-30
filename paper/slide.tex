@@ -4,7 +4,8 @@
 %
 \documentclass[
   ignorenonframetext,
-  aspectratio=169]{beamer}
+  aspectratio=169,
+]{beamer}
 \usepackage{pgfpages}
 \setbeamertemplate{caption}[numbered]
 \setbeamertemplate{caption label separator}{: }
@@ -88,6 +89,10 @@
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
+
+\usepackage{setspace}
+\usepackage{float}
+
 \newif\ifbibliography
 \usepackage{longtable,booktabs,array}
 \usepackage{threeparttable, threeparttablex, multirow}
@@ -145,8 +150,9 @@
 
 
             \author[shortname]{ Hiroki Kato  Tsuyoshi Goto  Yong-Rok Kim }
-        
-\date{2021/07/21}
+            \institute[shortinst]{ \inst{} Osaka University \and  \inst{} Chiba University \and  \inst{} Kobe University \and }
+  
+\date{2021/07/25}
 
 
 \begin{document}
@@ -397,9 +403,11 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \begin{frame}{Summary Statistics}
 \protect\hypertarget{summary-statistics}{}
 \begin{table}
-\centering\begingroup\fontsize{7}{9}\selectfont
 
-\begin{tabular}{lcccccc}
+\caption{\label{tab:SummaryCovariate}Descriptive Statistics}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lcccccc}
 \toprule
  & N & Mean & Std.Dev. & Min & Median & Max\\
 \midrule
@@ -411,7 +419,7 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \multicolumn{7}{l}{\textbf{Income, giving price, and tax report}}\\
 \hspace{1em}Annual taxable income (unit: 10,000KRW) & 53269 & 1876.12 & 2700.97 & 0.00 & 900.00 & 91772.00\\
 \hspace{1em}First giving price & 62877 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
-\hspace{1em}Dummy of tax report & 18596 & 0.30 & 0.46 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Dummy of tax report & 12172 & 0.48 & 0.50 & 0.00 & 0.00 & 1.00\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
 \hspace{1em}Age & 67848 & 51.35 & 15.81 & 24.00 & 50.00 & 104.00\\
@@ -422,7 +430,6 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \hspace{1em}Junior high school graduate dummy & 67842 & 0.24 & 0.43 & 0.00 & 0.00 & 1.00\\
 \bottomrule
 \end{tabular}
-\endgroup{}
 \end{table}
 \end{frame}
 
@@ -443,7 +450,7 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \begin{itemize}
 \tightlist
 \item
-  Figure \ref{fig:showSummaryPriceChange} shows the giving price after 2012 and income distribution in 2013.
+  Figure \ref{fig:SummaryPriceChange} shows the giving price after 2012 and income distribution in 2013.
 
   \begin{itemize}
   \tightlist
@@ -477,6 +484,616 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 
 \caption{Income Distribution and Giving Price in 2013}\label{fig:SummaryPriceChange}
 \end{figure}
+\end{frame}
+
+\hypertarget{estimation}{%
+\section{Estimation}\label{estimation}}
+
+\begin{frame}{Estimation}
+Following Almunia et al. (2020), we estimate giving price elasticity for intensive margin and extensive margin.
+
+\begin{itemize}
+\tightlist
+\item
+  The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price
+\item
+  The elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Elasticitiy of Intensive Margin}
+\protect\hypertarget{elasticitiy-of-intensive-margin}{}
+\[
+\ln g_{it} = \varepsilon_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:intensive}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(g_{it}, p_{it}\) and \(y_{it}\) respectively indicates the amount of giving, the giving price, and income of \(i\) in year \(t\)
+\item
+  \(\mu_i, \iota_t\) and \(u_{it}\) are individual fixed effect, year fixed effect and error term
+\item
+  \(X_{it}\) is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into \(X_{it}\) (following Zeldow and Hatfield (2019)).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Elasticitiy of Extensive Margin}
+\protect\hypertarget{elasticitiy-of-extensive-margin}{}
+\[
+D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_it. \label{extensive}
+\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(D_{it}\) is a dummy variable taking 1 if individual \(i\) donates at year \(t\) and 0 otherwise.
+\item
+  Since we use linear probability model, \(\delta = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\). The extensive-margin price elasticity is \(\varepsilon_{EXT} = \hat{\delta}/D_{it}\). Thus, we evaluate it at sample mean of \(D_{it}\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Identification Strategy}
+\protect\hypertarget{identification-strategy}{}
+Our identification assumption is \textbf{the within price variation is exogenous}.
+
+\begin{itemize}
+\tightlist
+\item
+  This is because we use the fixed effect model to obtain elasticities.
+\item
+  Our identification assumption may hold because the major \emph{within} price variation depends on the 2014 tax reform.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    After tax reform, the giving price is constant across individuals and there is no room for manipulation by donations and income.
+  \item
+    Before tax reform (2012 and 2013), the giving price depends on (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For these two reasons, the \emph{within} price is partly endogenous.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Obstacles for Identification}
+\protect\hypertarget{obstacles-for-identification}{}
+Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+
+\begin{enumerate}
+\tightlist
+\item
+  Endogeneity of giving price:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
+  \item
+    Since this issue does not happen for the first one unit of donation, whose price (``first price'') cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Obstacles for Identification (Cont'd)}
+\protect\hypertarget{obstacles-for-identification-contd}{}
+Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+
+\begin{enumerate}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Simultaneous determination of income and donations:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate.
+  \item
+    We employ lagged values of taxable income and construct an instrument variable, \(\ln (p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
+  \item
+    By fixing income at year \(t - k\), the instrument isolates changes in price from income responses to the tax reform.
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\hypertarget{main-results}{%
+\section{Main Results}\label{main-results}}
+
+\begin{frame}{Price and Income Elasticity}
+\protect\hypertarget{price-and-income-elasticity}{}
+We found the \textbf{price effect} of giving (1\% price increase leads to about 1.1\% giving decrease),
+and the \textbf{income effect} of giving(1\% income increase leads to about 5\% giving increase).
+
+\begin{table}
+
+\caption{\label{tab:MainOverall}Main Results: Overall Elasticity of First Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(giving price) & -1.072*** & -1.264*** & -1.291*** & -1.114*** & -1.241***\\
+ & (0.202) & (0.213) & (0.230) & (0.229) & (0.227)\\
+ln(annual taxable income) & 5.393*** & 5.080*** & 5.047*** & 5.116*** & 4.946***\\
+ & (0.970) & (0.964) & (0.964) & (0.966) & (0.949)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 53269 & 53269 & 53267 & 53267 & 53267\\
+Adjusted R-squared & 0.526 & 0.526 & 0.526 & 0.527 & 0.530\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Intensive and Extensive Margin: Estimation Results}
+\protect\hypertarget{intensive-and-extensive-margin-estimation-results}{}
+The intensive-margin price elasticity is -0.5 \textasciitilde{} -1\%.
+
+\begin{table}
+
+\caption{\label{tab:MainIntensive}Main Results: Intensive-Margin Elasticity of First Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(giving price) & -0.593*** & -0.838*** & -1.016*** & -0.893*** & -0.904***\\
+ & (0.203) & (0.212) & (0.232) & (0.243) & (0.249)\\
+ln(annual taxable income) & 2.015*** & 1.562** & 1.445** & 1.528** & 1.571**\\
+ & (0.675) & (0.655) & (0.647) & (0.651) & (0.653)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 11637 & 11637 & 11637 & 11637 & 11637\\
+Adjusted R-squared & 0.675 & 0.675 & 0.676 & 0.676 & 0.678\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Intensive and Extensive Margin: Estimation Results}
+\protect\hypertarget{intensive-and-extensive-margin-estimation-results-1}{}
+The extensive-margin price elasticity is -1.2 \textasciitilde{} -1.4\%.
+
+\begin{table}
+
+\caption{\label{tab:MainExtensive}Main Results: Extensive-Margin Elasticity of First Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(giving price) & -0.257*** & -0.288*** & -0.273*** & -0.237*** & -0.267***\\
+ & (0.046) & (0.048) & (0.052) & (0.052) & (0.051)\\
+ln(annual taxable income) & 1.175*** & 1.124*** & 1.125*** & 1.139*** & 1.102***\\
+ & (0.223) & (0.223) & (0.223) & (0.224) & (0.220)\\
+ &  &  &  &  & \\
+Implied price elasticity & -1.176*** & -1.320*** & -1.250*** & -1.086*** & -1.221***\\
+ & (0.210) & (0.221) & (0.239) & (0.238) & (0.235)\\
+Implied income elasticity & 5.379*** & 5.145*** & 5.148*** & 5.212*** & 5.045***\\
+ & (1.023) & (1.021) & (1.023) & (1.024) & (1.005)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 53269 & 53269 & 53267 & 53267 & 53267\\
+Adjusted R-squared & 0.458 & 0.458 & 0.458 & 0.458 & 0.462\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check}
+\protect\hypertarget{robustness-check}{}
+First potential concern: last price elasticity
+
+\begin{itemize}
+\tightlist
+\item
+  Our baseline results show the \textbf{first} price elasticity to avoid the endogeneity of giving price.
+\item
+  We estimated the \textbf{last} price elasticity, using the Panel IV method.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The instrument is the first giving price.
+  \item
+    Note that the last giving price is equal to the first giving price under the tax credit system.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 1: Result}
+\protect\hypertarget{robustness-check-1-result}{}
+Overall last price elasticity increases twofold.
+
+\begin{table}
+
+\caption{\label{tab:LastOverall}Overall Elasticity of Last Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(last giving price) & -2.421*** & -2.536*** & -2.750*** & -2.529*** & -2.650***\\
+ & (0.204) & (0.216) & (0.233) & (0.231) & (0.229)\\
+ln(annual taxable income) & 5.258*** & 5.072*** & 4.981*** & 5.058*** & 4.910***\\
+ & (0.961) & (0.961) & (0.959) & (0.961) & (0.948)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 52304 & 52304 & 52302 & 52302 & 52302\\
+Adjusted R-squared & 0.529 & 0.529 & 0.529 & 0.530 & 0.533\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 1: Intensive Margin}
+\protect\hypertarget{robustness-check-1-intensive-margin}{}
+The intensive-margin last price elasticity lies within the range of the first price elasticity.
+
+\begin{table}
+
+\caption{\label{tab:LastIntensive}Intensive-Margin Elasticity of Last Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(last giving price) & -0.898*** & -0.961*** & -1.197*** & -0.998*** & -1.074***\\
+ & (0.271) & (0.271) & (0.307) & (0.325) & (0.332)\\
+ln(annual taxable income) & 2.024*** & 1.638** & 1.460** & 1.530** & 1.572**\\
+ & (0.694) & (0.678) & (0.667) & (0.670) & (0.667)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 10672 & 10672 & 10672 & 10672 & 10672\\
+Adjusted R-squared & 0.671 & 0.671 & 0.672 & 0.672 & 0.674\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 1: Extensive Margin}
+\protect\hypertarget{robustness-check-1-extensive-margin}{}
+The extensive-margin last price elasticity at sample mean is roughly -3\%.
+
+\begin{table}
+
+\caption{\label{tab:LastExtensive}Extensive-Margin Elasticity of Last Price}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+ & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+ln(last giving price) & -0.623*** & -0.630*** & -0.644*** & -0.593*** & -0.619***\\
+ & (0.046) & (0.049) & (0.053) & (0.052) & (0.052)\\
+ln(annual taxable income) & 1.125*** & 1.113*** & 1.103*** & 1.121*** & 1.090***\\
+ & (0.221) & (0.223) & (0.223) & (0.223) & (0.220)\\
+ &  &  &  &  & \\
+Implied price elasticity & -3.052*** & -3.090*** & -3.156*** & -2.907*** & -3.035***\\
+ & (0.227) & (0.239) & (0.258) & (0.257) & (0.254)\\
+Implied income elasticity & 5.514*** & 5.453*** & 5.407*** & 5.494*** & 5.343***\\
+ & (1.084) & (1.092) & (1.092) & (1.095) & (1.078)\\
+Individual FE & Y & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y & Y\\
+Age & N & Y & Y & Y & Y\\
+Year x Education & N & N & Y & Y & Y\\
+Year x Gender & N & N & N & Y & Y\\
+Year x Resident Area & N & N & N & N & Y\\
+N & 52304 & 52304 & 52302 & 52302 & 52302\\
+Adjusted R-squared & 0.464 & 0.464 & 0.464 & 0.465 & 0.469\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instumental variable is the first giving price in year $t$. When controlling age, we alson include its squared term. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robust Check 2}
+\protect\hypertarget{robust-check-2}{}
+Second potential concern: Price change due to the change of income
+
+\begin{itemize}
+\tightlist
+\item
+  Since the giving price under the tax deduction depends on the change of income, the \emph{within} variation of giving price may be endogenous.
+\item
+  To resolve this concern, we used the data (i) from 2013 to 2018 or (ii) from 2013 to 2014, and estimated the fixed effect model.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    By this restriction, the \emph{within} price variation of giving price is completely exgonenous.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Result}
+\protect\hypertarget{robustness-check-2-result}{}
+Overall price elasticity is -1 \textasciitilde{} -1.7\%.
+
+\begin{table}
+
+\caption{\label{tab:ShortOverall}Overall Elasticity with Short-Period Panel}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
+\midrule
+ln(giving price) & -1.014*** & -1.286*** & -1.398*** & -1.686***\\
+ & (0.255) & (0.290) & (0.289) & (0.338)\\
+ln(annual taxable income) & 5.108*** & 4.743*** & 4.013** & 3.035\\
+ & (1.009) & (0.990) & (1.948) & (1.992)\\
+Individual FE & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y\\
+Other Controls & N & Y & N & Y\\
+N & 45994 & 45992 & 14893 & 14893\\
+Adjusted R-squared & 0.535 & 0.538 & 0.590 & 0.592\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Intensive Marign}
+\protect\hypertarget{robustness-check-2-intensive-marign}{}
+The intensive-margin price elasticity is -0.6 \textasciitilde{} -1\%.
+In column (3), the price elasticity is statistically insignificant.
+
+\begin{table}
+
+\caption{\label{tab:ShortIntensive}Intensive-Margin Elasticity with Short-Period Panel}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
+\midrule
+ln(giving price) & -0.647*** & -1.129*** & -0.394 & -0.712**\\
+ & (0.236) & (0.291) & (0.310) & (0.363)\\
+ln(annual taxable income) & 1.943*** & 1.714*** & 1.440 & 1.047\\
+ & (0.662) & (0.649) & (2.975) & (3.072)\\
+Individual FE & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y\\
+Other Controls & N & Y & N & Y\\
+N & 10158 & 10158 & 2922 & 2922\\
+Adjusted R-squared & 0.684 & 0.687 & 0.735 & 0.737\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 2: Extensive Marign}
+\protect\hypertarget{robustness-check-2-extensive-marign}{}
+The extensive-margin price elasticity at sample mean is -1 \textasciitilde{} -2\%.
+
+\begin{table}
+
+\caption{\label{tab:ShortExtensive}Extensive-Margin Elasticity with Short-Period Panel}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{After 2012} & \multicolumn{2}{c}{2013 and 2014} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+ & (1) & (2) & (3) & (4)\\
+\midrule
+ln(giving price) & -0.235*** & -0.269*** & -0.331*** & -0.383***\\
+ & (0.058) & (0.065) & (0.065) & (0.076)\\
+ln(annual taxable income) & 1.093*** & 1.024*** & 0.801* & 0.574\\
+ & (0.230) & (0.226) & (0.428) & (0.447)\\
+ &  &  &  & \\
+Implied price elasticity & -1.064*** & -1.217*** & -1.689*** & -1.951***\\
+ & (0.262) & (0.294) & (0.333) & (0.387)\\
+Implied income elasticity & 4.951*** & 4.638*** & 4.082* & 2.926\\
+ & (1.043) & (1.024) & (2.181) & (2.279)\\
+Individual FE & Y & Y & Y & Y\\
+Time FE & Y & Y & Y & Y\\
+Other Controls & N & Y & N & Y\\
+N & 45994 & 45992 & 14893 & 14893\\
+Adjusted R-squared & 0.465 & 0.469 & 0.524 & 0.525\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Other controls are age (its squared value), the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area. The implied extensive-marign price elasticity is evaluated at the sample mean of $D_{ijt}$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 3}
+\protect\hypertarget{robustness-check-3}{}
+Second potential concerns: the change of price due to the change of income
+
+\begin{itemize}
+\tightlist
+\item
+  To exclude this potential concerns, previous identification strategy uses the 2014 tax reform.
+\item
+  We can also rule out this problem, using the change in the first giving price.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The change in the first giving price is \(\ln(p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))\) where \(g_{it-k} = 0\).
+  \item
+    Since we fix the income \(y_{it-k}\), this variation comes from the tax reform.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 3 (Cont'd)}
+\protect\hypertarget{robustness-check-3-contd}{}
+Our estimation equation is
+\[\Delta^k \ln g_{it} = \delta \Delta^k \ln p_{it} + \gamma \Delta^k \ln y_{it} + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it},\]
+where \(\Delta^k Y_{it} = Y_{it} - Y_{it-k}\).
+
+\begin{itemize}
+\tightlist
+\item
+  Note that we cannot estimation the extensive-margin elasticity since it is hard to interapt this estimation equation when we use \(\Delta^k D_{it}\) as an outcome.
+\item
+  We estimate this model for \(k = 1, 2, 3\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Check 3: Overall Elasticity}
+\protect\hypertarget{robustness-check-3-overall-elasticity}{}
+Overall price elasticity is rougnly -2\%.
+
+\begin{table}
+
+\caption{\label{tab:kdiffOverall}Estimation of Overall Elasticity with $k$-th Difference Model}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+1-year lagged difference of first price (log) & -1.894*** &  & \\
+ & (0.389) &  & \\
+1-year lagged difference of annual income (log) & 2.737*** &  & \\
+ & (1.042) &  & \\
+2-year lagged difference of first price (log) &  & -2.158*** & \\
+ &  & (0.355) & \\
+2-year lagged difference of annual income (log) &  & 4.661*** & \\
+ &  & (1.139) & \\
+3-year lagged difference of first price (log) &  &  & -1.805***\\
+ &  &  & (0.345)\\
+3-year lagged difference of annual income (log) &  &  & 5.422***\\
+ &  &  & (1.181)\\
+Individual FE & Y & Y & Y\\
+Time FE & Y & Y & Y\\
+Other controls & Y & Y & Y\\
+N & 49014 & 46587 & 44142\\
+Adjusted R-squared & -0.153 & -0.082 & -0.024\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check 3: Intensive-Margin Elasticity}
+\protect\hypertarget{robustness-check-3-intensive-margin-elasticity}{}
+The intensive-margin price elasticity is rougnly -2\%.
+
+\begin{table}
+
+\caption{\label{tab:kdiffIntensive}Estimation of Intensitve-Margin Elasticity with $k$th Difference Model}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+ & (1) & (2) & (3)\\
+\midrule
+1-year lagged difference of first price (log) & -1.852** &  & \\
+ & (0.763) &  & \\
+1-year lagged difference of annual income (log) & 2.222 &  & \\
+ & (1.715) &  & \\
+2-year lagged difference of first price (log) &  & -2.274*** & \\
+ &  & (0.621) & \\
+2-year lagged difference of annual income (log) &  & 4.601** & \\
+ &  & (1.789) & \\
+3-year lagged difference of first price (log) &  &  & -2.243***\\
+ &  &  & (0.550)\\
+3-year lagged difference of annual income (log) &  &  & 5.826***\\
+ &  &  & (2.166)\\
+Individual FE & Y & Y & Y\\
+Time FE & Y & Y & Y\\
+Other controls & Y & Y & Y\\
+N & 10939 & 10505 & 10040\\
+Adjusted R-squared & 0.137 & 0.191 & 0.220\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The lagged difference of first price (log) is $\ln(\text{Price}^k_{ijt}) - \ln(\text{Price}_{ij(t-k)})$, where $\text{Price}^k_{ijt}$ calculates the giving price under the tax system in year $t$, using annual taxable income in year $t-k$, $\text{Income}_{ij(t-k)}$. The lagged of annual income (log) is $\ln(\text{Income}_{ijt}) - \ln(\text{Income}_{ij(t-k)})$. Other controls are lagged difference of age, lagged difference of squared age, the interaction between year dummies and education dummies, the interaction between year dummies and gender dummies, and the interaction between year dummies and resident area.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\hypertarget{conclusions}{%
+\section{Conclusions}\label{conclusions}}
+
+\begin{frame}{Conclusions}
+In this paper, we investigate the giving price elasticity and its heterogeneity as for perception towards the government using South Korean panel data. As a result, we obtain two findings.
+
+Firstly, the estimation shows that the giving price elasticity in Korea is larger than 1 in the sense of absolute value. Although the estimated values seem vulnerable for the estimation method, most of results show that the giving price elasticity is more elastic for extensive margin than intensive margin. This implies that the policymakers should consider not only how much donors additionally pay (intensive margin) but also how many people will be donors (extensive margin) for tax reform.
+
+Secondly, we show that the giving price elasticity for those who think that the government is inefficient is more elastic than the others. Although the previous research shows that those who do not believe the efficiency of the government would donate more than the others, our result firstly shows that such a behavior may depend on the giving price.
+
+From the results, we show that the giving price elasticity would be affected by the efficiency of the government. However, researchers may find the difference of giving behavior as for the other dimensions of heterogeneities. To understand the giving behavior and to contribute the policy making, more sophisticated research is neeeded.
 
 \clearpage
 \end{frame}
@@ -502,6 +1119,9 @@ Fack, G., Landais, C., 2010. Are tax incentives for charitable giving efficient?
 
 \leavevmode\hypertarget{ref-Randolph1995}{}%
 Randolph, W.C., 1995. Dynamic income, progressive taxes, and the timing of charitable contributions. Journal of Political Economy 103, 709--738. doi:\href{https://doi.org/10.1086/262000}{10.1086/262000}
+
+\leavevmode\hypertarget{ref-Zeldow2019}{}%
+Zeldow, B., Hatfield, L.A., 2019. Confounding and regression adjustment in difference-in-differences. arXiv Preprint.
 
 \end{CSLReferences}
 \end{frame}
