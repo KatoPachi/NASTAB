@@ -17,7 +17,7 @@ institute:
     name: Kobe University
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
 bibliography: Rmarkdown/Ref.bib
-csl: template/elsevier-harvard.csl
+csl: template/csl/elsevier-harvard.csl
 aspectratio: 169
 graphics: yes
 output:
@@ -28,7 +28,7 @@ output:
     keep_tex: true
     toc: false
     slide_level: 2
-    template: template/default_authblk.tex
+    template: template/tex/default_authblk.tex
 ---
 
 ```{r setup, include = FALSE, echo = FALSE}
@@ -52,16 +52,19 @@ doctype <- "slide"
 ```{r child = "Rmarkdown/introduction.Rmd"}
 ```
 
-```{r child = "Rmarkdown/1-summary.Rmd"}
+```{r child = "Rmarkdown/1-summary.Rmd", eval = FALSE}
 ```
 
-```{r child = "Rmarkdown/estimation.Rmd"}
+```{r child = "Rmarkdown/estimation.Rmd", eval = FALSE}
 ```
 
-```{r child = "Rmarkdown/2-elasticity.Rmd"}
+```{r child = "Rmarkdown/2-elasticity.Rmd", eval = FALSE}
 ```
 
-```{r child="Rmarkdown/conclusion.Rmd"}
+```{r child = "Rmarkdown/6-self_selection.Rmd", eval = FALSE}
+```
+
+```{r child="Rmarkdown/conclusion.Rmd", eval = FALSE}
 ```
 
 \clearpage
