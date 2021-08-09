@@ -1,0 +1,69 @@
+---
+title: |
+  Charitable Giving, Tax Reform, and Self-selection of Tax Report: Evidence from South Korea
+author: 
+  - name: Hiroki Kato
+    number: 1
+  - name: Tsuyoshi Goto
+    number: 2
+  - name: Yong-Rok Kim
+    number: 3
+institute:
+  - number: 1
+    name: Osaka University
+  - number: 2
+    name: Chiba University
+  - number: 3
+    name: Kobe University
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+bibliography: Rmarkdown/Ref.bib
+csl: template/elsevier-harvard.csl
+aspectratio: 169
+graphics: yes
+output:
+  bookdown::pdf_book:
+    base_format: "function(..., number_sections) rmarkdown::beamer_presentation(...)"
+    number_sections: false
+    latex_engine: xelatex
+    keep_tex: true
+    toc: false
+    slide_level: 2
+    template: template/default_authblk.tex
+---
+
+```{r setup, include = FALSE, echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE,
+  fig.width = 10, fig.height = 6,
+  fig.align = "center", fig.pos = "t"
+)
+
+library(here); knitr::opts_knit$set(root.dir = here())
+xfun::pkg_attach2(c("tidyverse", "kableExtra"))
+options(knitr.kable.NA = " ")
+
+doctype <- "slide"
+```
+
+```{r child = "Rmarkdown/introduction.Rmd"}
+```
+
+```{r child = "Rmarkdown/1-summary.Rmd"}
+```
+
+```{r child = "Rmarkdown/estimation.Rmd"}
+```
+
+```{r child = "Rmarkdown/2-elasticity.Rmd"}
+```
+
+```{r child="Rmarkdown/conclusion.Rmd"}
+```
+
+\clearpage
+
+# References {#references .unnumbered .allowframebreaks}
