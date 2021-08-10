@@ -61,7 +61,7 @@ doctype <- "slide"
 ```{r child = "Rmarkdown/2-elasticity.Rmd"}
 ```
 
-```{r child = "Rmarkdown/6-self_selection.Rmd", eval = FALSE}
+```{r child = "Rmarkdown/6-self_selection.Rmd"}
 ```
 
 ```{r child="Rmarkdown/conclusion.Rmd", eval = FALSE}
