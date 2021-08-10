@@ -64,9 +64,7 @@ doctype <- "slide"
 ```{r child = "Rmarkdown/6-self_selection.Rmd"}
 ```
 
-```{r child="Rmarkdown/conclusion.Rmd", eval = FALSE}
+```{r child="Rmarkdown/conclusion.Rmd"}
 ```
 
-\clearpage
-
-# References {#references .unnumbered .allowframebreaks}
+## References

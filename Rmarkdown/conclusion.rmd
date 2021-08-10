@@ -1,3 +1,14 @@
+```{asis, echo = doctype == "slide"}
+## Conclusions
+
+Main message
+
+- Both ITT approach and IV approach show that the giving price elasticity in Korea is around -1.
+- It implies that the effect from the declaration cost, which has been ignored, is not so large in South Korea.
+
+```
+
+```{asis, echo = doctype == "draft"}
 # Conclusions
 
 In this paper, we investigate the giving price elasticity using South Korean panel data. As a result, we obtain the following findings.
@@ -7,3 +18,4 @@ Firstly, our baseline estimation shows that the giving price elasticity in Korea
 Secondly, we find that the estimated price elasticity using the effective giving price takes the similar values from the estimated elasticity in the extant research. It implies that the effect from the declaration cost, which has been ignored, is not so large. Moreover, as well as the baseline result, this result shows that the price elasticity is around -1, which derives the same conclusions as the baseline result.
 
 From the results, we firstly show the giving price elasticity in Korea. However, many things to be considered are remaining. To understand the giving behavior and to contribute the policy making, more sophisticated research is needed.
+```
