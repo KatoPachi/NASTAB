@@ -211,14 +211,16 @@ In 2014, the Korean government reformed tax system \(T(y_i, g_i)\), where the ta
 \begin{itemize}
 \tightlist
 \item
+  \(R_i\) is a dummy of declaration of tax relief, and \(\tau(\cdot)\) is the income tax rate.
+\item
   Tax deduction system (until 2013): \(T(y_i, g_i) = \tau(y_i - R_i g_i) (y_i - R_i g_i)\)
 
   \begin{itemize}
   \tightlist
   \item
-    \(R_i\) is a dummy of declaration of tax relief, and \(\tau(\cdot)\) is the income tax rate.
-  \item
     In 2012 and 2013, the system of \(\tau(\cdot)\) is same.
+  \item
+    The relative giving price is \(p_i = 1 - \tau(y_i - R_i g_i)R_i\).
   \end{itemize}
 \item
   Tax credit system (from 2014): \(T(y_i, g_i) = \tau(y_i) \cdot y_i - R_i m g_i\)
@@ -226,9 +228,44 @@ In 2014, the Korean government reformed tax system \(T(y_i, g_i)\), where the ta
   \begin{itemize}
   \tightlist
   \item
-    15\% of the total amount of charitable giving has been allowed as a tax credit (\(m = 0.15\))
+    15\% of the total amount of charitable giving has been allowed as a tax credit (\(m = 0.15\)).
+  \item
+    The relative giving price is \(p_i = 1 - m R_i\).
   \end{itemize}
 \end{itemize}
+\end{frame}
+
+\begin{frame}{About NaSTaB}
+\protect\hypertarget{about-nastab}{}
+An annual financial panel survey implemented by The Korea Institute of Taxation and Finance
+
+\begin{itemize}
+\tightlist
+\item
+  The subjects of this survey are general household and household members living in 15 cities and provinces nationwide.
+\item
+  We use data from 2013 to 2019 to focus on the 2014 tax reform.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    the giving price before 2014 was changed frequently and incorporating the data before 2012 captures the effects of another tax reform than the reform in 2014.
+  \item
+    NaSTaB asks the amount of donation and the annual labor income last year.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Income and Giving Price}
+\protect\hypertarget{income-and-giving-price}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.85\linewidth]{C:/Users/vge00/Desktop/NASTAB/report/slide_files/figure-beamer/SummaryPriceChange-1} 
+
+}
+
+\caption{Income Distribution and Giving Price in 2013}\label{fig:SummaryPriceChange}
+\end{figure}
 
 \clearpage
 \end{frame}

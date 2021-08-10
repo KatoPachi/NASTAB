@@ -63,11 +63,13 @@ Consider allocation b/w private consumption ($x_i$) and giving ($g_i$).
 
 In 2014, the Korean government reformed tax system $T(y_i, g_i)$, where the tax credit was introduced instead of tax deduction.
 
+- $R_i$ is a dummy of declaration of tax relief, and $\tau(\cdot)$ is the income tax rate.
 - Tax deduction system (until 2013): $T(y_i, g_i) = \tau(y_i - R_i g_i) (y_i - R_i g_i)$
-  - $R_i$ is a dummy of declaration of tax relief, and $\tau(\cdot)$ is the income tax rate.
   - In 2012 and 2013, the system of $\tau(\cdot)$ is same.
+  - The relative giving price is $p_i = 1 - \tau(y_i - R_i g_i)R_i$.
 - Tax credit system (from 2014): $T(y_i, g_i) = \tau(y_i) \cdot y_i - R_i m g_i$
-  - 15% of the total amount of charitable giving has been allowed as a tax credit ($m = 0.15$)
+  - 15% of the total amount of charitable giving has been allowed as a tax credit ($m = 0.15$).
+  - The relative giving price is $p_i = 1 - m R_i$.
 ```
 
 ```{asis, echo = doctype == "draft"}
