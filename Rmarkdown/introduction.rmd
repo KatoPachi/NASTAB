@@ -57,19 +57,19 @@ This paper consist of seven sections. Section 2 and 3 respectively explain the i
 ```{asis, echo = doctype == "slide"}
 ## 2014 Tax Reform in South Korea
 
-Consider allocation b/w private consumption ($x_i$) and giving ($g_i$). 
+Consider allocation problem b/w private consumption ($x_{it}$) and giving ($g_{it}$).
 
-- The budget constraint is $x_i + g_i = y_i - T(y_i, g_i)$ where $y_i$ is pre-tax total income, and $T(y_i, g_i)$ is tax amount.
+- The budget constraint is $x_{it} + g_{it} = y_{it} - T(y_{it}, g_{it})$ where $y_{it}$ is pre-tax total income, and $T(y_{it}, g_{it})$ is tax amount.
 
-In 2014, the Korean government reformed tax system $T(y_i, g_i)$, where the tax credit was introduced instead of tax deduction.
+In 2014, the Korean government reformed tax system $T(y_{it}, g_{it})$, where the tax credit was introduced instead of tax deduction.
 
-- $R_i$ is a dummy of declaration of tax relief, and $\tau(\cdot)$ is the income tax rate.
-- Tax deduction system (until 2013): $T(y_i, g_i) = \tau(y_i - R_i g_i) (y_i - R_i g_i)$
+- $R_{it}$ is a dummy of declaration of tax relief, and $\tau(\cdot)$ is the income tax rate.
+- Tax deduction system (until 2013): $T(y_{it}, g_{it}) = \tau(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it})$
   - In 2012 and 2013, the system of $\tau(\cdot)$ is same.
-  - The relative giving price is $p_i = 1 - \tau(y_i - R_i g_i)R_i$.
-- Tax credit system (from 2014): $T(y_i, g_i) = \tau(y_i) \cdot y_i - R_i m g_i$
-  - 15% of the total amount of charitable giving has been allowed as a tax credit ($m = 0.15$).
-  - The relative giving price is $p_i = 1 - m R_i$.
+  - The logged relative giving price is $R_{it} \ln(1 - \tau(y_{it} - g_{it})) = R_{it} \ln p^d_{it}$.
+- Tax credit system (from 2014): $T(y_{it}, g_{it}) = \tau(y_{it}) \cdot y_{it} - R_{it} m g_{it}$
+  - $m = 0.15$
+  - The logged relative giving price is $R_{it} \ln(1 - m) = R_{it} \ln p^c_{it}$.
 ```
 
 ```{asis, echo = doctype == "draft"}
