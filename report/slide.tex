@@ -323,6 +323,35 @@ D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\io
 \item
   Second, we obtain the fitted value of \(R_{it}\) (\(\hat{R}_{it}\)) and replace \(R_{it}\) with \(\hat{R}_{it}\).
 \end{itemize}
+\end{frame}
+
+\begin{frame}{Results: ITT Approach}
+\protect\hypertarget{results-itt-approach}{}
+\begin{table}
+\centering\begingroup\fontsize{9}{11}\selectfont
+
+\begin{tabular}{lccc}
+\toprule
+ & Overall & Intensive & Extensive\\
+\midrule
+$\hat{\varepsilon}_p^{int}$ & -1.241*** & -0.904*** & \\
+ & (0.227) & (0.249) & \\
+$\hat{\delta}$ &  &  & -0.267***\\
+ &  &  & (0.051)\\
+$\hat{\delta}/\bar{D}$ &  &  & -1.221***\\
+ &  &  & (0.235)\\
+Individual FE & Y & Y & Y\\
+Time FE & Y & Y & Y\\
+Age & Y & Y & Y\\
+Year x Education & Y & Y & Y\\
+Year x Gender & Y & Y & Y\\
+Year x Resident Area & Y & Y & Y\\
+N & 53267 & 11637 & 53267\\
+Adjusted R-squared & 0.530 & 0.678 & 0.462\\
+\bottomrule
+\end{tabular}
+\endgroup{}
+\end{table}
 
 \clearpage
 \end{frame}
