@@ -54,64 +54,20 @@ Thirdly, this paper is the first paper to examine the giving price elasticity in
 This paper consist of seven sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of price elasticity using the applicable giving price and section 6 shows the analysis using the effective giving price. Section 7 concludes.
 ```
 
-```{asis, eval = FALSE}
-## Tax relief for charitable giving by tax deduction and tax credit
+```{asis, echo = doctype == "slide"}
+## 2014 Tax Reform in South Korea
 
-In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction. 
+Consider allocation b/w private consumption ($x_i$) and giving ($g_i$). 
 
-The tax deduction and tax credit may have different effects on giving behavior. 
-This section summarizes the difference of tax deduction and tax credit.
+- The budget constraint is $x_i + g_i = y_i - T(y_i, g_i)$ where $y_i$ is pre-tax total income, and $T(y_i, g_i)$ is tax amount.
 
-## Budget Set
+In 2014, the Korean government reformed tax system $T(y_i, g_i)$, where the tax credit was introduced instead of tax deduction.
 
-Consider that a household has a choice between private consumptions ($x_i$) and charitable giving ($g_i$). Let $y_i$ be pre-tax total income.
-Then, the budget constraint is 
-
-$$
-    x_i + g_i = y_i - T_i(y_i, g_i).
-$$
-$T_i$ is tax amount which depends on the pre-tax income and charitable giving.
-
-## Tax Deduction
-
-Tax deduction reduces taxable income by giving, that is,
-
-$$
-    T_i = \tau(y_i - g_i) \cdot (y_i - g_i),
-$$
-
-where $\tau(\cdot)$ is the marginal income tax rate which is determined by $y_i - g_i$. The budget constraint will be 
-
-$$
-    x_i + [1 - \tau(y_i - g_i)]g_i = [1 - \tau(y_i - g_i)] y_i.
-$$
-
-The relative price of giving is $p_i^{d} \equiv 1 - \tau(y_i - g_i)$.
-Since the giving price in tax deduction scheme varies depending on (1) the income level and (2) the amount of charitable giving, it is endogenous to them.
-
-## Tax Credit
-
-Tax credit reduces tax amount directly, that is,
-
-$$
-    T_i = \tau(y_i)\cdot y_i - m g_i,
-$$
-
-where $m \in [0, 1]$ is the tax credit rate. Under the tax credit system, the budget constraint is 
-
-$$
-    x_i + (1 - m) g_i = [1 - \tau(y_i)] y_i.
-$$
-
-The relative price of giving is $p_i^c = 1 - m$, 
-which is only dependent on the tax credit rate $m$, which is exogenously determined by the government.
-
-## Korean tax reform in 2014
-
-- The tax incentives for charitable giving in Korea stared in 2000 and the market of charitable giving in Korea totaled 10.9 trillion KRW (approximately 1.09 bilion USD, 0.761% of GDP) in 2012 according to the national tax statistics.
-- Since the income tax deduction was initially used as a tax incentive and the marginal income tax rate was determined as Table \@ref(tab:tabTaxRate), the minimum giving price before 2014 was 0.62. 
-
-## Marginal income tax rate
+- Tax deduction system (until 2013): $T(y_i, g_i) = \tau(y_i - R_i g_i) (y_i - R_i g_i)$
+  - $R_i$ is a dummy of declaration of tax relief, and $\tau(\cdot)$ is the income tax rate.
+  - In 2012 and 2013, the system of $\tau(\cdot)$ is same.
+- Tax credit system (from 2014): $T(y_i, g_i) = \tau(y_i) \cdot y_i - R_i m g_i$
+  - 15% of the total amount of charitable giving has been allowed as a tax credit ($m = 0.15$)
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -211,14 +167,6 @@ knitr::kable(
 kable_styling(font_size = 9) %>%
 collapse_rows(columns = 2:8, valign = "middle", latex_hline = "full") %>%
 footnote(general_title = "", general = "Notes: Marginal income tax rates applied from 2008 to 2018 are summarized. The income level is shown in terms of 10,000 KRW, which is approximately 10 United States dollars (USD) at an exchange rate of 1,000 KRW to one USD.", threeparttable = TRUE, escape = FALSE)
-```
-
-```{asis, eval = FALSE}
-## Our Identification Strategy
-
-In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system again, where the tax credit was introduced instead of tax deduction. Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit, which means that the giving price from 2014 is 0.85 irrelevant to the income level.
-
-Summarizing this, compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%, get benefit from charitable giving under the tax deduction system. However, middle or low income households would enjoy tax relief in tax credit system more than tax deduction system. We exploit this policy change as an identification strategy.
 ```
 
 ```{asis, echo = doctype == "draft"}
