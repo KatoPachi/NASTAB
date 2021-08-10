@@ -55,7 +55,7 @@ doctype <- "slide"
 ```{r child = "Rmarkdown/1-summary.Rmd"}
 ```
 
-```{r child = "Rmarkdown/estimation.Rmd", eval = FALSE}
+```{r child = "Rmarkdown/estimation.Rmd"}
 ```
 
 ```{r child = "Rmarkdown/2-elasticity.Rmd", eval = FALSE}

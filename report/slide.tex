@@ -198,39 +198,39 @@
 
 \begin{frame}{2014 Tax Reform in South Korea}
 \protect\hypertarget{tax-reform-in-south-korea}{}
-Consider allocation b/w private consumption (\(x_i\)) and giving (\(g_i\)).
+Consider allocation problem b/w private consumption (\(x_{it}\)) and giving (\(g_{it}\)).
 
 \begin{itemize}
 \tightlist
 \item
-  The budget constraint is \(x_i + g_i = y_i - T(y_i, g_i)\) where \(y_i\) is pre-tax total income, and \(T(y_i, g_i)\) is tax amount.
+  The budget constraint is \(x_{it} + g_{it} = y_{it} - T(y_{it}, g_{it})\) where \(y_{it}\) is pre-tax total income, and \(T(y_{it}, g_{it})\) is tax amount.
 \end{itemize}
 
-In 2014, the Korean government reformed tax system \(T(y_i, g_i)\), where the tax credit was introduced instead of tax deduction.
+In 2014, the Korean government reformed tax system \(T(y_{it}, g_{it})\), where the tax credit was introduced instead of tax deduction.
 
 \begin{itemize}
 \tightlist
 \item
-  \(R_i\) is a dummy of declaration of tax relief, and \(\tau(\cdot)\) is the income tax rate.
+  \(R_{it}\) is a dummy of declaration of tax relief, and \(\tau(\cdot)\) is the income tax rate.
 \item
-  Tax deduction system (until 2013): \(T(y_i, g_i) = \tau(y_i - R_i g_i) (y_i - R_i g_i)\)
+  Tax deduction system (until 2013): \(T(y_{it}, g_{it}) = \tau(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it})\)
 
   \begin{itemize}
   \tightlist
   \item
     In 2012 and 2013, the system of \(\tau(\cdot)\) is same.
   \item
-    The relative giving price is \(p_i = 1 - \tau(y_i - R_i g_i)R_i\).
+    The logged relative giving price is \(R_{it} \ln(1 - \tau(y_{it} - g_{it})) = R_{it} \ln p^d_{it}\).
   \end{itemize}
 \item
-  Tax credit system (from 2014): \(T(y_i, g_i) = \tau(y_i) \cdot y_i - R_i m g_i\)
+  Tax credit system (from 2014): \(T(y_{it}, g_{it}) = \tau(y_{it}) \cdot y_{it} - R_{it} m g_{it}\)
 
   \begin{itemize}
   \tightlist
   \item
-    15\% of the total amount of charitable giving has been allowed as a tax credit (\(m = 0.15\)).
+    \(m = 0.15\)
   \item
-    The relative giving price is \(p_i = 1 - m R_i\).
+    The logged relative giving price is \(R_{it} \ln(1 - m) = R_{it} \ln p^c_{it}\).
   \end{itemize}
 \end{itemize}
 \end{frame}
@@ -266,6 +266,63 @@ An annual financial panel survey implemented by The Korea Institute of Taxation 
 
 \caption{Income Distribution and Giving Price in 2013}\label{fig:SummaryPriceChange}
 \end{figure}
+\end{frame}
+
+\begin{frame}{Fixed Effect Model}
+\protect\hypertarget{fixed-effect-model}{}
+The intensive-margin elasticity
+
+\begin{equation}
+    \ln g_{it} = \varepsilon^{int}_p R_{it} \ln p_{it} + \varepsilon^{int}_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:intensive}
+\end{equation}
+
+The extensive-margin elasticity
+
+\begin{equation}
+D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\iota_t +v_{it}. \label{eq:extensive}
+\end{equation}
+
+\begin{itemize}
+\tightlist
+\item
+  Since we use the linear probability model, the estimated coefficient \(\delta\) represents \(\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\).
+\item
+  the implied extensive-margin price are calculated by \(\hat{\delta}/\bar{D}\) where \(\bar{D}\) is sample average of outcome variable \(D_{it}\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{ITT approach and IV approach}
+\protect\hypertarget{itt-approach-and-iv-approach}{}
+\textbf{ITT approach = True price effect + Effect of self-selection of a tax relief}
+
+\begin{itemize}
+\tightlist
+\item
+  We assume that \(R_{it} = 1\) for all \(i\) and \(t\).
+\end{itemize}
+
+\textbf{IV approach = True price effect}
+
+\begin{itemize}
+\tightlist
+\item
+  First, using the emplyed dummy as IV, we estimate the following model:
+\end{itemize}
+
+\begin{align}
+  R_{it}
+  = \alpha_{1i} + \lambda \text{Employed}_{it} + X_{it} \beta_1
+  + \mu_{i1} + \iota_{t1} + \eta_{it} \label{eq:stage1}
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  There is a difference of declaration cost of tax relief since self-employed workers have to retain the certificate until they submit tax return although wage earners can submit the certificate at any time.\\
+\item
+  Second, we obtain the fitted value of \(R_{it}\) (\(\hat{R}_{it}\)) and replace \(R_{it}\) with \(\hat{R}_{it}\).
+\end{itemize}
 
 \clearpage
 \end{frame}
