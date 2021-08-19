@@ -15,16 +15,54 @@ knitr::opts_chunk$set(
 ```
 
 ```{asis, echo = doctype == "slide"}
-## Our reseach evaluate the effect of tax relief on charitable giving in South Korea
+## Evaluate Effect of Tax Incentive on Charitable Giving
 
-- We utilize the South Korean (Korea hereafter) tax reform in 2014 which has changed from tax deduction system to tax creit system.
-  - The extant reseach mainly focuses on the tax reform within the regime of tax deduction [@Randolph1995; @Auten2002; @Bakija2011; @Almunia2020] or tax credit [@Fack2010].
-- We use the Korean panel survey data (NaSTaB).
-  - We could consider the sample of low-income household.
-  - Our data contains chariable giving irrespective of declarations.
-- We take two approach to estimate the effect of tax relief
-  1. ITT Approach: we assume that the donors can automatically enjoy tax relief.
-  2. IV Approach: we use an "effective" giving price considering whether each tax payer declare tax relief or not (self-selection). 
+- We estimate price effect on both *declared* and *non-declared* chariable giving, using the financial panel data survey including those who did not declare tax relief
+- To take price variation due to declaration into account, we estimate two price elasticities:
+  - *Applicable* price elasticity: we use giving price when tax payers declare tax relief regardless of actual declaration
+  - *Effective* price elasticity: we construct giving price based on information of declaration
+  - By comparing two price elasticities, we can infer price effect through declration
+- **Result**: Both price elasticities are around -1, which implies that the price effect through declaration is not so large.
+
+## Positioning of Our Research
+
+Extant research mainly uses the tax return data
+
+- This data consists on those who declared tax relief
+- Thus, extant research estimates the applicable price elasticity of declared donations
+
+However, non-declared tax payers also decide an amount of donation and whether to declare tax relief based on tax incentive.
+
+- Our research uses the financial panel data survey including those who did not declare tax relief
+- Thus, we can estimate the price effect, taking this fact into consideration
+
+<!--
+## Evaluate Effect of 2014 Tax Reform in South Korea on Charitable Giving
+
+- The 2014 tax reform has changed from tax *deduction* system to tax *credit* system.
+- By this reform, (i) giving price is directly changed and (ii) giving price is indirectly changed through declration
+  - The 2014 tax reform affected incentive to declaration due to direct price change. 
+- To capture effect of indirect price change, we estimate two price elasticities:
+    1. price elasticity without price variation due to declaration
+    2. price elasticity with price variation due to declaration
+- **Result**: Both price elasticities are around -1.
+
+## Related papers
+
+**Extant research**:
+
+- focusing on the tax reform within the regime of tax deduction or tax credit
+- Using the tax return data
+  - mainly consisting on wealthy people
+  - containing declared charitable giving (*applicable* giving price)
+
+**Our Paper**
+
+- dealing with the tax reform from tax deduction system to tax credit system
+- Using the financial panel survey called NaSTaB
+  - we could consider the sample of low-income household
+  - containing chariable giving irrespective of declarations (*effective* giving price) and wether to declare tax relief
+-->
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -55,21 +93,29 @@ This paper consist of seven sections. Section 2 and 3 respectively explain the i
 ```
 
 ```{asis, echo = doctype == "slide"}
-## 2014 Tax Reform in South Korea
+## 2014 tax reform in South Korea
 
-Consider allocation problem b/w private consumption ($x_{it}$) and giving ($g_{it}$).
+Our major price variation comes from the 2014 tax reform, which has changed from the tax deduction system to the tax credit system
 
+- Consider allocation problem b/w private consumption ($x_{it}$) and giving ($g_{it}$). 
 - The budget constraint is $x_{it} + g_{it} = y_{it} - T(y_{it}, g_{it})$ where $y_{it}$ is pre-tax total income, and $T(y_{it}, g_{it})$ is tax amount.
+- Let $R_{it}$ be a dummy of declaration of tax relief, and let $\tau(\cdot)$ be the income tax rate.
 
-In 2014, the Korean government reformed tax system $T(y_{it}, g_{it})$, where the tax credit was introduced instead of tax deduction.
+## 2014 tax reform in South Korea (Cont'd)
 
-- $R_{it}$ is a dummy of declaration of tax relief, and $\tau(\cdot)$ is the income tax rate.
-- Tax deduction system (until 2013): $T(y_{it}, g_{it}) = \tau(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it})$
-  - In 2012 and 2013, the system of $\tau(\cdot)$ is same.
-  - The logged relative giving price is $R_{it} \ln(1 - \tau(y_{it} - g_{it})) = R_{it} \ln p^d_{it}$.
-- Tax credit system (from 2014): $T(y_{it}, g_{it}) = \tau(y_{it}) \cdot y_{it} - R_{it} m g_{it}$
-  - $m = 0.15$
-  - The logged relative giving price is $R_{it} \ln(1 - m) = R_{it} \ln p^c_{it}$.
+**Tax deduction system (until 2013)** 
+
+$$T(y_{it}, g_{it}) = \tau(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it})$$
+
+- In 2012 and 2013, the system of $\tau(\cdot)$ is same.
+- The logged relative giving price is $R_{it} \ln(1 - \tau(y_{it} - g_{it})) = R_{it} \ln p^d_{it}$.
+
+**Tax credit system (from 2014)**
+
+$$T(y_{it}, g_{it}) = \tau(y_{it}) \cdot y_{it} - R_{it} m g_{it}$$
+
+- $m = 0.15$
+- The logged relative giving price is $R_{it} \ln(1 - 0.15) = R_{it} \ln 0.85$.
 ```
 
 ```{asis, echo = doctype == "draft"}

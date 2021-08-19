@@ -261,7 +261,9 @@ extensive %>%
 ```
 
 ```{asis, echo = doctype == "slide"}
-## Results: ITT Approach
+## Result of Applicable Peice Elasticitiy
+
+Overall elasticity is that we do not distinguish intensive and extensive margin
 ```
 
 ```{r, eval = doctype == "slide"}
@@ -308,7 +310,7 @@ list(
     align = "lccc",
     booktabs = TRUE, escape = FALSE, linesep = ""
   ) %>%
-  kable_styling(font_size = 9)
+  kable_styling(font_size = 8)
 ```
 
 ```{asis, echo = doctype == "draft"}
