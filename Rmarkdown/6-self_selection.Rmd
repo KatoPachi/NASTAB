@@ -455,7 +455,9 @@ list(ivest_report1_ext, ivest_report2_ext) %>%
 ```
 
 ```{asis, echo = doctype == "slide"}
-## Results: IV Approach
+## Result of Effective Price Elasticity
+
+Overall effective price elasticity is slightly more elastic than applicable one. Extensive-margin effective price elasticity is slightly less elastic than applicable one.
 ```
 
 ```{r eval = doctype == "slide"}
@@ -506,5 +508,5 @@ list(
     align = "lccc",
     booktabs = TRUE, escape = FALSE, linesep = ""
   ) %>%
-  kable_styling(font_size = 9)
+  kable_styling(font_size = 8)
 ```

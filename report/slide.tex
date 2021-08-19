@@ -122,29 +122,6 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-\newlength{\cslhangindent}
-\setlength{\cslhangindent}{1.5em}
-\newlength{\csllabelwidth}
-\setlength{\csllabelwidth}{3em}
-\newlength{\cslentryspacingunit} % times entry-spacing
-\setlength{\cslentryspacingunit}{\parskip}
-\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
- {% don't indent paragraphs
-  \setlength{\parindent}{0pt}
-  % turn on hanging indent if param 1 is 1
-  \ifodd #1
-  \let\oldpar\par
-  \def\par{\hangindent=\cslhangindent\oldpar}
-  \fi
-  % set entry spacing
-  \setlength{\parskip}{#2\cslentryspacingunit}
- }%
- {}
-\usepackage{calc}
-\newcommand{\CSLBlock}[1]{#1\hfill\break}
-\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
-\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
-\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -155,83 +132,97 @@
       \author[shortname]{ Hiroki Kato \inst{1} \and  Tsuyoshi Goto \inst{2} \and  Yong-Rok Kim \inst{3} \and }
         \institute[shortinst]{ \inst{1} Osaka University \and  \inst{2} Chiba University \and  \inst{3} Kobe University \and }
   
-\date{2021/08/10}
+\date{2021/08/20}
 
 
 \begin{document}
 \frame{\titlepage}
 
-\begin{frame}{Our reseach evaluate the effect of tax relief on charitable giving in South Korea}
-\protect\hypertarget{our-reseach-evaluate-the-effect-of-tax-relief-on-charitable-giving-in-south-korea}{}
+\begin{frame}{Evaluate Effect of Tax Incentive on Charitable Giving}
+\protect\hypertarget{evaluate-effect-of-tax-incentive-on-charitable-giving}{}
 \begin{itemize}
 \tightlist
 \item
-  We utilize the South Korean (Korea hereafter) tax reform in 2014 which has changed from tax deduction system to tax creit system.
+  We estimate price effect on both \emph{declared} and \emph{non-declared} chariable giving, using the financial panel data survey including those who did not declare tax relief
+\item
+  To take price variation due to declaration into account, we estimate two price elasticities:
 
   \begin{itemize}
   \tightlist
   \item
-    The extant reseach mainly focuses on the tax reform within the regime of tax deduction (Almunia et al., 2020; Auten et al., 2002; Bakija and Heim, 2011; Randolph, 1995) or tax credit (Fack and Landais, 2010).
+    \emph{Applicable} price elasticity: we use giving price when tax payers declare tax relief regardless of actual declaration
+  \item
+    \emph{Effective} price elasticity: we construct giving price based on information of declaration
+  \item
+    By comparing two price elasticities, we can infer price effect through declration
   \end{itemize}
 \item
-  We use the Korean panel survey data (NaSTaB).
-
-  \begin{itemize}
-  \tightlist
-  \item
-    We could consider the sample of low-income household.
-  \item
-    Our data contains chariable giving irrespective of declarations.
-  \end{itemize}
-\item
-  We take two approach to estimate the effect of tax relief
-
-  \begin{enumerate}
-  \tightlist
-  \item
-    ITT Approach: we assume that the donors can automatically enjoy tax relief.
-  \item
-    IV Approach: we use an ``effective'' giving price considering whether each tax payer declare tax relief or not (self-selection).
-  \end{enumerate}
+  \textbf{Result}: Both price elasticities are around -1, which implies that the price effect through declaration is not so large.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{2014 Tax Reform in South Korea}
-\protect\hypertarget{tax-reform-in-south-korea}{}
-Consider allocation problem b/w private consumption (\(x_{it}\)) and giving (\(g_{it}\)).
+\begin{frame}{Positioning of Our Research}
+\protect\hypertarget{positioning-of-our-research}{}
+Extant research mainly uses the tax return data
 
 \begin{itemize}
 \tightlist
 \item
-  The budget constraint is \(x_{it} + g_{it} = y_{it} - T(y_{it}, g_{it})\) where \(y_{it}\) is pre-tax total income, and \(T(y_{it}, g_{it})\) is tax amount.
+  This data consists on those who declared tax relief
+\item
+  Thus, extant research estimates the applicable price elasticity of declared donations
 \end{itemize}
 
-In 2014, the Korean government reformed tax system \(T(y_{it}, g_{it})\), where the tax credit was introduced instead of tax deduction.
+However, non-declared tax payers also decide an amount of donation and whether to declare tax relief based on tax incentive.
 
 \begin{itemize}
 \tightlist
 \item
-  \(R_{it}\) is a dummy of declaration of tax relief, and \(\tau(\cdot)\) is the income tax rate.
+  Our research uses the financial panel data survey including those who did not declare tax relief
 \item
-  Tax deduction system (until 2013): \(T(y_{it}, g_{it}) = \tau(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it})\)
+  Thus, we can estimate the price effect, taking this fact into consideration
+\end{itemize}
+\end{frame}
 
-  \begin{itemize}
-  \tightlist
-  \item
-    In 2012 and 2013, the system of \(\tau(\cdot)\) is same.
-  \item
-    The logged relative giving price is \(R_{it} \ln(1 - \tau(y_{it} - g_{it})) = R_{it} \ln p^d_{it}\).
-  \end{itemize}
+\begin{frame}{2014 tax reform in South Korea}
+\protect\hypertarget{tax-reform-in-south-korea}{}
+Our major price variation comes from the 2014 tax reform, which has changed from the tax deduction system to the tax credit system
+
+\begin{itemize}
+\tightlist
 \item
-  Tax credit system (from 2014): \(T(y_{it}, g_{it}) = \tau(y_{it}) \cdot y_{it} - R_{it} m g_{it}\)
+  Consider allocation problem b/w private consumption (\(x_{it}\)) and giving (\(g_{it}\)).
+\item
+  The budget constraint is \(x_{it} + g_{it} = y_{it} - T(y_{it}, g_{it})\) where \(y_{it}\) is pre-tax total income, and \(T(y_{it}, g_{it})\) is tax amount.
+\item
+  Let \(R_{it}\) be a dummy of declaration of tax relief, and let \(\tau(\cdot)\) be the income tax rate.
+\end{itemize}
+\end{frame}
 
-  \begin{itemize}
-  \tightlist
-  \item
-    \(m = 0.15\)
-  \item
-    The logged relative giving price is \(R_{it} \ln(1 - m) = R_{it} \ln p^c_{it}\).
-  \end{itemize}
+\begin{frame}{2014 tax reform in South Korea (Cont'd)}
+\protect\hypertarget{tax-reform-in-south-korea-contd}{}
+\textbf{Tax deduction system (until 2013)}
+
+\[T(y_{it}, g_{it}) = \tau(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it})\]
+
+\begin{itemize}
+\tightlist
+\item
+  In 2012 and 2013, the system of \(\tau(\cdot)\) is same.
+\item
+  The logged relative giving price is \(R_{it} \ln(1 - \tau(y_{it} - g_{it})) = R_{it} \ln p^d_{it}\).
+\end{itemize}
+
+\textbf{Tax credit system (from 2014)}
+
+\[T(y_{it}, g_{it}) = \tau(y_{it}) \cdot y_{it} - R_{it} m g_{it}\]
+
+\begin{itemize}
+\tightlist
+\item
+  \(m = 0.15\)
+\item
+  The logged relative giving price is \(R_{it} \ln(1 - 0.15) = R_{it} \ln 0.85\).
 \end{itemize}
 \end{frame}
 
@@ -256,28 +247,26 @@ An annual financial panel survey implemented by The Korea Institute of Taxation 
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Income and Giving Price}
-\protect\hypertarget{income-and-giving-price}{}
-\begin{figure}[t]
+\begin{frame}{Proportion of donors is slightly decreased just after tax reform}
+\protect\hypertarget{proportion-of-donors-is-slightly-decreased-just-after-tax-reform}{}
+\begin{center}\includegraphics[width=0.85\linewidth]{C:/Users/katoo/Desktop/NASTAB/report/slide_files/figure-beamer/SummaryOutcome-1} \end{center}
+\end{frame}
 
-{\centering \includegraphics[width=0.85\linewidth]{C:/Users/vge00/Desktop/NASTAB/report/slide_files/figure-beamer/SummaryPriceChange-1} 
-
-}
-
-\caption{Income Distribution and Giving Price in 2013}\label{fig:SummaryPriceChange}
-\end{figure}
+\begin{frame}{2014 tax reform made increasing price group and decreasing price group}
+\protect\hypertarget{tax-reform-made-increasing-price-group-and-decreasing-price-group}{}
+\begin{center}\includegraphics[width=0.85\linewidth]{C:/Users/katoo/Desktop/NASTAB/report/slide_files/figure-beamer/SummaryPriceChange-1} \end{center}
 \end{frame}
 
 \begin{frame}{Fixed Effect Model}
 \protect\hypertarget{fixed-effect-model}{}
-The intensive-margin elasticity
+\textbf{Intensive-margin elasticity}: how much do donors additionally donate reacting to the marginal increase of giving price?
 
 \begin{equation}
     \ln g_{it} = \varepsilon^{int}_p R_{it} \ln p_{it} + \varepsilon^{int}_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:intensive}
 \end{equation}
 
-The extensive-margin elasticity
+\textbf{Extensive-margin elasticity}: how much does the probability to donate change reacting to marginal increase of giving price?
 
 \begin{equation}
 D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\iota_t +v_{it}. \label{eq:extensive}
@@ -292,22 +281,35 @@ D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\io
 \end{itemize}
 \end{frame}
 
-\begin{frame}{ITT approach and IV approach}
-\protect\hypertarget{itt-approach-and-iv-approach}{}
-\textbf{ITT approach = True price effect + Effect of self-selection of a tax relief}
-
+\begin{frame}{Applicable Price Elasticity (ITT Approach)}
+\protect\hypertarget{applicable-price-elasticity-itt-approach}{}
 \begin{itemize}
 \tightlist
 \item
-  We assume that \(R_{it} = 1\) for all \(i\) and \(t\).
+  We use giving price when tax payers declare tax relief regardless of actual declaration
+\item
+  Non-declrared tax payers are treated as if they have declrared tax relief
+\item
+  \(R_{it} = 1\) for any \(i\) and \(t\) in equation \eqref{eq:intensive} and \eqref{eq:extensive}
 \end{itemize}
+\end{frame}
 
-\textbf{IV approach = True price effect}
-
+\begin{frame}{Effective Price Elasticity (IV approach)}
+\protect\hypertarget{effective-price-elasticity-iv-approach}{}
 \begin{itemize}
 \tightlist
 \item
-  First, using the emplyed dummy as IV, we estimate the following model:
+  Declaration affects both giving price and charitable giving
+\item
+  We took the panel IV model, using the employed dummy as instrument.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    There is a difference of declaration cost of tax relief since self-employed workers have to retain the certificate until they submit tax return although wage earners can submit the certificate at any time.
+  \end{itemize}
+\item
+  First, we estimate the following model:
 \end{itemize}
 
 \begin{align}
@@ -319,16 +321,16 @@ D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\io
 \begin{itemize}
 \tightlist
 \item
-  There is a difference of declaration cost of tax relief since self-employed workers have to retain the certificate until they submit tax return although wage earners can submit the certificate at any time.\\
-\item
-  Second, we obtain the fitted value of \(R_{it}\) (\(\hat{R}_{it}\)) and replace \(R_{it}\) with \(\hat{R}_{it}\).
+  Second, we obtain the fitted value of \(R_{it}\) (denoted by \(\hat{R}_{it}\)) and replace \(R_{it}\) with \(\hat{R}_{it}\).
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Results: ITT Approach}
-\protect\hypertarget{results-itt-approach}{}
+\begin{frame}{Result of Applicable Peice Elasticitiy}
+\protect\hypertarget{result-of-applicable-peice-elasticitiy}{}
+Overall elasticity is that we do not distinguish intensive and extensive margin
+
 \begin{table}
-\centering\begingroup\fontsize{9}{11}\selectfont
+\centering\begingroup\fontsize{8}{10}\selectfont
 
 \begin{tabular}{lccc}
 \toprule
@@ -354,10 +356,12 @@ Adjusted R-squared & 0.530 & 0.678 & 0.462\\
 \end{table}
 \end{frame}
 
-\begin{frame}{Results: IV Approach}
-\protect\hypertarget{results-iv-approach}{}
+\begin{frame}{Result of Effective Price Elasticity}
+\protect\hypertarget{result-of-effective-price-elasticity}{}
+Overall effective price elasticity is slightly more elastic than applicable one. Extensive-margin effective price elasticity is slightly less elastic than applicable one.
+
 \begin{table}
-\centering\begingroup\fontsize{9}{11}\selectfont
+\centering\begingroup\fontsize{8}{10}\selectfont
 
 \begin{tabular}{lccc}
 \toprule
@@ -395,28 +399,16 @@ Main message
 \item
   It implies that the effect from the declaration cost, which has been ignored, is not so large in South Korea.
 \end{itemize}
-\end{frame}
 
-\begin{frame}{References}
-\protect\hypertarget{references}{}
-\hypertarget{refs}{}
-\begin{CSLReferences}{1}{0}
-\leavevmode\vadjust pre{\hypertarget{ref-Almunia2020}{}}%
-Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
+Some robustness
 
-\leavevmode\vadjust pre{\hypertarget{ref-Auten2002}{}}%
-Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. Charitable giving, income, and taxes: An analysis of panel data. American Economic Review 92, 371--382.
-
-\leavevmode\vadjust pre{\hypertarget{ref-Bakija2011}{}}%
-Bakija, J., Heim, B.T., 2011. How does charitable giving respond to incentives and income? New estimates from panel data. National Tax Journal 64, 615--650. doi:\href{https://doi.org/10.17310/ntj.2011.2S.08}{10.17310/ntj.2011.2S.08}
-
-\leavevmode\vadjust pre{\hypertarget{ref-Fack2010}{}}%
-Fack, G., Landais, C., 2010. Are tax incentives for charitable giving efficient? Evidence from france. American Economic Journal - Economic Policy 2, 117--141. doi:\href{https://doi.org/10.1257/pol.2.2.117}{10.1257/pol.2.2.117}
-
-\leavevmode\vadjust pre{\hypertarget{ref-Randolph1995}{}}%
-Randolph, W.C., 1995. Dynamic income, progressive taxes, and the timing of charitable contributions. Journal of Political Economy 103, 709--738. doi:\href{https://doi.org/10.1086/262000}{10.1086/262000}
-
-\end{CSLReferences}
+\begin{itemize}
+\tightlist
+\item
+  Alothough we focus on price variation coming from tax reform and declaration of tax relief, price variation is also caused by a manipulation of giving and income.
+\item
+  We take other empirical methodologies to control these problemes, and obtain similar results.
+\end{itemize}
 \end{frame}
 
 \end{document}

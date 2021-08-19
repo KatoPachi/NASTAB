@@ -66,5 +66,3 @@ doctype <- "slide"
 
 ```{r child="Rmarkdown/conclusion.Rmd"}
 ```
-
-## References

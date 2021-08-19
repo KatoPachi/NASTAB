@@ -108,6 +108,9 @@ df %>%
   pack_rows("Individual Characteristics", 6, 11)
 ```
 
+```{asis, echo = doctype == "slide"}
+## Proportion of donors is slightly decreased just after tax reform
+```
 
 ```{asis, echo = doctype == "draft"}
 Table \@ref(tab:SummaryCovariate) shows summary statistics of our data.[^Question]
@@ -130,7 +133,7 @@ After that, the proportion of donors is greter than 20\%.
 [^Question]: Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes. We sum up the amount of donations, and consider it as the annual charitable giving.
 ```
 
-```{r SummaryOutcome, out.width="100%", fig.cap="Proportion of Donors and Average Donations among Donors. Notes: The left and right axises respectively mesure proportion of donors and the average amount donations among donors. Authors made this graph based on NasTaB data.", eval = doctype == "draft"}
+```{r SummaryOutcome, out.width="85%"}
 avgext <- df %>%
   group_by(year) %>%
   summarize_at(vars(i_ext_giving), list(mu = ~mean(., na.rm = TRUE)))
@@ -165,7 +168,7 @@ ggplot(avgext, aes(x = year, y = mu)) +
 ```
 
 ```{asis, echo = doctype == "slide"}
-## Income and Giving Price
+## 2014 tax reform made increasing price group and decreasing price group
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -205,7 +208,7 @@ or a labor income deduction of giving.
 Table \@ref(tab:SummaryCovariate) shows the proportion of declaration is about 48\%.
 ```
 
-```{r SummaryPriceChange, out.width="85%", fig.cap="Income Distribution and Giving Price in 2013"}
+```{r SummaryPriceChange, out.width="85%"}
 df %>%
   filter(year == 2013) %>%
   dplyr::select(lincome, price) %>%

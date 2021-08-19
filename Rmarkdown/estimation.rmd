@@ -24,14 +24,14 @@ knitr::opts_chunk$set(
 ```{asis, echo = doctype == "slide"}
 ## Fixed Effect Model
 
-The intensive-margin elasticity
+**Intensive-margin elasticity**: how much do donors additionally donate reacting to the marginal increase of giving price?
 
 \begin{equation}
     \ln g_{it} = \varepsilon^{int}_p R_{it} \ln p_{it} + \varepsilon^{int}_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:intensive)
 \end{equation}
 
-The extensive-margin elasticity
+**Extensive-margin elasticity**: how much does the probability to donate change reacting to marginal increase of giving price?
 
 \begin{equation}
 D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\iota_t +v_{it}. (\#eq:extensive)
@@ -40,24 +40,26 @@ D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\io
 - Since we use the linear probability model, the estimated coefficient $\delta$ represents $\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}$.
 - the implied extensive-margin price are calculated by $\hat{\delta}/\bar{D}$ where $\bar{D}$ is sample average of outcome variable $D_{it}$.
 
-## ITT approach and IV approach
+## Applicable Price Elasticity (ITT Approach)
 
-**ITT approach = True price effect + Effect of self-selection of a tax relief**
+- We use giving price when tax payers declare tax relief regardless of actual declaration
+- Non-declrared tax payers are treated as if they have declrared tax relief
+- $R_{it} = 1$ for any $i$ and $t$ in equation \@ref(eq:intensive) and \@ref(eq:extensive)
 
-- We assume that $R_{it} = 1$ for all $i$ and $t$.
+## Effective Price Elasticity (IV approach)
 
-**IV approach = True price effect**
-
-- First, using the emplyed dummy as IV, we estimate the following model:
+- Declaration affects both giving price and charitable giving
+- We took the panel IV model, using the employed dummy as instrument.
+  - There is a difference of declaration cost of tax relief since self-employed workers have to retain the certificate until they submit tax return although wage earners can submit the certificate at any time.
+- First, we estimate the following model:
 
 \begin{align}
   R_{it}
   = \alpha_{1i} + \lambda \text{Employed}_{it} + X_{it} \beta_1
   + \mu_{i1} + \iota_{t1} + \eta_{it} (\#eq:stage1)
 \end{align}
-
-- There is a difference of declaration cost of tax relief since self-employed workers have to retain the certificate until they submit tax return although wage earners can submit the certificate at any time.   
-- Second, we obtain the fitted value of $R_{it}$ ($\hat{R}_{it}$) and replace $R_{it}$ with $\hat{R}_{it}$.
+   
+- Second, we obtain the fitted value of $R_{it}$ (denoted by $\hat{R}_{it}$) and replace $R_{it}$ with $\hat{R}_{it}$.
 ```
 
 ```{asis, echo = doctype == "draft"}

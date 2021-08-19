@@ -6,6 +6,10 @@ Main message
 - Both ITT approach and IV approach show that the giving price elasticity in Korea is around -1.
 - It implies that the effect from the declaration cost, which has been ignored, is not so large in South Korea.
 
+Some robustness
+
+- Alothough we focus on price variation coming from tax reform and declaration of tax relief, price variation is also caused by a manipulation of giving and income.
+- We take other empirical methodologies to control these problemes, and obtain similar results.
 ```
 
 ```{asis, echo = doctype == "draft"}
