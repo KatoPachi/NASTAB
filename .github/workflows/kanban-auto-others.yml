@@ -11,5 +11,5 @@ jobs:
         uses: alex-page/github-project-automation-plus@v0.7.1
         with:
           project: My task board
-          column: other issues
+          column: To do (others)
           repo-token: ${{ secrets.KANBAN_AUTO_OTHER }}
