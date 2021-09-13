@@ -122,6 +122,29 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -138,50 +161,58 @@
 \begin{document}
 \frame{\titlepage}
 
-\begin{frame}{Evaluate Effect of Tax Incentive on Charitable Giving}
-\protect\hypertarget{evaluate-effect-of-tax-incentive-on-charitable-giving}{}
+\begin{frame}{Introduction}
+\protect\hypertarget{introduction}{}
 \begin{itemize}
 \tightlist
 \item
-  We estimate price effect on both \emph{declared} and \emph{non-declared} chariable giving, using the financial panel data survey including those who did not declare tax relief
+  In many countries, tax incentives on chariable giving are implemented
 \item
-  To take price variation due to declaration into account, we estimate two price elasticities:
+  Many papers investigate elasticities of the tax incentive based on tax return data (e.g. Almunia et al. (2020); Auten et al. (2002); Bakija and Heim (2011))
+\item
+  However, the tax return data record only the declared charitable giving
 
   \begin{itemize}
   \tightlist
   \item
-    \emph{Applicable} price elasticity: we use giving price when tax payers declare tax relief regardless of actual declaration
+    Tax payers decide an amount of donation and whether to declare tax relief based on the size of tax incentive and declration cost.
   \item
-    \emph{Effective} price elasticity: we construct giving price based on information of declaration
+    Because of this declration cost, the estimations (especially for extensive margins) may be biased.
   \item
-    By comparing two price elasticities, we can infer price effect through declration
+    Moreover, actual donations is different from declared donations (Fack and Landais (2016); Gillitzer and Skov (2018))
   \end{itemize}
 \item
-  \textbf{Result}: Both price elasticities are around -1, which implies that the price effect through declaration is not so large.
+  We investigate the elasticities about both declared and non-declared charitable giving, using the financial panel survey data in South Korea
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Positioning of Our Research}
-\protect\hypertarget{positioning-of-our-research}{}
-Extant research mainly uses the tax return data
+\begin{frame}{Introduction}
+\protect\hypertarget{introduction-1}{}
+To take price variation due to declaration into account, we estimate two price elasticities:
 
 \begin{itemize}
 \tightlist
 \item
-  This data consists on those who declared tax relief
+  \emph{Applicable} price elasticity: giving price when tax payers declare tax relief regardless of actual declaration
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The major variation of this giving price comes from the 2014 tax reform
+  \end{itemize}
 \item
-  Thus, extant research estimates the applicable price elasticity of declared donations
+  \emph{Effective} price elasticity: giving price based on information of declaration
+
+  \begin{itemize}
+  \tightlist
+  \item
+    We estimate this considering the existence of the declaration cost
+  \end{itemize}
+\item
+  By comparing two price elasticities, we can infer price effect through declration
 \end{itemize}
 
-However, non-declared tax payers also decide an amount of donation and whether to declare tax relief based on tax incentive.
-
-\begin{itemize}
-\tightlist
-\item
-  Our research uses the financial panel data survey including those who did not declare tax relief
-\item
-  Thus, we can estimate the price effect, taking this fact into consideration
-\end{itemize}
+Result: \textcolor{red}{Both price elasticities are around -1, which implies that the price effect through declaration is not so large.}
 \end{frame}
 
 \begin{frame}{2014 tax reform in South Korea}
@@ -226,8 +257,8 @@ Our major price variation comes from the 2014 tax reform, which has changed from
 \end{itemize}
 \end{frame}
 
-\begin{frame}{About NaSTaB}
-\protect\hypertarget{about-nastab}{}
+\begin{frame}{Data: National Survey of Tax and Benefit}
+\protect\hypertarget{data-national-survey-of-tax-and-benefit}{}
 An annual financial panel survey implemented by The Korea Institute of Taxation and Finance
 
 \begin{itemize}
@@ -241,32 +272,72 @@ An annual financial panel survey implemented by The Korea Institute of Taxation 
   \tightlist
   \item
     the giving price before 2014 was changed frequently and incorporating the data before 2012 captures the effects of another tax reform than the reform in 2014.
-  \item
-    NaSTaB asks the amount of donation and the annual labor income last year.
   \end{itemize}
+\item
+  This survey asks the amount of donation and the annual labor income last year.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Proportion of donors is slightly decreased just after tax reform}
-\protect\hypertarget{proportion-of-donors-is-slightly-decreased-just-after-tax-reform}{}
-\begin{center}\includegraphics[width=0.85\linewidth]{C:/Users/katoo/Desktop/NASTAB/report/slide_files/figure-beamer/SummaryOutcome-1} \end{center}
+\begin{frame}{Summary Statistics of Charitable Giving}
+\protect\hypertarget{summary-statistics-of-charitable-giving}{}
+Proportion of donors is slightly decreased just after tax reform
+
+\begin{center}\includegraphics[width=0.85\linewidth]{C:/Users/vge00/Desktop/NASTAB/report/slide_files/figure-beamer/SummaryOutcome-1} \end{center}
 \end{frame}
 
-\begin{frame}{2014 tax reform made increasing price group and decreasing price group}
-\protect\hypertarget{tax-reform-made-increasing-price-group-and-decreasing-price-group}{}
-\begin{center}\includegraphics[width=0.85\linewidth]{C:/Users/katoo/Desktop/NASTAB/report/slide_files/figure-beamer/SummaryPriceChange-1} \end{center}
+\begin{frame}{Income Distribution and Giving Price in 2013}
+\protect\hypertarget{income-distribution-and-giving-price-in-2013}{}
+\begin{center}\includegraphics[width=0.85\linewidth]{C:/Users/vge00/Desktop/NASTAB/report/slide_files/figure-beamer/SummaryPriceChange-1} \end{center}
 \end{frame}
 
-\begin{frame}{Fixed Effect Model}
-\protect\hypertarget{fixed-effect-model}{}
-\textbf{Intensive-margin elasticity}: how much do donors additionally donate reacting to the marginal increase of giving price?
+\begin{frame}{Estimation of Price Elasicities}
+\protect\hypertarget{estimation-of-price-elasicities}{}
+We estimate following price elasticities:
+
+\begin{enumerate}
+\tightlist
+\item
+  Applicable price elasticities
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Intensive-margin one
+  \item
+    Extensive-margin one
+  \end{itemize}
+\item
+  Effective price elasticities
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Intensive-margin one
+  \item
+    Extensive-margin one
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Intensive-Margin Price Elasicity}
+\protect\hypertarget{intensive-margin-price-elasicity}{}
+How much do donors additionally donate reacting to the marginal increase of giving price?
 
 \begin{equation}
     \ln g_{it} = \varepsilon^{int}_p R_{it} \ln p_{it} + \varepsilon^{int}_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:intensive}
 \end{equation}
 
-\textbf{Extensive-margin elasticity}: how much does the probability to donate change reacting to marginal increase of giving price?
+\begin{itemize}
+\tightlist
+\item
+  We restrict data to those who donated.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Extensive-Margin Price Elasticity}
+\protect\hypertarget{extensive-margin-price-elasticity}{}
+How much does the probability to donate change reacting to marginal increase of giving price?
 
 \begin{equation}
 D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\iota_t +v_{it}. \label{eq:extensive}
@@ -275,9 +346,9 @@ D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\io
 \begin{itemize}
 \tightlist
 \item
-  Since we use the linear probability model, the estimated coefficient \(\delta\) represents \(\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\).
+  Since we use the linear probability model, the estimated coefficient \(\delta\) does not represent elasticity directly (\(\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}\)).
 \item
-  the implied extensive-margin price are calculated by \(\hat{\delta}/\bar{D}\) where \(\bar{D}\) is sample average of outcome variable \(D_{it}\).
+  the implied extensive-margin price elastcity are calculated by \(\hat{\delta}/\bar{D}\) where \(\bar{D}\) is sample average of outcome variable \(D_{it}\).
 \end{itemize}
 \end{frame}
 
@@ -289,6 +360,12 @@ D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\io
   We use giving price when tax payers declare tax relief regardless of actual declaration
 \item
   Non-declrared tax payers are treated as if they have declrared tax relief
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In the treatment effect literature, this approach is sometimes called ``intention-to-treat (ITT)''
+  \end{itemize}
 \item
   \(R_{it} = 1\) for any \(i\) and \(t\) in equation \eqref{eq:intensive} and \eqref{eq:extensive}
 \end{itemize}
@@ -327,7 +404,7 @@ D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\io
 
 \begin{frame}{Result of Applicable Peice Elasticitiy}
 \protect\hypertarget{result-of-applicable-peice-elasticitiy}{}
-Overall elasticity is that we do not distinguish intensive and extensive margin
+Extensive-margin price elascitiy is more elastic than intensive-margin price elasticity
 
 \begin{table}
 \centering\begingroup\fontsize{8}{10}\selectfont
@@ -358,7 +435,7 @@ Adjusted R-squared & 0.530 & 0.678 & 0.462\\
 
 \begin{frame}{Result of Effective Price Elasticity}
 \protect\hypertarget{result-of-effective-price-elasticity}{}
-Overall effective price elasticity is slightly more elastic than applicable one. Extensive-margin effective price elasticity is slightly less elastic than applicable one.
+Overall effective price elasticity is slightly more elastic than applicable one. Effective extensive-margin price elasticity is slightly less elastic than applicable one.
 
 \begin{table}
 \centering\begingroup\fontsize{8}{10}\selectfont
@@ -409,6 +486,22 @@ Some robustness
 \item
   We take other empirical methodologies to control these problemes, and obtain similar results.
 \end{itemize}
+\end{frame}
+
+\begin{frame}{References}
+\protect\hypertarget{references}{}
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-Almunia2020}{}}%
+Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
+
+\leavevmode\vadjust pre{\hypertarget{ref-Auten2002}{}}%
+Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. Charitable giving, income, and taxes: An analysis of panel data. American Economic Review 92, 371--382.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Bakija2011}{}}%
+Bakija, J., Heim, B.T., 2011. How does charitable giving respond to incentives and income? New estimates from panel data. National Tax Journal 64, 615--650. doi:\href{https://doi.org/10.17310/ntj.2011.2S.08}{10.17310/ntj.2011.2S.08}
+
+\end{CSLReferences}
 \end{frame}
 
 \end{document}

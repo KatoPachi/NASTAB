@@ -22,28 +22,44 @@ knitr::opts_chunk$set(
 --->
 
 ```{asis, echo = doctype == "slide"}
-## Fixed Effect Model
+## Estimation of Price Elasicities
 
-**Intensive-margin elasticity**: how much do donors additionally donate reacting to the marginal increase of giving price?
+We estimate following price elasticities:
+
+1. Applicable price elasticities
+    - Intensive-margin one
+    - Extensive-margin one
+1. Effective price elasticities
+    - Intensive-margin one
+    - Extensive-margin one
+
+## Intensive-Margin Price Elasicity
+
+How much do donors additionally donate reacting to the marginal increase of giving price?
 
 \begin{equation}
     \ln g_{it} = \varepsilon^{int}_p R_{it} \ln p_{it} + \varepsilon^{int}_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:intensive)
 \end{equation}
 
-**Extensive-margin elasticity**: how much does the probability to donate change reacting to marginal increase of giving price?
+- We restrict data to those who donated.
+
+## Extensive-Margin Price Elasticity
+
+How much does the probability to donate change reacting to marginal increase of giving price?
 
 \begin{equation}
 D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\iota_t +v_{it}. (\#eq:extensive)
 \end{equation}
 
-- Since we use the linear probability model, the estimated coefficient $\delta$ represents $\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}$.
-- the implied extensive-margin price are calculated by $\hat{\delta}/\bar{D}$ where $\bar{D}$ is sample average of outcome variable $D_{it}$.
+- Since we use the linear probability model, the estimated coefficient $\delta$ does not represent elasticity directly ($\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}$).
+- the implied extensive-margin price elastcity are calculated by $\hat{\delta}/\bar{D}$ where $\bar{D}$ is sample average of outcome variable $D_{it}$.
 
 ## Applicable Price Elasticity (ITT Approach)
 
 - We use giving price when tax payers declare tax relief regardless of actual declaration
 - Non-declrared tax payers are treated as if they have declrared tax relief
+  - In the treatment effect literature, this approach is sometimes called "intention-to-treat (ITT)"
 - $R_{it} = 1$ for any $i$ and $t$ in equation \@ref(eq:intensive) and \@ref(eq:extensive)
 
 ## Effective Price Elasticity (IV approach)

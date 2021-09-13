@@ -41,14 +41,14 @@ df <- readr::read_csv(
 ```
 
 ```{asis, echo = doctype == "slide"}
-## About NaSTaB
+## Data: National Survey of Tax and Benefit
 
 An annual financial panel survey implemented by The Korea Institute of Taxation and Finance
 
 - The subjects of this survey are general household and household members living in 15 cities and provinces nationwide.
 - We use data from 2013 to 2019 to focus on the 2014 tax reform.
   - the giving price before 2014 was changed frequently and incorporating the data before 2012 captures the effects of another tax reform than the reform in 2014.
-  - NaSTaB asks the amount of donation and the annual labor income last year.
+- This survey asks the amount of donation and the annual labor income last year.
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -109,7 +109,9 @@ df %>%
 ```
 
 ```{asis, echo = doctype == "slide"}
-## Proportion of donors is slightly decreased just after tax reform
+## Summary Statistics of Charitable Giving
+
+Proportion of donors is slightly decreased just after tax reform
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -168,7 +170,7 @@ ggplot(avgext, aes(x = year, y = mu)) +
 ```
 
 ```{asis, echo = doctype == "slide"}
-## 2014 tax reform made increasing price group and decreasing price group
+## Income Distribution and Giving Price in 2013
 ```
 
 ```{asis, echo = doctype == "draft"}
