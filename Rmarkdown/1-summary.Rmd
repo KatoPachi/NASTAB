@@ -14,8 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Data
-
 ```{r library, include = FALSE}
 library(xfun)
 xfun::pkg_attach2(c("readstata13", "tidyverse", "rlist"))
@@ -43,18 +41,19 @@ df <- readr::read_csv(
 ```
 
 ```{asis, echo = doctype == "slide"}
-## National Survey of Tax and Benefit (NaSTaB)
+## Data: National Survey of Tax and Benefit
 
-- An annual financial panel survey implemented by The Korea Institute of Taxation and Finance implements to study the tax burden of households and the benefits that households receive from government.
+An annual financial panel survey implemented by The Korea Institute of Taxation and Finance
+
 - The subjects of this survey are general household and household members living in 15 cities and provinces nationwide.
-- This survey is based on a face-to-face interview. If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
-- We use data from 2012 to 2018 **since the items of the value survey which we focused is not available before 2012 (ここは違いま???)**. In addition, we exclude the subject of the sample, whose age is under 23, since they are not likely to have income or asset.
-
-## Summary Statistics
-
+- We use data from 2013 to 2019 to focus on the 2014 tax reform.
+  - the giving price before 2014 was changed frequently and incorporating the data before 2012 captures the effects of another tax reform than the reform in 2014.
+- This survey asks the amount of donation and the annual labor income last year.
 ```
 
 ```{asis, echo = doctype == "draft"}
+# Data
+
 The National Survey of Tax and Benefit (hereafter, NaSTab) is an annual financial panel survey 
 implemented by The Korea Institute of Taxation and Finance 
 to study the tax burden of households and the benefits that households receive from the government. 
@@ -70,7 +69,7 @@ In addition, we exclude the subject of the sample, whose age is under 23, since 
 [^interview]: If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
 ```
 
-```{r SummaryCovariate}
+```{r SummaryCovariate, eval = doctype == "draft"}
 x <- c(
   "i_total_giving", "i_ext_giving",
   "lincome", "price", "ext_benefit_tl",
@@ -110,9 +109,9 @@ df %>%
 ```
 
 ```{asis, echo = doctype == "slide"}
+## Summary Statistics of Charitable Giving
 
-## Charitable Giving
-
+Proportion of donors is slightly decreased just after tax reform
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -136,7 +135,7 @@ After that, the proportion of donors is greter than 20\%.
 [^Question]: Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes. We sum up the amount of donations, and consider it as the annual charitable giving.
 ```
 
-```{r SummaryOutcome, out.width="100%", fig.cap="Proportion of Donors and Average Donations among Donors. Notes: The left and right axises respectively mesure proportion of donors and the average amount donations among donors. Authors made this graph based on NasTaB data."}
+```{r SummaryOutcome, out.width="85%"}
 avgext <- df %>%
   group_by(year) %>%
   summarize_at(vars(i_ext_giving), list(mu = ~mean(., na.rm = TRUE)))
@@ -171,17 +170,7 @@ ggplot(avgext, aes(x = year, y = mu)) +
 ```
 
 ```{asis, echo = doctype == "slide"}
-## Income and Giving Price
-
-- Figure \@ref(fig:SummaryPriceChange) shows the giving price after 2012 and income distribution in 2013.
-	- Blue line shows the giving price in 2012 and 2013, which depends on income
-	- Red dashed line shows the giving price after 2014, which is not a function of income.
-- We can make three groups in terms of the benefit from the 2014 tax reform.
-	- Benefit group: Final taxable income is less than $1200 \times 10^4$KRW.
-	- Neutral group: Final taxable income lies between $(1200 \times 10^4, 4600 \times 10^4)$.
-	- Loss group: Final taxable income is more than $4600 \times 10^4$KRW.
-
-## Giving Price and Income Distribution (Cont'd)
+## Income Distribution and Giving Price in 2013
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -221,7 +210,7 @@ or a labor income deduction of giving.
 Table \@ref(tab:SummaryCovariate) shows the proportion of declaration is about 48\%.
 ```
 
-```{r SummaryPriceChange, out.width="90%", fig.cap="Income Distribution and Giving Price in 2013"}
+```{r SummaryPriceChange, out.width="85%"}
 df %>%
   filter(year == 2013) %>%
   dplyr::select(lincome, price) %>%
@@ -245,7 +234,12 @@ df %>%
     sec.axis = sec_axis(~ . / 0.5, name = "Giving price")
   ) +
   scale_x_continuous(breaks = c(1200, 4600, 8800, 30000)) +
-  labs(x = "Annual taxable income (10,000KRW)", y = "Relative frequency") +
-  ggtemp()
+  labs(
+    x = "Annual taxable income (10,000KRW)",
+    y = "Relative frequency",
+    caption = "Red dashed line is the giving price after the 2014 tax reform."
+  ) +
+  ggtemp() +
+  theme(plot.caption = element_text(size = 13))
 ```
 
