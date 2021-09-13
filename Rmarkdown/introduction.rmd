@@ -15,54 +15,27 @@ knitr::opts_chunk$set(
 ```
 
 ```{asis, echo = doctype == "slide"}
-## Evaluate Effect of Tax Incentive on Charitable Giving
+## Introduction
 
-- We estimate price effect on both *declared* and *non-declared* chariable giving, using the financial panel data survey including those who did not declare tax relief
-- To take price variation due to declaration into account, we estimate two price elasticities:
-  - *Applicable* price elasticity: we use giving price when tax payers declare tax relief regardless of actual declaration
-  - *Effective* price elasticity: we construct giving price based on information of declaration
-  - By comparing two price elasticities, we can infer price effect through declration
-- **Result**: Both price elasticities are around -1, which implies that the price effect through declaration is not so large.
+- In many countries, tax incentives on chariable giving are implemented
+- Many papers investigate elasticities of the tax incentive based on tax return data (e.g. @Almunia2020; @Auten2002; @Bakija2011)
+- However, the tax return data record only the declared charitable giving
+  - Tax payers decide an amount of donation and whether to declare tax relief based on the size of tax incentive and declration cost.
+  - Because of this declration cost, the estimations (especially for extensive margins) may be biased.
+  - Moreover, actual donations is different from declared donations (Fack and Landais (2016); Gillitzer and Skov (2018))
+- We investigate the elasticities about both declared and non-declared charitable giving, using the financial panel survey data in South Korea
 
-## Positioning of Our Research
+## Introduction
 
-Extant research mainly uses the tax return data
+To take price variation due to declaration into account, we estimate two price elasticities:
 
-- This data consists on those who declared tax relief
-- Thus, extant research estimates the applicable price elasticity of declared donations
+- *Applicable* price elasticity: giving price when tax payers declare tax relief regardless of actual declaration
+  - The major variation of this giving price comes from the 2014 tax reform
+- *Effective* price elasticity: giving price based on information of declaration
+  - We estimate this considering the existence of the declaration cost
+- By comparing two price elasticities, we can infer price effect through declration
 
-However, non-declared tax payers also decide an amount of donation and whether to declare tax relief based on tax incentive.
-
-- Our research uses the financial panel data survey including those who did not declare tax relief
-- Thus, we can estimate the price effect, taking this fact into consideration
-
-<!--
-## Evaluate Effect of 2014 Tax Reform in South Korea on Charitable Giving
-
-- The 2014 tax reform has changed from tax *deduction* system to tax *credit* system.
-- By this reform, (i) giving price is directly changed and (ii) giving price is indirectly changed through declration
-  - The 2014 tax reform affected incentive to declaration due to direct price change. 
-- To capture effect of indirect price change, we estimate two price elasticities:
-    1. price elasticity without price variation due to declaration
-    2. price elasticity with price variation due to declaration
-- **Result**: Both price elasticities are around -1.
-
-## Related papers
-
-**Extant research**:
-
-- focusing on the tax reform within the regime of tax deduction or tax credit
-- Using the tax return data
-  - mainly consisting on wealthy people
-  - containing declared charitable giving (*applicable* giving price)
-
-**Our Paper**
-
-- dealing with the tax reform from tax deduction system to tax credit system
-- Using the financial panel survey called NaSTaB
-  - we could consider the sample of low-income household
-  - containing chariable giving irrespective of declarations (*effective* giving price) and wether to declare tax relief
--->
+Result: \textcolor{red}{Both price elasticities are around -1, which implies that the price effect through declaration is not so large.}
 ```
 
 ```{asis, echo = doctype == "draft"}

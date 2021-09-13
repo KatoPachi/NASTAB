@@ -263,7 +263,7 @@ extensive %>%
 ```{asis, echo = doctype == "slide"}
 ## Result of Applicable Peice Elasticitiy
 
-Overall elasticity is that we do not distinguish intensive and extensive margin
+Extensive-margin price elascitiy is more elastic than intensive-margin price elasticity
 ```
 
 ```{r, eval = doctype == "slide"}
