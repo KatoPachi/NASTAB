@@ -14,8 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Empirical Strategy
-
 <!--
 ここらへんの議論ですが、以下の点、要検討です。これらが解決しないと残差プロットの図を出す意味は殆どないと思います。
  
@@ -24,58 +22,65 @@ knitr::opts_chunk$set(
 --->
 
 ```{asis, echo = doctype == "slide"}
-Following @Almunia2020, we estimate giving price elasticity for intensive margin and extensive margin.
+## Estimation of Price Elasicities
 
-- The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price
-- The elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.
+We estimate following price elasticities:
 
-## Elasticitiy of Intensive Margin 
+1. Applicable price elasticities
+    - Intensive-margin one
+    - Extensive-margin one
+1. Effective price elasticities
+    - Intensive-margin one
+    - Extensive-margin one
 
-$$
-\ln g_{it} = \varepsilon_{INT} \ln p_{it} +g_{INT} \ln y_{it} + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:intensive)
-$$
+## Intensive-Margin Price Elasicity
 
-- $g_{it}, p_{it}$ and $y_{it}$ respectively indicates the amount of giving, the giving price, and income of $i$ in year $t$
-- $\mu_i, \iota_t$ and $u_{it}$ are individual fixed effect, year fixed effect and error term
-- $X_{it}$ is a vector of covariates which include variables about education and gender. Moreover, we add some interaction terms between year fixed effect and control variables into $X_{it}$ (following @Zeldow2019).
+How much do donors additionally donate reacting to the marginal increase of giving price?
 
-## Elasticitiy of Extensive Margin
+\begin{equation}
+    \ln g_{it} = \varepsilon^{int}_p R_{it} \ln p_{it} + \varepsilon^{int}_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:intensive)
+\end{equation}
 
-$$
-D_{it} =  \delta \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta+\mu_i  +\iota_t +v_it. \label{extensive}
-$$
+- We restrict data to those who donated.
 
-- $D_{it}$ is a dummy variable taking 1 if individual $i$ donates at year $t$ and 0 otherwise.
-- Since we use linear probability model, $\delta = \frac{\partial D_{it}}{\partial p_{it}} p_{it}$. The extensive-margin price elasticity is $\varepsilon_{EXT} = \hat{\delta}/D_{it}$. Thus, we evaluate it at sample mean of $D_{it}$.
+## Extensive-Margin Price Elasticity
 
-## Identification Strategy 
+How much does the probability to donate change reacting to marginal increase of giving price?
 
-Our identification assumption is **the within price variation is exogenous**.
+\begin{equation}
+D_{it} =  \delta R_{it} \ln p_{it} +\gamma \ln y_{it} + X_{it}\beta +\mu_i  +\iota_t +v_{it}. (\#eq:extensive)
+\end{equation}
 
-- This is because we use the fixed effect model to obtain elasticities.
-- Our identification assumption may hold because the major *within* price variation depends on the 2014 tax reform.
-    - After tax reform, the giving price is constant across individuals and there is no room for manipulation by donations and income.
-    - Before tax reform (2012 and 2013), the giving price depends on (A) endogeneity of giving price and (B) simultaneous determination of income and donations. For these two reasons, the *within* price is partly endogenous.
+- Since we use the linear probability model, the estimated coefficient $\delta$ does not represent elasticity directly ($\hat{\delta} = \frac{\partial D_{it}}{\partial p_{it}} p_{it}$).
+- the implied extensive-margin price elastcity are calculated by $\hat{\delta}/\bar{D}$ where $\bar{D}$ is sample average of outcome variable $D_{it}$.
 
-## Obstacles for Identification
+## Applicable Price Elasticity (ITT Approach)
 
-Our identification assumption may violate due to two endogenous problems under the tax deduction system.
+- We use giving price when tax payers declare tax relief regardless of actual declaration
+- Non-declrared tax payers are treated as if they have declrared tax relief
+  - In the treatment effect literature, this approach is sometimes called "intention-to-treat (ITT)"
+- $R_{it} = 1$ for any $i$ and $t$ in equation \@ref(eq:intensive) and \@ref(eq:extensive)
 
-1. Endogeneity of giving price: 
-    - The tax payer can reduce their giving price by increasing their amount of donation and shifting themselves to the lower tax bracket in the tax deduction system.
-    - Since this issue does not happen for the first one unit of donation, whose price ("first price") cannot be changed by adjusting the donation, we use this first price as the giving price in the estimation.
+## Effective Price Elasticity (IV approach)
 
-## Obstacles for Identification (Cont'd)
+- Declaration affects both giving price and charitable giving
+- We took the panel IV model, using the employed dummy as instrument.
+  - There is a difference of declaration cost of tax relief since self-employed workers have to retain the certificate until they submit tax return although wage earners can submit the certificate at any time.
+- First, we estimate the following model:
 
-Our identification assumption may violate due to two endogenous problems under the tax deduction system.
-
-2. Simultaneous determination of income and donations:
-    - The change of income caused by the tax reform have effects on both donations through the income effect and the giving price through the marginal tax rate.
-    - We employ lagged values of taxable income and construct an instrument variable, $\ln (p_{it}(y_{it-k} - g_{it-k})/p_{it-k}(y_{it-k} - g_{it-k}))$ where $g_{it-k} = 0$.
-    - By fixing income at year $t - k$, the instrument isolates changes in price from income responses to the tax reform.
+\begin{align}
+  R_{it}
+  = \alpha_{1i} + \lambda \text{Employed}_{it} + X_{it} \beta_1
+  + \mu_{i1} + \iota_{t1} + \eta_{it} (\#eq:stage1)
+\end{align}
+   
+- Second, we obtain the fitted value of $R_{it}$ (denoted by $\hat{R}_{it}$) and replace $R_{it}$ with $\hat{R}_{it}$.
 ```
 
 ```{asis, echo = doctype == "draft"}
+# Empirical Strategy
+
 To estimate the giving price elasticity for intensive margin and extensive margin, we use DID analysis which exploit the fact that the giving price was unified in 2014 while the price was different for tax payers with different incomes.
 
 Following @Almunia2020, we estimate the giving price elasticity for intensive margin and extensive margin. The elasticity of intensive margin shows how much donors additionally donates reacting to the marginal increase of giving price, while the elasticity of extensive margin shows how much the probability to donate changes reacting to marginal increase of giving price.

@@ -93,20 +93,6 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -122,7 +108,7 @@
                                                     \author[]{Youngrok Kim}
                                       \affil{Graduate School of Economics, Kobe University, Japan}
                               
-\date{2021/07/30}
+\date{2021/08/10}
 
 
 \begin{document}
@@ -387,7 +373,7 @@ Table \ref{tab:SummaryCovariate} shows the proportion of declaration is about 48
 
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.9\linewidth]{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPriceChange-1} 
+{\centering \includegraphics[width=0.85\linewidth]{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPriceChange-1} 
 
 }
 
@@ -660,6 +646,33 @@ Adjusted R-squared & 0.458 & 0.458 & 0.458 & 0.458 & 0.462\\
 \hypertarget{robustness-check}{%
 \subsection{Robustness Check}\label{robustness-check}}
 
+\emph{Last Price Elasticity.}
+The first robustness check estimates the last price elasticity using the first price of giving as an instrument.
+Our main results show that first price elasticity to avoid the problem that giving price depends on an amount of giving.
+However, the first price elasticity is not realistic because people face the last marginal price when deciding on an amount of donation.
+Thus, we estimate the last price elasticity, using the first price as an instrumental variable.
+The last giving price is strongly correlated with the first one because
+major observation units are observed when the tax credit system is implemented,
+and the last price is equivalent to the first one in the case of the tax credit system.\footnote{In fact, in any specifications, the coefficient of the first price is greater than 0.952, and its F-statistics is greater than 6425.96. We do not show the first stage results of the panel IV using the first price as an insrument.}
+Our estimates of the last price effect are not caused by a weak instrument problem.
+As a result, the intensive-margin elasticity of the last price takes a similar value to the case of the first price, while
+the overall elasticity and extensive-margin elasticity of the last price are more elastic than the case of the first price.
+Table \ref{tab:LastOverall} shows the overall last price elasticity.
+Compared to the main results, the last price elasticity is more elastic.
+The absolute value of the estimated coefficient is larger than 2.4,
+which is statistically significantly different from zero.
+This implies that a 1\% increase of last price decreases charitable contributions by 2.4\% or more.
+Table \ref{tab:LastIntensive} and \ref{tab:LastExtensive} shows
+the intensive-margin and extensive-margin last price elasticity.
+the intensive-margin last price elasticity is a similar value to the main results.
+Its absolute value lies between 0.89 and 1.2.
+These results are statistically different from zero.
+About the extensive-margin elasticities,
+the coefficient of logged last price, which represents the lower bound of last price elasticity,
+lies between -0.63 and -0.59.
+The implied last price elasticity evaluated at the sample mean of \(D_{it}\) is roughly -3.
+These results are statistically significantly different from zero, and more elastic than the first price elasticity.
+
 \begin{table}
 
 \caption{\label{tab:LastOverall}Overall Elasticity of Last Price}
@@ -755,32 +768,37 @@ Adjusted R-squared & 0.464 & 0.464 & 0.464 & 0.465 & 0.469\\
 \end{threeparttable}
 \end{table}
 
-\emph{Last Price Elasticity.}
-The first robustness check estimates the last price elasticity using the first price of giving as an instrument.
-Our main results show that first price elasticity to avoid the problem that giving price depends on an amount of giving.
-However, the first price elasticity is not realistic because people face the last marginal price when deciding on an amount of donation.
-Thus, we estimate the last price elasticity, using the first price as an instrumental variable.
-The last giving price is strongly correlated with the first one because
-major observation units are observed when the tax credit system is implemented,
-and the last price is equivalent to the first one in the case of the tax credit system.\footnote{In fact, in any specifications, the coefficient of the first price is greater than 0.952, and its F-statistics is greater than 6425.96. We do not show the first stage results of the panel IV using the first price as an insrument.}
-Our estimates of the last price effect are not caused by a weak instrument problem.
-As a result, the intensive-margin elasticity of the last price takes a similar value to the case of the first price, while
-the overall elasticity and extensive-margin elasticity of the last price are more elastic than the case of the first price.
-Table \ref{tab:LastOverall} shows the overall last price elasticity.
-Compared to the main results, the last price elasticity is more elastic.
-The absolute value of the estimated coefficient is larger than 2.4,
-which is statistically significantly different from zero.
-This implies that a 1\% increase of last price decreases charitable contributions by 2.4\% or more.
-Table \ref{tab:LastIntensive} and \ref{tab:LastExtensive} shows
-the intensive-margin and extensive-margin last price elasticity.
-the intensive-margin last price elasticity is a similar value to the main results.
-Its absolute value lies between 0.89 and 1.2.
-These results are statistically different from zero.
-About the extensive-margin elasticities,
-the coefficient of logged last price, which represents the lower bound of last price elasticity,
-lies between -0.63 and -0.59.
-The implied last price elasticity evaluated at the sample mean of \(D_{it}\) is roughly -3.
-These results are statistically significantly different from zero, and more elastic than the first price elasticity.
+\emph{Short-Period Panel.}
+The second robustness check try to control the manipulation of giving price by adjusting income level,
+using two datasets whose ranges are (i) from 2013 to 2018 and (ii) from 2013 to 2014.
+Under the tax deduction system,
+the giving price can be manipulated by income level,
+though it cannot be under the tax credit system.
+Therefore, if we use the dataset which contains data under the tax deduction system,
+the estimator may capture the effect of price change
+which is caused not by tax reform but by price manipulation by income adjustment.
+To address this issue,
+we use a dataset in which the time range under the tax deduction system is shorter than the baseline analysis.
+By doing this exercise, we try to suppress the effect which comes from the price change due to the change of income.
+Table \ref{tab:ShortOverall} shows the overall first giving price elasticity.
+When we use data from 2013 to 2018, the estimated price elasticity is a similar value to the main results.
+On the other hand,
+when we use data from 2013 to 2014, the estimated price elasticity is more elastic than the main results.
+The estimated absolute value is roughly -1.7 when we control covariates and their interaction with year dummies.
+This value is statistically significantly different from zero.
+Table \ref{tab:ShortIntensive} and \ref{tab:ShortExtensive} shows
+the intensive-margin and the extensive-margin first price elasticity.
+When we use data from 2012 to 2018, the intensive-margin price elasticity is similar to the main results,
+which is statistically significant from zero.
+However, when we use data from 2013 to 2014 and include only individual and time fixed effects,
+the estimated coefficient is statistically insignificantly different from zero.
+By controlling covariates and their interaction with year dummies,
+the intensive-margin price elasticity is -0.712, which is statistically significant.
+About the extensive-margin price effect,
+when we use data from 2012 to 2018, the extensive-margin price elasticity is similar to the main results,
+which is statistically significant.
+When we use data from 2013 to 2014, the extensive-margin price elasticity is more elastic than the main results.
+Its absolute value is roughly -2, which is statistically significant.
 
 \begin{table}
 
@@ -874,37 +892,29 @@ Adjusted R-squared & 0.465 & 0.469 & 0.524 & 0.525\\
 \end{threeparttable}
 \end{table}
 
-\emph{Short-Period Panel.}
-The second robustness check try to control the manipulation of giving price by adjusting income level,
-using two datasets whose ranges are (i) from 2013 to 2018 and (ii) from 2013 to 2014.
-Under the tax deduction system,
-the giving price can be manipulated by income level,
-though it cannot be under the tax credit system.
-Therefore, if we use the dataset which contains data under the tax deduction system,
-the estimator may capture the effect of price change
-which is caused not by tax reform but by price manipulation by income adjustment.
-To address this issue,
-we use a dataset in which the time range under the tax deduction system is shorter than the baseline analysis.
-By doing this exercise, we try to suppress the effect which comes from the price change due to the change of income.
-Table \ref{tab:ShortOverall} shows the overall first giving price elasticity.
-When we use data from 2013 to 2018, the estimated price elasticity is a similar value to the main results.
-On the other hand,
-when we use data from 2013 to 2014, the estimated price elasticity is more elastic than the main results.
-The estimated absolute value is roughly -1.7 when we control covariates and their interaction with year dummies.
-This value is statistically significantly different from zero.
-Table \ref{tab:ShortIntensive} and \ref{tab:ShortExtensive} shows
-the intensive-margin and the extensive-margin first price elasticity.
-When we use data from 2012 to 2018, the intensive-margin price elasticity is similar to the main results,
-which is statistically significant from zero.
-However, when we use data from 2013 to 2014 and include only individual and time fixed effects,
-the estimated coefficient is statistically insignificantly different from zero.
-By controlling covariates and their interaction with year dummies,
-the intensive-margin price elasticity is -0.712, which is statistically significant.
-About the extensive-margin price effect,
-when we use data from 2012 to 2018, the extensive-margin price elasticity is similar to the main results,
+\emph{\(k\)-th difference model.}
+The third robustness check is to estimate the \(k\)-th difference model.
+As explained in section \ref{empirical-strategy}, the giving price depends on income.
+Thus, there are two paths that income affects charitable giving: (i) income effect; (ii) giving price via manipulation.
+To tackel with this endogeneity problem, we employ lagged value of giving price fixing income at year \(t-k\),
+that is, \(\Delta^k \ln p_{it} = ln p_{it}(y_{it-k}) - \ln p_{it-k}(y_{it-k})\).\footnote{Under the tax credit system, the giving price does not depend on income \(y_{it-k}\). If the tax credit system is implemented in year \(t\) and \(t-k\), then the value of \(\Delta^k p_{it}\) takes zero.}
+By fixing income, the variation of this lagged variable completely depends on tax reform.
+Using this variable,
+we estimate the \(k\)-th difference model \eqref{eq:kdiff} shown in the section \ref{empirical-strategy}.
+Table \ref{tab:kdiffOverall} and \ref{tab:kdiffIntensive} shows results of \(k\)-th difference model.
+About the overall elasticity,
+when we take the one-year lag (\(k = 1\)), the overall price elasticity is roughly -1.9,
 which is statistically significant.
-When we use data from 2013 to 2014, the extensive-margin price elasticity is more elastic than the main results.
-Its absolute value is roughly -2, which is statistically significant.
+This elasticity slightly varies when we take the two or more year lag (\(k > 1\)).
+The overall price elasticity lies between -2.1 and -1.7, which is statistically significant.
+This implies that the overall price elasticity obtained by this model is more elastic than the main results.
+About the intensive-margin elasticity,
+when we take the one-year lag (\(k = 1\)), the intensive-margin price elasticity is roughly -1.8,
+which is statistically significant.
+The absolute value of the price elasticity is more than 2
+when we take two or more years lag (\(k > 1\)).
+Thus, contrary to our first conclusion,
+this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
 
 \begin{table}
 
@@ -976,30 +986,6 @@ Adjusted R-squared & 0.137 & 0.191 & 0.220\\
 \end{threeparttable}
 \end{table}
 
-\emph{\(k\)-th difference model.}
-The third robustness check is to estimate the \(k\)-th difference model.
-As explained in section \ref{empirical-strategy}, the giving price depends on income.
-Thus, there are two paths that income affects charitable giving: (i) income effect; (ii) giving price via manipulation.
-To tackel with this endogeneity problem, we employ lagged value of giving price fixing income at year \(t-k\),
-that is, \(\Delta^k \ln p_{it} = ln p_{it}(y_{it-k}) - \ln p_{it-k}(y_{it-k})\).\footnote{Under the tax credit system, the giving price does not depend on income \(y_{it-k}\). If the tax credit system is implemented in year \(t\) and \(t-k\), then the value of \(\Delta^k p_{it}\) takes zero.}
-By fixing income, the variation of this lagged variable completely depends on tax reform.
-Using this variable,
-we estimate the \(k\)-th difference model \eqref{eq:kdiff} shown in the section \ref{empirical-strategy}.
-Table \ref{tab:kdiffOverall} and \ref{tab:kdiffIntensive} shows results of \(k\)-th difference model.
-About the overall elasticity,
-when we take the one-year lag (\(k = 1\)), the overall price elasticity is roughly -1.9,
-which is statistically significant.
-This elasticity slightly varies when we take the two or more year lag (\(k > 1\)).
-The overall price elasticity lies between -2.1 and -1.7, which is statistically significant.
-This implies that the overall price elasticity obtained by this model is more elastic than the main results.
-About the intensive-margin elasticity,
-when we take the one-year lag (\(k = 1\)), the intensive-margin price elasticity is roughly -1.8,
-which is statistically significant.
-The absolute value of the price elasticity is more than 2
-when we take two or more years lag (\(k > 1\)).
-Thus, contrary to our first conclusion,
-this model implies that the amount of donations is sensitive to the giving price once we decide to donate.
-
 \hypertarget{summary-of-the-results-in-this-section}{%
 \subsection{Summary of the results in this section}\label{summary-of-the-results-in-this-section}}
 
@@ -1026,6 +1012,18 @@ In the next section, we report the results of the panel IV method which controls
 \hypertarget{instrumental-variable-of-declaration-of-a-tax-releif}{%
 \subsection{Instrumental Variable of Declaration of a Tax Releif}\label{instrumental-variable-of-declaration-of-a-tax-releif}}
 
+Before describing the strategy of instrumental variables in detail,
+we show descriptive statistics of a declaration of a tax relief.
+NaSTaB asks respondents to answer whether to declare a tax relief
+in the case of labor income and total income separately.
+Table \ref{tab:SummaryDeduct} shows the number of tax deduct among donors in our sample.\footnote{Due to the small sample, we rule out observations in 2018.}
+When we only use information about declaration in the case of labor income,
+the majority of respondents did not declare a tax relief (see the first and third columns).
+When we use information about declaration in the case of both labor and total income,
+we make a dummy taking 1 if respondents declared a tax relief in the case of
+either labor or total income.
+As a result, more than half of the respondents declared a tax relief.
+
 \begin{table}
 
 \caption{\label{tab:SummaryDeduct}Descriptive Statistics of Declaration among Donors}
@@ -1046,27 +1044,6 @@ Year & Labor income & Labor and Total income & Labor income & Labor and Total in
 \bottomrule
 \end{tabular}
 \end{table}
-
-Before describing the strategy of instrumental variables in detail,
-we show descriptive statistics of a declaration of a tax relief.
-NaSTaB asks respondents to answer whether to declare a tax relief
-in the case of labor income and total income separately.
-Table \ref{tab:SummaryDeduct} shows the number of tax deduct among donors in our sample.\footnote{Due to the small sample, we rule out observations in 2018.}
-When we only use information about declaration in the case of labor income,
-the majority of respondents did not declare a tax relief (see the first and third columns).
-When we use information about declaration in the case of both labor and total income,
-we make a dummy taking 1 if respondents declared a tax relief in the case of
-either labor or total income.
-As a result, more than half of the respondents declared a tax relief.
-
-\begin{figure}[t]
-
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/DeductByEmployee-1} 
-
-}
-
-\caption{Proportion of declaring a tax relief Grouped by Employment Status. Notes: We restrict sample to those who donated.}\label{fig:DeductByEmployee}
-\end{figure}
 
 If there is no (physical or psychological) cost to declare a tax relief,
 then all individuals should declare a tax relief.
@@ -1111,8 +1088,25 @@ For example, a doctor and a public servant may tend to donate than the others.
 If so, the instrument is correlated with \(u_{it}\).
 To avoid this problem, we control incomes and the interaction between year dummies and industry dummies.
 
+\begin{figure}[t]
+
+{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/DeductByEmployee-1} 
+
+}
+
+\caption{Proportion of declaring a tax relief Grouped by Employment Status. Notes: We restrict sample to those who donated.}\label{fig:DeductByEmployee}
+\end{figure}
+
 \hypertarget{results-1}{%
 \subsection{Results}\label{results-1}}
+
+Table \ref{tab:stage1Report} shows estimation results of the first stage.
+As a result, the employed dummy is strongly positively correlated with declaring a tax relief.
+In any specification, employed dummy increases the probability of declaration by more than 45 percentage points.
+Moreover, the ratio of coefficient to standard error is greater than nine.
+This implies that the F-statistics of the instrument is greater than 81 for any specification.
+Thus, our panel IV method does not have a weak instrument problem.
+For the second stage, we obtain the predicted value of \(R_{it}\), using the model (3).
 
 \begin{table}
 
@@ -1144,13 +1138,34 @@ Adjusted R-squared & 0.918 & 0.919 & 0.920\\
 \end{threeparttable}
 \end{table}
 
-Table \ref{tab:stage1Report} shows estimation results of the first stage.
-As a result, the employed dummy is strongly positively correlated with declaring a tax relief.
-In any specification, employed dummy increases the probability of declaration by more than 45 percentage points.
-Moreover, the ratio of coefficient to standard error is greater than nine.
-This implies that the F-statistics of the instrument is greater than 81 for any specification.
-Thus, our panel IV method does not have a weak instrument problem.
-For the second stage, we obtain the predicted value of \(R_{it}\), using the model (3).
+Table \ref{tab:OverallReport} reports overall elasticities controlling the self-selection of the tax report.
+The estimated elasticities are similar value to the benchmark results shown in Table \ref{tab:MainOverall}.
+When we only include individual and time fixed effects, the overall elasticity is -2.364.
+When we control the same covariates as the model (5) in Table \ref{tab:MainOverall},
+the overall elasticity is -1.710.
+These values are statistically significant,
+and slightly more elastic than the benchmark results
+(see the column (1) and (5) in Table \ref{tab:MainOverall}).
+Since those who did not apply for the Declaration did not receive the tax incentive actually,
+these results can be naturally interpretable.
+Furthermore, when we control the interaction term between year dummies and industry dummies,
+the result does not change.
+
+In Table \ref{tab:IntensiveReport} and Table \ref{tab:ExtensiveReport},
+we show the intensive-margin elasticity and the extensive-margin elasticity.
+The estimated elasticities are quite similar to the benchmark results
+shown in Table \ref{tab:MainIntensive} and Table \ref{tab:MainExtensive}.
+Column (2) of Table \ref{tab:IntensiveReport} uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \ref{tab:MainIntensive}).
+About the extensive-margin elasticity,
+column (2) of Table \ref{tab:ExtensiveReport} uses the same covariates as in the benchmark result,
+the estimated value is similar to the benchmark one (the fifth column of Table \ref{tab:MainExtensive}).
+When we further control for the interaction between year dummies and industry dummies,
+we can obtain similar estimated values.
+
+We estimate the true price effect using panel IV.
+As a result, we obtain similar results to the benchmark results
+shown in Table \ref{tab:MainOverall}, Table \ref{tab:MainIntensive}, and Table \ref{tab:MainExtensive}.
 
 \begin{table}
 
@@ -1241,35 +1256,6 @@ Adjusted R-squared & 0.426 & 0.427 & 0.428\\
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
-
-Table \ref{tab:OverallReport} reports overall elasticities controlling the self-selection of the tax report.
-The estimated elasticities are similar value to the benchmark results shown in Table \ref{tab:MainOverall}.
-When we only include individual and time fixed effects, the overall elasticity is -2.364.
-When we control the same covariates as the model (5) in Table \ref{tab:MainOverall},
-the overall elasticity is -1.710.
-These values are statistically significant,
-and slightly more elastic than the benchmark results
-(see the column (1) and (5) in Table \ref{tab:MainOverall}).
-Since those who did not apply for the Declaration did not receive the tax incentive actually,
-these results can be naturally interpretable.
-Furthermore, when we control the interaction term between year dummies and industry dummies,
-the result does not change.
-
-In Table \ref{tab:IntensiveReport} and Table \ref{tab:ExtensiveReport},
-we show the intensive-margin elasticity and the extensive-margin elasticity.
-The estimated elasticities are quite similar to the benchmark results
-shown in Table \ref{tab:MainIntensive} and Table \ref{tab:MainExtensive}.
-Column (2) of Table \ref{tab:IntensiveReport} uses the same covariates as in the benchmark result,
-the estimated value is similar to the benchmark one (the fifth column of Table \ref{tab:MainIntensive}).
-About the extensive-margin elasticity,
-column (2) of Table \ref{tab:ExtensiveReport} uses the same covariates as in the benchmark result,
-the estimated value is similar to the benchmark one (the fifth column of Table \ref{tab:MainExtensive}).
-When we further control for the interaction between year dummies and industry dummies,
-we can obtain similar estimated values.
-
-We estimate the true price effect using panel IV.
-As a result, we obtain similar results to the benchmark results
-shown in Table \ref{tab:MainOverall}, Table \ref{tab:MainIntensive}, and Table \ref{tab:MainExtensive}.
 
 \hypertarget{conclusions}{%
 \section{Conclusions}\label{conclusions}}
