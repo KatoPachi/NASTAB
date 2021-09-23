@@ -297,7 +297,7 @@ df %>%
 #' ただし、やってみたはいいが、解釈が難しい・・・・。
 #'
 #+
-xlist_tab <- tribble(
+xlist_tab2 <- tribble(
   ~term, ~Overall, ~Intensive, ~Extensive, ~Overall, ~Intensive, ~Extensive,
   "Age (squared age)", "X", "X", "X", "X", "X", "X",
   "Year x Education", "X", "X", "X", "X", "X", "X",
@@ -351,7 +351,7 @@ df %>%
     ),
     stars = c("*" = .1, "**" = .05, "***" = .01),
     gof_omit = "^(?!R2 Adj.|R2 Within|FE|N)",
-    add_rows = xlist_tab
+    add_rows = xlist_tab2
   )
 
 #'
@@ -402,5 +402,63 @@ df %>%
     ),
     stars = c("*" = .1, "**" = .05, "***" = .01),
     gof_omit = "^(?!R2 Adj.|R2 Within|FE|N)",
+    add_rows = xlist_tab2
+  )
+
+#'
+#' ## 申告寄付者に限定した推定
+#'
+#' 以下、後藤さんの指摘点
+#'
+#' - 既存研究が行ってきた申告寄付者のみを対象とした分析が行われていないため、先行研究と単純な比較ができない
+#' - 上記のITTアプローチ・IV推定による意味がどの程度あるのかが把握できない。
+#'
+#' そこで、申告寄付者に限定した推定を行った。結果は以下の通り
+#'
+#' - **フルサンプルによるITTアプローチと比較して、OverallとIntentiveの価格弾力性はより弾力的になる**
+#' - **フルサンプルによるITTアプローチと比較して、Extensiveの価格弾力性は非弾力的になり、統計的に非有意となる**
+#'
+#+
+df %>%
+  dplyr::filter(ext_benefit_tl == 1) %>%
+  {
+    list(
+      "Overall" = list(
+        eq = fixest::xpd(log_total_g ~ log_price + ..ctrl),
+        data = .
+      ),
+      "Intensive" = list(
+        eq = fixest::xpd(log_total_g ~ log_price + ..ctrl),
+        data = subset(., i_ext_giving == 1)
+      ),
+      "Extensive" = list(
+        eq = fixest::xpd(i_ext_giving ~ log_price + ..ctrl),
+        data = .
+      )
+    )
+  } %>%
+  purrr::map(~ fixest::feols(
+    .$eq,
+    data = .$data,
+    cluster = ~pid, se = "cluster"
+  )) %>%
+  modelsummary(
+    title = "First price elasticity: Those who applied tax relief",
+    coef_omit = "factor|age",
+    coef_rename = c(
+      "log_price" = "log(first giving price)",
+      "log_pinc_all" = "log(annual taxable income)"
+    ),
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    gof_omit = "^(?!R2 Adj.|R2 Within|FE|N)",
     add_rows = xlist_tab
+  ) %>%
+  kableExtra::footnote(
+    general_title = "",
+    general = paste(
+      "Note: * p < 0.1, ** p < 0.05, *** p < 0.01.",
+      "Starand errors are culustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
   )
