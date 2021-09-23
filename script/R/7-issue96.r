@@ -214,7 +214,7 @@ df %>%
         eq = fixest::xpd(i_ext_giving ~ log_price + ..ctrl),
         data = .
       )
-    ) 
+    )
   } %>%
   purrr::map(~ fixest::feols(
     .$eq, data = .$data,
@@ -260,7 +260,7 @@ df %>%
         eq = fixest::xpd(i_ext_giving ~ log_price + ..ctrl),
         data = .
       )
-    ) 
+    )
   } %>%
   purrr::map(~ fixest::feols(
     .$eq, data = .$data,
@@ -285,4 +285,122 @@ df %>%
     ),
     threeparttable = TRUE,
     escape = FALSE
+  )
+
+#'
+#' ## 自営業者と給与所得者の異質性
+#'
+#' - IIPFの宮崎先生のSuggestion
+#' - Reduced formで推定してpreliminalyな結果として見せて、tax reliefに起因するものと論じることは可能かも（加藤の意見）
+#'
+#' 以下に給与所得者（Wage earners）と自営業者（Self-employed）でサブサンプルに分けて推定した結果を示す。
+#' ただし、やってみたはいいが、解釈が難しい・・・・。
+#'
+#+
+xlist_tab <- tribble(
+  ~term, ~Overall, ~Intensive, ~Extensive, ~Overall, ~Intensive, ~Extensive,
+  "Age (squared age)", "X", "X", "X", "X", "X", "X",
+  "Year x Education", "X", "X", "X", "X", "X", "X",
+  "Year x Gender", "X", "X", "X", "X", "X", "X",
+  "Year x Resident Area", "X", "X", "X", "X", "X", "X"
+)
+
+df %>%
+  dplyr::filter(employee == 1) %>%
+  {
+    list(
+      "Overall" = list(
+        eq = fixest::xpd(log_total_g ~ log_price + ..ctrl),
+        data = .
+      ),
+      "Intensive" = list(
+        eq = fixest::xpd(log_total_g ~ log_price + ..ctrl),
+        data = subset(., i_ext_giving == 1)
+      ),
+      "Extensive" = list(
+        eq = fixest::xpd(i_ext_giving ~ log_price + ..ctrl),
+        data = .
+      ),
+      "Overall" = list(
+        eq = fixest::xpd(log_total_g ~ log_price:ext_benefit_tl + ..ctrl),
+        data = .
+      ),
+      "Intensive" = list(
+        eq = fixest::xpd(log_total_g ~ log_price:ext_benefit_tl + ..ctrl),
+        data = subset(., i_ext_giving == 1)
+      ),
+      "Extensive" = list(
+        eq = fixest::xpd(i_ext_giving ~ log_price:ext_benefit_tl + ..ctrl),
+        data = .
+      )
+    )
+  } %>%
+  purrr::map(~ fixest::feols(
+    .$eq,
+    data = .$data,
+    cluster = ~pid, se = "cluster"
+  )) %>%
+  modelsummary(
+    title = "First price elasticity: Wage earners",
+    coef_omit = "factor|age",
+    coef_map = c(
+      "log_price" = "log(first giving price)",
+      "log_price:ext_benefit_tl" =
+        "log(first giving price) X 1 = apply tax relief",
+      "log_pinc_all" = "log(annual taxable income)"
+    ),
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    gof_omit = "^(?!R2 Adj.|R2 Within|FE|N)",
+    add_rows = xlist_tab
+  )
+
+#'
+#+
+df %>%
+  dplyr::filter(employee == 0) %>%
+  {
+    list(
+      "Overall" = list(
+        eq = fixest::xpd(log_total_g ~ log_price + ..ctrl),
+        data = .
+      ),
+      "Intensive" = list(
+        eq = fixest::xpd(log_total_g ~ log_price + ..ctrl),
+        data = subset(., i_ext_giving == 1)
+      ),
+      "Extensive" = list(
+        eq = fixest::xpd(i_ext_giving ~ log_price + ..ctrl),
+        data = .
+      ),
+      "Overall" = list(
+        eq = fixest::xpd(log_total_g ~ log_price:ext_benefit_tl + ..ctrl),
+        data = .
+      ),
+      "Intensive" = list(
+        eq = fixest::xpd(log_total_g ~ log_price:ext_benefit_tl + ..ctrl),
+        data = subset(., i_ext_giving == 1)
+      ),
+      "Extensive" = list(
+        eq = fixest::xpd(i_ext_giving ~ log_price:ext_benefit_tl + ..ctrl),
+        data = .
+      )
+    )
+  } %>%
+  purrr::map(~ fixest::feols(
+    .$eq,
+    data = .$data,
+    cluster = ~pid, se = "cluster"
+  )) %>%
+  modelsummary(
+    title = "First price elasticity: Self-employed",
+    coef_omit = "factor|age",
+    coef_map = c(
+      "log_price" = "log(first giving price)",
+      "log_price:ext_benefit_tl" =
+        "log(first giving price) X 1 = apply tax relief",
+      "log_pinc_all" = "log(annual taxable income)"
+    ),
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    gof_omit = "^(?!R2 Adj.|R2 Within|FE|N)",
+    add_rows = xlist_tab
   )
