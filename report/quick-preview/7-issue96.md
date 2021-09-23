@@ -545,3 +545,111 @@
 </tbody>
 </table>
 
+
+## 申告寄付者に限定した推定
+
+以下、後藤さんの指摘点
+
+- 既存研究が行ってきた申告寄付者のみを対象とした分析が行われていないため、先行研究と単純な比較ができない
+- 上記のITTアプローチ・IV推定による意味がどの程度あるのかが把握できない。
+
+そこで、申告寄付者に限定した推定を行った。結果は以下の通り
+
+- **フルサンプルによるITTアプローチと比較して、OverallとIntentiveの価格弾力性はより弾力的になる**
+- **フルサンプルによるITTアプローチと比較して、Extensiveの価格弾力性は非弾力的になり、統計的に非有意となる**
+
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
+<caption>First price elasticity: Those who applied tax relief</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:center;"> Overall </th>
+   <th style="text-align:center;"> Intensive </th>
+   <th style="text-align:center;"> Extensive </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> log(first giving price) </td>
+   <td style="text-align:center;"> -1.420** </td>
+   <td style="text-align:center;"> -1.328*** </td>
+   <td style="text-align:center;"> -0.119 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:center;"> (0.718) </td>
+   <td style="text-align:center;"> (0.432) </td>
+   <td style="text-align:center;"> (0.165) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> log(annual taxable income) </td>
+   <td style="text-align:center;"> -0.678 </td>
+   <td style="text-align:center;"> 0.917 </td>
+   <td style="text-align:center;"> -0.526 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;box-shadow: 0px 1px">  </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (2.112) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.948) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.479) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Num.Obs. </td>
+   <td style="text-align:center;"> 5894 </td>
+   <td style="text-align:center;"> 4207 </td>
+   <td style="text-align:center;"> 5894 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Adj. </td>
+   <td style="text-align:center;"> 0.426 </td>
+   <td style="text-align:center;"> 0.718 </td>
+   <td style="text-align:center;"> 0.243 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Within </td>
+   <td style="text-align:center;"> 0.064 </td>
+   <td style="text-align:center;"> 0.062 </td>
+   <td style="text-align:center;"> 0.066 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: pid </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: year </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Age (squared age) </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Education </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Gender </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Resident Area </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+</tbody>
+<tfoot><tr><td style="padding: 0; " colspan="100%">
+<sup></sup> Note: * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01. Starand errors are culustered at individual level.</td></tr></tfoot>
+</table>
+
