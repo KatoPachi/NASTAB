@@ -17,6 +17,7 @@
   \ifXeTeX
     \usepackage{zxjatype} 
     \usepackage[ipaex]{zxjafont}
+    \setromanfont{Times New Roman}
   \fi
   \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
@@ -93,22 +94,31 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
-\title{Charitable Giving, Tax Reform, and Self-selection of Tax Relief: Evidence from South Korea}
+\makeatletter
+\def\@fnsymbol#1{\ensuremath{\ifcase#1\or \dagger\or \ddagger\or
+   \mathsection\or \mathparagraph\or \|\or **\or \dagger\dagger
+   \or \ddagger\ddagger \else\@ctrerr\fi}}
+    \makeatother
+\title{Charitable Giving, Tax Reform, and Self-selection of Tax Relief: Evidence from South Korea  }
+\author{
+    Hiroki Kato
+  \thanks{. E-mail: vge008kh@stundent.econ.osaka-u.ac.jp  }
+  \and
+    Tsuyoshi Goto
+  \thanks{.  }
+  \and
+    Youngrok Kim
+  \thanks{.  }
+  \and
+  }
 
-
-      \usepackage{authblk}
-                            \author[]{Hiroki Kato}
-                                      \affil{Graduate School of Economics, Osaka University, Japan \thanks{vge008kh@stundent.econ.osaka-u.ac.jp}}
-                                                    \author[]{Tsuyoshi Goto}
-                                      \affil{Graduate School of Social Sciences, Chiba University, Japan}
-                                                    \author[]{Youngrok Kim}
-                                      \affil{Graduate School of Economics, Kobe University, Japan}
-                              
-\date{2021/08/10}
+\date{2021/09/30}
 
 
 \begin{document}
@@ -121,10 +131,10 @@
     By estimating the ``intension-to-treat'' effect (ITT) of tax reform, the analysis shows that the giving price elasticity is about -1 in terms of both intensive and extensive margins. Furthermore, considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the effect of ``effective'' giving price on the donation. As a result, we find that the estimation about the ``effective'' price elasticity is almost the same for the baseline one in terms of both intensive and extensive margins. This implies that the effect from the declaration cost of charitable giving may be small.
     
             \noindent
-    \textbf{Keywords}: Charitable giving, Giving price, Tax reform, South Korea, 
+    \textbf{Key words}: Charitable givingGiving priceTax reformSouth Korea
         
         \noindent
-    \textbf{JEL Codes}: D91, I10, I18, 
+    \textbf{JEL Codes}: D91I10I18
         
   \end{abstract}
 \end{spacing}
@@ -274,7 +284,7 @@ The National Survey of Tax and Benefit (hereafter, NaSTab) is an annual financia
 implemented by The Korea Institute of Taxation and Finance
 to study the tax burden of households and the benefits that households receive from the government.
 The subjects of this survey are general households and household members living in 15 cities and provinces nationwide.
-This survey is based on a face-to-face interview.\footnote{If it is difficult for investigators to meet subjects, another family member answers on behalf of him.}
+This survey is based on a face-to-face interview. \footnote{If it is difficult for investigators to meet subjects, another family member answers on behalf of him.}
 The NaSTaB data is constructed as the subjects represent the population of Korean society.
 This enables us to derive giving price elasticity of population without re-weighting samples, which is used in the extant research.
 Moreover, note that subjects are not limited to the taxpayer or income earner reflecting the population.
@@ -329,14 +339,7 @@ The gray bar shows the proportion of donors.
 After the tax reform, the proportion of donors decreases by 2 percentage points.
 After that, the proportion of donors is greter than 20\%.
 
-\begin{figure}[t]
-
-{\centering \includegraphics[width=1\linewidth]{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryOutcome-1} 
-
-}
-
-\caption{Proportion of Donors and Average Donations among Donors. Notes: The left and right axises respectively mesure proportion of donors and the average amount donations among donors. Authors made this graph based on NasTaB data.}\label{fig:SummaryOutcome}
-\end{figure}
+\begin{center}\includegraphics[width=0.85\linewidth]{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryOutcome-1} \end{center}
 
 The second panel of Table \ref{tab:SummaryCovariate} shows variables about income, tax report, and the giving price.
 NaSTaB asks respondents to answer the annual labor income last year.
@@ -371,14 +374,7 @@ We make a dummy taking one if respondents applied for a total income deduction o
 or a labor income deduction of giving.
 Table \ref{tab:SummaryCovariate} shows the proportion of declaration is about 48\%.
 
-\begin{figure}[t]
-
-{\centering \includegraphics[width=0.85\linewidth]{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPriceChange-1} 
-
-}
-
-\caption{Income Distribution and Giving Price in 2013}\label{fig:SummaryPriceChange}
-\end{figure}
+\begin{center}\includegraphics[width=0.85\linewidth]{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPriceChange-1} \end{center}
 
 \hypertarget{empirical-strategy}{%
 \section{Empirical Strategy}\label{empirical-strategy}}
@@ -1090,7 +1086,7 @@ To avoid this problem, we control incomes and the interaction between year dummi
 
 \begin{figure}[t]
 
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/DeductByEmployee-1} 
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/DeductByEmployee-1} 
 
 }
 
@@ -1280,7 +1276,7 @@ From the results, we firstly show the giving price elasticity in Korea. However,
 Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
 
 \leavevmode\vadjust pre{\hypertarget{ref-Auten2002}{}}%
-Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. Charitable giving, income, and taxes: An analysis of panel data. American Economic Review 92, 371--382.
+Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. \href{http://www.jstor.org/stable/3083340}{Charitable giving, income, and taxes: An analysis of panel data}. American Economic Review 92, 371--382.
 
 \leavevmode\vadjust pre{\hypertarget{ref-Bakija2011}{}}%
 Bakija, J., Heim, B.T., 2011. How does charitable giving respond to incentives and income? New estimates from panel data. National Tax Journal 64, 615--650. doi:\href{https://doi.org/10.17310/ntj.2011.2S.08}{10.17310/ntj.2011.2S.08}
