@@ -26,5 +26,5 @@ rmarkdown::render(
 rmarkdown::render(
     "slide.Rmd",
     output_file = "slide.pdf",
-    output_dir = "report"
+    output_dir = "paper"
 )
