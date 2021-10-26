@@ -89,10 +89,38 @@ Considering that this effect works for each increament of contribution, the seco
 
 For each effect, please see @Saez2004 for detail. The sum of four channels' effects are zero. 
 \begin{align}
-A+B+C+D=-(G-G^m)d\tau+\beta(G^r)\bar{G}^rd\tau+\tau(\frac{-\bar{G}}{1+G_{G^d}}d\tau-\bar{G}^m_{1-\tau}d\tau)-\frac{G_{1-\tau}}{1+G_{G^d}}d\tau=0
+A+B+C+D=-(G-G^m)d\tau+\beta(G^r)\bar{G}^rd\tau+\tau(\frac{-\bar{G}}{1+G_{G^d}}d\tau-\bar{G}^m_{1-\tau}d\tau)-\frac{G_{1-\tau}}{1+G_{G^d}}d\tau=0\label{sum}
 \end{align}
 
+Defining $\alpha=\frac{G}{G^r}, \epsilon_G=\frac{1-\tau}{G}\frac{\partial G}{\partial 1-\tau}, \epsilon_{G^r}=\frac{1-\tau}{G^r}\frac{\partial G^r}{\partial 1-\tau}$, and $\epsilon_{G^m}=\frac{1-\tau}{G^m}\frac{\partial G^m}{\partial 1-\tau}$, (\ref{sum}) will be
+\begin{align}
+(1-\alpha)\frac{\tau}{1-\tau}\epsilon_{G^m}-\alpha\epsilon_G\frac{1}{1+G_{G^d}}=1-\beta(G^r)\notag.
+\end{align}
+When crowding out is zero, i.e. $G_{G^d}=0$, this will be
+\begin{align}
+\epsilon_G=-\frac1{\alpha}(1-\beta(G^r))-\frac{1-\alpha}{\alpha}\frac{\tau}{1-\tau}\epsilon_{G^m}.\label{opt}
+\end{align}
+If the true contribution and reported contribution are coincide, i.e. $G=G^r$, $\epsilon_G$ will be
+\begin{align}
+\epsilon_G=-1+\beta(G^r)\notag.
+\end{align}
+Therefore, if the marginal value of subsidy is ignored, $\beta(G^r)=0$ holds and $\epsilon_G=1$ holds as the extant research have shown.
+
+Using $G=G^r+G^m$ and $\frac{\partial G}{\partial 1-\tau}=\frac{\partial G^r}{\partial 1-\tau}+\frac{\partial G^m}{\partial 1-\tau}$, we can derive
+	\begin{align}
+	\epsilon_G&=\frac{1-\tau}{G}\frac{\partial G^r}{\partial 1-\tau}+\frac{1-\tau}{G}\frac{\partial G^m}{\partial 1-\tau}\notag\\
+	&=\frac{1}{\alpha}\epsilon_{G^r}+\frac{\alpha-1}{\alpha}\epsilon_{G^m}\notag.
+	\end{align}
+Substituting this into (\ref{opt}) leads to
+\begin{align}
+\epsilon_{G^r}=\frac{1}{\tau}[\alpha\epsilon_G+(1-\beta(G^r))(1-\tau)].
+\end{align}
+Comparing $\epsilon_{G}$ and $\epsilon_{G^r}$, if $|\epsilon_G|\lessgtr\frac{(1-\beta(G^r))(1-\tau)}{\alpha-\tau}$ holds, $\epsilon_G\lessgtr\epsilon_{G^r}$ can be derived.
+
+Ignore the marginal value of subsidy, i.e. $\beta(G^r)=0$. The giving price in Korea was $\tau\in[0.06,0.38]$ before 2013 and $\tau=0.15$ after 2014. Based on the NaSTab data, $\alpha=\frac{G}{G^r}>1$. Therefore, $\frac{(1-\beta(G^r))(1-\tau)}{\alpha-\tau}=\frac{1-\tau}{\alpha-\tau}<1$ holds. 
+
 ```
+
 
 ```{asis, echo = doctype == "slide"}
 ## 2014 tax reform in South Korea
