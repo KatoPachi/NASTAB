@@ -1,12 +1,15 @@
-# /*
-# knit
-knitr::spin(
-  "script/R/1-summary.r",
-  knit = TRUE
-)
-# */
-
-#+ include = FALSE
+#' ---
+#' title: "Preview: Data"
+#' author: Hiroki Kato
+#' output:
+#'   html_document:
+#'     toc: true
+#'     toc_float: true
+#' params:
+#'   preview: true
+#' ---
+#'
+#+ include = FALSE, eval = params$preview
 knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
@@ -29,11 +32,11 @@ options(
 
 
 #'
-#+ include = FALSE
+#+ include = FALSE, eval = params$preview
 library(xfun)
 xfun::pkg_attach2(c(
   "tidyverse", "rlist", "modelsummary", "kableExtra",
-  "estimatr"
+  "estimatr", "fixest"
 ))
 
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
@@ -115,7 +118,7 @@ df %>%
   kableExtra::pack_rows("Individual Characteristics", 6, 11)
 
 #'
-#+ SummaryOutcome
+#+ SummaryOutcome, fig.cap = "Time-Series of Outcome Variables", out.width = "85%", out.extra = ""
 df %>%
   mutate(
     i_total_giving = if_else(i_ext_giving == 1, i_total_giving, NA_real_)
@@ -178,7 +181,7 @@ df %>%
 #'
 #' [^Question]: Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes. We sum up the amount of donations, and consider it as the annual charitable giving.
 #'
-#+ SummaryPrice
+#+ SummaryPrice, fig.cap = "Income Distribution and Relative Giving Price", out.width = "85%", out.extra = ""
 df %>%
   filter(year == 2013) %>%
   dplyr::select(lincome, price) %>%
@@ -202,7 +205,11 @@ df %>%
     sec.axis = sec_axis(~ . / 0.5, name = "Giving Price")
   ) +
   scale_x_continuous(breaks = c(1200, 4600, 8800, 30000)) +
-  labs(x = "Annual taxable income (10,000KRW)", y = "Relative Frequency") +
+  labs(
+    x = "Annual taxable income (10,000KRW)",
+    y = "Relative Frequency",
+    caption = "Red dashed line is the giving price after the 2014 tax reform."
+  ) +
   ggtemp()
 
 #'
@@ -256,3 +263,10 @@ df %>%
 #' Table \@ref(tab:SummaryCovariate) shows
 #' the proportion of declaration is about 48\%.
 #'
+# /*
+#+
+rmarkdown::render(
+  "script/R/1-summary.r",
+  output_dir = "report/view"
+)
+# */
