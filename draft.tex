@@ -263,56 +263,14 @@ In 2014, aiming at the relaxation of regressivity of giving price, the Korean go
 
 Summarizing this, compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%, get benefit from charitable giving under the tax deduction system. However, middle or low income households would enjoy tax relief in tax credit system more than tax deduction system. We exploit this policy change as an identification strategy.
 
-\begin{table}
-
-\caption{\label{tab:SummaryPapers}Summary of issues on the estimation of giving price and income elasiticities.}
-\centering
-\fontsize{7}{9}\selectfont
-\begin{threeparttable}
-\begin{tabular}[t]{ccccc}
-\toprule
-Issues & Contents & Proposed method to deal with the problem & Papers & Note\\
-\midrule
- & Change of marginal tax rate by transitory income &  & Randolph (1995), Auten et al.(2002), Bakija and Heim (2011), Almunia et al. (2020) & \\
-\cmidrule{2-2}
-\cmidrule{4-4}
- & Change of marginal tax rate by income adjustment anticipating changes in the future (e.g. income, giving price, or tax reform) &  & Bakija and Heim (2011), Fack and Landais(2010) & \\
-\cmidrule{2-2}
-\cmidrule{4-4}
- & Bias for estimating (permanent) income elasticity by transitory income &  & Randolph (1995), Auten et al.(2002), Bakija and Heim (2011), Almunia et al. (2020) & \\
-\cmidrule{2-2}
-\cmidrule{4-4}
- & Bias for estimating (permanent) income elasticity by income adjustment anticipating changes in the future (e.g. income, giving price, or tax reform) & \multirow{-4}{*}{\centering\arraybackslash Usage of lead and lag of income and giving price (Omitting the year, in which the reform is conducted.)} & Bakija and Heim (2011),Fack and Landais(2010) & \multirow{-4}{*}{\centering\arraybackslash }\\
-\cmidrule{2-5}
-\multirow{-5}{*}{\centering\arraybackslash Issues related to income tax and tax relief system} & Change of marginal tax rate by adjusting the amount of charitable giving & Usage of the marginal tax rate when the first dollar of charitable giving is conducted. & Bakija and Heim (2011), Almunia et al. (2020), Backus and Grant(2019), Rehavi and Shack(2013), ※Auten et al.(2002) & Auten et al.(2002) use a structural estimation.\\
-\cmidrule{1-5}
- & Sample selection bias by using tax return data & Usage of survey data & Backus and Grant(2019), Rehavi and Shack(2013) & \\
-\cmidrule{2-4}
-\multirow{-2}{*}{\centering\arraybackslash Issues related to declaration of tax and charitable giving} & Existence of declaration cost of charitable giving & Usage of structural estimation & Almunia et al. (2020) & \\
-\cmidrule{1-4}
- & Censoring of those who do not contribute & Usage of Heckit estimation or quantile regression & Almunia et al. (2020) / Fack and Landais(2010), Fack and Landais(2016) & \\
-\cmidrule{2-4}
- & Existence of fixed cost for charitable giving & Estimation of tax price elasticity in terms of extensive margin & Almunia et al. (2020), Backus and Grant(2019) & \\
-\cmidrule{2-4}
- & Lack of variations of giving price for identification & Usage of tax reform as a source of identification & Almunia et al. (2020), Fack and Landais(2010), Fack and Landais(2016) & \multirow{-5}{*}{\centering\arraybackslash }\\
-\cmidrule{2-5}
- & Overreport and underreport of charitable giving & Usage of policy reform which changes the cost for reporting charitable giving & Fack and Landais(2016) & This is the unique problem for the tax return data.\\
-\cmidrule{2-5}
-\multirow{-5}{*}{\centering\arraybackslash Others} & Switching items applied for deduction & Developing new estimation method and usage of it & Backus and Grant(2019) & This is the unique problem for the U.S. tax deduction system.\\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}
-\item Source: Own synopsis.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
+このあたりにLiteratureまとめの表
 
 \hypertarget{source-of-endogeneity}{%
 \subsection{Source of endogeneity}\label{source-of-endogeneity}}
 
-In the literature of giving tax relief, many papers care various endogeneity issues as Table
+In the literature of giving tax relief, many papers care various issues on the estimation as Table XXX. Most of papers care the issues related to income tax and tax relief system using lead and lag data of income and giving price, and utilize the marginal tax rate when the first dollar of charitable giving is conducted, called ``first giving price.''
 
-implicitly assume that all tax payers should enjoy tax relief for charitable giving, i.e.~\(R_i=1\) for all \(i\). However, this assumption always leads to the wrong estimation for the price elasticity, because the giving price elasticity should be always 0 when \(R_i=0\) and the estimation will be upward biased in terms of absolute value if this issue is ignored. Thus, the consideration for declaration of charitable giving is needed.
+However, compared to the issues about tax system, the treatment for the other issues varies in each paper. In particular, many paper do not consider the existence of declaration cost of charitable giving. Since those who face lower declaration cost are likely to enjoy tax relief and donate more, the difference of giving price may just represent the difference of declaration cost\footnote{Note that this problem is not resolved even if survey data is used instead of tax return data because the usage of survey data does not mean the consideration of declaration cost of each observation.}.
 
 Moreover, since the giving price in tax deduction scheme is dependent on the marginal income tax rate, the giving price is endogenous to (1) the income level (\(y_i\)), (2) the amount of charitable giving (\(g_i\)), and (3) declaration of tax relief (\(R_i\)). In the tax credit scheme, because the giving price does not depend on the marginal income tax rate, but depends on the tax credit rate \(m\), which is exogenously determined for tax payers, (1) the income level (\(y_i\)) and (2) the amount of charitable giving (\(g_i\)) do not matter. However, since declaration is required to enjoy tax relief, (3) declaration of tax relief (\(R_i\)) remains as a source of the endogeneity.
 
@@ -326,7 +284,10 @@ T'(y_i)-T_y(y_i,g_i)=\begin{cases}
 
 This implies that, when the higher marginal tax rate is applied (i.e.~the higher \(y_i\) is), the declaration of tax relief mitigate tax payment and \(R_i=1\) is likely to be hold for given \(x_i\) and \(g_i\). Thus, the high income earners tend to declare charitable giving. Since the tax return data tend to represent the data of high income earners, the issue of declaration may be serious.
 
-To overcome these issue. In section 5, we assume \(R_i=1\) for all \(i\) following the extant research and estimate ITT as a baseline result. The difference between this analysis and the extant research is that the observed charitable giving \(g_i\) in the former is not limited to declared one, but \(g_i\) in the latter is limited to declared one. In section 6, we remove the assumption, that is \(R_i=1\), and \(R_i\) can be 0 or 1 depending on each \(i\), which is the difference from the extant research.
+このあたりどう書くべきか。。、
+
+To overcome the issue about the existence of declaration cost, we use the different declaration cost for charitable giving between self-employed workers and wage earners as an identification source. Since the declaration cost for the self-employed is higher than wage earners in Korea, we use it as an IV in the estimation.
+In section 5, we assume \(R_i=1\) for all \(i\) following the extant research and estimate ITT as a baseline result. The difference between this analysis and the extant research is that the observed charitable giving \(g_i\) in the former is not limited to declared one, but \(g_i\) in the latter is limited to declared one. In section 6, we remove the assumption, that is \(R_i=1\), and \(R_i\) can be 0 or 1 depending on each \(i\), which is the difference from the extant research.
 
 \hypertarget{data}{%
 \section{Data}\label{data}}
