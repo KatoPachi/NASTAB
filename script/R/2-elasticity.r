@@ -1,6 +1,6 @@
 #' ---
 #' title: |
-#'   Preview: Income and Price Elasiticity for Those Who Apply to Tax Relief
+#'   Preview: Results
 #' author: Hiroki Kato
 #' output:
 #'   html_document:
@@ -60,135 +60,122 @@ df <- readr::read_csv(
 )
 
 #'
-#' ## Price and Income Elasticity
+#' # Results {#results}
+#'
+#' ## Elasiticities for Those Who Apply to Tax Relief
 #'
 #+
 subdf <- df %>%
   dplyr::filter(ext_benefit_tl == 1 & i_ext_giving == 1)
 
 #'
-#+
+#' はじめに、ベンチマークとして、寄付申告者に限定した寄付価格の弾力性を推定する。
+#' 寄付申告者に限定しているので、推定された弾力性はintensive-marginに関する弾力性を示している。
+#'
+#+ benchmark
 fixest::setFixest_fml(
-  ..first1 = ~ log_pinc_all | year + pid,
-  ..first2 = ~ log_pinc_all + age + sqage | year + pid,
-  ..first3 = ~ log_pinc_all + age + sqage + factor(educ) | year + pid,
-  ..first4 = ~ log_pinc_all + age + sqage + factor(educ) + factor(gender) |
-    year + pid,
-  ..first5 = ~ log_pinc_all + age + sqage + factor(educ) + factor(gender) +
-    factor(living_area) + factor(indust) | year + pid
-)
-
-xtab <- tribble(
-  ~terms, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
-  "Age (with squared age)", "", "X", "X", "X", "X",
-  "Education", "", "", "X", "X", "X",
-  "Gender", "", "", "", "X", "X",
-  "Resident Area", "", "", "", "", "X",
-  "Industry", "", "", "", "", "X"
+  ..first1 = ~ log_pinc_all | year + panelid,
+  ..first2 = ~ log_pinc_all | year + panelid + area,
+  ..first3 = ~ log_pinc_all | year + panelid + area + industry
 )
 
 firstmod <- list(
   "(1)" = fixest::xpd(log_total_g ~ log_price + ..first1),
   "(2)" = fixest::xpd(log_total_g ~ log_price + ..first2),
-  "(3)" = fixest::xpd(log_total_g ~ log_price + ..first3),
-  "(4)" = fixest::xpd(log_total_g ~ log_price + ..first4),
-  "(5)" = fixest::xpd(log_total_g ~ log_price + ..first5)
+  "(3)" = fixest::xpd(log_total_g ~ log_price + ..first3)
 )
 
 firstmod %>%
   purrr::map(~ fixest::feols(
     .,
     data = subset(subdf, i_ext_giving == 1),
-    cluster = ~pid, se = "cluster"
+    cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
+    title = "First Price Elasiticities for Those Who Apply to Tax Relief",
     coef_rename = c(
       "log_price" = "log(first giving price)",
       "log_pinc_all" = "log(annual taxable income)"
     ),
     coef_omit = "^(?!log)",
-    gof_omit = "^(?!R2 Adj.|R2 Within|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = xtab
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01)
   )
 
 #'
-#' ## Robustness Check
+#' 表\@ref(tab:benchmark)は固定効果モデルの推定結果である。
+#' 個人固定効果と時間固定効果を考慮したモデル(1)では、寄付の価格弾力性が-1.45である。
+#' 言い換えれば、寄付申告者について、税インセンティブによる価格の1%の減少は寄付を1.45%増やす。
+#' また、所得の弾力性は1であるが、これは統計的に非有意である。
+#' これらの結果は居住地ダミーや産業ダミーをコントロールしても変化しない。
 #'
-#+
+#+ robustbenchmark1
 firstmod %>%
   purrr::map(~ fixest::feols(
     .,
     data = subset(subdf, i_ext_giving == 1 & (year < 2013 | year > 2014)),
-    cluster = ~pid, se = "cluster"
+    cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
+    title = paste(
+      "First Price Elasiticities for Those Who Apply to Tax Relief",
+      "(Exclude sample observed in 2013 and 2014)"
+    ),
     coef_rename = c(
       "log_price" = "log(first giving price)",
       "log_pinc_all" = "log(annual taxable income)"
     ),
     coef_omit = "^(?!log)",
-    gof_omit = "^(?!R2 Adj.|R2 Within|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = xtab
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01)
   )
 
 #'
-#+
+#+ robustbenchmark2
 lastmod <- list(
   "(1)" = fixest::xpd(log_total_g ~ ..first1 | log_lprice ~ log_price),
   "(2)" = fixest::xpd(log_total_g ~ ..first2 | log_lprice ~ log_price),
-  "(3)" = fixest::xpd(log_total_g ~ ..first3 | log_lprice ~ log_price),
-  "(4)" = fixest::xpd(log_total_g ~ ..first4 | log_lprice ~ log_price),
-  "(5)" = fixest::xpd(log_total_g ~ ..first5 | log_lprice ~ log_price)
+  "(3)" = fixest::xpd(log_total_g ~ ..first3 | log_lprice ~ log_price)
 )
 
 lastmod %>%
   purrr::map(~ fixest::feols(
     .,
     data = subset(subdf, i_ext_giving == 1),
-    cluster = ~pid, se = "cluster"
+    cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
+    title = paste(
+      "Last Price Elasiticities for Those Who Apply to Tax Relief"
+    ),
     coef_rename = c(
       "fit_log_lprice" = "log(last giving price)",
       "log_pinc_all" = "log(annual taxable income)"
     ),
     coef_omit = "^(?!log|fit)",
-    gof_omit = "^(?!R2 Adj.|R2 Within|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = xtab
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01)
   )
 
 #'
-#+
+#+ robustbenchmark3
 fixest::setFixest_fml(
   ..kdiff1 = ~ log_iv1price + log_diff1I + diff1_age + diff1_sqage,
   ..kdiff2 = ~ log_iv2price + log_diff2I + diff2_age + diff2_sqage,
   ..kdiff3 = ~ log_iv3price + log_diff3I + diff3_age + diff3_sqage,
-  ..kdiffbase = ~ factor(educ) + factor(gender) +
-    factor(living_area) + factor(indust) | year + pid
-)
-
-kdiff_tab <- tibble::tribble(
-  ~terms, ~"(1)", ~"(2)", ~"(3)",
-  "Age (with squared age)", "X", "X", "X",
-  "Education", "X", "X", "X",
-  "Gender", "X", "X", "X",
-  "Resident Area", "X", "X", "X",
-  "Industry", "X", "X", "X"
+  ..kdifffe = ~ year + panelid + area + industry
 )
 
 kdiffmod <- list(
-  "(1)" = fixest::xpd(log_diff1g ~ ..kdiff1 + ..kdiffbase),
-  "(2)" = fixest::xpd(log_diff2g ~ ..kdiff2 + ..kdiffbase),
-  "(3)" = fixest::xpd(log_diff3g ~ ..kdiff3 + ..kdiffbase)
+  "(1)" = fixest::xpd(log_diff1g ~ ..kdiff1 | ..kdifffe),
+  "(2)" = fixest::xpd(log_diff2g ~ ..kdiff2 | ..kdifffe),
+  "(3)" = fixest::xpd(log_diff3g ~ ..kdiff3 | ..kdifffe)
 )
 
 kdiffmod %>%
   purrr::map(~ fixest::feols(
     .,
-    cluster = ~ pid, se = "cluster",
+    cluster = ~ panelid, se = "cluster",
     data = subset(subdf, i_ext_giving == 1)
   )) %>%
   modelsummary(
@@ -201,11 +188,43 @@ kdiffmod %>%
       "log_diff3I" = "3-year lagged difference of annual income (log)"
     ),
     coef_omit = "^(?!log)",
-    gof_omit = "^(?!R2 Adj.|R2 Within|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = kdiff_tab
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01)
   )
-
+#'
+#' この結果の頑健性に関する結果を補論に示した
+#' （**Not publication**：パンチラインというか、重要な表はbenchmarkなので、
+#' これらはすべて補論に持っていてもいいと思います）。
+#' 表\@ref(tab:robustbenchmark1)は税制改革のアナウンス効果を排除するために、
+#' 2013年と2014年のデータを除いて弾力性を推定した結果である。
+#' 事前に2014年の税制改革を知っているならば、
+#' その改革によって寄付の相対価格が高く（安く）なる人は改革前に寄付を増やす（減らす）はずである。
+#' したがって、税制改革のアナウンス効果によって、寄付の価格弾力性は過小バイアスを伴う。
+#' 結果として、寄付の価格弾力性は約-1.7であり、統計的に有意な結果である。
+#' この結果は我々の予想した通りである。
+#' また、所得弾力性は約1であるが、これは統計的に非有意な結果である。
+#'
+#' 表\@ref(tab:robustbenchmark2)はlast priceの価格弾力性の推定結果である。
+#' 所得控除制度のもとで、個人が実際に直面する寄付の相対価格はfirst priceではなく、last priceである。
+#' したがって、last priceの弾力性が現実的である。
+#' しかしながら、寄付額に依存するので、last priceは内生変数である。
+#' そこで、寄付額に依存しないfirst priceを操作変数として、panel iv推定をした。
+#' 結果として、寄付の価格弾力性は約-1.6であり、統計的に有意である。
+#' この弾力性は表\@ref(tab:benchmark)で示したfirst priceの弾力性と非常に近い値を取っているので、
+#' first priceの弾力性でも十分に個人の行動を捉えている。
+#'
+#' 表\@ref(tab:robustbenchmark3)は$k$階差分推定の結果である。
+#' 所得控除制度のもとで、個人は所得の操作を通じて寄付の相対価格を変えることができる。
+#' したがって、所得の操作に依存するので、寄付額に依存しないfirst priceも内生変数である。
+#' そこで、$t-k$年の所得のもとで、$t-k$年と$t$年の寄付のfirst priceを計算し、その差分を説明変数として用いた。
+#' このとき、被説明変数は$t-k$年と$t$年の寄付の対数値の差分である。
+#' 結果として、$k = 1$や$k = 2$のとき、寄付の価格弾力性は約-1であり、
+#' これは統計的に非有意である。
+#' しかしながら、$k = 3$のとき、寄付の価格弾力性は約-1.6であり、
+#' これは統計的に10%水準である。
+#' （**Not publication** 加藤の個人メモ：
+#' もとをたどると、どうもこの推定方法は間違っているかもしれません。早急に確認します）
+#'
 # /*
 #+
 rmarkdown::render(

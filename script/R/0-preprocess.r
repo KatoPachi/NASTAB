@@ -75,7 +75,7 @@ original <- haven::read_dta("data/merge/merge.dta") %>%
       year >= 2014, ext_credit_giving_tincome, ext_deduct_giving_tincome
     )
   ) %>%
-  rename(indust = paa008) %>%
+  rename(industry = paa008) %>%
   dplyr::select(-p_aa005, -pda207, -pda209)
 
 #' 既存のデータにマージする
@@ -115,6 +115,11 @@ df <- df %>%
     ),
     int_price_benefit = log_price * ext_benefit_tl
   )
+
+#' rename関連
+#+
+df <- df %>%
+  rename(panelid = pid, area = living_area)
 
 #' CSVファイルに書き出す
 #+
