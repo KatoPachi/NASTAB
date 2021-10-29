@@ -13,6 +13,8 @@
 .Rhistory
 .Rprofile
 .Renviron
+.Rproj.user
+*.Rproj
 
 # cache folder
 slides_cache/
