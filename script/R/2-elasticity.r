@@ -64,29 +64,27 @@ df <- readr::read_csv(
 #'
 #+
 subdf <- df %>%
-  dplyr::filter(ext_benefit_tl == 1)
+  dplyr::filter(ext_benefit_tl == 1 & i_ext_giving == 1)
 
 #'
 #+
 fixest::setFixest_fml(
   ..first1 = ~ log_pinc_all | year + pid,
   ..first2 = ~ log_pinc_all + age + sqage | year + pid,
-  ..first3 = ~ log_pinc_all + age + sqage +
-    factor(year):factor(educ) | year + pid,
-  ..first4 = ~ log_pinc_all + age + sqage +
-    factor(year):factor(educ) + factor(year):factor(gender) | year + pid,
-  ..first5 = ~ log_pinc_all + age + sqage + factor(year):factor(educ) +
-    factor(year):factor(gender) + factor(year):factor(living_area) +
-    factor(year):factor(indust) | year + pid
+  ..first3 = ~ log_pinc_all + age + sqage + factor(educ) | year + pid,
+  ..first4 = ~ log_pinc_all + age + sqage + factor(educ) + factor(gender) |
+    year + pid,
+  ..first5 = ~ log_pinc_all + age + sqage + factor(educ) + factor(gender) +
+    factor(living_area) + factor(indust) | year + pid
 )
 
 xtab <- tribble(
   ~terms, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
   "Age (with squared age)", "", "X", "X", "X", "X",
-  "Year x Education", "", "", "X", "X", "X",
-  "Year x Gender", "", "", "", "X", "X",
-  "Year x Resident Area", "", "", "", "", "X",
-  "Year x Industry", "", "", "", "", "X"
+  "Education", "", "", "X", "X", "X",
+  "Gender", "", "", "", "X", "X",
+  "Resident Area", "", "", "", "", "X",
+  "Industry", "", "", "", "", "X"
 )
 
 firstmod <- list(
@@ -168,17 +166,17 @@ fixest::setFixest_fml(
   ..kdiff1 = ~ log_iv1price + log_diff1I + diff1_age + diff1_sqage,
   ..kdiff2 = ~ log_iv2price + log_diff2I + diff2_age + diff2_sqage,
   ..kdiff3 = ~ log_iv3price + log_diff3I + diff3_age + diff3_sqage,
-  ..kdiffbase = ~ factor(year):factor(educ) + factor(year):factor(gender) +
-    factor(year):factor(living_area) + factor(year):factor(indust) | year + pid
+  ..kdiffbase = ~ factor(educ) + factor(gender) +
+    factor(living_area) + factor(indust) | year + pid
 )
 
 kdiff_tab <- tibble::tribble(
   ~terms, ~"(1)", ~"(2)", ~"(3)",
   "Age (with squared age)", "X", "X", "X",
-  "Year x Education", "X", "X", "X",
-  "Year x Gender", "X", "X", "X",
-  "Year x Resident Area", "X", "X", "X",
-  "Year x Industry", "X", "X", "X"
+  "Education", "X", "X", "X",
+  "Gender", "X", "X", "X",
+  "Resident Area", "X", "X", "X",
+  "Industry", "X", "X", "X"
 )
 
 kdiffmod <- list(
