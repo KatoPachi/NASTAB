@@ -239,7 +239,7 @@ df %>%
 #' In Figure \@ref(fig:SummaryPrice),
 #' the blue line shows the giving price in 2012 and 2013,
 #' while the red dashed line shows the giving price after 2014.
-#' From this figure, 
+#' From this figure,
 #' those whose annual income is less than 120,000,000 KRW
 #' (120,000 USD) in 2013 could receive benefit from the 2014 tax reform
 #' because the tax reform decreases the giving price.
@@ -250,6 +250,30 @@ df %>%
 #'
 #' [^fprice]: The giving price shown in Table \@ref(tab:SummaryCovariate) is the *first* giving price. The giving price can be manipulated by an amount of donation. To avoid this endogeneity, we use the giving price where the amount of donation is zero. We will discuss this issue in the next section.
 #'
+#+
+df %>%
+  dplyr::filter(year <= 2017) %>%
+  dplyr::filter(!is.na(employee)) %>%
+  mutate(employee = factor(
+    employee,
+    levels = c(1, 0), labels = c("Yes", "No")
+  )) %>%
+  group_by(year, employee) %>%
+  summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
+  mutate(employee = factor(employee)) %>%
+  ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
+  geom_point(aes(shape = employee), color = "black", size = 3) +
+  geom_line(aes(linetype = employee), size = 1) +
+  geom_vline(aes(xintercept = 2013.5)) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(
+    x = "Year",
+    y = "share of declaration of a tax relief",
+    shape = "Wage earner",
+    linetype = "Wage earner"
+  ) +
+  ggtemp()
+
 #' The NaSTaB also asks respondents
 #' to answer whether they declared a tax relief of giving.
 #' Although this variable is unique,
@@ -261,7 +285,7 @@ df %>%
 #' if respondents applied for a total income deduction of giving
 #' or a labor income deduction of giving.
 #' Table \@ref(tab:SummaryCovariate) shows
-#' the proportion of declaration is about 48\%.
+#' the proportion of declaration is about 24%.
 #'
 # /*
 #+
