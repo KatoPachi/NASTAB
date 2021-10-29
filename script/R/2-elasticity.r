@@ -76,7 +76,8 @@ fixest::setFixest_fml(
   ..first4 = ~ log_pinc_all + age + sqage +
     factor(year):factor(educ) + factor(year):factor(gender) | year + pid,
   ..first5 = ~ log_pinc_all + age + sqage + factor(year):factor(educ) +
-    factor(year):factor(gender) + factor(year):factor(living_area) | year + pid
+    factor(year):factor(gender) + factor(year):factor(living_area) +
+    factor(year):factor(indust) | year + pid
 )
 
 xtab <- tribble(
@@ -84,7 +85,8 @@ xtab <- tribble(
   "Age (with squared age)", "", "X", "X", "X", "X",
   "Year x Education", "", "", "X", "X", "X",
   "Year x Gender", "", "", "", "X", "X",
-  "Year x Resident Area", "", "", "", "", "X"
+  "Year x Resident Area", "", "", "", "", "X",
+  "Year x Industry", "", "", "", "", "X"
 )
 
 firstmod <- list(
@@ -157,7 +159,7 @@ lastmod %>%
     coef_omit = "^(?!log|fit)",
     gof_omit = "^(?!R2 Adj.|R2 Within|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = xlist_tab
+    add_rows = xtab
   )
 
 #'
@@ -167,7 +169,7 @@ fixest::setFixest_fml(
   ..kdiff2 = ~ log_iv2price + log_diff2I + diff2_age + diff2_sqage,
   ..kdiff3 = ~ log_iv3price + log_diff3I + diff3_age + diff3_sqage,
   ..kdiffbase = ~ factor(year):factor(educ) + factor(year):factor(gender) +
-    factor(year):factor(living_area) | year + pid
+    factor(year):factor(living_area) + factor(year):factor(indust) | year + pid
 )
 
 kdiff_tab <- tibble::tribble(
@@ -175,7 +177,8 @@ kdiff_tab <- tibble::tribble(
   "Age (with squared age)", "X", "X", "X",
   "Year x Education", "X", "X", "X",
   "Year x Gender", "X", "X", "X",
-  "Year x Resident Area", "X", "X", "X"
+  "Year x Resident Area", "X", "X", "X",
+  "Year x Industry", "X", "X", "X"
 )
 
 kdiffmod <- list(
