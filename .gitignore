@@ -12,6 +12,7 @@
 # R-related files
 .Rhistory
 .Rprofile
+.Renviron
 
 # cache folder
 slides_cache/
