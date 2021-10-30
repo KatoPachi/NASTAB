@@ -75,14 +75,16 @@ subdf <- df %>%
 #+ benchmark
 fixest::setFixest_fml(
   ..first1 = ~ log_pinc_all | year + panelid,
-  ..first2 = ~ log_pinc_all | year + panelid + area,
-  ..first3 = ~ log_pinc_all | year + panelid + area + industry
+  ..first2 = ~ log_pinc_all + sqage | year + panelid,
+  ..first3 = ~ log_pinc_all + sqage | year + panelid + area,
+  ..first4 = ~ log_pinc_all + sqage | year + panelid + area + industry
 )
 
 firstmod <- list(
   "(1)" = fixest::xpd(log_total_g ~ log_price + ..first1),
   "(2)" = fixest::xpd(log_total_g ~ log_price + ..first2),
-  "(3)" = fixest::xpd(log_total_g ~ log_price + ..first3)
+  "(3)" = fixest::xpd(log_total_g ~ log_price + ..first3),
+  "(4)" = fixest::xpd(log_total_g ~ log_price + ..first4)
 )
 
 firstmod %>%
@@ -99,7 +101,11 @@ firstmod %>%
     ),
     coef_omit = "^(?!log)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01)
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+      "Square age", "", "X", "X", "X"
+    )
   )
 
 #'
@@ -127,7 +133,11 @@ firstmod %>%
     ),
     coef_omit = "^(?!log)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01)
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+      "Square age", "", "X", "X", "X"
+    )
   )
 
 #'
@@ -135,7 +145,8 @@ firstmod %>%
 lastmod <- list(
   "(1)" = fixest::xpd(log_total_g ~ ..first1 | log_lprice ~ log_price),
   "(2)" = fixest::xpd(log_total_g ~ ..first2 | log_lprice ~ log_price),
-  "(3)" = fixest::xpd(log_total_g ~ ..first3 | log_lprice ~ log_price)
+  "(3)" = fixest::xpd(log_total_g ~ ..first3 | log_lprice ~ log_price),
+  "(4)" = fixest::xpd(log_total_g ~ ..first4 | log_lprice ~ log_price)
 )
 
 lastmod %>%
@@ -154,15 +165,19 @@ lastmod %>%
     ),
     coef_omit = "^(?!log|fit)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01)
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+      "Square age", "", "X", "X", "X"
+    )
   )
 
 #'
 #+ robustbenchmark3
 fixest::setFixest_fml(
-  ..kdiff1 = ~ log_iv1price + log_diff1I + diff1_age + diff1_sqage,
-  ..kdiff2 = ~ log_iv2price + log_diff2I + diff2_age + diff2_sqage,
-  ..kdiff3 = ~ log_iv3price + log_diff3I + diff3_age + diff3_sqage,
+  ..kdiff1 = ~ log_iv1price + log_diff1I + diff1_sqage,
+  ..kdiff2 = ~ log_iv2price + log_diff2I + diff2_sqage,
+  ..kdiff3 = ~ log_iv3price + log_diff3I + diff3_sqage,
   ..kdifffe = ~ year + panelid + area + industry
 )
 
@@ -189,7 +204,11 @@ kdiffmod %>%
     ),
     coef_omit = "^(?!log)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01)
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)",
+      "Difference of square age", "X", "X", "X"
+    )
   )
 #'
 #' この結果の頑健性に関する結果を補論に示した
