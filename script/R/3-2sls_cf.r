@@ -238,7 +238,7 @@ stage2 %>%
 # /*
 #+
 rmarkdown::render(
-  "script/R/4-paneliv.r",
+  "script/R/3-2sls_cf.r",
   output_dir = "report/view"
 )
 # */
