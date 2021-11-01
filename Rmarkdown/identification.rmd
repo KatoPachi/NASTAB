@@ -1,0 +1,169 @@
+---
+title: "理想的なデータセットでのIdentificationを考える"
+author: Hiroki Kato
+output:
+  html_document:
+    toc: true
+    toc_float: true
+params:
+  preview: true
+---
+
+
+```{r include = FALSE, eval = params$preview}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = TRUE,
+  cache = FALSE,
+  include = TRUE,
+  fig.width = 10
+)
+
+library(here)
+knitr::opts_knit$set(
+  root.dir = here::here()
+)
+
+options(
+  knitr.kable.NA = " ",
+  knitr.table.format = "html",
+  modelsummary_stars_note = FALSE
+)
+```
+
+```{r include = FALSE, eval = params$preview}
+library(xfun)
+xfun::pkg_attach2(c(
+  "tidyverse", "rlist", "modelsummary", "kableExtra",
+  "estimatr", "fixest"
+))
+
+lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
+```
+
+
+我々が知りたいことは、**控除を申請していない人が申請するならば、どれくらいの寄付を価格インセンティブで増やせるか？**
+
+# Data Generating Process
+
+控除を申請したかどうか示すダミー変数を$R_i$とする。
+寄付を申請した場合（$R_i = 1$）とそうでない場合（$R_i = 0$）の寄付額を以下のように定義する
+\begin{align}
+  \begin{cases}
+    \ln g_{i1} = \epsilon_{pi} \ln p_i + \ln y_i + u_i & R_i = 1  \\
+    \ln g_{i0} = \ln y_i + u_i & R_i = 0 \\
+  \end{cases}
+\end{align}
+
+- $\epsilon_{pi}$は価格弾力性で個人によって異なり、$[-1.6, -0.8]$の範囲で一様に分布する（random coefficient model）
+- $y_i$は個人の所得で$[0, 32000]$の範囲で一様に分布し、所得の弾力性はすべての個人について0.4とする
+- $p_i$は個人の寄付のfirst-priceである。所得控除制度を想定し、$y_i$に依存して決まる（2013年の所得税を使用する）
+- $u_i$は$N(0, 1)$の正規分布に従う誤差項
+
+```{r}
+set.seed(1205)
+
+# observation
+n <- 10000
+
+# price elasticity, income and error term
+eps <- runif(n, -1.6, -0.8)
+y <- runif(n, 0, 30000)
+u <- rnorm(n)
+
+# average tax rate if not applying for a tax deduction
+tau0 <- dplyr::case_when(
+  y <= 1200 ~ 0.07,
+  y <= 4600 ~ 0.15,
+  y <= 8800 ~ 0.25,
+  y <= 30000 ~ 0.36,
+  TRUE ~ 0.38
+)
+
+# first-price of giving
+p <- 1 - tau0
+
+# log donations if applying for a tax deduction
+g1 <- eps * log(p) + 0.4 * log(y) + u
+
+# log donations if not applying for a tax deduction
+g0 <- 0.4 * log(y) + u
+```
+
+寄付控除の申請にはコスト$C_i$がかかると想定し、以下のようなルールで控除を申請するかどうかを決める
+\begin{align}
+  &R_i = 1[T(y_i) - T_i(y_i - g_{i1}) > C_i] \\
+  &T_i(y_i - g_{i1}) = \tau(y_i - g_{i1}) \cdot (y_i - g_{i1}) \\
+  &T_i(y_i) = \tau(y_i) \cdot y_i \\
+  &C_i = 80 - 40 \cdot Z_i
+\end{align}
+ここで、$Z_i$は寄付控除申請コストに関する外生変数で確率0.5のベルヌーイ分布に従う
+
+```{r}
+# average tax rate if applying for a tax deduction
+tau1 <- dplyr::case_when(
+  y - exp(g1) <= 1200 ~ 0.07,
+  y - exp(g1) <= 4600 ~ 0.15,
+  y - exp(g1) <= 8800 ~ 0.25,
+  y - exp(g1) <= 30000 ~ 0.36,
+  TRUE ~ 0.38
+)
+
+# tax amount if applying for a tax deduction
+t1 <- tau1 * (y - exp(g1))
+
+# tax amount if not applying for a tax deduction
+t0 <- tau0 * y
+
+# applying cost
+z <- sample(c(1, 0), size = n, replace = TRUE, prob = c(0.5, 0.5))
+cost <- 80 - 40 * z
+
+# decision of applying for a tax deduction
+r <- 1 * (t0 - t1 > cost)
+```
+
+我々が観測できる寄付額は以下のように決まる
+\begin{align}
+  \ln g_i = R_i \ln g_{i1} + (1 - R_i) \ln g_{i0}
+\end{align}
+
+```{r}
+# observed log donations
+g <- r * g1 + (1 - r) * g0
+```
+
+このプロセスで出来たデータセットは以下のようになる
+
+```{r}
+dt <- tibble::tibble(
+  eps = eps,
+  ln_g = g,
+  ln_g1 = g1,
+  ln_g0 = g0,
+  g = exp(g),
+  y = y,
+  ln_y = log(y),
+  p = p,
+  ln_p = log(p),
+  apply = r,
+  inst = z
+)
+
+head(dt)
+```
+
+関心のあるパラメータは3つ
+
+1. 寄付控除を申請した人の寄付の価格弾力性（ATT-like）
+1. 仮に寄付控除を申請しなかった人が申請したときの寄付の価格弾力性（ATU-like）
+1. 全員が寄付控除を申請したときの寄付の価格弾力性（ATE-like）
+
+その値はそれぞれ以下のようになる
+
+```{r}
+with(subset(dt, apply == 1), mean(eps))
+with(subset(dt, apply == 0), mean(eps))
+with(dt, mean(eps))
+```
