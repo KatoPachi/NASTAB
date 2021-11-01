@@ -175,16 +175,22 @@ lastmod %>%
 #'
 #+ robustbenchmark3
 fixest::setFixest_fml(
-  ..kdiff1 = ~ log_iv1price + log_diff1I + diff1_sqage,
-  ..kdiff2 = ~ log_iv2price + log_diff2I + diff2_sqage,
-  ..kdiff3 = ~ log_iv3price + log_diff3I + diff3_sqage,
+  ..kdiff1 = ~ log_diff1I + diff1_sqage,
+  ..kdiff2 = ~ log_diff2I + diff2_sqage,
+  ..kdiff3 = ~ log_diff3I + diff3_sqage,
   ..kdifffe = ~ year + panelid + area + industry
 )
 
 kdiffmod <- list(
-  "(1)" = fixest::xpd(log_diff1g ~ ..kdiff1 | ..kdifffe),
-  "(2)" = fixest::xpd(log_diff2g ~ ..kdiff2 | ..kdifffe),
-  "(3)" = fixest::xpd(log_diff3g ~ ..kdiff3 | ..kdifffe)
+  "(1)" = fixest::xpd(
+    log_diff1g ~ ..kdiff1 | ..kdifffe | log_diff1p ~ log_iv1price
+  ),
+  "(2)" = fixest::xpd(
+    log_diff2g ~ ..kdiff2 | ..kdifffe | log_diff2p ~ log_iv2price
+  ),
+  "(3)" = fixest::xpd(
+    log_diff3g ~ ..kdiff3 | ..kdifffe | log_diff3p ~ log_iv3price
+  )
 )
 
 kdiffmod %>%
@@ -194,15 +200,15 @@ kdiffmod %>%
     data = subset(subdf, i_ext_giving == 1)
   )) %>%
   modelsummary(
-    coef_rename = c(
-      "log_iv1price" = "1-year lagged difference of first price (log)",
-      "log_iv2price" = "2-year lagged difference of first price (log)",
-      "log_iv3price" = "3-year lagged difference of first price (log)",
+    title = "k-th difference model",
+    coef_map = c(
+      "fit_log_diff1p" = "1-year lagged difference of first price (log)",
       "log_diff1I" = "1-year lagged difference of annual income (log)",
+      "fit_log_diff2p" = "2-year lagged difference of first price (log)",
       "log_diff2I" = "2-year lagged difference of annual income (log)",
+      "fit_log_diff3p" = "3-year lagged difference of first price (log)",
       "log_diff3I" = "3-year lagged difference of annual income (log)"
     ),
-    coef_omit = "^(?!log)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
@@ -210,6 +216,7 @@ kdiffmod %>%
       "Difference of square age", "X", "X", "X"
     )
   )
+
 #'
 #' この結果の頑健性に関する結果を補論に示した
 #' （**Not publication**：パンチラインというか、重要な表はbenchmarkなので、
@@ -241,8 +248,6 @@ kdiffmod %>%
 #' これは統計的に非有意である。
 #' しかしながら、$k = 3$のとき、寄付の価格弾力性は約-1.6であり、
 #' これは統計的に10%水準である。
-#' （**Not publication** 加藤の個人メモ：
-#' もとをたどると、どうもこの推定方法は間違っているかもしれません。早急に確認します）
 #'
 # /*
 #+
