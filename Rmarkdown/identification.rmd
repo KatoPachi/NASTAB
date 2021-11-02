@@ -47,19 +47,24 @@ lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 
 # Data Generating Process
 
-控除を申請したかどうか示すダミー変数を$R_i$とする。
-寄付を申請した場合（$R_i = 1$）とそうでない場合（$R_i = 0$）の寄付額を以下のように定義する
-\begin{align}
-  \begin{cases}
-    \ln g_{i1} = \epsilon_{pi} \ln p_i + \ln y_i + u_i & R_i = 1  \\
-    \ln g_{i0} = \ln y_i + u_i & R_i = 0 \\
-  \end{cases}
-\end{align}
+## Modeling Counterfactuals
 
-- $\epsilon_{pi}$は価格弾力性で個人によって異なり、$[-1.6, -0.8]$の範囲で一様に分布する（random coefficient model）
-- $y_i$は個人の所得で$[0, 32000]$の範囲で一様に分布し、所得の弾力性はすべての個人について0.4とする
-- $p_i$は個人の寄付のfirst-priceである。所得控除制度を想定し、$y_i$に依存して決まる（2013年の所得税を使用する）
-- $u_i$は$N(0, 1)$の正規分布に従う誤差項
+寄付額は寄付の相対価格$p_i$（後に示すが、**first-priceを用いて意思決定をしていると仮定する**）と所得$y_i$に依存して決まるとする。
+というか、分析者は価格と所得のみ観察できるとする。
+寄付額（の対数値）は以下のように決まる
+
+$$ \ln g_i = \epsilon_{pi} \ln p_i + 0.4 \ln y_i + u_i $$
+
+- 価格弾力性$\epsilon_{pi}$は個人によって異なる（random coefficient model）
+  - $[-1.6, -0.8]$の範囲で一様に分布し、外生的に決まる
+- 所得弾力性はすべての個人について0.4とする
+- 個人の所得は$[0, 32000]$の範囲で一様に分布し、外生的に決まる
+- 価格$p_i$は所得$y_i$と寄付控除を申請したかどうかを示す二値変数$R_i$で決まる、すなわち、$p_i = 1 - R_i \cdot \tau(y_i)$
+  - 寄付額に依存しないfirst-priceを用いる。last-priceはモデル化が複雑になるのでやめた
+  - $\tau(\cdot)$は2013年の韓国の所得税率を使用する。
+- これ以外の要因を誤差項$u_i$で集約し、$N(0, 1)$に従うとする。
+
+仮に寄付控除を申請した場合の寄付額$g_{i1}$とそうでない場合の寄付額$g_{i0}$を以下のように作る
 
 ```{r}
 set.seed(1205)
@@ -72,98 +77,228 @@ eps <- runif(n, -1.6, -0.8)
 y <- runif(n, 0, 30000)
 u <- rnorm(n)
 
-# average tax rate if not applying for a tax deduction
-tau0 <- dplyr::case_when(
-  y <= 1200 ~ 0.07,
-  y <= 4600 ~ 0.15,
-  y <= 8800 ~ 0.25,
-  y <= 30000 ~ 0.36,
-  TRUE ~ 0.38
-)
+# average tax rate function
+atr13 <- function(x) {
+  dplyr::case_when(
+    x <= 1200 ~ 0.07,
+    x <= 4600 ~ 0.15,
+    x <= 8800 ~ 0.25,
+    x <= 30000 ~ 0.36,
+    TRUE ~ 0.38
+  )
+}
 
 # first-price of giving
-p <- 1 - tau0
+p <- 1 - atr13(y)
 
 # log donations if applying for a tax deduction
 g1 <- eps * log(p) + 0.4 * log(y) + u
 
 # log donations if not applying for a tax deduction
-g0 <- 0.4 * log(y) + u
+g0 <- eps * log(1) + 0.4 * log(y) + u
 ```
 
-寄付控除の申請にはコスト$C_i$がかかると想定し、以下のようなルールで控除を申請するかどうかを決める
-\begin{align}
-  &R_i = 1[T(y_i) - T_i(y_i - g_{i1}) > C_i] \\
-  &T_i(y_i - g_{i1}) = \tau(y_i - g_{i1}) \cdot (y_i - g_{i1}) \\
-  &T_i(y_i) = \tau(y_i) \cdot y_i \\
-  &C_i = 80 - 40 \cdot Z_i
-\end{align}
-ここで、$Z_i$は寄付控除申請コストに関する外生変数で確率0.5のベルヌーイ分布に従う
+## Modeling of Choice of Tax Deduction
+
+個人は税負担と寄付控除の申請コストを最小化するように行動する。すなわち、
+
+$$ R_i = 1[T(y_i) > T(y_i - g_{i1}) + C_i] $$
+
+- 寄付控除を申請しないときの税負担は$T(y_i) = \tau(y_i) \cdot y_i$となる
+- 寄付控除を申請するときの税負担は$T(y_i - g_{i1}) = \tau(y_i - g_{i1}) \cdot (y_i - g_{i1})$となる
+- 申請コストは$C_i = 80 - 40 \cdot Z_i + v_i$とする
+  - $Z_i$は$Cov(u_i, Z_i) = Cov(v_i, Z_i) = 0$を満たす寄付控除の申請コストを下げる二値変数で、確率0.5のベルヌーイ分布に従う
+  - 観察できない申請コストの要因は$v_i$に集約し、$N(0, 10)$に従うとする
 
 ```{r}
-# average tax rate if applying for a tax deduction
-tau1 <- dplyr::case_when(
-  y - exp(g1) <= 1200 ~ 0.07,
-  y - exp(g1) <= 4600 ~ 0.15,
-  y - exp(g1) <= 8800 ~ 0.25,
-  y - exp(g1) <= 30000 ~ 0.36,
-  TRUE ~ 0.38
-)
-
-# tax amount if applying for a tax deduction
-t1 <- tau1 * (y - exp(g1))
-
-# tax amount if not applying for a tax deduction
-t0 <- tau0 * y
-
 # applying cost
 z <- sample(c(1, 0), size = n, replace = TRUE, prob = c(0.5, 0.5))
+v <- rnorm(n, sd = sqrt(10))
 cost <- 80 - 40 * z
 
-# decision of applying for a tax deduction
-r <- 1 * (t0 - t1 > cost)
+# choice of tax deduction
+r <- 1 * (atr13(y) * y > atr13(y - exp(g1)) * (y - exp(g1)) + cost)
 ```
 
-我々が観測できる寄付額は以下のように決まる
-\begin{align}
-  \ln g_i = R_i \ln g_{i1} + (1 - R_i) \ln g_{i0}
-\end{align}
+## Observed Dataset
+
+観測できるデータは以下の通りになる
+
+1. 寄付の対数値：$\ln g_i = R_i \ln g_{i1} + (1 - R_i) \ln g_{i0}$
+1. 所得の対数値：$\ln y$
+1. 実際の寄付価格：$1 - R_i \cdot \tau(y_i)$
+1. 控除を申請した場合の寄付価格：$1 - \tau(y_i)$
+1. 控除を申請したかどうか：$R_i$
+1. 申請コストを下げる変数：$Z_i$
 
 ```{r}
-# observed log donations
-g <- r * g1 + (1 - r) * g0
-```
-
-このプロセスで出来たデータセットは以下のようになる
-
-```{r}
+# observed dataset
 dt <- tibble::tibble(
-  eps = eps,
-  ln_g = g,
-  ln_g1 = g1,
-  ln_g0 = g0,
-  g = exp(g),
-  y = y,
+  ln_g = r * g1 + (1 - r) * g0,
   ln_y = log(y),
+  real_p = 1 - r * atr13(y),
   p = p,
-  ln_p = log(p),
-  apply = r,
-  inst = z
+  r = r,
+  z = z
 )
 
 head(dt)
 ```
 
-関心のあるパラメータは3つ
+# Evaluation Problem
 
-1. 寄付控除を申請した人の寄付の価格弾力性（ATT-like）
-1. 仮に寄付控除を申請しなかった人が申請したときの寄付の価格弾力性（ATU-like）
-1. 全員が寄付控除を申請したときの寄付の価格弾力性（ATE-like）
+## Parameter of Interest
 
-その値はそれぞれ以下のようになる
+我々の関心とするところは、**申請コストを明示的に計量モデルに組み込んだうえで、価格インセンティブの効果を推定すること**。
+また、申請コストに加えて、価格弾力性が個人によって異なるようなモデルを想定している。
+事実、控除を申請している人ほど、寄付の価格弾力性が弾力的である。
+これは申請による価格の減少によって寄付額を大きく増やす人ほど、申請による便益を得ていることを反映している。
 
 ```{r}
-with(subset(dt, apply == 1), mean(eps))
-with(subset(dt, apply == 0), mean(eps))
-with(dt, mean(eps))
+list("価格弾力性" = lm(eps ~ r)) %>%
+  modelsummary(
+    stars = TRUE,
+    gof_omit = "^(?!N)", coef_omit = "Int"
+  )
+```
+
+このモデルを想定したうえで、以下のようなパラメータを推定したい
+
+1. 寄付控除を申請した人の寄付の価格弾力性の平均：$E(\epsilon_{pi} | R_i = 1)$
+1. 寄付控除を申請していない人の寄付の価格弾力性の平均：$E(\epsilon_{pi} | R_i = 0)$
+
+```{r}
+tibble(eps = eps, r = r) %>%
+  mutate(r = factor(
+    r,
+    levels = c(0, 1),
+    labels = c("控除を申請していない人", "控除を申請した人")
+  )) %>%
+  datasummary(
+    (` ` = r) ~ mean * (`弾力性の平均値` = eps),
+    data = ., fmt = 4
+  )
+```
+
+このパラメータが推定できれば、
+**控除を申請していない人が申請するならば、どれくらいの寄付を集めることができるのか**
+を推定できる。これは、
+
+$$E(\epsilon_{pi} \cdot \ln(1 - \tau(y_i))|R_i = 0)$$
+
+で得られる。
+ただし、こんな回りくどいことをしなくても、
+
+$$ E(\ln g_{i1} - \ln g_{i0} | R_i = 0) $$
+
+でも得られる。
+
+```{r}
+tibble(out1 = eps * log(p), out2 = g1 - g0, r = r) %>%
+  mutate(r = factor(
+    r,
+    levels = c(0, 1),
+    labels = c("控除を申請していない人", "控除を申請した人")
+  )) %>%
+  datasummary(
+    (` ` = r) ~ mean * ( 
+      (`弾力性 x 寄付価格` = out1) +
+      (`g1 - g0` = out2)
+    ),
+    data = .,
+    fmt = 4
+  )
+```
+
+## Biased OLSE
+
+このモデルにおいて価格は自己選択が可能な控除申請に依存するので、価格は内生変数である。
+以下に寄付の相対価格と誤差項$u$の共分散の検定を行ったものを示す。
+誤差項$u$の分散は1なので、回帰係数は共分散を示す。
+
+```{r}
+mod <- list(
+  "R = 1" = lm(r ~ u),
+  "1 - R * t(y)" = lm(dt$real_p ~ u),
+  "1 - t(y)" = lm(dt$p ~ u)
+)
+
+modelsummary(
+  mod, stars = TRUE,
+  gof_omit = "^(?!N)", coef_omit = "Int"
+)
+```
+
+価格や所得で説明できない要素で寄付額を増やしている人ほど、寄付控除を申請する傾向にある。
+これは寄付控除を申請する場合の税負担の式からも明らかである。
+この傾向は、価格や所得で説明できない要素で寄付額を増やしている人ほど、
+申請によって寄付の相対価格を減らしていることにつながる。
+その結果が第2列に反映されている。
+また、第3列より、申請した場合の寄付価格$1 - \tau(y_i)$は誤差項と相関していない。
+これは所得$y_i$が誤差項と独立に分布していることを反映している。
+
+寄付価格と誤差項の内生性はバイアスを伴った弾力性を推定することになる。
+また、申請したかどうかでサブサンプルを構築しても、セレクションバイアスが生じてしまう。
+以下にそれを示す
+
+```{r}
+ols1 <- ln_g ~ -1 + log(real_p) + ln_y
+ols2 <- ln_g ~ -1 + log(p) + ln_y
+
+mod <- list(
+  "(1)" = estimatr::lm_robust(ols1, data = dt),
+  "(2)" = estimatr::lm_robust(ols2, data = dt),
+  "(3)" = estimatr::lm_robust(ols1, data = subset(dt, r == 1)),
+  "(4)" = estimatr::lm_robust(ols2, data = subset(dt, r == 1)),
+  "(5)" = estimatr::lm_robust(ols1, data = subset(dt, r == 0)),
+  "(6)" = estimatr::lm_robust(ols2, data = subset(dt, r == 0))
+)
+
+modelsummary(
+  mod,
+  coef_map = c("log(real_p)", "log(p)", "ln_y"),
+  stars = TRUE,
+  gof_omit = "^(?!N)", coef_omit = "Int"
+) %>%
+add_header_above(c(
+  "サンプル" = 1, "Pool" = 2, "R = 1" = 2, "R = 0" = 2
+))
+```
+
+第1列で推定された価格弾力性は実際の弾力性の平均値`r mean(eps)`と大きく異なるものである。
+また、弾力性が個人によって異なり、控除の自己選択との相関を許しているならば、
+推定されるOLSパラメータは寄付控除を申請した人に限定した弾力性となるはずである。
+しかしながら、第1列で推定された弾力性はそれとも大きく異なる。
+第2列では全員が寄付控除を申請したと仮定して、価格弾力性を推定したものである。
+これは現実の意思決定を正しく反映していないので、推定値も真のものから乖離した。
+サブサンプルで推定すると、価格弾力性は正となり、真値から大幅に乖離する。
+
+# Identification
+
+```{r}
+stage1 <- r ~ z + log(p) + ln_y
+est_stage1 <- glm(stage1, data = dt, family = binomial(link = "probit"))
+summary(est_stage1)
+```
+
+```{r}
+# propensity score and generalized residuals
+dt$linps <- predict(est_stage1, newdata = dt, type = "link")
+dt$ps <- pnorm(dt$linps)
+dt$gr <- with(dt, r * dnorm(linps) / ps + (1 - r) * dnorm(-linps) / (1 - ps))
+
+# 2SLS
+tsls <- ln_g ~ -1 + r:log(p) + ln_y | ps:p + ln_y
+estimatr::iv_robust(tsls, dt) %>% summary
+
+# Control Function
+cf <- ln_g ~ -1 + r:log(p) + ln_y + gr + gr:r + gr:log(p) + gr:log(real_p)
+estimatr::lm_robust(cf, dt) %>% summary
+
+# Control Function for R = 1
+cf1 <- ln_g ~ -1 + log(p) + ln_y + gr
+estimatr::lm_robust(cf1, subset(dt, r == 1)) %>% summary
+
+# Control Function for R = 0
+estimatr::lm_robust(cf1, subset(dt, r == 0)) %>% summary()
 ```
