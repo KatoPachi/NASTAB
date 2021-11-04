@@ -114,7 +114,7 @@ $$ R_i = 1[T(y_i) > T(y_i - g_{i1}) + C_i] $$
 # applying cost
 z <- sample(c(1, 0), size = n, replace = TRUE, prob = c(0.5, 0.5))
 v <- rnorm(n, sd = sqrt(10))
-cost <- 80 - 40 * z
+cost <- 80 - 40 * z + v
 
 # choice of tax deduction
 r <- 1 * (atr13(y) * y > atr13(y - exp(g1)) * (y - exp(g1)) + cost)
@@ -168,7 +168,9 @@ tibble(eps = eps, r = r) %>%
     labs(x = "弾力性", y = "密度", linetype = "寄付申請") +
     ggtemp()
 
-tibble(beta = g1 - g0, r = r) %>%
+b <- g1 - g0
+
+tibble(beta = b, r = r) %>%
   mutate(r = factor(r, labels = c("していない", "した"))) %>%
   ggplot(aes(x = beta)) +
     geom_density(aes(linetype = r)) +
@@ -207,7 +209,7 @@ $\beta_i$もしくは$\epsilon_{pi}$のどちらかを推定できれば、
 上述のDGPで生成される二つのパラメータの平均値の真値は以下のようになる。
 
 ```{r}
-tibble::tibble(beta = g1 - g0, eps = eps, p = log(p)) %>%
+tibble::tibble(beta = b, eps = eps, p = log(p)) %>%
   datasummary(
     (`控除申請の効果（リターン）` = beta) +
       (`弾力性` = eps) +
@@ -231,7 +233,7 @@ tibble::tibble(beta = g1 - g0, eps = eps, p = log(p)) %>%
 以上のパラメータの真値は以下の通り
 
 ```{r}
-tibble::tibble(beta = g1 - g0, eps = eps, r = r, p = log(p)) %>%
+tibble::tibble(beta = b, eps = eps, r = r, p = log(p)) %>%
   mutate(r = factor(r, labels = c("控除を申請していない", "控除を申請した"))) %>%
   datasummary(
     (`控除申請の効果（リターン）の平均` = beta) +
@@ -274,7 +276,194 @@ tibble(p = dt$real_p, u) %>%
 この傾向は、価格や所得で説明できない要素で寄付額を増やしている人ほど、
 申請によって寄付の相対価格を減らしている。
 
-# Identification
+# Identification of $\beta_i$
+
+## Biased OLSE
+
+控除申請の効果$\beta_i$の推定を考える。
+単純化のために以下の推定式を考える。
+
+$$ \ln g_i = \beta_i R_i + e_i $$
+
+ここで、$\beta_i = \epsilon_{pi} \ln(1 - \tau(y_i))$、
+$e_i = 0.4 \cdot \ln y_i + u_i$である。
+さらに、$\bar{\beta} = E(\beta)$として、
+この推定式を以下のように書き換える。
+
+$$ \ln g_i = \bar{\beta} R_i + \{(\beta_i - \bar{\beta})R_i + e_i \} $$
+
+よって、$\bar{\beta}$のOLSEは以下を識別する
+
+\begin{align}
+  \bar{\beta}
+  &= E(\ln g_i | R_i = 1) - E(\ln g_i | R_i = 0)  \\
+  &= \bar{\beta} + E(\beta_i - \bar{\beta} | R_i = 1) + \{ E(e_i|R_i = 1) - E(e_i|R_i = 0) \}
+\end{align}
+
+以下の表は$\bar{\beta}$のOLS推定値と、
+その推定値の三つの要素である
+$\bar{\beta}$の真値・Random coefficient modelの誤差である$E(\beta_i - \bar{\beta}|R_i = 1)$・
+セレクションバイアスである$E(e_i|R_i = 1) - E(e_i|R_i = 0)$を示した。
+
+```{r}
+rawvalue <- function(x) x
+
+olse <- mean(dt[dt$r == 1,]$ln_g) - mean(dt[dt$r == 0,]$ln_g)
+true <- mean(b)
+bias1 <- mean(b[r == 1] - mean(b))
+bias2 <- mean(0.4 * log(y[r == 1]) + u[r == 1]) -
+  mean(0.4 * log(y[r == 0]) + u[r == 0])
+
+tibble(olse, true, bias1, bias2) %>%
+  datasummary(
+    (`OLS推定値` = olse) +
+      (`申請平均効果の真値` = true) +
+      (`Random Coefficient Modelによるバイアス` = bias1) +
+      (`セレクションバイアス` = bias2) ~
+      (` ` = rawvalue),
+    data = ., fmt = 4
+  )
+```
+
+表を見てわかるように、OLS推定値は申請平均効果の真値と二つのバイアスの和で得られる。
+セレクションバイアスは所得効果を含んでいるが、これをコントロールしてもOLS推定量はバイアスを伴う。
+以下に共変量を制御したOLS推定の結果を示す。
+
+```{r}
+estmod <- list(
+  "(1)" = lm_robust(ln_g ~ r, data = dt),
+  "(2)" = lm_robust(ln_g ~ r + ln_y, data = dt),
+  "(3)" = lm_robust(ln_g ~ r + ln_y + log(p), data = dt)
+)
+
+estmod %>%
+  modelsummary(stars = TRUE, gof_omit = "R2|se", fmt = 4)
+```
+
+## 2SLS
+
+$R_i$の操作変数$Z_i$（$Cov(R_i, Z_i) \neq 0$となる変数）を用いて二段階推定をすると何が識別できるかを考える。
+共変量$X_i$がない（あるいは暗に条件づけるとして）2SLSの推定量は以下のようになる
+
+$$
+\frac{Cov(\ln g_i, Z_i)}{Cov(R_i, Z_i)} 
+= \bar{\beta} 
++ \frac{Cov((\beta_i - \bar{\beta})R_i, Z_i)}{Cov(R_i, Z_i)}
++ \frac{Cov(e_i, Z_i)}{Cov(R_i, Z_i)}
+$$
+
+第一項は申請効果の平均、第二項はrandom coefficient modelからバイアス、第三項は誤差項のバイアスである。
+以下の表は2SLSの推定値とそれを以上の三つに分解したものを示している。
+
+```{r}
+tsls <- with(dt, cov(ln_g, z) / cov(r, z))
+true <- mean(b)
+bias1 <- cov((b - mean(b)) * r, z) / cov(r, z)
+bias2 <- cov(0.4 * log(y) + u, z) / cov(r, z)
+
+e <- 0.4 * log(y) + u
+
+tibble(tsls, true, bias1, bias2) %>%
+  datasummary(
+    (`2SLS推定値` = tsls) +
+      (`申請平均効果の真値` = true) +
+      (`Random Coefficient Modelによるバイアス` = bias1) +
+      (`誤差項のバイアス` = bias2) ~
+    (` ` = rawvalue),
+    data = ., fmt = 4
+  )
+```
+
+表を見てわかるように、2SLSの推定値が三つの要素の和で得られることが確認できる。
+操作変数は誤差項$e_i$と無相関であることを大前提としているが、この場合若干の相関が確認できる（ただし、統計的に非有意）。
+そのため、いくつかの共変量をコントロールした結果を以下に示す。
+
+```{r}
+ivmod <- list(
+  "(1)" = ln_g ~ r | z,
+  "(2)" = ln_g ~ r + ln_y | z + ln_y,
+  "(3)" = ln_g ~ r + ln_y + log(p) | z + ln_y + log(p)
+)
+
+ivmod %>%
+  purrr::map(~iv_robust(., data = dt)) %>%
+  modelsummary(stars = TRUE, gof_omit = "R2|se|p|statistic", fmt = 4)
+```
+
+2SLSが平均効果$\bar{\beta}$を識別するための仮定は以下の三つの平均独立である。
+
+1. $E(e_i | Z_i) = E(e_i)$
+1. $E(\beta_i | Z_i) = E(\beta_i)$
+    - $E(\beta_i |Z_i) = E(\beta_i)$という条件は$E(\beta_i - \bar{\beta} |Z_i) = 0$と同じ
+1. $E((\beta_i - \bar{\beta})R_i | Z_i) = E((\beta_i - \bar{\beta})R_i)$
+    - $E(\beta_i |Z_i) = E(\beta_i)$と合わせると、$Cov(\beta_i - \bar{\beta}, R_i | Z_i) = Cov(\beta_i - \bar{\beta}, R_i)$となる
+
+このとき、上で示した2SLS推定量の第二項と第三項が消えて、$\bar{\beta}$が残る
+
+```{r}
+e <- 0.4 * log(y) + u
+
+tibble(e, b, br = b * r, z) %>%
+  mutate(z = factor(z, labels = c("Z = 0", "Z = 1"))) %>%
+  datasummary(
+    (`誤差項 e` = e) +
+      (`個人の申請効果 b` = b) +
+      (`個人の申請効果 x 申請有無` = br) ~ mean * z,
+    data = ., fmt = 4
+  )
+```
+
+最初二つの平均独立は一般的にIVの仮定であり、事実、今回のケースでも満たしていることが上の表から確認できる。
+しかしながら、最後の平均独立は追加の仮定であり、今回のケースでは明らかに満たしていないことが確認できる。
+
+## Control Function Approach
+
+内生変数$R_i$が以下のようにモデル化できると仮定する（通常の2SLSの同じ）。
+
+$$ R_i = \delta Z_i + \eta_i,\quad E(\eta_i | Z_i) = 0 $$
+
+さらに、観察できない$\beta_i - \bar{\beta}$と$u_i$について以下のような仮定を置く
+
+$$ e_i = \gamma_1 \eta_i + \tilde{e}_i, \quad E(\eta_i \tilde{e}_i) = 0 $$
+$$ (\beta_i - \bar{\beta}) = \gamma_2 \eta_i + \tilde{\beta}_i,\quad E(\eta_i \tilde{\beta}_i) = 0$$
+
+以上の二つの式をアウトカムの推定式に代入すると、
+
+$$ \ln g_i = \bar{\beta} R_i + \gamma_2 R_i \eta_i + \gamma_1 \eta_i + \{ \tilde{\beta}_i R_i + \tilde{e}_i \} $$
+
+この推定式において、$R_i$は新たな誤差項$\tilde{\beta}_i R_i + \tilde{e}_i$と独立である。
+なぜなら、$E(R_i \tilde{\beta}_i) = E(R_i \tilde{e}_i) = 0$だからである。
+
+- $E(R_i \tilde{\beta}_i) = \delta E(Z_i \tilde{\beta}_i) + E(\eta_i \tilde{\beta}_i)$と書ける。ここで、$E(Z_i \tilde{\beta}_i) = 0$である。なぜなら、$E(Z_i e_i) = \gamma_2 E(Z_i \eta_i) + E(Z_i \tilde{\beta}_i)$であり、標準的なIVの仮定より、$E(Z_i e_i) = E(Z_i \eta_i) = 0$であるので、$E(Z_i \tilde{\beta}_i) = 0$となる。また、仮定より、$E(\eta_i \tilde{\beta}_i) = 0$なので、$E(R_i \tilde{\beta}_i) = 0$
+- $E(R_i \tilde{e}_i) = \delta E(Z_i \tilde{e}_i) + E(\eta_i \tilde{e}_i)$と書ける。ここで、$E(Z_i \tilde{e}_i) = 0$である。なぜなら、$E(Z_i e_i) = \gamma_1 E(Z_i \eta_i) + E(Z_i \tilde{e}_i)$であり、標準的なIVの仮定より、$E(Z_i e_i) = E(Z_i \eta_i) = 0$であるので、$E(Z_i \tilde{e}_i) = 0$となる。また、仮定より、$E(\eta_i \tilde{e}_i) = 0$なので、$E(R_i \tilde{e}_i) = 0$
+
+したがって、$R_i$の推定式の残差を説明変数に加えることで、$\bar{\beta}$が識別できる。
+
+```{r}
+stage1 <- r ~ z
+stage1_ols <- lm_robust(stage1, data = dt)
+stage1_bin <- glm(stage1, data = dt, family = binomial(link = "probit"))
+
+estdt <- dt %>%
+  modelr::add_residuals(stage1_ols) %>%
+  modelr::add_predictions(stage1_bin, type = "link") %>%
+  mutate(
+    ps = pnorm(pred),
+    gr = r * (dnorm(pred) / ps) - (1 - r) * (dnorm(-pred) / pnorm(-pred))
+  )
+
+stage2 <- list(
+  "(1)" = ln_g ~ r + resid,
+  "(2)" = ln_g ~ r + resid + r:resid,
+  "(3)" = ln_g ~ r + gr,
+  "(4)" = ln_g ~ r + gr + r:gr
+)
+
+stage2 %>%
+  purrr::map(~lm_robust(., data = estdt)) %>%
+  modelsummary(stars = TRUE, gof_omit = "R2|se|p|statistic", fmt = 4)
+```
+
 
 ```{r}
 stage1 <- r ~ z + log(p) + ln_y
