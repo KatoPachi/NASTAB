@@ -359,15 +359,23 @@ $$
 以下はこの点を確認した分析である。
 
 ```{r}
-stage1_bin <- glm(r ~ z, data = dt, family = binomial(link = "probit"))
+stage1 <- list(
+  "link1" = r ~ z,
+  "link2" = r ~ z + ln_y,
+  "link3" = r ~ z + ln_y + log(p)
+)
+
+stage1_bin <- stage1 %>%
+  purrr::map(~ glm(., data = dt, family = binomial(link = "probit")))
+
 estdt <- dt %>%
-  modelr::add_predictions(stage1_bin, type = "link") %>%
-  mutate(ps = pnorm(pred))
+  modelr::spread_predictions(!!!stage1_bin, type = "link") %>%
+  mutate_at(vars(starts_with("link")), list(ps =~ pnorm(.)))
 
 stage2 <- list(
   "(1)" = iv_robust(ln_g ~ r | z, data = estdt),
-  "(2)" = iv_robust(ln_g ~ r | ps, data = estdt),
-  "(3)" = lm_robust(ln_g ~ ps, data = estdt)
+  "(2)" = iv_robust(ln_g ~ r | link1_ps, data = estdt),
+  "(3)" = lm_robust(ln_g ~ link1_ps, data = estdt)
 )
 
 stage2 %>%
@@ -415,7 +423,7 @@ $E((\beta_i - \bar{\beta})R_i | Z_i) = E((\beta_i - \bar{\beta})R_i)$が成立�
 実際に$\beta_{IV}$を以下のように計算すると、$E(\beta_i | R_i = 1)$の真値である`r mean(b[r == 1])`に近い値を取る。
 
 ```{r}
-p <- estdt %>% group_by(z) %>% {unique(.$ps)}
+p <- estdt %>% group_by(z) %>% {unique(.$link1_ps)}
 itty <- mean(b[r == 1 & z == 1]) * p[1] - mean(b[r == 1 & z == 0]) * p[2]
 ittd <- p[1] - p[2]
 iv <- itty / ittd
@@ -496,9 +504,9 @@ ivmod <- list(
   "(1)" = ln_g ~ r | z,
   "(2)" = ln_g ~ r + ln_y | z + ln_y,
   "(3)" = ln_g ~ r + ln_y + log(p) | z + ln_y + log(p),
-  "(4)" = ln_g ~ r | ps,
-  "(5)" = ln_g ~ r + ln_y | ps + ln_y,
-  "(6)" = ln_g ~ r + ln_y + log(p) | ps + ln_y + log(p)
+  "(4)" = ln_g ~ r | link1_ps,
+  "(5)" = ln_g ~ r + ln_y | link2_ps + ln_y,
+  "(6)" = ln_g ~ r + ln_y + log(p) | link3_ps + ln_y + log(p)
 )
 
 ivmod %>%
@@ -510,23 +518,105 @@ ivmod %>%
 
 ```{r}
 est_s2mod <- list(
-  "(1)" = lm_robust(ln_g ~ ps, data = estdt),
-  "(2)" = lm_robust(ln_g ~ ps + ln_y, data = estdt),
-  "(3)" = lm_robust(ln_g ~ ps + ln_y + log(p), data = estdt)
+  "(1)" = lm_robust(ln_g ~ link1_ps, data = estdt),
+  "(2)" = lm_robust(ln_g ~ link2_ps + ln_y, data = estdt),
+  "(3)" = lm_robust(ln_g ~ link3_ps + ln_y + log(p), data = estdt)
 )
 
 est_s2mod %>%
-  modelsummary(stars = TRUE, gof_omit = "R2|se", fmt = 4)
+  modelsummary(
+    coef_map = c(
+      "(Intercept)", "link1_ps", "link2_ps", "link3_ps", "ln_y", "log(p)"
+    ),
+    stars = TRUE, gof_omit = "R2|se", fmt = 4
+  )
 ```
 
-共変量を加えた場合でも、操作変数の選択（$Z_i$もしくは$P(Z_i)$）で推定値は変化しない。
-また、共変量と傾向スコアを説明変数に加えた場合、2SLS推定値と異なるが、その誤差は無視できるほどに小さい。
+共変量を加えた場合でも、操作変数の選択（$Z_i$もしくは$P(Z_i)$）で推定値は大きく変化しない。
+また、2SLS推定値とOLS推定値にも大きな差はない。
 
 ## Control Function Approach
 
-内生変数$R_i$が以下のようにモデル化できると仮定する（通常の2SLSの同じ）。
+アウトカム変数の推定式は
 
-$$ R_i = \delta Z_i + \eta_i,\quad E(\eta_i | Z_i) = 0 $$
+$$ \ln g_i = \alpha + \beta_i R_i + e_i $$
+
+である。
+始めに、内生変数$R_i$が以下のようにモデル化できると仮定する。
+
+$$ R_i = 1(\delta Z_i + \eta_i > 0),\quad E(\eta_i | Z_i) = 0 $$
+
+次に、$\beta_i$と$e_i$について次のような仮定を置く。
+
+$$ E(e_i | \eta_i, R_i, Z_i) = E(e_i | \eta_i) = h_e(\eta_i) $$
+$$ E(\beta_i | \eta_i, R_i, Z_i) = E(\beta_i | \eta_i) = h_{\beta}(\eta_i) $$
+
+すなわち、$\eta_i$を条件づけることで、$R_i$と$Z_i$が$e_i$と$\beta_i$が平均独立となる。
+また、$h_e$と$h_{\alpha}$はコントロール関数と呼ばれる。
+
+この仮定のもとで、$\ln g_i$の条件付き期待値は
+\begin{align}
+E(\ln g_i|R_i, Z_i)
+=& \alpha + E(\beta_i|R_i = 1, Z_i)R_i + E(e_i|R_i, Z_i) \\
+=& \alpha + E(\beta_i|R_i = 1, Z_i)R_i + E(e_i|R_i = 1, Z_i) R_i + E(e_i|R_i = 0, Z_i) (1 - R_i) \\
+=& \alpha + E(\beta_i|R_i = 1, Z_i)R_i + E(e_i|\eta_i > -\delta Z_i) R_i + E(e_i|\eta_i < -\delta Z_i) (1 - R_i)
+\end{align}
+
+ここで、$(e_i, \eta_i) \sim N(0, \Sigma)$であるとパラメトリックに特定化すると、
+誤差項の条件付き期待値を以下のように書ける。
+
+$$ E(e_i | \eta_i > -\delta Z_i) = \rho \lambda_1 (Z_i \gamma) $$
+$$ E(e_i | \eta_i > -\delta Z_i) = \rho \lambda_0 (Z_i \gamma) $$
+$$ \lambda_1(Z_i \gamma) = \frac{\phi(Z_i \gamma)}{\Phi(Z_i \gamma)} $$
+$$ \lambda_0(Z_i \gamma) = \frac{-\phi(Z_i \gamma)}{1 - \Phi(Z_i \gamma)} $$
+
+ここで、$\phi$と$\Phi$は標準正規分布の密度関数と累積分布関数である。
+よって、推定する式は
+\begin{align}
+  \ln g_i
+  =& \alpha + E(\beta_i|R_i = 1, Z_i)R_i + \rho[R_i \lambda_1(Z_i \gamma) + (1 - R_i)\lambda_0(Z_i \gamma)] \\
+  &+\{ (e_i - E(e_i|R_i, Z_i)) + R_i(\beta_i - E(\beta_i | R_i = 1, Z_i)) \}
+\end{align}
+二行目は新しい誤差項であり、これは$R_i$と独立である（つまり、$R_i$は外生変数となる）。
+なぜなら、$E(e_i | Z_i) = E(e_i)$を仮定すると、 
+\begin{align}
+  &E((e_i - E(e_i | R_i, Z_i)) R_i)  \\
+  =& E(e_i R_i) - E(e_i | R_i, Z_i) E(R_i)  \\
+  =& E(e_i | R_i) E(R_i) - E(e_i | R_i) E(R_i) = 0
+\end{align}
+であり、$E(\beta_i | Z_i) = E(\beta_i)$を仮定すると、
+\begin{align}
+  &E[R_i(\beta_i - E(\beta_i | R_i = 1, Z_i))R_i] \\
+  =& E(R^2_i \beta_i) - E(\beta_i | R_i = 1) E(R^2_i) \\
+  =& E(\beta_i | R_i = 1) E(R^2_i) - E(\beta_i | R_i = 1) E(R^2_i) = 0 
+\end{align}
+よって、$E(\beta_i | R_i = 1)$を識別できる。
+
+```{r}
+cfmod <- list(
+  "(1)" = ln_g ~ r + link1_gr,
+  "(2)" = ln_g ~ r + ln_y + link2_gr,
+  "(3)" = ln_g ~ r + ln_y + log(p) + link3_gr
+)
+
+estdt2 <- estdt %>%
+  mutate_at(
+    vars(link1, link2, link3),
+    list(gr =~ r * dnorm(.) / pnorm(.) + (1 - r) * -dnorm(.) / (1 - pnorm(.)))
+  )
+
+cfmod %>%
+  purrr::map(~ lm_robust(., data = estdt2)) %>%
+  modelsummary(
+    coef_map = c(
+      "(Intercept)", "r", "ln_y", "log(p)", "link1_gr", "link2_gr", "link3_gr"
+    ),
+    stars = TRUE, gof_omit = "R2|se", fmt = 4
+  )
+```
+
+上の表は推定結果である。説明変数を加えない場合、推定値は2SLSと似たような値を取る。
+しかしながら、共変量を加えると、推定値は$E(\beta_i | R_i = 1)$より過大に推定されている。
 
 さらに、観察できない$\beta_i - \bar{\beta}$と$u_i$について以下のような仮定を置く
 
