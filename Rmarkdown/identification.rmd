@@ -70,7 +70,7 @@ $$ \ln g_i = \epsilon_{pi} \ln p_i + 0.4 \ln y_i + u_i $$
 set.seed(1205)
 
 # observation
-n <- 10000
+n <- 20000
 
 # price elasticity, income and error term
 eps <- runif(n, -1.6, -0.8)
@@ -283,14 +283,14 @@ tibble(p = dt$real_p, u) %>%
 控除申請の効果$\beta_i$の推定を考える。
 単純化のために以下の推定式を考える。
 
-$$ \ln g_i = \beta_i R_i + e_i $$
+$$ \ln g_i = \alpha + \beta_i R_i + e_i $$
 
 ここで、$\beta_i = \epsilon_{pi} \ln(1 - \tau(y_i))$、
 $e_i = 0.4 \cdot \ln y_i + u_i$である。
 さらに、$\bar{\beta} = E(\beta)$として、
 この推定式を以下のように書き換える。
 
-$$ \ln g_i = \bar{\beta} R_i + \{(\beta_i - \bar{\beta})R_i + e_i \} $$
+$$ \ln g_i = \alpha + \bar{\beta} R_i + \{(\beta_i - \bar{\beta})R_i + e_i \} $$
 
 よって、$\bar{\beta}$のOLSEは以下を識別する
 
@@ -342,79 +342,185 @@ estmod %>%
 
 ## 2SLS
 
-$R_i$の操作変数$Z_i$（$Cov(R_i, Z_i) \neq 0$となる変数）を用いて二段階推定をすると何が識別できるかを考える。
-共変量$X_i$がない（あるいは暗に条件づけるとして）2SLSの推定量は以下のようになる
-
+外生変数$Z_i$で構築される操作変数$J(Z_i)$（$Cov(J(Z_i), Z_i) \neq 0$となる変数）として、
+二段階推定量（2SLS）は以下のようになる。
 $$
-\frac{Cov(\ln g_i, Z_i)}{Cov(R_i, Z_i)} 
-= \bar{\beta} 
-+ \frac{Cov((\beta_i - \bar{\beta})R_i, Z_i)}{Cov(R_i, Z_i)}
-+ \frac{Cov(e_i, Z_i)}{Cov(R_i, Z_i)}
+\beta_{\text{IV}}
+= \frac{Cov(J(Z_i), \ln g_i)}{Cov(J(Z_i), R_i)}
+= \frac{Cov(J(Z_i), \ln g_i)}{Cov(J(Z_i), P(Z_i))}
 $$
-
-第一項は申請効果の平均、第二項はrandom coefficient modelからバイアス、第三項は誤差項のバイアスである。
-以下の表は2SLSの推定値とそれを以上の三つに分解したものを示している。
+ここで、$P(Z_i)$は寄付控除申請の傾向スコアである。
+特に、$P(Z_i)$を操作変数とする場合、二段階推定量は
+$$
+\beta_{\text{IV}}
+= \frac{Cov(P(Z_i), \ln g_i)}{V(P(Z_i))}
+$$
+となり、傾向スコアを直接説明変数として加えた場合と一致する。
+以下はこの点を確認した分析である。
 
 ```{r}
-tsls <- with(dt, cov(ln_g, z) / cov(r, z))
-true <- mean(b)
-bias1 <- cov((b - mean(b)) * r, z) / cov(r, z)
-bias2 <- cov(0.4 * log(y) + u, z) / cov(r, z)
+stage1_bin <- glm(r ~ z, data = dt, family = binomial(link = "probit"))
+estdt <- dt %>%
+  modelr::add_predictions(stage1_bin, type = "link") %>%
+  mutate(ps = pnorm(pred))
 
-e <- 0.4 * log(y) + u
+stage2 <- list(
+  "(1)" = iv_robust(ln_g ~ r | z, data = estdt),
+  "(2)" = iv_robust(ln_g ~ r | ps, data = estdt),
+  "(3)" = lm_robust(ln_g ~ ps, data = estdt)
+)
 
-tibble(tsls, true, bias1, bias2) %>%
-  datasummary(
-    (`2SLS推定値` = tsls) +
-      (`申請平均効果の真値` = true) +
-      (`Random Coefficient Modelによるバイアス` = bias1) +
-      (`誤差項のバイアス` = bias2) ~
-    (` ` = rawvalue),
+stage2 %>%
+  modelsummary(stars = TRUE, gof_omit = "R2|se|p|statistic", fmt = 4)
+```
+
+第一列は$J(Z_i) = Z_i$とした2SLS、第二列は$J(Z_i) = P(Z_i)$とした2SLSである。
+第三列は$P(Z_i)$を説明変数としたOLS推定の結果である。
+先に示したように、第二列と第三列は数値的に一致している。
+また、第一列と第二列も数値的に一致している。
+
+$E(J(Z_i) e_i) = 0$を仮定する（標準的なIVの仮定）と、
+上の三つの推定量は
+$$
+\beta_{\text{IV}}
+= \frac{E(\beta_i | R_i = 1, Z_i = 1) P(1) - E(\beta_i | R_i = 1, Z_i = 0) P(0)}{P(1) - P(0)}
+$$
+となる。
+この推定量を以下のように書き換える。
+\begin{align}
+  \beta_{\text{IV}}
+  &= \bar{\beta}
+  + \frac{E(\beta_i - \bar{\beta}|R_i = 1, Z_i = 1) P(1) - E(\beta_i - \bar{\beta}|R_i = 1, Z_i = 0) P(0)}{P(1) - P(0)} \\
+  &= \bar{\beta}
+  + \frac{E((\beta_i - \bar{\beta})R_i|Z_i = 1) P(1) - E((\beta_i - \bar{\beta})R_i|Z_i = 0) P(0)}{P(1) - P(0)}
+\end{align}
+したがって、
+
+- $E(\beta_i | Z_i) = E(\beta_i)$ならば、$\beta_{\text{IV}} = E(\beta_i | R_i = 1)$となる
+- $E((\beta_i - \bar{\beta})R_i | Z_i) = E((\beta_i - \bar{\beta})R_i)$ならば、$\beta_{\text{IV}} = \bar{\beta}$となる
+
+```{r}
+tibble(b, br = (b - mean(b)) * r, z) %>%
+  mutate(z = factor(z, labels = c("Z = 0", "Z = 1"))) %>%
+  select("b" = b, "(b - mean(b))*R" = br, z) %>%
+  datasummary_balance(
+    b ~ z,
     data = ., fmt = 4
   )
 ```
 
-表を見てわかるように、2SLSの推定値が三つの要素の和で得られることが確認できる。
-操作変数は誤差項$e_i$と無相関であることを大前提としているが、この場合若干の相関が確認できる（ただし、統計的に非有意）。
-そのため、いくつかの共変量をコントロールした結果を以下に示す。
+以上の表より、$E(\beta_i | Z_i) = E(\beta_i)$が成立しているが、
+$E((\beta_i - \bar{\beta})R_i | Z_i) = E((\beta_i - \bar{\beta})R_i)$が成立しているとは言い難い。
+したがって、2SLS推定量は$E(\beta_i | R_i = 1)$を識別している**はずである**。
+実際に$\beta_{IV}$を以下のように計算すると、$E(\beta_i | R_i = 1)$の真値である`r mean(b[r == 1])`に近い値を取る。
+
+```{r}
+p <- estdt %>% group_by(z) %>% {unique(.$ps)}
+itty <- mean(b[r == 1 & z == 1]) * p[1] - mean(b[r == 1 & z == 0]) * p[2]
+ittd <- p[1] - p[2]
+iv <- itty / ittd
+
+tibble(itty, ittd, iv) %>%
+  datasummary(
+    (`IVの分子（ITT-effect on log(g)）` = itty) +
+      (`IVの分母（ITT-effect on R）` = ittd) +
+      (`IV推定値` = iv) ~ (` ` = rawvalue),
+    data = ., fmt = 4
+  )
+```
+
+$E(\beta_i | Z_i) = E(\beta_i)$が仮定できないとき、別の仮定を用いることで別のパラメータを識別できる。
+ここで、$R_i(Z_i)$という変数を導入する。これは$Z_i = z$のとき、寄付控除を申請するかどうかを示す指示関数である。
+たとえば、$Z_i = 1$のもとで$R_i = 1$ならば、$R_i(1) = 1$となる。これを用いて、$\beta_{IV}$の分子を以下のように書き換える。
+\begin{align}
+  &E(\beta_i |R_i(1) = 1) E(R_i(1)) - E(\beta_i|R_i(0) = 1) E(R_i(0)) \\
+  =& E(\beta_i|R_i(1) = 1, R_i(0) = 1) P(R_i(1) = 1, R_i(0) = 1) \\
+  &+ E(\beta_i|R_i(1) = 1, R_i(0) = 0) P(R_i(1) = 1, R_i(0) = 0) \\ 
+  &- E(\beta_i|R_i(1) = 1, R_i(0) = 1) P(R_i(1) = 1, R_i(0) = 1) \\ 
+  &- E(\beta_i|R_i(1) = 0, R_i(0) = 1) P(R_i(1) = 0, R_i(0) = 1) \\
+  =& E(\beta_i|R_i(1) = 1, R_i(0) = 0) P(R_i(1) = 1, R_i(0) = 0) \\ 
+  &- E(\beta_i|R_i(1) = 0, R_i(0) = 1) P(R_i(1) = 0, R_i(0) = 1) 
+\end{align}
+次に、$\beta_{IV}$の分母を以下のように書き換える。
+\begin{align}
+  E(R_i(1)) - E(R_i(0)) \\
+  =& P(R_i(1) = 1, R_i(0) = 1) + P(R_i(1) = 1, R_i(0) = 0) \\
+  &- P(R_i(1) = 1, R_i(0) = 1) - P(R_i(1) = 0, R_i(0) = 1) \\
+  =& P(R_i(1) = 1, R_i(0) = 0) - P(R_i(1) = 0, R_i(0) = 1)
+\end{align}
+したがって、
+
+- $P(R_i(1) = 0, R_i(0) = 1) = 0$ならば、$\beta_{IV} = E(\beta_i|R_i(1) = 1, R_i(0) = 0)$
+- $P(R_i(1) = 1, R_i(0) = 0) = 0$ならば、$\beta_{IV} = E(\beta_i|R_i(1) = 0, R_i(0) = 1)$
+
+```{r}
+r0 <- 1 * (atr13(y) * y > atr13(y - exp(g1)) * (y - exp(g1)) + 80 - 40 * 0 + v)
+r1 <- 1 * (atr13(y) * y > atr13(y - exp(g1)) * (y - exp(g1)) + 80 - 40 * 1 + v)
+
+tibble(r0, r1) %>%
+  mutate(
+    r0 = factor(r0, labels = c("R(0) = 0", "R(0) = 1")),
+    r1 = factor(r1, labels = c("R(1) = 0", "R(1) = 1"))
+  ) %>%
+  datasummary_crosstab(r0 ~ r1, data = .)
+```
+
+$Z$は申請コストを下げる方向に働くので、$P(R_i(1) = 0, R_i(0) = 1) = 0$となるはずである。
+事実、上の表はその結果を示している。
+したがって、$E(\beta_i|Z_i) = E(\beta_i)$が仮定できないならば、
+$\beta_{IV}$は$E(\beta_i|R_i(1) = 1, R_i(0) = 0)$を識別している。
+以下の表はそのパラメータの真値と他の関心のあるパラメータの真値である。
+
+```{r}
+tibble(
+  ate = mean(b),
+  att = mean(b[r == 1]),
+  atu = mean(b[r == 0]),
+  late = mean(b[r1 == 1 & r0 == 0]),
+  iv = iv) %>%
+  datasummary(
+    (`E(b)` = ate) +
+      (`E(b|R = 1)` = att) +
+      (`E(b|R = 0)` = atu) +
+      (`E(b|R(1) = 1, R(0) = 0)` = late) +
+      (`IV推定値` = iv) ~ (` ` = rawvalue),
+    data = ., fmt = 4
+  )
+```
+
+したがって、$\beta_{IV}$は$E(\beta_i|R_i(1) = 1, R_i(0) = 0)$ではなく、$E(\beta_i | R_i = 1)$に非常に近い値を取る。
+最後に、共変量を加えた場合に2SLS推定値がどのように変化するかを以下に示しておく。
 
 ```{r}
 ivmod <- list(
   "(1)" = ln_g ~ r | z,
   "(2)" = ln_g ~ r + ln_y | z + ln_y,
-  "(3)" = ln_g ~ r + ln_y + log(p) | z + ln_y + log(p)
+  "(3)" = ln_g ~ r + ln_y + log(p) | z + ln_y + log(p),
+  "(4)" = ln_g ~ r | ps,
+  "(5)" = ln_g ~ r + ln_y | ps + ln_y,
+  "(6)" = ln_g ~ r + ln_y + log(p) | ps + ln_y + log(p)
 )
 
 ivmod %>%
-  purrr::map(~iv_robust(., data = dt)) %>%
+  purrr::map(~iv_robust(., data = estdt)) %>%
   modelsummary(stars = TRUE, gof_omit = "R2|se|p|statistic", fmt = 4)
 ```
 
-2SLSが平均効果$\bar{\beta}$を識別するための仮定は以下の三つの平均独立である。
-
-1. $E(e_i | Z_i) = E(e_i)$
-1. $E(\beta_i | Z_i) = E(\beta_i)$
-    - $E(\beta_i |Z_i) = E(\beta_i)$という条件は$E(\beta_i - \bar{\beta} |Z_i) = 0$と同じ
-1. $E((\beta_i - \bar{\beta})R_i | Z_i) = E((\beta_i - \bar{\beta})R_i)$
-    - $E(\beta_i |Z_i) = E(\beta_i)$と合わせると、$Cov(\beta_i - \bar{\beta}, R_i | Z_i) = Cov(\beta_i - \bar{\beta}, R_i)$となる
-
-このとき、上で示した2SLS推定量の第二項と第三項が消えて、$\bar{\beta}$が残る
+また、共変量と傾向スコアを説明変数に加えた場合にOLS推定値がどのように変化するかを以下に示しておく。
 
 ```{r}
-e <- 0.4 * log(y) + u
+est_s2mod <- list(
+  "(1)" = lm_robust(ln_g ~ ps, data = estdt),
+  "(2)" = lm_robust(ln_g ~ ps + ln_y, data = estdt),
+  "(3)" = lm_robust(ln_g ~ ps + ln_y + log(p), data = estdt)
+)
 
-tibble(e, b, br = b * r, z) %>%
-  mutate(z = factor(z, labels = c("Z = 0", "Z = 1"))) %>%
-  datasummary(
-    (`誤差項 e` = e) +
-      (`個人の申請効果 b` = b) +
-      (`個人の申請効果 x 申請有無` = br) ~ mean * z,
-    data = ., fmt = 4
-  )
+est_s2mod %>%
+  modelsummary(stars = TRUE, gof_omit = "R2|se", fmt = 4)
 ```
 
-最初二つの平均独立は一般的にIVの仮定であり、事実、今回のケースでも満たしていることが上の表から確認できる。
-しかしながら、最後の平均独立は追加の仮定であり、今回のケースでは明らかに満たしていないことが確認できる。
+共変量を加えた場合でも、操作変数の選択（$Z_i$もしくは$P(Z_i)$）で推定値は変化しない。
+また、共変量と傾向スコアを説明変数に加えた場合、2SLS推定値と異なるが、その誤差は無視できるほどに小さい。
 
 ## Control Function Approach
 
