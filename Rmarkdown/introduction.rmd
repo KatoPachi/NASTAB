@@ -98,10 +98,11 @@ In this section, we describe the endogeneity issue and the income tax relief for
 In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction. 
 
 The tax deduction and tax credit may have different effects on giving behavior. This subsection summarize the difference of tax deduction and tax credit.
-Consider that a household has a choice between private consumption ($x_i$) and charitable giving ($g_i$). Let $y_i$ be pre-tax total income.
-Then, the budget constraint can be shown as
+Following @Andreoni1990, consider that a household chooses private consumption ($x_i$), charitable giving ($g_i$), and the level of public good ($G$). $G$ is the total amount of public good, and $G=\sum_i^N g_i+G_0$ holds, where $N$ is the total number of individuals and $G_0$ is the public good provision from the government. Let $y_i$ and $G_{-i}$ be pre-tax total income and public good provision from the others than $i$, respectively.
+Then, the objective and the budget constraint can be shown as
 \begin{align}
-    x_i + g_i = y_i − R_iK - R_iT(y_i, g_i) - (1-R_i)T(y_i)\notag.
+    \max_{x_i,g_i,G,R_i}&U(x_i,g_i,G)\notag\\
+    \text{s.t. }&x_i + g_i = y_i − R_iK - R_iT(y_i, g_i) - (1-R_i)T(y_i), G=g_i+G_{-i}\notag.
 \end{align}
 $T$ is tax amount which depends on the pre-tax income and charitable giving.
 $R_i$ is the dummy which takes 1 if $i$ declares the tax relief and 0 otherwise. $K$ is a cost for the declaration of charitable giving, which may not be monetary cost but is converted to pecuniary terms. 
@@ -114,7 +115,7 @@ R_i=\begin{cases}
 \end{cases}
 \end{align}
 
-This means that the decision of declaration depends on $y_i$, $g_i$ and $K$.
+This means that the decision of declaration depends on $y_i$, $g_i$ and $K$. For a while, we assume that $K=0$, therefore $R_i=1$.
 
 Under the tax deduction, the amount of tax is
 \begin{align}
@@ -125,7 +126,32 @@ while the amount of tax under the tax credit system is
   T(y_i,g_i)=T(y_i)-mg_i,\text{ where }T_i'(\cdot)>0, T_i''(\cdot)>0.
 \end{align}
 
-Therefore, the marginal giving price compared to private consumption is $1-R_iT'(y_i-g_i)$ in the tax deduction regime and is $1-R_im$ in the tax credit regime\footnote{This can be derived from the total differentiation of the budget constraint by $x_i$ and $g_i$, i.e. $dx_i=(1-R_iT_g(y_i,g_i))dg_i$.}.
+Therefore, the marginal giving price compared to private consumption is $1-R_iT'(y_i-g_i)$ in the tax deduction regime and is $1-R_im$ in the tax credit regime\footnote{This can be derived from the total differentiation of the budget constraint by $x_i$ and $g_i$, i.e. $dx_i=(1-R_iT_g(y_i,g_i))dg_i$.}. Let us denote $p$ and $\tau$ to show the giving price compared to private consumption and the tax rate applied when the charitable giving is declared, respectively. Then, the budget constraint will be
+\begin{align}
+ y_i-\tau y_i=x_i+p(G-G_{-i}).\notag
+\end{align}
+and the optimization problem can be rewritten as
+\begin{align}
+\max_{G}U(y_i-\tau y_i-p(G-G_{-i}),G-G_{-i},G)\notag.
+\end{align}
+
+Therefore, given $y_i, G_{-i}$, and $p$, $G$ can be determined as
+\begin{align}
+ G=f(\frac1{p}y_i(1-\tau)-G_{-i},G_{-i}),\notag
+\end{align}
+and $g_i$ will be\footnote{Strictly speaking, $p$ and $\tau$ are endogenous to $g_i$ under the tax deduction system. We discuss endogenous problems like this later.}
+\begin{align}
+g_i=f(\frac1{p}y_i(1-\tau)-G_{-i},G_{-i})-G_{-i}.\label{g}
+\end{align}
+The first and second arguments of $f$ respectively come from the public goods dimension and the private goods dimension of the utility function. Suppose one unit of $G_{-i}$ is reduced and simultaneously one unit of $w_i$ is increased. For a pure-altruist, the second argument of the donations function will be missing and he increases $g_i$ corresponding to the reduction of $G_{-1}$. However, the purely egoistic person will not do so because his first argument of the utility function is missing instead of the second one.
+
+The derivative of this about giving price will be
+\begin{align}
+\frac{\partial g_i}{\partial p}=-f_1y_i(1-\tau)\frac1{p^2}<0\notag,
+\end{align}
+which means that the giving price works only when people has a pure-alturistic portion in their utility function.
+
+Moreover, we can see that people start to donate only when $f>G_{-i}$.
 
 ```
 
