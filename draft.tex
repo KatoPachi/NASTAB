@@ -182,8 +182,7 @@ This paper consist of seven sections. Section 2 and 3 respectively explain the i
 
 In this section, we describe the endogeneity issue and the income tax relief for charitable giving in Korea and used dataset.
 
-\hypertarget{declaration-of-tax-relief-and-giving-price}{%
-\subsection{Declaration of tax relief and giving price}\label{declaration-of-tax-relief-and-giving-price}}
+\#\#Tax relief and giving price
 
 In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction.
 
@@ -233,15 +232,20 @@ and \(g_i\) will be\footnote{Strictly speaking, $p$ and $\tau$ are endogenous to
 \begin{align}
 g_i=f(\frac1{p}y_i(1-\tau)-G_{-i},G_{-i})-G_{-i}.\label{g}
 \end{align}
-The first and second arguments of \(f\) respectively come from the public goods dimension and the private goods dimension of the utility function. Suppose one unit of \(G_{-i}\) is reduced and simultaneously one unit of \(w_i\) is increased. For a pure-altruist, the second argument of the donations function will be missing and he increases \(g_i\) corresponding to the reduction of \(G_{-1}\). However, the purely egoistic person will not do so because his first argument of the utility function is missing instead of the second one.
+The first and second arguments of \(f\) respectively come from the public goods dimension and the private goods dimension of the utility function. Suppose one unit of \(G_{-i}\) is reduced and simultaneously one unit of \(w_i\) is increased. For a pure-altruist, the second argument of the donations function will be missing and he increases \(g_i\) corresponding to the reduction of \(G_{-i}\). However, the purely egoistic person will not do so because his first argument of the utility function is missing instead of the second one.
 
+Since \(g_i\ge0\), people donate positive amount of charitable giving only if \(f>G_{-i}\).
 The derivative of this about giving price will be
 \begin{align}
 \frac{\partial g_i}{\partial p}=-f_1y_i(1-\tau)\frac1{p^2}<0\notag,
 \end{align}
 which means that the giving price works only when people has a pure-alturistic portion in their utility function.
 
-Moreover, we can see that people start to donate only when \(f>G_{-i}\).
+The price elasticity of charitable giving is defined as
+\begin{align}
+\varepsilon_{int}=\frac{\partial g_i}{\partial p}\frac{p}{g} \text{ for }g_i>0\notag\\
+\varepsilon_{ext}=\frac{\partial I(g_i)}{\partial p}\frac{p}{I(g)} \text{ where }I(\cdot)\text{ is an index function.}\notag
+\end{align}
 
 \begin{table}
 
@@ -291,7 +295,9 @@ Summarizing this, compared to tax credit system, the high income household, whos
 \hypertarget{source-of-endogeneity}{%
 \subsection{Source of endogeneity}\label{source-of-endogeneity}}
 
-In the literature of giving tax relief, many papers care various issues on the estimation as Table XXX. Most of papers care the issues related to income tax and tax relief system using lead and lag data of income and giving price, and utilize the marginal tax rate when the first dollar of charitable giving is conducted, called ``first giving price.''
+In the section 2.1, we
+
+In the literature of giving tax relief, many papers care various issues on the estimation. Most of papers care the issues related to income tax and tax relief system using lead and lag data of income and giving price, and utilize the marginal tax rate when the first dollar of charitable giving is conducted, called ``first giving price.''
 
 However, compared to the issues about tax system, the treatment for the other issues varies in each paper. In particular, many paper do not consider the existence of declaration cost of charitable giving. Since those who face lower declaration cost are likely to enjoy tax relief and the giving price does not changed without the declaration for charitable giving, the difference of giving price may just represent the difference of declaration cost. This problem is not resolved even if survey data is used instead of tax return data\footnote{This is because the usage of survey data does not mean the consideration of declaration cost of each observation.}.
 
