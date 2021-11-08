@@ -46,7 +46,7 @@ In many countries, governments set a tax relief for charitable giving. This is b
 However, there are two issues of the estimation as for the declaration of tax and charitable giving.
 First issue is about the sample selection. Most of the analysis based on tax record only captures the effect for tax filers, while charitable donation may also be conducted by those who do not declare their tax. Thus, as some papers such as @Rehavi2013 and @Backus2019 point out, the estimation based on the tax return data will contain the sample selection bias.
 
-Second issue is that the declaration for charitable giving (not the declaration of tax) is endogenous to the price of charitable giving. This is because the declaration for charitable giving is required to apply for the tax relief on charitable giving, and the effect of giving price on the amount of giving may represent the difference of declaration costs for charitable giving. Since this issue does not resolved even if the data of non tax filers are available, few studies take this issue into account on the estimation\footnote{@Almunia2020 considers the existence of declaration cost by using structual estimation, but they use tax return data, the usage of which will cause the sample selection bias.}.
+Second issue is that the declaration for charitable giving (not the declaration of tax) is endogenous to the price of charitable giving. This is because the declaration for charitable giving is required to apply for the tax relief on charitable giving, and the effect of giving price on the amount of giving may represent the difference of declaration costs for charitable giving. Since this issue does not resolved even if the data of non tax filers are available, few studies take this issue into account on the estimation\footnote{Almunia et al.(2020) considers the existence of declaration cost by using structual estimation, but they use tax return data, the usage of which will cause the sample selection bias.}.
 
 Considering these issues, this paper investigates the price elasticity of giving. To derive the elasticity, this paper utilizes the South Korean (Korea hereafter) tax reform in 2014, from when the tax relief on charitable giving was conducted by tax credit, though tax deduction had been used before 2014.
 The Korean tax reform in 2014 started to allow 15\% of the total amount of charitable giving as a tax credit for all taxpayers, which means that the giving price for 1 KRW donation is 0.85 KRW.\footnote{1 KRW is approximately 0.001 USD. In other words, 1 USD is about 1,000 KRW.} Since the giving price was determined according to the marginal tax rate of progressive income tax before 2014, this tax reform reduced the giving price for low income taxpayers while it increased the price for high income tax payers. Since the variation of giving price can be considered to be exogenous for taxpayers, we exploit this reform and conduct the difference-in-difference (DID) analysis for identification. 
@@ -55,7 +55,7 @@ This paper contributes the literature about the charitable giving tax system for
 
 Secondly, for the issue of charitable giving declaration, we focus on the fact that wage earners can easily declare tax relief in their company while self-employed workers have to declare tax relief via tax agency in Korea. By utilizing this difference of declaration costs between wage earners and self-employed workers as an instrument variable (IV), we estimate the price elasticity eliminating endogeneity between declaration for charitable giving and price of charitable giving. 
 
-Thirdly, this paper is the first paper to examine the giving price elasticity in a non-Western country. While the giving behavior may be affected by the cultural matter such as the religious belief, the estimated price elasticity in this paper is in line with the result of the extant papers.
+Thirdly, this paper examines the giving price elasticity in a non-Western country, where few papers deal with. While the giving behavior may be affected by the cultural matter such as the religious belief, the estimated price elasticity in this paper is in line with the result of the extant papers.
 
 In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is about -1, which many papers have shown and indicates.
 
@@ -110,7 +110,7 @@ Tax payers declare their charitable giving if its benefit exceeds its cost, whic
 \begin{align}
 R_i=\begin{cases}
 1 \text{ if }T(y_i, g_i) - T(y_i)>K\\
-0 \text{ if }T(y_i, g_i) - T(y_i)\le K.
+0 \text{ if }T(y_i, g_i) - T(y_i)\le K.\label{R}
 \end{cases}
 \end{align}
 
@@ -125,7 +125,8 @@ while the amount of tax under the tax credit system is
   T(y_i,g_i)=T(y_i)-mg_i,\text{ where }T_i'(\cdot)>0, T_i''(\cdot)>0.
 \end{align}
 
-Therefore, the marginal giving price compared to private consumption is $1-R_iT'(y_i-g_i)$ in the tax deduction regime and is $1-R_im$ in the tax credit regime\footnote{This can be derived from the total differentiation of the budget constraint by $x_i$ and $g_i$, i.e. $dx_i=(1-R_iT_g(y_i,g_i))dg_i$.}.
+Using the total differentiation of the budget constraint by $x_i$ and $g_i$ (i.e. $dx_i=(1-R_iT_g(y_i,g_i))dg_i$), the marginal giving price compared to private consumption is $1-R_iT'(y_i-g_i)$ in the tax deduction regime and is $1-R_im$ in the tax credit regime. Hereafter, we use $p$ and $q$ to show the giving price compared to private consumption and the amount of tax relief for each charitable giving, respectively (i.e. $p=1-R_iq$ and $q=T_g(y_i, g_i)$.). The government can change $q$ in the tax reform as the next subsection explains.
+
 
 ```
 
@@ -174,9 +175,14 @@ Summarizing this, compared to tax credit system, the high income household, whos
 ```{asis, echo = doctype == "draft"}
 ## Source of endogeneity
 
-In the literature of giving tax relief, many papers care various issues on the estimation as Table XXX. Most of papers care the issues related to income tax and tax relief system using lead and lag data of income and giving price, and utilize the marginal tax rate when the first dollar of charitable giving is conducted, called "first giving price". 
+In the literature of giving tax relief, many papers care various issues on the estimation. Most of papers care the endogeneity issues which happens to the tax deduction system. For example, most of them utilize the marginal tax rate when the first dollar of charitable giving is conducted, called "first giving price", to deal with the endogenous giving price.
 
-However, compared to the issues about tax system, the treatment for the other issues varies in each paper. In particular, many paper do not consider the existence of declaration cost of charitable giving. Since those who face lower declaration cost are likely to enjoy tax relief and the giving price does not changed without the declaration for charitable giving, the difference of giving price may just represent the difference of declaration cost. This problem is not resolved even if survey data is used instead of tax return data\footnote{This is because the usage of survey data does not mean the consideration of declaration cost of each observation.}. 
+However, compared to the issues about the tax system, the treatment for the other issues varies in each paper. In particular, many paper do not consider the existence of declaration cost of charitable giving.
+
+From (\ref{R}), we can see that the giving price does not changed by tax relief without the declaration for charitable giving (i.e. $\partial g/\partial q=0$ for non-declared charitable giving.). Therefore, we have to distinguish between declared and non-declared charitable giving\footnote{Note that this is impossible when tax return data is used since it only records declared charitable giving.}.
+
+In addition, considering that those who face lower declaration cost are likely to declare their giving and enjoy tax relief, the difference of giving behavior may come not from the difference of the amount of tax relief $q$, which is the main identification source, but from the difference of declaration cost $K_i$, via $R_i$.
+This problem is not resolved even if survey data is used instead of tax return data\footnote{This is because the usage of survey data does not mean that it considers the existence of the declaration cost of each observation.}. 
 
 The usage of tax return data will amplify this problem. If charitable giving is declared, the marginal income tax rate is $T'(y_i-g_i)$ under the tax deduction system and $T'(y_i)$ under the tax credit system, while, if charitable giving is not declared, the marginal income tax rate is $T'(y_i)$ under the both system. Therefore, for given $g_i$, the difference of the marginal income tax rate between whether the declared or not is
 \begin{align}
@@ -186,7 +192,7 @@ T'(y_i)-T_y(y_i,g_i)=\begin{cases}
 \end{cases}
 \end{align}
 
-Considering $T''(\cdot)>0$, this implies that, when the higher marginal tax rate is applied (i.e. the higher $y_i$ is), the declaration of tax relief mitigate tax payment and $R_i=1$ is likely to be hold for given $x_i$ and $g_i$ under the tax deduction system. Thus, the high income earners tend to declare charitable giving. Since the tax return data tend to represent the data of high income earners, the issue of declaration may be serious. Moreover, because the tax return data does not contain the information of non-declared charitable giving, the estimated elasticity should be different from the population elasticity, which @Saez2004 shows as a key parameter to obtain implications for welfare\footnote{Extending the model of @Saez2004 and @Fack2016, we show in appendix that the public good provision is efficient if the population giving price elasticity is -1 taking the existence of non-declared charitable giving into account.}.
+Considering $T''(\cdot)>0$, this implies that, when the higher marginal tax rate is applied (i.e. the higher $y_i$ is), the declaration of tax relief mitigate tax payment and $R_i=1$ is likely to be hold for given $x_i$ and $g_i$ under the tax deduction system. Thus, the high income earners tend to declare charitable giving. Since the tax return data tend to represent the data of high income earners, the issue of declaration may be serious. Moreover, because the tax return data does not contain the information of non-declared charitable giving, the estimated elasticity should be different from the population elasticity, which @Saez2004 shows as a key parameter to obtain implications for welfare.
 
 To overcome the issue about the existence of declaration cost, we use the different declaration cost for charitable giving between self-employed workers and wage earners as an identification source. Since the declaration cost for the self-employed is higher than wage earners in Korea, we use it as an IV in the estimation. 
 ```
