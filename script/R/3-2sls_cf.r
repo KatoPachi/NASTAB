@@ -254,6 +254,91 @@ rob1_stage2 %>%
     )
   )
 
+#'
+#' ## Extensive Margin
+#'
+#+
+ext_stage2 <- list(
+  "(1)" = fixest::xpd(
+    i_ext_giving ~ ..first4 | ext_benefit_tl:log_price ~ employee:log_price
+  ),
+  "(2)" = fixest::xpd(
+    i_ext_giving ~ ..first4 | ext_benefit_tl:log_price ~ psc2_pool:log_price
+  ),
+  "(3)" = fixest::xpd(
+    i_ext_giving ~ ..first4 | ext_benefit_tl:log_price ~ psc2_sep:log_price
+  ),
+  "(4)" = fixest::xpd(
+    i_ext_giving ~ psc2_pool:log_price + ..first4
+  ),
+  "(5)" = fixest::xpd(
+    i_ext_giving ~ psc2_sep:log_price + ..first4
+  )
+)
+
+ext_stage2 %>%
+  purrr::map(~ fixest::feols(
+    ., cluster = ~ panelid,
+    data = estdf
+  )) %>%
+  modelsummary(
+    title = paste(
+      "First-Price Elasticities (Extenstive Margin)"
+    ),
+    coef_map = c(
+      "fit_ext_benefit_tl:log_price" =
+        "Applying tax relief x log(first price)",
+      "psc2_pool:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "psc2_sep:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "log_pinc_all" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = tribble(
+      ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+      "Square of age", "X", "X", "X", "X", "X",
+      "Instrument", "Wage earner x Price",
+      "PS x Price", "PS x Price", "", "",
+      "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
+    )
+  ) %>%
+  kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
+
+#'
+#+
+ext_stage2 %>%
+  purrr::map(~ fixest::feols(
+    .,
+    cluster = ~panelid,
+    data = subset(estdf, year < 2013 | 2014 < year)
+  )) %>%
+  modelsummary(
+    title = paste(
+      "Robustness of First-Price Elasticities (Extenstive Margin)"
+    ),
+    coef_map = c(
+      "fit_ext_benefit_tl:log_price" =
+        "Applying tax relief x log(first price)",
+      "psc2_pool:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "psc2_sep:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "log_pinc_all" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = tribble(
+      ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+      "Square of age", "X", "X", "X", "X", "X",
+      "Instrument", "Wage earner x Price",
+      "PS x Price", "PS x Price", "", "",
+      "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
+    )
+  ) %>%
+  kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
+
 # /*
 #+
 rmarkdown::render(
