@@ -68,7 +68,9 @@ fixest::setFixest_fml(
 )
 
 #'
-#' ## Results
+#' # Results
+#'
+#' ## Intensive Margin
 #'
 #+
 fixest::setFixest_fml(
@@ -157,12 +159,10 @@ stage2 %>%
   )) %>%
   modelsummary(
     title = paste(
-      "First-Price Elasticities for Those who Applied Tax Relief"
+      "First-Price Elasticities (Intenstive Margin)"
     ),
     coef_map = c(
       "fit_ext_benefit_tl:log_price" =
-        "Applying tax relief x log(first price)",
-      "ext_benefit_tl:log_price" =
         "Applying tax relief x log(first price)",
       "psc2_pool:log_price" =
         "PS of applying tax relief x log(first price)",
@@ -181,6 +181,78 @@ stage2 %>%
     )
   ) %>%
   kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
+
+#'
+#+
+stage2 %>%
+  purrr::map(~ fixest::feols(
+    ., cluster = ~ panelid,
+    data = subset(estdf, i_ext_giving == 1 & (year < 2013 | 2014 < year))
+  )) %>%
+  modelsummary(
+    title = paste(
+      "Robustness of First-Price Elasticities (Intenstive Margin)"
+    ),
+    coef_map = c(
+      "fit_ext_benefit_tl:log_price" =
+        "Applying tax relief x log(first price)",
+      "psc2_pool:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "psc2_sep:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "log_pinc_all" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = tribble(
+      ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+      "Square of age", "X", "X", "X", "X", "X",
+      "Instrument", "Wage earner x Price",
+      "PS x Price", "PS x Price", "", "",
+      "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
+    )
+  ) %>%
+  kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
+
+#'
+#+
+rob1_stage2 <- list(
+  "(1)" = fixest::xpd(
+    log_total_g ~ ..first4 | ext_benefit_tl:log_lprice ~ employee:log_price
+  ),
+  "(2)" = fixest::xpd(
+    log_total_g ~ ..first4 | ext_benefit_tl:log_lprice ~ psc2_pool:log_price
+  ),
+  "(3)" = fixest::xpd(
+    log_total_g ~ ..first4 | ext_benefit_tl:log_lprice ~ psc2_sep:log_price
+  )
+)
+
+rob1_stage2 %>%
+  purrr::map(~ fixest::feols(
+    .,
+    cluster = ~panelid,
+    data = subset(estdf, i_ext_giving == 1)
+  )) %>%
+  modelsummary(
+    title = paste(
+      "Last-Price Elasticities (Intensive Margin)"
+    ),
+    coef_map = c(
+      "fit_ext_benefit_tl:log_lprice" =
+        "Applying tax relief x log(last price)",
+      "log_pinc_all" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = tribble(
+      ~"term", ~"(1)", ~"(2)", ~"(3)",
+      "Square of age", "X", "X", "X",
+      "Instrument", "Wage earner x Price",
+      "PS x Price", "PS x Price",
+      "Method of PS", "", "Pool", "Separate"
+    )
+  )
 
 # /*
 #+
