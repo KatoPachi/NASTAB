@@ -1,6 +1,7 @@
 #' ---
 #' title: |
-#'   Preview: Recovering Population Elasticities
+#'   Price Elasticities with Self-Selection of Tax Relief
+#' subtitle: Not intended for publication
 #' author: Hiroki Kato
 #' output:
 #'   html_document:
@@ -66,41 +67,8 @@ fixest::setFixest_fml(
   ..first4 = ~ log_pinc_all + sqage | year + panelid + area + industry
 )
 
-
 #'
-#' ## Recovering Population Elasticities
-#'
-#'
-#+
-popmod <- list(
-  "(1)" = fixest::xpd(log_total_g ~ log_price:ext_benefit_tl + ..first1),
-  "(2)" = fixest::xpd(log_total_g ~ log_price:ext_benefit_tl + ..first2),
-  "(3)" = fixest::xpd(log_total_g ~ log_price:ext_benefit_tl + ..first3),
-  "(4)" = fixest::xpd(log_total_g ~ log_price:ext_benefit_tl + ..first4)
-)
-
-popmod %>%
-  purrr::map(~ fixest::feols(
-    .,
-    data = subset(df, i_ext_giving == 1 & year <= 2017),
-    cluster = ~ panelid, se = "cluster"
-  )) %>%
-  modelsummary(
-    title = "Population First-Price Elasiticities",
-    coef_map = c(
-      "log_price:ext_benefit_tl" =
-        "log(first giving price) x Applying tax relief",
-      "log_pinc_all" =
-        "log(annual taxable income)"
-    ),
-    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
-      "Square age", "", "X", "X", "X"
-    )
-  )
-
+#' ## Results
 #'
 #+
 fixest::setFixest_fml(
@@ -123,7 +91,7 @@ sepstage1 <- df %>%
   ))
 
 estdf <- df %>%
-  dplyr::filter(year <= 2017) %>%
+  dplyr::filter(year <= 2017 & !is.na(ext_benefit_tl)) %>%
   mutate(poolmod = list(poolstage1)) %>%
   left_join(sepstage1, by = "year") %>%
   group_by(year) %>%
@@ -131,25 +99,13 @@ estdf <- df %>%
     ., first(.$poolmod), first(.$sepmod),
     type = "link"
   )) %>%
-  rename(lpred_pool = "first(.$poolmod)", lpred_sep = "first(.$sepmod)") %>%
+  rename(lpred2_pool = "first(.$poolmod)", lpred2_sep = "first(.$sepmod)") %>%
   mutate(
     # propensity score
-    psc_pool = pnorm(lpred_pool), psc_sep = pnorm(lpred_sep),
-
-    # inverse mills ratio
-    imr_pool = dnorm(lpred_pool) / pnorm(lpred_pool),
-    imr_sep = dnorm(lpred_sep) / pnorm(lpred_sep),
-
-    # reverse of inverse mills ratio
-    rimr_pool = -dnorm(lpred_pool) / (1 - pnorm(lpred_pool)),
-    rimr_sep = -dnorm(lpred_sep) / (1 - pnorm(lpred_sep)),
-
-    # generalized rediduals
-    gr_pool = ext_benefit_tl * imr_pool + (1 - ext_benefit_tl) * rimr_pool,
-    gr_sep = ext_benefit_tl * imr_sep + (1 - ext_benefit_tl) * rimr_sep,
+    psc2_pool = pnorm(lpred2_pool), psc2_sep = pnorm(lpred2_sep)
   ) %>%
+  ungroup() %>%
   select(-poolmod, -sepmod)
-
 
 #'
 #+
@@ -178,24 +134,19 @@ sepstage1 %>%
 #+
 stage2 <- list(
   "(1)" = fixest::xpd(
-    log_total_g ~ ..stage1 | ext_benefit_tl:log_price ~ psc_pool:log_price
+    log_total_g ~ ..first4 | ext_benefit_tl:log_price ~ employee:log_price
   ),
   "(2)" = fixest::xpd(
-    log_total_g ~ ..stage1 | ext_benefit_tl:log_price ~ psc_sep:log_price
+    log_total_g ~ ..first4 | ext_benefit_tl:log_price ~ psc2_pool:log_price
   ),
   "(3)" = fixest::xpd(
-    log_total_g ~ ext_benefit_tl:log_price + gr_pool + ..stage1
+    log_total_g ~ ..first4 | ext_benefit_tl:log_price ~ psc2_sep:log_price
   ),
   "(4)" = fixest::xpd(
-    log_total_g ~ ext_benefit_tl:log_price + gr_sep + ..stage1
+    log_total_g ~ psc2_pool:log_price + ..first4
   ),
   "(5)" = fixest::xpd(
-    log_total_g ~ ext_benefit_tl:log_price +
-      gr_pool + gr_pool:ext_benefit_tl + ..stage1
-  ),
-  "(6)" = fixest::xpd(
-    log_total_g ~ ext_benefit_tl:log_price +
-      gr_sep + gr_sep:ext_benefit_tl + ..stage1
+    log_total_g ~ psc2_sep:log_price + ..first4
   )
 )
 
@@ -206,34 +157,30 @@ stage2 %>%
   )) %>%
   modelsummary(
     title = paste(
-      "Population First-Price Elasticities:",
-      "Pooled 2SLS and Control Function Approach"
+      "First-Price Elasticities for Those who Applied Tax Relief"
     ),
     coef_map = c(
       "fit_ext_benefit_tl:log_price" =
-        "Propensity x log(first giving price)",
+        "Applying tax relief x log(first price)",
       "ext_benefit_tl:log_price" =
-        "Applying tax relief x log(first giving price)",
-      "log_pinc_all" = "log(income)",
-      "gr_pool" = "Generalized residuals (pool)",
-      "ext_benefit_tl:gr_pool" =
-        "Applying tax relief x Generalized residuals (pool)",
-      "gr_sep" = "Generalized residuals (separate)",
-      "ext_benefit_tl:gr_sep" =
-        "Applying tax relief x Generalized residuals (separate)"
+        "Applying tax relief x log(first price)",
+      "psc2_pool:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "psc2_sep:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "log_pinc_all" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = tribble(
-      ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-      "Dummy of area", "X", "X", "X", "X", "X", "X",
-      "Dummy of industry", "X", "X", "X", "X", "X", "X",
-      "Square of age", "X", "X", "X", "X", "X", "X"
+      ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+      "Square of age", "X", "X", "X", "X", "X",
+      "Instrument", "Wage earner x Price",
+      "PS x Price", "PS x Price", "", "",
+      "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
     )
   ) %>%
-  kableExtra::add_header_above(c(
-    " " = 1, "Pooled 2SLS" = 2, "CF Approach" = 4
-  ))
+  kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
 
 # /*
 #+
