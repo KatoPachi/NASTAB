@@ -1,6 +1,7 @@
 #' ---
 #' title: |
-#'   Preview: Results
+#'   Price Elasticities Using only Those Who Applied Tax Relief
+#' subtitle: Not intended for publication
 #' author: Hiroki Kato
 #' output:
 #'   html_document:
@@ -60,37 +61,75 @@ df <- readr::read_csv(
 )
 
 #'
+#+ include = FALSE, eval = params$preview
+fixest::setFixest_fml(
+  ..stage21 = ~ log_pinc_all | year + panelid,
+  ..stage22 = ~ log_pinc_all + sqage | year + panelid,
+  ..stage23 = ~ log_pinc_all + sqage | year + panelid + area,
+  ..stage24 = ~ log_pinc_all + sqage | year + panelid + area + industry,
+  ..stage1 = ~ log_pinc_all + sqage + factor(area) + factor(industry)
+)
+
+poolstage1 <- fixest::feglm(
+  fixest::xpd(ext_benefit_tl ~ employee + log_price + ..stage1),
+  family = binomial(link = "probit"),
+  data = subset(df, year <= 2017)
+)
+
+sepstage1 <- df %>%
+  dplyr::filter(year <= 2017) %>%
+  group_by(year) %>%
+  do(sepmod = fixest::feglm(
+    fixest::xpd(ext_benefit_tl ~ employee + log_price + ..stage1),
+    family = binomial(link = "probit"),
+    data = .
+  ))
+
+estdf <- df %>%
+  dplyr::filter(year <= 2017 & !is.na(ext_benefit_tl)) %>%
+  mutate(poolmod = list(poolstage1)) %>%
+  left_join(sepstage1, by = "year") %>%
+  group_by(year) %>%
+  do(modelr::spread_predictions(
+    ., first(.$poolmod), first(.$sepmod),
+    type = "link"
+  )) %>%
+  rename(lpred_pool = "first(.$poolmod)", lpred_sep = "first(.$sepmod)") %>%
+  mutate(
+    # propensity score
+    psc2_pool = pnorm(lpred_pool), psc2_sep = pnorm(lpred_sep),
+
+    # inverse mills ratio
+    imr_pool = dnorm(lpred_pool) / pnorm(lpred_pool),
+    imr_sep = dnorm(lpred_sep) / pnorm(lpred_sep),
+  ) %>%
+  ungroup() %>%
+  select(-poolmod, -sepmod)
+
+#'
 #' # Results {#results}
 #'
 #' ## Elasiticities for Those Who Apply to Tax Relief
 #'
 #+
-subdf <- df %>%
+subdf <- estdf %>%
   dplyr::filter(ext_benefit_tl == 1 & i_ext_giving == 1)
 
 #'
 #' はじめに、ベンチマークとして、寄付申告者に限定した寄付価格の弾力性を推定する。
 #' 寄付申告者に限定しているので、推定された弾力性はintensive-marginに関する弾力性を示している。
 #'
-#+ benchmark
-fixest::setFixest_fml(
-  ..first1 = ~ log_pinc_all | year + panelid,
-  ..first2 = ~ log_pinc_all + sqage | year + panelid,
-  ..first3 = ~ log_pinc_all + sqage | year + panelid + area,
-  ..first4 = ~ log_pinc_all + sqage | year + panelid + area + industry
+#+
+basemod <- list(
+  "(1)" = fixest::xpd(log_total_g ~ log_price + ..stage24),
+  "(2)" = fixest::xpd(log_total_g ~ log_price + imr_pool + ..stage24),
+  "(3)" = fixest::xpd(log_total_g ~ log_price + imr_sep + ..stage24)
 )
 
-firstmod <- list(
-  "(1)" = fixest::xpd(log_total_g ~ log_price + ..first1),
-  "(2)" = fixest::xpd(log_total_g ~ log_price + ..first2),
-  "(3)" = fixest::xpd(log_total_g ~ log_price + ..first3),
-  "(4)" = fixest::xpd(log_total_g ~ log_price + ..first4)
-)
-
-firstmod %>%
+basemod %>%
   purrr::map(~ fixest::feols(
     .,
-    data = subset(subdf, i_ext_giving == 1),
+    data = subdf,
     cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
@@ -103,8 +142,8 @@ firstmod %>%
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
-      "Square age", "", "X", "X", "X"
+      ~term, ~"(1)", ~"(2)", ~"(3)",
+      "Square age", "X", "X", "X"
     )
   )
 
@@ -116,10 +155,10 @@ firstmod %>%
 #' これらの結果は居住地ダミーや産業ダミーをコントロールしても変化しない。
 #'
 #+ robustbenchmark1
-firstmod %>%
+basemod %>%
   purrr::map(~ fixest::feols(
     .,
-    data = subset(subdf, i_ext_giving == 1 & (year < 2013 | year > 2014)),
+    data = subset(subdf, year < 2013 | year > 2014),
     cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
@@ -135,24 +174,27 @@ firstmod %>%
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
-      "Square age", "", "X", "X", "X"
+      ~term, ~"(1)", ~"(2)", ~"(3)",
+      "Square age", "X", "X", "X"
     )
   )
 
 #'
 #+ robustbenchmark2
 lastmod <- list(
-  "(1)" = fixest::xpd(log_total_g ~ ..first1 | log_lprice ~ log_price),
-  "(2)" = fixest::xpd(log_total_g ~ ..first2 | log_lprice ~ log_price),
-  "(3)" = fixest::xpd(log_total_g ~ ..first3 | log_lprice ~ log_price),
-  "(4)" = fixest::xpd(log_total_g ~ ..first4 | log_lprice ~ log_price)
+  "(1)" = fixest::xpd(log_total_g ~ ..stage24 | log_lprice ~ log_price),
+  "(2)" = fixest::xpd(
+    log_total_g ~ imr_pool + ..stage24 | log_lprice ~ log_price
+  ),
+  "(3)" = fixest::xpd(
+    log_total_g ~ imr_sep + ..stage24 | log_lprice ~ log_price
+  )
 )
 
 lastmod %>%
   purrr::map(~ fixest::feols(
     .,
-    data = subset(subdf, i_ext_giving == 1),
+    data = subdf,
     cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
@@ -167,8 +209,8 @@ lastmod %>%
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
-      "Square age", "", "X", "X", "X"
+      ~term, ~"(1)", ~"(2)", ~"(3)",
+      "Square age", "X", "X", "X"
     )
   )
 
@@ -178,7 +220,7 @@ fixest::setFixest_fml(
   ..kdiff1 = ~ log_diff1I + diff1_sqage,
   ..kdiff2 = ~ log_diff2I + diff2_sqage,
   ..kdiff3 = ~ log_diff3I + diff3_sqage,
-  ..kdifffe = ~ year + panelid + area + industry
+  ..kdifffe = ~ year + area + industry
 )
 
 kdiffmod <- list(
@@ -197,7 +239,7 @@ kdiffmod %>%
   purrr::map(~ fixest::feols(
     .,
     cluster = ~ panelid, se = "cluster",
-    data = subset(subdf, i_ext_giving == 1)
+    data = subdf, panel.id = ~ panelid + year
   )) %>%
   modelsummary(
     title = "k-th difference model",
@@ -214,6 +256,156 @@ kdiffmod %>%
     add_rows = tribble(
       ~term, ~"(1)", ~"(2)", ~"(3)",
       "Difference of square age", "X", "X", "X"
+    )
+  )
+
+#'
+#+ robustbenchmark4
+fixest::setFixest_fml(
+  ..kdiff1 = ~ log_diff1I + diff1_sqage + d(imr_pool, 1),
+  ..kdiff2 = ~ log_diff2I + diff2_sqage + d(imr_pool, 2),
+  ..kdiff3 = ~ log_diff3I + diff3_sqage + d(imr_pool, 3),
+  ..kdifffe = ~ year + area + industry
+)
+
+kdiffmod <- list(
+  "(1)" = fixest::xpd(
+    log_diff1g ~ ..kdiff1 | ..kdifffe | log_diff1p ~ log_iv1price
+  ),
+  "(2)" = fixest::xpd(
+    log_diff2g ~ ..kdiff2 | ..kdifffe | log_diff2p ~ log_iv2price
+  ),
+  "(3)" = fixest::xpd(
+    log_diff3g ~ ..kdiff3 | ..kdifffe | log_diff3p ~ log_iv3price
+  )
+)
+
+kdiffmod %>%
+  purrr::map(~ fixest::feols(
+    .,
+    cluster = ~panelid, se = "cluster",
+    data = subdf, panel.id = ~ panelid + year
+  )) %>%
+  modelsummary(
+    title = "k-th difference model",
+    coef_map = c(
+      "fit_log_diff1p" = "1-year lagged difference of first price (log)",
+      "log_diff1I" = "1-year lagged difference of annual income (log)",
+      "fit_log_diff2p" = "2-year lagged difference of first price (log)",
+      "log_diff2I" = "2-year lagged difference of annual income (log)",
+      "fit_log_diff3p" = "3-year lagged difference of first price (log)",
+      "log_diff3I" = "3-year lagged difference of annual income (log)"
+    ),
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)",
+      "Difference of square age", "X", "X", "X"
+    )
+  )
+
+#'
+#+ robustbenchmark5
+fixest::setFixest_fml(
+  ..kdiff1 = ~ log_diff1I + diff1_sqage + d(imr_sep, 1),
+  ..kdiff2 = ~ log_diff2I + diff2_sqage + d(imr_sep, 2),
+  ..kdiff3 = ~ log_diff3I + diff3_sqage + d(imr_sep, 3),
+  ..kdifffe = ~ year + area + industry
+)
+
+kdiffmod <- list(
+  "(1)" = fixest::xpd(
+    log_diff1g ~ ..kdiff1 | ..kdifffe | log_diff1p ~ log_iv1price
+  ),
+  "(2)" = fixest::xpd(
+    log_diff2g ~ ..kdiff2 | ..kdifffe | log_diff2p ~ log_iv2price
+  ),
+  "(3)" = fixest::xpd(
+    log_diff3g ~ ..kdiff3 | ..kdifffe | log_diff3p ~ log_iv3price
+  )
+)
+
+kdiffmod %>%
+  purrr::map(~ fixest::feols(
+    .,
+    cluster = ~panelid, se = "cluster",
+    data = subdf, panel.id = ~ panelid + year
+  )) %>%
+  modelsummary(
+    title = "k-th difference model",
+    coef_map = c(
+      "fit_log_diff1p" = "1-year lagged difference of first price (log)",
+      "log_diff1I" = "1-year lagged difference of annual income (log)",
+      "fit_log_diff2p" = "2-year lagged difference of first price (log)",
+      "log_diff2I" = "2-year lagged difference of annual income (log)",
+      "fit_log_diff3p" = "3-year lagged difference of first price (log)",
+      "log_diff3I" = "3-year lagged difference of annual income (log)"
+    ),
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)",
+      "Difference of square age", "X", "X", "X"
+    )
+  )
+
+#'
+#+
+fixest::setFixest_fml(
+  ..stage1ll = ~ log_pinc_all + sqage +
+    d(log_price, 1) + d(log_price, -1) +
+    d(log_pinc_all, 1) + d(log_pinc_all, -1) +
+    factor(area) + factor(industry)
+)
+
+poolstage1_ll <- fixest::feglm(
+  fixest::xpd(ext_benefit_tl ~ employee + log_price + ..stage1ll),
+  family = binomial(link = "probit"),
+  data = subset(df, year <= 2017),
+  panel.id = ~ panelid + year
+)
+
+subdf2 <- df %>%
+  dplyr::filter(year <= 2017 & !is.na(ext_benefit_tl)) %>%
+  modelr::add_predictions(poolstage1_ll, type = "link", var = "lpred_pool") %>%
+  mutate(
+    # propensity score
+    psc_pool = pnorm(lpred_pool),
+    # inverse mills ratio
+    imr_pool = dnorm(lpred_pool) / pnorm(lpred_pool)
+  ) %>%
+  dplyr::filter(ext_benefit_tl == 1 & i_ext_giving == 1)
+
+leadlagmod <- list(
+  "(1)" = fixest::xpd(
+    log_total_g ~ log_price + d(log_price, 1) + d(log_price, -1) +
+    d(log_pinc_all, 1) + d(log_pinc_all, -1) + ..stage24
+  ),
+  "(2)" = fixest::xpd(
+    log_total_g ~ log_price + imr_pool +
+    d(log_price, 1) + d(log_price, -1) +
+    d(log_pinc_all, 1) + d(log_pinc_all, -1) + ..stage24
+  )
+)
+
+leadlagmod %>%
+  purrr::map(~ fixest::feols(
+    .,
+    data = subdf2, panel.id = ~ panelid + year,
+    cluster = ~panelid, se = "cluster"
+  )) %>%
+  modelsummary(
+    title = "First Price Elasiticities for Those Who Apply to Tax Relief",
+    coef_rename = c(
+      "log_price" = "log(first giving price)",
+      "log_pinc_all" = "log(annual taxable income)"
+    ),
+    coef_omit = "^(?!log)",
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)",
+      "Square age", "X", "X"
     )
   )
 

@@ -60,13 +60,6 @@ df <- readr::read_csv(
   )
 )
 
-fixest::setFixest_fml(
-  ..first1 = ~ log_pinc_all | year + panelid,
-  ..first2 = ~ log_pinc_all + sqage | year + panelid,
-  ..first3 = ~ log_pinc_all + sqage | year + panelid + area,
-  ..first4 = ~ log_pinc_all + sqage | year + panelid + area + industry
-)
-
 #'
 #' # Results
 #'
@@ -74,6 +67,10 @@ fixest::setFixest_fml(
 #'
 #+
 fixest::setFixest_fml(
+  ..stage21 = ~ log_pinc_all | year + panelid,
+  ..stage22 = ~ log_pinc_all + sqage | year + panelid,
+  ..stage23 = ~ log_pinc_all + sqage | year + panelid + area,
+  ..stage24 = ~ log_pinc_all + sqage | year + panelid + area + industry,
   ..stage1 = ~ log_pinc_all + sqage + factor(area) + factor(industry)
 )
 
@@ -101,10 +98,14 @@ estdf <- df %>%
     ., first(.$poolmod), first(.$sepmod),
     type = "link"
   )) %>%
-  rename(lpred2_pool = "first(.$poolmod)", lpred2_sep = "first(.$sepmod)") %>%
+  rename(lpred_pool = "first(.$poolmod)", lpred_sep = "first(.$sepmod)") %>%
   mutate(
     # propensity score
-    psc2_pool = pnorm(lpred2_pool), psc2_sep = pnorm(lpred2_sep)
+    psc_pool = pnorm(lpred_pool), psc_sep = pnorm(lpred_sep),
+
+    # inverse mills ratio
+    imr_pool = dnorm(lpred_pool) / pnorm(lpred_pool),
+    imr_sep = dnorm(lpred_sep) / pnorm(lpred_sep),
   ) %>%
   ungroup() %>%
   select(-poolmod, -sepmod)
@@ -136,19 +137,19 @@ sepstage1 %>%
 #+
 stage2 <- list(
   "(1)" = fixest::xpd(
-    log_total_g ~ ..first4 | ext_benefit_tl:log_price ~ employee:log_price
+    log_total_g ~ ..stage24 | ext_benefit_tl:log_price ~ employee:log_price
   ),
   "(2)" = fixest::xpd(
-    log_total_g ~ ..first4 | ext_benefit_tl:log_price ~ psc2_pool:log_price
+    log_total_g ~ ..stage24 | ext_benefit_tl:log_price ~ psc_pool:log_price
   ),
   "(3)" = fixest::xpd(
-    log_total_g ~ ..first4 | ext_benefit_tl:log_price ~ psc2_sep:log_price
+    log_total_g ~ ..stage24 | ext_benefit_tl:log_price ~ psc_sep:log_price
   ),
   "(4)" = fixest::xpd(
-    log_total_g ~ psc2_pool:log_price + ..first4
+    log_total_g ~ psc_pool:log_price + ..stage24
   ),
   "(5)" = fixest::xpd(
-    log_total_g ~ psc2_sep:log_price + ..first4
+    log_total_g ~ psc_sep:log_price + ..stage24
   )
 )
 
@@ -164,9 +165,9 @@ stage2 %>%
     coef_map = c(
       "fit_ext_benefit_tl:log_price" =
         "Applying tax relief x log(first price)",
-      "psc2_pool:log_price" =
+      "psc_pool:log_price" =
         "PS of applying tax relief x log(first price)",
-      "psc2_sep:log_price" =
+      "psc_sep:log_price" =
         "PS of applying tax relief x log(first price)",
       "log_pinc_all" = "log(income)"
     ),
@@ -196,9 +197,9 @@ stage2 %>%
     coef_map = c(
       "fit_ext_benefit_tl:log_price" =
         "Applying tax relief x log(first price)",
-      "psc2_pool:log_price" =
+      "psc_pool:log_price" =
         "PS of applying tax relief x log(first price)",
-      "psc2_sep:log_price" =
+      "psc_sep:log_price" =
         "PS of applying tax relief x log(first price)",
       "log_pinc_all" = "log(income)"
     ),
@@ -218,13 +219,13 @@ stage2 %>%
 #+
 rob1_stage2 <- list(
   "(1)" = fixest::xpd(
-    log_total_g ~ ..first4 | ext_benefit_tl:log_lprice ~ employee:log_price
+    log_total_g ~ ..stage24 | ext_benefit_tl:log_lprice ~ employee:log_price
   ),
   "(2)" = fixest::xpd(
-    log_total_g ~ ..first4 | ext_benefit_tl:log_lprice ~ psc2_pool:log_price
+    log_total_g ~ ..stage24 | ext_benefit_tl:log_lprice ~ psc_pool:log_price
   ),
   "(3)" = fixest::xpd(
-    log_total_g ~ ..first4 | ext_benefit_tl:log_lprice ~ psc2_sep:log_price
+    log_total_g ~ ..stage24 | ext_benefit_tl:log_lprice ~ psc_sep:log_price
   )
 )
 
@@ -260,19 +261,19 @@ rob1_stage2 %>%
 #+
 ext_stage2 <- list(
   "(1)" = fixest::xpd(
-    i_ext_giving ~ ..first4 | ext_benefit_tl:log_price ~ employee:log_price
+    i_ext_giving ~ ..stage24 | ext_benefit_tl:log_price ~ employee:log_price
   ),
   "(2)" = fixest::xpd(
-    i_ext_giving ~ ..first4 | ext_benefit_tl:log_price ~ psc2_pool:log_price
+    i_ext_giving ~ ..stage24 | ext_benefit_tl:log_price ~ psc_pool:log_price
   ),
   "(3)" = fixest::xpd(
-    i_ext_giving ~ ..first4 | ext_benefit_tl:log_price ~ psc2_sep:log_price
+    i_ext_giving ~ ..stage24 | ext_benefit_tl:log_price ~ psc_sep:log_price
   ),
   "(4)" = fixest::xpd(
-    i_ext_giving ~ psc2_pool:log_price + ..first4
+    i_ext_giving ~ psc_pool:log_price + ..stage24
   ),
   "(5)" = fixest::xpd(
-    i_ext_giving ~ psc2_sep:log_price + ..first4
+    i_ext_giving ~ psc_sep:log_price + ..stage24
   )
 )
 
@@ -288,9 +289,9 @@ ext_stage2 %>%
     coef_map = c(
       "fit_ext_benefit_tl:log_price" =
         "Applying tax relief x log(first price)",
-      "psc2_pool:log_price" =
+      "psc_pool:log_price" =
         "PS of applying tax relief x log(first price)",
-      "psc2_sep:log_price" =
+      "psc_sep:log_price" =
         "PS of applying tax relief x log(first price)",
       "log_pinc_all" = "log(income)"
     ),
@@ -321,9 +322,9 @@ ext_stage2 %>%
     coef_map = c(
       "fit_ext_benefit_tl:log_price" =
         "Applying tax relief x log(first price)",
-      "psc2_pool:log_price" =
+      "psc_pool:log_price" =
         "PS of applying tax relief x log(first price)",
-      "psc2_sep:log_price" =
+      "psc_sep:log_price" =
         "PS of applying tax relief x log(first price)",
       "log_pinc_all" = "log(income)"
     ),
