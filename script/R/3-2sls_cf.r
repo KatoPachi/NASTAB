@@ -63,7 +63,18 @@ df <- readr::read_csv(
 #'
 #' # Results
 #'
-#' ## Intensive Margin
+#' In this section, we report the price elasticity of intensive-margin and
+#' extensive-margin, respectively.
+#' Note that we provide an appendix with the first-stage estimation results
+#' used to calculate the propensity score.
+#' As a basic result, even if we control covariates such as income,
+#' giving price, and industry dummy,
+#' the wage earner dummy is strongly and positively correlated with
+#' the application of donation deduction/credit.
+#' However, when the sample is divided by year,
+#' the partial correlation between the wage earner dummy and
+#' the application of donation deduction/credit in 2013 is
+#' statistically insignificant.
 #'
 #+
 fixest::setFixest_fml(
@@ -111,7 +122,7 @@ estdf <- df %>%
   select(-poolmod, -sepmod)
 
 #'
-#+
+#+ stage1
 sepstage1 %>%
   pull(sepmod, name = year) %>%
   list.merge(list("Pool" = poolstage1), .) %>%
@@ -134,7 +145,9 @@ sepstage1 %>%
   )
 
 #'
-#+
+#' ## Intensive Margin
+#'
+#+ intensive
 stage2 <- list(
   "(1)" = fixest::xpd(
     log_total_g ~ ..stage24 | ext_benefit_tl:log_price ~ employee:log_price
@@ -184,7 +197,24 @@ stage2 %>%
   kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
 
 #'
-#+
+#' Table \@ref(tab:intensive) shows
+#' the estimation results of price elasticity of intensive-margin.
+#' Model (1) uses the intersection of the wage earner dummy and
+#' the giving (first) price as an instrumental variable.
+#' Models (2) and (3) use
+#' the intersection of the propensity score of application and
+#' the giving (first) price as an instrumental variable.
+#' We use pooled model and separate model to calculate propensity scores,
+#' respectively.
+#' In models (4) and (5), we add the intersection between
+#' the propensity score of application and the giving (first) price
+#' directly to the explanatory variables.
+#' The estimated value varies slightly depending on the estimation method,
+#' but it is in the range of -1.5 to -1.8.
+#' Therefore, a 1% price reduction will increase the donation amount by 1.5-1.8%
+#' for those who apply for a donation deduction.
+#'
+#+ rob1intensive
 stage2 %>%
   purrr::map(~ fixest::feols(
     ., cluster = ~ panelid,
@@ -216,7 +246,7 @@ stage2 %>%
   kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
 
 #'
-#+
+#+ rob2intensive
 rob1_stage2 <- list(
   "(1)" = fixest::xpd(
     log_total_g ~ ..stage24 | ext_benefit_tl:log_lprice ~ employee:log_price
@@ -255,6 +285,84 @@ rob1_stage2 %>%
     )
   )
 
+#'
+#' We performed some analyzes for the robustness of this result.
+#' The regression table is shown in the appendix,
+#' but we will briefly describe the results.
+#' We show the results of estimating elasticity excluding 2013 and 2014 data
+#' in Table \@ref(tab:rob1intensive) of the Appendix A
+#' to eliminate the effects of tax reform announcements.
+#' If individuals are aware of the 2014 tax reform in advance,
+#' those who make the relative price of giving higher (cheaper)
+#' by the reform should increase (decrease) donations before the reform.
+#' Therefore, the price elasticity is under-biased
+#' due to the announcement effect of tax reform.
+#' As a result, as we expected,
+#' the price elasticity ranges from -1.7 to -1.9,
+#' which is a statistically significant result.
+#'
+#' Table \@ref(tab:rob2intensive) of the Appendix A shows
+#' the estimation results of the last-price elasticity.
+#' Under the income deduction system,
+#' the relative price of giving that an individual
+#' does not face the first price, but the last price.
+#' Therefore, it is more realistic to estimate the elasticity
+#' using the last price.
+#' However, the last price is an endogenous variable
+#' because it depends on the donation amount.
+#' Therefore, 2SLS estimation was performed using the instrumental variables
+#' used in Table \@ref(tab:intensive) as the instruments of
+#' the intersection of application dummy and the last price.
+#' As a result, the price elasticity of donations ranges from -1.7 to -2.1,
+#' which is statistically significant.
+#'
+#' In addition,
+#' we estimated price elasticity
+#' using a sample limited to those who applied for tax relief.
+#' In this section, we only outline and provide detailed results in Appendix B.
+#' Correcting the bias due to sample selection by
+#' adding the inverse Mills ratio calculated in the model
+#' shown in Table 1 of Appendix A directly to the explanatory variables,
+#' the estimated price elasticity ranges from -1.3 to -1.6,
+#' which is similar to the main result.
+#' We also confirmed that
+#' this result is robust
+#' even if the announcement effect of tax reform is eliminated
+#' and that the last-price elasticity takes a similar value.
+#'
+#' This approach also solves the endogenous nature of the application
+#' by correcting the sample selection bias,
+#' making it simpler to perform two further robustness tests
+#' on the relative price of giving.
+#' First, the first-price depends only on income.
+#' Therefore, if income is endogenous,
+#' the first-price is also an endogenous variable.
+#' A and B proposed to deal with it by $k$-th order difference estimation.
+#' In this model, the k-th lagged variable of the giving price,
+#' $\ln p^f_{it}(y_{it}) - \ln p^f_{it-k}(y_{it-k})$,
+#' depends on the income for two periods.
+#' Using the income for $t-k$ year, we calculate the giving price for $t$ year
+#' and $t-k$ year, that is,
+#' $\ln p^f_{it}(y_{it-k}) - \ln p^f_{it-k}(y_{it-k})$,
+#' and use it as an instrumental variable.
+#' This avoids the endogenous problem of income manipulation
+#' because the variation described by the instrumental variable
+#' is independent of income.
+#' As a result,
+#' the price elasticity by the 1-year and 2-year difference estimation i
+#' statistically insignificant,
+#' but the price elasticity by the 3-year difference estimation
+#' is in the range of -1.5 to -1.7, which is statistically significant.
+#'
+#' Second,
+#' to directly control the dynamic effects of
+#' price and income changes on donations,
+#' C proposes to add lagged and future changes of these variables
+#' to the explanatory variables.
+#' As a result, price elasticity is statistically insignificant.
+#' However, because our data is unbalanced panel data,
+#' the sample size is quite small.
+#' In that respect, the results of this analysis are unreliable.
 #'
 #' ## Extensive Margin
 #'
