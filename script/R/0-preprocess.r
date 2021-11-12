@@ -114,10 +114,10 @@ df <- df %>%
       year >= 2014, ext_credit_giving_tincome, ext_deduct_giving_tincome
     ),
     ext_benefit_tl = case_when(
-      ext_benefit_l == 1 & employee == 1 ~ 1,
-      ext_benefit_l == 0 & employee == 1 ~ 0,
-      ext_benefit_t == 1 & employee == 0 ~ 1,
-      ext_benefit_t == 0 & employee == 0 ~ 0
+      is.na(ext_benefit_l) ~ ext_benefit_t,
+      is.na(ext_benefit_t) ~ ext_benefit_l,
+      ext_benefit_t + ext_benefit_l == 0 ~ 0,
+      ext_benefit_t + ext_benefit_l != 0 ~ 1
     ),
     int_price_benefit = log_price * ext_benefit_tl
   )
