@@ -385,11 +385,52 @@ ext_stage2 <- list(
   )
 )
 
-ext_stage2 %>%
+est_ext_stage2 <- ext_stage2 %>%
   purrr::map(~ fixest::feols(
     ., cluster = ~ panelid,
     data = estdf
+  ))
+
+addtab <- est_ext_stage2 %>%
+  purrr::map(~ tidy(.) %>% filter(str_detect(term, "price"))) %>%
+  purrr::map(function(x) {
+
+    dbar <- with(
+      subset(estdf, ext_benefit_tl == 1),
+      mean(i_ext_giving, na.rm = TRUE)
+    )
+
+    x %>%
+      mutate(
+        estimate = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        std.error = sprintf("(%1.3f)", std.error / dbar),
+        brank = ""
+      ) %>%
+      select(brank, estimate, std.error) %>%
+      pivot_longer(everything())
+
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("term", sprintf("(%1d)", seq_len(length(est_ext_stage2))))) %>%
+  mutate(term = recode(
+    term, "estimate" = "Implied price elasticity", .default = ""
   )) %>%
+  bind_rows(tribble(
+    ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+    "Square of age", "X", "X", "X", "X", "X",
+    "Instrument", "Wage earner x Price",
+    "PS x Price", "PS x Price", "", "",
+    "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
+  ))
+
+attr(addtab, "position") <- c(7:9)
+
+est_ext_stage2 %>%
   modelsummary(
     title = paste(
       "First-Price Elasticities (Extenstive Margin)"
@@ -405,24 +446,58 @@ ext_stage2 %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = tribble(
-      ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
-      "Square of age", "X", "X", "X", "X", "X",
-      "Instrument", "Wage earner x Price",
-      "PS x Price", "PS x Price", "", "",
-      "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
-    )
+    add_rows = addtab
   ) %>%
   kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
 
 #'
 #+
-ext_stage2 %>%
+rob_ext_stage2 <- ext_stage2 %>%
   purrr::map(~ fixest::feols(
     .,
     cluster = ~panelid,
     data = subset(estdf, year < 2013 | 2014 < year)
+  ))
+
+addtab <- rob_ext_stage2 %>%
+  purrr::map(~ tidy(.) %>% filter(str_detect(term, "price"))) %>%
+  purrr::map(function(x) {
+    dbar <- with(
+      subset(estdf, ext_benefit_tl == 1),
+      mean(i_ext_giving, na.rm = TRUE)
+    )
+
+    x %>%
+      mutate(
+        estimate = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        std.error = sprintf("(%1.3f)", std.error / dbar),
+        brank = ""
+      ) %>%
+      select(brank, estimate, std.error) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("term", sprintf("(%1d)", seq_len(length(est_ext_stage2))))) %>%
+  mutate(term = recode(
+    term,
+    "estimate" = "Implied price elasticity", .default = ""
   )) %>%
+  bind_rows(tribble(
+    ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+    "Square of age", "X", "X", "X", "X", "X",
+    "Instrument", "Wage earner x Price",
+    "PS x Price", "PS x Price", "", "",
+    "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
+  ))
+
+attr(addtab, "position") <- c(7:9)
+
+rob_ext_stage2 %>%
   modelsummary(
     title = paste(
       "Robustness of First-Price Elasticities (Extenstive Margin)"
@@ -438,13 +513,7 @@ ext_stage2 %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = tribble(
-      ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
-      "Square of age", "X", "X", "X", "X", "X",
-      "Instrument", "Wage earner x Price",
-      "PS x Price", "PS x Price", "", "",
-      "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
-    )
+    add_rows = addtab
   ) %>%
   kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
 
