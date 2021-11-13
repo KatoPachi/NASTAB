@@ -444,7 +444,7 @@ leadlagmod %>%
 # /*
 #+
 rmarkdown::render(
-  "script/R/2-elasticity.r",
+  "script/R/3-subsample.r",
   output_dir = "report/view"
 )
 # */
