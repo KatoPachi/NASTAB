@@ -58,6 +58,9 @@ df <- readr::read_csv(
     now_balance = col_double(),
     ideal_balance = col_double()
   )
+) %>%
+dplyr::filter(
+  ext_benefit_tl == 0 | (ext_benefit_tl == 1 & i_ext_giving == 1)
 )
 
 #'

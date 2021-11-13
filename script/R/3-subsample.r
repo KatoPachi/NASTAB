@@ -1,6 +1,6 @@
 #' ---
 #' title: |
-#'   Price Elasticities Using only Those Who Applied Tax Relief
+#'   Appendix B: Estimate Elasiticity Using Subsample
 #' subtitle: Not intended for publication
 #' author: Hiroki Kato
 #' output:
@@ -58,6 +58,9 @@ df <- readr::read_csv(
     now_balance = col_double(),
     ideal_balance = col_double()
   )
+) %>%
+dplyr::filter(
+  ext_benefit_tl == 0 | (ext_benefit_tl == 1 & i_ext_giving == 1)
 )
 
 #'
@@ -107,23 +110,104 @@ estdf <- df %>%
   select(-poolmod, -sepmod)
 
 #'
-#' # Results {#results}
-#'
-#' ## Elasiticities for Those Who Apply to Tax Relief
+#' # Appendix B: Estimate Elasiticity Using Subsample
 #'
 #+
 subdf <- estdf %>%
-  dplyr::filter(ext_benefit_tl == 1 & i_ext_giving == 1)
+  dplyr::filter(ext_benefit_tl == 1)
 
 #'
-#' はじめに、ベンチマークとして、寄付申告者に限定した寄付価格の弾力性を推定する。
-#' 寄付申告者に限定しているので、推定された弾力性はintensive-marginに関する弾力性を示している。
+#' ## Sample Selection Bias Correction
 #'
-#+
+#' This supplement estimates price elasticity
+#' using data from only those who have applied for tax relief.
+#' If there is both
+#' a year in which the same individual applied for tax relief
+#' and a year when it did not,
+#' we use only the year when the person applied for the relief.
+#'
+#' Since deduction applications are endogenous as described in this paper,
+#' subsample estimation involves a sample selection bias.
+#' To formally demonstrate this bias, consider the following model:
+#' \begin{align}
+#'   &Y_{it} = \beta  X_{it} + \mu_{i1} + \lambda_{t1} + e_{it1}, \\
+#'   &R_{it} = 1[\gamma_1 Z_{it} + \gamma_2 X_{it} + \mu_{i2} + \lambda_{t2} + e_{it2} > 0].
+#' \end{align}
+#' where $Y_{it}$ is the logged value of giving amount ($\ln g_{it}$),
+#' $X_{it}$ is the logged value of first giving price ($\ln p^f(y_{it})$),
+#' and $R_{it}$ is the application dummy.
+#' Thus, $\beta$ represents the price elasticity of giving,
+#' which is our parameter of interest.
+#' $Z_{it}$ is the wage earner dummy,
+#' an instrument that allows arbitrary corrleation
+#' with $\mu_{i1}$ and $\lambda_{i1}$ but
+#' holds that exogeneity with respect to $u_{i1}$.
+#' $\mu_i$ and $\eta_t$ is individual and time fixed effect, respectively.
+#' $e_{it}$ is error term.
+#' Assume that $E(e_{it1} |Z_{it}, X_{it}, \mu_{i1}, \lambda_{i1}) = 0$.
+#' Note that, to clarify the problem,
+#' we intentionally do not model covariates such as income.
+#'
+#' Since we estimate the model only for those who applied for the deduction,
+#' the conditional expectation of the outcome equation is as follows:
+#' \begin{align}
+#'   E(Y_{it} |Z_{it}, X_{it}, \mu_{i1}, \lambda_{i1}, R_{it} = 1)
+#'   = \beta  X_{it} + \mu_{i1} + \lambda_{t1}
+#'   + E(e_{it1} |Z_{it}, X_{it}, \mu_{i1}, \lambda_{i1}, R_{it} = 1).
+#' \end{align}
+#'
+#' The fixed effect estimator of $\beta$ is unbiased only if
+#' $E(e_{it1} |Z_{it}, X_{it}, \mu_{i1}, \lambda_{i1}, R_{it} = 1) = 0$.
+#' However, it is difficult to assume that
+#' the idiosyncratic error of the donation amount
+#' is independent of the tax deduction application
+#' due to the simultaneous determination of
+#' the tax deduction application and the donation amount.
+#' Therefore, using the control function approach,
+#' we eliminate this selection bias.
+#'
+#' This approach makes the following assumptions
+#' about the error term of the outcome variable:
+#' \begin{align}
+#'   E(e_{it1} | Z_{it}, X_{it}, \mu_{i1}, \lambda_{t1}, e_{it2})
+#'   = E(e_{it1} | e_{it2}) = \rho e_{it2}.
+#' \end{align}
+#' This equation suggests two assumptions.
+#' First, the two fixed effects, $\mu_{i1}$ and $\lambda_{t1}$,
+#' and observables, $(X_{it}, Z_{it})$ are independent of
+#' the two error terms, $(e_{it1}, e_{it2})$.
+#' Second, $e_{it1}$ is linearly correlated with $e_{it2}$,
+#' the degree of which is constant with respect to time.
+#'
+#' Under this assumption,
+#' we can write the conditional expectation of the error term, $e_{it1}$,
+#' as follows:
+#' \begin{align}
+#'   E(e_{it1} | Z_{it}, X_{it}, \mu_{i1}, \lambda_{t1}, R_{it} = 1)
+#'   = \rho E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1).
+#' \end{align}
+#' Thus, the estimation model that eliminates the selection bias is as follows:
+#' \begin{align}
+#'   Y_{it} = \beta  X_{it} + \mu_{i1} + \lambda_{t1}
+#'   + \rho E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1) + u_{it1},
+#' \end{align}
+#' where, by construction, $E(u_{it1} | Z_{it}, X_{it}, R_{it} = 1) = 0$.
+#' If we knew $E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1)$,
+#' then we can obtaine unbiased estimator of $\beta$.
+#' The correction term $E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1)$
+#' can be obtained by the inverse Mills ratio.
+#' To calculate the inverse Mills ratio, we use the probit estimation shown in
+#' \@ref(tab:stage1) in Appendix A (pooled model and separate model).
+#'
+#' ## Results
+#'
+#+ benchmark
 basemod <- list(
   "(1)" = fixest::xpd(log_total_g ~ log_price + ..stage24),
   "(2)" = fixest::xpd(log_total_g ~ log_price + imr_pool + ..stage24),
-  "(3)" = fixest::xpd(log_total_g ~ log_price + imr_sep + ..stage24)
+  "(3)" = fixest::xpd(log_total_g ~ log_price * imr_pool + ..stage24),
+  "(4)" = fixest::xpd(log_total_g ~ log_price + imr_sep + ..stage24),
+  "(5)" = fixest::xpd(log_total_g ~ log_price * imr_sep + ..stage24)
 )
 
 basemod %>%
@@ -134,25 +218,79 @@ basemod %>%
   )) %>%
   modelsummary(
     title = "First Price Elasiticities for Those Who Apply to Tax Relief",
-    coef_rename = c(
-      "log_price" = "log(first giving price)",
-      "log_pinc_all" = "log(annual taxable income)"
+    coef_map = c(
+      "log_price" = "log(first price)",
+      "log_pinc_all" = "log(annual taxable income)",
+      "log_price:imr_pool" = "log(first price) x IMR",
+      "log_price:imr_sep" = "log(first price) x IMR",
+      "imr_pool" = "IMR",
+      "imr_sep" = "IMR"
     ),
-    coef_omit = "^(?!log)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)",
-      "Square age", "X", "X", "X"
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+      "Square age", "X", "X", "X", "X", "X",
+      "Method of IMR", "", "Pooled", "Pooled", "Separate", "Separate"
     )
   )
 
 #'
-#' 表\@ref(tab:benchmark)は固定効果モデルの推定結果である。
-#' 個人固定効果と時間固定効果を考慮したモデル(1)では、寄付の価格弾力性が-1.45である。
-#' 言い換えれば、寄付申告者について、税インセンティブによる価格の1%の減少は寄付を1.45%増やす。
-#' また、所得の弾力性は1であるが、これは統計的に非有意である。
-#' これらの結果は居住地ダミーや産業ダミーをコントロールしても変化しない。
+#' Table \@ref(tab:benchmark) shows the estimation results of price elasticity.
+#' Model (1) does not add a selection correction term,
+#' while models (2) and (4) add it to the explanatory variables.
+#' We obtain the inverse mills ratio from the pooled probit model
+#' and the separated probit model, respectively.
+#' Since the coefficient of the correction term is statistically insignificant,
+#' the selection bias of the application of tax relief is not severe.
+#' Therefore, the estimated elasticity is in the range of -1.3 to -1.6
+#' with or without the correction term.
+#' The estimated value is very close to the result of this paper.
+#'
+#' Models (3) and (5) considered
+#' the heterogeneity of price elasticity among individuals.
+#' Based on the model in the previous subsection,
+#' we can write a (correlated) random coefficient model
+#' that allows this heterogeneity as follows:
+#' \begin{align}
+#'   Y_{it} = \bar{\beta} X_{it} + \mu_{i1} + \lambda_{t1}
+#'   + \rho E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1)
+#'   + \{(\beta_i - \bar{\beta}) X_{it} +  u_{it1}\},
+#' \end{align}
+#' where $\bar{\beta} = E(\beta_i | R_i = 1)$.
+#' Then, since $(\beta_i - \bar{\beta}) X_{it}$ is included in the error term,
+#' we cannot obtain unbiased estimator of $\bar{\beta}$,
+#' which is a parameter of our interest,
+#' by controlling only the selection correction term.
+#'
+#' Wooldridge (2015) proposes an estimation method that solves this problem
+#' by making the following assumptions in the elements of this new error term:
+#' \begin{align}
+#'   E(\beta_i - \bar{\beta} | Z_{it}, X_{it}, \mu_{i1}, \lambda_{t1}, e_{it2})
+#'   = E(\beta_i - \bar{\beta} | e_{it2}) = \eta e_{it2}.
+#' \end{align}
+#' Thus, the estimation model that eliminates both the selection bias and
+#' the bias from random coefficient is as follows:
+#' \begin{align}
+#'   Y_{it} =& \beta  X_{it} + \mu_{i1} + \lambda_{t1} \\
+#'   &+ \rho \lambda(Z_{it}, X_{it}) + \eta \lambda(Z_{it}, X_{it}) \times X_{it}
+#'   + \tilde{u}_{it1},
+#' \end{align}
+#' where $\lambda(Z_{it}, X_{it})$ is the inverse Mills ratio.
+#' Note that $E(\tilde{u}_{it1} | Z_{it}, X_{it}, R_{it} = 1) = 0$
+#' by construction.
+#' Therefore,
+#' by simply adding an intersection
+#' between the correction term and the giving price to models (3) and (4),
+#' we can eliminate the bias resulting from the heterogeneous elasticity
+#' and estimate the unbiased average elasticity.
+#'
+#' The average elasticity estimated by models (3) and (5) is about -1.5,
+#' which is consistent with the results of this paper.
+#' Also, since the coefficients of the intersection term
+#' between the correction term and the giving price
+#' are statistically insignificant,
+#' the price elasticity is unlikely to vary significantly among individuals.
 #'
 #+ robustbenchmark1
 basemod %>%
@@ -166,16 +304,20 @@ basemod %>%
       "First Price Elasiticities for Those Who Apply to Tax Relief",
       "(Exclude sample observed in 2013 and 2014)"
     ),
-    coef_rename = c(
-      "log_price" = "log(first giving price)",
-      "log_pinc_all" = "log(annual taxable income)"
+    coef_map = c(
+      "log_price" = "log(first price)",
+      "log_pinc_all" = "log(annual taxable income)",
+      "log_price:imr_pool" = "log(first price) x IMR",
+      "log_price:imr_sep" = "log(first price) x IMR",
+      "imr_pool" = "IMR",
+      "imr_sep" = "IMR"
     ),
-    coef_omit = "^(?!log)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)",
-      "Square age", "X", "X", "X"
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+      "Square age", "X", "X", "X", "X", "X",
+      "Method of IMR", "", "Pooled", "Pooled", "Separate", "Separate"
     )
   )
 
@@ -201,21 +343,42 @@ lastmod %>%
     title = paste(
       "Last Price Elasiticities for Those Who Apply to Tax Relief"
     ),
-    coef_rename = c(
-      "fit_log_lprice" = "log(last giving price)",
-      "log_pinc_all" = "log(annual taxable income)"
+    coef_map = c(
+      "fit_log_lprice" = "log(last price)",
+      "log_pinc_all" = "log(annual taxable income)",
+      "imr_pool" = "IMR",
+      "imr_sep" = "IMR"
     ),
-    coef_omit = "^(?!log|fit)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
       ~term, ~"(1)", ~"(2)", ~"(3)",
-      "Square age", "X", "X", "X"
+      "Square age", "X", "X", "X",
+      "Method of IMR", "", "Pool", "Separate"
     )
   )
 
 #'
-#+ robustbenchmark3
+#' We show the results of the same robustness test as in this paper
+#' in Tables \@ref(tab:robustbenchmark1) and \@ref(tab:robustbenchmark2).
+#' To eliminate the announcement effect of the 2014 tax reform,
+#' Table \@ref(tab:robustbenchmark1) shows
+#' estimates excluding 2013 and 2014 data.
+#' As a result, the selection bias and
+#' the bias from the heterogeneous elasticity are not large.
+#' Using the inverse mills ratio by the pooled probit model,
+#' the price elasticity is about -1.2.
+#' Given the heterogeneity of elasticity,
+#' this price elasticity is statistically insignificant.
+#' Moreover,
+#' when we use the inverse mills ratio by the separated probit model,
+#' the price elasticity is about -1.4, which is statistically significant.
+#' Table \@ref(tab:robustbenchmark2) shows
+#' the estimation results of the last-price elasticity.
+#' As a result, the elasticity is in the range of -1.4 to -1.8,
+#' which is similar to the result shown in this paper.
+#'
+#+ kdiffbenchmark
 fixest::setFixest_fml(
   ..kdiff1 = ~ log_diff1I + diff1_sqage,
   ..kdiff2 = ~ log_diff2I + diff2_sqage,
@@ -228,10 +391,34 @@ kdiffmod <- list(
     log_diff1g ~ ..kdiff1 | ..kdifffe | log_diff1p ~ log_iv1price
   ),
   "(2)" = fixest::xpd(
-    log_diff2g ~ ..kdiff2 | ..kdifffe | log_diff2p ~ log_iv2price
+    log_diff1g ~ ..kdiff1 + d(imr_pool, 1) |
+    ..kdifffe | log_diff1p ~ log_iv1price
   ),
   "(3)" = fixest::xpd(
+    log_diff1g ~ ..kdiff1 + d(imr_sep, 1) |
+    ..kdifffe | log_diff1p ~ log_iv1price
+  ),
+  "(4)" = fixest::xpd(
+    log_diff2g ~ ..kdiff2 | ..kdifffe | log_diff2p ~ log_iv2price
+  ),
+  "(5)" = fixest::xpd(
+    log_diff2g ~ ..kdiff2 + d(imr_pool, 2) |
+    ..kdifffe | log_diff2p ~ log_iv2price
+  ),
+  "(6)" = fixest::xpd(
+    log_diff2g ~ ..kdiff2 + d(imr_sep, 2) |
+    ..kdifffe | log_diff2p ~ log_iv2price
+  ),
+  "(7)" = fixest::xpd(
     log_diff3g ~ ..kdiff3 | ..kdifffe | log_diff3p ~ log_iv3price
+  ),
+  "(8)" = fixest::xpd(
+    log_diff3g ~ ..kdiff3 + d(imr_pool, 3) |
+    ..kdifffe | log_diff3p ~ log_iv3price
+  ),
+  "(9)" = fixest::xpd(
+    log_diff3g ~ ..kdiff3 + d(imr_sep, 3) |
+    ..kdifffe | log_diff3p ~ log_iv3price
   )
 )
 
@@ -244,113 +431,35 @@ kdiffmod %>%
   modelsummary(
     title = "k-th difference model",
     coef_map = c(
-      "fit_log_diff1p" = "1-year lagged difference of first price (log)",
-      "log_diff1I" = "1-year lagged difference of annual income (log)",
-      "fit_log_diff2p" = "2-year lagged difference of first price (log)",
-      "log_diff2I" = "2-year lagged difference of annual income (log)",
-      "fit_log_diff3p" = "3-year lagged difference of first price (log)",
-      "log_diff3I" = "3-year lagged difference of annual income (log)"
+      "fit_log_diff1p" = "Difference of first price",
+      "log_diff1I" = "Difference of annual income",
+      "fit_log_diff2p" = "Difference of first price",
+      "log_diff2I" = "Difference of annual income",
+      "fit_log_diff3p" = "Difference of first price",
+      "log_diff3I" = "Difference of annual income",
+      "d(imr_pool, 1)" = "IMR",
+      "d(imr_pool, 2)" = "IMR",
+      "d(imr_pool, 3)" = "IMR",
+      "d(imr_sep, 1)" = "IMR",
+      "d(imr_sep, 2)" = "IMR",
+      "d(imr_sep, 3)" = "IMR"
     ),
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)",
-      "Difference of square age", "X", "X", "X"
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
+      ~"(7)", ~"(8)", ~"(9)",
+      "Difference of square age", "X", "X", "X", "X", "X", "X",
+      "X", "X", "X",
+      "Lag", "1-year", "1-year", "1-year", "2-year", "2-year", "2-year",
+      "3-year", "3-year", "3-year",
+      "Method of IMR", "", "Pool", "Separate", "", "Pool", "Separate",
+      "", "Pool", "Separate"
     )
   )
 
 #'
-#+ robustbenchmark4
-fixest::setFixest_fml(
-  ..kdiff1 = ~ log_diff1I + diff1_sqage + d(imr_pool, 1),
-  ..kdiff2 = ~ log_diff2I + diff2_sqage + d(imr_pool, 2),
-  ..kdiff3 = ~ log_diff3I + diff3_sqage + d(imr_pool, 3),
-  ..kdifffe = ~ year + area + industry
-)
-
-kdiffmod <- list(
-  "(1)" = fixest::xpd(
-    log_diff1g ~ ..kdiff1 | ..kdifffe | log_diff1p ~ log_iv1price
-  ),
-  "(2)" = fixest::xpd(
-    log_diff2g ~ ..kdiff2 | ..kdifffe | log_diff2p ~ log_iv2price
-  ),
-  "(3)" = fixest::xpd(
-    log_diff3g ~ ..kdiff3 | ..kdifffe | log_diff3p ~ log_iv3price
-  )
-)
-
-kdiffmod %>%
-  purrr::map(~ fixest::feols(
-    .,
-    cluster = ~panelid, se = "cluster",
-    data = subdf, panel.id = ~ panelid + year
-  )) %>%
-  modelsummary(
-    title = "k-th difference model",
-    coef_map = c(
-      "fit_log_diff1p" = "1-year lagged difference of first price (log)",
-      "log_diff1I" = "1-year lagged difference of annual income (log)",
-      "fit_log_diff2p" = "2-year lagged difference of first price (log)",
-      "log_diff2I" = "2-year lagged difference of annual income (log)",
-      "fit_log_diff3p" = "3-year lagged difference of first price (log)",
-      "log_diff3I" = "3-year lagged difference of annual income (log)"
-    ),
-    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)",
-      "Difference of square age", "X", "X", "X"
-    )
-  )
-
-#'
-#+ robustbenchmark5
-fixest::setFixest_fml(
-  ..kdiff1 = ~ log_diff1I + diff1_sqage + d(imr_sep, 1),
-  ..kdiff2 = ~ log_diff2I + diff2_sqage + d(imr_sep, 2),
-  ..kdiff3 = ~ log_diff3I + diff3_sqage + d(imr_sep, 3),
-  ..kdifffe = ~ year + area + industry
-)
-
-kdiffmod <- list(
-  "(1)" = fixest::xpd(
-    log_diff1g ~ ..kdiff1 | ..kdifffe | log_diff1p ~ log_iv1price
-  ),
-  "(2)" = fixest::xpd(
-    log_diff2g ~ ..kdiff2 | ..kdifffe | log_diff2p ~ log_iv2price
-  ),
-  "(3)" = fixest::xpd(
-    log_diff3g ~ ..kdiff3 | ..kdifffe | log_diff3p ~ log_iv3price
-  )
-)
-
-kdiffmod %>%
-  purrr::map(~ fixest::feols(
-    .,
-    cluster = ~panelid, se = "cluster",
-    data = subdf, panel.id = ~ panelid + year
-  )) %>%
-  modelsummary(
-    title = "k-th difference model",
-    coef_map = c(
-      "fit_log_diff1p" = "1-year lagged difference of first price (log)",
-      "log_diff1I" = "1-year lagged difference of annual income (log)",
-      "fit_log_diff2p" = "2-year lagged difference of first price (log)",
-      "log_diff2I" = "2-year lagged difference of annual income (log)",
-      "fit_log_diff3p" = "3-year lagged difference of first price (log)",
-      "log_diff3I" = "3-year lagged difference of annual income (log)"
-    ),
-    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)",
-      "Difference of square age", "X", "X", "X"
-    )
-  )
-
-#'
-#+
+#+ leadlagbenchmark
 fixest::setFixest_fml(
   ..stage1ll = ~ log_pinc_all + sqage +
     d(log_price, 1) + d(log_price, -1) +
@@ -410,36 +519,52 @@ leadlagmod %>%
   )
 
 #'
-#' この結果の頑健性に関する結果を補論に示した
-#' （**Not publication**：パンチラインというか、重要な表はbenchmarkなので、
-#' これらはすべて補論に持っていてもいいと思います）。
-#' 表\@ref(tab:robustbenchmark1)は税制改革のアナウンス効果を排除するために、
-#' 2013年と2014年のデータを除いて弾力性を推定した結果である。
-#' 事前に2014年の税制改革を知っているならば、
-#' その改革によって寄付の相対価格が高く（安く）なる人は改革前に寄付を増やす（減らす）はずである。
-#' したがって、税制改革のアナウンス効果によって、寄付の価格弾力性は過小バイアスを伴う。
-#' 結果として、寄付の価格弾力性は約-1.7であり、統計的に有意な結果である。
-#' この結果は我々の予想した通りである。
-#' また、所得弾力性は約1であるが、これは統計的に非有意な結果である。
+#' In addition to the same robustness test as in this paper,
+#' the results of the other two robustness tests
+#' are shown in Tables \@ref(tab:kdiffbenchmark) and \@ref(leadlagbenchmark).
+#' Table \@ref(tab:kdiffbenchmark) is an analysis dealing with
+#' the endogeneity of first-price by income manipulation.
+#' Since income is generally endogenous,
+#' the first-price of giving is also an endogenous variable.
+#' Under the income deduction system,
+#' changes in income affect donations through the income effect
+#' and the giving price through marginal tax rates
+#' [@Randolph1995; @Auten2002; @Bakija2011].
+#' Therefore, following @Almunia2020 and @Bakija2011,
+#' we estimate the following k-th difference model:
+#' \begin{align}
+#'   \Delta^k \ln g_{it} = \varepsilon_p \Delta^k \ln p^f_{it}(y_{it})
+#'   + \varepsilon_y \Delta^k \ln y_{it} + \Delta^k X_{it} \beta
+#'   + \mu_i + \iota_t + v_{it},
+#' \end{align}
+#' where $\Delta^k \ln g_{it} = \ln (g_{it} / g_{it-k})$,
+#' and $\Delta^k \ln y_{it} = \ln (y_{it} / y_{it-k})$.
+#' The variable
+#' $\Delta^k p^f_{it}(y_{it}) = \ln (p^f_{it}(y_{it}) / p^f_{it-k}(y_{it-k}))$
+#' is instumented by $\ln (p^f_{it}(y_{it-k})/p^f_{it-k}(y_{it-k}))$.
 #'
-#' 表\@ref(tab:robustbenchmark2)はlast priceの価格弾力性の推定結果である。
-#' 所得控除制度のもとで、個人が実際に直面する寄付の相対価格はfirst priceではなく、last priceである。
-#' したがって、last priceの弾力性が現実的である。
-#' しかしながら、寄付額に依存するので、last priceは内生変数である。
-#' そこで、寄付額に依存しないfirst priceを操作変数として、panel iv推定をした。
-#' 結果として、寄付の価格弾力性は約-1.6であり、統計的に有意である。
-#' この弾力性は表\@ref(tab:benchmark)で示したfirst priceの弾力性と非常に近い値を取っているので、
-#' first priceの弾力性でも十分に個人の行動を捉えている。
+#' As a result,
+#' the price elasticity changes greatly
+#' depending on the correction term of the selection,
+#' but the degree of the selection bias is not large.
+#' In addition, when we add the correction term,
+#' the price elasticity is about -1.5 in the 3-year difference model,
+#' which is similar to the result of this paper.
+#' However, in the 1-year difference model and 2-year difference model,
+#' the absolute value of price elasticity is less than 1,
+#' which is statistically insignificant.
+#' Therefore, the value of price elasticity is unstable
+#' for the number of years of lag.
 #'
-#' 表\@ref(tab:robustbenchmark3)は$k$階差分推定の結果である。
-#' 所得控除制度のもとで、個人は所得の操作を通じて寄付の相対価格を変えることができる。
-#' したがって、所得の操作に依存するので、寄付額に依存しないfirst priceも内生変数である。
-#' そこで、$t-k$年の所得のもとで、$t-k$年と$t$年の寄付のfirst priceを計算し、その差分を説明変数として用いた。
-#' このとき、被説明変数は$t-k$年と$t$年の寄付の対数値の差分である。
-#' 結果として、$k = 1$や$k = 2$のとき、寄付の価格弾力性は約-1であり、
-#' これは統計的に非有意である。
-#' しかしながら、$k = 3$のとき、寄付の価格弾力性は約-1.6であり、
-#' これは統計的に10%水準である。
+#' Table \@ref(tab:leadlagbenchmark) adds
+#' lagged and future changes of giving price and income
+#' to the explanatory variables
+#' to directly control the dynamic effects of
+#' price and income changes on donations (proposed by @Bakija2011).
+#' As a result, price elasticity is statistically insignificant.
+#' However, because our data is unbalanced panel data,
+#' the sample size is quite small.
+#' In that respect, the results of this analysis are unreliable.
 #'
 # /*
 #+
