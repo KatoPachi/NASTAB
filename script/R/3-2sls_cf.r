@@ -1,7 +1,6 @@
 #' ---
 #' title: |
-#'   Price Elasticities with Self-Selection of Tax Relief
-#' subtitle: Not intended for publication
+#'   Main Results
 #' author: Hiroki Kato
 #' output:
 #'   html_document:
@@ -366,7 +365,21 @@ rob1_stage2 %>%
 #'
 #' ## Extensive Margin
 #'
-#+
+#' By changing the outcome variable
+#' from the logarithmic value of giving
+#' to a dummy variable that takes one when donated,
+#' we estimate the extensive-margin price elasticity
+#' with a linear probability model.
+#' The estimated price coefficient value
+#' does not directly reflect the price elasticity,
+#' but we can obtain the price elasticity
+#' by dividing the estimated coefficient value
+#' by the average of the outcome variables.
+#' Also, we focus only on the first-price elasticity
+#' since the decision to donate is the same as
+#' the decision to donate the first unit.
+#'
+#+ extensive
 ext_stage2 <- list(
   "(1)" = fixest::xpd(
     i_ext_giving ~ ..stage24 | ext_benefit_tl:log_price ~ employee:log_price
@@ -451,7 +464,7 @@ est_ext_stage2 %>%
   kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
 
 #'
-#+
+#+ robextensive
 rob_ext_stage2 <- ext_stage2 %>%
   purrr::map(~ fixest::feols(
     .,
@@ -517,6 +530,34 @@ rob_ext_stage2 %>%
   ) %>%
   kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
 
+#' Table \@ref(tab:extensive) shows
+#' the estimation results of extensive-margin price elasticity.
+#' Similar to Table \@ref(tab:intensive),
+#' model (1) uses the intersection of the wage earner dummy and
+#' giving price as an instrumental variable.
+#' Models (2) and (3) use the intersection of propensity score of application
+#' and giving price as an instrumental variable.
+#' Models (4) and (5) use OLS to estimate a model that
+#' uses the intersection of propensity score of application and
+#' giving price as an explanatory variable.
+#'
+#' As a result, the estimated coefficients are in the range of -0.54 to -0.74.
+#' The extensive-margin price elasticity,
+#' obtained by dividing this factor by the percentage of donors,
+#' ranges from -0.76 to -1.04.
+#' In other words,
+#' a 1% reduction in relative price due to tax incentives increases
+#' the probability of donation by 0.7% to 1%
+#' for those who apply for tax relief.
+#' This result is robust against
+#' the effects of the 2014 tax reform announcement
+#' (See Table \@ref(tab:robextensive) in Appendix A,
+#' which shows the results of the same exercise
+#' using subsamples that exclude 2013 and 2014 data).
+#' Therefore,
+#' those who apply for tax relief are sensitive to tax incentives
+#' when deciding on how much to donate rather than whether or not to donate.
+#'
 # /*
 #+
 rmarkdown::render(
