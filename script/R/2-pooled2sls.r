@@ -561,7 +561,7 @@ rob_ext_stage2 %>%
 # /*
 #+
 rmarkdown::render(
-  "script/R/3-2sls_cf.r",
+  "script/R/2-pooled2sls.r",
   output_dir = "report/view"
 )
 # */
