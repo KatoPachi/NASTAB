@@ -102,23 +102,25 @@ df %>%
     (`First giving relative price` = price) +
     (`Dummy of declaration of a tax relief` = ext_benefit_tl) +
     (`Age` = age) +
-    (`Female dummy` = gender) +
-    (`Employee dummy` = employee) +
-    (`University graduate` = univ) +
-    (`High school graduate dummy` = highschool) +
-    (`Junior high school graduate dummy` = juniorhigh) ~
+    # (`Female dummy` = gender) +
+    # (`University graduate` = univ) +
+    # (`High school graduate dummy` = highschool) +
+    # (`Junior high school graduate dummy` = juniorhigh) +
+    (`Employee dummy` = employee) ~
     N +
     (`Mean` = mean) * Arguments(na.rm = TRUE) +
     (`Std.Dev.` = sd) * Arguments(na.rm = TRUE) +
     (`Min` = min) * Arguments(na.rm = TRUE) +
     (`Median` = median) * Arguments(na.rm = TRUE) +
     (`Max` = max) * Arguments(na.rm = TRUE),
-    data = .
+    title = "Descriptive Statistics",
+    data = .,
+    align = "lcccccc"
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::pack_rows("Charitable Donations", 1, 2) %>%
   kableExtra::pack_rows("Income, giving price, and tax report", 3, 5) %>%
-  kableExtra::pack_rows("Individual Characteristics", 6, 11)
+  kableExtra::pack_rows("Individual Characteristics", 6, 7)
 
 #'
 #+ SummaryOutcome, fig.cap = "Time-Series of Outcome Variables", out.width = "85%", out.extra = ""

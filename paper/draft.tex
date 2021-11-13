@@ -303,8 +303,11 @@ In addition, we exclude the subject of the sample, whose age is under 23,
 since they are not likely to have income or assets.
 
 \begin{table}
+
+\caption{\label{tab:SummaryCovariate}Descriptive Statistics}
 \centering
-\begin{tabular}[t]{lrrrrrr}
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lcccccc}
 \toprule
   & N & Mean & Std.Dev. & Min & Median & Max\\
 \midrule
@@ -320,11 +323,7 @@ since they are not likely to have income or assets.
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
 \hspace{1em}Age & 40064 & 54.20 & 16.31 & 24.00 & 52.00 & 104.00\\
-\hspace{1em}Female dummy & 40064 & 0.43 & 0.50 & 0.00 & 0.00 & 1.00\\
 \hspace{1em}Employee dummy & 29753 & 0.54 & 0.50 & 0.00 & 1.00 & 1.00\\
-\hspace{1em}University graduate & 40063 & 0.41 & 0.49 & 0.00 & 0.00 & 1.00\\
-\hspace{1em}High school graduate dummy & 40063 & 0.31 & 0.46 & 0.00 & 0.00 & 1.00\\
-\hspace{1em}Junior high school graduate dummy & 40063 & 0.28 & 0.45 & 0.00 & 0.00 & 1.00\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -429,10 +428,11 @@ the proportion of declaration is about 24\%.
 
 \begin{figure}[t]
 
-{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryOutcome2-1} 
+{\centering \includegraphics[width=0.85\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryOutcome2-1} 
 
 }
 
+\caption{Average Logged Giving in Three Income Groups}\label{fig:SummaryOutcome2}
 \end{figure}
 
 To estimate the giving price elasticity,
@@ -553,34 +553,6 @@ the partial correlation between the wage earner dummy and
 the application of donation deduction/credit in 2013 is
 statistically insignificant.
 
-\begin{table}
-
-\caption{\label{tab:stage1}Probit Estimation of Selection Equation}
-\centering
-\begin{tabular}[t]{lccccccc}
-\toprule
-  & Pool & 2012 & 2013 & 2014 & 2015 & 2016 & 2017\\
-\midrule
-(Intercept) & -212.784 & -195.672*** & -181.767 & -219.403*** & -228.677*** & -209.380*** & -241.117***\\
- & (235.327) & (34.012) & (238.432) & (15.571) & (73.558) & (78.437) & (13.704)\\
-1 = Wage earner & 0.426*** & 0.412*** & 0.215** & 0.603*** & 0.534*** & 0.430*** & 0.800***\\
- & (0.041) & (0.095) & (0.094) & (0.132) & (0.122) & (0.106) & (0.129)\\
-log(first giving price) & -1.274*** & -1.276 & -2.167** &  &  &  & \\
- & (0.248) & (0.883) & (0.868) &  &  &  & \\
-log(income) & 17.905*** & 16.730*** & 15.219*** & 18.930*** & 19.304*** & 17.638*** & 20.643***\\
- & (0.541) & (2.958) & (2.896) & (1.349) & (1.263) & (1.206) & (1.190)\\
-Square of age & -0.002 & -0.002 & -0.001 & -0.002 & -0.007* & 0.000 & 0.003\\
- & (0.001) & (0.003) & (0.003) & (0.004) & (0.004) & (0.003) & (0.003)\\
-\midrule
-Num.Obs. & 26922 & 4261 & 4391 & 4383 & 4550 & 4611 & 4726\\
-Log.Lik. & -7660.954 & -1391.073 & -1441.344 & -981.075 & -1118.238 & -1183.661 & -1275.369\\
-Std. Errors & Standard & Standard & Standard & Standard & Standard & Standard & Standard\\
-Dummy of area & X & X & X & X & X & X & X\\
-Dummy of industry & X & X & X & X & X & X & X\\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \hypertarget{intensive-margin}{%
 \subsection{Intensive Margin}\label{intensive-margin}}
 
@@ -588,9 +560,10 @@ Dummy of industry & X & X & X & X & X & X & X\\
 
 \caption{\label{tab:intensive}First-Price Elasticities (Intenstive Margin)}
 \centering
+\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{3}{c}{2SLS} & \multicolumn{2}{c}{OLS} \\
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE-2SLS} & \multicolumn{2}{c}{OLS} \\
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-6}
   & (1) & (2) & (3) & (4) & (5)\\
 \midrule
@@ -631,64 +604,6 @@ The estimated value varies slightly depending on the estimation method,
 but it is in the range of -1.5 to -1.8.
 Therefore, a 1\% price reduction will increase the donation amount by 1.5-1.8\%
 for those who apply for a donation deduction.
-
-\begin{table}
-
-\caption{\label{tab:rob1intensive}Robustness of First-Price Elasticities (Intenstive Margin)}
-\centering
-\begin{tabular}[t]{lccccc}
-\toprule
-\multicolumn{1}{c}{ } & \multicolumn{3}{c}{2SLS} & \multicolumn{2}{c}{OLS} \\
-\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-6}
-  & (1) & (2) & (3) & (4) & (5)\\
-\midrule
-Applying tax relief x log(first price) & -1.703*** & -1.626*** & -1.673*** &  & \\
- & (0.587) & (0.468) & (0.483) &  & \\
-PS of applying tax relief x log(first price) &  &  &  & -1.927*** & -1.857***\\
- &  &  &  & (0.561) & (0.540)\\
-log(income) & -0.326 & -0.287 & -0.311 & -0.813 & -0.764\\
- & (1.417) & (1.401) & (1.397) & (1.458) & (1.453)\\
-\midrule
-Num.Obs. & 4908 & 4908 & 4908 & 4908 & 4908\\
-R2 & 0.851 & 0.851 & 0.851 & 0.852 & 0.852\\
-R2 Adj. & 0.685 & 0.685 & 0.685 & 0.686 & 0.686\\
-FE: area & X & X & X & X & X\\
-FE: industry & X & X & X & X & X\\
-FE: panelid & X & X & X & X & X\\
-FE: year & X & X & X & X & X\\
-Square of age & X & X & X & X & X\\
-Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
-Method of PS &  & Pool & Separate & Pool & Separate\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}
-
-\caption{\label{tab:rob2intensive}Last-Price Elasticities (Intensive Margin)}
-\centering
-\begin{tabular}[t]{lccc}
-\toprule
-  & (1) & (2) & (3)\\
-\midrule
-Applying tax relief x log(last price) & -1.627*** & -1.781*** & -1.901***\\
- & (0.527) & (0.448) & (0.458)\\
-log(income) & 1.012 & 0.899 & 0.812\\
- & (1.175) & (1.141) & (1.142)\\
-\midrule
-Num.Obs. & 6492 & 6492 & 6492\\
-R2 & 0.820 & 0.820 & 0.820\\
-R2 Adj. & 0.688 & 0.688 & 0.687\\
-FE: area & X & X & X\\
-FE: industry & X & X & X\\
-FE: panelid & X & X & X\\
-FE: year & X & X & X\\
-Square of age & X & X & X\\
-Instrument & Wage earner x Price & PS x Price & PS x Price\\
-Method of PS &  & Pool & Separate\\
-\bottomrule
-\end{tabular}
-\end{table}
 
 We performed some analyzes for the robustness of this result.
 The regression table is shown in the appendix,
@@ -789,9 +704,10 @@ the decision to donate the first unit.
 
 \caption{\label{tab:extensive}First-Price Elasticities (Extenstive Margin)}
 \centering
+\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{3}{c}{2SLS} & \multicolumn{2}{c}{OLS} \\
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE-2SLS} & \multicolumn{2}{c}{OLS} \\
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-6}
   & (1) & (2) & (3) & (4) & (5)\\
 \midrule
@@ -802,9 +718,9 @@ PS of applying tax relief x log(first price) &  &  &  & -0.416*** & -0.546***\\
 log(income) & 2.105*** & 2.074*** & 1.975*** & 1.955*** & 1.832***\\
  & (0.280) & (0.263) & (0.257) & (0.281) & (0.279)\\
 \midrule
- &  &  &  &  & \\
-Implied price elasticity & -0.445*** & -0.509*** & -0.710*** & -0.416*** & -0.546***\\
- & (0.172) & (0.124) & (0.113) & (0.111) & (0.097)\\
+Implied price elasticity & -1.863*** & -2.129*** & -2.975*** & -1.743*** & -2.286***\\
+ & (0.721) & (0.518) & (0.475) & (0.465) & (0.407)\\
+Square of age & X & X & X & X & X\\
 Num.Obs. & 26922 & 26922 & 26922 & 26922 & 26922\\
 R2 & 0.679 & 0.681 & 0.687 & 0.663 & 0.663\\
 R2 Adj. & 0.569 & 0.572 & 0.580 & 0.547 & 0.547\\
@@ -812,41 +728,6 @@ FE: area & X & X & X & X & X\\
 FE: industry & X & X & X & X & X\\
 FE: panelid & X & X & X & X & X\\
 FE: year & X & X & X & X & X\\
-Square of age & X & X & X & X & X\\
-Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
-Method of PS &  & Pool & Separate & Pool & Separate\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}
-
-\caption{\label{tab:robextensive}Robustness of First-Price Elasticities (Extenstive Margin)}
-\centering
-\begin{tabular}[t]{lccccc}
-\toprule
-\multicolumn{1}{c}{ } & \multicolumn{3}{c}{2SLS} & \multicolumn{2}{c}{OLS} \\
-\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-6}
-  & (1) & (2) & (3) & (4) & (5)\\
-\midrule
-Applying tax relief x log(first price) & -0.203 & -0.505*** & -0.704*** &  & \\
- & (0.257) & (0.170) & (0.159) &  & \\
-PS of applying tax relief x log(first price) &  &  &  & -0.430*** & -0.562***\\
- &  &  &  & (0.162) & (0.145)\\
-log(income) & 2.233*** & 2.108*** & 2.026*** & 1.934*** & 1.814***\\
- & (0.322) & (0.298) & (0.293) & (0.331) & (0.328)\\
-\midrule
- &  &  &  &  & \\
-Implied price elasticity & -0.203 & -0.505*** & -0.704*** & -0.430*** & -0.562***\\
- & (0.257) & (0.170) & (0.159) & (0.162) & (0.145)\\
-Num.Obs. & 18148 & 18148 & 18148 & 18148 & 18148\\
-R2 & 0.716 & 0.725 & 0.730 & 0.709 & 0.710\\
-R2 Adj. & 0.553 & 0.567 & 0.576 & 0.543 & 0.543\\
-FE: area & X & X & X & X & X\\
-FE: industry & X & X & X & X & X\\
-FE: panelid & X & X & X & X & X\\
-FE: year & X & X & X & X & X\\
-Square of age & X & X & X & X & X\\
 Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
@@ -935,10 +816,135 @@ Saez, E., 2004. The optimal treatment of tax expenditures. Journal of Public Eco
 \hypertarget{additional-figures-and-tables}{%
 \section{Additional Figures and Tables}\label{additional-figures-and-tables}}
 
+\begin{table}
+
+\caption{\label{tab:stage1}Probit Estimation of Selection Equation}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccccc}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{6}{c}{Separated Probit Model} \\
+\cmidrule(l{3pt}r{3pt}){3-8}
+  & Pooled & 2012 & 2013 & 2014 & 2015 & 2016 & 2017\\
+\midrule
+(Intercept) & -212.784 & -195.672*** & -181.767 & -219.403*** & -228.677*** & -209.380*** & -241.117***\\
+ & (235.327) & (34.012) & (238.432) & (15.571) & (73.558) & (78.437) & (13.704)\\
+1 = Wage earner & 0.426*** & 0.412*** & 0.215** & 0.603*** & 0.534*** & 0.430*** & 0.800***\\
+ & (0.041) & (0.095) & (0.094) & (0.132) & (0.122) & (0.106) & (0.129)\\
+log(first giving price) & -1.274*** & -1.276 & -2.167** &  &  &  & \\
+ & (0.248) & (0.883) & (0.868) &  &  &  & \\
+log(income) & 17.905*** & 16.730*** & 15.219*** & 18.930*** & 19.304*** & 17.638*** & 20.643***\\
+ & (0.541) & (2.958) & (2.896) & (1.349) & (1.263) & (1.206) & (1.190)\\
+Square of age & -0.002 & -0.002 & -0.001 & -0.002 & -0.007* & 0.000 & 0.003\\
+ & (0.001) & (0.003) & (0.003) & (0.004) & (0.004) & (0.003) & (0.003)\\
+\midrule
+Num.Obs. & 26922 & 4261 & 4391 & 4383 & 4550 & 4611 & 4726\\
+Log.Lik. & -7660.954 & -1391.073 & -1441.344 & -981.075 & -1118.238 & -1183.661 & -1275.369\\
+Std. Errors & Standard & Standard & Standard & Standard & Standard & Standard & Standard\\
+Dummy of area & X & X & X & X & X & X & X\\
+Dummy of industry & X & X & X & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:rob1intensive}Robustness of First-Price Elasticities (Intenstive Margin)}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE-2SLS} & \multicolumn{2}{c}{OLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-6}
+  & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+Applying tax relief x log(first price) & -1.703*** & -1.626*** & -1.673*** &  & \\
+ & (0.587) & (0.468) & (0.483) &  & \\
+PS of applying tax relief x log(first price) &  &  &  & -1.927*** & -1.857***\\
+ &  &  &  & (0.561) & (0.540)\\
+log(income) & -0.326 & -0.287 & -0.311 & -0.813 & -0.764\\
+ & (1.417) & (1.401) & (1.397) & (1.458) & (1.453)\\
+\midrule
+Num.Obs. & 4908 & 4908 & 4908 & 4908 & 4908\\
+R2 & 0.851 & 0.851 & 0.851 & 0.852 & 0.852\\
+R2 Adj. & 0.685 & 0.685 & 0.685 & 0.686 & 0.686\\
+FE: area & X & X & X & X & X\\
+FE: industry & X & X & X & X & X\\
+FE: panelid & X & X & X & X & X\\
+FE: year & X & X & X & X & X\\
+Square of age & X & X & X & X & X\\
+Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
+Method of PS &  & Pool & Separate & Pool & Separate\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:rob2intensive}Last-Price Elasticities (Intensive Margin)}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+  & (1) & (2) & (3)\\
+\midrule
+Applying tax relief x log(last price) & -1.627*** & -1.781*** & -1.901***\\
+ & (0.527) & (0.448) & (0.458)\\
+log(income) & 1.012 & 0.899 & 0.812\\
+ & (1.175) & (1.141) & (1.142)\\
+\midrule
+Num.Obs. & 6492 & 6492 & 6492\\
+R2 & 0.820 & 0.820 & 0.820\\
+R2 Adj. & 0.688 & 0.688 & 0.687\\
+FE: area & X & X & X\\
+FE: industry & X & X & X\\
+FE: panelid & X & X & X\\
+FE: year & X & X & X\\
+Square of age & X & X & X\\
+Instrument & Wage earner x Price & PS x Price & PS x Price\\
+Method of PS &  & Pool & Separate\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}
+
+\caption{\label{tab:robextensive}Robustness of First-Price Elasticities (Extenstive Margin)}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE-2SLS} & \multicolumn{2}{c}{OLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-6}
+  & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+Applying tax relief x log(first price) & -0.203 & -0.505*** & -0.704*** &  & \\
+ & (0.257) & (0.170) & (0.159) &  & \\
+PS of applying tax relief x log(first price) &  &  &  & -0.430*** & -0.562***\\
+ &  &  &  & (0.162) & (0.145)\\
+log(income) & 2.233*** & 2.108*** & 2.026*** & 1.934*** & 1.814***\\
+ & (0.322) & (0.298) & (0.293) & (0.331) & (0.328)\\
+\midrule
+Implied price elasticity & -0.850 & -2.116*** & -2.949*** & -1.801*** & -2.353***\\
+ & (1.075) & (0.711) & (0.666) & (0.677) & (0.606)\\
+Square of age & X & X & X & X & X\\
+Num.Obs. & 18148 & 18148 & 18148 & 18148 & 18148\\
+R2 & 0.716 & 0.725 & 0.730 & 0.709 & 0.710\\
+R2 Adj. & 0.553 & 0.567 & 0.576 & 0.543 & 0.543\\
+FE: area & X & X & X & X & X\\
+FE: industry & X & X & X & X & X\\
+FE: panelid & X & X & X & X & X\\
+FE: year & X & X & X & X & X\\
+Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
+Method of PS &  & Pool & Separate & Pool & Separate\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \clearpage
 
-\hypertarget{appendix-b-estimate-elasiticity-using-subsample}{%
-\section{Appendix B: Estimate Elasiticity Using Subsample}\label{appendix-b-estimate-elasiticity-using-subsample}}
+\hypertarget{estimate-elasiticity-using-subsample}{%
+\section{Estimate Elasiticity Using Subsample}\label{estimate-elasiticity-using-subsample}}
 
 \hypertarget{sample-selection-bias-correction}{%
 \subsection{Sample Selection Bias Correction}\label{sample-selection-bias-correction}}
@@ -1028,8 +1034,9 @@ To calculate the inverse Mills ratio, we use the probit estimation shown in
 
 \begin{table}
 
-\caption{\label{tab:benchmark}First Price Elasiticities for Those Who Apply to Tax Relief}
+\caption{\label{tab:benchmark}First Price Intensive-Margin Elasiticity (Subsample Analysis)}
 \centering
+\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
   & (1) & (2) & (3) & (4) & (5)\\
@@ -1113,8 +1120,9 @@ the price elasticity is unlikely to vary significantly among individuals.
 
 \begin{table}
 
-\caption{\label{tab:robustbenchmark1}First Price Elasiticities for Those Who Apply to Tax Relief (Exclude sample observed in 2013 and 2014)}
+\caption{\label{tab:robustbenchmark1}First Price Intensive-Margin Elasiticity without Annoucment Effect (Subsample Analysis)}
 \centering
+\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccccc}
 \toprule
   & (1) & (2) & (3) & (4) & (5)\\
@@ -1142,8 +1150,9 @@ Method of IMR &  & Pooled & Pooled & Separate & Separate\\
 
 \begin{table}
 
-\caption{\label{tab:robustbenchmark2}Last Price Elasiticities for Those Who Apply to Tax Relief}
+\caption{\label{tab:robustbenchmark2}Last Price Intensive-Margin Elasiticity (Subsample Analysis)}
 \centering
+\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccc}
 \toprule
   & (1) & (2) & (3)\\
@@ -1188,8 +1197,10 @@ which is similar to the result shown in this paper.
 
 \begin{table}
 
-\caption{\label{tab:kdiffbenchmark}k-th difference model}
+\caption{\label{tab:kdiffbenchmark}$k$-th Difference Model with Instrument}
 \centering
+\resizebox{\linewidth}{!}{
+\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lccccccccc}
 \toprule
   & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9)\\
@@ -1210,13 +1221,14 @@ Difference of square age & X & X & X & X & X & X & X & X & X\\
 Lag & 1-year & 1-year & 1-year & 2-year & 2-year & 2-year & 3-year & 3-year & 3-year\\
 Method of IMR &  & Pool & Separate &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{table}
 
-\caption{\label{tab:leadlagbenchmark}First Price Elasiticities for Those Who Apply to Tax Relief}
+\caption{\label{tab:leadlagbenchmark}First Price Intensive-Margin Elasiticities Including Lead and Lag}
 \centering
+\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lcc}
 \toprule
   & (1) & (2)\\
@@ -1239,7 +1251,7 @@ Square age & X & X\\
 
 In addition to the same robustness test as in this paper,
 the results of the other two robustness tests
-are shown in Tables \ref{tab:kdiffbenchmark} and \ref{leadlagbenchmark}.
+are shown in Tables \ref{tab:kdiffbenchmark} and \ref{tab:leadlagbenchmark}.
 Table \ref{tab:kdiffbenchmark} is an analysis dealing with
 the endogeneity of first-price by income manipulation.
 Since income is generally endogenous,

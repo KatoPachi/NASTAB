@@ -124,10 +124,10 @@ estdf <- df %>%
   select(-poolmod, -sepmod)
 
 #'
-#+ stage1
+#+ stage1, results = if(params$preview) "markup" else "hide"
 sepstage1 %>%
   pull(sepmod, name = year) %>%
-  list.merge(list("Pool" = poolstage1), .) %>%
+  list.merge(list("Pooled" = poolstage1), .) %>%
   modelsummary(
     title = "Probit Estimation of Selection Equation",
     coef_omit = "factor",
@@ -140,11 +140,15 @@ sepstage1 %>%
     gof_omit = "R2|AIC|BIC",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = tribble(
-      ~"term", ~"Pool", ~"2012", ~"2013", ~"2014", ~"2015", ~"2016", ~"2017",
+      ~"term", ~"Pooled", ~"2012", ~"2013", ~"2014", ~"2015", ~"2016", ~"2017",
       "Dummy of area", "X", "X", "X", "X", "X", "X", "X",
       "Dummy of industry", "X", "X", "X", "X", "X", "X", "X"
     )
-  )
+  ) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c(
+    " " = 2, "Separated Probit Model" = 6
+  ))
 
 #'
 #' ## Intensive Margin
@@ -196,7 +200,8 @@ stage2 %>%
       "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
     )
   ) %>%
-  kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2))
 
 #'
 #' Table \@ref(tab:intensive) shows
@@ -216,7 +221,7 @@ stage2 %>%
 #' Therefore, a 1% price reduction will increase the donation amount by 1.5-1.8%
 #' for those who apply for a donation deduction.
 #'
-#+ rob1intensive
+#+ rob1intensive, results = if(params$preview) "markup" else "hide"
 stage2 %>%
   purrr::map(~ fixest::feols(
     ., cluster = ~ panelid,
@@ -245,10 +250,11 @@ stage2 %>%
       "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
     )
   ) %>%
-  kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2))
 
 #'
-#+ rob2intensive
+#+ rob2intensive, results = if(params$preview) "markup" else "hide"
 rob1_stage2 <- list(
   "(1)" = fixest::xpd(
     log_total_g ~ ..stage24 | ext_benefit_tl:log_lprice ~ employee:log_price
@@ -285,7 +291,8 @@ rob1_stage2 %>%
       "PS x Price", "PS x Price",
       "Method of PS", "", "Pool", "Separate"
     )
-  )
+  ) %>%
+  kableExtra::kable_styling(font_size = 9)
 
 #'
 #' We performed some analyzes for the robustness of this result.
@@ -411,10 +418,7 @@ addtab <- est_ext_stage2 %>%
   purrr::map(~ tidy(.) %>% filter(str_detect(term, "price"))) %>%
   purrr::map(function(x) {
 
-    dbar <- with(
-      subset(estdf, ext_benefit_tl == 1),
-      mean(i_ext_giving, na.rm = TRUE)
-    )
+    dbar <- mean(estdf$i_ext_giving, na.rm = TRUE)
 
     x %>%
       mutate(
@@ -424,10 +428,9 @@ addtab <- est_ext_stage2 %>%
           p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
           TRUE ~ sprintf("%1.3f", estimate / dbar),
         ),
-        std.error = sprintf("(%1.3f)", std.error / dbar),
-        brank = ""
+        std.error = sprintf("(%1.3f)", std.error / dbar)
       ) %>%
-      select(brank, estimate, std.error) %>%
+      select(estimate, std.error) %>%
       pivot_longer(everything())
 
   }) %>%
@@ -464,10 +467,11 @@ est_ext_stage2 %>%
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2))
 
 #'
-#+ robextensive
+#+ robextensive, results = if(params$preview) "markup" else "hide"
 rob_ext_stage2 <- ext_stage2 %>%
   purrr::map(~ fixest::feols(
     .,
@@ -478,10 +482,8 @@ rob_ext_stage2 <- ext_stage2 %>%
 addtab <- rob_ext_stage2 %>%
   purrr::map(~ tidy(.) %>% filter(str_detect(term, "price"))) %>%
   purrr::map(function(x) {
-    dbar <- with(
-      subset(estdf, ext_benefit_tl == 1),
-      mean(i_ext_giving, na.rm = TRUE)
-    )
+
+    dbar <- mean(estdf$i_ext_giving, na.rm = TRUE)
 
     x %>%
       mutate(
@@ -491,10 +493,9 @@ addtab <- rob_ext_stage2 %>%
           p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
           TRUE ~ sprintf("%1.3f", estimate / dbar),
         ),
-        std.error = sprintf("(%1.3f)", std.error / dbar),
-        brank = ""
+        std.error = sprintf("(%1.3f)", std.error / dbar)
       ) %>%
-      select(brank, estimate, std.error) %>%
+      select(estimate, std.error) %>%
       pivot_longer(everything())
   }) %>%
   reduce(left_join, by = "name") %>%
@@ -531,7 +532,8 @@ rob_ext_stage2 %>%
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::add_header_above(c(" " = 1, "2SLS" = 3, "OLS" = 2))
+  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2))
 
 #' Table \@ref(tab:extensive) shows
 #' the estimation results of extensive-margin price elasticity.
