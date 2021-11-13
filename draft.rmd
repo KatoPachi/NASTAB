@@ -7,14 +7,16 @@ author:
     email: vge008kh\@stundent.econ.osaka-u.ac.jp
   - name: Tsuyoshi Goto
     affiliation: Graduate School of Social Sciences, Chiba University, Japan
+    email: t.goto\@chiba-u.jp
   - name: Youngrok Kim
     affiliation: Graduate School of Economics, Kobe University, Japan
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
 bibliography: Rmarkdown/Ref.bib
 csl: template/csl/elsevier-harvard.csl
 abstract: |
-  This paper investigates the price elasticity of charitable giving utilizing South Korean tax reform in 2014, when the tax relief on charitable giving changed from tax deduction to tax credit. Although many research on the price elasticity of charitable giving implicitly assume that all of tax payers declare their tax relief on charitable giving, this paper considers the existence of declaration cost for tax reliefs on charitable giving.
-  By estimating the "intension-to-treat" effect (ITT) of tax reform, the analysis shows that the giving price elasticity is about -1 in terms of both intensive and extensive margins. Furthermore, considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the effect of "effective" giving price on the donation. As a result, we find that the estimation about the "effective" price elasticity is almost the same for the baseline one in terms of both intensive and extensive margins. This implies that the effect from the declaration cost of charitable giving may be small. 
+  This paper investigates the price elasticity of charitable giving utilizing South Korean tax reform in 2014, when the tax relief on charitable giving changed from tax deduction to tax credit. Although many research on the price elasticity of charitable giving use tax return data or ignore declaration cost for charitable giving to receive tax relief, this paper uses a survey panel data and considers the existence of declaration cost for tax reliefs on charitable giving.
+  By considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the giving price elasticity on the donation. As a result, we find that the estimation about the price elasticity is almost -1 in terms of intensive margins. 
+  Moreover, our estimation suggest that the price elasticity for the extensive margins is , which implies that there is a fixed cost for charitable giving. 
 keyword:
   words:
     - Charitable giving
