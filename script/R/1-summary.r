@@ -281,14 +281,14 @@ df %>%
 
 #' The NaSTaB also asks respondents
 #' to answer whether they declared a tax relief of giving.
-#' Although this variable is unique,
-#' the sample size is relatively small due to unanswering.
-#' This survey investigates separately for the case of *total* income
-#' (for example, business income, dividend income, rental income)
-#' and the case of *labor* income.
-#' We make a dummy taking one
-#' if respondents applied for a total income deduction of giving
-#' or a labor income deduction of giving.
+#' This survey data separately asks whether subjects applied for tax 
+#' relief on giving via tax filing (this is used for *total* income 
+#' (e.g., business income, dividend income and rental income)) or not, 
+#' and whether subjects applied for tax reilef on giving via tax withholding 
+#' (this is used for *labor* income.).
+#' We make a dummy taking one if subjects applied for either tax relief. 
+#' Since we omit the samples do not answer the questions, the sample size 
+#' is relatively small.
 #' Table \@ref(tab:SummaryCovariate) shows
 #' the proportion of declaration is about 24%.
 #'
