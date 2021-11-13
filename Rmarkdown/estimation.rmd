@@ -119,7 +119,7 @@ These facts in descriptive statistics suggest that
 the exogenous shock of giving price by the 2014 tax reform has produced a  price effect for donations.
 
 Using this exogenous change in price, we estimate the price elasticity of donations.
-Then, we assume the following 2-way fixed effect model:
+Then, we assume the following two-way fixed effect model:
 \begin{equation}
     \ln g_{it} = \varepsilon_p R_{it} \ln p_{it}(y_{it}, g_{it}) + \varepsilon_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}, (\#eq:intensive)
@@ -143,15 +143,15 @@ In the following subsections, we discuss how to deal with each endogeneity.
 Our identification strategy is price changes due to the 2014 tax reform.
 However, the relative price of donations is endogenous
 because it depends on the amount of income and charitable giving under the tax deduction system (before the 2014 tax reform).
-To formally show this issue, the relative price of donations $p_{it}$ is defined as:
+The relative price of donations $p_{it}$ applied for those who declared their charitable giving is defined as:
 \begin{align}
   p_{it}(y_{it}, g_{it}) =
   \begin{cases}
-    1 - \tau_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
+    1 - T'_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
     1 - m \quad\text{if}\quad t \ge 2014
   \end{cases}, (\#eq:price)
 \end{align}
-where $\tau_t(\cdot)$ is average tax rate in year $t$.
+where $T'_t(\cdot)$ is marginal tax rate in year $t$.
 As is clear from the above formula,
 the (within) variation in giving price depends not only on the 2014 tax reform
 but also on the amount of donations and income before 2014,
@@ -205,7 +205,7 @@ First, we estimate the following outcome equation with 2SLS with fixed effects:
     + X_{it}\beta +\mu_i +\iota_t +u_{it}, (\#eq:stage2)
 \end{equation}
 where $R_{it} \ln p^f_{it}(y_{it})$ is instrumented by
-$\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})$.
+$\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})$\footnote{Note that this formulation use the notation, which is slightly different from the explanation in section 2. Hereafter, we use $p_{it}(y_{it}, g_{it})$ to show the giving price not for all tax payers but for those who declare charitable giving. For those who do not declare charitable giving, 1 is applied as giving price.}.
 
 The remaining two approaches use the propensity score (PS) of tax relief applications.
 To get a propensity score,
