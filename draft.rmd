@@ -97,6 +97,18 @@ knitr::spin_child("script/R/2-pooled2sls.R")
 
 # Additional Figures and Tables
 
+```{r stage1, ref.label="stage1"}
+```
+
+```{r rob1intensive, ref.label="rob1intensive"}
+```
+
+```{r rob2intensive, ref.label="rob2intensive"}
+```
+
+```{r robextensive, ref.label="robextensive"}
+```
+
 \clearpage
 
 ```{r}

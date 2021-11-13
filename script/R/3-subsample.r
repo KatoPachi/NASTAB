@@ -110,7 +110,7 @@ estdf <- df %>%
   select(-poolmod, -sepmod)
 
 #'
-#' # Appendix B: Estimate Elasiticity Using Subsample
+#' # Estimate Elasiticity Using Subsample
 #'
 #+
 subdf <- estdf %>%
@@ -217,7 +217,7 @@ basemod %>%
     cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
-    title = "First Price Elasiticities for Those Who Apply to Tax Relief",
+    title = "First Price Intensive-Margin Elasiticity (Subsample Analysis)",
     coef_map = c(
       "log_price" = "log(first price)",
       "log_pinc_all" = "log(annual taxable income)",
@@ -233,7 +233,8 @@ basemod %>%
       "Square age", "X", "X", "X", "X", "X",
       "Method of IMR", "", "Pooled", "Pooled", "Separate", "Separate"
     )
-  )
+  ) %>%
+  kableExtra::kable_styling(font_size = 9)
 
 #'
 #' Table \@ref(tab:benchmark) shows the estimation results of price elasticity.
@@ -301,8 +302,8 @@ basemod %>%
   )) %>%
   modelsummary(
     title = paste(
-      "First Price Elasiticities for Those Who Apply to Tax Relief",
-      "(Exclude sample observed in 2013 and 2014)"
+      "First Price Intensive-Margin Elasiticity without Annoucment Effect",
+      "(Subsample Analysis)"
     ),
     coef_map = c(
       "log_price" = "log(first price)",
@@ -319,7 +320,8 @@ basemod %>%
       "Square age", "X", "X", "X", "X", "X",
       "Method of IMR", "", "Pooled", "Pooled", "Separate", "Separate"
     )
-  )
+  ) %>%
+  kableExtra::kable_styling(font_size = 9)
 
 #'
 #+ robustbenchmark2
@@ -341,7 +343,7 @@ lastmod %>%
   )) %>%
   modelsummary(
     title = paste(
-      "Last Price Elasiticities for Those Who Apply to Tax Relief"
+      "Last Price Intensive-Margin Elasiticity (Subsample Analysis)"
     ),
     coef_map = c(
       "fit_log_lprice" = "log(last price)",
@@ -356,7 +358,8 @@ lastmod %>%
       "Square age", "X", "X", "X",
       "Method of IMR", "", "Pool", "Separate"
     )
-  )
+  ) %>%
+  kableExtra::kable_styling(font_size = 9)
 
 #'
 #' We show the results of the same robustness test as in this paper
@@ -429,7 +432,7 @@ kdiffmod %>%
     data = subdf, panel.id = ~ panelid + year
   )) %>%
   modelsummary(
-    title = "k-th difference model",
+    title = "$k$-th Difference Model with Instrument",
     coef_map = c(
       "fit_log_diff1p" = "Difference of first price",
       "log_diff1I" = "Difference of annual income",
@@ -456,7 +459,8 @@ kdiffmod %>%
       "Method of IMR", "", "Pool", "Separate", "", "Pool", "Separate",
       "", "Pool", "Separate"
     )
-  )
+  ) %>%
+  kableExtra::kable_styling(font_size = 9, latex_options = "scale_down")
 
 #'
 #+ leadlagbenchmark
@@ -504,7 +508,9 @@ leadlagmod %>%
     cluster = ~panelid, se = "cluster"
   )) %>%
   modelsummary(
-    title = "First Price Elasiticities for Those Who Apply to Tax Relief",
+    title = paste(
+      "First Price Intensive-Margin Elasiticities Including Lead and Lag"
+    ),
     coef_rename = c(
       "log_price" = "log(first giving price)",
       "log_pinc_all" = "log(annual taxable income)"
@@ -516,12 +522,13 @@ leadlagmod %>%
       ~term, ~"(1)", ~"(2)",
       "Square age", "X", "X"
     )
-  )
+  ) %>%
+  kableExtra::kable_styling(font_size = 9)
 
 #'
 #' In addition to the same robustness test as in this paper,
 #' the results of the other two robustness tests
-#' are shown in Tables \@ref(tab:kdiffbenchmark) and \@ref(leadlagbenchmark).
+#' are shown in Tables \@ref(tab:kdiffbenchmark) and \@ref(tab:leadlagbenchmark).
 #' Table \@ref(tab:kdiffbenchmark) is an analysis dealing with
 #' the endogeneity of first-price by income manipulation.
 #' Since income is generally endogenous,

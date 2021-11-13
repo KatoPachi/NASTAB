@@ -63,13 +63,14 @@ dplyr::filter(
 
 # Statistical Model
 
-```{r SummaryOutcome2, fig.cap = ""}
+```{r SummaryOutcome2, fig.cap = "Average Logged Giving in Three Income Groups", out.width = "85%", out.extra = ""}
 df %>%
   mutate(group = case_when(
     credit_loss == 1 ~ 3,
     credit_neutral == 1 ~ 2,
     credit_benefit == 1 ~ 1
   )) %>%
+  dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(group)) %>%
   group_by(year, group) %>%
   summarize(mu = mean(log_total_g, na.rm = TRUE)) %>%
