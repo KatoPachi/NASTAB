@@ -145,7 +145,9 @@ sepstage1 %>%
       "Dummy of industry", "X", "X", "X", "X", "X", "X", "X"
     )
   ) %>%
-  kableExtra::kable_styling(font_size = 9, latex_options = "HOLD_position") %>%
+  kableExtra::kable_styling(
+    font_size = 9, latex_options = c("HOLD_position", "scale_down")
+  ) %>%
   kableExtra::add_header_above(c(
     " " = 2, "Separated Probit Model" = 6
   )) %>%

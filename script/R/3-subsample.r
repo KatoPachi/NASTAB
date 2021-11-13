@@ -128,7 +128,8 @@ subdf <- estdf %>%
 #'
 #' Since deduction applications are endogenous as described in this paper,
 #' subsample estimation involves a sample selection bias.
-#' To formally demonstrate this bias, consider the following model:
+#' Following @Wooldridge2010, we formally show this problem and its solution.
+#' Consider the following model:
 #' \begin{align}
 #'   &Y_{it} = \beta  X_{it} + \mu_{i1} + \lambda_{t1} + e_{it1}, \\
 #'   &R_{it} = 1[\gamma_1 Z_{it} + \gamma_2 X_{it} + \mu_{i2} + \lambda_{t2} + e_{it2} > 0].
@@ -195,7 +196,7 @@ subdf <- estdf %>%
 #' If we knew $E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1)$,
 #' then we can obtaine unbiased estimator of $\beta$.
 #' The correction term $E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1)$
-#' can be obtained by the inverse Mills ratio.
+#' can be obtained by the inverse Mills ratio (IMR).
 #' To calculate the inverse Mills ratio, we use the probit estimation shown in
 #' \@ref(tab:stage1) in Appendix A (pooled model and separate model).
 #'
@@ -234,7 +235,16 @@ basemod %>%
       "Method of IMR", "", "Pooled", "Pooled", "Separate", "Separate"
     )
   ) %>%
-  kableExtra::kable_styling(font_size = 9)
+  kableExtra::kable_styling(font_size = 9) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #' Table \@ref(tab:benchmark) shows the estimation results of price elasticity.
@@ -264,7 +274,7 @@ basemod %>%
 #' which is a parameter of our interest,
 #' by controlling only the selection correction term.
 #'
-#' Wooldridge (2015) proposes an estimation method that solves this problem
+#' @Wooldridge2015 proposes an estimation method that solves this problem
 #' by making the following assumptions in the elements of this new error term:
 #' \begin{align}
 #'   E(\beta_i - \bar{\beta} | Z_{it}, X_{it}, \mu_{i1}, \lambda_{t1}, e_{it2})
@@ -321,7 +331,17 @@ basemod %>%
       "Method of IMR", "", "Pooled", "Pooled", "Separate", "Separate"
     )
   ) %>%
-  kableExtra::kable_styling(font_size = 9)
+  kableExtra::kable_styling(font_size = 9) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "We exclude observations in 2013 and 2014."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #+ robustbenchmark2
@@ -359,7 +379,17 @@ lastmod %>%
       "Method of IMR", "", "Pool", "Separate"
     )
   ) %>%
-  kableExtra::kable_styling(font_size = 9)
+  kableExtra::kable_styling(font_size = 9) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "The instrument of last-price is the first-price of giving."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #' We show the results of the same robustness test as in this paper
@@ -460,7 +490,16 @@ kdiffmod %>%
       "", "Pool", "Separate"
     )
   ) %>%
-  kableExtra::kable_styling(font_size = 9, latex_options = "scale_down")
+  kableExtra::kable_styling(font_size = 9, latex_options = "scale_down") %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #+ leadlagbenchmark
@@ -511,19 +550,34 @@ leadlagmod %>%
     title = paste(
       "First Price Intensive-Margin Elasiticities Including Lead and Lag"
     ),
-    coef_rename = c(
+    coef_map = c(
       "log_price" = "log(first giving price)",
-      "log_pinc_all" = "log(annual taxable income)"
+      "log_pinc_all" = "log(annual taxable income)",
+      "d(log_price, 1)" = "1-year lag of price",
+      "d(log_price, -1)" = "1-year lead of price",
+      "d(log_pinc_all, 1)" = "1-year lag of income",
+      "d(log_pinc_all, -1)" = "1-year lead of income",
+      "imr_pool" = "IMR"
     ),
-    coef_omit = "^(?!log)",
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = tribble(
       ~term, ~"(1)", ~"(2)",
-      "Square age", "X", "X"
+      "Square age", "X", "X",
+      "Method of IMR", "", "Pool"
     )
   ) %>%
-  kableExtra::kable_styling(font_size = 9)
+  kableExtra::kable_styling(font_size = 9) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "1-year lead of price cannot be estimated because of collinearity."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #' In addition to the same robustness test as in this paper,
@@ -537,7 +591,7 @@ leadlagmod %>%
 #' changes in income affect donations through the income effect
 #' and the giving price through marginal tax rates
 #' [@Randolph1995; @Auten2002; @Bakija2011].
-#' Therefore, following @Almunia2020 and @Bakija2011,
+#' Therefore, following @Saez2002 and @Almunia2020,
 #' we estimate the following k-th difference model:
 #' \begin{align}
 #'   \Delta^k \ln g_{it} = \varepsilon_p \Delta^k \ln p^f_{it}(y_{it})
