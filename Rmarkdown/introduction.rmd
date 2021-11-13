@@ -57,9 +57,9 @@ Secondly, for the issue of charitable giving declaration, we focus on the fact t
 
 Thirdly, this paper examines the giving price elasticity in a non-Western country, where few papers deal with. While the giving behavior may be affected by the cultural matter such as the religious belief, the estimated price elasticity in this paper is in line with the result of the extant papers.
 
-In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is about -1, which many papers have shown and indicates.
+In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is about -1.4 in terms of intensive margins and less than -1.8 in terms of extensive margins. Since these estimates are much less than the estimates of extant research, this implies that the consideration of declaration cost may make a difference.
 
-This paper consist of seven sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of price elasticity using the applicable giving price and section 6 shows the analysis using the effective giving price. Section 7 concludes.
+This paper consistsof six sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of price elasticity. Section 6 concludes.
 ```
 
 ```{asis, echo = doctype == "slide"}
@@ -97,7 +97,6 @@ In this section, we describe the endogeneity issue and the income tax relief for
 
 In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction. 
 
-The tax deduction and tax credit may have different effects on giving behavior. This subsection summarize the difference of tax deduction and tax credit.
 Consider that a household has a choice between private consumption ($x_i$) and charitable giving ($g_i$). Let $y_i$ be pre-tax total income.
 Then, the budget constraint can be shown as
 \begin{align}
