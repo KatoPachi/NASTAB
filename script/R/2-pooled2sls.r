@@ -339,39 +339,7 @@ rob1_stage2 %>%
 #' even if the announcement effect of tax reform is eliminated
 #' and that the last-price elasticity takes a similar value.
 #'
-#' This approach also solves the endogenous nature of the application
-#' by correcting the sample selection bias,
-#' making it simpler to perform two further robustness tests
-#' on the relative price of giving.
-#' First, the first-price depends only on income.
-#' Therefore, if income is endogenous,
-#' the first-price is also an endogenous variable.
-#' A and B proposed to deal with it by $k$-th order difference estimation.
-#' In this model, the k-th lagged variable of the giving price,
-#' $\ln p^f_{it}(y_{it}) - \ln p^f_{it-k}(y_{it-k})$,
-#' depends on the income for two periods.
-#' Using the income for $t-k$ year, we calculate the giving price for $t$ year
-#' and $t-k$ year, that is,
-#' $\ln p^f_{it}(y_{it-k}) - \ln p^f_{it-k}(y_{it-k})$,
-#' and use it as an instrumental variable.
-#' This avoids the endogenous problem of income manipulation
-#' because the variation described by the instrumental variable
-#' is independent of income.
-#' As a result,
-#' the price elasticity by the 1-year and 2-year difference estimation i
-#' statistically insignificant,
-#' but the price elasticity by the 3-year difference estimation
-#' is in the range of -1.5 to -1.7, which is statistically significant.
-#'
-#' Second,
-#' to directly control the dynamic effects of
-#' price and income changes on donations,
-#' C proposes to add lagged and future changes of these variables
-#' to the explanatory variables.
-#' As a result, price elasticity is statistically insignificant.
-#' However, because our data is unbalanced panel data,
-#' the sample size is quite small.
-#' In that respect, the results of this analysis are unreliable.
+#' 
 #'
 #' ## Extensive Margin
 #'

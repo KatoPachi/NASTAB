@@ -103,11 +103,10 @@ df %>%
 To estimate the giving price elasticity,
 we use DID-like strategy which exploit the fact that the giving price was unified in 2014
 while the price was different for tax payers with different incomes.
-Figure \@ref(fig:SummaryOutcome2) the logarithmic average of donations for each year for each of the three income groups.
+Figure \@ref(fig:SummaryOutcome2) shows the logarithmic average of donations for each year for the three income groups, which is standardized to be 1 in 2013.
 We created three income groups, with the relative price of giving rising (lower than 12,000,000 KRW),
 unchanged (between 12,000,000 KRW and 46,000,000 KRW),
 and falling (higher than 46,000,000 KRW) between 2013 and 2014.
-In addition, the average logarithmic value of giving is standardized to be 1 in 2013. 
 
 We can observe two facts from this figure.
 First, before the tax reform, the amount of donations of income groups whose prices have increased or unchanged has remained the same,
@@ -147,7 +146,7 @@ In the following subsections, we discuss how to deal with each endogeneity.
 
 Our identification strategy is price changes due to the 2014 tax reform.
 However, the relative price of donations is endogenous
-because it is necessary to use donation data under the income deduction system (before the 2014 tax reform).
+because it depends on the amount of income and charitable giving under the tax deduction system (before the 2014 tax reform).
 To formally show this issue, the relative price of donations $p_{it}$ is defined as:
 \begin{align}
   p_{it}(y_{it}, g_{it}) =

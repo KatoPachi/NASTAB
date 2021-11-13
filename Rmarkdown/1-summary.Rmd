@@ -186,9 +186,9 @@ In Figure \@ref(fig:SummaryPriceChange),
 the gray bars show the distribution of annual taxable income in 2013.
 The income distribution is right-skewed.
 
-Using this variable, we construct the giving price under the tax deduction system (2012 and 2013).[^fprice]
+According to the marginal income tax rate, we construct the giving price under the tax deduction system (2012 and 2013).[^fprice]
 After the tax reform (after 2014), the giving price is 0.85 regardless of labor income. 
-as we explained in the section \@ref(institutional-background).
+as we explained in the section 2.
 In Figure \@ref(fig:SummaryPriceChange),
 the blue line shows the giving price in 2012 and 2013,
 while the red dashed line shows the giving price after 2014.
@@ -201,12 +201,8 @@ since the tax reform increases the giving price.
 
 [^fprice]: The giving price shown in Table \@ref(tab:SummaryCovariate) is the *first* giving price. The giving price can be manipulated by an amount of donation. To avoid this endogeneity, we use the giving price where the amount of donation is zero. We will discuss this issue in the next section.
 
-The NaSTaB also asks respondents to answer whether they declared a tax relief of giving.
-Although this variable is unique, the sample size is relatively small due to unanswering.
-This survey investigates separately for the case of *total* income (for example, business income, dividend income, rental income) 
-and the case of *labor* income.
-We make a dummy taking one if respondents applied for a total income deduction of giving
-or a labor income deduction of giving.
+The NaSTaB also asks respondents to answer whether they declared a tax relief of giving. \footnote{This survey data separately asks whether subjects applied for tax relief on giving via tax filing (this is used for *total* income (e.g., business income, dividend income and rental income)) or not, and whether subjects applied for tax reilef on giving via tax withholding (this is used for *labor* income.).
+We make a dummy taking one if subjects applied for either tax relief. Since we omit the samples do not answer the questions, the sample size is relatively small.}
 Table \@ref(tab:SummaryCovariate) shows the proportion of declaration is about 48\%.
 ```
 
