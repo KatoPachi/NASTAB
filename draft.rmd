@@ -102,3 +102,8 @@ knitr::spin_child("script/R/2-pooled2sls.R")
 ```{r}
 knitr::spin_child("script/R/3-subsample.R")
 ```
+
+\clearpage
+
+```{r child = "Rmarkdown/appendix.Rmd", eval = FALSE}
+```
