@@ -195,8 +195,29 @@ We take three approaches using this instrumental variable.
 First, we estimate the following outcome equation with 2SLS with fixed effects:
 \begin{equation}
     \ln g_{it} = \varepsilon_{pi} (R_{it} \ln p^f_{it}(y_{it})) + \varepsilon_y \ln y_{it} 
-    + X_{it}\beta +\mu_i +\iota_t +u_{it},
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}, (\#eq:stage2)
 \end{equation}
 where $R_{it} \ln p^f_{it}(y_{it})$ is instrumented by
-$\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})$.
-Note that $\text{WageEarner}_{it}$ is a wage earner dummy.
+$\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})$,
+and $\text{WageEarner}_{it}$ is the wage earner dummy.
+
+The remaining two approaches use the propensity score (PS) of tax relief applications.
+To get a propensity score,
+we implement a probit estimation with the following selection equation:
+\begin{equation}
+  R_{it} = 1[\delta_0 + Z_{it} \delta_1 + u_{it1} > 0], (\#eq:stage1)
+\end{equation}
+where $Z_{it} = (\text{WageEarner}_{it}, \ln p^f_{it}(y_{it}), \ln y_{it}, X_{it})$.
+
+We estimate this model with a full sample (pooled probit model) or
+a subsample (separated probit model) divided by year,
+and calculate the propensity score by $P(Z_{it}) = \Phi(\hat{\delta}_0 + Z_{it} \hat{\delta}_1)$
+where $\Phi(\cdot)$ is the cumulative function of the standard normal distribution.
+The latter estimation method allows the two coefficients to vary over time.
+The second approach estimates equation \@ref(eq:stage2) with 2SLS with fixed effects,
+using $P(Z_{it}) \times \ln p^f_{it}(y_{it})$ as the instrumental variable of $R_{it} \ln p^f_{it}(y_{it})$.
+The third approach estimates the following outcome equation by OLS:
+\begin{equation}
+    \ln g_{it} = \varepsilon_{pi} (P(Z_{it}) \ln p^f_{it}(y_{it})) + \varepsilon_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:stage2red)
+\end{equation}
