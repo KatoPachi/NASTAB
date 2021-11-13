@@ -573,6 +573,11 @@ leadlagmod %>%
 #' the sample size is quite small.
 #' In that respect, the results of this analysis are unreliable.
 #'
+#' ## Additional References {-}
+#'
+#' ::: {#refs_appx}
+#' :::
+#'
 # /*
 #+
 rmarkdown::render(

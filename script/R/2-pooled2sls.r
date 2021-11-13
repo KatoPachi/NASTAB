@@ -67,7 +67,7 @@ dplyr::filter(
 #'
 #' In this section, we report the price elasticity of intensive-margin and
 #' extensive-margin, respectively.
-#' Note that we provide an appendix with the first-stage estimation results
+#' Note that we provide Appendix A with the first-stage estimation results
 #' used to calculate the propensity score.
 #' As a basic result, even if we control covariates such as income,
 #' giving price, and industry dummy,
@@ -145,10 +145,18 @@ sepstage1 %>%
       "Dummy of industry", "X", "X", "X", "X", "X", "X", "X"
     )
   ) %>%
-  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::kable_styling(font_size = 9, latex_options = "HOLD_position") %>%
   kableExtra::add_header_above(c(
     " " = 2, "Separated Probit Model" = 6
-  ))
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #' ## Intensive Margin
@@ -201,7 +209,16 @@ stage2 %>%
     )
   ) %>%
   kableExtra::kable_styling(font_size = 9) %>%
-  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2))
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2)) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #' Table \@ref(tab:intensive) shows
@@ -217,8 +234,8 @@ stage2 %>%
 #' the propensity score of application and the giving (first) price
 #' directly to the explanatory variables.
 #' The estimated value varies slightly depending on the estimation method,
-#' but it is in the range of -1.5 to -1.8.
-#' Therefore, a 1% price reduction will increase the donation amount by 1.5-1.8%.
+#' but it is about -1.5.
+#' Therefore, a 1% price reduction will increase the donation amount by 1.5%.
 #'
 #+ rob1intensive, results = if(params$preview) "markup" else "hide"
 stage2 %>%
@@ -250,7 +267,16 @@ stage2 %>%
     )
   ) %>%
   kableExtra::kable_styling(font_size = 9) %>%
-  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2))
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2)) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #+ rob2intensive, results = if(params$preview) "markup" else "hide"
@@ -291,11 +317,20 @@ rob1_stage2 %>%
       "Method of PS", "", "Pool", "Separate"
     )
   ) %>%
-  kableExtra::kable_styling(font_size = 9)
+  kableExtra::kable_styling(font_size = 9) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #' We performed some analyzes for the robustness of this result.
-#' The regression table is shown in the appendix,
+#' The regression table is shown in Appendix A,
 #' but we will briefly describe the results.
 #' We show the results of estimating elasticity excluding 2013 and 2014 data
 #' in Table \@ref(tab:rob1intensive) of the Appendix A
@@ -306,7 +341,7 @@ rob1_stage2 %>%
 #' Therefore, the price elasticity is under-biased
 #' due to the announcement effect of tax reform.
 #' As a result, as we expected,
-#' the price elasticity ranges from -1.7 to -1.9,
+#' the price elasticity ranges from -1.6 to -1.9,
 #' which is a statistically significant result.
 #'
 #' Table \@ref(tab:rob2intensive) of the Appendix A shows
@@ -336,7 +371,7 @@ rob1_stage2 %>%
 #' We also confirmed that
 #' this result is robust
 #' even if the announcement effect of tax reform is eliminated
-#' and that the last-price elasticity takes a similar value[^additional].
+#' and that the last-price elasticity takes a similar value.[^additional]
 #'
 #' [^additional]: We further perform two further robustness tests on the relative price of giving. First, the first-price depends only on income. Therefore, if income is endogenous, the first-price is also an endogenous variable. To deal with this problem, we estimate the $k$-th order difference model. Second, to directly control the dynamic effects of price and income changes on donations, we add lagged and future changes of these variables to the explanatory variables.
 #'
@@ -414,7 +449,7 @@ addtab <- est_ext_stage2 %>%
     "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- c(7:9)
+attr(addtab, "position") <- c(7:8)
 
 est_ext_stage2 %>%
   modelsummary(
@@ -435,7 +470,18 @@ est_ext_stage2 %>%
     add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 9) %>%
-  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2))
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2)) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "Implied price elasticity is obtained by",
+      "the ratio of estimated coefficient value to share of donors."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #+ robextensive, results = if(params$preview) "markup" else "hide"
@@ -479,7 +525,7 @@ addtab <- rob_ext_stage2 %>%
     "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- c(7:9)
+attr(addtab, "position") <- c(7:8)
 
 rob_ext_stage2 %>%
   modelsummary(
@@ -500,7 +546,18 @@ rob_ext_stage2 %>%
     add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 9) %>%
-  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2))
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2)) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "Implied price elasticity is obtained by",
+      "the ratio of estimated coefficient value to share of donors."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #' Table \@ref(tab:extensive) shows
 #' the estimation results of extensive-margin price elasticity.
@@ -513,13 +570,13 @@ rob_ext_stage2 %>%
 #' uses the intersection of propensity score of application and
 #' giving price as an explanatory variable.
 #'
-#' As a result, the estimated coefficients are in the range of -0.54 to -0.74.
+#' As a result, the estimated coefficients are in the range of -0.41 to -0.54.
 #' The extensive-margin price elasticity,
-#' obtained by dividing this factor by the percentage of donors,
-#' ranges from -0.76 to -1.04.
+#' obtained by dividing estimates by the percentage of donors,
+#' ranges from -1.74 to -2.98.
 #' In other words,
 #' a 1% reduction in relative price due to tax incentives increases
-#' the probability of donation by 0.7% to 1%.
+#' the probability of donation by 1.74% to 2.98%.
 #' This result is robust against
 #' the effects of the 2014 tax reform announcement
 #' (See Table \@ref(tab:robextensive) in Appendix A,
