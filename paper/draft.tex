@@ -412,10 +412,8 @@ since the tax reform increases the giving price.
 The NaSTaB also asks respondents
 to answer whether they declared a tax relief of giving.
 This survey data separately asks whether subjects applied for tax
-relief on giving via tax filing (this is used for \emph{total} income
-(e.g., business income, dividend income and rental income)) or not,
-and whether subjects applied for tax reilef on giving via tax withholding
-(this is used for \emph{labor} income.).
+relief on giving via tax filing or not,
+and whether subjects applied for tax reilef on giving via tax withholding.\footnote{Tax filing is used for \emph{total} income (e.g., business income, dividend income and rental income). Tax withholding is used for \emph{labor} income.}
 We make a dummy taking one if subjects applied for either tax relief.
 Table \ref{tab:SummaryCovariate} shows
 the proportion of declaration is about 11\%.
@@ -774,7 +772,7 @@ From the results, we firstly show the giving price elasticity in Korea. However,
 \section*{References}\label{references}}
 \addcontentsline{toc}{section}{References}
 
-\hypertarget{refs}{}
+\hypertarget{refs_main}{}
 \begin{CSLReferences}{1}{0}
 \leavevmode\vadjust pre{\hypertarget{ref-Almunia2020}{}}%
 Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
@@ -819,6 +817,7 @@ Saez, E., 2004. The optimal treatment of tax expenditures. Journal of Public Eco
 
 \caption{\label{tab:stage1}Probit Estimation of Selection Equation}
 \centering
+\resizebox{\linewidth}{!}{
 \fontsize{9}{11}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lccccccc}
@@ -848,7 +847,7 @@ Dummy of industry & X & X & X & X & X & X & X\\
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.
 \end{tablenotes}
-\end{threeparttable}
+\end{threeparttable}}
 \end{table}
 
 \begin{table}
@@ -977,7 +976,8 @@ we use only the year when the person applied for the relief.
 
 Since deduction applications are endogenous as described in this paper,
 subsample estimation involves a sample selection bias.
-To formally demonstrate this bias, consider the following model:
+Following Semykina and Wooldridge (2010), we formally show this problem and its solution.
+Consider the following model:
 \begin{align}
   &Y_{it} = \beta  X_{it} + \mu_{i1} + \lambda_{t1} + e_{it1}, \\
   &R_{it} = 1[\gamma_1 Z_{it} + \gamma_2 X_{it} + \mu_{i2} + \lambda_{t2} + e_{it2} > 0].
@@ -1044,7 +1044,7 @@ where, by construction, \(E(u_{it1} | Z_{it}, X_{it}, R_{it} = 1) = 0\).
 If we knew \(E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1)\),
 then we can obtaine unbiased estimator of \(\beta\).
 The correction term \(E(e_{it2} | Z_{it}, X_{it}, R_{it} = 1)\)
-can be obtained by the inverse Mills ratio.
+can be obtained by the inverse Mills ratio (IMR).
 To calculate the inverse Mills ratio, we use the probit estimation shown in
 \ref{tab:stage1} in Appendix A (pooled model and separate model).
 
@@ -1056,6 +1056,7 @@ To calculate the inverse Mills ratio, we use the probit estimation shown in
 \caption{\label{tab:benchmark}First Price Intensive-Margin Elasiticity (Subsample Analysis)}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccccc}
 \toprule
   & (1) & (2) & (3) & (4) & (5)\\
@@ -1079,6 +1080,10 @@ Square age & X & X & X & X & X\\
 Method of IMR &  & Pooled & Pooled & Separate & Separate\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 Table \ref{tab:benchmark} shows the estimation results of price elasticity.
@@ -1142,6 +1147,7 @@ the price elasticity is unlikely to vary significantly among individuals.
 \caption{\label{tab:robustbenchmark1}First Price Intensive-Margin Elasiticity without Annoucment Effect (Subsample Analysis)}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccccc}
 \toprule
   & (1) & (2) & (3) & (4) & (5)\\
@@ -1165,6 +1171,10 @@ Square age & X & X & X & X & X\\
 Method of IMR &  & Pooled & Pooled & Separate & Separate\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. We exclude observations in 2013 and 2014.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 \begin{table}
@@ -1172,6 +1182,7 @@ Method of IMR &  & Pooled & Pooled & Separate & Separate\\
 \caption{\label{tab:robustbenchmark2}Last Price Intensive-Margin Elasiticity (Subsample Analysis)}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccc}
 \toprule
   & (1) & (2) & (3)\\
@@ -1193,6 +1204,10 @@ Square age & X & X & X\\
 Method of IMR &  & Pool & Separate\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instrument of last-price is the first-price of giving.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 We show the results of the same robustness test as in this paper
@@ -1220,6 +1235,7 @@ which is similar to the result shown in this paper.
 \centering
 \resizebox{\linewidth}{!}{
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccccccccc}
 \toprule
   & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9)\\
@@ -1240,7 +1256,11 @@ Difference of square age & X & X & X & X & X & X & X & X & X\\
 Lag & 1-year & 1-year & 1-year & 2-year & 2-year & 2-year & 3-year & 3-year & 3-year\\
 Method of IMR &  & Pool & Separate &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
+\end{tablenotes}
+\end{threeparttable}}
 \end{table}
 
 \begin{table}
@@ -1248,6 +1268,7 @@ Method of IMR &  & Pool & Separate &  & Pool & Separate &  & Pool & Separate\\
 \caption{\label{tab:leadlagbenchmark}First Price Intensive-Margin Elasiticities Including Lead and Lag}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lcc}
 \toprule
   & (1) & (2)\\
@@ -1256,6 +1277,14 @@ log(first giving price) & -0.235 & -0.377\\
  & (0.872) & (1.191)\\
 log(annual taxable income) & -0.200 & 2.353\\
  & (5.532) & (16.995)\\
+1-year lag of price & -0.098 & -0.131\\
+ & (0.862) & (0.879)\\
+1-year lag of income & 6.491 & 5.529\\
+ & (5.003) & (7.943)\\
+1-year lead of income & -5.895 & -6.506\\
+ & (3.666) & (5.295)\\
+IMR &  & 0.249\\
+ &  & (1.644)\\
 \midrule
 Num.Obs. & 849 & 849\\
 R2 Adj. & 0.784 & 0.783\\
@@ -1264,8 +1293,13 @@ FE: industry & X & X\\
 FE: panelid & X & X\\
 FE: year & X & X\\
 Square age & X & X\\
+Method of IMR &  & Pool\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. 1-year lead of price cannot be estimated because of collinearity.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 In addition to the same robustness test as in this paper,
@@ -1279,7 +1313,7 @@ Under the income deduction system,
 changes in income affect donations through the income effect
 and the giving price through marginal tax rates
 (Auten et al., 2002; Bakija and Heim, 2011; Randolph, 1995).
-Therefore, following Almunia et al. (2020) and Bakija and Heim (2011),
+Therefore, following Gruber and Saez (2002) and Almunia et al. (2020),
 we estimate the following k-th difference model:
 \begin{align}
   \Delta^k \ln g_{it} = \varepsilon_p \Delta^k \ln p^f_{it}(y_{it})
@@ -1314,6 +1348,23 @@ As a result, price elasticity is statistically insignificant.
 However, because our data is unbalanced panel data,
 the sample size is quite small.
 In that respect, the results of this analysis are unreliable.
+
+\hypertarget{additional-references}{%
+\subsection*{Additional References}\label{additional-references}}
+\addcontentsline{toc}{subsection}{Additional References}
+
+\hypertarget{refs_appx}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-Saez2002}{}}%
+Gruber, J., Saez, E., 2002. The elasticity of taxable income: Evidence and implications. Journal of Public Economics 32.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Wooldridge2010}{}}%
+Semykina, A., Wooldridge, J.M., 2010. Estimating panel data models in the presence of endogeneity and selection. Journal of Econometrics 157, 375--380. doi:\href{https://doi.org/10.1016/j.jeconom.2010.03.039}{10.1016/j.jeconom.2010.03.039}
+
+\leavevmode\vadjust pre{\hypertarget{ref-Wooldridge2015}{}}%
+Wooldridge, J.M., 2015. Control function methods in applied econometrics. Journal of Human Resources 50, 420--445. doi:\href{https://doi.org/10.3368/jhr.50.2.420}{10.3368/jhr.50.2.420}
+
+\end{CSLReferences}
 
 \clearpage
 

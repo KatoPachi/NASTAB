@@ -11,8 +11,8 @@ author:
   - name: Youngrok Kim
     inst: Graduate School of Economics, Kobe University, Japan
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
-bibliography_main: [Rmarkdown/main_ref.bib]
-bibliography_appx: [Rmarkdown/appx_ref.bib]
+bibliography_main: [Rmarkdown/ref_main.bib]
+bibliography_appx: [Rmarkdown/ref_appx.bib]
 csl: template/csl/elsevier-harvard.csl
 abstract: |
   This paper investigates the price elasticity of charitable giving utilizing South Korean tax reform in 2014, when the tax relief on charitable giving changed from tax deduction to tax credit. Although many research on the price elasticity of charitable giving use tax return data or ignore declaration cost for charitable giving to receive tax relief, this paper uses a survey panel data and considers the existence of declaration cost for tax reliefs on charitable giving.
@@ -37,7 +37,7 @@ output:
     toc: false
     dev: cairo_pdf
     template: template/tex/plain.tex
-    pandoc_args: --lua-filter=luafilter/multiple-bibliographies/multiple-bibliographies.lua
+    pandoc_args: --lua-filter=luafilters/multiple-bibliographies/multiple-bibliographies.lua
 params:
   preview: false
 ---
