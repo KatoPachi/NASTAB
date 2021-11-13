@@ -218,8 +218,7 @@ stage2 %>%
 #' directly to the explanatory variables.
 #' The estimated value varies slightly depending on the estimation method,
 #' but it is in the range of -1.5 to -1.8.
-#' Therefore, a 1% price reduction will increase the donation amount by 1.5-1.8%
-#' for those who apply for a donation deduction.
+#' Therefore, a 1% price reduction will increase the donation amount by 1.5-1.8%.
 #'
 #+ rob1intensive, results = if(params$preview) "markup" else "hide"
 stage2 %>%
@@ -337,9 +336,9 @@ rob1_stage2 %>%
 #' We also confirmed that
 #' this result is robust
 #' even if the announcement effect of tax reform is eliminated
-#' and that the last-price elasticity takes a similar value.
+#' and that the last-price elasticity takes a similar value[^additional].
 #'
-#' 
+#' [^additional]: We further perform two further robustness tests on the relative price of giving. First, the first-price depends only on income. Therefore, if income is endogenous, the first-price is also an endogenous variable. To deal with this problem, we estimate the $k$-th order difference model. Second, to directly control the dynamic effects of price and income changes on donations, we add lagged and future changes of these variables to the explanatory variables.
 #'
 #' ## Extensive Margin
 #'
@@ -520,8 +519,7 @@ rob_ext_stage2 %>%
 #' ranges from -0.76 to -1.04.
 #' In other words,
 #' a 1% reduction in relative price due to tax incentives increases
-#' the probability of donation by 0.7% to 1%
-#' for those who apply for tax relief.
+#' the probability of donation by 0.7% to 1%.
 #' This result is robust against
 #' the effects of the 2014 tax reform announcement
 #' (See Table \@ref(tab:robextensive) in Appendix A,
