@@ -15,8 +15,8 @@ bibliography: Rmarkdown/Ref.bib
 csl: template/csl/elsevier-harvard.csl
 abstract: |
   This paper investigates the price elasticity of charitable giving utilizing South Korean tax reform in 2014, when the tax relief on charitable giving changed from tax deduction to tax credit. Although many research on the price elasticity of charitable giving use tax return data or ignore declaration cost for charitable giving to receive tax relief, this paper uses a survey panel data and considers the existence of declaration cost for tax reliefs on charitable giving.
-  By considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the giving price elasticity on the donation. As a result, we find that the estimation about the price elasticity is almost -1 in terms of intensive margins. 
-  Moreover, our estimation suggest that the price elasticity for the extensive margins is , which implies that there is a fixed cost for charitable giving. 
+  By considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the giving price elasticity on the donation. As a result, we find that the estimation about the price elasticity is -1.5 $\sim$ -1.8 in terms of intensive margins. 
+  Moreover, our estimation suggest that the price elasticity for the extensive margins is less than -1.8, which is much less than the estimates of extant research. 
 keyword:
   words:
     - Charitable giving

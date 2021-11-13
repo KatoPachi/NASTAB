@@ -17,9 +17,9 @@ Some robustness
 
 In this paper, we investigate the giving price elasticity using South Korean panel data. As a result, we obtain the following findings.
 
-Firstly, our baseline estimation shows that the giving price elasticity in Korea is around -1 even if we take into account the existence of the undeclared charitable giving. Since the literature of the tax expenditure for charitable giving suggests that the price elasticity is around -1, the result suggests that the effect coming from the existence of the undeclared charitable giving cost may be limited.
+Firstly, our baseline estimation shows that the giving price elasticity in Korea is less than -1.4 even if we take into account declaration cost of charitable giving. Since the literature of the tax expenditure for charitable giving suggests that the price elasticity is around -1, the result suggests that the impact of declaration cost may be big.
 
-Secondly, we find that the estimated price elasticity using the effective giving price takes the similar values from the estimated elasticity in the extant research. It implies that the effect from the declaration cost, which has been ignored, is not so large. Moreover, as well as the baseline result, this result shows that the price elasticity is around -1, which derives the same conclusions as the baseline result.
+Secondly, we find that. compared to the baseline result, the estimated price elasticity using the data limited to tax filers takes -1.3 $\sim$ -1.6, which is similar values to the estimated elasticity in the extant research. It implies that the usage of tax return data leads to smaller price elasticity in terms of absolute value. 
 
 From the results, we firstly show the giving price elasticity in Korea. However, many things to be considered are remaining. To understand the giving behavior and to contribute the policy making, more sophisticated research is needed.
 ```
