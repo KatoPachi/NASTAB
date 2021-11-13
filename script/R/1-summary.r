@@ -253,7 +253,7 @@ df %>%
 #'
 #' [^fprice]: The giving price shown in Table \@ref(tab:SummaryCovariate) is the *first* giving price. The giving price can be manipulated by an amount of donation. To avoid this endogeneity, we use the giving price where the amount of donation is zero. We will discuss this issue in the next section.
 #'
-#+
+#+ SummaryRelief, fig.cap = "Share of Tax Relief", out.width = "85%", out.extra = ""
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(employee)) %>%

@@ -55,6 +55,9 @@ df <- readr::read_csv(
     now_balance = col_double(),
     ideal_balance = col_double()
   )
+) %>%
+dplyr::filter(
+  ext_benefit_tl == 0 | (ext_benefit_tl == 1 & i_ext_giving == 1)
 )
 ```
 
@@ -118,7 +121,7 @@ the exogenous shock of giving price by the 2014 tax reform has produced a  price
 Using this exogenous change in price, we estimate the price elasticity of donations.
 Then, we assume the following 2-way fixed effect model:
 \begin{equation}
-    \ln g_{it} = \varepsilon_p R_{it} \ln p_{it}(y_{it}, g_{it}) + \varepsilon_y \ln y_{it} 
+    \ln g_{it} = \varepsilon_{pi} R_{it} \ln p_{it}(y_{it}, g_{it}) + \varepsilon_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}, (\#eq:intensive)
 \end{equation}
 where $g_{it}, p_{it}$ and $y_{it}$ respectively indicates
@@ -128,6 +131,16 @@ If s/he does not apply for a tax deduction/credit ($R_{it} = 0$), then the relat
 and its logarithmic value is zero.
 $\mu_i, \iota_t$ and $u_{it}$ are individual fixed effect, year fixed effect, and the error term, respectively. 
 $X_{it}$ is a vector of covariates including square of age, industry dummy, and area dummy.
+
+Our parameter of interest is the price elasticity of giving, denoted by $\varepsilon_{pi}$.
+We assume that this parameter varies from individual to individual.
+This model is called the random coefficient model,
+and especially when the deduction application and price elasticity are correlated,
+this model is called the correlated random coefficient model.
+When estimating this parameter,
+we need to address the issue of donation price endogenous
+and deduction application endogenous.
+In the following subsections, we discuss how to deal with each endogeneity.
 
 ## Endogenity of Giving Price $p_{it}$
 
@@ -165,33 +178,25 @@ we estimate the Equation \@ref(eq:intensive) with 2SLS with fixed effects.
 
 [^fprice_credit]: Under the tax credit system, the relative price of donations does not depend on the donation amount. Thus, the first-price of giving is equal to the last-price of giving.
 
-Since income is generally endogenous,
-the first-price of giving is also an endogenous variable. 
-Under the income deduction system,
-changes in income affect donations through the income effect 
-and the giving price through marginal tax rates [@Randolph1995; @Auten2002; @Bakija2011].
-Therefore, following @Almunia2020 and @Bakija2011,
-we use the lagged variable of income
-to construct the following variable that captures the change in the first-price of donations:
-\begin{align}
-  \Delta^k \ln p^f_{it}(y_{it-k}) = \ln \left(\frac{p^f_{it}(y_{it-k})}{p^f_{it-k}(y_{it-k})}\right),
-  (\#eq:laggedp)
-\end{align}
-where the numerator is the first price that individual $i$ would have faced in year $t$
-if she had declared her year $(t - k)$ taxable income at that year. 
-By fixing the income at year $t - k$,
-this variable isolates changes in price from income manipulation[^fprice_lag].
+## Endogenity of Applying for Tax Relief $R_{it}$
 
-[^fprice_lag]: If the tax credit system is adopted in years $t$ and $t-k$, the value of this variable, $\Delta^k \ln p_{it}(y_{it-k})$ will be zero because the giving price under the tax credit system is independent of income.
+We use instrumental variable method to address the endogeneity caused by self-selection of tax deductions.
+If there is no (physical or psychological) cost to declare a tax relief,
+then all individuals should declare a tax relief. 
+However, as shown in Table \@ref(tab:SummaryCovariate),
+declaring a tax relief may incur some costs because some respondents did not declare a tax relief.
+Employment status is one dimension of variation of applied cost.
+For the declaration, self-employed workers have to retain the certificate until they submit tax return although wage earners can declare tax relief and submit the certificate through their company at any time.
+Figure \@ref(fig:SummaryRelief) shows that
+the proportion of declaring a tax relief among employees is higher than the others.
+Thus, we use the wage earner dummy as an instrument of a declaration.
 
-Using this variable as an instrument, we estimate the following $k$-th difference model:
-\begin{align}
-  \Delta^k \ln g_{it} = \varepsilon_p \Delta^k \ln p_{it}(y_{it}, y_{it-k}) + \varepsilon_y \Delta^k \ln y_{it} 
-  + \Delta^k X_{it} \beta + \mu_i + \iota_t + v_{it}, (\#eq:kdiff)
-\end{align}
-where $\Delta^k \ln g_{it} = \ln (g_{it} / g_{it-k})$,
-and $\Delta^k \ln y_{it} = \ln (y_{it} / y_{it-k})$.
-The variable $\Delta^k p^f_{it}(y_{it}, y_{it-k}) = \ln (p^f_{it}(y_{it}) / p^f_{it-k}(y_{it-k}))$ is
-instumented by $\Delta^k \ln p^f_{it}(y_{it-k})$.
-
-## Endogenity of Applying for Tax Deduction/Credit $R_{it}$
+We take three approaches using this instrumental variable.
+First, we estimate the following outcome equation with 2SLS with fixed effects:
+\begin{equation}
+    \ln g_{it} = \varepsilon_{pi} (R_{it} \ln p^f_{it}(y_{it})) + \varepsilon_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it},
+\end{equation}
+where $R_{it} \ln p^f_{it}(y_{it})$ is instrumented by
+$\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})$.
+Note that $\text{WageEarner}_{it}$ is a wage earner dummy.
