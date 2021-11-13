@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{asis, echo = doctype == "draft"}
-# Appendix: Conceptual framework
+# Appendix C: Conceptual framework
 
 In this appendix, we use the framework of @Fack2016 and predict the size of gap between the price elasticities on the reported charitable giving and the true charitable giving.
 
