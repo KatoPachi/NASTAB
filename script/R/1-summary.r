@@ -71,13 +71,15 @@ dplyr::filter(
 #' that households receive from the government.
 #' The subjects of this survey are general households and
 #' household members living in 15 cities and provinces nationwide.
-#' This survey is based on a face-to-face interview. [^interview]
+#' This survey is based on a face-to-face interview.[^interview]
 #' The NaSTaB data is constructed
 #' as the subjects represent the population of Korean society.
 #' This enables us to derive giving price elasticity of population
 #' without re-weighting samples, which is used in the extant research.
 #' Moreover, note that subjects are not limited to the taxpayer or
 #' income earner reflecting the population.
+#'
+#' [^interview]: If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
 #'
 #' In the analysis,
 #' we use data from 2013 to 2017 since we focus on the 2014 tax reform.
@@ -90,8 +92,6 @@ dplyr::filter(
 #' the giving price does not depend on the income tax rate after 2014.
 #' In addition, we exclude the subject of the sample, whose age is under 23,
 #' since they are not likely to have income or assets.
-#'
-#' [^interview]: If it is difficult for investigators to meet subjects, another family member answers on behalf of him.
 #'
 #+ SummaryCovariate
 df %>%
@@ -106,7 +106,7 @@ df %>%
     # (`University graduate` = univ) +
     # (`High school graduate dummy` = highschool) +
     # (`Junior high school graduate dummy` = juniorhigh) +
-    (`Employee dummy` = employee) ~
+    (`Wage earner dummy` = employee) ~
     N +
     (`Mean` = mean) * Arguments(na.rm = TRUE) +
     (`Std.Dev.` = sd) * Arguments(na.rm = TRUE) +
@@ -123,7 +123,7 @@ df %>%
   kableExtra::pack_rows("Individual Characteristics", 6, 7)
 
 #'
-#+ SummaryOutcome, fig.cap = "Time-Series of Outcome Variables", out.width = "85%", out.extra = ""
+#+ SummaryOutcome, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.", out.width = "85%", out.extra = ""
 df %>%
   mutate(
     i_total_giving = if_else(i_ext_giving == 1, i_total_giving, NA_real_)
@@ -161,7 +161,7 @@ df %>%
   )) +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(x = "Year", y = "Proportion of Donors") +
-  ggtemp()
+  ggtemp(size = list(title = 15, text = 13))
 
 #'
 #' Table \@ref(tab:SummaryCovariate)
@@ -186,7 +186,7 @@ df %>%
 #'
 #' [^Question]: Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes. We sum up the amount of donations, and consider it as the annual charitable giving.
 #'
-#+ SummaryPrice, fig.cap = "Income Distribution and Relative Giving Price", out.width = "85%", out.extra = ""
+#+ SummaryPrice, fig.cap = "Income Distribution and Relative Giving Price in 2013. Notes: The left and right axis measure the relative frequency of respondents and the relative giving price, respectively. A blue step line and a red dashed horizontal line represents the giving price in 2013 and 2014, respectively. The grey bar shows income distribution in 2013.", out.width = "85%", out.extra = ""
 df %>%
   filter(year == 2013) %>%
   dplyr::select(lincome, price) %>%
@@ -215,7 +215,7 @@ df %>%
     y = "Relative Frequency",
     caption = "Red dashed line is the giving price after the 2014 tax reform."
   ) +
-  ggtemp()
+  ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
 #' The second panel of Table \@ref(tab:SummaryCovariate)
@@ -240,7 +240,7 @@ df %>%
 #' under the tax deduction system (2012 and 2013).[^fprice]
 #' After the tax reform (after 2014),
 #' the giving price is 0.85 regardless of labor income,
-#' as we explained in the section \@ref(institutional-background).
+#' as we explained in Section \@ref(taxreform).
 #' In Figure \@ref(fig:SummaryPrice),
 #' the blue line shows the giving price in 2012 and 2013,
 #' while the red dashed line shows the giving price after 2014.
@@ -255,7 +255,7 @@ df %>%
 #'
 #' [^fprice]: The giving price shown in Table \@ref(tab:SummaryCovariate) is the *first* giving price. The giving price can be manipulated by an amount of donation. To avoid this endogeneity, we use the giving price where the amount of donation is zero. We will discuss this issue in the next section.
 #'
-#+ SummaryRelief, fig.cap = "Share of Tax Relief", out.width = "85%", out.extra = ""
+#+ SummaryRelief, fig.cap = "Share of Tax Relief. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.width = "85%", out.extra = ""
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(employee)) %>%
@@ -267,8 +267,8 @@ df %>%
   summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
   mutate(employee = factor(employee)) %>%
   ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
-  geom_point(aes(shape = employee), color = "black", size = 3) +
-  geom_line(aes(linetype = employee), size = 1) +
+  geom_point(aes(shape = employee), color = "black", size = 4) +
+  geom_line(aes(linetype = employee)) +
   geom_vline(aes(xintercept = 2013.5)) +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(
@@ -277,20 +277,18 @@ df %>%
     shape = "Wage earner",
     linetype = "Wage earner"
   ) +
-  ggtemp()
+  ggtemp(size = list(title = 15, text = 13))
 
 #' The NaSTaB also asks respondents
 #' to answer whether they declared a tax relief of giving.
 #' This survey data separately asks whether subjects applied for tax 
-#' relief on giving via tax filing (this is used for *total* income 
-#' (e.g., business income, dividend income and rental income)) or not, 
-#' and whether subjects applied for tax reilef on giving via tax withholding 
-#' (this is used for *labor* income.).
+#' relief on giving via tax filing or not, 
+#' and whether subjects applied for tax reilef on giving via tax withholding.[^total_labor]
 #' We make a dummy taking one if subjects applied for either tax relief. 
-#' Since we omit the samples do not answer the questions, the sample size 
-#' is relatively small.
 #' Table \@ref(tab:SummaryCovariate) shows
-#' the proportion of declaration is about 24%.
+#' the proportion of declaration is about 11%.
+#'
+#' [^total_labor]: Tax filing is used for *total* income (e.g., business income, dividend income and rental income). Tax withholding is used for *labor* income.
 #'
 # /*
 #+

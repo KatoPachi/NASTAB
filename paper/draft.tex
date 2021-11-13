@@ -108,17 +108,17 @@
 \title{Charitable Giving, Tax Reform, and Self-selection of Tax Relief: Evidence from South Korea  }
 \author{
     Hiroki Kato
-  \thanks{. E-mail: vge008kh@stundent.econ.osaka-u.ac.jp  }
+  \thanks{Graduate School of Economics, Osaka University, Japan. E-mail: vge008kh@stundent.econ.osaka-u.ac.jp  }
   \and
     Tsuyoshi Goto
-  \thanks{. E-mail: t.goto@chiba-u.jp  }
+  \thanks{Graduate School of Social Sciences, Chiba University, Japan. E-mail: t.goto@chiba-u.jp  }
   \and
     Youngrok Kim
-  \thanks{.  }
+  \thanks{Graduate School of Economics, Kobe University, Japan.  }
   \and
   }
 
-\date{2021/11/13}
+\date{2021/11/14}
 
 
 \begin{document}
@@ -128,14 +128,14 @@
 \begin{spacing}{1}
   \begin{abstract}
     This paper investigates the price elasticity of charitable giving utilizing South Korean tax reform in 2014, when the tax relief on charitable giving changed from tax deduction to tax credit. Although many research on the price elasticity of charitable giving use tax return data or ignore declaration cost for charitable giving to receive tax relief, this paper uses a survey panel data and considers the existence of declaration cost for tax reliefs on charitable giving.
-    By considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the giving price elasticity on the donation. As a result, we find that the estimation about the price elasticity is almost -1 in terms of intensive margins.
-    Moreover, our estimation suggest that the price elasticity for the extensive margins is , which implies that there is a fixed cost for charitable giving.
+    By considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the giving price elasticity on the donation. As a result, we find that the estimation about the price elasticity is -1.5 \(\sim\) -1.8 in terms of intensive margins.
+    Moreover, our estimation suggest that the price elasticity for the extensive margins is less than -1.8, which is much less than the estimates of extant research.
     
             \noindent
-    \textbf{Key words}: Charitable givingGiving priceTax reformSouth Korea
+    \textbf{Key words}: Charitable giving, Giving price, Tax reform, South Korea
         
         \noindent
-    \textbf{JEL Codes}: D91I10I18
+    \textbf{JEL Codes}: D91, I10, I18
         
   \end{abstract}
 \end{spacing}
@@ -148,7 +148,7 @@ In many countries, governments set a tax relief for charitable giving. This is b
 However, there are two issues of the estimation as for the declaration of tax and charitable giving.
 First issue is about the sample selection. Most of the analysis based on tax record only captures the effect for tax filers, while charitable donation may also be conducted by those who do not declare their tax. Thus, as some papers such as Rehavi and Shack (2013) and Backus and Grant (2019) point out, the estimation based on the tax return data will contain the sample selection bias.
 
-Second issue is that the declaration for charitable giving (not the declaration of tax) is endogenous to the price of charitable giving. This is because the declaration for charitable giving is required to apply for the tax relief on charitable giving, and the effect of giving price on the amount of giving may represent the difference of declaration costs for charitable giving. Since this issue does not resolved even if the data of non tax filers are available, few studies take this issue into account on the estimation\footnote{Almunia et al.(2020) considers the existence of declaration cost by using structual estimation, but they use tax return data, the usage of which will cause the sample selection bias.}.
+Second issue is that the declaration for charitable giving (not the declaration of tax) is endogenous to the price of charitable giving. This is because the declaration for charitable giving is required to apply for the tax relief on charitable giving, and the effect of giving price on the amount of giving may represent the difference of declaration costs for charitable giving. Since this issue does not resolved even if the data of non tax filers are available, few studies take this issue into account on the estimation.\footnote{Almunia et al. (2020) considers the existence of declaration cost by using structual estimation, but they use tax return data, the usage of which will cause the sample selection bias.}
 
 Considering these issues, this paper investigates the price elasticity of giving. To derive the elasticity, this paper utilizes the South Korean (Korea hereafter) tax reform in 2014, from when the tax relief on charitable giving was conducted by tax credit, though tax deduction had been used before 2014.
 The Korean tax reform in 2014 started to allow 15\% of the total amount of charitable giving as a tax credit for all taxpayers, which means that the giving price for 1 KRW donation is 0.85 KRW.\footnote{1 KRW is approximately 0.001 USD. In other words, 1 USD is about 1,000 KRW.} Since the giving price was determined according to the marginal tax rate of progressive income tax before 2014, this tax reform reduced the giving price for low income taxpayers while it increased the price for high income tax payers. Since the variation of giving price can be considered to be exogenous for taxpayers, we exploit this reform and conduct the difference-in-difference (DID) analysis for identification.
@@ -159,9 +159,9 @@ Secondly, for the issue of charitable giving declaration, we focus on the fact t
 
 Thirdly, this paper examines the giving price elasticity in a non-Western country, where few papers deal with. While the giving behavior may be affected by the cultural matter such as the religious belief, the estimated price elasticity in this paper is in line with the result of the extant papers.
 
-In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is about -1, which many papers have shown and indicates.
+In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is about -1.4 in terms of intensive margins and less than -1.8 in terms of extensive margins. Since these estimates are much less than the estimates of extant research, this implies that the consideration of declaration cost may make a difference.
 
-This paper consist of seven sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of price elasticity using the applicable giving price and section 6 shows the analysis using the effective giving price. Section 7 concludes.
+This paper consistsof six sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of price elasticity. Section 6 concludes.
 
 \hypertarget{institutional-background-and-sources-of-endogeneity}{%
 \section{Institutional background and Sources of endogeneity}\label{institutional-background-and-sources-of-endogeneity}}
@@ -173,7 +173,6 @@ In this section, we describe the endogeneity issue and the income tax relief for
 
 In the South Korea, the tax policy about charitable giving drastically changed in 2014. Before then, tax relief of charitable giving was provided by tax deduction while, from 2014, tax relief by tax credit was introduced instead of tax deduction.
 
-The tax deduction and tax credit may have different effects on giving behavior. This subsection summarize the difference of tax deduction and tax credit.
 Consider that a household has a choice between private consumption (\(x_i\)) and charitable giving (\(g_i\)). Let \(y_i\) be pre-tax total income.
 Then, the budget constraint can be shown as
 \begin{align}
@@ -239,8 +238,8 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 \end{threeparttable}
 \end{table}
 
-\hypertarget{korean-tax-reform-in-2014}{%
-\subsection{Korean tax reform in 2014}\label{korean-tax-reform-in-2014}}
+\hypertarget{taxreform}{%
+\subsection{Korean tax reform in 2014}\label{taxreform}}
 
 Korean tax system offers a tax relief for charitable giving in income tax. All tax payers have to declare their donation and submit the certificate of charitable giving to receive tax relief, while the taxation method and the way of tax declaration are different for wage earners and self-employed workers. Wage earners pay income tax by withholding tax and declare tax relief for charitable giving via their company. Self-employed workers pay income tax by tax-return and declare tax relief when they submit tax return to the National Tax Service. Therefore, there is a difference of declaration cost of tax relief since self-employed workers have to retain the certificate until they submit tax return although wage earners can submit the certificate at any time.
 
@@ -255,10 +254,10 @@ In the literature of giving tax relief, many papers care various issues on the e
 
 However, compared to the issues about the tax system, the treatment for the other issues varies in each paper. In particular, many paper do not consider the existence of declaration cost of charitable giving.
 
-From (\ref{R}), we can see that the giving price does not changed by tax relief without the declaration for charitable giving (i.e.~\(\partial g/\partial q=0\) for non-declared charitable giving.). Therefore, we have to distinguish between declared and non-declared charitable giving\footnote{Note that this is impossible when tax return data is used since it only records declared charitable giving.}.
+From (\ref{R}), we can see that the giving price does not changed by tax relief without the declaration for charitable giving (i.e.~\(\partial g/\partial q=0\) for non-declared charitable giving.). Therefore, we have to distinguish between declared and non-declared charitable giving.\footnote{Note that this is impossible when tax return data is used since it only records declared charitable giving.}
 
 In addition, considering that those who face lower declaration cost are likely to declare their giving and enjoy tax relief, the difference of giving behavior may come not from the difference of the amount of tax relief \(q\), which is the main identification source, but from the difference of declaration cost \(K_i\), via \(R_i\).
-This problem is not resolved even if survey data is used instead of tax return data\footnote{This is because the usage of survey data does not mean that it considers the existence of the declaration cost of each observation.}.
+This problem is not resolved even if survey data is used instead of tax return data.\footnote{This is because the usage of survey data does not mean that it considers the existence of the declaration cost of each observation.}
 
 The usage of tax return data will amplify this problem. If charitable giving is declared, the marginal income tax rate is \(T'(y_i-g_i)\) under the tax deduction system and \(T'(y_i)\) under the tax credit system, while, if charitable giving is not declared, the marginal income tax rate is \(T'(y_i)\) under the both system. Therefore, for given \(g_i\), the difference of the marginal income tax rate between whether the declared or not is
 \begin{align}
@@ -282,7 +281,7 @@ to study the tax burden of households and the benefits
 that households receive from the government.
 The subjects of this survey are general households and
 household members living in 15 cities and provinces nationwide.
-This survey is based on a face-to-face interview. \footnote{If it is difficult for investigators to meet subjects, another family member answers on behalf of him.}
+This survey is based on a face-to-face interview.\footnote{If it is difficult for investigators to meet subjects, another family member answers on behalf of him.}
 The NaSTaB data is constructed
 as the subjects represent the population of Korean society.
 This enables us to derive giving price elasticity of population
@@ -323,7 +322,7 @@ since they are not likely to have income or assets.
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
 \hspace{1em}Age & 40064 & 54.20 & 16.31 & 24.00 & 52.00 & 104.00\\
-\hspace{1em}Employee dummy & 29753 & 0.54 & 0.50 & 0.00 & 1.00 & 1.00\\
+\hspace{1em}Wage earner dummy & 29753 & 0.54 & 0.50 & 0.00 & 1.00 & 1.00\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -334,7 +333,7 @@ since they are not likely to have income or assets.
 
 }
 
-\caption{Time-Series of Outcome Variables}\label{fig:SummaryOutcome}
+\caption{Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.}\label{fig:SummaryOutcome}
 \end{figure}
 
 Table \ref{tab:SummaryCovariate}
@@ -363,7 +362,7 @@ After that, the proportion of donors is greter than 20\%.
 
 }
 
-\caption{Income Distribution and Relative Giving Price}\label{fig:SummaryPrice}
+\caption{Income Distribution and Relative Giving Price in 2013. Notes: The left and right axis measure the relative frequency of respondents and the relative giving price, respectively. A blue step line and a red dashed horizontal line represents the giving price in 2013 and 2014, respectively. The grey bar shows income distribution in 2013.}\label{fig:SummaryPrice}
 \end{figure}
 
 The second panel of Table \ref{tab:SummaryCovariate}
@@ -388,7 +387,7 @@ we construct the giving price
 under the tax deduction system (2012 and 2013).\footnote{The giving price shown in Table \ref{tab:SummaryCovariate} is the \emph{first} giving price. The giving price can be manipulated by an amount of donation. To avoid this endogeneity, we use the giving price where the amount of donation is zero. We will discuss this issue in the next section.}
 After the tax reform (after 2014),
 the giving price is 0.85 regardless of labor income,
-as we explained in the section \ref{institutional-background}.
+as we explained in Section \ref{taxreform}.
 In Figure \ref{fig:SummaryPrice},
 the blue line shows the giving price in 2012 and 2013,
 while the red dashed line shows the giving price after 2014.
@@ -407,21 +406,19 @@ since the tax reform increases the giving price.
 
 }
 
-\caption{Share of Tax Relief}\label{fig:SummaryRelief}
+\caption{Share of Tax Relief. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryRelief}
 \end{figure}
 
 The NaSTaB also asks respondents
 to answer whether they declared a tax relief of giving.
-Although this variable is unique,
-the sample size is relatively small due to unanswering.
-This survey investigates separately for the case of \emph{total} income
-(for example, business income, dividend income, rental income)
-and the case of \emph{labor} income.
-We make a dummy taking one
-if respondents applied for a total income deduction of giving
-or a labor income deduction of giving.
+This survey data separately asks whether subjects applied for tax
+relief on giving via tax filing (this is used for \emph{total} income
+(e.g., business income, dividend income and rental income)) or not,
+and whether subjects applied for tax reilef on giving via tax withholding
+(this is used for \emph{labor} income.).
+We make a dummy taking one if subjects applied for either tax relief.
 Table \ref{tab:SummaryCovariate} shows
-the proportion of declaration is about 24\%.
+the proportion of declaration is about 11\%.
 
 \hypertarget{statistical-model}{%
 \section{Statistical Model}\label{statistical-model}}
@@ -432,17 +429,16 @@ the proportion of declaration is about 24\%.
 
 }
 
-\caption{Average Logged Giving in Three Income Groups}\label{fig:SummaryOutcome2}
+\caption{Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryOutcome2}
 \end{figure}
 
 To estimate the giving price elasticity,
 we use DID-like strategy which exploit the fact that the giving price was unified in 2014
 while the price was different for tax payers with different incomes.
-Figure \ref{fig:SummaryOutcome2} the logarithmic average of donations for each year for each of the three income groups.
+Figure \ref{fig:SummaryOutcome2} shows the logarithmic average of donations for each year for the three income groups, which is standardized to be 1 in 2013.
 We created three income groups, with the relative price of giving rising (lower than 12,000,000 KRW),
 unchanged (between 12,000,000 KRW and 46,000,000 KRW),
 and falling (higher than 46,000,000 KRW) between 2013 and 2014.
-In addition, the average logarithmic value of giving is standardized to be 1 in 2013.
 
 We can observe two facts from this figure.
 First, before the tax reform, the amount of donations of income groups whose prices have increased or unchanged has remained the same,
@@ -457,7 +453,7 @@ the exogenous shock of giving price by the 2014 tax reform has produced a price 
 Using this exogenous change in price, we estimate the price elasticity of donations.
 Then, we assume the following 2-way fixed effect model:
 \begin{equation}
-    \ln g_{it} = \varepsilon_{pi} R_{it} \ln p_{it}(y_{it}, g_{it}) + \varepsilon_y \ln y_{it} 
+    \ln g_{it} = \varepsilon_p R_{it} \ln p_{it}(y_{it}, g_{it}) + \varepsilon_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}, \label{eq:intensive}
 \end{equation}
 where \(g_{it}, p_{it}\) and \(y_{it}\) respectively indicates
@@ -468,11 +464,7 @@ and its logarithmic value is zero.
 \(\mu_i, \iota_t\) and \(u_{it}\) are individual fixed effect, year fixed effect, and the error term, respectively.
 \(X_{it}\) is a vector of covariates including square of age, industry dummy, and area dummy.
 
-Our parameter of interest is the price elasticity of giving, denoted by \(\varepsilon_{pi}\).
-We assume that this parameter varies from individual to individual.
-This model is called the random coefficient model,
-and especially when the deduction application and price elasticity are correlated,
-this model is called the correlated random coefficient model.
+Our parameter of interest is the price elasticity of giving, denoted by \(\varepsilon_p\).
 When estimating this parameter,
 we need to address the issue of donation price endogenous
 and deduction application endogenous.
@@ -483,7 +475,7 @@ In the following subsections, we discuss how to deal with each endogeneity.
 
 Our identification strategy is price changes due to the 2014 tax reform.
 However, the relative price of donations is endogenous
-because it is necessary to use donation data under the income deduction system (before the 2014 tax reform).
+because it depends on the amount of income and charitable giving under the tax deduction system (before the 2014 tax reform).
 To formally show this issue, the relative price of donations \(p_{it}\) is defined as:
 \begin{align}
   p_{it}(y_{it}, g_{it}) =
@@ -504,7 +496,7 @@ because taxpayers can reduce the amount of donations and
 lower their tax brackets by one level to lower the relative price of giving.
 To address this endogeneity, consider the price faced in the first unit of donation denoted by \(p^f_{it}\).
 This is called the first-price of giving and is obtained by \(p^f_{it}(y_{it}) = p_{it}(y_{it}, 0)\).
-In contrast, \(p_{it}(y_{it}, g_{it})\) is called the last-price of giving\footnote{Under the tax credit system, the relative price of donations does not depend on the donation amount. Thus, the first-price of giving is equal to the last-price of giving.}.
+In contrast, \(p_{it}(y_{it}, g_{it})\) is called the last-price of giving.\footnote{Under the tax credit system, the relative price of donations does not depend on the donation amount. Thus, the first-price of giving is equal to the last-price of giving.}
 The first-price of giving is unaffected by the manipulation of giving,
 so the first-price is exogenous to the donation amount.
 Therefore, assuming that the income is exogenous,
@@ -525,24 +517,53 @@ Employment status is one dimension of variation of applied cost.
 For the declaration, self-employed workers have to retain the certificate until they submit tax return although wage earners can declare tax relief and submit the certificate through their company at any time.
 Figure \ref{fig:SummaryRelief} shows that
 the proportion of declaring a tax relief among employees is higher than the others.
-Thus, we use the wage earner dummy as an instrument of a declaration.
+Thus, we use the wage earner dummy, denoted by \(\text{WageEarner}_{it}\), as an instrument of a declaration.
 
-We take three approaches using this instrumental variable.
+The instrumental variable \(\text{WageEarner}_{it}\) must hold independence of \(u_{it}\) conditional on covariates.\footnote{We allow arbitrary correlation between instrument and fixed effects.}
+There are two potential sources to violate this assumption.
+First, the employment status may produce income variation.
+If this is true, then the employment status affects charitable giving through an income effect.
+Second, an opportunity of giving may depend on employment status.
+For example, a doctor and a public servant may tend to donate than the others.
+If so, the instrument is correlated with \(u_{it}\).
+Since we control incomes and industry dummies, we can avoid this problem.
+
+We take three approaches using the wage earner dummy as the instrumental variable.
 First, we estimate the following outcome equation with 2SLS with fixed effects:
 \begin{equation}
     \ln g_{it} = \varepsilon_{pi} (R_{it} \ln p^f_{it}(y_{it})) + \varepsilon_y \ln y_{it} 
-    + X_{it}\beta +\mu_i +\iota_t +u_{it},
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}, \label{eq:stage2}
 \end{equation}
 where \(R_{it} \ln p^f_{it}(y_{it})\) is instrumented by
 \(\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})\).
-Note that \(\text{WageEarner}_{it}\) is a wage earner dummy.
+
+The remaining two approaches use the propensity score (PS) of tax relief applications.
+To get a propensity score,
+we implement a probit estimation with the following selection equation:
+\begin{equation}
+  R_{it} = 1[\delta_0 + Z_{it} \delta_1 + u_{it1} > 0], \label{eq:stage1}
+\end{equation}
+where \(Z_{it} = (\text{WageEarner}_{it}, \ln p^f_{it}(y_{it}), \ln y_{it}, X_{it})\).
+
+We estimate this model with a full sample (pooled probit model) or
+a subsample (separated probit model) divided by year,
+and calculate the propensity score by \(P(Z_{it}) = \Phi(\hat{\delta}_0 + Z_{it} \hat{\delta}_1)\)
+where \(\Phi(\cdot)\) is the cumulative function of the standard normal distribution.
+The latter estimation method allows the two coefficients \((\delta_0, \delta_1)\) to vary over time.
+The second approach estimates equation \eqref{eq:stage2} with 2SLS with fixed effects,
+using \(P(Z_{it}) \times \ln p^f_{it}(y_{it})\) as the instrumental variable of \(R_{it} \ln p^f_{it}(y_{it})\).
+The third approach estimates the following outcome equation by OLS:
+\begin{equation}
+    \ln g_{it} = \varepsilon_{pi} (P(Z_{it}) \ln p^f_{it}(y_{it})) + \varepsilon_y \ln y_{it} 
+    + X_{it}\beta +\mu_i +\iota_t +u_{it}. \label{eq:stage2red}
+\end{equation}
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
 
 In this section, we report the price elasticity of intensive-margin and
 extensive-margin, respectively.
-Note that we provide an appendix with the first-stage estimation results
+Note that we provide Appendix A with the first-stage estimation results
 used to calculate the propensity score.
 As a basic result, even if we control covariates such as income,
 giving price, and industry dummy,
@@ -561,6 +582,7 @@ statistically insignificant.
 \caption{\label{tab:intensive}First-Price Elasticities (Intenstive Margin)}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccccc}
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE-2SLS} & \multicolumn{2}{c}{OLS} \\
@@ -586,6 +608,10 @@ Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 Table \ref{tab:intensive} shows
@@ -601,12 +627,11 @@ In models (4) and (5), we add the intersection between
 the propensity score of application and the giving (first) price
 directly to the explanatory variables.
 The estimated value varies slightly depending on the estimation method,
-but it is in the range of -1.5 to -1.8.
-Therefore, a 1\% price reduction will increase the donation amount by 1.5-1.8\%
-for those who apply for a donation deduction.
+but it is about -1.5.
+Therefore, a 1\% price reduction will increase the donation amount by 1.5\%.
 
 We performed some analyzes for the robustness of this result.
-The regression table is shown in the appendix,
+The regression table is shown in Appendix A,
 but we will briefly describe the results.
 We show the results of estimating elasticity excluding 2013 and 2014 data
 in Table \ref{tab:rob1intensive} of the Appendix A
@@ -617,7 +642,7 @@ by the reform should increase (decrease) donations before the reform.
 Therefore, the price elasticity is under-biased
 due to the announcement effect of tax reform.
 As a result, as we expected,
-the price elasticity ranges from -1.7 to -1.9,
+the price elasticity ranges from -1.6 to -1.9,
 which is a statistically significant result.
 
 Table \ref{tab:rob2intensive} of the Appendix A shows
@@ -647,41 +672,7 @@ which is similar to the main result.
 We also confirmed that
 this result is robust
 even if the announcement effect of tax reform is eliminated
-and that the last-price elasticity takes a similar value.
-
-This approach also solves the endogenous nature of the application
-by correcting the sample selection bias,
-making it simpler to perform two further robustness tests
-on the relative price of giving.
-First, the first-price depends only on income.
-Therefore, if income is endogenous,
-the first-price is also an endogenous variable.
-A and B proposed to deal with it by \(k\)-th order difference estimation.
-In this model, the k-th lagged variable of the giving price,
-\(\ln p^f_{it}(y_{it}) - \ln p^f_{it-k}(y_{it-k})\),
-depends on the income for two periods.
-Using the income for \(t-k\) year, we calculate the giving price for \(t\) year
-and \(t-k\) year, that is,
-\(\ln p^f_{it}(y_{it-k}) - \ln p^f_{it-k}(y_{it-k})\),
-and use it as an instrumental variable.
-This avoids the endogenous problem of income manipulation
-because the variation described by the instrumental variable
-is independent of income.
-As a result,
-the price elasticity by the 1-year and 2-year difference estimation i
-statistically insignificant,
-but the price elasticity by the 3-year difference estimation
-is in the range of -1.5 to -1.7, which is statistically significant.
-
-Second,
-to directly control the dynamic effects of
-price and income changes on donations,
-C proposes to add lagged and future changes of these variables
-to the explanatory variables.
-As a result, price elasticity is statistically insignificant.
-However, because our data is unbalanced panel data,
-the sample size is quite small.
-In that respect, the results of this analysis are unreliable.
+and that the last-price elasticity takes a similar value.\footnote{We further perform two further robustness tests on the relative price of giving. First, the first-price depends only on income. Therefore, if income is endogenous, the first-price is also an endogenous variable. To deal with this problem, we estimate the \(k\)-th order difference model. Second, to directly control the dynamic effects of price and income changes on donations, we add lagged and future changes of these variables to the explanatory variables.}
 
 \hypertarget{extensive-margin}{%
 \subsection{Extensive Margin}\label{extensive-margin}}
@@ -705,6 +696,7 @@ the decision to donate the first unit.
 \caption{\label{tab:extensive}First-Price Elasticities (Extenstive Margin)}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccccc}
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE-2SLS} & \multicolumn{2}{c}{OLS} \\
@@ -720,7 +712,6 @@ log(income) & 2.105*** & 2.074*** & 1.975*** & 1.955*** & 1.832***\\
 \midrule
 Implied price elasticity & -1.863*** & -2.129*** & -2.975*** & -1.743*** & -2.286***\\
  & (0.721) & (0.518) & (0.475) & (0.465) & (0.407)\\
-Square of age & X & X & X & X & X\\
 Num.Obs. & 26922 & 26922 & 26922 & 26922 & 26922\\
 R2 & 0.679 & 0.681 & 0.687 & 0.663 & 0.663\\
 R2 Adj. & 0.569 & 0.572 & 0.580 & 0.547 & 0.547\\
@@ -728,10 +719,15 @@ FE: area & X & X & X & X & X\\
 FE: industry & X & X & X & X & X\\
 FE: panelid & X & X & X & X & X\\
 FE: year & X & X & X & X & X\\
+Square of age & X & X & X & X & X\\
 Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Implied price elasticity is obtained by the ratio of estimated coefficient value to share of donors.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 Table \ref{tab:extensive} shows
@@ -745,14 +741,13 @@ Models (4) and (5) use OLS to estimate a model that
 uses the intersection of propensity score of application and
 giving price as an explanatory variable.
 
-As a result, the estimated coefficients are in the range of -0.54 to -0.74.
+As a result, the estimated coefficients are in the range of -0.41 to -0.54.
 The extensive-margin price elasticity,
-obtained by dividing this factor by the percentage of donors,
-ranges from -0.76 to -1.04.
+obtained by dividing estimates by the percentage of donors,
+ranges from -1.74 to -2.98.
 In other words,
 a 1\% reduction in relative price due to tax incentives increases
-the probability of donation by 0.7\% to 1\%
-for those who apply for tax relief.
+the probability of donation by 1.74\% to 2.98\%.
 This result is robust against
 the effects of the 2014 tax reform announcement
 (See Table \ref{tab:robextensive} in Appendix A,
@@ -767,9 +762,9 @@ when deciding on how much to donate rather than whether or not to donate.
 
 In this paper, we investigate the giving price elasticity using South Korean panel data. As a result, we obtain the following findings.
 
-Firstly, our baseline estimation shows that the giving price elasticity in Korea is around -1 even if we take into account the existence of the undeclared charitable giving. Since the literature of the tax expenditure for charitable giving suggests that the price elasticity is around -1, the result suggests that the effect coming from the existence of the undeclared charitable giving cost may be limited.
+Firstly, our baseline estimation shows that the giving price elasticity in Korea is less than -1.4 even if we take into account declaration cost of charitable giving. Since the literature of the tax expenditure for charitable giving suggests that the price elasticity is around -1, the result suggests that the impact of declaration cost may be big.
 
-Secondly, we find that the estimated price elasticity using the effective giving price takes the similar values from the estimated elasticity in the extant research. It implies that the effect from the declaration cost, which has been ignored, is not so large. Moreover, as well as the baseline result, this result shows that the price elasticity is around -1, which derives the same conclusions as the baseline result.
+Secondly, we find that. compared to the baseline result, the estimated price elasticity using the data limited to tax filers takes -1.3 \(\sim\) -1.6, which is similar values to the estimated elasticity in the extant research. It implies that the usage of tax return data leads to smaller price elasticity in terms of absolute value.
 
 From the results, we firstly show the giving price elasticity in Korea. However, many things to be considered are remaining. To understand the giving behavior and to contribute the policy making, more sophisticated research is needed.
 
@@ -813,14 +808,19 @@ Saez, E., 2004. The optimal treatment of tax expenditures. Journal of Public Eco
 \appendix}
 
 
+\hypertarget{appendix}{%
+\section*{Appendix}\label{appendix}}
+\addcontentsline{toc}{section}{Appendix}
+
 \hypertarget{additional-figures-and-tables}{%
 \section{Additional Figures and Tables}\label{additional-figures-and-tables}}
 
-\begin{table}
+\begin{table}[H]
 
 \caption{\label{tab:stage1}Probit Estimation of Selection Equation}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccccccc}
 \toprule
 \multicolumn{2}{c}{ } & \multicolumn{6}{c}{Separated Probit Model} \\
@@ -845,6 +845,10 @@ Dummy of area & X & X & X & X & X & X & X\\
 Dummy of industry & X & X & X & X & X & X & X\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 \begin{table}
@@ -852,6 +856,7 @@ Dummy of industry & X & X & X & X & X & X & X\\
 \caption{\label{tab:rob1intensive}Robustness of First-Price Elasticities (Intenstive Margin)}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccccc}
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE-2SLS} & \multicolumn{2}{c}{OLS} \\
@@ -877,6 +882,10 @@ Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 \begin{table}
@@ -884,6 +893,7 @@ Method of PS &  & Pool & Separate & Pool & Separate\\
 \caption{\label{tab:rob2intensive}Last-Price Elasticities (Intensive Margin)}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccc}
 \toprule
   & (1) & (2) & (3)\\
@@ -905,6 +915,10 @@ Instrument & Wage earner x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 \begin{table}
@@ -912,6 +926,7 @@ Method of PS &  & Pool & Separate\\
 \caption{\label{tab:robextensive}Robustness of First-Price Elasticities (Extenstive Margin)}
 \centering
 \fontsize{9}{11}\selectfont
+\begin{threeparttable}
 \begin{tabular}[t]{lccccc}
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE-2SLS} & \multicolumn{2}{c}{OLS} \\
@@ -927,7 +942,6 @@ log(income) & 2.233*** & 2.108*** & 2.026*** & 1.934*** & 1.814***\\
 \midrule
 Implied price elasticity & -0.850 & -2.116*** & -2.949*** & -1.801*** & -2.353***\\
  & (1.075) & (0.711) & (0.666) & (0.677) & (0.606)\\
-Square of age & X & X & X & X & X\\
 Num.Obs. & 18148 & 18148 & 18148 & 18148 & 18148\\
 R2 & 0.716 & 0.725 & 0.730 & 0.709 & 0.710\\
 R2 Adj. & 0.553 & 0.567 & 0.576 & 0.543 & 0.543\\
@@ -935,10 +949,15 @@ FE: area & X & X & X & X & X\\
 FE: industry & X & X & X & X & X\\
 FE: panelid & X & X & X & X & X\\
 FE: year & X & X & X & X & X\\
+Square of age & X & X & X & X & X\\
 Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Implied price elasticity is obtained by the ratio of estimated coefficient value to share of donors.
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 \clearpage
