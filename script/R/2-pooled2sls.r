@@ -213,8 +213,7 @@ stage2 %>%
 #' directly to the explanatory variables.
 #' The estimated value varies slightly depending on the estimation method,
 #' but it is in the range of -1.5 to -1.8.
-#' Therefore, a 1% price reduction will increase the donation amount by 1.5-1.8%
-#' for those who apply for a donation deduction.
+#' Therefore, a 1% price reduction will increase the donation amount by 1.5-1.8%.
 #'
 #+ rob1intensive
 stage2 %>%
@@ -518,8 +517,7 @@ rob_ext_stage2 %>%
 #' ranges from -0.76 to -1.04.
 #' In other words,
 #' a 1% reduction in relative price due to tax incentives increases
-#' the probability of donation by 0.7% to 1%
-#' for those who apply for tax relief.
+#' the probability of donation by 0.7% to 1%.
 #' This result is robust against
 #' the effects of the 2014 tax reform announcement
 #' (See Table \@ref(tab:robextensive) in Appendix A,
