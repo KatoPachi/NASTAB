@@ -3,28 +3,24 @@ title: |
   Charitable Giving, Tax Reform, and Self-selection of Tax Relief: Evidence from South Korea
 author: 
   - name: Hiroki Kato
-    affiliation: Graduate School of Economics, Osaka University, Japan
+    inst: Graduate School of Economics, Osaka University, Japan
     email: vge008kh\@stundent.econ.osaka-u.ac.jp
   - name: Tsuyoshi Goto
-    affiliation: Graduate School of Social Sciences, Chiba University, Japan
+    inst: Graduate School of Social Sciences, Chiba University, Japan
+    email: t.goto\@chiba-u.jp
   - name: Youngrok Kim
-    affiliation: Graduate School of Economics, Kobe University, Japan
+    inst: Graduate School of Economics, Kobe University, Japan
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
-bibliography: Rmarkdown/Ref.bib
+bibliography_main: [Rmarkdown/ref_main.bib]
+bibliography_appx: [Rmarkdown/ref_appx.bib]
 csl: template/csl/elsevier-harvard.csl
 abstract: |
-  This paper investigates the price elasticity of charitable giving utilizing South Korean tax reform in 2014, when the tax relief on charitable giving changed from tax deduction to tax credit. Although many research on the price elasticity of charitable giving implicitly assume that all of tax payers declare their tax relief on charitable giving, this paper considers the existence of declaration cost for tax reliefs on charitable giving.
-  By estimating the "intension-to-treat" effect (ITT) of tax reform, the analysis shows that the giving price elasticity is about -1 in terms of both intensive and extensive margins. Furthermore, considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the effect of "effective" giving price on the donation. As a result, we find that the estimation about the "effective" price elasticity is almost the same for the baseline one in terms of both intensive and extensive margins. This implies that the effect from the declaration cost of charitable giving may be small. 
+  This paper investigates the price elasticity of charitable giving utilizing South Korean tax reform in 2014, when the tax relief on charitable giving changed from tax deduction to tax credit. Although many research on the price elasticity of charitable giving use tax return data or ignore declaration cost for charitable giving to receive tax relief, this paper uses a survey panel data and considers the existence of declaration cost for tax reliefs on charitable giving.
+  By considering the declaration of charitable giving and exploiting the different declaration cost between wage earners and self-employed workers as instrument variable (IV), we estimate the giving price elasticity on the donation. As a result, we find that the estimation about the price elasticity is -1.4 $\sim$ -1.8 in terms of intensive margins. 
+  Moreover, our estimation suggest that the price elasticity for the extensive margins is less than -1.7, which is much less than the estimates of extant research. 
 keyword:
-  words:
-    - Charitable giving
-    - Giving price
-    - Tax reform
-    - South Korea
-  JEL: 
-    - D91
-    - I10
-    - I18
+  words: Charitable giving, Giving price, Tax reform, South Korea
+  JEL: D91, I10, I18
 documentclass: article
 papersize: a4
 fontsize: 11pt
@@ -40,8 +36,20 @@ output:
     fig_caption: yes
     toc: false
     dev: cairo_pdf
-    template: template/tex/default_authblk.tex
+    template: template/tex/plain.tex
+    pandoc_args: --lua-filter=luafilters/multiple-bibliographies/multiple-bibliographies.lua
+params:
+  preview: false
 ---
+
+```{r knit_command, eval = FALSE, include = FALSE, echo = FALSE}
+# If you want to knit draft, please run following command manually!!
+rmarkdown::render(
+  "draft.Rmd",
+  output_file = "draft.pdf",
+  output_dir = "paper"
+)
+```
 
 ```{r setup, include = FALSE, echo = FALSE}
 knitr::opts_chunk$set(
@@ -64,24 +72,65 @@ options(
 doctype <- "draft"
 ```
 
-```{r child = "Rmarkdown/introduction.Rmd"}
+```{r function, include = FALSE, echo = FALSE}
+library(xfun)
+xfun::pkg_attach2(c(
+  "tidyverse", "rlist", "modelsummary", "kableExtra",
+  "estimatr", "fixest"
+))
+
+lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 ```
 
-```{r child = "Rmarkdown/1-summary.Rmd"}
+```{r child = "Rmarkdown/1-introduction.Rmd"}
 ```
 
-```{r child = "Rmarkdown/estimation.Rmd"}
+```{r}
+knitr::spin_child("script/R/1-summary.R")
 ```
 
-```{r child = "Rmarkdown/2-elasticity.Rmd"}
+```{r child = "Rmarkdown/2-estimation.Rmd"}
 ```
 
-```{r child = "Rmarkdown/6-self_selection.Rmd"}
+```{r}
+knitr::spin_child("script/R/2-pooled2sls.R")
 ```
 
-```{r child="Rmarkdown/conclusion.Rmd"}
+```{r child="Rmarkdown/3-conclusion.Rmd"}
+```
+
+\newpage
+
+# References {-}
+
+::: {#refs_main}
+:::
+
+\newpage
+
+# (APPENDIX) Appendix {-}
+# Appendix {-}
+# Additional Figures and Tables
+
+```{r stage1, ref.label="stage1"}
+```
+
+```{r rob1intensive, ref.label="rob1intensive"}
+```
+
+```{r rob2intensive, ref.label="rob2intensive"}
+```
+
+```{r robextensive, ref.label="robextensive"}
 ```
 
 \clearpage
 
-# References {#references .unnumbered .allowframebreaks}
+```{r}
+knitr::spin_child("script/R/3-subsample.R")
+```
+
+\clearpage
+
+```{r child = "Rmarkdown/4-appendix.Rmd", eval = FALSE}
+```

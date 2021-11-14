@@ -12,6 +12,12 @@
 # R-related files
 .Rhistory
 .Rprofile
+.Renviron
+.Rproj.user
+*.Rproj
 
 # cache folder
 slides_cache/
+
+# worktree
+worktree/

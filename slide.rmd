@@ -28,7 +28,7 @@ output:
     keep_tex: true
     toc: false
     slide_level: 2
-    template: template/tex/default_authblk.tex
+    template: template/tex/plain.tex
 ---
 
 ```{r setup, include = FALSE, echo = FALSE}
