@@ -82,21 +82,21 @@ xfun::pkg_attach2(c(
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 ```
 
-```{r child = "Rmarkdown/introduction.Rmd"}
+```{r child = "Rmarkdown/1-introduction.Rmd"}
 ```
 
 ```{r}
 knitr::spin_child("script/R/1-summary.R")
 ```
 
-```{r child = "Rmarkdown/estimation.Rmd"}
+```{r child = "Rmarkdown/2-estimation.Rmd"}
 ```
 
 ```{r}
 knitr::spin_child("script/R/2-pooled2sls.R")
 ```
 
-```{r child="Rmarkdown/conclusion.Rmd"}
+```{r child="Rmarkdown/3-conclusion.Rmd"}
 ```
 
 \newpage
@@ -132,5 +132,5 @@ knitr::spin_child("script/R/3-subsample.R")
 
 \clearpage
 
-```{r child = "Rmarkdown/appendix.Rmd", eval = FALSE}
+```{r child = "Rmarkdown/4-appendix.Rmd", eval = FALSE}
 ```
