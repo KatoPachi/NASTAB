@@ -157,9 +157,9 @@ This paper contributes the literature about the charitable giving tax system for
 
 Secondly, for the issue of charitable giving declaration, we focus on the fact that wage earners can easily declare tax relief in their company while self-employed workers have to declare tax relief via tax agency in Korea. By utilizing this difference of declaration costs between wage earners and self-employed workers as an instrument variable (IV), we estimate the price elasticity eliminating endogeneity between declaration for charitable giving and price of charitable giving.
 
-Thirdly, this paper examines the giving price elasticity in a non-Western country, where few papers deal with. While the giving behavior may be affected by the cultural matter such as the religious belief, the estimated price elasticity in this paper is in line with the result of the extant papers.
+Thirdly, this paper examines the giving price elasticity in a non-Western country, where few papers deal with. While the giving behavior may be affected by the cultural matter such as the religious belief, the estimated price elasticities in this paper are less than the estimates in the extant research.
 
-In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is about -1.4 in terms of intensive margins and less than -1.8 in terms of extensive margins. Since these estimates are much less than the estimates of extant research, this implies that the consideration of declaration cost may make a difference.
+In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.8 in terms of extensive margins. Since these estimates are much less than the estimates of extant research, this implies that the consideration of declaration cost may make a difference.
 
 This paper consistsof six sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of price elasticity. Section 6 concludes.
 
@@ -243,7 +243,7 @@ Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{}
 
 Korean tax system offers a tax relief for charitable giving in income tax. All tax payers have to declare their donation and submit the certificate of charitable giving to receive tax relief, while the taxation method and the way of tax declaration are different for wage earners and self-employed workers. Wage earners pay income tax by withholding tax and declare tax relief for charitable giving via their company. Self-employed workers pay income tax by tax-return and declare tax relief when they submit tax return to the National Tax Service. Therefore, there is a difference of declaration cost of tax relief since self-employed workers have to retain the certificate until they submit tax return although wage earners can submit the certificate at any time.
 
-In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system, where the tax credit was introduced instead of tax deduction. Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit, which means that the giving price from 2014 is 0.85 KRW for each 1 KRW of donation irrelevant to the income level.
+Before 2014, tax reilef on charitable giving is conducted by tax deduction on income tax in Korea. since marginal income tax rate was determined as Table 1, tax payer facing the highest marginal income tax rate, 38\%, can enjoy the giving price 0.62 KRW for each 1 KRW of donation. In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system, where the tax credit was introduced instead of tax deduction. Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit, which means that the giving price from 2014 is 0.85 KRW for each 1 KRW of donation irrelevant to the income level.
 
 Summarizing this, compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%, get benefit from charitable giving under the tax deduction system. However, middle or low income households would enjoy tax relief in tax credit system more than tax deduction system. We exploit this policy change as an identification strategy.
 
@@ -449,7 +449,7 @@ These facts in descriptive statistics suggest that
 the exogenous shock of giving price by the 2014 tax reform has produced a price effect for donations.
 
 Using this exogenous change in price, we estimate the price elasticity of donations.
-Then, we assume the following 2-way fixed effect model:
+Then, we assume the following two-way fixed effect model:
 \begin{equation}
     \ln g_{it} = \varepsilon_p R_{it} \ln p_{it}(y_{it}, g_{it}) + \varepsilon_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}, \label{eq:intensive}
@@ -474,15 +474,15 @@ In the following subsections, we discuss how to deal with each endogeneity.
 Our identification strategy is price changes due to the 2014 tax reform.
 However, the relative price of donations is endogenous
 because it depends on the amount of income and charitable giving under the tax deduction system (before the 2014 tax reform).
-To formally show this issue, the relative price of donations \(p_{it}\) is defined as:
+The relative price of donations \(p_{it}\) applied for those who declared their charitable giving is defined as:
 \begin{align}
   p_{it}(y_{it}, g_{it}) =
   \begin{cases}
-    1 - \tau_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
+    1 - T'_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
     1 - m \quad\text{if}\quad t \ge 2014
   \end{cases}, \label{eq:price}
 \end{align}
-where \(\tau_t(\cdot)\) is average tax rate in year \(t\).
+where \(T'_t(\cdot)\) is marginal tax rate in year \(t\).
 As is clear from the above formula,
 the (within) variation in giving price depends not only on the 2014 tax reform
 but also on the amount of donations and income before 2014,
@@ -533,7 +533,7 @@ First, we estimate the following outcome equation with 2SLS with fixed effects:
     + X_{it}\beta +\mu_i +\iota_t +u_{it}, \label{eq:stage2}
 \end{equation}
 where \(R_{it} \ln p^f_{it}(y_{it})\) is instrumented by
-\(\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})\).
+\(\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})\)\footnote{Note that this formulation use the notation, which is slightly different from the explanation in section 2. Hereafter, we use $p_{it}(y_{it}, g_{it})$ to show the giving price not for all tax payers but for those who declare charitable giving. For those who do not declare charitable giving, 1 is applied as giving price.}.
 
 The remaining two approaches use the propensity score (PS) of tax relief applications.
 To get a propensity score,
@@ -605,6 +605,7 @@ Square of age & X & X & X & X & X\\
 Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
+\multicolumn{6}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
@@ -721,6 +722,7 @@ Square of age & X & X & X & X & X\\
 Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
+\multicolumn{6}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Implied price elasticity is obtained by the ratio of estimated coefficient value to share of donors.
@@ -762,7 +764,7 @@ In this paper, we investigate the giving price elasticity using South Korean pan
 
 Firstly, our baseline estimation shows that the giving price elasticity in Korea is less than -1.4 even if we take into account declaration cost of charitable giving. Since the literature of the tax expenditure for charitable giving suggests that the price elasticity is around -1, the result suggests that the impact of declaration cost may be big.
 
-Secondly, we find that. compared to the baseline result, the estimated price elasticity using the data limited to tax filers takes -1.3 \(\sim\) -1.6, which is similar values to the estimated elasticity in the extant research. It implies that the usage of tax return data leads to smaller price elasticity in terms of absolute value.
+Secondly, we find that. compared to the baseline result, the estimated price elasticity using the data limited to tax filers takes -1.4 \(\sim\) -1.6, which is similar values to the estimated elasticity in the extant research. It implies that the usage of tax return data leads to smaller price elasticity in terms of absolute value.
 
 From the results, we firstly show the giving price elasticity in Korea. However, many things to be considered are remaining. To understand the giving behavior and to contribute the policy making, more sophisticated research is needed.
 
@@ -843,6 +845,7 @@ Std. Errors & Standard & Standard & Standard & Standard & Standard & Standard & 
 Dummy of area & X & X & X & X & X & X & X\\
 Dummy of industry & X & X & X & X & X & X & X\\
 \bottomrule
+\multicolumn{8}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.
@@ -880,6 +883,7 @@ Square of age & X & X & X & X & X\\
 Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
+\multicolumn{6}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
@@ -913,6 +917,7 @@ Square of age & X & X & X\\
 Instrument & Wage earner x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate\\
 \bottomrule
+\multicolumn{4}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
@@ -952,6 +957,7 @@ Square of age & X & X & X & X & X\\
 Instrument & Wage earner x Price & PS x Price & PS x Price &  & \\
 Method of PS &  & Pool & Separate & Pool & Separate\\
 \bottomrule
+\multicolumn{6}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Implied price elasticity is obtained by the ratio of estimated coefficient value to share of donors.
@@ -1079,6 +1085,7 @@ FE: year & X & X & X & X & X\\
 Square age & X & X & X & X & X\\
 Method of IMR &  & Pooled & Pooled & Separate & Separate\\
 \bottomrule
+\multicolumn{6}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
@@ -1170,6 +1177,7 @@ FE: year & X & X & X & X & X\\
 Square age & X & X & X & X & X\\
 Method of IMR &  & Pooled & Pooled & Separate & Separate\\
 \bottomrule
+\multicolumn{6}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. We exclude observations in 2013 and 2014.
@@ -1203,6 +1211,7 @@ FE: year & X & X & X\\
 Square age & X & X & X\\
 Method of IMR &  & Pool & Separate\\
 \bottomrule
+\multicolumn{4}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. The instrument of last-price is the first-price of giving.
@@ -1256,6 +1265,7 @@ Difference of square age & X & X & X & X & X & X & X & X & X\\
 Lag & 1-year & 1-year & 1-year & 2-year & 2-year & 2-year & 3-year & 3-year & 3-year\\
 Method of IMR &  & Pool & Separate &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
+\multicolumn{10}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
@@ -1295,6 +1305,7 @@ FE: year & X & X\\
 Square age & X & X\\
 Method of IMR &  & Pool\\
 \bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. 1-year lead of price cannot be estimated because of collinearity.
