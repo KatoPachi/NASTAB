@@ -42,7 +42,7 @@ params:
   preview: false
 ---
 
-```{r knit_command, eval = FALSE}
+```{r knit_command, eval = FALSE, include = FALSE, echo = FALSE}
 # If you want to knit draft, please run following command manually!!
 rmarkdown::render(
   "draft.Rmd",
@@ -70,6 +70,16 @@ options(
 )
 
 doctype <- "draft"
+```
+
+```{r function, include = FALSE, echo = FALSE}
+library(xfun)
+xfun::pkg_attach2(c(
+  "tidyverse", "rlist", "modelsummary", "kableExtra",
+  "estimatr", "fixest"
+))
+
+lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 ```
 
 ```{r child = "Rmarkdown/introduction.Rmd"}
