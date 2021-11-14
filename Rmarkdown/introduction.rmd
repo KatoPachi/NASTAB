@@ -61,7 +61,7 @@ Secondly, for the issue of charitable giving declaration, we focus on the fact t
 
 Thirdly, this paper examines the giving price elasticity in a non-Western country, where few papers deal with. While the giving behavior may be affected by the cultural matter such as the religious belief, the estimated price elasticities in this paper are less than the estimates in the extant research.
 
-In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.8 in terms of extensive margins. Since these estimates are much less than the estimates of extant research, this implies that the consideration of declaration cost may make a difference.
+In addition, our paper considers several endogeneity issues which have been pointed out in the literature. As a result, we find that the estimated giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.7 in terms of extensive margins. Since these estimates are much less than the estimates of extant research, this implies that the consideration of declaration cost may make a difference.
 
 This paper consistsof six sections. Section 2 and 3 respectively explain the institutional background and data. Section 4 explains the estimation method. Section 5 deals with the analysis of price elasticity. Section 6 concludes.
 ```

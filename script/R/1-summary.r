@@ -226,7 +226,7 @@ df %>%
 #' According to the National Tax Statistical Yearbook
 #' published by Korean National Tax Service,
 #' the average annual taxable income is
-#' 32.77 million (32,770 USD) from 2012 to 2018
+#' 32.77 million KRW (32,770 USD) from 2012 to 2018
 #' for employees who submitted the tax return.
 #' Since our sample includes subjects with no labor income, such as housewives,
 #' our sample mean of income is lower than
