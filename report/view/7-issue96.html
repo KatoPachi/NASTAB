@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Issue96に関するレポート</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>Issue96に関するレポート</h1>
+
+<p><a href="https://github.com/KatoPachi/NASTAB/issues/96">tracking issue here</a></p>
+
+<h2>異時点間の代替性の検証</h2>
+
+<ul>
+<li>問題の所在：2014年の寄付税制のアナウンスが2013年にあったので、これによる異時点間の代替性が生じているかもしれない
+
+<ul>
+<li>Anticipation effect</li>
+<li>所得ラグの推定は所得税の累進性に対応したものなので、この効果に対する明確な対処となっていない</li>
+</ul></li>
+<li>対応１：所得階層別の寄付額の記述統計の確認する
+
+<ul>
+<li>アナウンスによる異時点間の代替性が視覚的に生じているかどうか</li>
+<li>平行トレンドが満たされていれば、anticipation effectは特に問題なし</li>
+</ul></li>
+<li>以下の図は所得階層を3区分にして、各所得階層の各年の寄付額の対数値の平均をプロット
+
+<ul>
+<li>income &lt; 1200：2014年改革で寄付の相対価格が下落するグループ</li>
+<li>income b/w 1200 and 4600：2014年改革で寄付の相対価格が変化しないグループ</li>
+<li>income &gt; 4600：2014年改革で寄付の相対価格が増加するグループ</li>
+<li><strong>視覚的に、異時点間の代替性が生じているとは思えないし、平行トレンドも満たされているようにも見える</strong></li>
+</ul></li>
+</ul>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk SummaryOutcomebyIncome1"/></p>
+
+<ul>
+<li>2013年の寄付対数値の平均が1となるようにしても、平行トレンドが満たされていて、異時点間の代替性が生じていると思われる</li>
+</ul>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk SummaryOutcomebyIncome2"/></p>
+
+<ul>
+<li>対策２：異時点間の代替性によって影響をうける制度改革の直前と直後のデータを落として、推定する
+
+<ul>
+<li>以下の表は2013年と2014年のデータを落として、First priceの弾力性を推定した結果</li>
+<li>比較のために、フルサンプルの結果も併せて示す</li>
+<li>データを落としても、結果に大きな変化はない</li>
+<li><strong>異時点間の代替性があったとしても、結果は大きく変化しない</strong></li>
+</ul></li>
+</ul>
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
+<caption>First price elasticity: Full sample</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:center;"> Overall </th>
+   <th style="text-align:center;"> Intensive </th>
+   <th style="text-align:center;"> Extensive </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> log(first giving price) </td>
+   <td style="text-align:center;"> -1.241*** </td>
+   <td style="text-align:center;"> -0.904*** </td>
+   <td style="text-align:center;"> -0.267*** </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:center;"> (0.227) </td>
+   <td style="text-align:center;"> (0.249) </td>
+   <td style="text-align:center;"> (0.051) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> log(annual taxable income) </td>
+   <td style="text-align:center;"> 4.946*** </td>
+   <td style="text-align:center;"> 1.571** </td>
+   <td style="text-align:center;"> 1.102*** </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;box-shadow: 0px 1px">  </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.949) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.653) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.220) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Num.Obs. </td>
+   <td style="text-align:center;"> 53267 </td>
+   <td style="text-align:center;"> 11637 </td>
+   <td style="text-align:center;"> 53267 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Adj. </td>
+   <td style="text-align:center;"> 0.530 </td>
+   <td style="text-align:center;"> 0.678 </td>
+   <td style="text-align:center;"> 0.462 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Within </td>
+   <td style="text-align:center;"> 0.015 </td>
+   <td style="text-align:center;"> 0.030 </td>
+   <td style="text-align:center;"> 0.014 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: pid </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: year </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Age (squared age) </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Education </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Gender </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Resident Area </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+</tbody>
+<tfoot><tr><td style="padding: 0; " colspan="100%">
+<sup></sup> Note: * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01. Starand errors are culustered at individual level.</td></tr></tfoot>
+</table>
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
+<caption>First price elasticity: Exclude data with year 2013 and 2014</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:center;"> Overall </th>
+   <th style="text-align:center;"> Intensive </th>
+   <th style="text-align:center;"> Extensive </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> log(first giving price) </td>
+   <td style="text-align:center;"> -1.318*** </td>
+   <td style="text-align:center;"> -0.917** </td>
+   <td style="text-align:center;"> -0.298*** </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:center;"> (0.324) </td>
+   <td style="text-align:center;"> (0.359) </td>
+   <td style="text-align:center;"> (0.073) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> log(annual taxable income) </td>
+   <td style="text-align:center;"> 4.237*** </td>
+   <td style="text-align:center;"> 1.430* </td>
+   <td style="text-align:center;"> 0.985*** </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;box-shadow: 0px 1px">  </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (1.125) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.758) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.260) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Num.Obs. </td>
+   <td style="text-align:center;"> 38374 </td>
+   <td style="text-align:center;"> 8715 </td>
+   <td style="text-align:center;"> 38374 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Adj. </td>
+   <td style="text-align:center;"> 0.535 </td>
+   <td style="text-align:center;"> 0.675 </td>
+   <td style="text-align:center;"> 0.467 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Within </td>
+   <td style="text-align:center;"> 0.013 </td>
+   <td style="text-align:center;"> 0.032 </td>
+   <td style="text-align:center;"> 0.012 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: pid </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: year </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Age (squared age) </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Education </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Gender </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Resident Area </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+</tbody>
+<tfoot><tr><td style="padding: 0; " colspan="100%">
+<sup></sup> Note: * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01. Starand errors are culustered at individual level.</td></tr></tfoot>
+</table>
+
+<h2>自営業者と給与所得者の異質性</h2>
+
+<ul>
+<li>IIPFの宮崎先生のSuggestion</li>
+<li>Reduced formで推定してpreliminalyな結果として見せて、tax reliefに起因するものと論じることは可能かも（加藤の意見）</li>
+</ul>
+
+<p>以下に給与所得者（Wage earners）と自営業者（Self-employed）でサブサンプルに分けて推定した結果を示す。
+ただし、やってみたはいいが、解釈が難しい・・・・。</p>
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>First price elasticity: Wage earners</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:center;"> Overall </th>
+   <th style="text-align:center;"> Intensive </th>
+   <th style="text-align:center;"> Extensive </th>
+   <th style="text-align:center;"> Overall  </th>
+   <th style="text-align:center;"> Intensive  </th>
+   <th style="text-align:center;"> Extensive  </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> log(first giving price) </td>
+   <td style="text-align:center;"> -1.802*** </td>
+   <td style="text-align:center;"> -1.170*** </td>
+   <td style="text-align:center;"> -0.353*** </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:center;"> (0.364) </td>
+   <td style="text-align:center;"> (0.354) </td>
+   <td style="text-align:center;"> (0.085) </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> log(first giving price) X 1 = apply tax relief </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;"> -1.912*** </td>
+   <td style="text-align:center;"> -1.362*** </td>
+   <td style="text-align:center;"> -0.259 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;"> (0.738) </td>
+   <td style="text-align:center;"> (0.457) </td>
+   <td style="text-align:center;"> (0.177) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> log(annual taxable income) </td>
+   <td style="text-align:center;"> 4.489*** </td>
+   <td style="text-align:center;"> 0.956 </td>
+   <td style="text-align:center;"> 1.037*** </td>
+   <td style="text-align:center;"> -0.870 </td>
+   <td style="text-align:center;"> 0.713 </td>
+   <td style="text-align:center;"> -0.539 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;box-shadow: 0px 1px">  </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (1.492) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.807) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.356) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (2.216) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.891) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.506) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Num.Obs. </td>
+   <td style="text-align:center;"> 22235 </td>
+   <td style="text-align:center;"> 6538 </td>
+   <td style="text-align:center;"> 22235 </td>
+   <td style="text-align:center;"> 5619 </td>
+   <td style="text-align:center;"> 3983 </td>
+   <td style="text-align:center;"> 5619 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Adj. </td>
+   <td style="text-align:center;"> 0.521 </td>
+   <td style="text-align:center;"> 0.682 </td>
+   <td style="text-align:center;"> 0.446 </td>
+   <td style="text-align:center;"> 0.423 </td>
+   <td style="text-align:center;"> 0.713 </td>
+   <td style="text-align:center;"> 0.250 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Within </td>
+   <td style="text-align:center;"> 0.021 </td>
+   <td style="text-align:center;"> 0.043 </td>
+   <td style="text-align:center;"> 0.020 </td>
+   <td style="text-align:center;"> 0.064 </td>
+   <td style="text-align:center;"> 0.062 </td>
+   <td style="text-align:center;"> 0.066 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: pid </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: year </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Age (squared age) </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Education </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Gender </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Resident Area </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+</tbody>
+</table>
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>First price elasticity: Self-employed</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:center;"> Overall </th>
+   <th style="text-align:center;"> Intensive </th>
+   <th style="text-align:center;"> Extensive </th>
+   <th style="text-align:center;"> Overall  </th>
+   <th style="text-align:center;"> Intensive  </th>
+   <th style="text-align:center;"> Extensive  </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> log(first giving price) </td>
+   <td style="text-align:center;"> 0.785 </td>
+   <td style="text-align:center;"> -2.164* </td>
+   <td style="text-align:center;"> 0.321*** </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:center;"> (0.491) </td>
+   <td style="text-align:center;"> (1.188) </td>
+   <td style="text-align:center;"> (0.119) </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> log(first giving price) X 1 = apply tax relief </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;"> -11.160*** </td>
+   <td style="text-align:center;"> -2.959** </td>
+   <td style="text-align:center;"> -1.982*** </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;">  </td>
+   <td style="text-align:center;"> (1.896) </td>
+   <td style="text-align:center;"> (1.237) </td>
+   <td style="text-align:center;"> (0.391) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> log(annual taxable income) </td>
+   <td style="text-align:center;"> 1.375 </td>
+   <td style="text-align:center;"> -4.080 </td>
+   <td style="text-align:center;"> 0.270 </td>
+   <td style="text-align:center;"> 0.268 </td>
+   <td style="text-align:center;"> -12.149** </td>
+   <td style="text-align:center;"> 1.180 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;box-shadow: 0px 1px">  </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (1.474) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (3.381) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.352) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (8.086) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (5.106) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (1.873) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Num.Obs. </td>
+   <td style="text-align:center;"> 20076 </td>
+   <td style="text-align:center;"> 3269 </td>
+   <td style="text-align:center;"> 20076 </td>
+   <td style="text-align:center;"> 6330 </td>
+   <td style="text-align:center;"> 1229 </td>
+   <td style="text-align:center;"> 6330 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Adj. </td>
+   <td style="text-align:center;"> 0.532 </td>
+   <td style="text-align:center;"> 0.713 </td>
+   <td style="text-align:center;"> 0.458 </td>
+   <td style="text-align:center;"> 0.553 </td>
+   <td style="text-align:center;"> 0.770 </td>
+   <td style="text-align:center;"> 0.477 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Within </td>
+   <td style="text-align:center;"> 0.017 </td>
+   <td style="text-align:center;"> 0.087 </td>
+   <td style="text-align:center;"> 0.018 </td>
+   <td style="text-align:center;"> 0.072 </td>
+   <td style="text-align:center;"> 0.244 </td>
+   <td style="text-align:center;"> 0.057 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: pid </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: year </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Age (squared age) </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Education </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Gender </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Resident Area </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+</tbody>
+</table>
+
+<h2>申告寄付者に限定した推定</h2>
+
+<p>以下、後藤さんの指摘点</p>
+
+<ul>
+<li>既存研究が行ってきた申告寄付者のみを対象とした分析が行われていないため、先行研究と単純な比較ができない</li>
+<li>上記のITTアプローチ・IV推定による意味がどの程度あるのかが把握できない。</li>
+</ul>
+
+<p>そこで、申告寄付者に限定した推定を行った。結果は以下の通り</p>
+
+<ul>
+<li><strong>フルサンプルによるITTアプローチと比較して、OverallとIntentiveの価格弾力性はより弾力的になる</strong></li>
+<li><strong>フルサンプルによるITTアプローチと比較して、Extensiveの価格弾力性は非弾力的になり、統計的に非有意となる</strong></li>
+</ul>
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
+<caption>First price elasticity: Those who applied tax relief</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:center;"> Overall </th>
+   <th style="text-align:center;"> Intensive </th>
+   <th style="text-align:center;"> Extensive </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> log(first giving price) </td>
+   <td style="text-align:center;"> -1.420** </td>
+   <td style="text-align:center;"> -1.328*** </td>
+   <td style="text-align:center;"> -0.119 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:center;"> (0.718) </td>
+   <td style="text-align:center;"> (0.432) </td>
+   <td style="text-align:center;"> (0.165) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> log(annual taxable income) </td>
+   <td style="text-align:center;"> -0.678 </td>
+   <td style="text-align:center;"> 0.917 </td>
+   <td style="text-align:center;"> -0.526 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;box-shadow: 0px 1px">  </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (2.112) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.948) </td>
+   <td style="text-align:center;box-shadow: 0px 1px"> (0.479) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Num.Obs. </td>
+   <td style="text-align:center;"> 5894 </td>
+   <td style="text-align:center;"> 4207 </td>
+   <td style="text-align:center;"> 5894 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Adj. </td>
+   <td style="text-align:center;"> 0.426 </td>
+   <td style="text-align:center;"> 0.718 </td>
+   <td style="text-align:center;"> 0.243 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R2 Within </td>
+   <td style="text-align:center;"> 0.064 </td>
+   <td style="text-align:center;"> 0.062 </td>
+   <td style="text-align:center;"> 0.066 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: pid </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FE: year </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Age (squared age) </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Education </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Gender </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Year x Resident Area </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+   <td style="text-align:center;"> X </td>
+  </tr>
+</tbody>
+<tfoot><tr><td style="padding: 0; " colspan="100%">
+<sup></sup> Note: * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01. Starand errors are culustered at individual level.</td></tr></tfoot>
+</table>
+
+</body>
+
+</html>

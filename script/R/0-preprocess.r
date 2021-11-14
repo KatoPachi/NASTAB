@@ -29,6 +29,9 @@ df <- df %>%
     lag1_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year),
     lag2_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 2),
     lag3_log_pinc_all = dplyr::lag(log_pinc_all, order_by = year, n = 3),
+    lag1_log_price = dplyr::lag(log_price, order_by = year),
+    lag2_log_price = dplyr::lag(log_price, order_by = year, n = 2),
+    lag3_log_price = dplyr::lag(log_price, order_by = year, n = 3),
     lag1_age = dplyr::lag(age, order_by = year),
     lag2_age = dplyr::lag(age, order_by = year, n = 2),
     lag3_age = dplyr::lag(age, order_by = year, n = 3),
@@ -44,6 +47,9 @@ df <- df %>%
     log_diff1I = log_pinc_all - lag1_log_pinc_all,
     log_diff2I = log_pinc_all - lag2_log_pinc_all,
     log_diff3I = log_pinc_all - lag3_log_pinc_all,
+    log_diff1p = log_price - lag1_log_price,
+    log_diff2p = log_price - lag2_log_price,
+    log_diff3p = log_price - lag3_log_price,
     diff1_age = age - lag1_age,
     diff2_age = age - lag2_age,
     diff3_age = age - lag3_age,
@@ -75,7 +81,7 @@ original <- haven::read_dta("data/merge/merge.dta") %>%
       year >= 2014, ext_credit_giving_tincome, ext_deduct_giving_tincome
     )
   ) %>%
-  rename(indust = paa008) %>%
+  rename(industry = paa008) %>%
   dplyr::select(-p_aa005, -pda207, -pda209)
 
 #' 既存のデータにマージする
@@ -108,12 +114,18 @@ df <- df %>%
       year >= 2014, ext_credit_giving_tincome, ext_deduct_giving_tincome
     ),
     ext_benefit_tl = case_when(
-      ext_benefit_l == 1 ~ 1,
-      ext_benefit_t == 1 ~ 1,
-      ext_benefit_t == 0 & ext_benefit_l == 0 ~ 0
+      is.na(ext_benefit_l) ~ ext_benefit_t,
+      is.na(ext_benefit_t) ~ ext_benefit_l,
+      ext_benefit_t + ext_benefit_l == 0 ~ 0,
+      ext_benefit_t + ext_benefit_l != 0 ~ 1
     ),
     int_price_benefit = log_price * ext_benefit_tl
   )
+
+#' rename関連
+#+
+df <- df %>%
+  rename(panelid = pid, area = living_area)
 
 #' CSVファイルに書き出す
 #+
