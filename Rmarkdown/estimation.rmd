@@ -205,7 +205,7 @@ First, we estimate the following outcome equation with 2SLS with fixed effects:
     + X_{it}\beta +\mu_i +\iota_t +u_{it}, (\#eq:stage2)
 \end{equation}
 where $R_{it} \ln p^f_{it}(y_{it})$ is instrumented by
-$\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})$\footnote{Note that this formulation use the notation, which is slightly different from the explanation in section 2. Hereafter, we use $p_{it}(y_{it}, g_{it})$ to show the giving price not for all tax payers but for those who declare charitable giving. For those who do not declare charitable giving, 1 is applied as giving price.}.
+$\text{WageEarner}_{it} \times \ln p^f_{it}(y_{it})$\footnote{Note that this formulation use the notation, which is slightly different from the explanation in section 2. Hereafter, we use $p_{it}(y_{it}, g_{it})$ to show the giving price not for all tax payers but for those who declare charitable giving.}.
 
 The remaining two approaches use the propensity score (PS) of tax relief applications.
 To get a propensity score,
