@@ -14,9 +14,10 @@ institute:
   - number: 2
     name: Chiba University
   - number: 3
-    name: Kobe University
+    name: Kansai University
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
-bibliography: Rmarkdown/Ref.bib
+bibliography_main: [Rmarkdown/ref_main.bib]
+bibliography_appx: [Rmarkdown/ref_appx.bib]
 csl: template/csl/elsevier-harvard.csl
 aspectratio: 169
 graphics: yes
@@ -30,6 +31,7 @@ output:
     slide_level: 2
     template: template/tex/plain.tex
 ---
+
 
 ```{r setup, include = FALSE, echo = FALSE}
 knitr::opts_chunk$set(
@@ -49,22 +51,11 @@ options(knitr.kable.NA = " ")
 doctype <- "slide"
 ```
 
-```{r child = "Rmarkdown/introduction.Rmd"}
+```{r child = "Rmarkdown/1-introduction.Rmd"}
 ```
 
-```{r child = "Rmarkdown/1-summary.Rmd"}
-```
 
-```{r child = "Rmarkdown/estimation.Rmd"}
-```
+# References {-}
 
-```{r child = "Rmarkdown/2-elasticity.Rmd"}
-```
-
-```{r child = "Rmarkdown/6-self_selection.Rmd"}
-```
-
-```{r child="Rmarkdown/conclusion.Rmd"}
-```
-
-## References
+::: {#refs_main}
+:::
