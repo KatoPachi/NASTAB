@@ -17,25 +17,34 @@ knitr::opts_chunk$set(
 ```{asis, echo = doctype == "slide"}
 ## Introduction
 
-- In many countries, tax incentives on chariable giving are implemented
-- Many papers investigate elasticities of the tax incentive based on tax return data (e.g. @Almunia2020; @Auten2002; @Bakija2011)
-- However, the tax return data record only the declared charitable giving
-  - Tax payers decide an amount of donation and whether to declare tax relief based on the size of tax incentive and declration cost.
-  - Because of this declration cost, the estimations (especially for extensive margins) may be biased.
-  - Moreover, actual donations is different from declared donations (Fack and Landais (2016); Gillitzer and Skov (2018))
-- We investigate the elasticities about both declared and non-declared charitable giving, using the financial panel survey data in South Korea
+- In many countries, tax relief for charitable giving are implemented.
+- The elasticity of giving tax relief is known as a key parameter to evaluate the welfare implication (e.g. Saez, 2004).
+    - Intuitively, if the elasticity is more than 1 in absolute value, $1 of tax relief make more than $1 of charitable giving.
+
+- Many papers investigate the elasticity based on tax return data (e.g. Almunia et al., 2020, Auten et al., 2002, and so on).
 
 ## Introduction
 
-To take price variation due to declaration into account, we estimate two price elasticities:
+- However, the tax return data record only the declared charitable giving.
+  - First issue: Actual donations is different from declared donations.(Fack and Landais (2016); Gillitzer and Skov (2018))
+  - We use panel survey data in South Korea to deal with this issue.
+- Tax payers decide the amount of donation and whether to declare tax relief based on the size of tax incentive and declaration cost.
+  - Second issue: Neglect of this declaration cost may bias the estimations of elasticity.
+  - We use instrumental variable (IV) and control function approach for this issue.
+- Based on DID as an identification strategy, we investigate the giving price elasticity of South Korea.
 
-- *Applicable* price elasticity: giving price when tax payers declare tax relief regardless of actual declaration
-  - The major variation of this giving price comes from the 2014 tax reform
-- *Effective* price elasticity: giving price based on information of declaration
-  - We estimate this considering the existence of the declaration cost
-- By comparing two price elasticities, we can infer price effect through declration
+## Introduction
 
-Result: \textcolor{red}{Both price elasticities are around -1, which implies that the price effect through declaration is not so large.}
+Result
+
+1. Baseline results show that the giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.7 in terms of extensive margins in Korea.
+2. The estimated giving price elasticity for those who declare charitable giving is around -1.2$\sim$-1.6.
+
+These estimates are more elastic than the estimates in the extant research, many of which show around -1. 
+
+3. (Not in the paper) The estimated declaration cost of giving is KRW (\$).
+4. (Not in the paper) Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
+
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -69,27 +78,59 @@ This paper consistsof six sections. Section 2 and 3 respectively explain the ins
 ```{asis, echo = doctype == "slide"}
 ## 2014 tax reform in South Korea
 
-Our major price variation comes from the 2014 tax reform, which has changed from the tax deduction system to the tax credit system
+In Korea, income tax payers can receive tax relief for their charitable giving. 
 
-- Consider allocation problem b/w private consumption ($x_{it}$) and giving ($g_{it}$). 
-- The budget constraint is $x_{it} + g_{it} = y_{it} - T(y_{it}, g_{it})$ where $y_{it}$ is pre-tax total income, and $T(y_{it}, g_{it})$ is tax amount.
-- Let $R_{it}$ be a dummy of declaration of tax relief, and let $\tau(\cdot)$ be the income tax rate.
+- For the application of tax relief, tax payers have to submit a certificate for charitable giving.
+- Wage earners pay their income tax by withholding tax and declare their charitable giving via their company.
+    - Wage earners can submit the certificate at any time.
+- Non wage earners, such as the self-employed, pay their income tax by tax-return and declare their charitable giving via the National Tax Service.
+    - Non wage earners have to retain the certificate until they submit tax return.
 
-## 2014 tax reform in South Korea (Cont'd)
+## 2014 tax reform in South Korea
+
+Our major price variation comes from the 2014 tax reform.
+
+- Before 2014, tax deduction (所得控除) was used for tax relief on charitable giving.
+    - I.e. the giving price depended on income level.
+- After 2014, tax credit (税額控除) started to be used for tax relief on charitable giving.
+    - The tax credit rate was determined as 15\%.
+    - Giving price is 0.85, irrespective of income level.
+
+## 2014 tax reform in South Korea
+
+Model
+
+- Consider private consumption ($x_{i}$) and charitable giving ($g_{i}$). 
+- The budget constraint is 
+
+$$x_{i} + g_{i} = y_{i} - R_iK- R_iT(y_{i}, g_{i})-(1-R_i)T(y_i)$$
+
+where $y_{i}$ is pre-tax total income, $R_{i}$ is a dummy of declaration of tax relief and $T(y_i)$ and $T(y_{i}, g_{i})$ are respectively the amount of tax when $i$ does not declare tax relief and when $i$ declares tax relief.
+
+- Tax payers declare their charitable giving if its benefit exceeds its cost.
+\begin{align}
+R_i=\begin{cases}
+1 \text{ if }T(y_i, g_i) - T(y_i)>K\\
+0 \text{ if }T(y_i, g_i) - T(y_i)\le K.\notag
+\end{cases}
+\end{align}
+
+## 2014 tax reform in South Korea
+
 
 **Tax deduction system (until 2013)** 
+$$T(y_{i}, g_{i}) = T(y_{i} - g_{i})$$
 
-$$T(y_{it}, g_{it}) = \tau(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it})$$
-
-- In 2012 and 2013, the system of $\tau(\cdot)$ is same.
-- The logged relative giving price is $R_{it} \ln(1 - \tau(y_{it} - g_{it})) = R_{it} \ln p^d_{it}$.
+- In 2012 and 2013, the marginal tax rate was the same, though it was different from ones before 2011.
+- The logged relative giving price is $R_{i}\ln(1 - T'(y_{i} - g_{i}))$.
 
 **Tax credit system (from 2014)**
+$$T(y_{i}, g_{i}) = T(y_{i}) - R_{i} m g_{i}$$
 
-$$T(y_{it}, g_{it}) = \tau(y_{it}) \cdot y_{it} - R_{it} m g_{it}$$
+- $m$ is tax credit rate and is $m = 0.15$.
+- The logged relative giving price is $R_{i}\ln(1 - 0.15) = R_{i}\ln 0.85$.
 
-- $m = 0.15$
-- The logged relative giving price is $R_{it} \ln(1 - 0.15) = R_{it} \ln 0.85$.
+Note: The logged relative giving price for the non-declared is $\ln1 =0$.
 ```
 
 ```{asis, echo = doctype == "draft"}
@@ -202,4 +243,18 @@ T'(y_i)-T_y(y_i,g_i)=\begin{cases}
 Considering $T''(\cdot)>0$, this implies that, when the higher marginal tax rate is applied (i.e. the higher $y_i$ is), the declaration of tax relief mitigate tax payment and $R_i=1$ is likely to be hold for given $x_i$ and $g_i$ under the tax deduction system. Thus, the high income earners tend to declare charitable giving. Since the tax return data tend to represent the data of high income earners, the issue of declaration may be serious. Moreover, because the tax return data does not contain the information of non-declared charitable giving, the estimated elasticity should be different from the population elasticity, which @Saez2004 shows as a key parameter to obtain implications for welfare.
 
 To overcome the issue about the existence of declaration cost, we use the different declaration cost for charitable giving between self-employed workers and wage earners as an identification source. Since the declaration cost for the self-employed is higher than wage earners in Korea, we use it as an IV in the estimation. 
+```
+
+```{asis, echo = doctype == "slide"}
+## Source of endogeneity
+
+1. Usage of tax return data only captures declared charitable giving.
+    - If the charitable giving is not declared, tax relief has a little effect.
+    - Some papers use survey data to deal with this problem (e.g. Rehavi and Shack, 2013).
+    - \textbf{Following them, we use survey panel data of Korea.}
+2. If the declaration cost is ignored, the estimation should be biased.
+    - The giving price depends not only on marginal tax rate and tax credit rate, but also on the declaration behavior.
+    - As far as we know, only Almunia et al. (2020) deal with this problem, though they used tax return data.
+    - \textbf{We use the different declaration cost btw wage earners and the others as an instrumental variable (IV).}
+    
 ```
