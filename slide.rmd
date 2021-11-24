@@ -53,7 +53,8 @@ doctype <- "slide"
 
 ```{r child = "Rmarkdown/1-introduction.Rmd"}
 ```
-
+```{r child = "Rmarkdown/Slide.Rmd"}
+```
 
 # References {-}
 
