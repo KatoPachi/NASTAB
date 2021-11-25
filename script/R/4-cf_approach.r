@@ -66,9 +66,10 @@ dplyr::filter(
 )
 
 #'
-#' # Optimization Problem
+#' # Conceptual Framework
+#' ## Optimization Problem
 #'
-#' @Almunia2020 に従い、個人の最適化問題を以下のように定式化する
+#' Following @Almunia2020, we formulate the optimaization problem as follows:
 #'
 #' \begin{align*}
 #'   \max_{x_{it}, g_{it}, R_{it}} &U(x_{it}, g_{it}, G_t)
@@ -82,70 +83,82 @@ dplyr::filter(
 #'   \end{cases}
 #' \end{align*}
 #'
-#' 最適化問題について以下のような仮定を置く（または、暗に仮定している）
+#' This model implicitly assume no income effect and no saving.
+#' By this assumption,
+#' a dynamic optimization reduces to a repeated static optimaization problem.
+#' We further assume that
+#' (i) decision-making before 2014 is based on $\tau(y_{it})$ (first-price);
+#' and (ii) $G_{-it}$ is large enough to $V'(G_t) \approx 0$.
+#' Especially, by the second assumption,
+#' we do not need to take $\partial V(G_t) / \partial g_{it}$ into accuount
+#' when we derive the optimal donation levels.
 #'
-#' 1. 貯蓄は考えない = 動学最適化問題を1期間の静学最適化の繰り返し問題に簡素化する
-#' 1. 所得効果は無視する
-#' 1. 2014年より以前の最適化問題において、個人の意思決定は$\tau_t(y_{it})$に基づく（First-price principle）
-#' 1. $V'(G_t) \approx 0$ほど$G_{-it}$が十分に大きい：$\partial V(G_t) / \partial g_{it} = 0$
-#'
-#' この仮定のもとで、最適化問題は以下のように書き換えられる
+#' Under these assumptions,
+#' we can reformulate the optimization problem as follows:
 #'
 #' \begin{align*}
 #'   \max_{g_{it}, R_{it}} &U(g_{it}) =
-#'   [1-\tau(y_{it})] y_{it} - p^f_{it} g_{it}
-#'   - R_{it}K_{it} + \theta_i u(g_{it}), \\
+#'   - (1 - R_{it}s_{it}) g_{it} + \theta_i u(g_{it}), \\
 #'   \text{s.t.}\:\:
-#'   &p^f_{it} = \begin{cases}
-#'     1 - R_{it}\tau(y_{it}) &t < 2014 \\
-#'     1 - m R_{it} &t \ge 2014
-#'   \end{cases}
+#'   &s_{it} = \begin{cases}
+#'     \tau(y_{it}) &t < 2014 \\
+#'     m &t \ge 2014
+#'   \end{cases},
 #' \end{align*}
 #'
-#' $R_{it}$を所与としたときの最適な寄付額を$g_{it}(R_{it})$は以下の条件を満たす。
+#' where $s_{it}$ is tax incentive of monetary donations
+#' for individual $i$ in year $t$.
+#'
+#' Let $g(1-s_{it};\theta_i)$ and $g(1;\theta_i)$
+#' be the optimal donation levels when $R_{it} = 1$ and $R_{it} = 0$,
+#' respectively.
+#' Each indirect utility function is
 #'
 #' \begin{align*}
-#'   \theta_i u'(g_{it}(R_{it})) = p^f_{it}(R_{it})
+#'   v(1 - s_{it}; \theta_i)
+#'   &= -(1 - s_{it})g(1 - s_{it}; \theta_i)
+#'   + \theta_i u(g(1 - s_{it}; \theta_i)), \\
+#'   v(1; \theta_i)
+#'   &= -g(1;\theta_i) + \theta_i u(g(1;\theta_i)).
 #' \end{align*}
 #'
-#' ここで、warm-glowの効用関数$u$を @Almunia2020 の構造推定と同じように特定化する
+#' Thus, individual $i$ applies for tax relief in year $t$ if and only if
 #'
 #' \begin{align*}
-#'   u(g) = \frac{g^{1 - 1/\gamma_i}}{1 - \frac{1}{\gamma_i}}
+#'   \Delta v \equiv v(1 - s_{it};\theta_i) - v(1;\theta_i) \ge K_{it}.
 #' \end{align*}
 #'
-#' このとき、最適な寄付額は
+#' ## Specification of Warm-Glow Utility
+#'
+#' When conduction the structual estimation,
+#' @Almunia2020 specify the warm-glow utility $u$ as follows:
 #'
 #' \begin{align*}
-#'   g_{it}(1) &= \left( \theta_i/q^f_{it} \right)^{\gamma_i}, \\
-#'   g_{it}(0) &= \left( \theta_i \right)^{\gamma_i}.
+#'   u(g) = \frac{g^{1 - 1/\gamma_i}}{1 - \frac{1}{\gamma_i}}.
 #' \end{align*}
 #'
-#' となり、この対数値は
+#' where $\gamma_i > 0$.
+#'
+#' If we follow this specification,
+#' we can derive the optimal donation level as follows:
 #'
 #' \begin{align*}
-#'   \ln g_{it}(1) &= \gamma_i \ln \theta_i - \gamma_i \ln q^f_{it}, \\
-#'   \ln g_{it}(0) &= \gamma_i \ln \theta_i.
+#'   g(1 - s_{it};\theta_i)
+#'   &= \left( \theta_i/(1 - s_{it}) \right)^{\gamma_i}, \\
+#'   g(1;\theta_i)
+#'   &= \left( \theta_i \right)^{\gamma_i}.
 #' \end{align*}
 #'
-#' ここで、$q^f_{it}$は控除を申請した場合の寄付価格であり、
+#' Moreover, these logarithm values are
 #'
 #' \begin{align*}
-#'   q^f_{it} = \begin{cases}
-#'     1 - \tau_t(y_{it}) &t < 2014, \\
-#'     1 - m &t \ge 2014
-#'   \end{cases}
+#'   \ln g(1 - s_{it};\theta_i)
+#'   &= \gamma_i \ln \theta_i - \gamma_i \ln (1 - s_{it}), \\
+#'   \ln g(1;\theta_i)
+#'   &= \gamma_i \ln \theta_i.
 #' \end{align*}
 #'
-#' また、以下の条件を満たすとき、寄付控除申請$R_i$はなされる
-#'
-#' \begin{align*}
-#'   U(g_{it}(1)) - U(g_{it}(0)) &\ge 0  \\
-#'   \theta_i[u(g_{it}(1)) - u(g_{it}(0))] - [q^f_{it} g_{it}(1) - g_{it}(0)]
-#'   &\ge K_{it}  \\
-#' \end{align*}
-#'
-#' とくに、warm-glowの効用関数$u$を @Almunia2020 の構造推定と同じように特定化すると、
+#' Thus, individual $i$ applies for tax relief in year $t$ if and only if
 #'
 #' \begin{align*}
 #'   \theta_i \frac{(\theta_i / q^f_{it})^{\gamma_i(1 - 1/\gamma_i)}
@@ -162,6 +175,105 @@ dplyr::filter(
 #'   \frac{\theta_i^{\gamma_i}}{\gamma_i - 1}((q^f_{it})^{1 - \gamma_i} - 1)
 #'   &\ge K_{it}
 #' \end{align*}
+#'
+#' # Identification
+#'
+#' ## Statistical Model
+#'
+#' We assume that expectation of
+#' $\ln g(1-s_{it};\theta_i)$ and $\ln g(1;/\theta_i)$
+#' conditional on $s_{it}$ and $\theta_i$ has the following functional forms:
+#'
+#' \begin{align*}
+#'   &E[\ln g(1-s_{it};\theta_i)|s_{it}, \theta_i]
+#'   = \theta_i + \gamma_i \ln (1 - s_{it}), \\
+#'   &E[\ln g(1;\theta_i) | \theta_i] = \theta_i. \\
+#' \end{align*}
+#'
+#' Thus, realized value of
+#' $\ln g(1-s_{it};\theta_i)$ and $\ln g(1;/\theta_i)$ are
+#'
+#' \begin{align*}
+#'   &\ln g(1-s_{it};\theta_i) =
+#'   \theta_i + \gamma_i \ln (1 - s_{it}) + \epsilon_{1it}, \\
+#'   &\ln g(1;\theta_i) = \theta_i + \epsilon_{0it}. \\
+#' \end{align*}
+#'
+#' where $E[\epsilon_{1it}|s_{it}, \theta_i]
+#' = E[\ln g(1-s_{it};\theta_i)
+#' - E[\ln g(1-s_{it};\theta_i)|s_{it}, \theta_i]|s_{it}, \theta_i] = 0$,
+#' and $E[\epsilon_{0it}|\theta_i]
+#' = E[\ln g(1;\theta_i) - E[\ln g(1;\theta_i) | \theta_i]|\theta_i] = 0$,
+#' by construction.
+#'
+#' Since we cannot both $g(1 - s_{it};\theta_i)$ and $g(1;\theta_i)$
+#' for individual $i$ in year $t$,
+#' the observed outcome $\ln g_{it}$ is
+#'
+#' \begin{align*}
+#'   \ln g_{it}
+#'   &= \theta_i + \gamma_i R_{it} \ln (1 - s_{it})
+#'   + (\epsilon_{0it} + R_{it}(\epsilon_{1it} - \epsilon_{0it})) \\
+#'   &= \theta_i + \bar{\gamma} R_{it} \ln (1 - s_{it})
+#'   + \{(\gamma_i - \bar{\gamma})R_{it}\ln (1 - s_{it})
+#'   + (\epsilon_{0it} + R_{it}(\epsilon_{1it} - \epsilon_{0it}))\},
+#' \end{align*}
+#'
+#' where $\bar{\gamma} = E(\gamma_i)$.
+#'
+#+
+fixest::setFixest_fml(
+  ..fullx = ~ log_pinc_all + sqage | year + panelid + area + industry
+)
+
+reducemod <- list(
+  "(1)" = list(
+    model = fixest::xpd(log_total_g ~ ext_benefit_tl:log_price + ..fullx),
+    data = subset(df, i_ext_giving == 1)
+  ),
+  "(2)" = list(
+    model = fixest::xpd(log_total_g ~ log_price + ..fullx),
+    data = subset(df, ext_benefit_tl == 1 & i_ext_giving == 1)
+  ),
+  "(3)" = list(
+    model = fixest::xpd(log_total_g ~ ..fullx),
+    data = subset(df, ext_benefit_tl == 0 & i_ext_giving == 1)
+  ),
+  "(4)" = list(
+    model = fixest::xpd(log_total_g ~ log_price + ..fullx),
+    data = subset(df, ext_benefit_tl == 0 & i_ext_giving == 1)
+  )
+)
+
+reducemod %>%
+  purrr::map(~ fixest::feols(
+    .$model, data = .$data,
+    cluster = ~ panelid, se = "cluster"
+  )) %>%
+  modelsummary(
+    title = "FE Estimation of Logged Donations (Intensive-margin)",
+    coef_map = c(
+      "ext_benefit_tl:log_price" = "Applying tax relief x log(first price)",
+      "log_price" = "log(first price)",
+      "log_pinc_all" = "log(annual taxable income)"
+    ),
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01)
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(
+    c(" " = 1, "Pooling" = 1, "R = 1" = 1, "R = 0" = 2)
+  ) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
 #'
 #+ include = FALSE, eval = params$preview
 fixest::setFixest_fml(
