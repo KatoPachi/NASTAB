@@ -11,7 +11,7 @@
 
 <meta name="author" content="Hiroki Kato" />
 
-<meta name="date" content="2021-11-24" />
+<meta name="date" content="2021-11-25" />
 
 <title>Control Function Approach</title>
 
@@ -268,14 +268,16 @@ div.tocify {
 <h1 class="title toc-ignore"><p>Control Function Approach</p></h1>
 <h3 class="subtitle">Not intended for publication</h3>
 <h4 class="author">Hiroki Kato</h4>
-<h4 class="date">2021-11-24</h4>
+<h4 class="date">2021-11-25</h4>
 
 </div>
 
 
-<div id="optimization-problem" class="section level1">
-<h1>Optimization Problem</h1>
-<p><span class="citation">Almunia et al. (2020)</span> に従い、個人の最適化問題を以下のように定式化する</p>
+<div id="conceptual-framework" class="section level1">
+<h1>Conceptual Framework</h1>
+<div id="optimization-problem" class="section level2">
+<h2>Optimization Problem</h2>
+<p>Following <span class="citation">Almunia et al. (2020)</span>, we formulate the optimaization problem as follows:</p>
 <p><span class="math display">\[\begin{align*}
   \max_{x_{it}, g_{it}, R_{it}} &amp;U(x_{it}, g_{it}, G_t)
   = x_{it} - R_{it}K_{it} + \theta_i u(g_{it}) + V(G_t), \\
@@ -287,56 +289,68 @@ div.tocify {
     \tau_t(y_{it}) y_{it} - m R_{it} g_{it} &amp;t \ge 2014
   \end{cases}
 \end{align*}\]</span></p>
-<p>最適化問題について以下のような仮定を置く（または、暗に仮定している）</p>
-<ol style="list-style-type: decimal">
-<li>貯蓄は考えない = 動学最適化問題を1期間の静学最適化の繰り返し問題に簡素化する</li>
-<li>所得効果は無視する</li>
-<li>2014年より以前の最適化問題において、個人の意思決定は<span class="math inline">\(\tau_t(y_{it})\)</span>に基づく（First-price principle）</li>
-<li><span class="math inline">\(V&#39;(G_t) \approx 0\)</span>ほど<span class="math inline">\(G_{-it}\)</span>が十分に大きい：<span class="math inline">\(\partial V(G_t) / \partial g_{it} = 0\)</span></li>
-</ol>
-<p>この仮定のもとで、最適化問題は以下のように書き換えられる</p>
+<p>This model implicitly assume no income effect and no saving.
+By this assumption,
+a dynamic optimization reduces to a repeated static optimaization problem.
+We further assume that
+(i) decision-making before 2014 is based on <span class="math inline">\(\tau(y_{it})\)</span> (first-price);
+and (ii) <span class="math inline">\(G_{-it}\)</span> is large enough to <span class="math inline">\(V&#39;(G_t) \approx 0\)</span>.
+Especially, by the second assumption,
+we do not need to take <span class="math inline">\(\partial V(G_t) / \partial g_{it}\)</span> into accuount
+when we derive the optimal donation levels.</p>
+<p>Under these assumptions,
+we can reformulate the optimization problem as follows:</p>
 <p><span class="math display">\[\begin{align*}
   \max_{g_{it}, R_{it}} &amp;U(g_{it}) =
-  [1-\tau(y_{it})] y_{it} - p^f_{it} g_{it}
-  - R_{it}K_{it} + \theta_i u(g_{it}), \\
+  - (1 - R_{it}s_{it}) g_{it} + \theta_i u(g_{it}), \\
   \text{s.t.}\:\:
-  &amp;p^f_{it} = \begin{cases}
-    1 - R_{it}\tau(y_{it}) &amp;t &lt; 2014 \\
-    1 - m R_{it} &amp;t \ge 2014
-  \end{cases}
+  &amp;s_{it} = \begin{cases}
+    \tau(y_{it}) &amp;t &lt; 2014 \\
+    m &amp;t \ge 2014
+  \end{cases},
 \end{align*}\]</span></p>
-<p><span class="math inline">\(R_{it}\)</span>を所与としたときの最適な寄付額を<span class="math inline">\(g_{it}(R_{it})\)</span>は以下の条件を満たす。</p>
+<p>where <span class="math inline">\(s_{it}\)</span> is tax incentive of monetary donations
+for individual <span class="math inline">\(i\)</span> in year <span class="math inline">\(t\)</span>.</p>
+<p>Let <span class="math inline">\(g(1-s_{it};\theta_i)\)</span> and <span class="math inline">\(g(1;\theta_i)\)</span>
+be the optimal donation levels when <span class="math inline">\(R_{it} = 1\)</span> and <span class="math inline">\(R_{it} = 0\)</span>,
+respectively.
+Each indirect utility function is</p>
 <p><span class="math display">\[\begin{align*}
-  \theta_i u&#39;(g_{it}(R_{it})) = p^f_{it}(R_{it})
+  v(1 - s_{it}; \theta_i)
+  &amp;= -(1 - s_{it})g(1 - s_{it}; \theta_i)
+  + \theta_i u(g(1 - s_{it}; \theta_i)), \\
+  v(1; \theta_i)
+  &amp;= -g(1;\theta_i) + \theta_i u(g(1;\theta_i)).
 \end{align*}\]</span></p>
-<p>ここで、warm-glowの効用関数<span class="math inline">\(u\)</span>を <span class="citation">Almunia et al. (2020)</span> の構造推定と同じように特定化する</p>
+<p>Thus, individual <span class="math inline">\(i\)</span> applies for tax relief in year <span class="math inline">\(t\)</span> if and only if</p>
 <p><span class="math display">\[\begin{align*}
-  u(g) = \frac{g^{1 - 1/\gamma_i}}{1 - \frac{1}{\gamma_i}}
+  \Delta v \equiv v(1 - s_{it};\theta_i) - v(1;\theta_i) \ge K_{it}.
 \end{align*}\]</span></p>
-<p>このとき、最適な寄付額は</p>
+</div>
+<div id="specification-of-warm-glow-utility" class="section level2">
+<h2>Specification of Warm-Glow Utility</h2>
+<p>When conduction the structual estimation,
+<span class="citation">Almunia et al. (2020)</span> specify the warm-glow utility <span class="math inline">\(u\)</span> as follows:</p>
 <p><span class="math display">\[\begin{align*}
-  g_{it}(1) &amp;= \left( \theta_i/q^f_{it} \right)^{\gamma_i}, \\
-  g_{it}(0) &amp;= \left( \theta_i \right)^{\gamma_i}.
+  u(g) = \frac{g^{1 - 1/\gamma_i}}{1 - \frac{1}{\gamma_i}}.
 \end{align*}\]</span></p>
-<p>となり、この対数値は</p>
+<p>where <span class="math inline">\(\gamma_i &gt; 0\)</span>.</p>
+<p>If we follow this specification,
+we can derive the optimal donation level as follows:</p>
 <p><span class="math display">\[\begin{align*}
-  \ln g_{it}(1) &amp;= \gamma_i \ln \theta_i - \gamma_i \ln q^f_{it}, \\
-  \ln g_{it}(0) &amp;= \gamma_i \ln \theta_i.
+  g(1 - s_{it};\theta_i)
+  &amp;= \left( \theta_i/(1 - s_{it}) \right)^{\gamma_i}, \\
+  g(1;\theta_i)
+  &amp;= \left( \theta_i \right)^{\gamma_i}.
 \end{align*}\]</span></p>
-<p>ここで、<span class="math inline">\(q^f_{it}\)</span>は控除を申請した場合の寄付価格であり、</p>
+<p>Moreover, these logarithm values are</p>
 <p><span class="math display">\[\begin{align*}
-  q^f_{it} = \begin{cases}
-    1 - \tau_t(y_{it}) &amp;t &lt; 2014, \\
-    1 - m &amp;t \ge 2014
-  \end{cases}
+  \ln g(1 - s_{it};\theta_i)
+  &amp;= \gamma_i \ln \theta_i - \gamma_i \ln (1 - s_{it}), \\
+  \ln g(1;\theta_i)
+  &amp;= \gamma_i \ln \theta_i.
 \end{align*}\]</span></p>
-<p>また、以下の条件を満たすとき、寄付控除申請<span class="math inline">\(R_i\)</span>はなされる</p>
-<p><span class="math display">\[\begin{align*}
-  U(g_{it}(1)) - U(g_{it}(0)) &amp;\ge 0  \\
-  \theta_i[u(g_{it}(1)) - u(g_{it}(0))] - [q^f_{it} g_{it}(1) - g_{it}(0)]
-  &amp;\ge K_{it}  \\
-\end{align*}\]</span></p>
-<p>とくに、warm-glowの効用関数<span class="math inline">\(u\)</span>を <span class="citation">Almunia et al. (2020)</span> の構造推定と同じように特定化すると、</p>
+<p>Thus, individual <span class="math inline">\(i\)</span> applies for tax relief in year <span class="math inline">\(t\)</span> if and only if</p>
 <p><span class="math display">\[\begin{align*}
   \theta_i \frac{(\theta_i / q^f_{it})^{\gamma_i(1 - 1/\gamma_i)}
   - \theta_i^{\gamma_i(1 - 1/\gamma_i)}}{1 - 1 / \gamma_i} -
@@ -352,6 +366,306 @@ div.tocify {
   \frac{\theta_i^{\gamma_i}}{\gamma_i - 1}((q^f_{it})^{1 - \gamma_i} - 1)
   &amp;\ge K_{it}
 \end{align*}\]</span></p>
+</div>
+</div>
+<div id="identification" class="section level1">
+<h1>Identification</h1>
+<div id="statistical-model" class="section level2">
+<h2>Statistical Model</h2>
+<p>We assume that expectation of
+<span class="math inline">\(\ln g(1-s_{it};\theta_i)\)</span> and <span class="math inline">\(\ln g(1;/\theta_i)\)</span>
+conditional on <span class="math inline">\(s_{it}\)</span> and <span class="math inline">\(\theta_i\)</span> has the following functional forms:</p>
+<p><span class="math display">\[\begin{align*}
+  &amp;E[\ln g(1-s_{it};\theta_i)|s_{it}, \theta_i]
+  = \theta_i + \gamma_i \ln (1 - s_{it}), \\
+  &amp;E[\ln g(1;\theta_i) | \theta_i] = \theta_i. \\
+\end{align*}\]</span></p>
+<p>Thus, realized value of
+<span class="math inline">\(\ln g(1-s_{it};\theta_i)\)</span> and <span class="math inline">\(\ln g(1;/\theta_i)\)</span> are</p>
+<p><span class="math display">\[\begin{align*}
+  &amp;\ln g(1-s_{it};\theta_i) =
+  \theta_i + \gamma_i \ln (1 - s_{it}) + \epsilon_{1it}, \\
+  &amp;\ln g(1;\theta_i) = \theta_i + \epsilon_{0it}. \\
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(E[\epsilon_{1it}|s_{it}, \theta_i] = E[\ln g(1-s_{it};\theta_i) - E[\ln g(1-s_{it};\theta_i)|s_{it}, \theta_i]|s_{it}, \theta_i] = 0\)</span>,
+and <span class="math inline">\(E[\epsilon_{0it}|\theta_i] = E[\ln g(1;\theta_i) - E[\ln g(1;\theta_i) | \theta_i]|\theta_i] = 0\)</span>,
+by construction.</p>
+<p>Since we cannot both <span class="math inline">\(g(1 - s_{it};\theta_i)\)</span> and <span class="math inline">\(g(1;\theta_i)\)</span>
+for individual <span class="math inline">\(i\)</span> in year <span class="math inline">\(t\)</span>,
+the observed outcome <span class="math inline">\(\ln g_{it}\)</span> is</p>
+<p><span class="math display">\[\begin{align*}
+  \ln g_{it}
+  &amp;= \theta_i + \gamma_i R_{it} \ln (1 - s_{it})
+  + (\epsilon_{0it} + R_{it}(\epsilon_{1it} - \epsilon_{0it})) \\
+  &amp;= \theta_i + \bar{\gamma} R_{it} \ln (1 - s_{it})
+  + \{(\gamma_i - \bar{\gamma})R_{it}\ln (1 - s_{it})
+  + (\epsilon_{0it} + R_{it}(\epsilon_{1it} - \epsilon_{0it}))\},
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(\bar{\gamma} = E(\gamma_i)\)</span>.</p>
+<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;border-bottom: 0;">
+<caption>
+<span id="tab:unnamed-chunk-4">Table 1: </span>FE Estimation of Logged Donations (Intensive-margin)
+</caption>
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Pooling
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+R = 1
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+R = 0
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+<ol style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="2" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="3" style="list-style-type: decimal">
+<li></th>
+<th style="text-align:center;">
+<ol start="4" style="list-style-type: decimal">
+<li></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Applying tax relief x log(first price)
+</td>
+<td style="text-align:center;">
+－0.912***
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.209)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(first price)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+－1.282***
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+－0.307
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.384)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.579)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(annual taxable income)
+</td>
+<td style="text-align:center;">
+0.932
+</td>
+<td style="text-align:center;">
+0.713
+</td>
+<td style="text-align:center;">
+1.217
+</td>
+<td style="text-align:center;">
+1.223
+</td>
+</tr>
+<tr>
+<td style="text-align:left;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+(0.698)
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+(0.757)
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+(1.522)
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+(1.516)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Num.Obs.
+</td>
+<td style="text-align:center;">
+7944
+</td>
+<td style="text-align:center;">
+4150
+</td>
+<td style="text-align:center;">
+3794
+</td>
+<td style="text-align:center;">
+3794
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R2 Adj.
+</td>
+<td style="text-align:center;">
+0.693
+</td>
+<td style="text-align:center;">
+0.720
+</td>
+<td style="text-align:center;">
+0.692
+</td>
+<td style="text-align:center;">
+0.692
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Std.Errors
+</td>
+<td style="text-align:center;">
+Clustered (panelid)
+</td>
+<td style="text-align:center;">
+Clustered (panelid)
+</td>
+<td style="text-align:center;">
+Clustered (panelid)
+</td>
+<td style="text-align:center;">
+Clustered (panelid)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FE: area
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FE: industry
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FE: panelid
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FE: year
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+X
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; " colspan="100%">
+<sup></sup> Notes: <span class="math inline">\(^{*}\)</span> <span class="math inline">\(p &amp;lt; 0.1\)</span>, <span class="math inline">\(^{**}\)</span> <span class="math inline">\(p &amp;lt; 0.05\)</span>, <span class="math inline">\(^{***}\)</span> <span class="math inline">\(p &amp;lt; 0.01\)</span>. Standard errors are clustered at individual level.
+</td>
+</tr>
+</tfoot>
+</table></li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol>
+</div>
 </div>
 <div id="estimate-elasiticity-using-subsample" class="section level1">
 <h1>Estimate Elasiticity Using Subsample</h1>
@@ -437,7 +751,7 @@ To calculate the inverse Mills ratio, we use the probit estimation shown in
 <h2>Results</h2>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; font-size: 9px; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption style="font-size: initial !important;">
-<span id="tab:benchmark">Table 1: </span>First Price Intensive-Margin Elasiticity (Subsample Analysis)
+<span id="tab:benchmark">Table 2: </span>First Price Intensive-Margin Elasiticity (Subsample Analysis)
 </caption>
 <thead>
 <tr>
@@ -802,7 +1116,7 @@ Separate
 </ol></li>
 </ol></li>
 </ol>
-<p>Table <a href="#tab:benchmark">1</a> shows the estimation results of price elasticity.
+<p>Table <a href="#tab:benchmark">2</a> shows the estimation results of price elasticity.
 Model (1) does not add a selection correction term,
 while models (2) and (4) add it to the explanatory variables.
 We obtain the inverse mills ratio from the pooled probit model
@@ -856,7 +1170,7 @@ are statistically insignificant,
 the price elasticity is unlikely to vary significantly among individuals.</p>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; font-size: 9px; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption style="font-size: initial !important;">
-<span id="tab:robustbenchmark1">Table 2: </span>First Price Intensive-Margin Elasiticity without Annoucment Effect (Subsample Analysis)
+<span id="tab:robustbenchmark1">Table 3: </span>First Price Intensive-Margin Elasiticity without Annoucment Effect (Subsample Analysis)
 </caption>
 <thead>
 <tr>
@@ -1223,7 +1537,7 @@ Separate
 </ol>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; font-size: 9px; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption style="font-size: initial !important;">
-<span id="tab:robustbenchmark2">Table 3: </span>Last Price Intensive-Margin Elasiticity (Subsample Analysis)
+<span id="tab:robustbenchmark2">Table 4: </span>Last Price Intensive-Margin Elasiticity (Subsample Analysis)
 </caption>
 <thead>
 <tr>
@@ -1458,9 +1772,9 @@ Separate
 </ol></li>
 </ol>
 <p>We show the results of the same robustness test as in this paper
-in Tables <a href="#tab:robustbenchmark1">2</a> and <a href="#tab:robustbenchmark2">3</a>.
+in Tables <a href="#tab:robustbenchmark1">3</a> and <a href="#tab:robustbenchmark2">4</a>.
 To eliminate the announcement effect of the 2014 tax reform,
-Table <a href="#tab:robustbenchmark1">2</a> shows
+Table <a href="#tab:robustbenchmark1">3</a> shows
 estimates excluding 2013 and 2014 data.
 As a result, the selection bias and
 the bias from the heterogeneous elasticity are not large.
@@ -1471,13 +1785,13 @@ this price elasticity is statistically insignificant.
 Moreover,
 when we use the inverse mills ratio by the separated probit model,
 the price elasticity is about -1.4, which is statistically significant.
-Table <a href="#tab:robustbenchmark2">3</a> shows
+Table <a href="#tab:robustbenchmark2">4</a> shows
 the estimation results of the last-price elasticity.
 As a result, the elasticity is in the range of -1.4 to -1.8,
 which is similar to the result shown in this paper.</p>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; font-size: 9px; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption style="font-size: initial !important;">
-<span id="tab:kdiffbenchmark">Table 4: </span><span class="math inline">\(k\)</span>-th Difference Model with Instrument
+<span id="tab:kdiffbenchmark">Table 5: </span><span class="math inline">\(k\)</span>-th Difference Model with Instrument
 </caption>
 <thead>
 <tr>
@@ -2001,7 +2315,7 @@ Separate
 </ol>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; font-size: 9px; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption style="font-size: initial !important;">
-<span id="tab:leadlagbenchmark">Table 5: </span>First Price Intensive-Margin Elasiticities Including Lead and Lag
+<span id="tab:leadlagbenchmark">Table 6: </span>First Price Intensive-Margin Elasiticities Including Lead and Lag
 </caption>
 <thead>
 <tr>
@@ -2251,8 +2565,8 @@ Pool
 </ol>
 <p>In addition to the same robustness test as in this paper,
 the results of the other two robustness tests
-are shown in Tables <a href="#tab:kdiffbenchmark">4</a> and <a href="#tab:leadlagbenchmark">5</a>.
-Table <a href="#tab:kdiffbenchmark">4</a> is an analysis dealing with
+are shown in Tables <a href="#tab:kdiffbenchmark">5</a> and <a href="#tab:leadlagbenchmark">6</a>.
+Table <a href="#tab:kdiffbenchmark">5</a> is an analysis dealing with
 the endogeneity of first-price by income manipulation.
 Since income is generally endogenous,
 the first-price of giving is also an endogenous variable.
@@ -2284,7 +2598,7 @@ the absolute value of price elasticity is less than 1,
 which is statistically insignificant.
 Therefore, the value of price elasticity is unstable
 for the number of years of lag.</p>
-<p>Table <a href="#tab:leadlagbenchmark">5</a> adds
+<p>Table <a href="#tab:leadlagbenchmark">6</a> adds
 lagged and future changes of giving price and income
 to the explanatory variables
 to directly control the dynamic effects of
@@ -2301,7 +2615,7 @@ In that respect, the results of this analysis are unreliable.</p>
 <h2>Results</h2>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption>
-<span id="tab:unnamed-chunk-5">Table 6: </span>First Price Intensive-Margin Elasiticity (Subsets with R = 0)
+<span id="tab:unnamed-chunk-6">Table 7: </span>First Price Intensive-Margin Elasiticity (Subsets with R = 0)
 </caption>
 <thead>
 <tr>
@@ -2668,7 +2982,7 @@ Separate
 </ol>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption>
-<span id="tab:unnamed-chunk-6">Table 7: </span>Partial Effect of Price (Subsets with R = 0)
+<span id="tab:unnamed-chunk-7">Table 8: </span>Partial Effect of Price (Subsets with R = 0)
 </caption>
 <thead>
 <tr>
