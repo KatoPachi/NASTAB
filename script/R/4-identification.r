@@ -663,15 +663,18 @@ est_basemod0 %>%
 rawvalue <- function(x) x
 
 preddt <- estdf %>%
+  modelr::add_predictions(est_basemod1[["(1)"]], var = "pred11") %>%
   modelr::add_predictions(est_basemod1[["(2)"]], var = "pred12") %>%
   modelr::add_predictions(est_basemod1[["(3)"]], var = "pred13") %>%
   modelr::add_predictions(est_basemod1[["(4)"]], var = "pred14") %>%
   modelr::add_predictions(est_basemod1[["(5)"]], var = "pred15") %>%
+  modelr::add_predictions(est_basemod0[["(1)"]], var = "pred01") %>%
   modelr::add_predictions(est_basemod0[["(2)"]], var = "pred02") %>%
   modelr::add_predictions(est_basemod0[["(3)"]], var = "pred03") %>%
   modelr::add_predictions(est_basemod0[["(4)"]], var = "pred04") %>%
   modelr::add_predictions(est_basemod0[["(5)"]], var = "pred05") %>%
   mutate(
+    efmod1 = pred11 - pred01,
     efmod2 = pred12 - pred02,
     efmod3 = pred13 - pred03,
     efmod4 = pred14 - pred04,
@@ -709,6 +712,27 @@ preddt %>%
 
 #'
 #' # Welfare Analysis by @Almunia2020
+#'
+#' The partial effect of $(1 - s_{it})$ on the indirect utility function is
+#'
+#' \begin{align*}
+#'   \frac{\partial v(1 - s_{it};\theta_i)}{\partial (1 - s_{it})}
+#'   &= -g(1 - s_{it};\theta_i)
+#'   - (1 - s_{it}) \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})}
+#'   + \theta_i \frac{\partial u}{\partial g}
+#'   \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
+#'   &= -g(1 - s_{it};\theta_i)
+#'   + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
+#'   \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
+#'   &= -g(1 - s_{it}; \theta_i)
+#' \end{align*}
+#'
+#' The partial effect of $\theta_i$ on $\Delta v$ is
+#'
+#' \begin{align*}
+#'   \frac{\partial \Delta v}{\partial \theta_i}
+#'   &= 
+#' \end{align*}
 #'
 #+
 apemod <- list(
@@ -769,12 +793,20 @@ elast <- est_basemod1 %>%
 
 partef <- est_apemod0 %>%
   purrr::map(function(x) {
-    tidy(x) %>%
+    est <- tidy(x) %>%
       dplyr::filter(term == "price") %>%
       dplyr::select("partef" = estimate)
+
+    n <- glance(x) %>% select(nobs)
+
+    return(bind_cols(est, n))
   }) %>%
   reduce(bind_rows) %>%
-  mutate(model = names(est_apemod0))
+  mutate(
+    model = names(est_apemod0),
+    partef = partef * nobs
+  ) %>%
+  dplyr::select(-nobs)
 
 elast %>%
   left_join(partef, by = "model") %>%
@@ -792,7 +824,17 @@ elast %>%
       (`Partial Effect (R = 0)` = partef) +
       (`Sum of Giving (R = 1)` = g1) +
       (`Partial Effect (R = 0) / Sum of Giving (R = 1)` = devide)),
-    data = .
+    data = .,
+    fmt = 3
+  ) %>%
+  kableExtra::kable_styling() %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Partial effect for R = 0 is multiplied by observations."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
   )
 
 #'
