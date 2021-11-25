@@ -426,7 +426,7 @@ stage2 %>%
   )
 
 #'
-#' # Subsample Approach ($R_{it} = 1$)
+#' # CF Approach ($R_{it} = 1$)
 #'
 #' ## Sample Selection Bias Correction
 #'
@@ -616,7 +616,7 @@ est_basemod1 %>%
 #' are statistically insignificant,
 #' the price elasticity is unlikely to vary significantly among individuals.
 #'
-#' # Subsample Approach ($R_{it} = 0$)
+#' # CF Approach ($R_{it} = 0$)
 #'
 #+
 est_basemod0 <- basemod %>%
@@ -713,6 +713,8 @@ preddt %>%
 #'
 #' # Welfare Analysis by @Almunia2020
 #'
+#' ## Theory
+#'
 #' The partial effect of $(1 - s_{it})$ on the indirect utility function is
 #'
 #' \begin{align*}
@@ -727,12 +729,67 @@ preddt %>%
 #'   &= -g(1 - s_{it}; \theta_i)
 #' \end{align*}
 #'
-#' The partial effect of $\theta_i$ on $\Delta v$ is
+#' In the same way,
+#' the partial effect of $\theta_i$ on the indirect utility function is
+#'
+#' \begin{align*}
+#'   \frac{\partial v(1 - s_{it};\theta_i)}{\partial \theta_i}
+#'   &= -(1 - s_{it})\frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
+#'   + \theta_i \frac{\partial u}{\partial g}
+#'   \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
+#'   + u(g(1 - s_{it};\theta_i)) \\
+#'   &= u(g(1 - s_{it};\theta_i))
+#'   + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
+#'   \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i} \\
+#'   &= u(g(1 - s_{it};\theta_i)),
+#' \end{align*}
+#'
+#' and,
+#'
+#' \begin{align*}
+#'   \frac{\partial v(1;\theta_i)}{\partial \theta_i}
+#'   &= -\frac{\partial g(1;\theta_i)}{\partial \theta_i}
+#'   + \theta_i \frac{\partial u}{\partial g}
+#'   \frac{\partial g(1;\theta_i)}{\partial \theta_i}
+#'   + u(g(1;\theta_i)) \\
+#'   &= u(g(1;\theta_i))
+#'   + \left(\theta_i \frac{\partial u}{\partial g} - 1 \right)
+#'   \frac{\partial g(1;\theta_i)}{\partial \theta_i} \\
+#'   &= u(g(1;\theta_i)).
+#' \end{align*}
+#'
+#' Thus, the partial effect of $\theta_i$ on $\Delta v$ is
 #'
 #' \begin{align*}
 #'   \frac{\partial \Delta v}{\partial \theta_i}
-#'   &= 
+#'   &= u(g(1 - s_{it};\theta_i)) - u(g(1;\theta_i)).
 #' \end{align*}
+#'
+#' We assume $\partial \Delta v/\partial \theta_i > 0$.
+#'
+#' Assume that $\theta_i$ is distributed over
+#' $[\underline{\theta}, \bar{\theta}]$,
+#' and its density function is $f(\cdot)$.
+#' Then, we can devide population into three types:
+#'
+#' 1. $\theta_i \le \theta_0$: individuals do not donate anything
+#'     - $g(1;\theta_i) = 0$ if $\theta_i$ is too low
+#' 1. $\theta_i \in (\theta_0, \theta(s)]$: individuals donate but do not apply for tax relief
+#' 1. $\theta_i > \theta(s)$: individuals donate and apply for tax relief
+#'
+#' where $\theta(s)$ holds $v(1 - s_{it};\theta(s)) - v(1;\theta(s)) = K_{it}$.
+#' $\theta(s)$ is decreasing in $s_{it}$ because
+#' $\partial v(1 - s_{it};\theta_i)/\partial (1 - s_{it}) \le 0$.
+#'
+#' Social total amount of giving $G$ is defined by
+#'
+#' \begin{align*}
+#'   &G = g^0(s_{it}) + g^1(s_{it}) + G_g \\
+#'   &g^0(s_{it}) = \int_{\theta_0}^{\theta(s)} g(1;\theta) f(\theta) d\theta \\
+#'   &g^1(s_{it}) = \int_{\theta(s)}^{\bar{\theta}} g(1 - s_{it};\theta) f(\theta) d\theta \\
+#' \end{align*}
+#'
+#' where $G_g$ is public goods supplied by government.
 #'
 #+
 apemod <- list(
