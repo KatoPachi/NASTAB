@@ -1458,8 +1458,8 @@ Separate
 </ol></li>
 </ol>
 </div>
-<div id="subsample-approach-r_it-1" class="section level1">
-<h1>Subsample Approach (<span class="math inline">\(R_{it} = 1\)</span>)</h1>
+<div id="cf-approach-r_it-1" class="section level1">
+<h1>CF Approach (<span class="math inline">\(R_{it} = 1\)</span>)</h1>
 <div id="sample-selection-bias-correction" class="section level2">
 <h2>Sample Selection Bias Correction</h2>
 <p>This supplement estimates price elasticity
@@ -1961,8 +1961,8 @@ are statistically insignificant,
 the price elasticity is unlikely to vary significantly among individuals.</p>
 </div>
 </div>
-<div id="subsample-approach-r_it-0" class="section level1">
-<h1>Subsample Approach (<span class="math inline">\(R_{it} = 0\)</span>)</h1>
+<div id="cf-approach-r_it-0" class="section level1">
+<h1>CF Approach (<span class="math inline">\(R_{it} = 0\)</span>)</h1>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption>
 <span id="tab:unnamed-chunk-7">Table 5: </span>Intensive-Margin Model for R = 0
@@ -2448,6 +2448,8 @@ effect
 </div>
 <div id="welfare-analysis-by-almunia2020" class="section level1">
 <h1>Welfare Analysis by <span class="citation">Almunia et al. (2020)</span></h1>
+<div id="theory" class="section level2">
+<h2>Theory</h2>
 <p>The partial effect of <span class="math inline">\((1 - s_{it})\)</span> on the indirect utility function is</p>
 <p><span class="math display">\[\begin{align*}
   \frac{\partial v(1 - s_{it};\theta_i)}{\partial (1 - s_{it})}
@@ -2460,11 +2462,59 @@ effect
   \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
   &amp;= -g(1 - s_{it}; \theta_i)
 \end{align*}\]</span></p>
-<p>The partial effect of <span class="math inline">\(\theta_i\)</span> on <span class="math inline">\(\Delta v\)</span> is</p>
+<p>In the same way,
+the partial effect of <span class="math inline">\(\theta_i\)</span> on the indirect utility function is</p>
+<p><span class="math display">\[\begin{align*}
+  \frac{\partial v(1 - s_{it};\theta_i)}{\partial \theta_i}
+  &amp;= -(1 - s_{it})\frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
+  + \theta_i \frac{\partial u}{\partial g}
+  \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
+  + u(g(1 - s_{it};\theta_i)) \\
+  &amp;= u(g(1 - s_{it};\theta_i))
+  + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
+  \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i} \\
+  &amp;= u(g(1 - s_{it};\theta_i)),
+\end{align*}\]</span></p>
+<p>and,</p>
+<p><span class="math display">\[\begin{align*}
+  \frac{\partial v(1;\theta_i)}{\partial \theta_i}
+  &amp;= -\frac{\partial g(1;\theta_i)}{\partial \theta_i}
+  + \theta_i \frac{\partial u}{\partial g}
+  \frac{\partial g(1;\theta_i)}{\partial \theta_i}
+  + u(g(1;\theta_i)) \\
+  &amp;= u(g(1;\theta_i))
+  + \left(\theta_i \frac{\partial u}{\partial g} - 1 \right)
+  \frac{\partial g(1;\theta_i)}{\partial \theta_i} \\
+  &amp;= u(g(1;\theta_i)).
+\end{align*}\]</span></p>
+<p>Thus, the partial effect of <span class="math inline">\(\theta_i\)</span> on <span class="math inline">\(\Delta v\)</span> is</p>
 <p><span class="math display">\[\begin{align*}
   \frac{\partial \Delta v}{\partial \theta_i}
-  &amp;= 
+  &amp;= u(g(1 - s_{it};\theta_i)) - u(g(1;\theta_i)).
 \end{align*}\]</span></p>
+<p>We assume <span class="math inline">\(\partial \Delta v/\partial \theta_i &gt; 0\)</span>.</p>
+<p>Assume that <span class="math inline">\(\theta_i\)</span> is distributed over
+<span class="math inline">\([\underline{\theta}, \bar{\theta}]\)</span>,
+and its density function is <span class="math inline">\(f(\cdot)\)</span>.
+Then, we can devide population into three types:</p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(\theta_i \le \theta_0\)</span>: individuals do not donate anything
+<ul>
+<li><span class="math inline">\(g(1;\theta_i) = 0\)</span> if <span class="math inline">\(\theta_i\)</span> is too low</li>
+</ul></li>
+<li><span class="math inline">\(\theta_i \in (\theta_0, \theta(s)]\)</span>: individuals donate but do not apply for tax relief</li>
+<li><span class="math inline">\(\theta_i &gt; \theta(s)\)</span>: individuals donate and apply for tax relief</li>
+</ol>
+<p>where <span class="math inline">\(\theta(s)\)</span> holds <span class="math inline">\(v(1 - s_{it};\theta(s)) - v(1;\theta(s)) = K_{it}\)</span>.
+<span class="math inline">\(\theta(s)\)</span> is decreasing in <span class="math inline">\(s_{it}\)</span> because
+<span class="math inline">\(\partial v(1 - s_{it};\theta_i)/\partial (1 - s_{it}) \le 0\)</span>.</p>
+<p>Social total amount of giving <span class="math inline">\(G\)</span> is defined by</p>
+<p><span class="math display">\[\begin{align*}
+  &amp;G = g^0(s_{it}) + g^1(s_{it}) + G_g \\
+  &amp;g^0(s_{it}) = \int_{\theta_0}^{\theta(s)} g(1;\theta) f(\theta) d\theta \\
+  &amp;g^1(s_{it}) = \int_{\theta(s)}^{\bar{\theta}} g(1 - s_{it};\theta) f(\theta) d\theta \\
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(G_g\)</span> is public goods supplied by government.</p>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption>
 <span id="tab:unnamed-chunk-9">Table 6: </span>Partial Effect of Price (Subsets with R = 0)
@@ -2961,6 +3011,7 @@ Semykina, Anastasia, and Jeffrey M. Wooldridge. 2010. <span>“Estimating Panel 
 </div>
 <div id="ref-Wooldridge2015" class="csl-entry">
 Wooldridge, Jeffrey M. 2015. <span>“Control Function Methods in Applied Econometrics.”</span> <em>Journal of Human Resources</em> 50 (2): 420–45. <a href="https://doi.org/10.3368/jhr.50.2.420">https://doi.org/10.3368/jhr.50.2.420</a>.
+</div>
 </div>
 </div>
 </div>
