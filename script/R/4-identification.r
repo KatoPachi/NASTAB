@@ -799,7 +799,7 @@ elast %>%
 # /*
 #+
 rmarkdown::render(
-  "script/R/4-cf_approach.r",
+  "script/R/4-identification.r",
   output_dir = "report/view"
 )
 # */
