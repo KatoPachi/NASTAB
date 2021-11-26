@@ -5,9 +5,7 @@
 \usepackage{graphicx}
 \usetheme{default}
 \begin{document}
-	\author{加藤大貴
-		後藤剛志
-		金栄禄}
+	\author{加藤大貴・後藤剛志・金栄禄}
 	\title{Charitable Giving, Tax Reform, and Self-selection of Tax Report:
 		Evidence from South Korea}
 	%\subtitle{}
@@ -170,7 +168,7 @@
 			\item データは主に対面のインタビュー形式で回答されたもの。
 			\item データサンプルは韓国の一般的な社会構成が代表されるように構成されている。
 			\item 本稿では所得や資産がないと思われる23歳以下のサンプルは除いて分析している。
-			\item データとして
+			\item データとして2012$\sim$2017年のデータを使用。(2014年の制度改正に着目)
 		\end{itemize}
 	\end{frame}
 
@@ -178,13 +176,13 @@
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.8\linewidth]{Fig_Average_donation}
-		\caption{Proportion of Donors and Average Donations among Donors}
+		\caption{寄付者の割合と寄付者の平均寄付額}
 		\label{fig:1}
 	\end{figure}
 \small
 	\begin{itemize}
-		\item About 20$\sim$30\% of people make a donation.
-		\item The average amount of donations among donors is about 1.5 million KRW.
+		\item 20$\sim$30\%の人が寄付を実施
+		\item 寄付者の平均寄付額は150万KRW($\simeq$15万円)程度
 	\end{itemize}
 \end{frame}
 
@@ -192,15 +190,15 @@
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{Fig_Income_distribution}
-		\caption{Income Distribution and Relative Giving Price in 2013}
+		\caption{所得分布と税制改正前後での寄付価格の変化}
 		\label{fig:2}
 	\end{figure}
 \small
-	In 2014, relative giving price
+	2014年に寄付価格は概ね
 	\begin{itemize}
-		\item decreases for people whose income is less than 12 million KRW.
-		\item is the same for people whose income is between 12 million KRW and 46 million KRW.
-		\item increase for people whose income is more than 46 million KRW.
+		\item 所得1200万KRW未満の人については減少
+		\item 所得1200万KRW$\sim$4600万KRWの人については同じ
+		\item 所得4600万KRW以上の人については増加
 	\end{itemize}
 \end{frame}
 
@@ -208,15 +206,15 @@
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{Fig_Diff}
-		\caption{Average Logged Giving in Three Income Groups}
+		\caption{各所得グループでの平均寄付額(対数)}
 		\label{fig:3}
 	\end{figure}
 \small
-	Compared to 2012 and 2013, the amount of charitable giving after 2014
+	2012年と2013年に比べ、2014年以降の寄付額は
 	\begin{itemize}
-		\item increases for people whose income is less than 12 million KRW.
-		\item relatively increases for people whose income is between 12 million KRW and 46 million KRW.
-		\item decreases for people whose income is more than 46 million KRW.
+		\item 所得1200万KRW未満の人については増加
+		\item 所得1200万KRW$\sim$4600万KRWの人についてはやや増加
+		\item 所得4600万KRW以上の人については減少
 	\end{itemize}
 \end{frame}
 
@@ -224,13 +222,13 @@
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{Fig_Declaration}
-		\caption{Share of Declaration of Tax Relief}
+		\caption{寄付申告者の割合}
 		\label{fig:4}
 	\end{figure}
 \small
 	\begin{itemize}
-		\item Wage earners are more likely to declare their charitable giving to receive tax relief.\\
-		$\to$ This reflects the difference of the declaration cost.
+		\item 給与所得者は税制優遇を受けるため、より寄付の申告を行う傾向があるとわかる。\\
+		$\to$ これは申告コストの違いを捉えたものだと考えられる。
 	\end{itemize}
 \end{frame}
 
@@ -238,43 +236,45 @@
 	\begin{table}
 		\centering
 		\includegraphics[width=0.9\linewidth]{Tab_Stat}
-		\caption{Summary Statistics}
+		\caption{基本統計量}
 		\label{tab:1}
 	\end{table}
 \end{frame}
 
-\begin{frame}{Statistical Model}
+\begin{frame}{推定モデル}
 \begin{itemize}
-	\item Main identification source is tax reform in 2014. (DID-like strategy)
+	\item 主な識別戦略として2014年の税制改正を使い、DIDに準じた推定を行う。
 	\begin{itemize}
-		\item Below 12 million KRW: Giving price decreases.
-		\item Btw 12 and 46 million KRW: Giving price is the same.
-		\item Above 46 million KRW: Giving price increases.
+		\item 所得1200万KRW未満：寄付価格は減少
+		\item 所得1200万KRW$\sim$4600万KRW：寄付価格は同じ
+		\item 所得4600万KRW以上：寄付価格は増加
 	\end{itemize}
-	\item To capture the difference of declaration cost, we use a dummy to show whether a subject is a wage earner or not as IV.
+	\item さらに申告コストの差の影響を捉えるために、サンプルが給与所得者かどうかをみるダミーをIVとして使用。
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Statistical Model}
+\begin{frame}{推定モデル}
 	\begin{itemize}
-		\item We estimate the following two-way fixed effect model:
+		\item 以下のような二元配置固定効果モデルを考える。
 		\begin{align}
 			\ln g_{it} = \varepsilon_pR_{it} \ln p_{it}(y_{it}, g_{it}) + \varepsilon_y \ln y_{it} + \bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + u_{it}\tag{5}
 		\end{align}
-	where $\mu_i, \iota_t$ and $ u_{it}$ are an individual fixed effect, a year fixed effect, and a error term, respectively. 
-	\item $\bm{X}_{it}$ is a vector of covariates including square of age, industry dummy, and area dummy.
-	\item In the literature, estimations in terms of \textbf{intensive} and \textbf{extensive} margins are common.
+	$\mu_i, \iota_t$と$ u_{it}$はそれぞれ個人固定効果、年の固定効果、誤差項 
+	\item $\bm{X}_{it}$は年齢の2乗、産業(職業)ダミー、地域ダミー
+	\item 寄付の研究文脈では\textbf{intensive margins}と\textbf{extensive margins}を分けて弾力性を推定することが行われている。
 	\begin{itemize}
-		\item \textbf{Intensive margins}: estimate (5) only for $g_{it}>0$.
-		\item \textbf{Extensive margins}: estimate (5) but dependent variable is $1[g_{it}>0]$.
+		\item \textbf{Intensive margins}: (5)を寄付した個人($g_{it}>0$)に限定して分析\\
+		$-$寄付価格の変化でどれくらいの量寄付が変化するかに関心
+		\item \textbf{Extensive margins}: (5)の被説明変数を寄付するかどうか($1[g_{it}>0]$)にして分析\\
+		$-$寄付価格の変化で寄付を行うようになるかどうかに関心
 	\end{itemize}
-	$\to$ Following the literature, we estimate both of them.
+	$\to$ 本稿ではこれらのどちらも分析
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Statistical Model: Endogeneity of $p_{it}$}
+\begin{frame}{推定モデル: $p_{it}$の内生性}
 	\begin{itemize}
-		\item The giving price (compared to private good) is
+		\item (私的財\$1と比較した)寄付の価格は
 		\begin{align}
 			p_{it}(y_{it}, g_{it})=\begin{cases}
 			1-T'_t(y_{it}-g_{it})&\text{ if }t<2014\\
@@ -282,108 +282,105 @@
 			\end{cases}
 			\tag{6'}.
 		\end{align}
-		\item Since the giving price is endogenous to the amount of giving before 2014, we use ``\textbf{the first-price of giving}", which is defined as 
+		\item 2014年より前は寄付価格が寄付額に依存し、内生的となってしまうため、``\textbf{first-price of giving}"と呼ばれる寄付額が0の状態の寄付価格
 		\begin{align}
 			p_{it}^f(y_{it})=p_{it}(y_{it},0)\notag
 		\end{align}
-		 instead of $p_{it}(y_{it},0)$ in the estimation.
-		\item $p_{it}(y_{it},0)$ is called as ``the last-price of giving".
+		を実際の寄付価格$p_{it}(y_{it},0)$の代わりに使用
+		\item 実際の寄付価格$p_{it}(y_{it},0)$は``last-price of giving"と呼ばれ、これについても分析し頑健性を確認。
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Statistical Model: Endogeneity of $R_{it}$}
+\begin{frame}{推定モデル: 寄付申告$R_{it}$の内生性}
 	\begin{itemize}
-		\item Since donors can choose whether they declare charitable giving or not, declaration, $R_{it}$, is endogenous.
-		\item To overcome this, we estimate 
+		\item 寄付者は寄付を申告するかどうかを自ら選択できるため、寄付申告$R_{it}$は内生的となる。
+		\item そのため、給与所得者ダミー$WageEarner_{it}$を寄付申告$R_{it}$の操作変数として用い、以下を分析。
 		\begin{align}
 			\ln g_{it} = \varepsilon_pR_{it} \ln p_{it}^f(y_{it}) + \varepsilon_y \ln y_{it} + \bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + u_{it}\tag{7}
-		\end{align}
-	 	where $R_{it} \ln p_{it}^f(y_{it})$ is instrumented by $WageEarner_{it}\times \ln p^f_{it}(y_{it})$. 
+		\end{align} 
 	 	\begin{itemize}
-	 		\item This estimation is based on 2SLS.
-	 	\end{itemize}
-		\item $WageEarner_{it}$ is a dummy to show whether a subject is a wage earner or not.
-		\begin{itemize}
-			\item $WageEarner_{it}$ should not correlate to $u_{it}$ when we control incomes and industry dummies.
+	 		\item 2段階最小二乗法(2SLS)に基づく推定
+			\item 給与所得者ダミー$WageEarner_{it}$は所得や職業ダミーをコントロールした上では誤差項$u_{it}$とは相関しないと考えられる。
 		\end{itemize}
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Statistical Model: Endogeneity of $R_{it}$}
+\begin{frame}{推定モデル: 寄付申告$R_{it}$の内生性}
 	\begin{itemize}
-		\item In alternative models, we use propensity score to declare $P(Z_{it})$ as an instrument.
+		\item 2SLSに加え、寄付申告の傾向スコア$P(Z_{it})$を操作変数として用いた推定も実施
 		\begin{itemize}
-			\item This estimation method is called ``control function (CF)" approach.
-			\item The propensity score is estimated by a probit model
+			\item この方法は``control function (CF)"アプローチと呼ばれる。
+			\item 傾向スコアは以下のプロビットモデルで推定
 			\begin{align}
 				R_{it}=1[\delta_0+Z_{it}\delta_1+u_{it1}>0]\tag{8},
 			\end{align}
-			where $Z_{it}\equiv \{WageEarner_{it}, \ln p_{it}^f(y_{it}), \ln y_{it}, \bm{X}_{it}\}$.
-			\item The propensity score is $P(Z_{it})=\Phi(\hat{\delta}_0+Z_{it}\hat{\delta}_1)$.
-			\item We consider two cases:\\
-			 \ajMaru1 pooled probit model $(\delta_0, \delta_1)$ is constant.\\
-			 \ajMaru2 separated probit model $(\delta_0, \delta_1)$ can vary by year.
+			ただし$Z_{it}\equiv \{WageEarner_{it}, \ln p_{it}^f(y_{it}), \ln y_{it}, \bm{X}_{it}\}$.
+			\item 傾向スコアは$P(Z_{it})=\Phi(\hat{\delta}_0+Z_{it}\hat{\delta}_1)$となる。
+			\item 2つの異なる仮定に基づいて別々の分析を実施\\
+			 \ajMaru1 Pooledプロビット：係数$(\delta_0, \delta_1)$が時間を通じて一定\\
+			 \ajMaru2 Separatedプロビット：$(\delta_0, \delta_1)$が時間で可変
 		\end{itemize}
-		\item In addition, we also estimate the following by OLS:
+		\item さらに、寄付申告$R_{it}$の代わりに傾向スコアを直接使った分析も実施
 		\begin{align}
 			\ln g_{it} = \varepsilon_pP(Z_{it})\ln p_{it}^f(y_{it}) + \varepsilon_y \ln y_{it} + \bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + u_{it}\tag{9}
 		\end{align}
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Results: Intensive Margins}
+\begin{frame}{結果: Intensive Margins}
 	\begin{table}
 		\centering
 		\includegraphics[width=0.9\linewidth]{Tab_res_1}
 		\caption{First-Price Elasticities (Intensive Margins)}
 		\label{tab:2}
 	\end{table}
-The estimated giving price elasticity in terms of intensive margins is about -1.5.
+Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度となった。\\
+(申告コストを考慮しない通常のモデルでの推定値は-0.91)
 \end{frame}
 
-\begin{frame}{Results: Extensive Margins}
+\begin{frame}{結果: Extensive Margins}
 	\begin{table}
 		\centering
 		\includegraphics[width=0.9\linewidth]{Tab_res_2}
 		\caption{First-Price Elasticities (Extensive Margins)}
 		\label{tab:3}
 	\end{table}
-	The estimated giving price elasticity in terms of extensive margins is about -1.7 $\sim$ -2.9.
+	Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.7 $\sim$ -2.9となった。
 \end{frame}
 
-\begin{frame}{Results}
+\begin{frame}{結果}
 	\begin{itemize}
-		\item The results show that the giving price elasticity in Korea is more elastic than many papers in the literature show.
+		\item 分析結果から韓国での寄付の価格弾力性は多くの先行研究で示された値より弾力的であることがわかった。
 		\begin{itemize}
-			\item In the literature, the giving price elasticity in terms of intensive margins is typically -1.
-		\end{itemize}
-		\item The elasticity in terms of extensive margins captures the behavior of whether people donate or not.
-		  \begin{itemize}
-		  	\item The elastic extensive margins elasticity shows that reducing giving price induce people to donate.
-		  	\item IVを使わない場合の推定結果が得られるならば、ここでIVを使わない推定結果と比べたときの含意を書く。
+			\item 多くの先行研究ではIntensive Marginsの寄付の価格弾力性は-1程度
+			\item 申告コストをIVに使用しない分析では-0.91となったため、申告コストの無視で過小推定になった可能性
+		  	\item Extensive Marginsの寄付の価格弾力性についても先行研究と比べかなり弾力的な値\\
+		  	e.g. Almunia et al.(2020)は最も弾力的な値で-0.73\\
+		  	e.g. Backus and Grant (2019)では統計的に有意でなく、概ね0
 		  \end{itemize}
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Results}
- We try several robustness checks.
+\begin{frame}{結果：ロバストネスチェック}
+ 様々なロバストネスチェックを実施
 		\begin{enumerate}
-			\item Estimation excluding 2013 and 2014 data: to eliminate announcement effect.
-			\item Estimation using the last-price
-			\item Estimation using the subsample of those who have applied for tax relief
+			\item 2013,2014年をOmit：税制改正のアナウンスメント効果を除去
+			\item First priceでなく、Last priceで分析
+			\item 寄付申告者に限定したサブサンプルによる分析
 			\begin{itemize}
-				\item We use Semykina and Wooldridge (2010)'s way of the correction of sample selection bias.
-				\item Estimated elasticity (intensive margins) is around -1.2\(\sim\)-1.6.
-				\item Subsample analysis enables us to use several methods to deal with issues related to tax deduction system.\\
-				e.g. fluctuation of income level (Randolph, 1995, and so on.)\\
-				$\to$ usage of k-th difference model / lead and lag.  
+				\item Semykina and Wooldridge (2010)のsample selection bias除去の方法を利用
+				\item Intensive marginsの寄付の価格弾力性は概ね-1.2\(\sim\)-1.6.
+				\item 寄付申告者に限定することで所得控除制度による内生性を考えたロバストネスチェックを実施可能\\
+				e.g. 所得の変動 (Randolph, 1995, and so on.)\\
+				$\to$ k-thの階差モデル / リード・ラグの使用  
 			\end{itemize}
 		\end{enumerate}
-		Most of result shows that the giving price elasticity is less than
+		ほとんどの分析結果で寄付の価格弾力性が
 		\begin{itemize}
-			\item -1.4 in terms of intensive margins and 
-			\item -1.7 in terms of extensive margins.
+			\item Intensive Marginsで-1.4以下 
+			\item Extensive Marginsで-1.7以下
 		\end{itemize}
+		\flushright{となるとわかった。}
 \end{frame}
 
 \begin{frame}{Implications for the welfare (not in the paper)}
