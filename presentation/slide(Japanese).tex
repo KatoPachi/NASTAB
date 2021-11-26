@@ -65,77 +65,58 @@
 		既存研究の多くではIntensive Marginsの寄付の価格弾力性が約-1であり、これよりも概ね弾力的な推定結果が得られた。
 		\begin{enumerate}
 			\setcounter{enumi}{2}
-			\item (Not in the paper) The estimated declaration cost of giving is KRW (\$).
-			\item
-			(Not in the paper) Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
+			\item (論文には未掲載) 推定値をもとに社会厚生を分析すると韓国では寄付の税制優遇を拡充することで厚生が増大する可能性が高いことがわかった。
+			\item (論文には未掲載)　寄付の申告コストをなくすことで寄付の量が概ね7$\sim$20\%増加することが推定からわかった。
 		\end{enumerate}
 	\end{frame}
 	
-	\begin{frame}{2014 tax reform in South Korea}
+	\begin{frame}{2014年の韓国での税制改正}
 		\protect\hypertarget{tax-reform-in-south-korea}{}
-		In Korea, income tax payers can receive tax relief for their charitable giving.
-		
+		韓国では所得税納税者は寄付に対して税制上の優遇を受けることができる。
 		\begin{itemize}
-			\item
-			For the application of tax relief, tax payers have to submit a certificate for charitable giving.
-			\item
-			Wage earners pay their income tax by withholding tax and declare their charitable giving via their company.
-			
+			\item 優遇を受けるためには、寄付の証明書を提出して寄付を申告する必要がある。
+			\item 給与所得者は所得税を源泉徴収で納税し、寄付の申告は会社で行う。
 			\begin{itemize}
-				\item
-				Wage earners can submit the certificate at any time.
+				\item 給与所得者は証明書の提出は随時行うことができる。
 			\end{itemize}
-			\item
-			Non wage earners, such as the self-employed, pay their income tax by tax-return and declare their charitable giving via the National Tax Service.
-			
+			\item 非給与所得者は所得税を確定申告で行い、寄付の申告は国税庁を通じて行う。			
 			\begin{itemize}
-				\item
-				Non wage earners have to retain the certificate until they submit tax return.
+				\item 非給与所得者は確定申告時まで証明書を保存しておく必要がある。
 			\end{itemize}
 		\end{itemize}
 	\end{frame}
 	
-	\begin{frame}{2014 tax reform in South Korea}
+	\begin{frame}{2014年の韓国での税制改正}
 		\protect\hypertarget{tax-reform-in-south-korea-1}{}
-		Our major price variation comes from the 2014 tax reform.
-		
+		この分析での識別時の主な価格バリエーションは2014年の税制改正によるものである。		
 		\begin{itemize}
-			\item
-			Before 2014, tax deduction (所得控除) was used for tax relief on charitable giving.
-			
+			\item 2014年より前は寄付の優遇策として所得控除が用いられていた。			
 			\begin{itemize}
-				\item
-				I.e. the giving price depended on income level.
+				\item 所得控除では所得と寄付額によって所得税率が変化するので、(私的財消費と比べたときの)寄付価格は所得や寄付額に依存。
 			\end{itemize}
-			\item
-			After 2014, tax credit (税額控除) started to be used for tax relief on charitable giving.
-			
+			\item 2014年以後は税額控除が用いられるようになった。
 			\begin{itemize}
-				\item
-				The tax credit rate was determined as 15\%.
-				\item
-				Giving price is 0.85, irrespective of income level.
+				\item 税額控除の率は所得などにかかわらず一律15\%
+				\item これはつまり、私的財消費\$1と比べた相対的な寄付価格が\$0.85となることを意味\\
+				(以下ではこれを「寄付価格」と呼ぶ)
 			\end{itemize}
 		\end{itemize}
 	\end{frame}
 	
-	\begin{frame}{2014 tax reform in South Korea}
+	\begin{frame}{2014年の韓国での税制改正}
 		\protect\hypertarget{tax-reform-in-south-korea-2}{}
 		Model
-		
 		\begin{itemize}
-			\item
-			Consider private consumption (\(x_{i}\)) and charitable giving (\(g_{i}\)).
-			\item
-			The budget constraint is
+			\item 私的財消費(\(x_{i}\))と寄付(\(g_{i}\))を考える。
+			\item \(y_{i}\)を課税前所得、\(R_{i}\)を寄付申告を示すダミー、\(T(y_i)\)と\(T(y_{i}, g_{i})\)を個人$i$が寄付申告をしなかったときの課税額と申告したときの課税額、$K$を寄付申告のコストだとする。
+			\item 予算制約は以下のように表せる。
 		\end{itemize}
 		
 		\[x_{i} + g_{i} = y_{i} - R_iK- R_iT(y_{i}, g_{i})-(1-R_i)T(y_i)\]
 		
-		where \(y_{i}\) is pre-tax total income, \(R_{i}\) is a dummy of declaration of tax relief and \(T(y_i)\) and \(T(y_{i}, g_{i})\) are respectively the amount of tax when \(i\) does not declare tax relief and when \(i\) declares tax relief.
 		
 		\begin{itemize}
-			\item Tax payers declare their charitable giving if its benefit exceeds its cost.
+			\item 個人$i$が寄付を申告するかは、申告時の課税額の減少が申告コストを上回るかによる。
 			\begin{align}
 				R_i=\begin{cases}
 					1 \text{ if }T(y_i, g_i) - T(y_i)>K\\
@@ -145,51 +126,51 @@
 		\end{itemize}
 	\end{frame}
 	
-	\begin{frame}{2014 tax reform in South Korea}
-		\textbf{Tax deduction system (until 2013)}
+	\begin{frame}{2014年の韓国での税制改正}
+		\textbf{所得控除での寄付申告時の税額(2013年まで)}
 		\[T(y_{i}, g_{i}) = T(y_{i} - g_{i})\]
 		
 		\begin{itemize}
-			\item In 2012 and 2013, the marginal tax rate was the same, though it was different from ones before 2011.
-			\item The logged relative giving price is \(R_{i}\ln(1 - T'(y_{i} - g_{i}))\).
+			\item 対数を取ったときの寄付価格は\(R_{i}\ln(1 - T'(y_{i} - g_{i}))\)と表せる。
+			\item 2012年と2013年の韓国の所得税率は同じだが、2011年以前は異なる所得税率であった。
 		\end{itemize}
 		
-		\textbf{Tax credit system (from 2014)}
-		\[T(y_{i}, g_{i}) = T(y_{i}) - R_{i} m g_{i}\]
+		\textbf{税額控除での寄付申告時の税額(2014年から)}
+		\[T(y_{i}, g_{i}) = T(y_{i}) - m g_{i}\]
 		
 		\begin{itemize}
-			\item \(m\) is tax credit rate and is \(m = 0.15\).
-			\item The logged relative giving price is \(R_{i}\ln(1 - 0.15) = R_{i}\ln 0.85\).
+			\item \(m\)は税額控除率で\(m = 0.15\)と設定されている。
+			\item 対数をとったときの寄付価格は\(R_{i}\ln(1 - 0.15) = R_{i}\ln 0.85\)と表せる。
 		\end{itemize}
 		
-		Note: The logged relative giving price for the non-declared is \(\ln1 =0\).
+		Note: 寄付申告を行わなかった者の直面する寄付価格は\(\ln1 =0\)となる。
 	\end{frame}
 	
-	\begin{frame}{Source of endogeneity}
+	\begin{frame}{内生性の問題}
 		\begin{enumerate}
-			\item Usage of tax return data only captures declared charitable giving.
+			\item 課税申告データの使用は申告された寄付額のみを捉えることとなる。
 			\begin{itemize}
-				\item If the charitable giving is not declared, tax relief has a little effect.
-				\item Some papers use survey data to deal with this problem (e.g.~Rehavi and Shack, 2013).
-				\item \textbf{Following them, we use survey panel data of Korea.}
+				\item 未申告の寄付に寄付の税制優遇は無意味のはず(=推定バイアスに繋がる)
+				\item 先行研究ではサーベイデータでこの問題に対処 (e.g.~Rehavi and Shack, 2013).
+				\item \textbf{本稿でも韓国のサーベイデータでこの問題に対処。}
 			\end{itemize}
-			\item If the declaration cost is ignored, the estimation should be biased.
+			\item 申告コストが無視されると推定バイアスが発生する可能性。
 			\begin{itemize}
-				\item The giving price depends not only on marginal tax rate and tax credit rate, but also on the declaration behavior.
-				\item As far as we know, only Almunia et al.~(2020) deal with this problem, though they used tax return data.
-				\item\textbf{We use the different declaration cost btw wage earners and the others as an instrumental variable (IV).}
+				\item 申告コストが安くて寄付価格が安くなる人だけを捉えて推定する可能性(Self-selectionバイアス)
+				\item 知る限りAlmunia et al.~(2020)のみが申告コストを考慮しているが、課税申告データを使用してしまっている。
+				\item\textbf{本稿では給与所得者と非給与所得者の違いを操作変数(IV)として採用し、申告コストを考慮。}
 			\end{itemize}
 		\end{enumerate}
 	\end{frame}
 	
 	\begin{frame}{Data}
-		We use the Korean annual financial panel survey, called the National Survey of Tax and Benefit (hereafter, NaSTab).
+		使用するデータは韓国のNational Survey of Tax and Benefit(NaSTab)のデータ
 		\begin{itemize}
-			\item The subjects of this survey are general households and household members living in 15 cities and provinces nationwide.
-			\item This survey is based on a face-to-face interview.
-			\item Data is constructed as the subjects represent the population of Korean society.
-			\item We exclude the subject of the sample, whose age is under 23, since they are not likely to have income or assets.
-			\item We use data from 2013 to 2017.
+			\item このデータの対象は韓国全体の15の市と地域の一般世帯とその構成員。
+			\item データは主に対面のインタビュー形式で回答されたもの。
+			\item データサンプルは韓国の一般的な社会構成が代表されるように構成されている。
+			\item 本稿では所得や資産がないと思われる23歳以下のサンプルは除いて分析している。
+			\item データとして
 		\end{itemize}
 	\end{frame}
 
