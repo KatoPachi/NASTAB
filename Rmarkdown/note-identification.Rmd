@@ -4,7 +4,7 @@ title: |
   Or Should Giving Price be Lowered?
 subtitle: Not intended for publication
 author: Hiroki Kato
-bibliography: ../../Rmarkdown/ref_appx.bib
+bibliography: ref_appx.bib
 output:
   bookdown::html_document2:
     toc: true
@@ -14,6 +14,14 @@ params:
   preview: true
 ---
 
+```{r knit_command, eval = FALSE, include = FALSE, echo = FALSE}
+# If you want to knit draft, please run following command manually!!
+rmarkdown::render(
+  "Rmarkdown/note-identification.Rmd",
+  output_file = "note-identification.html",
+  output_dir = "report/view"
+)
+```
 
 ```{r include = FALSE, eval = params$preview}
 knitr::opts_chunk$set(
@@ -128,15 +136,64 @@ Each indirect utility function is
   &= -g(1;\theta_i) + \theta_i u(g(1;\theta_i)).
 \end{align*}
 
-Thus, individual $i$ applies for tax relief in year $t$ if and only if
+Note that the price effect on the indirect utility is
 
 \begin{align*}
-  \Delta v \equiv v(1 - s_{it};\theta_i) - v(1;\theta_i) \ge K_{it}.
+  \frac{\partial v(1 - s_{it};\theta_i)}{\partial (1 - s_{it})}
+  &= -g(1 - s_{it};\theta_i)
+  - (1 - s_{it}) \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})}
+  + \theta_i \frac{\partial u}{\partial g}
+  \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
+  &= -g(1 - s_{it};\theta_i)
+  + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
+  \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
+  &= -g(1 - s_{it}; \theta_i).
 \end{align*}
+
+This implies that the effect of tax incentive $s_{it}$ on the indirect utility is
+$\partial v(1 - s_{it};\theta_i) / \partial s_{it}
+= (\partial v(1 - s_{it};\theta_i) / \partial (1 - s_{it}))(d (1 - s_{it})/d s_{it}) = g(1 - s_{it};\theta_i)$.
+
+In the same way, the effect of warm-glow preference $\theta_i$ on indirect utility is
+
+\begin{align*}
+  \frac{\partial v(1 - s_{it};\theta_i)}{\partial \theta_i}
+  &= -(1 - s_{it})\frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
+  + \theta_i \frac{\partial u}{\partial g}
+  \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
+  + u(g(1 - s_{it};\theta_i)) \\
+  &= u(g(1 - s_{it};\theta_i))
+  + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
+  \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i} \\
+  &= u(g(1 - s_{it};\theta_i)),
+\end{align*}
+
+and,
+
+\begin{align*}
+  \frac{\partial v(1;\theta_i)}{\partial \theta_i}
+  &= -\frac{\partial g(1;\theta_i)}{\partial \theta_i}
+  + \theta_i \frac{\partial u}{\partial g}
+  \frac{\partial g(1;\theta_i)}{\partial \theta_i}
+  + u(g(1;\theta_i)) \\
+  &= u(g(1;\theta_i))
+  + \left(\theta_i \frac{\partial u}{\partial g} - 1 \right)
+  \frac{\partial g(1;\theta_i)}{\partial \theta_i} \\
+  &= u(g(1;\theta_i)).
+\end{align*}
+
+Finally, individual $i$ applies for tax relief in year $t$ if and only if
+
+\begin{align*}
+  \Delta v \equiv v(1 - s_{it};\theta_i) - v(1;\theta_i) > K_{it}.
+\end{align*}
+
+Note that $\partial \Delta v/\partial \theta_i = u(g(1 - s_{it};\theta_i)) - u(g(1;\theta_i)) \ge 0$
+because $g(1 - s_{it};\theta_i) \ge g(1;\theta_i)$.
 
 ## Specification of Warm-Glow Utility
 
-When conduction the structual estimation,
+When performing the structual estimation,
 @Almunia2020 specify the warm-glow utility $u$ as follows:
 
 \begin{align*}
@@ -167,24 +224,49 @@ Moreover, these logarithm values are
 Thus, individual $i$ applies for tax relief in year $t$ if and only if
 
 \begin{align*}
-  \theta_i \frac{(\theta_i / q^f_{it})^{\gamma_i(1 - 1/\gamma_i)}
-  - \theta_i^{\gamma_i(1 - 1/\gamma_i)}}{1 - 1 / \gamma_i} -
-  (\theta_i^{\gamma_i} (q^f_{it})^{1 - \gamma_i} - \theta_i^{\gamma_i})
+  -(1 - s_{it}) (\theta_i / (1 - s_{it}))^{\gamma_i}
+  + \theta_i^{\gamma_i}
+  + \theta_i \frac{(\theta_i / (1 - s_{it}))^{\gamma_i(1 - 1/\gamma_i)}
+  - \theta_i^{\gamma_i(1 - 1/\gamma_i)}}{1 - 1 / \gamma_i}
   &\ge K_{it}  \\
-  \theta_i \frac{\theta_i^{\gamma_i - 1}((q^f_{it})^{1 - \gamma_i} - 1)}
-  {1 - 1 / \gamma_i} - \theta_i^{\gamma_i}((q^f_{it})^{1 - \gamma_i} - 1)
+  \theta_i \frac{\theta_i^{\gamma_i - 1}((1 - s_{it})^{1 - \gamma_i} - 1)}
+  {1 - 1 / \gamma_i} - \theta_i^{\gamma_i}((1 - s_{it})^{1 - \gamma_i} - 1)
   &\ge K_{it}  \\
   \theta_i^{\gamma_i}
-  \frac{(q^f_{it})^{1 - \gamma_i} - 1}{1 - 1 / \gamma_i} -
-  \theta_i^{\gamma_i}((q^f_{it})^{1 - \gamma_i} - 1)
+  \frac{(1 - s_{it})^{1 - \gamma_i} - 1}{1 - 1 / \gamma_i} -
+  \theta_i^{\gamma_i}((1 - s_{it})^{1 - \gamma_i} - 1)
   &\ge K_{it} \\
-  \frac{\theta_i^{\gamma_i}}{\gamma_i - 1}((q^f_{it})^{1 - \gamma_i} - 1)
+  \frac{\theta_i^{\gamma_i}}{\gamma_i - 1}((1 - s_{it})^{1 - \gamma_i} - 1)
   &\ge K_{it}
 \end{align*}
 
 ## Parameter of Interest
 
+We assume $\partial \Delta v/\partial \theta_i > 0$.
 
+Assume that $\theta_i$ is distributed over
+$[\underline{\theta}, \bar{\theta}]$,
+and its density function is $f(\cdot)$.
+Then, we can devide population into three types:
+
+1. $\theta_i \le \theta_0$: individuals do not donate anything
+    - $g(1;\theta_i) = 0$ if $\theta_i$ is too low
+1. $\theta_i \in (\theta_0, \theta(s)]$: individuals donate but do not apply for tax relief
+1. $\theta_i > \theta(s)$: individuals donate and apply for tax relief
+
+where $\theta(s)$ holds $v(1 - s_{it};\theta(s)) - v(1;\theta(s)) = K_{it}$.
+$\theta(s)$ is decreasing in $s_{it}$ because
+$\partial v(1 - s_{it};\theta_i)/\partial (1 - s_{it}) \le 0$.
+
+Social total amount of giving $G$ is defined by
+
+\begin{align*}
+  &G = g^0(s_{it}) + g^1(s_{it}) + G_g \\
+  &g^0(s_{it}) = \int_{\theta_0}^{\theta(s)} g(1;\theta) f(\theta) d\theta \\
+  &g^1(s_{it}) = \int_{\theta(s)}^{\bar{\theta}} g(1 - s_{it};\theta) f(\theta) d\theta \\
+\end{align*}
+
+where $G_g$ is public goods supplied by government.
 
 # Identification
 
@@ -534,11 +616,11 @@ To calculate the inverse Mills ratio, we use the probit estimation shown in
 
 ```{r benchmark}
 basemod <- list(
-  "(1)" = fixest::xpd(log_total_g ~ log_price + ..stage24),
-  "(2)" = fixest::xpd(log_total_g ~ log_price + gr_pool + ..stage24),
-  "(3)" = fixest::xpd(log_total_g ~ log_price * gr_pool + ..stage24),
-  "(4)" = fixest::xpd(log_total_g ~ log_price + gr_sep + ..stage24),
-  "(5)" = fixest::xpd(log_total_g ~ log_price * gr_sep + ..stage24)
+  "(1)" = fixest::xpd(log_total_g ~ log_price + ..fullx),
+  "(2)" = fixest::xpd(log_total_g ~ log_price + gr_pool + ..fullx),
+  "(3)" = fixest::xpd(log_total_g ~ log_price * gr_pool + ..fullx),
+  "(4)" = fixest::xpd(log_total_g ~ log_price + gr_sep + ..fullx),
+  "(5)" = fixest::xpd(log_total_g ~ log_price * gr_sep + ..fullx)
 )
 
 est_basemod1 <- basemod %>%
@@ -737,92 +819,13 @@ preddt %>%
 
 # Welfare Analysis by @Almunia2020
 
-## Theory
-
-The partial effect of $(1 - s_{it})$ on the indirect utility function is
-
-\begin{align*}
-  \frac{\partial v(1 - s_{it};\theta_i)}{\partial (1 - s_{it})}
-  &= -g(1 - s_{it};\theta_i)
-  - (1 - s_{it}) \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})}
-  + \theta_i \frac{\partial u}{\partial g}
-  \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
-  &= -g(1 - s_{it};\theta_i)
-  + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
-  \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
-  &= -g(1 - s_{it}; \theta_i)
-\end{align*}
-
-In the same way,
-the partial effect of $\theta_i$ on the indirect utility function is
-
-\begin{align*}
-  \frac{\partial v(1 - s_{it};\theta_i)}{\partial \theta_i}
-  &= -(1 - s_{it})\frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
-  + \theta_i \frac{\partial u}{\partial g}
-  \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
-  + u(g(1 - s_{it};\theta_i)) \\
-  &= u(g(1 - s_{it};\theta_i))
-  + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
-  \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i} \\
-  &= u(g(1 - s_{it};\theta_i)),
-\end{align*}
-
-and,
-
-\begin{align*}
-  \frac{\partial v(1;\theta_i)}{\partial \theta_i}
-  &= -\frac{\partial g(1;\theta_i)}{\partial \theta_i}
-  + \theta_i \frac{\partial u}{\partial g}
-  \frac{\partial g(1;\theta_i)}{\partial \theta_i}
-  + u(g(1;\theta_i)) \\
-  &= u(g(1;\theta_i))
-  + \left(\theta_i \frac{\partial u}{\partial g} - 1 \right)
-  \frac{\partial g(1;\theta_i)}{\partial \theta_i} \\
-  &= u(g(1;\theta_i)).
-\end{align*}
-
-Thus, the partial effect of $\theta_i$ on $\Delta v$ is
-
-\begin{align*}
-  \frac{\partial \Delta v}{\partial \theta_i}
-  &= u(g(1 - s_{it};\theta_i)) - u(g(1;\theta_i)).
-\end{align*}
-
-We assume $\partial \Delta v/\partial \theta_i > 0$.
-
-Assume that $\theta_i$ is distributed over
-$[\underline{\theta}, \bar{\theta}]$,
-and its density function is $f(\cdot)$.
-Then, we can devide population into three types:
-
-1. $\theta_i \le \theta_0$: individuals do not donate anything
-    - $g(1;\theta_i) = 0$ if $\theta_i$ is too low
-1. $\theta_i \in (\theta_0, \theta(s)]$: individuals donate but do not apply for tax relief
-1. $\theta_i > \theta(s)$: individuals donate and apply for tax relief
-
-where $\theta(s)$ holds $v(1 - s_{it};\theta(s)) - v(1;\theta(s)) = K_{it}$.
-$\theta(s)$ is decreasing in $s_{it}$ because
-$\partial v(1 - s_{it};\theta_i)/\partial (1 - s_{it}) \le 0$.
-
-Social total amount of giving $G$ is defined by
-
-\begin{align*}
-  &G = g^0(s_{it}) + g^1(s_{it}) + G_g \\
-  &g^0(s_{it}) = \int_{\theta_0}^{\theta(s)} g(1;\theta) f(\theta) d\theta \\
-  &g^1(s_{it}) = \int_{\theta(s)}^{\bar{\theta}} g(1 - s_{it};\theta) f(\theta) d\theta \\
-\end{align*}
-
-where $G_g$ is public goods supplied by government.
-
-
 ```{r }
 apemod <- list(
-  "(1)" = fixest::xpd(i_total_giving ~ price + ..stage24),
-  "(2)" = fixest::xpd(i_total_giving ~ price + gr_pool + ..stage24),
-  "(3)" = fixest::xpd(i_total_giving ~ price * gr_pool + ..stage24),
-  "(4)" = fixest::xpd(i_total_giving ~ price + gr_sep + ..stage24),
-  "(5)" = fixest::xpd(i_total_giving ~ price * gr_sep + ..stage24)
+  "(1)" = fixest::xpd(i_total_giving ~ price + ..fullx),
+  "(2)" = fixest::xpd(i_total_giving ~ price + gr_pool + ..fullx),
+  "(3)" = fixest::xpd(i_total_giving ~ price * gr_pool + ..fullx),
+  "(4)" = fixest::xpd(i_total_giving ~ price + gr_sep + ..fullx),
+  "(5)" = fixest::xpd(i_total_giving ~ price * gr_sep + ..fullx)
 )
 
 est_apemod0 <- apemod %>%
