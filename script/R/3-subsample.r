@@ -3,10 +3,13 @@
 #'   Appendix B: Estimate Elasiticity Using Subsample
 #' subtitle: Not intended for publication
 #' author: Hiroki Kato
+#' bibliography_appx: [../../Rmarkdown/ref_appx.bib]
 #' output:
-#'   html_document:
+#'   bookdown::html_document2:
 #'     toc: true
 #'     toc_float: true
+#'     number_sections: false
+#'     pandoc_args: --lua-filter=../../luafilters/multiple-bibliographies/multiple-bibliographies.lua
 #' params:
 #'   preview: true
 #' ---
@@ -102,20 +105,24 @@ estdf <- df %>%
     # propensity score
     psc2_pool = pnorm(lpred_pool), psc2_sep = pnorm(lpred_sep),
 
-    # inverse mills ratio
-    imr_pool = dnorm(lpred_pool) / pnorm(lpred_pool),
-    imr_sep = dnorm(lpred_sep) / pnorm(lpred_sep),
+    # inverse mills ratio for R = 1
+    imr1_pool = dnorm(lpred_pool) / pnorm(lpred_pool),
+    imr1_sep = dnorm(lpred_sep) / pnorm(lpred_sep),
+
+    # inverse mills ratio for R = 0
+    imr0_pool = dnorm(lpred_pool) / (1 - pnorm(lpred_pool)),
+    imr0_sep = dnorm(lpred_sep) / (1 - pnorm(lpred_sep)),
+
+    # generalized error
+    gr_pool = if_else(ext_benefit_tl == 1, imr1_pool, imr0_pool),
+    gr_sep = if_else(ext_benefit_tl == 1, imr1_sep, imr0_sep)
+
   ) %>%
   ungroup() %>%
   select(-poolmod, -sepmod)
 
 #'
 #' # Estimate Elasiticity Using Subsample
-#'
-#+
-subdf <- estdf %>%
-  dplyr::filter(ext_benefit_tl == 1)
-
 #'
 #' ## Sample Selection Bias Correction
 #'
@@ -205,27 +212,29 @@ subdf <- estdf %>%
 #+ benchmark
 basemod <- list(
   "(1)" = fixest::xpd(log_total_g ~ log_price + ..stage24),
-  "(2)" = fixest::xpd(log_total_g ~ log_price + imr_pool + ..stage24),
-  "(3)" = fixest::xpd(log_total_g ~ log_price * imr_pool + ..stage24),
-  "(4)" = fixest::xpd(log_total_g ~ log_price + imr_sep + ..stage24),
-  "(5)" = fixest::xpd(log_total_g ~ log_price * imr_sep + ..stage24)
+  "(2)" = fixest::xpd(log_total_g ~ log_price + gr_pool + ..stage24),
+  "(3)" = fixest::xpd(log_total_g ~ log_price * gr_pool + ..stage24),
+  "(4)" = fixest::xpd(log_total_g ~ log_price + gr_sep + ..stage24),
+  "(5)" = fixest::xpd(log_total_g ~ log_price * gr_sep + ..stage24)
 )
 
-basemod %>%
+est_basemod1 <- basemod %>%
   purrr::map(~ fixest::feols(
     .,
-    data = subdf,
+    data = subset(estdf, ext_benefit_tl == 1),
     cluster = ~ panelid, se = "cluster"
-  )) %>%
+  ))
+
+est_basemod1 %>%
   modelsummary(
     title = "First Price Intensive-Margin Elasiticity (Subsample Analysis)",
     coef_map = c(
       "log_price" = "log(first price)",
       "log_pinc_all" = "log(annual taxable income)",
-      "log_price:imr_pool" = "log(first price) x IMR",
-      "log_price:imr_sep" = "log(first price) x IMR",
-      "imr_pool" = "IMR",
-      "imr_sep" = "IMR"
+      "log_price:gr_pool" = "log(first price) x Correction term",
+      "log_price:gr_sep" = "log(first price) x Correction term",
+      "gr_pool" = "Correction term",
+      "gr_sep" = "Correction term"
     ),
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
@@ -307,7 +316,7 @@ basemod %>%
 basemod %>%
   purrr::map(~ fixest::feols(
     .,
-    data = subset(subdf, year < 2013 | year > 2014),
+    data = subset(estdf, ext_benefit_tl == 1 & (year < 2013 | year > 2014)),
     cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
@@ -318,10 +327,10 @@ basemod %>%
     coef_map = c(
       "log_price" = "log(first price)",
       "log_pinc_all" = "log(annual taxable income)",
-      "log_price:imr_pool" = "log(first price) x IMR",
-      "log_price:imr_sep" = "log(first price) x IMR",
-      "imr_pool" = "IMR",
-      "imr_sep" = "IMR"
+      "log_price:gr_pool" = "log(first price) x Correction term",
+      "log_price:gr_sep" = "log(first price) x Correction term",
+      "gr_pool" = "Correction term",
+      "gr_sep" = "Correction term"
     ),
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
@@ -348,17 +357,17 @@ basemod %>%
 lastmod <- list(
   "(1)" = fixest::xpd(log_total_g ~ ..stage24 | log_lprice ~ log_price),
   "(2)" = fixest::xpd(
-    log_total_g ~ imr_pool + ..stage24 | log_lprice ~ log_price
+    log_total_g ~ gr_pool + ..stage24 | log_lprice ~ log_price
   ),
   "(3)" = fixest::xpd(
-    log_total_g ~ imr_sep + ..stage24 | log_lprice ~ log_price
+    log_total_g ~ gr_sep + ..stage24 | log_lprice ~ log_price
   )
 )
 
 lastmod %>%
   purrr::map(~ fixest::feols(
     .,
-    data = subdf,
+    data = subset(estdf, ext_benefit_tl == 1),
     cluster = ~ panelid, se = "cluster"
   )) %>%
   modelsummary(
@@ -368,8 +377,8 @@ lastmod %>%
     coef_map = c(
       "fit_log_lprice" = "log(last price)",
       "log_pinc_all" = "log(annual taxable income)",
-      "imr_pool" = "IMR",
-      "imr_sep" = "IMR"
+      "gr_pool" = "Correction term",
+      "gr_sep" = "Correction term"
     ),
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
@@ -424,33 +433,33 @@ kdiffmod <- list(
     log_diff1g ~ ..kdiff1 | ..kdifffe | log_diff1p ~ log_iv1price
   ),
   "(2)" = fixest::xpd(
-    log_diff1g ~ ..kdiff1 + d(imr_pool, 1) |
+    log_diff1g ~ ..kdiff1 + d(gr_pool, 1) |
     ..kdifffe | log_diff1p ~ log_iv1price
   ),
   "(3)" = fixest::xpd(
-    log_diff1g ~ ..kdiff1 + d(imr_sep, 1) |
+    log_diff1g ~ ..kdiff1 + d(gr_sep, 1) |
     ..kdifffe | log_diff1p ~ log_iv1price
   ),
   "(4)" = fixest::xpd(
     log_diff2g ~ ..kdiff2 | ..kdifffe | log_diff2p ~ log_iv2price
   ),
   "(5)" = fixest::xpd(
-    log_diff2g ~ ..kdiff2 + d(imr_pool, 2) |
+    log_diff2g ~ ..kdiff2 + d(gr_pool, 2) |
     ..kdifffe | log_diff2p ~ log_iv2price
   ),
   "(6)" = fixest::xpd(
-    log_diff2g ~ ..kdiff2 + d(imr_sep, 2) |
+    log_diff2g ~ ..kdiff2 + d(gr_sep, 2) |
     ..kdifffe | log_diff2p ~ log_iv2price
   ),
   "(7)" = fixest::xpd(
     log_diff3g ~ ..kdiff3 | ..kdifffe | log_diff3p ~ log_iv3price
   ),
   "(8)" = fixest::xpd(
-    log_diff3g ~ ..kdiff3 + d(imr_pool, 3) |
+    log_diff3g ~ ..kdiff3 + d(gr_pool, 3) |
     ..kdifffe | log_diff3p ~ log_iv3price
   ),
   "(9)" = fixest::xpd(
-    log_diff3g ~ ..kdiff3 + d(imr_sep, 3) |
+    log_diff3g ~ ..kdiff3 + d(gr_sep, 3) |
     ..kdifffe | log_diff3p ~ log_iv3price
   )
 )
@@ -459,7 +468,8 @@ kdiffmod %>%
   purrr::map(~ fixest::feols(
     .,
     cluster = ~ panelid, se = "cluster",
-    data = subdf, panel.id = ~ panelid + year
+    data = subset(estdf, ext_benefit_tl == 1),
+    panel.id = ~ panelid + year
   )) %>%
   modelsummary(
     title = "$k$-th Difference Model with Instrument",
@@ -470,12 +480,12 @@ kdiffmod %>%
       "log_diff2I" = "Difference of annual income",
       "fit_log_diff3p" = "Difference of first price",
       "log_diff3I" = "Difference of annual income",
-      "d(imr_pool, 1)" = "IMR",
-      "d(imr_pool, 2)" = "IMR",
-      "d(imr_pool, 3)" = "IMR",
-      "d(imr_sep, 1)" = "IMR",
-      "d(imr_sep, 2)" = "IMR",
-      "d(imr_sep, 3)" = "IMR"
+      "d(gr_pool, 1)" = "Correction term",
+      "d(gr_pool, 2)" = "Correction term",
+      "d(gr_pool, 3)" = "Correction term",
+      "d(gr_sep, 1)" = "Correction term",
+      "d(gr_sep, 2)" = "Correction term",
+      "d(gr_sep, 3)" = "Correction term"
     ),
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
@@ -517,7 +527,7 @@ poolstage1_ll <- fixest::feglm(
   panel.id = ~ panelid + year
 )
 
-subdf2 <- df %>%
+estdf2 <- df %>%
   dplyr::filter(year <= 2017 & !is.na(ext_benefit_tl)) %>%
   modelr::add_predictions(poolstage1_ll, type = "link", var = "lpred_pool") %>%
   mutate(
@@ -557,7 +567,7 @@ leadlagmod %>%
       "d(log_price, -1)" = "1-year lead of price",
       "d(log_pinc_all, 1)" = "1-year lag of income",
       "d(log_pinc_all, -1)" = "1-year lead of income",
-      "imr_pool" = "IMR"
+      "imr_pool" = "Correction term"
     ),
     gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
@@ -631,6 +641,95 @@ leadlagmod %>%
 #'
 #' ::: {#refs_appx}
 #' :::
+#'
+#' # Estimation with $R_i = 0$
+#' ## Results
+#'
+#+
+est_basemod0 <- basemod %>%
+  purrr::map(~ fixest::feols(
+    .,
+    data = subset(estdf, ext_benefit_tl == 0),
+    cluster = ~ panelid, se = "cluster"
+  ))
+
+est_basemod0 %>%
+  modelsummary(
+    title = "First Price Intensive-Margin Elasiticity (Subsets with R = 0)",
+    coef_map = c(
+      "log_price" = "log(first price)",
+      "log_pinc_all" = "log(annual taxable income)",
+      "log_price:gr_pool" = "log(first price) x Correction term",
+      "log_price:gr_sep" = "log(first price) x Correction term",
+      "gr_pool" = "Correction term",
+      "gr_sep" = "Correction term"
+    ),
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+      "Square age", "X", "X", "X", "X", "X",
+      "Method of IMR", "", "Pooled", "Pooled", "Separate", "Separate"
+    )
+  ) %>%
+  kableExtra::kable_styling() %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#+
+apemod <- list(
+  "(1)" = fixest::xpd(i_total_giving ~ price + ..stage24),
+  "(2)" = fixest::xpd(i_total_giving ~ price + gr_pool + ..stage24),
+  "(3)" = fixest::xpd(i_total_giving ~ price * gr_pool + ..stage24),
+  "(4)" = fixest::xpd(i_total_giving ~ price + gr_sep + ..stage24),
+  "(5)" = fixest::xpd(i_total_giving ~ price * gr_sep + ..stage24)
+)
+
+est_apemod0 <- apemod %>%
+  purrr::map(~ fixest::feols(
+    .,
+    data = subset(estdf, ext_benefit_tl == 0),
+    cluster = ~panelid, se = "cluster"
+  ))
+
+est_apemod0 %>%
+  modelsummary(
+    title = "Partial Effect of Price (Subsets with R = 0)",
+    coef_map = c(
+      "price" = "First price",
+      "log_pinc_all" = "log(annual taxable income)",
+      "price:gr_pool" = "First price x Correction term",
+      "price:gr_sep" = "First price x Correction term",
+      "gr_pool" = "Correction term",
+      "gr_sep" = "Correction term"
+    ),
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+      "Square age", "X", "X", "X", "X", "X",
+      "Method of IMR", "", "Pooled", "Pooled", "Separate", "Separate"
+    )
+  ) %>%
+  kableExtra::kable_styling() %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
 #'
 # /*
 #+
