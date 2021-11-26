@@ -317,8 +317,8 @@
 			ただし$Z_{it}\equiv \{WageEarner_{it}, \ln p_{it}^f(y_{it}), \ln y_{it}, \bm{X}_{it}\}$.
 			\item 傾向スコアは$P(Z_{it})=\Phi(\hat{\delta}_0+Z_{it}\hat{\delta}_1)$となる。
 			\item 2つの異なる仮定に基づいて別々の分析を実施\\
-			 \ajMaru1 Pooledプロビット：係数$(\delta_0, \delta_1)$が時間を通じて一定\\
-			 \ajMaru2 Separatedプロビット：$(\delta_0, \delta_1)$が時間で可変
+			 \ajMaru1 Pooledプロビット：係数$\delta\equiv (\delta_0, \delta_1)$が時間を通じて一定\\
+			 \ajMaru2 Separatedプロビット：係数$\delta\equiv (\delta_0, \delta_1)$が時間で可変
 		\end{itemize}
 		\item さらに、寄付申告$R_{it}$の代わりに傾向スコアを直接使った分析も実施
 		\begin{align}
@@ -383,29 +383,24 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 		\flushright{となるとわかった。}
 \end{frame}
 
-\begin{frame}{Implications for the welfare (not in the paper)}
-	Following Almunia et al. (2020), we can derive the welfare implication by specifying the following utility maximization.
+\begin{frame}{社会厚生への含意(論文未掲載)}
+	Almunia et al. (2020)にならい、個人の効用関数を特定化し、以下の最適化問題を考える。
 	\begin{align}
 		\max_{x_i,g_i,R_i}&U(x_i,g_i,G)= x_i - R_iK +\theta u(g_i) + V(G)\notag\\
 		\text{s.t. }&x_i + g_i = R_i(y-T(y, g_i)) + (1-R_i)(y-T(y)),\notag\\
 		&\text{ and }G=g_i+G_{-i}\notag,
 	\end{align}
-	where $\theta\in[\underline{\theta},\bar{\theta}$] is the parameter to show the preference for donation, which follows the density $f(\cdot)$. 
+	ただし$\theta\in[\underline{\theta},\bar{\theta}$]は寄付選好で密度$f(\cdot)$に従う。 
 	\begin{itemize}
-		\item $G$ is the total donation (including the governmental provision).
-		\item $G_{-i}$ is the total donation except $i$.
-		\item For simplicity, assume tax schedule is now linear and tax rate is $\tau$.
+		\item $G$は政府供給も含めた社会の寄付総量。
+		\item $G_{-i}$は社会の寄付総量から$i$の寄付を除いたもの。
+		\item 簡単化のため、所得税は線形で税率$\tau$とする。
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Implications for the welfare (not in the paper)}
+\begin{frame}{社会厚生への含意(論文未掲載)}
 	\begin{itemize}
-	\item Then, the optimization will be
-	\begin{align}
-		\max_{g_i,R_i} (1-\tau)y-R_ipg_i-(1-R_i)g_i- R_iK +\theta u(g_i)+V(G).\notag
-	\end{align}
-	\item Denote $g(p;\theta)$ and $g(1; \theta)$ as the donation when $R_i=1$ and $0$.
-	\item As a result of the optimization, the indirect utility of those who declare giving and do not will respectively be
+	\item 最適化問題の結果、寄付者のうち寄付申告をする人としない人の(寄付に関する)間接効用関数はそれぞれ以下のようになる。
 	\begin{align}
 		\nu(p;\theta)&=\theta_i u(g(p;\theta))-pg(p;\theta)\notag\\
 		\nu(1;\theta)&=\theta_i u(g(1;\theta))-g(1;\theta)\notag.
@@ -413,41 +408,97 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Implications for the welfare (not in the paper)}
+\begin{frame}{社会厚生への含意(論文未掲載)}
 	\begin{itemize}
-		\item Depends on $\theta$ and giving price $p$, three types of individuals exist.
+		\item 寄付選好$\theta$と寄付価格$p$の大きさによって社会には以下の3種類の人が存在。
 		\begin{enumerate}
-			\item Non-donor: $\theta\le \theta_0$
-			\item Donor but non-declarer: $\theta\in(\theta_0,\theta(p)]$\\
-			$\to$ Denote their total donation as $g^0(p)\equiv\int_{\theta_0}^{\theta(p)}g(1;\theta)f(\theta)d\theta$.
-			\item Donor and declarer: $\theta>\theta(p)$\\
-			$\to$ Denote their total donation as $g^1(p)\equiv\int_{\theta(q)}^{\bar{\theta}}g(p;\theta)f(\theta)d\theta$.
+			\item 非寄付者: $\theta\le \theta_0$
+			\item 寄付者かつ非寄付申告者: $\theta\in(\theta_0,\theta(p)]$\\
+			$\to$ 彼らの寄付総額を$g^0(p)\equiv\int_{\theta_0}^{\theta(p)}g(1;\theta)f(\theta)d\theta$とする。
+			\item 寄付者かつ寄付申告者: $\theta>\theta(p)$\\
+			$\to$ 彼らの寄付総額を$g^1(p)\equiv\int_{\theta(q)}^{\bar{\theta}}g(p;\theta)f(\theta)d\theta$とする。
 		\end{enumerate}
-	\item Social welfare can be written as
+	\item 社会厚生は以下のようになる。
 	\begin{align}
 		W=V(G)&+\int_{\theta(p)}^{\bar{\theta}}(\nu(p;\theta)-K)f(\theta)d\theta\notag\\
 		&+\int_{\theta_0}^{\theta(p)}\nu(1;\theta)f(\theta)d\theta+\lambda[ty-(1-p)g^1(p)-G_g]\notag
 	\end{align}
-	where $\lambda$ is the marginal cost of public finance.
+	ただし$\lambda$は公的資金の限界費用(MCPF)を表す。
+	\item 政府はMCPFと公共財の限界効用が等しくなるように公共財を供給し$\lambda=V'$となる(Saez, 2004)。
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Implications for the welfare (not in the paper)}
+\begin{frame}{社会厚生への含意(論文未掲載)}
 	\begin{itemize}
-		\item Using $\lambda=V'$ (Saez, 2004), the effect of changing giving price $p$ on the welfare $W$ can be shown as 
+		\item 寄付価格$p$を変化させたときの社会厚生$W$の変化を考えると
 		\begin{align}
-			\frac{dW}{dp} =\lambda (g_p^0+g_p^1)+(\lambda-1)g^1-\lambda(1-p)g_p^1\notag.
+			\frac{dW}{dp} =\lambda (g_p^0+g_p^1)+(\lambda-1)g^1-\lambda(1-p)g_p^1\notag
 		\end{align}
-		\item $\frac{dW}{dp}<0$ is equivalent to
+		\item 寄付価格を下げたときに社会厚生が上がる$\frac{dW}{dp}<0$の条件は以下と同値
 		\begin{align}
 			\epsilon\equiv -\frac{pg_p^1}{g^1}>\frac{\lambda-1}{\lambda}+\frac{g_p^0}{g^1}\notag.
 		\end{align}
 		\begin{itemize}
-		\item From the subsample analysis, $\epsilon$ is 1.304 $\sim$ 1.603.
-		\item Assuming $\lambda\in[1,2]$, $\frac{\lambda-1}{\lambda}\in[0,\frac12]$.
-		\item From the data, $\frac{g_p^0}{g^1}$ is 0.00003.
+		\item サブサンプル分析より$\epsilon$は1.304 $\sim$ 1.603
+		\item MCPFは$\lambda\in[1,2]$だと仮定し、$\frac{\lambda-1}{\lambda}\in[0,\frac12]$となる。
+		\item データから$\frac{g_p^0}{g^1}$は0.22 $\sim$ 0.34
 		\end{itemize}
-		\item Our result suggests that more generous tax relief will increase the welfare in Korea.
+		\item これらより、$\frac{dW}{dp}<0$がいえ、寄付価格を下げたときに社会厚生が上がると示唆される。
 	\end{itemize}
 \end{frame}
+
+
+
+\begin{frame}{申告コストの減少による寄付の増大(論文未掲載)}
+	\begin{itemize}
+		\item Wooldridge(2015)よりCFアプローチをもとに、寄付申告の傾向スコア算出時のプロビット推定を使い、申告コスト減少による寄付の増大がどれくらいになるかを算出
+		\item プロビット推定で得られた$\hat{\delta}$と逆ミルズ比$\Lambda(\cdot)$を使い、以下を算出
+		\begin{align}
+			\hat{r}_{it}\equiv R_{it}\Lambda(Z_{it}\hat{\delta})-(1-R_{it})\Lambda(Z_{it}\hat{\delta})\notag
+		\end{align}
+		\item $\hat{r}_{it}$は一般化残差といい、寄付の申告コストの差によるSelf-selectionを考慮\\
+		発想：内生変数$R_{it}$は誤差項と相関を持つのが問題\\
+		\qquad$\to$$R_{it}$と残差との相関を捉えた項を説明変数とすれば問題ない
+		\item ここでの主な識別源は$Z_{it}$に含まれる給与所得者ダミー(申告コストの差を捉える)
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{申告コストの減少による寄付の増大(論文未掲載)}
+	\begin{itemize}
+		\item 一般化残差を説明変数に加えた次の推定式を寄付者を対象に以下のように実行
+		\begin{align}
+			\ln g_{it} = \varepsilon_y \ln y_{it} + \bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + \hat{r}_{it}+u_{it}\notag
+		\end{align}
+		\begin{enumerate}
+			\item 寄付申告者$R_{it}=1$の個体について上記の回帰を実施。
+			\item 非寄付申告者$R_{it}=0$の個体について上記の回帰を実施。
+			\item 分析1と2で得た係数から、すべての個体を使って$R_{it}=0$だった場合の予測値$\ln g_{it}^{(0)}$と$R_{it}=1$だった場合の予測値$\ln g_{it}^{(1)}$を得る。
+			\item 以下の値を算出
+			\begin{itemize}
+				\item $\hat{ATE}\equiv N^{-1}\sum_{i=1}^N[\ln g_{it}^{(1)}-\ln g_{it}^{(0)}]$
+				\item $\hat{ATT}\equiv N_1^{-1}\sum_{i=1}^NR_{i1}[\ln g_{it}^{(1)}-\ln g_{it}^{(0)}]$
+				\item $\hat{ATU}\equiv N_0^{-1}\sum_{i=1}^N(1-R_{i1})[\ln g_{it}^{(1)}-\ln g_{it}^{(0)}]$
+			\end{itemize}
+			ただし$N$は全サンプル数、$N_1(N_0)$は(非)寄付申告者のサンプル数
+		\end{enumerate}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{申告コストの減少による寄付の増大(論文未掲載)}
+	\begin{itemize}
+		\item 寄付者が全員$R_{it}=1$となったときの寄付の増加$d \ln g$は以下のように推定された。
+		\begin{itemize}
+			\item 寄付者全体での平均効果(ATE): 0.201\\
+			$\to$ 今よりも20.1ppt寄付額が増加
+			\item 寄付者のうち申告者での平均効果(ATT): 0.295\\
+			$\to$ 今よりも29.5ppt寄付額が増加
+			\item 寄付者のうち非申告者での平均効果(ATU): 0.138\\
+			$\to$ 今よりも13.8ppt寄付額が増加
+		\end{itemize}
+		(※Pooled Probitの仮定を行った場合での推定結果)
+		\item $R_{it}=1$のときとは寄付の申告コストが0で全員が寄付するようになったときなので、これは寄付の申告コストが0となったときの寄付の増加量と解釈できる。
+	\end{itemize}
+\end{frame}
+
 \end{document}
