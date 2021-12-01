@@ -368,6 +368,80 @@ reducemod %>%
   )
 ```
 
+```{r }
+reducemod_ext <- list(
+  "(1)" = list(
+    model = fixest::xpd(i_ext_giving ~ ext_benefit_tl:log_price + ..fullx),
+    data = df
+  ),
+  "(2)" = list(
+    model = fixest::xpd(i_ext_giving ~ ..fullx),
+    data = subset(df, ext_benefit_tl == 0)
+  ),
+  "(3)" = list(
+    model = fixest::xpd(i_ext_giving ~ log_price + ..fullx),
+    data = subset(df, ext_benefit_tl == 0)
+  )
+)
+
+est_reducemod_ext <- reducemod_ext %>%
+  purrr::map(~ fixest::feols(
+    .$model, data = .$data,
+    cluster = ~ panelid, se = "cluster"
+  ))
+
+addtab <- est_reducemod_ext %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    x %>%
+      tidy() %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        estimate = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        std.error = sprintf("(%1.3f)", std.error / dbar)
+      ) %>%
+      select(estimate, std.error) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("term", sprintf("(%1d)", seq_len(length(est_reducemod_ext))))) %>%
+  mutate(term = recode(
+    term,
+    "estimate" = "Implied price elasticity", .default = ""
+  ))
+
+est_reducemod_ext %>%
+  modelsummary(
+    title = "FE Estimation of Extensive-Margin Price Elasticities",
+    coef_map = c(
+      "ext_benefit_tl:log_price" = "Applying tax relief x log(first price)",
+      "log_price" = "log(first price)",
+      "log_pinc_all" = "log(income)"
+    ),
+    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(
+    c(" " = 1, "Pooling" = 1, "R = 0" = 2)
+  ) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
 
 # First-Stage Estimation
 
@@ -525,6 +599,95 @@ stage2 %>%
   )
 ```
 
+```{r extensive}
+stage2_ext <- list(
+  "(1)" = fixest::xpd(
+    i_ext_giving ~ ..fullx | ext_benefit_tl:log_price ~ employee:log_price
+  ),
+  "(2)" = fixest::xpd(
+    i_ext_giving ~ ..fullx | ext_benefit_tl:log_price ~ psc_pool:log_price
+  ),
+  "(3)" = fixest::xpd(
+    i_ext_giving ~ ..fullx | ext_benefit_tl:log_price ~ psc_sep:log_price
+  ),
+  "(4)" = fixest::xpd(
+    i_ext_giving ~ psc_pool:log_price + ..fullx
+  ),
+  "(5)" = fixest::xpd(
+    i_ext_giving ~ psc_sep:log_price + ..fullx
+  )
+)
+
+est_stage2_ext <- stage2_ext %>%
+  purrr::map(~ fixest::feols(
+    .,
+    cluster = ~ panelid,
+    data = estdf
+  ))
+
+addtab <- est_stage2_ext %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    x %>%
+      tidy() %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        estimate = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        std.error = sprintf("(%1.3f)", std.error / dbar)
+      ) %>%
+      select(estimate, std.error) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("term", sprintf("(%1d)", seq_len(length(est_stage2_ext))))) %>%
+  mutate(term = recode(
+    term,
+    "estimate" = "Implied price elasticity", .default = ""
+  )) %>%
+  bind_rows(tibble::tribble(
+    ~"term", ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
+    "Square of age", "X", "X", "X", "X", "X",
+    "Instrument", "Wage earner x Price",
+    "PS x Price", "PS x Price", "", "",
+    "Method of PS", "", "Pool", "Separate", "Pool", "Separate"
+  ), .)
+
+est_stage2_ext %>%
+  modelsummary(
+    title = paste(
+      "FE-2SLS Approach of Extensive-Margin"
+    ),
+    coef_map = c(
+      "fit_ext_benefit_tl:log_price" =
+        "Applying tax relief x log(first price)",
+      "psc_pool:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "psc_sep:log_price" =
+        "PS of applying tax relief x log(first price)",
+      "log_pinc_all" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(" " = 1, "FE-2SLS" = 3, "OLS" = 2)) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
 
 # CF Approach ($R_{it} = 1$)
 
