@@ -45,7 +45,62 @@ options(
 )
 ```
 
+# Conceptual Framework
+## Optimization Problem
 
+Following @Almunia2020, we formulate the optimaization problem as follows:
+
+\begin{align*}
+  \max_{x_{it}, g_{it}, R_{it}} &U(x_{it}, g_{it}, G_t)
+  = u_i(x_{it}, g_{it}, G_{it}) - R_{it}K_{it}, \\
+  \text{s.t.}\:\:
+  &x_{it} + g_{it} = y_{it} - T_{it}(y_{it}, R_{it} g_{it}), \\
+  &G_t = g_{it} + G_{-it}, \\
+  &T_{it} = \begin{cases}
+    \tau_t(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it}) &t < 2014 \\
+    \tau_t(y_{it}) y_{it} - m R_{it} g_{it} &t \ge 2014
+  \end{cases}
+\end{align*}
+
+We assume that
+
+- no saving
+- decision-making before 2014 is based on $\tau(y_{it})$ (first-price)
+- $G_{-it}$ is large enough to $\frac{\partial u_i}{\partial G}(x, g, G) \approx 0$
+
+By these assumptions,
+we can reformulate the optimization problem as follows:
+
+\begin{align*}
+  \max_{g_{it}, R_{it}}
+  &u_i((1 - \tau_t(y_{it}))y_{it} - (1 - R_{it}s_{it})g_{it}, g_{it}, G_{it}) - R_{it}K_{it}, \\
+  \text{s.t.}\:\:
+  &s_{it} = \begin{cases}
+    \tau(y_{it}) &t < 2014 \\
+    m &t \ge 2014
+  \end{cases},
+\end{align*}
+
+where $s_{it}$ is tax incentive of monetary donations
+for individual $i$ in year $t$.
+
+Define $g_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it})$
+and $g_i(1, (1 - \tau_t(y_{it}))y_{it})$
+to be the optimal levels of donations for choices $R_{it} = 1, 0$ respectively.
+Then, we can write indirect utility as
+
+\begin{align*}
+  &v_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}, G_{-it}) - K_{it},  \\
+  &v_i(1, (1 - \tau_t(y_{it}))y_{it}, G_{-it}).
+\end{align*}
+
+Thus, individual $i$ applies for tax relief in year $t$, that is, $R_{it} = 1$ iff
+
+\begin{align*}
+  \Delta v_i \equiv
+  v_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}, G_{-it}) - v_i(1, (1 - \tau_t(y_{it}))y_{it}, G_{-it})
+  \ge K_{it}.
+\end{align*}
 
 ```{r include = FALSE, eval = params$preview}
 library(xfun)
@@ -56,8 +111,6 @@ xfun::pkg_attach2(c(
 
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 ```
-
-
 
 ```{r include = FALSE, eval = params$preview}
 df <- readr::read_csv(
@@ -79,166 +132,6 @@ dplyr::filter(
 )
 ```
 
-
-# Conceptual Framework
-## Optimization Problem
-
-Following @Almunia2020, we formulate the optimaization problem as follows:
-
-\begin{align*}
-  \max_{x_{it}, g_{it}, R_{it}} &U(x_{it}, g_{it}, G_t)
-  = x_{it} - R_{it}K_{it} + \theta_i u(g_{it}) + V(G_t), \\
-  \text{s.t.}\:\:
-  &x_{it} + g_{it} = y_{it} - T_{it}(y_{it}, R_{it} g_{it}), \\
-  &G_t = g_{it} + G_{-it}, \\
-  &T_{it} = \begin{cases}
-    \tau_t(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it}) &t < 2014 \\
-    \tau_t(y_{it}) y_{it} - m R_{it} g_{it} &t \ge 2014
-  \end{cases}
-\end{align*}
-
-This model implicitly assume no income effect and no saving.
-By this assumption,
-a dynamic optimization reduces to a repeated static optimaization problem.
-We further assume that
-(i) decision-making before 2014 is based on $\tau(y_{it})$ (first-price);
-and (ii) $G_{-it}$ is large enough to $V'(G_t) \approx 0$.
-Especially, by the second assumption,
-we do not need to take $\partial V(G_t) / \partial g_{it}$ into accuount
-when we derive the optimal donation levels.
-
-Under these assumptions,
-we can reformulate the optimization problem as follows:
-
-\begin{align*}
-  \max_{g_{it}, R_{it}} &U(g_{it}) =
-  - (1 - R_{it}s_{it}) g_{it} + \theta_i u(g_{it}), \\
-  \text{s.t.}\:\:
-  &s_{it} = \begin{cases}
-    \tau(y_{it}) &t < 2014 \\
-    m &t \ge 2014
-  \end{cases},
-\end{align*}
-
-where $s_{it}$ is tax incentive of monetary donations
-for individual $i$ in year $t$.
-
-Let $g(1-s_{it};\theta_i)$ and $g(1;\theta_i)$
-be the optimal donation levels when $R_{it} = 1$ and $R_{it} = 0$,
-respectively.
-Each indirect utility function is
-
-\begin{align*}
-  v(1 - s_{it}; \theta_i)
-  &= -(1 - s_{it})g(1 - s_{it}; \theta_i)
-  + \theta_i u(g(1 - s_{it}; \theta_i)), \\
-  v(1; \theta_i)
-  &= -g(1;\theta_i) + \theta_i u(g(1;\theta_i)).
-\end{align*}
-
-Note that the price effect on the indirect utility is
-
-\begin{align*}
-  \frac{\partial v(1 - s_{it};\theta_i)}{\partial (1 - s_{it})}
-  &= -g(1 - s_{it};\theta_i)
-  - (1 - s_{it}) \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})}
-  + \theta_i \frac{\partial u}{\partial g}
-  \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
-  &= -g(1 - s_{it};\theta_i)
-  + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
-  \frac{\partial g(1-s_{it};\theta_i)}{\partial (1 - s_{it})} \\
-  &= -g(1 - s_{it}; \theta_i).
-\end{align*}
-
-This implies that the effect of tax incentive $s_{it}$ on the indirect utility is
-$\partial v(1 - s_{it};\theta_i) / \partial s_{it}
-= (\partial v(1 - s_{it};\theta_i) / \partial (1 - s_{it}))(d (1 - s_{it})/d s_{it}) = g(1 - s_{it};\theta_i)$.
-
-In the same way, the effect of warm-glow preference $\theta_i$ on indirect utility is
-
-\begin{align*}
-  \frac{\partial v(1 - s_{it};\theta_i)}{\partial \theta_i}
-  &= -(1 - s_{it})\frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
-  + \theta_i \frac{\partial u}{\partial g}
-  \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i}
-  + u(g(1 - s_{it};\theta_i)) \\
-  &= u(g(1 - s_{it};\theta_i))
-  + \left(\theta_i \frac{\partial u}{\partial g} - (1 - s_{it}) \right)
-  \frac{\partial g(1-s_{it};\theta_i)}{\partial \theta_i} \\
-  &= u(g(1 - s_{it};\theta_i)),
-\end{align*}
-
-and,
-
-\begin{align*}
-  \frac{\partial v(1;\theta_i)}{\partial \theta_i}
-  &= -\frac{\partial g(1;\theta_i)}{\partial \theta_i}
-  + \theta_i \frac{\partial u}{\partial g}
-  \frac{\partial g(1;\theta_i)}{\partial \theta_i}
-  + u(g(1;\theta_i)) \\
-  &= u(g(1;\theta_i))
-  + \left(\theta_i \frac{\partial u}{\partial g} - 1 \right)
-  \frac{\partial g(1;\theta_i)}{\partial \theta_i} \\
-  &= u(g(1;\theta_i)).
-\end{align*}
-
-Finally, individual $i$ applies for tax relief in year $t$ if and only if
-
-\begin{align*}
-  \Delta v \equiv v(1 - s_{it};\theta_i) - v(1;\theta_i) > K_{it}.
-\end{align*}
-
-Note that $\partial \Delta v/\partial \theta_i = u(g(1 - s_{it};\theta_i)) - u(g(1;\theta_i)) \ge 0$
-because $g(1 - s_{it};\theta_i) \ge g(1;\theta_i)$.
-
-## Specification of Warm-Glow Utility
-
-When performing the structual estimation,
-@Almunia2020 specify the warm-glow utility $u$ as follows:
-
-\begin{align*}
-  u(g) = \frac{g^{1 - 1/\gamma_i}}{1 - \frac{1}{\gamma_i}}.
-\end{align*}
-
-where $\gamma_i > 0$.
-
-If we follow this specification,
-we can derive the optimal donation level as follows:
-
-\begin{align*}
-  g(1 - s_{it};\theta_i)
-  &= \left( \theta_i/(1 - s_{it}) \right)^{\gamma_i}, \\
-  g(1;\theta_i)
-  &= \left( \theta_i \right)^{\gamma_i}.
-\end{align*}
-
-Moreover, these logarithm values are
-
-\begin{align*}
-  \ln g(1 - s_{it};\theta_i)
-  &= \gamma_i \ln \theta_i - \gamma_i \ln (1 - s_{it}), \\
-  \ln g(1;\theta_i)
-  &= \gamma_i \ln \theta_i.
-\end{align*}
-
-Thus, individual $i$ applies for tax relief in year $t$ if and only if
-
-\begin{align*}
-  -(1 - s_{it}) (\theta_i / (1 - s_{it}))^{\gamma_i}
-  + \theta_i^{\gamma_i}
-  + \theta_i \frac{(\theta_i / (1 - s_{it}))^{\gamma_i(1 - 1/\gamma_i)}
-  - \theta_i^{\gamma_i(1 - 1/\gamma_i)}}{1 - 1 / \gamma_i}
-  &\ge K_{it}  \\
-  \theta_i \frac{\theta_i^{\gamma_i - 1}((1 - s_{it})^{1 - \gamma_i} - 1)}
-  {1 - 1 / \gamma_i} - \theta_i^{\gamma_i}((1 - s_{it})^{1 - \gamma_i} - 1)
-  &\ge K_{it}  \\
-  \theta_i^{\gamma_i}
-  \frac{(1 - s_{it})^{1 - \gamma_i} - 1}{1 - 1 / \gamma_i} -
-  \theta_i^{\gamma_i}((1 - s_{it})^{1 - \gamma_i} - 1)
-  &\ge K_{it} \\
-  \frac{\theta_i^{\gamma_i}}{\gamma_i - 1}((1 - s_{it})^{1 - \gamma_i} - 1)
-  &\ge K_{it}
-\end{align*}
 
 ## Parameter of Interest
 
