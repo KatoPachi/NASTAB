@@ -97,9 +97,25 @@ Then, we can write indirect utility as
 Thus, individual $i$ applies for tax relief in year $t$, that is, $R_{it} = 1$ iff
 
 \begin{align*}
-  \Delta v_i \equiv
+  \Delta v_{it} \equiv
   v_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}, G_{-it}) - v_i(1, (1 - \tau_t(y_{it}))y_{it}, G_{-it})
   \ge K_{it}.
+\end{align*}
+
+## Paramter of Interest
+
+Given $t$ and $y_{it}$,
+the individual effect of tax incentive on charitable contributions is
+
+\begin{align*}
+  g_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}) - g_i(1, (1 - \tau_t(y_{it}))y_{it}).
+\end{align*}
+
+Moreover, the (individual) price elasticity of charitable contributions can be obtained by
+
+\begin{align*}
+  \frac{\ln g_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}) - \ln g_i(1, (1 - \tau_t(y_{it}))y_{it})}
+  {\ln (1 - s_{it})}.
 \end{align*}
 
 ```{r include = FALSE, eval = params$preview}
@@ -131,35 +147,6 @@ dplyr::filter(
   ext_benefit_tl == 0 | (ext_benefit_tl == 1 & i_ext_giving == 1)
 )
 ```
-
-
-## Parameter of Interest
-
-We assume $\partial \Delta v/\partial \theta_i > 0$.
-
-Assume that $\theta_i$ is distributed over
-$[\underline{\theta}, \bar{\theta}]$,
-and its density function is $f(\cdot)$.
-Then, we can devide population into three types:
-
-1. $\theta_i \le \theta_0$: individuals do not donate anything
-    - $g(1;\theta_i) = 0$ if $\theta_i$ is too low
-1. $\theta_i \in (\theta_0, \theta(s)]$: individuals donate but do not apply for tax relief
-1. $\theta_i > \theta(s)$: individuals donate and apply for tax relief
-
-where $\theta(s)$ holds $v(1 - s_{it};\theta(s)) - v(1;\theta(s)) = K_{it}$.
-$\theta(s)$ is decreasing in $s_{it}$ because
-$\partial v(1 - s_{it};\theta_i)/\partial (1 - s_{it}) \le 0$.
-
-Social total amount of giving $G$ is defined by
-
-\begin{align*}
-  &G = g^0(s_{it}) + g^1(s_{it}) + G_g \\
-  &g^0(s_{it}) = \int_{\theta_0}^{\theta(s)} g(1;\theta) f(\theta) d\theta \\
-  &g^1(s_{it}) = \int_{\theta(s)}^{\bar{\theta}} g(1 - s_{it};\theta) f(\theta) d\theta \\
-\end{align*}
-
-where $G_g$ is public goods supplied by government.
 
 # Identification
 
