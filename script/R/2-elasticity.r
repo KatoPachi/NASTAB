@@ -71,7 +71,7 @@ fixest::setFixest_fml(
   ..cov = ~ log_pinc_all + sqage | year + panelid + area + industry
 )
 
-basemod <- list(
+firstmod <- list(
   "(1)" = list(
     mod = log_total_g ~ log_price:ext_benefit_tl + ..cov,
     data = df
@@ -98,8 +98,47 @@ basemod <- list(
   )
 )
 
-basemod %>%
-  purrr::map(~ fixest::feols(.$mod, .$data, cluster = ~panelid)) %>%
+est_firstmod <- firstmod %>%
+  purrr::map(~ fixest::feols(.$mod, .$data, cluster = ~panelid))
+
+impelast <- est_firstmod[5:6] %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    tidy(x) %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        estimate = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        std.error = sprintf("(%1.3f)", std.error / dbar)
+      ) %>%
+      select(estimate, std.error) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("term", sprintf("(%1d)", 5:6))) %>%
+  left_join(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+    "estimate", "", "", "", "",
+    "std.error", "", "", "", "",
+  ), ., by = "term") %>%
+  mutate(term = recode(
+    term, "estimate" = "Implied price elasticity", .default = ""
+  ))
+
+addtab <- impelast %>%
+  bind_rows(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
+    "Square of age", "X", "X", "X", "X", "X", "X"
+  ))
+
+attr(addtab, "position") <- c(3:4)
+
+est_firstmod %>%
   modelsummary(
     title = "First-Price Elasticities",
     coef_map = c(
@@ -108,10 +147,7 @@ basemod %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-      "Square of age", "X", "X", "X", "X", "X", "X"
-    )
+    add_rows = addtab
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
