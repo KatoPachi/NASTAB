@@ -229,13 +229,34 @@ impelast <- est_firstmod[5:6] %>%
     term, "estimate" = "Implied price elasticity", .default = ""
   ))
 
+stage1 <- est_firstmod[c(2, 4, 6)] %>%
+  purrr::map(function(x) {
+    coef <- x$iv_first_stage[["log_price:ext_benefit_tl"]]$coeftable[1, 1]
+    ivwald <- fitstat(x, "ivwald")[[1]]$stat
+
+    tibble(coef = coef, wald = ivwald) %>%
+      pivot_longer(everything()) %>%
+      mutate(value = case_when(
+        name == "coef" ~ sprintf("%1.3f", value),
+        name == "wald" ~ sprintf("[%1.1f]", value)
+      )) %>%
+      mutate(value2 = c("", "")) %>%
+      select(name, value2, value)
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  mutate(term = recode(
+    term, "coef" = "First-stage: Instrument", .default = ""
+  ))
+
 addtab <- impelast %>%
+  bind_rows(stage1) %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
     "Square of age", "X", "X", "X", "X", "X", "X"
   ))
 
-attr(addtab, "position") <- c(3:4)
+attr(addtab, "position") <- c(3:6)
 
 est_firstmod %>%
   modelsummary(
@@ -261,10 +282,9 @@ est_firstmod %>%
     general = paste(
       "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
       "Standard errors are clustered at individual level.",
-      "logged value of first price is zero",
-      "if respondent did not apply for tax relief.",
-      "Instrument of logged value of first price is",
-      "logged value of first price if they had applied for tax relief."
+      "A square bracket is wald statistics of instrument.",
+      "log (first price) is $\\ln(1 - R_{it}s_{it})$.",
+      "Instrument is $\\ln(1 - s_{it})$."
     ),
     threeparttable = TRUE,
     escape = FALSE
