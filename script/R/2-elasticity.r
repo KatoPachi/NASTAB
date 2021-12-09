@@ -64,7 +64,106 @@ dplyr::filter(
 )
 
 #'
+#' # Conceptual Framework
+#' ## Optimization Problem
+#'
+#' Following @Almunia2020, we formulate the optimaization problem as follows:
+#'
+#' \begin{align*}
+#'   \max_{x_{it}, g_{it}, R_{it}} &U(x_{it}, g_{it}, G_t)
+#'   = u_i(x_{it}, g_{it}, G_{it}) - R_{it}K_{it}, \\
+#'   \text{s.t.}\:\:
+#'   &x_{it} + g_{it} = y_{it} - T_{it}(y_{it}, R_{it} g_{it}), \\
+#'   &G_t = g_{it} + G_{-it}, \\
+#'   &T_{it} = \begin{cases}
+#'     \tau_t(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it}) &t < 2014 \\
+#'     \tau_t(y_{it}) y_{it} - m R_{it} g_{it} &t \ge 2014
+#'   \end{cases}
+#' \end{align*}
+#'
+#' We assume that
+#'
+#' - no saving
+#' - decision-making before 2014 is based on $\tau(y_{it})$ (first-price)
+#' - $G_{-it}$ is large enough to $\frac{\partial u_i}{\partial G}(x, g, G) \approx 0$
+#'
+#' By these assumptions,
+#' we can reformulate the optimization problem as follows:
+#'
+#' \begin{align*}
+#'   \max_{g_{it}, R_{it}}&
+#'   u_i((1 - \tau_t(y_{it}))y_{it} - (1 - R_{it}s_{it})g_{it}, g_{it}, G_{it})
+#'   - R_{it}K_{it}, \\
+#'   \text{s.t.}\:\:
+#'   &s_{it} = \begin{cases}
+#'     \tau(y_{it}) &t < 2014 \\
+#'     m &t \ge 2014
+#'   \end{cases},
+#' \end{align*}
+#'
+#' where $s_{it}$ is tax incentive of monetary donations
+#' for individual $i$ in year $t$.
+#'
+#' Define $g_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it})$
+#' and $g_i(1, (1 - \tau_t(y_{it}))y_{it})$
+#' to be the optimal levels of donations
+#' for choices $R_{it} = 1, 0$ respectively.
+#' Then, we can write indirect utility as
+#'
+#' \begin{align*}
+#'   &v_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}, G_{-it}) - K_{it},  \\
+#'   &v_i(1, (1 - \tau_t(y_{it}))y_{it}, G_{-it}).
+#' \end{align*}
+#'
+#' Thus, individual $i$ applies for tax relief in year $t$,
+#' that is, $R_{it} = 1$ iff
+#'
+#' \begin{align*}
+#'   \Delta v_{it} \equiv
+#'   v_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}, G_{-it})
+#'   - v_i(1, (1 - \tau_t(y_{it}))y_{it}, G_{-it})
+#'   \ge K_{it}.
+#' \end{align*}
+#'
 #' # Price Elasticity of Charitable Giving
+#'
+#' Estimation equations are
+#'
+#' \begin{align*}
+#'   \text{Second-stage: }&
+#'   \ln g_{it} = \theta_i + \gamma \ln(1 - R_{it}s_{it}) +
+#'   \beta X'_{it} + \iota_t + u_{it} \\
+#'   \text{First-stage: }&
+#'   \ln (1 - R_{it} s_{it}) = \theta_i + \delta_1 \ln (1 - s_{it}) +
+#'   \delta_2 X'_{it} + \iota_t + v_{it}
+#' \end{align*}
+#'
+#' To justify monotonicity assumption,
+#' consider a decrease of tax incentive $s_{it}$, that is, $s > s'$
+#' ($1 - s < 1 - s'$).
+#' Then, we can classify tax-payers into three types:
+#'
+#' - Type A (Always-complier): $R_{it} = 1$ under both $1 - s$ and $1 - s'$
+#' - Type B (Defier): $R_{it} = 1$ if $1 - s$ and $R_{it} = 0$ if $1 - s'$
+#' - Type C (Always-noncomplier): $R_{it} = 0$ under both $1 - s$ and $1 - s'$
+#'
+#' Our model excludes
+#' those who $R_{it} = 0$ if $1 - s$ and $R_{it} = 1$ if $1 - s'$
+#' because a decrease of tax incentive also reduces benefit from tax relief:
+#' $\Delta v_{it}$.[^fix_K]
+#' Then, a price change by a decrease of tax incentive
+#' can be summarized as follows:
+#'
+#' - Type A: $1 - s \to 1 - s'$
+#' - Type B: $1 - s \to 1$
+#' - Type C: $1 \to 1$
+#'
+#' Thus, instrument $\ln(1 - s_{it})$ changes
+#' our main endogenous variable $\ln(1 - R_{it}s_{it})$ in one directly,
+#' which implies that monotonicity assumption is justified.
+#' Moreover, we expect $1 > \delta_1 > 0$.
+#'
+#' [^fix_K]: We fix $K_{it} = k$.
 #'
 #+
 fixest::setFixest_fml(
