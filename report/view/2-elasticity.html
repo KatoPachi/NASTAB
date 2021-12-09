@@ -11,7 +11,7 @@
 
 <meta name="author" content="Hiroki Kato" />
 
-<meta name="date" content="2021-12-07" />
+<meta name="date" content="2021-12-09" />
 
 <title>Price Elasticity of Charitable Giving</title>
 
@@ -245,13 +245,101 @@ div.tocify {
 
 <h1 class="title toc-ignore"><p>Price Elasticity of Charitable Giving</p></h1>
 <h4 class="author">Hiroki Kato</h4>
-<h4 class="date">2021-12-07</h4>
+<h4 class="date">2021-12-09</h4>
 
 </div>
 
 
+<div id="conceptual-framework" class="section level1">
+<h1>Conceptual Framework</h1>
+<div id="optimization-problem" class="section level2">
+<h2>Optimization Problem</h2>
+<p>Following <span class="citation">@Almunia2020</span>, we formulate the optimaization problem as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \max_{x_{it}, g_{it}, R_{it}} &amp;U(x_{it}, g_{it}, G_t)
+  = u_i(x_{it}, g_{it}, G_{it}) - R_{it}K_{it}, \\
+  \text{s.t.}\:\:
+  &amp;x_{it} + g_{it} = y_{it} - T_{it}(y_{it}, R_{it} g_{it}), \\
+  &amp;G_t = g_{it} + G_{-it}, \\
+  &amp;T_{it} = \begin{cases}
+    \tau_t(y_{it} - R_{it} g_{it}) (y_{it} - R_{it} g_{it}) &amp;t &lt; 2014 \\
+    \tau_t(y_{it}) y_{it} - m R_{it} g_{it} &amp;t \ge 2014
+  \end{cases}
+\end{align*}\]</span></p>
+<p>We assume that</p>
+<ul>
+<li>no saving</li>
+<li>decision-making before 2014 is based on <span class="math inline">\(\tau(y_{it})\)</span> (first-price)</li>
+<li><span class="math inline">\(G_{-it}\)</span> is large enough to <span class="math inline">\(\frac{\partial u_i}{\partial G}(x, g, G) \approx 0\)</span></li>
+</ul>
+<p>By these assumptions,
+we can reformulate the optimization problem as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \max_{g_{it}, R_{it}}&amp;
+  u_i((1 - \tau_t(y_{it}))y_{it} - (1 - R_{it}s_{it})g_{it}, g_{it}, G_{it})
+  - R_{it}K_{it}, \\
+  \text{s.t.}\:\:
+  &amp;s_{it} = \begin{cases}
+    \tau(y_{it}) &amp;t &lt; 2014 \\
+    m &amp;t \ge 2014
+  \end{cases},
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(s_{it}\)</span> is tax incentive of monetary donations
+for individual <span class="math inline">\(i\)</span> in year <span class="math inline">\(t\)</span>.</p>
+<p>Define <span class="math inline">\(g_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it})\)</span>
+and <span class="math inline">\(g_i(1, (1 - \tau_t(y_{it}))y_{it})\)</span>
+to be the optimal levels of donations
+for choices <span class="math inline">\(R_{it} = 1, 0\)</span> respectively.
+Then, we can write indirect utility as</p>
+<p><span class="math display">\[\begin{align*}
+  &amp;v_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}, G_{-it}) - K_{it},  \\
+  &amp;v_i(1, (1 - \tau_t(y_{it}))y_{it}, G_{-it}).
+\end{align*}\]</span></p>
+<p>Thus, individual <span class="math inline">\(i\)</span> applies for tax relief in year <span class="math inline">\(t\)</span>,
+that is, <span class="math inline">\(R_{it} = 1\)</span> iff</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta v_{it} \equiv
+  v_i(1 - s_{it}, (1 - \tau_t(y_{it}))y_{it}, G_{-it})
+  - v_i(1, (1 - \tau_t(y_{it}))y_{it}, G_{-it})
+  \ge K_{it}.
+\end{align*}\]</span></p>
+</div>
+</div>
 <div id="price-elasticity-of-charitable-giving" class="section level1">
 <h1>Price Elasticity of Charitable Giving</h1>
+<p>Estimation equations are</p>
+<p><span class="math display">\[\begin{align*}
+  \text{Second-stage: }&amp;
+  \ln g_{it} = \theta_i + \gamma \ln(1 - R_{it}s_{it}) +
+  \beta X&#39;_{it} + \iota_t + u_{it} \\
+  \text{First-stage: }&amp;
+  \ln (1 - R_{it} s_{it}) = \theta_i + \delta_1 \ln (1 - s_{it}) +
+  \delta_2 X&#39;_{it} + \iota_t + v_{it}
+\end{align*}\]</span></p>
+<p>To justify monotonicity assumption,
+consider a decrease of tax incentive <span class="math inline">\(s_{it}\)</span>, that is, <span class="math inline">\(s &gt; s&#39;\)</span>
+(<span class="math inline">\(1 - s &lt; 1 - s&#39;\)</span>).
+Then, we can classify tax-payers into three types:</p>
+<ul>
+<li>Type A (Always-complier): <span class="math inline">\(R_{it} = 1\)</span> under both <span class="math inline">\(1 - s\)</span> and <span class="math inline">\(1 - s&#39;\)</span></li>
+<li>Type B (Defier): <span class="math inline">\(R_{it} = 1\)</span> if <span class="math inline">\(1 - s\)</span> and <span class="math inline">\(R_{it} = 0\)</span> if <span class="math inline">\(1 - s&#39;\)</span></li>
+<li>Type C (Always-noncomplier): <span class="math inline">\(R_{it} = 0\)</span> under both <span class="math inline">\(1 - s\)</span> and <span class="math inline">\(1 - s&#39;\)</span></li>
+</ul>
+<p>Our model excludes
+those who <span class="math inline">\(R_{it} = 0\)</span> if <span class="math inline">\(1 - s\)</span> and <span class="math inline">\(R_{it} = 1\)</span> if <span class="math inline">\(1 - s&#39;\)</span>
+because a decrease of tax incentive also reduces benefit from tax relief:
+<span class="math inline">\(\Delta v_{it}\)</span>.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>
+Then, a price change by a decrease of tax incentive
+can be summarized as follows:</p>
+<ul>
+<li>Type A: <span class="math inline">\(1 - s \to 1 - s&#39;\)</span></li>
+<li>Type B: <span class="math inline">\(1 - s \to 1\)</span></li>
+<li>Type C: <span class="math inline">\(1 \to 1\)</span></li>
+</ul>
+<p>Thus, instrument <span class="math inline">\(\ln(1 - s_{it})\)</span> changes
+our main endogenous variable <span class="math inline">\(\ln(1 - R_{it}s_{it})\)</span> in one directly,
+which implies that monotonicity assumption is justified.
+Moreover, we expect <span class="math inline">\(1 &gt; \delta_1 &gt; 0\)</span>.</p>
 <table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption>
 <span id="tab:unnamed-chunk-4">Table 1: </span>First-Price Elasticities
@@ -614,6 +702,12 @@ X
 </ol></li>
 </ol></li>
 </ol></li>
+</ol>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>We fix <span class="math inline">\(K_{it} = k\)</span>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
