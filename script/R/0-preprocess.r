@@ -127,6 +127,17 @@ df <- df %>%
 df <- df %>%
   rename(panelid = pid, area = living_area)
 
+#' Village tax accountant制度のデータ
+#+
+village <- read_csv("data/origin/village_tax_accountant.csv")
+
+df <- df %>%
+  left_join(village, by = c("year", "area")) %>%
+  mutate(
+    accountant = if_else(year <= 2015, 0, accountant),
+    consult = if_else(year <= 2015, 0, consult)
+  )
+
 #' CSVファイルに書き出す
 #+
 readr::write_csv(df, file = "data/shaped2.csv")
