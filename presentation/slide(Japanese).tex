@@ -23,52 +23,61 @@
 		\protect\hypertarget{introduction}{}
 		\begin{itemize}
 			\item 世界の多くの国で寄付に対する税制上の優遇がなされている。
-			\item　税制優遇が厚生に与える影響について、寄付の価格弾力性が厚生評価のための重要な指標であると考えられている。(e.g.~Saez, 2004)
+			\item 税制優遇が厚生に与える影響について、寄付の価格弾力性が厚生評価のための重要な指標であると考えられている。(e.g.~Saez, 2004)
 			\begin{itemize}
 				\item 直感的に言えば寄付の価格弾力性が-1を下回ると、\$1の税制優遇が\$1以上の寄付を生み出すこととなる。
-				\item 「寄付の税制優遇で寄付の価格が下がり、寄付が促進されるだろう」
+				\item 本研究は「韓国の寄付の価格弾力性」について分析を行う\\
+				$\to$データや実証上の識別源が存在
 			\end{itemize}
-			\item 既存研究の多くは課税申告データを用いて寄付の価格弾力性を推定してきた。(e.g.~Almunia et al., 2020, Auten et al., 2002, and so on)
 		\end{itemize}
 	\end{frame}
 	
 	\begin{frame}{Introduction}
 		\protect\hypertarget{introduction-1}{}
-		\begin{itemize}
-			\item しかし、課税申告データは申告された寄付のみしか記録していない。
+		\begin{enumerate}
+			\item 既存研究の多くは課税申告データを用いて寄付の価格弾力性を推定してきた。(e.g.~Almunia et al., 2020)
 			\begin{itemize}
-				\item この論文の扱う第1の問題: 実際の寄付量と申告された寄付量は異なるものであり、推定バイアスが起きる(Fack and Landais (2016); Gillitzer and Skov (2018))。
-				\item この問題に対応するため、課税申告データではなく、韓国のサーベイパネルデータを使って分析を行った。
+				\item しかし、課税申告データは申告された寄付のみしか記録していない。
+				\item 実際の寄付量と申告された寄付量は異なるものであり、推定バイアスが起きる(Fack and Landais, 2016)
 			\end{itemize}
-			\item 納税者は寄付を申告するかどうか自ら選択でき、申告する際には寄付証明などの提出などのコストがかかる。			
+			\item 納税者は寄付を申告するかどうか自ら選択でき、申告する際には寄付証明などの提出などのコストがかかる。
 			\begin{itemize}
-				\item この論文の扱う第2の問題: 寄付の申告コストが無視されると推定バイアスが起きる。\\
-				$\leftarrow$寄付の申告をしなければ税制優遇は受けられない
-				\item この論文では操作変数法(IV)とControl Function (CF)アプローチをつかってこの問題に対処。
+				\item コストをかけても得する人だけが税制優遇を受ける。
 			\end{itemize}
-			\item 差の差法(DID)をメインの識別戦略として用いて、寄付の価格弾力性の大きさについて韓国のデータを用いて調べた。
+		\end{enumerate}
+	\begin{itemize}
+		\item この論文では韓国の
+		\begin{enumerate}
+			\item サーベイデータを用い、
+			\item 操作変数法(IV)とControl Function (CF)アプローチ
+		\end{enumerate}
+		\flushright	をつかってこれらの問題に対処。
+		\flushleft
+		\item 差の差法(DID)をメインの識別戦略として用いて、寄付の価格弾力性の大きさについて調べた。
 		\end{itemize}
 	\end{frame}
 	
 	\begin{frame}{Introduction}
 		\protect\hypertarget{introduction-2}{}
-		分析の結果
 		\begin{enumerate}
-			\item ベースラインの結果では、寄付の価格弾力性がIntensive Marginsで-1.4以下、Extensive Marginsで-1.7以下となった。
+			\item ベースラインの結果では、寄付の価格弾力性が\\
+			Intensive Marginsで-1.4以下、\\
+			Extensive Marginsで-1.7以下となった。
 			\begin{itemize}
-				\item 寄付の申告コストを考慮しない結果ではIntensive Marginsで-0.9となった。
+				\item 申告コストを考慮しない場合はIntensive Marginsで-0.9
 			\end{itemize}
-			\item 寄付の申告者に絞った分析結果では寄付の価格弾力性はIntensive Marginsで-1.2\(\sim\)-1.6となった。
+			\item 寄付申告者に絞ると、価格弾力性はIntensive Marginsで-1.2\(\sim\)-1.6。
 		\end{enumerate}
-		既存研究の多くではIntensive Marginsの寄付の価格弾力性が約-1であり、これよりも概ね弾力的な推定結果が得られた。
+		既存研究：Intensive Marginsの寄付の価格弾力性が約-1\\
+		$\to$ 比較的弾力的な推定結果が得られた。\\
 		\begin{enumerate}
 			\setcounter{enumi}{2}
-			\item (論文には未掲載) 推定値をもとに社会厚生を分析すると韓国では寄付の税制優遇を拡充することで厚生が増大する可能性が高いことがわかった。
-			\item (論文には未掲載) 寄付の申告が行われることによる寄付の増加は概ね20\%程度だとCFアプローチからわかった。
+			\item (論文には未掲載) 推定値をもとに社会厚生を分析すると韓国では寄付優遇を拡充することで厚生が増大する可能性が高い。
+			\item (論文には未掲載) 寄付申告による寄付の増加は概ね20\%だとCFアプローチからわかった。
 		\end{enumerate}
 	\end{frame}
 	
-	\begin{frame}{2014年の韓国での税制改正}
+	\begin{frame}{韓国の所得税の申告制度}
 		\protect\hypertarget{tax-reform-in-south-korea}{}
 		韓国では所得税納税者は寄付に対して税制上の優遇を受けることができる。
 		\begin{itemize}
@@ -84,22 +93,6 @@
 		\end{itemize}
 	\end{frame}
 	
-	\begin{frame}{2014年の韓国での税制改正}
-		\protect\hypertarget{tax-reform-in-south-korea-1}{}
-		この分析での識別時の主な価格バリエーションは2014年の税制改正によるものである。		
-		\begin{itemize}
-			\item 2014年より前は寄付の優遇策として所得控除が用いられていた。			
-			\begin{itemize}
-				\item 所得控除では所得と寄付額によって所得税率が変化するので、(私的財消費と比べたときの)寄付価格は所得や寄付額に依存。
-			\end{itemize}
-			\item 2014年以後は税額控除が用いられるようになった。
-			\begin{itemize}
-				\item 税額控除の率は所得などにかかわらず一律15\%
-				\item これはつまり、私的財消費\$1と比べた相対的な寄付価格が\$0.85となることを意味\\
-				(以下ではこれを「寄付価格」と呼ぶ)
-			\end{itemize}
-		\end{itemize}
-	\end{frame}
 	
 	\begin{frame}{2014年の韓国での税制改正}
 		\protect\hypertarget{tax-reform-in-south-korea-2}{}
@@ -143,6 +136,22 @@
 		
 		Note: 寄付申告を行わなかった者の直面する寄付価格は\(\ln1 =0\)となる。
 	\end{frame}
+
+\begin{frame}{Data}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth]{Fig_Income_distribution}
+		\caption{所得分布と税制改正前後での寄付価格の変化}
+		\label{fig:2}
+	\end{figure}
+	\small
+	2014年に寄付価格は概ね
+	\begin{itemize}
+		\item 所得1200万KRW未満の人については減少
+		\item 所得1200万KRW$\sim$4600万KRWの人については同じ
+		\item 所得4600万KRW以上の人については増加
+	\end{itemize}
+\end{frame}
 	
 	\begin{frame}{内生性の問題}
 		\begin{enumerate}
@@ -186,21 +195,7 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Data}
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.7\linewidth]{Fig_Income_distribution}
-		\caption{所得分布と税制改正前後での寄付価格の変化}
-		\label{fig:2}
-	\end{figure}
-\small
-	2014年に寄付価格は概ね
-	\begin{itemize}
-		\item 所得1200万KRW未満の人については減少
-		\item 所得1200万KRW$\sim$4600万KRWの人については同じ
-		\item 所得4600万KRW以上の人については増加
-	\end{itemize}
-\end{frame}
+
 
 \begin{frame}{Data}
 	\begin{figure}
