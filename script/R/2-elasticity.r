@@ -167,7 +167,8 @@ dplyr::filter(
 #'
 #+
 fixest::setFixest_fml(
-  ..cov = ~ log_pinc_all + sqage | year + panelid + area + industry
+  ..cov = ~ log_pinc_all + sqage + employee |
+    year + panelid + area + industry
 )
 
 firstmod <- list(
@@ -198,7 +199,7 @@ firstmod <- list(
 )
 
 est_firstmod <- firstmod %>%
-  purrr::map(~ fixest::feols(.$mod, .$data, cluster = ~panelid))
+  purrr::map(~ fixest::feols(xpd(.$mod), .$data, cluster = ~panelid))
 
 impelast <- est_firstmod[5:6] %>%
   purrr::map(function(x) {
