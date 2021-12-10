@@ -103,6 +103,8 @@ fixest::setFixest_fml(
     factor(industry) + factor(area)
 )
 
+#'
+#+ eval = FALSE
 meandf <- df %>%
   dplyr::select(all.vars(fixest::xpd(~ ..stage1)), panelid) %>%
   fastDummies::dummy_cols(
@@ -126,23 +128,23 @@ mundlak <- meandf %>%
 
 fixest::setFixest_fml(..mundlak = mundlak)
 
+#'
+#+
 est_stage1_pool <- df %>%
-  left_join(meandf, by = "panelid") %>%
+  # left_join(meandf, by = "panelid") %>%
   dplyr::filter(year <= 2017) %>%
   fixest::feglm(
-    fixest::xpd(
-      ext_benefit_tl ~ ..stage1 + ..mundlak - univ - highschool | year
-    ),
+    fixest::xpd(ext_benefit_tl ~ ..stage1 | year),
     family = binomial(link = "probit"),
     data = .
   )
 
 est_stage1_sep <- df %>%
-  left_join(meandf, by = "panelid") %>%
+  # left_join(meandf, by = "panelid") %>%
   dplyr::filter(year <= 2017) %>%
   group_by(year) %>%
   do(sepmod = fixest::feglm(
-    fixest::xpd(ext_benefit_tl ~ ..stage1 + ..mundlak - univ - highschool),
+    fixest::xpd(ext_benefit_tl ~ ..stage1),
     family = binomial(link = "probit"),
     data = .
   ))
@@ -160,11 +162,16 @@ est_stage1_sep %>%
       "age" = "Age",
       "sqage" = "Square of age",
       "gender" = "1 = female",
-      "univ_mean" = "1 = University graduate",
-      "highschool_mean" = "1 = Highschool graduate"
+      "univ" = "1 = University graduate",
+      "highschool" = "1 = Highschool graduate"
     ),
     gof_omit = "R2|AIC|BIC",
-    stars = c("***" = .01, "**" = .05, "*" = .1)
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = tribble(
+      ~term, ~Pooled, ~"2012", ~"2013", ~"2014", ~"2015", ~"2016", ~"2017",
+      "Area dummies", "X", "X", "X", "X", "X", "X", "X",
+      "Industry dummies", "X", "X", "X", "X", "X", "X", "X",
+    )
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
@@ -182,7 +189,7 @@ est_stage1_sep %>%
 #'
 #+
 estdf <- df %>%
-  left_join(meandf, by = "panelid") %>%
+  # left_join(meandf, by = "panelid") %>%
   dplyr::filter(year <= 2017 & !is.na(ext_benefit_tl)) %>%
   mutate(poolmod = list(est_stage1_pool)) %>%
   left_join(est_stage1_sep, by = "year") %>%
@@ -212,128 +219,11 @@ estdf <- df %>%
   select(-poolmod, -sepmod)
 
 #'
-#' ## Estimating Conventional Price Elasticity
+#' ## Second-Stage Result
 #'
 #+
 fixest::setFixest_fml(
-  ..stage2 = ~ + log_pinc_all +
-    age + sqage + gender + univ + highschool +
-    factor(industry) + factor(area)
-)
-
-cfmod <- list(
-  "(1)" = list(
-    mod = log_total_g ~ log_price:ext_benefit_tl +
-      ..stage2 + ..mundlak | year,
-    data = estdf
-  ),
-  "(2)" = list(
-    mod = log_total_g ~ log_price:ext_benefit_tl +
-      ..stage2 + gr_pool + ..mundlak | year,
-    data = estdf
-  ),
-  "(3)" = list(
-    mod = log_total_g ~ log_price:ext_benefit_tl +
-      ..stage2 + gr_sep + ..mundlak | year,
-    data = estdf
-  ),
-  "(4)" = list(
-    mod = log_total_g ~ log_price:ext_benefit_tl +
-      ..stage2 + ..mundlak | year,
-    data = subset(estdf, i_ext_giving == 1)
-  ),
-  "(5)" = list(
-    mod = log_total_g ~ log_price:ext_benefit_tl +
-      ..stage2 + gr_pool + ..mundlak | year,
-    data = subset(estdf, i_ext_giving == 1)
-  ),
-  "(6)" = list(
-    mod = log_total_g ~ log_price:ext_benefit_tl +
-      ..stage2 + gr_sep + ..mundlak | year,
-    data = subset(estdf, i_ext_giving == 1)
-  ),
-  "(7)" = list(
-    mod = i_ext_giving ~ log_price:ext_benefit_tl +
-      ..stage2 + ..mundlak | year,
-    data = estdf
-  ),
-  "(8)" = list(
-    mod = i_ext_giving ~ log_price:ext_benefit_tl +
-      ..stage2 + gr_pool + ..mundlak | year,
-    data = estdf
-  ),
-  "(9)" = list(
-    mod = i_ext_giving ~ log_price:ext_benefit_tl +
-      ..stage2 + gr_sep + ..mundlak | year,
-    data = estdf
-  )
-)
-
-est_cfmod <- cfmod %>%
-  purrr::map(~ fixest::feols(xpd(.$mod), .$data, cluster = ~panelid))
-
-addtab <- est_cfmod[7:9] %>%
-  purrr::map(function(x) {
-    dbar <- mean(x$fitted.values + x$residuals)
-
-    tidy(x) %>%
-      filter(str_detect(term, "log_price:ext_benefit_tl")) %>%
-      mutate(
-        estimate = case_when(
-          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
-          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
-          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
-          TRUE ~ sprintf("%1.3f", estimate / dbar),
-        ),
-        std.error = sprintf("(%1.3f)", std.error / dbar)
-      ) %>%
-      select(estimate, std.error) %>%
-      pivot_longer(everything())
-  }) %>%
-  reduce(left_join, by = "name") %>%
-  setNames(c("term", sprintf("(%1d)", 7:9))) %>%
-  left_join(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    "estimate", "", "", "", "", "", "",
-    "std.error", "", "", "", "", "", ""
-  ), ., by = "term") %>%
-  mutate(term = recode(
-    term,
-    "estimate" = "Implied price elasticity", .default = ""
-  ))
-
-attr(addtab, "position") <- c(7:8)
-
-est_cfmod %>%
-  modelsummary(
-    title = "First-Price Elasticities",
-    coef_map = c(
-      "log_price:ext_benefit_tl" = "Apply tax relief x log(first price)",
-      "gr_pool" = "Selection crrection term (Pool)",
-      "gr_sep" = "Selection crrection term (Separate)"
-    ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
-    stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = addtab
-  ) %>%
-  kableExtra::kable_styling() %>%
-  kableExtra::add_header_above(c(
-    " " = 1, "Overall" = 3, "Intensive" = 3, "Extensive" = 3
-  )) %>%
-  footnote(
-    general_title = "",
-    general = paste(
-      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
-      "Standard errors are clustered at individual level."
-    ),
-    threeparttable = TRUE,
-    escape = FALSE
-  )
-
-#'
-#+ eval = FALSE
-fixest::setFixest_fml(
-  ..stage2 = ~ + log_pinc_all +
+  ..stage2 = ~ log_pinc_all +
     age + sqage + gender + univ + highschool +
     factor(industry) + factor(area)
 )
@@ -342,29 +232,202 @@ stage2r1 <- estdf %>%
   dplyr::filter(ext_benefit_tl == 1) %>% {
     list(
       "(1)" = list(
-        mod = log_total_g ~ ..stage2 + ..mundlak - univ - highschool,
+        mod = log_total_g ~ log_price + ..stage2 | panelid + year,
         data = .
       ),
       "(2)" = list(
-        mod = log_total_g ~ ..stage2 + ..mundlak - univ - highschool + gr,
+        mod = log_total_g ~ log_price + ..stage2 + gr_sep | panelid + year,
         data = .
       ),
       "(3)" = list(
-        mod = log_total_g ~ ..stage2 + ..mundlak - univ - highschool,
-        data = subset(., i_ext_giving == 1)
-      ),
-      "(4)" = list(
-        mod = log_total_g ~ ..stage2 + ..mundlak - univ - highschool + gr,
-        data = subset(., i_ext_giving == 1)
+        mod = log_total_g ~ log_price + ..stage2 + gr_pool | panelid + year,
+        data = .
       )
     )
   }
 
-
 est_stage2r1 <- stage2r1 %>%
   purrr::map(~ feols(xpd(.$mod), data = .$data, cluster = ~ panelid))
 
-modelsummary(est_stage2r1, stars = TRUE)
+est_stage2r1 %>%
+  modelsummary(
+    title = "Estimation of Outcome Equation for $R_{it} = 1$",
+    coef_omit = "factor",
+    coef_map = c(
+      "log_price" = "log(first price)",
+      "log_pinc_all" = "log(income)",
+      "gr_sep" = "Selection correction term (separate)",
+      "gr_pool" = "Selection correction term (pool)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)",
+      "Area dummies", "X", "X", "X",
+      "Industry dummies", "X", "X", "X",
+      "Square of Age", "X", "X", "X"
+    )
+  ) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#+
+fixest::setFixest_fml(
+  ..stage2 = ~ log_pinc_all +
+    age + sqage + gender + univ + highschool +
+    factor(industry) + factor(area)
+)
+
+stage2r0 <- estdf %>%
+  dplyr::filter(ext_benefit_tl == 0) %>% {
+    list(
+      "(1)" = list(
+        mod = log_total_g ~ ..stage2 | panelid + year,
+        data = .
+      ),
+      "(2)" = list(
+        mod = log_total_g ~ ..stage2 + gr_sep | panelid + year,
+        data = .
+      ),
+      "(3)" = list(
+        mod = log_total_g ~ ..stage2 + gr_pool | panelid + year,
+        data = .
+      ),
+      "(4)" = list(
+        mod = log_total_g ~ ..stage2 | panelid + year,
+        data = subset(., i_ext_giving == 1)
+      ),
+      "(5)" = list(
+        mod = log_total_g ~ ..stage2 + gr_sep | panelid + year,
+        data = subset(., i_ext_giving == 1)
+      ),
+      "(6)" = list(
+        mod = log_total_g ~ ..stage2 + gr_pool | panelid + year,
+        data = subset(., i_ext_giving == 1)
+      ),
+      "(7)" = list(
+        mod = i_ext_giving ~ ..stage2 | panelid + year,
+        data = .
+      ),
+      "(8)" = list(
+        mod = i_ext_giving ~ ..stage2 + gr_sep | panelid + year,
+        data = .
+      ),
+      "(9)" = list(
+        mod = i_ext_giving ~ ..stage2 + gr_pool | panelid + year,
+        data = .
+      )
+    )
+  }
+
+est_stage2r0 <- stage2r0 %>%
+  purrr::map(~ feols(xpd(.$mod), data = .$data, cluster = ~ panelid))
+
+est_stage2r0 %>%
+  modelsummary(
+    title = "Estimation of Outcome Equation for $R_{it} = 0$",
+    coef_omit = "factor",
+    coef_map = c(
+      "log_pinc_all" = "log(income)",
+      "gr_sep" = "Selection correction term (separate)",
+      "gr_pool" = "Selection correction term (pool)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = tribble(
+      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
+      ~"(7)", ~"(8)", ~"(9)",
+      "Area dummies", "X", "X", "X", "X", "X", "X", "X", "X", "X",
+      "Industry dummies", "X", "X", "X", "X", "X", "X", "X", "X", "X",
+      "Square of Age", "X", "X", "X", "X", "X", "X", "X", "X", "X"
+    )
+  ) %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Overall" = 3, "Intensive" = 3, "Extensive" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#' ## Estimating Effect of Tax Incentive
+#'
+#+
+pred11 <- est_stage2r1[[1]]
+pred12 <- est_stage2r1[[2]]
+pred13 <- est_stage2r1[[3]]
+
+pred01 <- est_stage2r0[[1]]
+pred02 <- est_stage2r0[[2]]
+pred03 <- est_stage2r0[[3]]
+pred04 <- est_stage2r0[[4]]
+pred05 <- est_stage2r0[[5]]
+pred06 <- est_stage2r0[[6]]
+pred07 <- est_stage2r0[[7]]
+pred08 <- est_stage2r0[[8]]
+pred09 <- est_stage2r0[[9]]
+
+preddf <- estdf %>%
+  modelr::spread_predictions(
+    pred11, pred12, pred13,
+    pred01, pred02, pred03,
+    pred04, pred05, pred06,
+    pred07, pred08, pred09
+  )
+
+set_preddf <- list(
+  ate = preddf,
+  att = subset(preddf, ext_benefit_tl == 1),
+  att = subset(preddf, ext_benefit_tl == 0)
+)
+
+set_preddf %>%
+  purrr::map(function(x) {
+    x %>%
+      summarize(
+        overall_1 = mean(pred11 - pred01, na.rm = TRUE),
+        overall_2 = mean(pred12 - pred02, na.rm = TRUE),
+        overall_3 = mean(pred13 - pred03, na.rm = TRUE),
+        intensive_1 = mean(pred11 - pred04, na.rm = TRUE),
+        intensive_2 = mean(pred12 - pred05, na.rm = TRUE),
+        intensive_3 = mean(pred13 - pred06, na.rm = TRUE),
+        extensive_1 = mean(1 - pred07, na.rm = TRUE),
+        extensive_2 = mean(1 - pred07, na.rm = TRUE),
+        extensive_3 = mean(1 - pred09, na.rm = TRUE)
+      )
+  }) %>%
+  reduce(bind_rows) %>%
+  mutate(estimand = c("ATE", "ATT", "ATU")) %>%
+  pivot_longer(
+    -estimand,
+    names_to = c("outcome", "correct"),
+    names_pattern = "(.*)_(.*)"
+  ) %>%
+  mutate(correct = dplyr::recode(
+    correct,
+    "1" = "No",
+    "2" = "Separate",
+    "3" = "Pool"
+  )) %>%
+  datasummary(
+    (`Outcome` = outcome) *
+      (`Include correction term?` = correct) ~ 
+      value * (` ` = mean) * estimand,
+    data = .,
+    fmt = 3
+  )
 
 
 # /*
