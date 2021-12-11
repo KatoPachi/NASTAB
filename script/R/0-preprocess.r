@@ -130,13 +130,30 @@ df <- df %>%
 #' Village tax accountant制度のデータ
 #+
 village <- read_csv("data/origin/village_tax_accountant.csv")
+accountant <- haven::read_dta("data/origin/accountant.dta") %>%
+  as_tibble() %>%
+  select(h_b10, year, "人口", "公認会計", "公認会計_従事者", "税理", "税理_従事者") %>%
+  rename(
+    area = h_b10,
+    pops = "人口",
+    pub_accountant_firm = "公認会計",
+    pub_accountant = "公認会計_従事者",
+    tax_accountant_firm = "税理",
+    tax_accountant = "税理_従事者"
+  ) %>%
+  mutate(
+    pub_accountant_per = pub_accountant / pops,
+    tax_accountant_per = tax_accountant / pops
+  )
 
 df <- df %>%
   left_join(village, by = c("year", "area")) %>%
   mutate(
-    accountant = if_else(year <= 2015, 0, accountant),
-    consult = if_else(year <= 2015, 0, consult)
-  )
+    village_accountant = if_else(year <= 2015, 0, accountant),
+    village_consult = if_else(year <= 2015, 0, consult)
+  ) %>%
+  left_join(accountant, by = c("year", "area"))
+
 
 #' CSVファイルに書き出す
 #+
