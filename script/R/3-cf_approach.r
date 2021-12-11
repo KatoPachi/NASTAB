@@ -97,7 +97,7 @@ dplyr::filter(
 #'
 #+
 fixest::setFixest_fml(
-  ..stage1 = ~ employee +
+  ..stage1 = ~ employee + tax_accountant_per +
     log_price + log_pinc_all +
     age + sqage + gender + univ + highschool +
     factor(industry) + factor(area)
@@ -117,7 +117,7 @@ meandf <- df %>%
   ) %>%
   select(-"industry_-9", -industry_NA) %>%
   group_by(panelid) %>%
-  summarize_all(list(mean = ~ sum(., na.rm = TRUE) / 6))
+  summarize_all(list(mean = ~ mean(., na.rm = TRUE)))
 
 mundlak <- meandf %>%
   select(-panelid) %>%
@@ -155,23 +155,23 @@ est_stage1_sep %>%
   modelsummary(
     title = "Probit Estimation of Selection of Applying for Tax Relief",
     coef_omit = "factor",
-    coef_map = c(
-      "employee" = "1 = Wage earner",
-      "log_price" = "log(first price)",
-      "log_pinc_all" = "log(income)",
-      "age" = "Age",
-      "sqage" = "Square of age",
-      "gender" = "1 = female",
-      "univ" = "1 = University graduate",
-      "highschool" = "1 = Highschool graduate"
-    ),
+    # coef_map = c(
+    #   "employee" = "1 = Wage earner",
+    #   "log_price" = "log(first price)",
+    #   "log_pinc_all" = "log(income)",
+    #   "age" = "Age",
+    #   "sqage" = "Square of age",
+    #   "gender" = "1 = female",
+    #   "univ" = "1 = University graduate",
+    #   "highschool" = "1 = Highschool graduate"
+    # ),
     gof_omit = "R2|AIC|BIC",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = tribble(
-      ~term, ~Pooled, ~"2012", ~"2013", ~"2014", ~"2015", ~"2016", ~"2017",
-      "Area dummies", "X", "X", "X", "X", "X", "X", "X",
-      "Industry dummies", "X", "X", "X", "X", "X", "X", "X",
-    )
+    # add_rows = tribble(
+    #   ~term, ~Pooled, ~"2012", ~"2013", ~"2014", ~"2015", ~"2016", ~"2017",
+    #   "Area dummies", "X", "X", "X", "X", "X", "X", "X",
+    #   "Industry dummies", "X", "X", "X", "X", "X", "X", "X",
+    # )
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
@@ -252,21 +252,21 @@ est_stage2r1 <- stage2r1 %>%
 est_stage2r1 %>%
   modelsummary(
     title = "Estimation of Outcome Equation for $R_{it} = 1$",
-    coef_omit = "factor",
-    coef_map = c(
-      "log_price" = "log(first price)",
-      "log_pinc_all" = "log(income)",
-      "gr_sep" = "Selection correction term (separate)",
-      "gr_pool" = "Selection correction term (pool)"
-    ),
+    # coef_omit = "factor",
+    # coef_map = c(
+    #   "log_price" = "log(first price)",
+    #   "log_pinc_all" = "log(income)",
+    #   "gr_sep" = "Selection correction term (separate)",
+    #   "gr_pool" = "Selection correction term (pool)"
+    # ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
-    stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)",
-      "Area dummies", "X", "X", "X",
-      "Industry dummies", "X", "X", "X",
-      "Square of Age", "X", "X", "X"
-    )
+    stars = c("***" = .01, "**" = .05, "*" = .1)
+    # add_rows = tribble(
+    #   ~term, ~"(1)", ~"(2)", ~"(3)",
+    #   "Area dummies", "X", "X", "X",
+    #   "Industry dummies", "X", "X", "X",
+    #   "Square of Age", "X", "X", "X"
+    # )
   ) %>%
   footnote(
     general_title = "",
@@ -333,21 +333,21 @@ est_stage2r0 <- stage2r0 %>%
 est_stage2r0 %>%
   modelsummary(
     title = "Estimation of Outcome Equation for $R_{it} = 0$",
-    coef_omit = "factor",
-    coef_map = c(
-      "log_pinc_all" = "log(income)",
-      "gr_sep" = "Selection correction term (separate)",
-      "gr_pool" = "Selection correction term (pool)"
-    ),
+    # coef_omit = "factor",
+    # coef_map = c(
+    #   "log_pinc_all" = "log(income)",
+    #   "gr_sep" = "Selection correction term (separate)",
+    #   "gr_pool" = "Selection correction term (pool)"
+    # ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
-    stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = tribble(
-      ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-      ~"(7)", ~"(8)", ~"(9)",
-      "Area dummies", "X", "X", "X", "X", "X", "X", "X", "X", "X",
-      "Industry dummies", "X", "X", "X", "X", "X", "X", "X", "X", "X",
-      "Square of Age", "X", "X", "X", "X", "X", "X", "X", "X", "X"
-    )
+    stars = c("***" = .01, "**" = .05, "*" = .1)
+    # add_rows = tribble(
+    #   ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
+    #   ~"(7)", ~"(8)", ~"(9)",
+    #   "Area dummies", "X", "X", "X", "X", "X", "X", "X", "X", "X",
+    #   "Industry dummies", "X", "X", "X", "X", "X", "X", "X", "X", "X",
+    #   "Square of Age", "X", "X", "X", "X", "X", "X", "X", "X", "X"
+    # )
   ) %>%
   kableExtra::add_header_above(c(
     " " = 1, "Overall" = 3, "Intensive" = 3, "Extensive" = 3
@@ -423,7 +423,7 @@ set_preddf %>%
   )) %>%
   datasummary(
     (`Outcome` = outcome) *
-      (`Include correction term?` = correct) ~ 
+      (`Include correction term?` = correct) ~
       value * (` ` = mean) * estimand,
     data = .,
     fmt = 3

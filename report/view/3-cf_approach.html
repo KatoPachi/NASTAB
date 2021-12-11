@@ -11,7 +11,7 @@
 
 <meta name="author" content="Hiroki Kato" />
 
-<meta name="date" content="2021-12-10" />
+<meta name="date" content="2021-12-11" />
 
 <title>Control Function Approach</title>
 
@@ -245,7 +245,7 @@ div.tocify {
 
 <h1 class="title toc-ignore"><p>Control Function Approach</p></h1>
 <h4 class="author">Hiroki Kato</h4>
-<h4 class="date">2021-12-10</h4>
+<h4 class="date">2021-12-11</h4>
 
 </div>
 
@@ -315,10 +315,10 @@ Pooled
 <tbody>
 <tr>
 <td style="text-align:left;">
-1 = Wage earner
+employee
 </td>
 <td style="text-align:center;">
-0.481***
+0.478***
 </td>
 <td style="text-align:center;">
 0.457***
@@ -366,10 +366,61 @@ Pooled
 </tr>
 <tr>
 <td style="text-align:left;">
-log(first price)
+tax_accountant_per
 </td>
 <td style="text-align:center;">
--0.006
+0.852**
+</td>
+<td style="text-align:center;">
+0.110
+</td>
+<td style="text-align:center;">
+-0.464
+</td>
+<td style="text-align:center;">
+-0.204
+</td>
+<td style="text-align:center;">
+-0.178
+</td>
+<td style="text-align:center;">
+-0.293
+</td>
+<td style="text-align:center;">
+-0.130
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.363)
+</td>
+<td style="text-align:center;">
+(0.584)
+</td>
+<td style="text-align:center;">
+(0.442)
+</td>
+<td style="text-align:center;">
+(0.373)
+</td>
+<td style="text-align:center;">
+(0.241)
+</td>
+<td style="text-align:center;">
+(0.221)
+</td>
+<td style="text-align:center;">
+(0.244)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log_price
+</td>
+<td style="text-align:center;">
+-0.150
 </td>
 <td style="text-align:center;">
 -1.132
@@ -390,7 +441,7 @@ log(first price)
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(0.307)
+(0.271)
 </td>
 <td style="text-align:center;">
 (0.884)
@@ -409,10 +460,10 @@ log(first price)
 </tr>
 <tr>
 <td style="text-align:left;">
-log(income)
+log_pinc_all
 </td>
 <td style="text-align:center;">
-19.079***
+18.959***
 </td>
 <td style="text-align:center;">
 15.896***
@@ -437,7 +488,7 @@ log(income)
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(1.050)
+(1.025)
 </td>
 <td style="text-align:center;">
 (3.049)
@@ -460,10 +511,10 @@ log(income)
 </tr>
 <tr>
 <td style="text-align:left;">
-Age
+age
 </td>
 <td style="text-align:center;">
-0.042***
+0.041***
 </td>
 <td style="text-align:center;">
 0.057***
@@ -511,7 +562,7 @@ Age
 </tr>
 <tr>
 <td style="text-align:left;">
-Square of age
+sqage
 </td>
 <td style="text-align:center;">
 -0.044***
@@ -562,7 +613,7 @@ Square of age
 </tr>
 <tr>
 <td style="text-align:left;">
-1 = female
+gender
 </td>
 <td style="text-align:center;">
 0.111***
@@ -590,7 +641,7 @@ Square of age
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(0.038)
+(0.037)
 </td>
 <td style="text-align:center;">
 (0.068)
@@ -613,10 +664,10 @@ Square of age
 </tr>
 <tr>
 <td style="text-align:left;">
-1 = University graduate
+univ
 </td>
 <td style="text-align:center;">
-0.178***
+0.183***
 </td>
 <td style="text-align:center;">
 0.294**
@@ -641,7 +692,7 @@ Square of age
 <td style="text-align:left;">
 </td>
 <td style="text-align:center;">
-(0.057)
+(0.056)
 </td>
 <td style="text-align:center;">
 (0.149)
@@ -664,10 +715,10 @@ Square of age
 </tr>
 <tr>
 <td style="text-align:left;">
-1 = Highschool graduate
+highschool
 </td>
 <td style="text-align:center;">
-0.134***
+0.138***
 </td>
 <td style="text-align:center;">
 0.265*
@@ -689,28 +740,77 @@ Square of age
 </td>
 </tr>
 <tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.051)
+</td>
+<td style="text-align:center;">
+(0.144)
+</td>
+<td style="text-align:center;">
+(0.133)
+</td>
+<td style="text-align:center;">
+(0.188)
+</td>
+<td style="text-align:center;">
+(0.187)
+</td>
+<td style="text-align:center;">
+(0.176)
+</td>
+<td style="text-align:center;">
+(0.162)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+-187.623***
+</td>
+<td style="text-align:center;">
+-191.620
+</td>
+<td style="text-align:center;">
+-218.347***
+</td>
+<td style="text-align:center;">
+-226.822***
+</td>
+<td style="text-align:center;">
+-202.430***
+</td>
+<td style="text-align:center;">
+-247.075***
+</td>
+</tr>
+<tr>
 <td style="text-align:left;box-shadow: 0px 1px">
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.052)
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.144)
+(35.052)
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.133)
+(237.548)
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.188)
+(17.354)
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.187)
+(72.326)
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.176)
+(77.762)
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.162)
+(15.499)
 </td>
 </tr>
 <tr>
@@ -744,7 +844,7 @@ Num.Obs.
 Log.Lik.
 </td>
 <td style="text-align:center;">
--7498.858
+-7489.763
 </td>
 <td style="text-align:center;">
 -1383.811
@@ -811,58 +911,6 @@ X
 <td style="text-align:center;">
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Area dummies
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Industry dummies
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-</tr>
 </tbody>
 <tfoot>
 <tr>
@@ -897,7 +945,7 @@ X
 <tbody>
 <tr>
 <td style="text-align:left;">
-log(first price)
+log_price
 </td>
 <td style="text-align:center;">
 -1.325***
@@ -906,7 +954,7 @@ log(first price)
 -1.306***
 </td>
 <td style="text-align:center;">
--1.268***
+-1.279***
 </td>
 </tr>
 <tr>
@@ -924,7 +972,7 @@ log(first price)
 </tr>
 <tr>
 <td style="text-align:left;">
-log(income)
+log_pinc_all
 </td>
 <td style="text-align:center;">
 2.032
@@ -933,7 +981,7 @@ log(income)
 1.456
 </td>
 <td style="text-align:center;">
-4.599**
+3.958*
 </td>
 </tr>
 <tr>
@@ -946,12 +994,1011 @@ log(income)
 (1.839)
 </td>
 <td style="text-align:center;">
-(2.311)
+(2.231)
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Selection correction term (separate)
+sqage
+</td>
+<td style="text-align:center;">
+-0.069
+</td>
+<td style="text-align:center;">
+-0.069
+</td>
+<td style="text-align:center;">
+-0.078
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.073)
+</td>
+<td style="text-align:center;">
+(0.072)
+</td>
+<td style="text-align:center;">
+(0.073)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+univ
+</td>
+<td style="text-align:center;">
+-0.011
+</td>
+<td style="text-align:center;">
+-0.007
+</td>
+<td style="text-align:center;">
+0.012
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.333)
+</td>
+<td style="text-align:center;">
+(0.336)
+</td>
+<td style="text-align:center;">
+(0.326)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+highschool
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.015
+</td>
+<td style="text-align:center;">
+0.029
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.307)
+</td>
+<td style="text-align:center;">
+(0.309)
+</td>
+<td style="text-align:center;">
+(0.300)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)3
+</td>
+<td style="text-align:center;">
+-0.538**
+</td>
+<td style="text-align:center;">
+-0.549**
+</td>
+<td style="text-align:center;">
+0.093
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.235)
+</td>
+<td style="text-align:center;">
+(0.244)
+</td>
+<td style="text-align:center;">
+(0.650)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)4
+</td>
+<td style="text-align:center;">
+-0.215
+</td>
+<td style="text-align:center;">
+-0.236
+</td>
+<td style="text-align:center;">
+0.432
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.276)
+</td>
+<td style="text-align:center;">
+(0.286)
+</td>
+<td style="text-align:center;">
+(0.675)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)5
+</td>
+<td style="text-align:center;">
+-0.559
+</td>
+<td style="text-align:center;">
+-0.570
+</td>
+<td style="text-align:center;">
+0.033
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.479)
+</td>
+<td style="text-align:center;">
+(0.481)
+</td>
+<td style="text-align:center;">
+(0.735)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)6
+</td>
+<td style="text-align:center;">
+-0.534**
+</td>
+<td style="text-align:center;">
+-0.537**
+</td>
+<td style="text-align:center;">
+0.059
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.269)
+</td>
+<td style="text-align:center;">
+(0.273)
+</td>
+<td style="text-align:center;">
+(0.636)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)7
+</td>
+<td style="text-align:center;">
+-0.579*
+</td>
+<td style="text-align:center;">
+-0.609*
+</td>
+<td style="text-align:center;">
+-0.009
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.327)
+</td>
+<td style="text-align:center;">
+(0.330)
+</td>
+<td style="text-align:center;">
+(0.676)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)8
+</td>
+<td style="text-align:center;">
+-0.414
+</td>
+<td style="text-align:center;">
+-0.440
+</td>
+<td style="text-align:center;">
+0.252
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.266)
+</td>
+<td style="text-align:center;">
+(0.277)
+</td>
+<td style="text-align:center;">
+(0.700)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)9
+</td>
+<td style="text-align:center;">
+-0.440
+</td>
+<td style="text-align:center;">
+-0.444
+</td>
+<td style="text-align:center;">
+0.151
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.549)
+</td>
+<td style="text-align:center;">
+(0.550)
+</td>
+<td style="text-align:center;">
+(0.794)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)10
+</td>
+<td style="text-align:center;">
+-0.252
+</td>
+<td style="text-align:center;">
+-0.270
+</td>
+<td style="text-align:center;">
+0.384
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.290)
+</td>
+<td style="text-align:center;">
+(0.301)
+</td>
+<td style="text-align:center;">
+(0.677)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)11
+</td>
+<td style="text-align:center;">
+-0.112
+</td>
+<td style="text-align:center;">
+-0.144
+</td>
+<td style="text-align:center;">
+0.525
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.333)
+</td>
+<td style="text-align:center;">
+(0.349)
+</td>
+<td style="text-align:center;">
+(0.702)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)12
+</td>
+<td style="text-align:center;">
+-0.759**
+</td>
+<td style="text-align:center;">
+-0.801**
+</td>
+<td style="text-align:center;">
+-0.096
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.302)
+</td>
+<td style="text-align:center;">
+(0.314)
+</td>
+<td style="text-align:center;">
+(0.693)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)13
+</td>
+<td style="text-align:center;">
+-0.800***
+</td>
+<td style="text-align:center;">
+-0.815***
+</td>
+<td style="text-align:center;">
+-0.175
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.273)
+</td>
+<td style="text-align:center;">
+(0.279)
+</td>
+<td style="text-align:center;">
+(0.666)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)14
+</td>
+<td style="text-align:center;">
+-0.484**
+</td>
+<td style="text-align:center;">
+-0.505**
+</td>
+<td style="text-align:center;">
+0.162
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.235)
+</td>
+<td style="text-align:center;">
+(0.246)
+</td>
+<td style="text-align:center;">
+(0.664)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)15
+</td>
+<td style="text-align:center;">
+-0.349
+</td>
+<td style="text-align:center;">
+-0.391
+</td>
+<td style="text-align:center;">
+0.375
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.225)
+</td>
+<td style="text-align:center;">
+(0.253)
+</td>
+<td style="text-align:center;">
+(0.727)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)16
+</td>
+<td style="text-align:center;">
+-0.490*
+</td>
+<td style="text-align:center;">
+-0.526*
+</td>
+<td style="text-align:center;">
+0.199
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.269)
+</td>
+<td style="text-align:center;">
+(0.288)
+</td>
+<td style="text-align:center;">
+(0.697)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)17
+</td>
+<td style="text-align:center;">
+-0.430*
+</td>
+<td style="text-align:center;">
+-0.456*
+</td>
+<td style="text-align:center;">
+0.227
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.246)
+</td>
+<td style="text-align:center;">
+(0.262)
+</td>
+<td style="text-align:center;">
+(0.682)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)18
+</td>
+<td style="text-align:center;">
+-0.627
+</td>
+<td style="text-align:center;">
+-0.647
+</td>
+<td style="text-align:center;">
+-0.031
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.495)
+</td>
+<td style="text-align:center;">
+(0.499)
+</td>
+<td style="text-align:center;">
+(0.770)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)19
+</td>
+<td style="text-align:center;">
+0.036
+</td>
+<td style="text-align:center;">
+0.020
+</td>
+<td style="text-align:center;">
+0.650
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.322)
+</td>
+<td style="text-align:center;">
+(0.328)
+</td>
+<td style="text-align:center;">
+(0.691)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)21
+</td>
+<td style="text-align:center;">
+0.072
+</td>
+<td style="text-align:center;">
+0.022
+</td>
+<td style="text-align:center;">
+0.835
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.366)
+</td>
+<td style="text-align:center;">
+(0.392)
+</td>
+<td style="text-align:center;">
+(0.816)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)21
+</td>
+<td style="text-align:center;">
+0.065
+</td>
+<td style="text-align:center;">
+0.062
+</td>
+<td style="text-align:center;">
+0.083
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.254)
+</td>
+<td style="text-align:center;">
+(0.252)
+</td>
+<td style="text-align:center;">
+(0.254)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)22
+</td>
+<td style="text-align:center;">
+0.073
+</td>
+<td style="text-align:center;">
+0.067
+</td>
+<td style="text-align:center;">
+0.121
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.176)
+</td>
+<td style="text-align:center;">
+(0.175)
+</td>
+<td style="text-align:center;">
+(0.183)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)23
+</td>
+<td style="text-align:center;">
+0.184
+</td>
+<td style="text-align:center;">
+0.181
+</td>
+<td style="text-align:center;">
+0.211
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.173)
+</td>
+<td style="text-align:center;">
+(0.172)
+</td>
+<td style="text-align:center;">
+(0.174)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)24
+</td>
+<td style="text-align:center;">
+0.274
+</td>
+<td style="text-align:center;">
+0.261
+</td>
+<td style="text-align:center;">
+0.335*
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.174)
+</td>
+<td style="text-align:center;">
+(0.177)
+</td>
+<td style="text-align:center;">
+(0.181)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)25
+</td>
+<td style="text-align:center;">
+0.242
+</td>
+<td style="text-align:center;">
+0.231
+</td>
+<td style="text-align:center;">
+0.284*
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.149)
+</td>
+<td style="text-align:center;">
+(0.149)
+</td>
+<td style="text-align:center;">
+(0.154)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)26
+</td>
+<td style="text-align:center;">
+0.301
+</td>
+<td style="text-align:center;">
+0.289
+</td>
+<td style="text-align:center;">
+0.309
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.189)
+</td>
+<td style="text-align:center;">
+(0.190)
+</td>
+<td style="text-align:center;">
+(0.190)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)31
+</td>
+<td style="text-align:center;">
+0.130
+</td>
+<td style="text-align:center;">
+0.127
+</td>
+<td style="text-align:center;">
+0.146
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.112)
+</td>
+<td style="text-align:center;">
+(0.111)
+</td>
+<td style="text-align:center;">
+(0.113)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)32
+</td>
+<td style="text-align:center;">
+0.037
+</td>
+<td style="text-align:center;">
+0.023
+</td>
+<td style="text-align:center;">
+0.099
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.216)
+</td>
+<td style="text-align:center;">
+(0.219)
+</td>
+<td style="text-align:center;">
+(0.224)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)33
+</td>
+<td style="text-align:center;">
+0.017
+</td>
+<td style="text-align:center;">
+0.007
+</td>
+<td style="text-align:center;">
+0.075
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.225)
+</td>
+<td style="text-align:center;">
+(0.225)
+</td>
+<td style="text-align:center;">
+(0.231)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)34
+</td>
+<td style="text-align:center;">
+0.178
+</td>
+<td style="text-align:center;">
+0.170
+</td>
+<td style="text-align:center;">
+0.231
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.150)
+</td>
+<td style="text-align:center;">
+(0.148)
+</td>
+<td style="text-align:center;">
+(0.158)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)35
+</td>
+<td style="text-align:center;">
+0.086
+</td>
+<td style="text-align:center;">
+0.066
+</td>
+<td style="text-align:center;">
+0.168
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.156)
+</td>
+<td style="text-align:center;">
+(0.157)
+</td>
+<td style="text-align:center;">
+(0.172)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)36
+</td>
+<td style="text-align:center;">
+0.017
+</td>
+<td style="text-align:center;">
+0.002
+</td>
+<td style="text-align:center;">
+0.100
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.194)
+</td>
+<td style="text-align:center;">
+(0.195)
+</td>
+<td style="text-align:center;">
+(0.209)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)37
+</td>
+<td style="text-align:center;">
+0.158
+</td>
+<td style="text-align:center;">
+0.149
+</td>
+<td style="text-align:center;">
+0.210
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.135)
+</td>
+<td style="text-align:center;">
+(0.136)
+</td>
+<td style="text-align:center;">
+(0.143)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)38
+</td>
+<td style="text-align:center;">
+0.250*
+</td>
+<td style="text-align:center;">
+0.243
+</td>
+<td style="text-align:center;">
+0.289*
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.150)
+</td>
+<td style="text-align:center;">
+(0.149)
+</td>
+<td style="text-align:center;">
+(0.155)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)39
+</td>
+<td style="text-align:center;">
+0.457
+</td>
+<td style="text-align:center;">
+0.443
+</td>
+<td style="text-align:center;">
+0.460
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.461)
+</td>
+<td style="text-align:center;">
+(0.463)
+</td>
+<td style="text-align:center;">
+(0.460)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)40
+</td>
+<td style="text-align:center;">
+0.557**
+</td>
+<td style="text-align:center;">
+0.544*
+</td>
+<td style="text-align:center;">
+0.603**
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.280)
+</td>
+<td style="text-align:center;">
+(0.283)
+</td>
+<td style="text-align:center;">
+(0.285)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gr_sep
 </td>
 <td style="text-align:center;">
 </td>
@@ -974,14 +2021,14 @@ Selection correction term (separate)
 </tr>
 <tr>
 <td style="text-align:left;">
-Selection correction term (pool)
+gr_pool
 </td>
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
-0.275
+0.209
 </td>
 </tr>
 <tr>
@@ -992,7 +2039,7 @@ Selection correction term (pool)
 <td style="text-align:center;box-shadow: 0px 1px">
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.187)
+(0.193)
 </td>
 </tr>
 <tr>
@@ -1054,48 +2101,6 @@ X
 <tr>
 <td style="text-align:left;">
 FE: year
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Area dummies
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Industry dummies
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Square of Age
 </td>
 <td style="text-align:center;">
 X
@@ -1178,7 +2183,7 @@ Extensive
 <tbody>
 <tr>
 <td style="text-align:left;">
-log(income)
+log_pinc_all
 </td>
 <td style="text-align:center;">
 2.731**
@@ -1187,7 +2192,7 @@ log(income)
 2.723*
 </td>
 <td style="text-align:center;">
-3.699**
+3.311*
 </td>
 <td style="text-align:center;">
 0.680
@@ -1196,7 +2201,7 @@ log(income)
 2.727
 </td>
 <td style="text-align:center;">
-4.565
+4.605
 </td>
 <td style="text-align:center;">
 0.537**
@@ -1205,7 +2210,7 @@ log(income)
 0.514
 </td>
 <td style="text-align:center;">
-0.621
+0.523
 </td>
 </tr>
 <tr>
@@ -1218,7 +2223,7 @@ log(income)
 (1.556)
 </td>
 <td style="text-align:center;">
-(1.776)
+(1.753)
 </td>
 <td style="text-align:center;">
 (1.615)
@@ -1227,7 +2232,7 @@ log(income)
 (3.188)
 </td>
 <td style="text-align:center;">
-(4.100)
+(4.191)
 </td>
 <td style="text-align:center;">
 (0.249)
@@ -1236,12 +2241,2573 @@ log(income)
 (0.352)
 </td>
 <td style="text-align:center;">
-(0.409)
+(0.405)
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Selection correction term (separate)
+age
+</td>
+<td style="text-align:center;">
+0.209
+</td>
+<td style="text-align:center;">
+0.205
+</td>
+<td style="text-align:center;">
+0.204
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.055
+</td>
+<td style="text-align:center;">
+0.054
+</td>
+<td style="text-align:center;">
+0.054
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.170)
+</td>
+<td style="text-align:center;">
+(0.171)
+</td>
+<td style="text-align:center;">
+(0.171)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.048)
+</td>
+<td style="text-align:center;">
+(0.049)
+</td>
+<td style="text-align:center;">
+(0.049)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sqage
+</td>
+<td style="text-align:center;">
+-0.031
+</td>
+<td style="text-align:center;">
+-0.026
+</td>
+<td style="text-align:center;">
+-0.025
+</td>
+<td style="text-align:center;">
+-0.103*
+</td>
+<td style="text-align:center;">
+-0.087
+</td>
+<td style="text-align:center;">
+-0.084
+</td>
+<td style="text-align:center;">
+-0.008
+</td>
+<td style="text-align:center;">
+-0.007
+</td>
+<td style="text-align:center;">
+-0.007
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.055)
+</td>
+<td style="text-align:center;">
+(0.055)
+</td>
+<td style="text-align:center;">
+(0.055)
+</td>
+<td style="text-align:center;">
+(0.005)
+</td>
+<td style="text-align:center;">
+(0.005)
+</td>
+<td style="text-align:center;">
+(0.005)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+univ
+</td>
+<td style="text-align:center;">
+-0.199
+</td>
+<td style="text-align:center;">
+-0.194
+</td>
+<td style="text-align:center;">
+-0.191
+</td>
+<td style="text-align:center;">
+0.029
+</td>
+<td style="text-align:center;">
+0.024
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+-0.021
+</td>
+<td style="text-align:center;">
+-0.017
+</td>
+<td style="text-align:center;">
+-0.017
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.287)
+</td>
+<td style="text-align:center;">
+(0.300)
+</td>
+<td style="text-align:center;">
+(0.300)
+</td>
+<td style="text-align:center;">
+(0.602)
+</td>
+<td style="text-align:center;">
+(0.599)
+</td>
+<td style="text-align:center;">
+(0.599)
+</td>
+<td style="text-align:center;">
+(0.062)
+</td>
+<td style="text-align:center;">
+(0.065)
+</td>
+<td style="text-align:center;">
+(0.065)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+highschool
+</td>
+<td style="text-align:center;">
+-0.152
+</td>
+<td style="text-align:center;">
+-0.154
+</td>
+<td style="text-align:center;">
+-0.151
+</td>
+<td style="text-align:center;">
+-0.048
+</td>
+<td style="text-align:center;">
+-0.051
+</td>
+<td style="text-align:center;">
+-0.044
+</td>
+<td style="text-align:center;">
+-0.010
+</td>
+<td style="text-align:center;">
+-0.008
+</td>
+<td style="text-align:center;">
+-0.008
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.244)
+</td>
+<td style="text-align:center;">
+(0.252)
+</td>
+<td style="text-align:center;">
+(0.252)
+</td>
+<td style="text-align:center;">
+(0.621)
+</td>
+<td style="text-align:center;">
+(0.617)
+</td>
+<td style="text-align:center;">
+(0.616)
+</td>
+<td style="text-align:center;">
+(0.052)
+</td>
+<td style="text-align:center;">
+(0.054)
+</td>
+<td style="text-align:center;">
+(0.054)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)1
+</td>
+<td style="text-align:center;">
+0.711***
+</td>
+<td style="text-align:center;">
+-0.292
+</td>
+<td style="text-align:center;">
+-0.240
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.008
+</td>
+<td style="text-align:center;">
+-0.104
+</td>
+<td style="text-align:center;">
+-0.103
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.206)
+</td>
+<td style="text-align:center;">
+(46562.131)
+</td>
+<td style="text-align:center;">
+(46560.263)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.046)
+</td>
+<td style="text-align:center;">
+(11394.163)
+</td>
+<td style="text-align:center;">
+(11394.171)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)2
+</td>
+<td style="text-align:center;">
+0.652**
+</td>
+<td style="text-align:center;">
+-0.370
+</td>
+<td style="text-align:center;">
+-0.321
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+-0.046
+</td>
+<td style="text-align:center;">
+-0.174
+</td>
+<td style="text-align:center;">
+-0.173
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.284)
+</td>
+<td style="text-align:center;">
+(46562.119)
+</td>
+<td style="text-align:center;">
+(46560.250)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.098)
+</td>
+<td style="text-align:center;">
+(11394.160)
+</td>
+<td style="text-align:center;">
+(11394.168)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)3
+</td>
+<td style="text-align:center;">
+1.075***
+</td>
+<td style="text-align:center;">
+0.088
+</td>
+<td style="text-align:center;">
+0.144
+</td>
+<td style="text-align:center;">
+-0.108
+</td>
+<td style="text-align:center;">
+-0.126
+</td>
+<td style="text-align:center;">
+-0.114
+</td>
+<td style="text-align:center;">
+0.097***
+</td>
+<td style="text-align:center;">
+-0.011
+</td>
+<td style="text-align:center;">
+-0.011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.146)
+</td>
+<td style="text-align:center;">
+(46562.127)
+</td>
+<td style="text-align:center;">
+(46560.259)
+</td>
+<td style="text-align:center;">
+(0.375)
+</td>
+<td style="text-align:center;">
+(0.414)
+</td>
+<td style="text-align:center;">
+(0.415)
+</td>
+<td style="text-align:center;">
+(0.035)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.171)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)4
+</td>
+<td style="text-align:center;">
+1.238***
+</td>
+<td style="text-align:center;">
+0.241
+</td>
+<td style="text-align:center;">
+0.300
+</td>
+<td style="text-align:center;">
+0.018
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+<td style="text-align:center;">
+0.022
+</td>
+<td style="text-align:center;">
+0.126***
+</td>
+<td style="text-align:center;">
+0.014
+</td>
+<td style="text-align:center;">
+0.015
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.171)
+</td>
+<td style="text-align:center;">
+(46562.127)
+</td>
+<td style="text-align:center;">
+(46560.259)
+</td>
+<td style="text-align:center;">
+(0.436)
+</td>
+<td style="text-align:center;">
+(0.473)
+</td>
+<td style="text-align:center;">
+(0.475)
+</td>
+<td style="text-align:center;">
+(0.039)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)5
+</td>
+<td style="text-align:center;">
+1.119***
+</td>
+<td style="text-align:center;">
+0.126
+</td>
+<td style="text-align:center;">
+0.180
+</td>
+<td style="text-align:center;">
+-0.645
+</td>
+<td style="text-align:center;">
+-0.676
+</td>
+<td style="text-align:center;">
+-0.648
+</td>
+<td style="text-align:center;">
+0.112***
+</td>
+<td style="text-align:center;">
+0.002
+</td>
+<td style="text-align:center;">
+0.003
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.175)
+</td>
+<td style="text-align:center;">
+(46562.127)
+</td>
+<td style="text-align:center;">
+(46560.258)
+</td>
+<td style="text-align:center;">
+(0.411)
+</td>
+<td style="text-align:center;">
+(0.444)
+</td>
+<td style="text-align:center;">
+(0.449)
+</td>
+<td style="text-align:center;">
+(0.042)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)6
+</td>
+<td style="text-align:center;">
+1.155***
+</td>
+<td style="text-align:center;">
+0.156
+</td>
+<td style="text-align:center;">
+0.209
+</td>
+<td style="text-align:center;">
+0.013
+</td>
+<td style="text-align:center;">
+-0.011
+</td>
+<td style="text-align:center;">
+-0.008
+</td>
+<td style="text-align:center;">
+0.112***
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+<td style="text-align:center;">
+0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.154)
+</td>
+<td style="text-align:center;">
+(46562.126)
+</td>
+<td style="text-align:center;">
+(46560.258)
+</td>
+<td style="text-align:center;">
+(0.419)
+</td>
+<td style="text-align:center;">
+(0.453)
+</td>
+<td style="text-align:center;">
+(0.454)
+</td>
+<td style="text-align:center;">
+(0.037)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)7
+</td>
+<td style="text-align:center;">
+1.069***
+</td>
+<td style="text-align:center;">
+0.075
+</td>
+<td style="text-align:center;">
+0.130
+</td>
+<td style="text-align:center;">
+-0.046
+</td>
+<td style="text-align:center;">
+-0.067
+</td>
+<td style="text-align:center;">
+-0.057
+</td>
+<td style="text-align:center;">
+0.098***
+</td>
+<td style="text-align:center;">
+-0.012
+</td>
+<td style="text-align:center;">
+-0.011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.148)
+</td>
+<td style="text-align:center;">
+(46562.124)
+</td>
+<td style="text-align:center;">
+(46560.255)
+</td>
+<td style="text-align:center;">
+(0.361)
+</td>
+<td style="text-align:center;">
+(0.400)
+</td>
+<td style="text-align:center;">
+(0.401)
+</td>
+<td style="text-align:center;">
+(0.035)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)8
+</td>
+<td style="text-align:center;">
+1.121***
+</td>
+<td style="text-align:center;">
+0.112
+</td>
+<td style="text-align:center;">
+0.169
+</td>
+<td style="text-align:center;">
+0.179
+</td>
+<td style="text-align:center;">
+0.162
+</td>
+<td style="text-align:center;">
+0.181
+</td>
+<td style="text-align:center;">
+0.109***
+</td>
+<td style="text-align:center;">
+-0.005
+</td>
+<td style="text-align:center;">
+-0.004
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.163)
+</td>
+<td style="text-align:center;">
+(46562.123)
+</td>
+<td style="text-align:center;">
+(46560.255)
+</td>
+<td style="text-align:center;">
+(0.482)
+</td>
+<td style="text-align:center;">
+(0.513)
+</td>
+<td style="text-align:center;">
+(0.514)
+</td>
+<td style="text-align:center;">
+(0.038)
+</td>
+<td style="text-align:center;">
+(11394.161)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)9
+</td>
+<td style="text-align:center;">
+1.049***
+</td>
+<td style="text-align:center;">
+0.056
+</td>
+<td style="text-align:center;">
+0.111
+</td>
+<td style="text-align:center;">
+0.019
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+<td style="text-align:center;">
+0.018
+</td>
+<td style="text-align:center;">
+0.092**
+</td>
+<td style="text-align:center;">
+-0.016
+</td>
+<td style="text-align:center;">
+-0.015
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.166)
+</td>
+<td style="text-align:center;">
+(46562.126)
+</td>
+<td style="text-align:center;">
+(46560.257)
+</td>
+<td style="text-align:center;">
+(0.410)
+</td>
+<td style="text-align:center;">
+(0.447)
+</td>
+<td style="text-align:center;">
+(0.449)
+</td>
+<td style="text-align:center;">
+(0.040)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)10
+</td>
+<td style="text-align:center;">
+1.186***
+</td>
+<td style="text-align:center;">
+0.180
+</td>
+<td style="text-align:center;">
+0.237
+</td>
+<td style="text-align:center;">
+0.132
+</td>
+<td style="text-align:center;">
+0.116
+</td>
+<td style="text-align:center;">
+0.128
+</td>
+<td style="text-align:center;">
+0.117***
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.160)
+</td>
+<td style="text-align:center;">
+(46562.125)
+</td>
+<td style="text-align:center;">
+(46560.257)
+</td>
+<td style="text-align:center;">
+(0.412)
+</td>
+<td style="text-align:center;">
+(0.450)
+</td>
+<td style="text-align:center;">
+(0.450)
+</td>
+<td style="text-align:center;">
+(0.038)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)11
+</td>
+<td style="text-align:center;">
+1.080***
+</td>
+<td style="text-align:center;">
+0.085
+</td>
+<td style="text-align:center;">
+0.146
+</td>
+<td style="text-align:center;">
+0.071
+</td>
+<td style="text-align:center;">
+0.061
+</td>
+<td style="text-align:center;">
+0.083
+</td>
+<td style="text-align:center;">
+0.097**
+</td>
+<td style="text-align:center;">
+-0.015
+</td>
+<td style="text-align:center;">
+-0.014
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.174)
+</td>
+<td style="text-align:center;">
+(46562.124)
+</td>
+<td style="text-align:center;">
+(46560.256)
+</td>
+<td style="text-align:center;">
+(0.391)
+</td>
+<td style="text-align:center;">
+(0.429)
+</td>
+<td style="text-align:center;">
+(0.430)
+</td>
+<td style="text-align:center;">
+(0.042)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)12
+</td>
+<td style="text-align:center;">
+0.912***
+</td>
+<td style="text-align:center;">
+-0.066
+</td>
+<td style="text-align:center;">
+-0.007
+</td>
+<td style="text-align:center;">
+0.026
+</td>
+<td style="text-align:center;">
+0.012
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+<td style="text-align:center;">
+0.057
+</td>
+<td style="text-align:center;">
+-0.050
+</td>
+<td style="text-align:center;">
+-0.049
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.204)
+</td>
+<td style="text-align:center;">
+(46562.121)
+</td>
+<td style="text-align:center;">
+(46560.253)
+</td>
+<td style="text-align:center;">
+(0.419)
+</td>
+<td style="text-align:center;">
+(0.455)
+</td>
+<td style="text-align:center;">
+(0.455)
+</td>
+<td style="text-align:center;">
+(0.048)
+</td>
+<td style="text-align:center;">
+(11394.160)
+</td>
+<td style="text-align:center;">
+(11394.169)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)13
+</td>
+<td style="text-align:center;">
+1.023***
+</td>
+<td style="text-align:center;">
+0.041
+</td>
+<td style="text-align:center;">
+0.097
+</td>
+<td style="text-align:center;">
+-0.221
+</td>
+<td style="text-align:center;">
+-0.237
+</td>
+<td style="text-align:center;">
+-0.229
+</td>
+<td style="text-align:center;">
+0.077*
+</td>
+<td style="text-align:center;">
+-0.031
+</td>
+<td style="text-align:center;">
+-0.030
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.169)
+</td>
+<td style="text-align:center;">
+(46562.126)
+</td>
+<td style="text-align:center;">
+(46560.258)
+</td>
+<td style="text-align:center;">
+(0.428)
+</td>
+<td style="text-align:center;">
+(0.466)
+</td>
+<td style="text-align:center;">
+(0.466)
+</td>
+<td style="text-align:center;">
+(0.041)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.171)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)14
+</td>
+<td style="text-align:center;">
+1.094***
+</td>
+<td style="text-align:center;">
+0.107
+</td>
+<td style="text-align:center;">
+0.165
+</td>
+<td style="text-align:center;">
+0.057
+</td>
+<td style="text-align:center;">
+0.048
+</td>
+<td style="text-align:center;">
+0.070
+</td>
+<td style="text-align:center;">
+0.100***
+</td>
+<td style="text-align:center;">
+-0.009
+</td>
+<td style="text-align:center;">
+-0.008
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.149)
+</td>
+<td style="text-align:center;">
+(46562.124)
+</td>
+<td style="text-align:center;">
+(46560.256)
+</td>
+<td style="text-align:center;">
+(0.365)
+</td>
+<td style="text-align:center;">
+(0.406)
+</td>
+<td style="text-align:center;">
+(0.407)
+</td>
+<td style="text-align:center;">
+(0.036)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)15
+</td>
+<td style="text-align:center;">
+1.220***
+</td>
+<td style="text-align:center;">
+0.206
+</td>
+<td style="text-align:center;">
+0.278
+</td>
+<td style="text-align:center;">
+-0.099
+</td>
+<td style="text-align:center;">
+-0.079
+</td>
+<td style="text-align:center;">
+-0.023
+</td>
+<td style="text-align:center;">
+0.146***
+</td>
+<td style="text-align:center;">
+0.032
+</td>
+<td style="text-align:center;">
+0.033
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.072)
+</td>
+<td style="text-align:center;">
+(46562.124)
+</td>
+<td style="text-align:center;">
+(46560.257)
+</td>
+<td style="text-align:center;">
+(0.354)
+</td>
+<td style="text-align:center;">
+(0.411)
+</td>
+<td style="text-align:center;">
+(0.416)
+</td>
+<td style="text-align:center;">
+(0.017)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.171)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)16
+</td>
+<td style="text-align:center;">
+1.089***
+</td>
+<td style="text-align:center;">
+0.082
+</td>
+<td style="text-align:center;">
+0.146
+</td>
+<td style="text-align:center;">
+-0.169
+</td>
+<td style="text-align:center;">
+-0.170
+</td>
+<td style="text-align:center;">
+-0.139
+</td>
+<td style="text-align:center;">
+0.108***
+</td>
+<td style="text-align:center;">
+-0.002
+</td>
+<td style="text-align:center;">
+-0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.159)
+</td>
+<td style="text-align:center;">
+(46562.125)
+</td>
+<td style="text-align:center;">
+(46560.257)
+</td>
+<td style="text-align:center;">
+(0.370)
+</td>
+<td style="text-align:center;">
+(0.415)
+</td>
+<td style="text-align:center;">
+(0.417)
+</td>
+<td style="text-align:center;">
+(0.039)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.171)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)17
+</td>
+<td style="text-align:center;">
+1.327***
+</td>
+<td style="text-align:center;">
+0.327
+</td>
+<td style="text-align:center;">
+0.388
+</td>
+<td style="text-align:center;">
+-0.048
+</td>
+<td style="text-align:center;">
+-0.053
+</td>
+<td style="text-align:center;">
+-0.028
+</td>
+<td style="text-align:center;">
+0.157***
+</td>
+<td style="text-align:center;">
+0.046
+</td>
+<td style="text-align:center;">
+0.046
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.159)
+</td>
+<td style="text-align:center;">
+(46562.126)
+</td>
+<td style="text-align:center;">
+(46560.258)
+</td>
+<td style="text-align:center;">
+(0.374)
+</td>
+<td style="text-align:center;">
+(0.417)
+</td>
+<td style="text-align:center;">
+(0.419)
+</td>
+<td style="text-align:center;">
+(0.038)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.171)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)18
+</td>
+<td style="text-align:center;">
+1.112***
+</td>
+<td style="text-align:center;">
+0.123
+</td>
+<td style="text-align:center;">
+0.178
+</td>
+<td style="text-align:center;">
+0.041
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.037
+</td>
+<td style="text-align:center;">
+0.107***
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+<td style="text-align:center;">
+0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.175)
+</td>
+<td style="text-align:center;">
+(46562.124)
+</td>
+<td style="text-align:center;">
+(46560.256)
+</td>
+<td style="text-align:center;">
+(0.390)
+</td>
+<td style="text-align:center;">
+(0.428)
+</td>
+<td style="text-align:center;">
+(0.429)
+</td>
+<td style="text-align:center;">
+(0.041)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.171)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)19
+</td>
+<td style="text-align:center;">
+1.090***
+</td>
+<td style="text-align:center;">
+0.080
+</td>
+<td style="text-align:center;">
+0.137
+</td>
+<td style="text-align:center;">
+-0.029
+</td>
+<td style="text-align:center;">
+-0.052
+</td>
+<td style="text-align:center;">
+-0.036
+</td>
+<td style="text-align:center;">
+0.100***
+</td>
+<td style="text-align:center;">
+-0.013
+</td>
+<td style="text-align:center;">
+-0.012
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.151)
+</td>
+<td style="text-align:center;">
+(46562.124)
+</td>
+<td style="text-align:center;">
+(46560.256)
+</td>
+<td style="text-align:center;">
+(0.354)
+</td>
+<td style="text-align:center;">
+(0.396)
+</td>
+<td style="text-align:center;">
+(0.398)
+</td>
+<td style="text-align:center;">
+(0.035)
+</td>
+<td style="text-align:center;">
+(11394.161)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)20
+</td>
+<td style="text-align:center;">
+0.970***
+</td>
+<td style="text-align:center;">
+-0.028
+</td>
+<td style="text-align:center;">
+0.024
+</td>
+<td style="text-align:center;">
+0.398
+</td>
+<td style="text-align:center;">
+0.378
+</td>
+<td style="text-align:center;">
+0.386
+</td>
+<td style="text-align:center;">
+0.072
+</td>
+<td style="text-align:center;">
+-0.039
+</td>
+<td style="text-align:center;">
+-0.038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.228)
+</td>
+<td style="text-align:center;">
+(46562.126)
+</td>
+<td style="text-align:center;">
+(46560.258)
+</td>
+<td style="text-align:center;">
+(0.521)
+</td>
+<td style="text-align:center;">
+(0.550)
+</td>
+<td style="text-align:center;">
+(0.548)
+</td>
+<td style="text-align:center;">
+(0.052)
+</td>
+<td style="text-align:center;">
+(11394.162)
+</td>
+<td style="text-align:center;">
+(11394.170)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)21
+</td>
+<td style="text-align:center;">
+-0.002
+</td>
+<td style="text-align:center;">
+0.001
+</td>
+<td style="text-align:center;">
+0.002
+</td>
+<td style="text-align:center;">
+0.045
+</td>
+<td style="text-align:center;">
+0.099
+</td>
+<td style="text-align:center;">
+0.102
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.082)
+</td>
+<td style="text-align:center;">
+(0.082)
+</td>
+<td style="text-align:center;">
+(0.082)
+</td>
+<td style="text-align:center;">
+(0.252)
+</td>
+<td style="text-align:center;">
+(0.247)
+</td>
+<td style="text-align:center;">
+(0.246)
+</td>
+<td style="text-align:center;">
+(0.020)
+</td>
+<td style="text-align:center;">
+(0.020)
+</td>
+<td style="text-align:center;">
+(0.020)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)22
+</td>
+<td style="text-align:center;">
+0.140
+</td>
+<td style="text-align:center;">
+0.139
+</td>
+<td style="text-align:center;">
+0.144
+</td>
+<td style="text-align:center;">
+0.162
+</td>
+<td style="text-align:center;">
+0.114
+</td>
+<td style="text-align:center;">
+0.133
+</td>
+<td style="text-align:center;">
+0.035
+</td>
+<td style="text-align:center;">
+0.037
+</td>
+<td style="text-align:center;">
+0.037
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.104)
+</td>
+<td style="text-align:center;">
+(0.105)
+</td>
+<td style="text-align:center;">
+(0.105)
+</td>
+<td style="text-align:center;">
+(0.255)
+</td>
+<td style="text-align:center;">
+(0.247)
+</td>
+<td style="text-align:center;">
+(0.246)
+</td>
+<td style="text-align:center;">
+(0.024)
+</td>
+<td style="text-align:center;">
+(0.025)
+</td>
+<td style="text-align:center;">
+(0.025)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)23
+</td>
+<td style="text-align:center;">
+-0.090
+</td>
+<td style="text-align:center;">
+-0.106
+</td>
+<td style="text-align:center;">
+-0.103
+</td>
+<td style="text-align:center;">
+-0.107
+</td>
+<td style="text-align:center;">
+-0.072
+</td>
+<td style="text-align:center;">
+-0.066
+</td>
+<td style="text-align:center;">
+-0.018
+</td>
+<td style="text-align:center;">
+-0.023
+</td>
+<td style="text-align:center;">
+-0.023
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.112)
+</td>
+<td style="text-align:center;">
+(0.112)
+</td>
+<td style="text-align:center;">
+(0.112)
+</td>
+<td style="text-align:center;">
+(0.219)
+</td>
+<td style="text-align:center;">
+(0.223)
+</td>
+<td style="text-align:center;">
+(0.222)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)24
+</td>
+<td style="text-align:center;">
+0.083
+</td>
+<td style="text-align:center;">
+0.072
+</td>
+<td style="text-align:center;">
+0.079
+</td>
+<td style="text-align:center;">
+-0.036
+</td>
+<td style="text-align:center;">
+-0.037
+</td>
+<td style="text-align:center;">
+-0.015
+</td>
+<td style="text-align:center;">
+0.022
+</td>
+<td style="text-align:center;">
+0.020
+</td>
+<td style="text-align:center;">
+0.020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.116)
+</td>
+<td style="text-align:center;">
+(0.117)
+</td>
+<td style="text-align:center;">
+(0.118)
+</td>
+<td style="text-align:center;">
+(0.195)
+</td>
+<td style="text-align:center;">
+(0.195)
+</td>
+<td style="text-align:center;">
+(0.193)
+</td>
+<td style="text-align:center;">
+(0.028)
+</td>
+<td style="text-align:center;">
+(0.029)
+</td>
+<td style="text-align:center;">
+(0.029)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)25
+</td>
+<td style="text-align:center;">
+-0.088
+</td>
+<td style="text-align:center;">
+-0.107
+</td>
+<td style="text-align:center;">
+-0.102
+</td>
+<td style="text-align:center;">
+0.077
+</td>
+<td style="text-align:center;">
+0.095
+</td>
+<td style="text-align:center;">
+0.106
+</td>
+<td style="text-align:center;">
+-0.017
+</td>
+<td style="text-align:center;">
+-0.021
+</td>
+<td style="text-align:center;">
+-0.020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.111)
+</td>
+<td style="text-align:center;">
+(0.110)
+</td>
+<td style="text-align:center;">
+(0.110)
+</td>
+<td style="text-align:center;">
+(0.187)
+</td>
+<td style="text-align:center;">
+(0.188)
+</td>
+<td style="text-align:center;">
+(0.187)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)26
+</td>
+<td style="text-align:center;">
+-0.025
+</td>
+<td style="text-align:center;">
+-0.029
+</td>
+<td style="text-align:center;">
+-0.028
+</td>
+<td style="text-align:center;">
+-0.053
+</td>
+<td style="text-align:center;">
+-0.043
+</td>
+<td style="text-align:center;">
+-0.052
+</td>
+<td style="text-align:center;">
+-0.003
+</td>
+<td style="text-align:center;">
+-0.004
+</td>
+<td style="text-align:center;">
+-0.004
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.119)
+</td>
+<td style="text-align:center;">
+(0.119)
+</td>
+<td style="text-align:center;">
+(0.120)
+</td>
+<td style="text-align:center;">
+(0.234)
+</td>
+<td style="text-align:center;">
+(0.234)
+</td>
+<td style="text-align:center;">
+(0.233)
+</td>
+<td style="text-align:center;">
+(0.028)
+</td>
+<td style="text-align:center;">
+(0.028)
+</td>
+<td style="text-align:center;">
+(0.028)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)31
+</td>
+<td style="text-align:center;">
+0.012
+</td>
+<td style="text-align:center;">
+0.014
+</td>
+<td style="text-align:center;">
+0.016
+</td>
+<td style="text-align:center;">
+-0.027
+</td>
+<td style="text-align:center;">
+-0.026
+</td>
+<td style="text-align:center;">
+-0.022
+</td>
+<td style="text-align:center;">
+0.007
+</td>
+<td style="text-align:center;">
+0.008
+</td>
+<td style="text-align:center;">
+0.008
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.088)
+</td>
+<td style="text-align:center;">
+(0.089)
+</td>
+<td style="text-align:center;">
+(0.089)
+</td>
+<td style="text-align:center;">
+(0.136)
+</td>
+<td style="text-align:center;">
+(0.135)
+</td>
+<td style="text-align:center;">
+(0.135)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+<td style="text-align:center;">
+(0.021)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)32
+</td>
+<td style="text-align:center;">
+0.101
+</td>
+<td style="text-align:center;">
+0.101
+</td>
+<td style="text-align:center;">
+0.107
+</td>
+<td style="text-align:center;">
+0.060
+</td>
+<td style="text-align:center;">
+0.058
+</td>
+<td style="text-align:center;">
+0.074
+</td>
+<td style="text-align:center;">
+0.034
+</td>
+<td style="text-align:center;">
+0.035
+</td>
+<td style="text-align:center;">
+0.035
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.119)
+</td>
+<td style="text-align:center;">
+(0.120)
+</td>
+<td style="text-align:center;">
+(0.121)
+</td>
+<td style="text-align:center;">
+(0.152)
+</td>
+<td style="text-align:center;">
+(0.152)
+</td>
+<td style="text-align:center;">
+(0.152)
+</td>
+<td style="text-align:center;">
+(0.028)
+</td>
+<td style="text-align:center;">
+(0.028)
+</td>
+<td style="text-align:center;">
+(0.028)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)33
+</td>
+<td style="text-align:center;">
+0.009
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+<td style="text-align:center;">
+0.012
+</td>
+<td style="text-align:center;">
+0.080
+</td>
+<td style="text-align:center;">
+0.087
+</td>
+<td style="text-align:center;">
+0.101
+</td>
+<td style="text-align:center;">
+0.008
+</td>
+<td style="text-align:center;">
+0.007
+</td>
+<td style="text-align:center;">
+0.007
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.107)
+</td>
+<td style="text-align:center;">
+(0.108)
+</td>
+<td style="text-align:center;">
+(0.109)
+</td>
+<td style="text-align:center;">
+(0.286)
+</td>
+<td style="text-align:center;">
+(0.285)
+</td>
+<td style="text-align:center;">
+(0.284)
+</td>
+<td style="text-align:center;">
+(0.025)
+</td>
+<td style="text-align:center;">
+(0.025)
+</td>
+<td style="text-align:center;">
+(0.025)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)34
+</td>
+<td style="text-align:center;">
+-0.026
+</td>
+<td style="text-align:center;">
+-0.024
+</td>
+<td style="text-align:center;">
+-0.018
+</td>
+<td style="text-align:center;">
+-0.111
+</td>
+<td style="text-align:center;">
+-0.093
+</td>
+<td style="text-align:center;">
+-0.081
+</td>
+<td style="text-align:center;">
+0.009
+</td>
+<td style="text-align:center;">
+0.009
+</td>
+<td style="text-align:center;">
+0.009
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.098)
+</td>
+<td style="text-align:center;">
+(0.098)
+</td>
+<td style="text-align:center;">
+(0.099)
+</td>
+<td style="text-align:center;">
+(0.350)
+</td>
+<td style="text-align:center;">
+(0.348)
+</td>
+<td style="text-align:center;">
+(0.347)
+</td>
+<td style="text-align:center;">
+(0.024)
+</td>
+<td style="text-align:center;">
+(0.024)
+</td>
+<td style="text-align:center;">
+(0.024)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)35
+</td>
+<td style="text-align:center;">
+0.041
+</td>
+<td style="text-align:center;">
+0.076
+</td>
+<td style="text-align:center;">
+0.086
+</td>
+<td style="text-align:center;">
+0.026
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.030
+</td>
+<td style="text-align:center;">
+0.021
+</td>
+<td style="text-align:center;">
+0.028
+</td>
+<td style="text-align:center;">
+0.028
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.109)
+</td>
+<td style="text-align:center;">
+(0.109)
+</td>
+<td style="text-align:center;">
+(0.109)
+</td>
+<td style="text-align:center;">
+(0.164)
+</td>
+<td style="text-align:center;">
+(0.162)
+</td>
+<td style="text-align:center;">
+(0.160)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)36
+</td>
+<td style="text-align:center;">
+-0.138
+</td>
+<td style="text-align:center;">
+-0.126
+</td>
+<td style="text-align:center;">
+-0.118
+</td>
+<td style="text-align:center;">
+-0.188
+</td>
+<td style="text-align:center;">
+-0.138
+</td>
+<td style="text-align:center;">
+-0.118
+</td>
+<td style="text-align:center;">
+-0.023
+</td>
+<td style="text-align:center;">
+-0.021
+</td>
+<td style="text-align:center;">
+-0.021
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.106)
+</td>
+<td style="text-align:center;">
+(0.107)
+</td>
+<td style="text-align:center;">
+(0.108)
+</td>
+<td style="text-align:center;">
+(0.173)
+</td>
+<td style="text-align:center;">
+(0.175)
+</td>
+<td style="text-align:center;">
+(0.175)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+<td style="text-align:center;">
+(0.026)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)37
+</td>
+<td style="text-align:center;">
+-0.014
+</td>
+<td style="text-align:center;">
+-0.020
+</td>
+<td style="text-align:center;">
+-0.014
+</td>
+<td style="text-align:center;">
+0.061
+</td>
+<td style="text-align:center;">
+0.069
+</td>
+<td style="text-align:center;">
+0.080
+</td>
+<td style="text-align:center;">
+0.005
+</td>
+<td style="text-align:center;">
+0.004
+</td>
+<td style="text-align:center;">
+0.004
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.095)
+</td>
+<td style="text-align:center;">
+(0.096)
+</td>
+<td style="text-align:center;">
+(0.097)
+</td>
+<td style="text-align:center;">
+(0.143)
+</td>
+<td style="text-align:center;">
+(0.143)
+</td>
+<td style="text-align:center;">
+(0.142)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)38
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.026
+</td>
+<td style="text-align:center;">
+0.031
+</td>
+<td style="text-align:center;">
+0.118
+</td>
+<td style="text-align:center;">
+0.165
+</td>
+<td style="text-align:center;">
+0.174
+</td>
+<td style="text-align:center;">
+0.013
+</td>
+<td style="text-align:center;">
+0.013
+</td>
+<td style="text-align:center;">
+0.013
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.093)
+</td>
+<td style="text-align:center;">
+(0.093)
+</td>
+<td style="text-align:center;">
+(0.094)
+</td>
+<td style="text-align:center;">
+(0.181)
+</td>
+<td style="text-align:center;">
+(0.175)
+</td>
+<td style="text-align:center;">
+(0.174)
+</td>
+<td style="text-align:center;">
+(0.022)
+</td>
+<td style="text-align:center;">
+(0.023)
+</td>
+<td style="text-align:center;">
+(0.023)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)39
+</td>
+<td style="text-align:center;">
+-0.127
+</td>
+<td style="text-align:center;">
+-0.130
+</td>
+<td style="text-align:center;">
+-0.128
+</td>
+<td style="text-align:center;">
+0.691
+</td>
+<td style="text-align:center;">
+0.705
+</td>
+<td style="text-align:center;">
+0.708
+</td>
+<td style="text-align:center;">
+-0.054
+</td>
+<td style="text-align:center;">
+-0.055
+</td>
+<td style="text-align:center;">
+-0.055
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.264)
+</td>
+<td style="text-align:center;">
+(0.265)
+</td>
+<td style="text-align:center;">
+(0.265)
+</td>
+<td style="text-align:center;">
+(0.912)
+</td>
+<td style="text-align:center;">
+(0.931)
+</td>
+<td style="text-align:center;">
+(0.925)
+</td>
+<td style="text-align:center;">
+(0.067)
+</td>
+<td style="text-align:center;">
+(0.067)
+</td>
+<td style="text-align:center;">
+(0.067)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(area)40
+</td>
+<td style="text-align:center;">
+-0.398
+</td>
+<td style="text-align:center;">
+-0.400
+</td>
+<td style="text-align:center;">
+-0.394
+</td>
+<td style="text-align:center;">
+-0.110
+</td>
+<td style="text-align:center;">
+-0.075
+</td>
+<td style="text-align:center;">
+-0.063
+</td>
+<td style="text-align:center;">
+-0.065
+</td>
+<td style="text-align:center;">
+-0.065
+</td>
+<td style="text-align:center;">
+-0.065
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.258)
+</td>
+<td style="text-align:center;">
+(0.259)
+</td>
+<td style="text-align:center;">
+(0.259)
+</td>
+<td style="text-align:center;">
+(0.188)
+</td>
+<td style="text-align:center;">
+(0.185)
+</td>
+<td style="text-align:center;">
+(0.184)
+</td>
+<td style="text-align:center;">
+(0.049)
+</td>
+<td style="text-align:center;">
+(0.049)
+</td>
+<td style="text-align:center;">
+(0.049)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+factor(industry)21
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+-1.031
+</td>
+<td style="text-align:center;">
+-0.942
+</td>
+<td style="text-align:center;">
+-2.035***
+</td>
+<td style="text-align:center;">
+-2.017***
+</td>
+<td style="text-align:center;">
+-1.797***
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+-0.117
+</td>
+<td style="text-align:center;">
+-0.116
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(46562.137)
+</td>
+<td style="text-align:center;">
+(46560.270)
+</td>
+<td style="text-align:center;">
+(0.394)
+</td>
+<td style="text-align:center;">
+(0.441)
+</td>
+<td style="text-align:center;">
+(0.501)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(11394.165)
+</td>
+<td style="text-align:center;">
+(11394.173)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gr_sep
 </td>
 <td style="text-align:center;">
 </td>
@@ -1292,28 +4858,28 @@ Selection correction term (separate)
 </tr>
 <tr>
 <td style="text-align:left;">
-Selection correction term (pool)
+gr_pool
 </td>
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
--0.104
+-0.063
 </td>
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
--0.332
+-0.336
 </td>
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
--0.010
+0.000
 </td>
 </tr>
 <tr>
@@ -1324,14 +4890,14 @@ Selection correction term (pool)
 <td style="text-align:center;box-shadow: 0px 1px">
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.169)
+(0.165)
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.299)
+(0.305)
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
 </td>
@@ -1501,102 +5067,6 @@ X
 X
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Area dummies
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Industry dummies
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Square of Age
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-<td style="text-align:center;">
-X
-</td>
-</tr>
 </tbody>
 <tfoot>
 <tr>
@@ -1663,10 +5133,10 @@ No
 Pool
 </td>
 <td style="text-align:right;">
-0.835
+0.834
 </td>
 <td style="text-align:right;">
-0.631
+0.623
 </td>
 <td style="text-align:right;">
 0.852
@@ -1712,13 +5182,13 @@ No
 Pool
 </td>
 <td style="text-align:right;">
-0.009
+0.060
 </td>
 <td style="text-align:right;">
-0.408
+0.413
 </td>
 <td style="text-align:right;">
--0.261
+-0.178
 </td>
 </tr>
 <tr>
@@ -1761,13 +5231,13 @@ No
 Pool
 </td>
 <td style="text-align:right;">
-2.231
+2.267
 </td>
 <td style="text-align:right;">
-2.433
+2.401
 </td>
 <td style="text-align:right;">
-2.087
+2.172
 </td>
 </tr>
 <tr>
