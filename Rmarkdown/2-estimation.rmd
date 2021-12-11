@@ -227,3 +227,4 @@ The third approach estimates the following outcome equation by OLS:
     \ln g_{it} = \varepsilon_{pi} (P(Z_{it}) \ln p^f_{it}(y_{it})) + \varepsilon_y \ln y_{it} 
     + X_{it}\beta +\mu_i +\iota_t +u_{it}. (\#eq:stage2red)
 \end{equation}
+
