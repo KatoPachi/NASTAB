@@ -1,6 +1,6 @@
 ---
 title: |
-  Charitable Giving, Tax Reform, and Self-selection of Tax Report: Evidence from South Korea
+  Estimating Effect of Tax Incentives on Charitable Giving Considering Self-Selection of Tax Relief in South Korea
 author: 
   - name: Hiroki Kato
     number: 1
@@ -16,8 +16,7 @@ institute:
   - number: 3
     name: Kansai University
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
-bibliography_main: [Rmarkdown/ref_main.bib]
-bibliography_appx: [Rmarkdown/ref_appx.bib]
+bibliography: Rmarkdown/ref_main.bib
 csl: template/csl/elsevier-harvard.csl
 aspectratio: 169
 graphics: yes
@@ -32,6 +31,14 @@ output:
     template: template/tex/plain.tex
 ---
 
+```{r knit_command, eval = FALSE, include = FALSE, echo = FALSE}
+# If you want to knit draft, please run following command manually!!
+rmarkdown::render(
+  "slide.Rmd",
+  output_file = "slide.pdf",
+  output_dir = "paper"
+)
+```
 
 ```{r setup, include = FALSE, echo = FALSE}
 knitr::opts_chunk$set(
@@ -44,19 +51,178 @@ knitr::opts_chunk$set(
   fig.align = "center", fig.pos = "t"
 )
 
-library(here); knitr::opts_knit$set(root.dir = here())
-xfun::pkg_attach2(c("tidyverse", "kableExtra"))
-options(knitr.kable.NA = " ")
-
-doctype <- "slide"
+library(here)
+knitr::opts_knit$set(root.dir = here())
 ```
 
-```{r child = "Rmarkdown/1-introduction.Rmd"}
-```
-```{r child = "Rmarkdown/Slide.Rmd"}
-```
+## Introduction
+
+- In many countries, tax relief for charitable giving are implemented.
+- The elasticity of giving tax relief is known as a key parameter to evaluate the welfare implication [@Saez2004].
+  - Intuitively, if the elasticity is more than 1 in absolute value, \$1 of tax relief make more than \$1 of charitable giving.
+- Many papers investigate the elasticity based on tax return data [@Almunia2020; @Auten2002].
+
+## Introduction
+
+- However, the tax return data record only the declared charitable giving.
+	- First issue: **Actual donations is different from declared donations.** [@Fack2016; @Gillitzer2018]
+  - We use panel survey data in South Korea to deal with this issue.
+- Tax payers decide the amount of donation and whether to declare tax relief based on the size of tax incentive and declaration cost.
+  - Second issue: Neglect of this declaration cost may bias the estimations of elasticity.
+  - We use instrumental variable (IV) and control function approach for this issue.
+- Based on DID as an identification strategy, we investigate the giving price elasticity of South Korea.
+
+## Introduction
+
+Result
+
+1. Baseline results show that the giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.7 in terms of extensive margins in Korea.
+2. The estimated giving price elasticity for those who declare charitable giving is around -1.2 -1.6.
+    - These estimates are more elastic than the estimates in the extant research, many of which show around -1.
+3. (Not in the paper) The estimated declaration cost of giving is KRW (\$).
+4. (Not in the paper) Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
+
+# Conceptual Frameworks
+
+## Optimization Problem
+
+Following @Almunia2020,
+consider allocation problem between private consumption ($x_{it}$) and charitable giving ($g_{it}$)
+
+\begin{align}
+  \max_{x_{it}, g_{it}, R_{it}} &U(x_{it}, g_{it}, G_t)
+  = u_i(x_{it}, g_{it}, G_t) - R_{it}K_{it}, \\
+  \text{s.t.}\:\:
+  &x_{it} + g_{it}
+  = y_{it} - R_{it} T_{it}(y_{it}, g_{it}) - (1 - R_{it}) T_{it}(y_{it}), \\
+  &G_t = g_{it} + G_{-it},
+\end{align}
+
+where $y_{it}$ is pre-tax total income, $R_{it}$ is a dummy of declaration of tax relief and $T_{it}(y_{it})$ and $T_{it}(y_{it}, g_{it})$ are respectively the amount of tax when $i$ does not declare tax relief and when $i$ declares tax relief in year $t$. $G_{-it}$ is public goods supplied by others.
+
+## Remarks on Optimization Problem
+
+We assume
+
+- No saving
+- $G_{-it}$ is large enough to $\frac{\partial u_i}{\partial G}(x, g, G) \approx 0$
+
+Given $R_{it}$, optimal level of donations sloves
+
+\begin{align}
+  \max_{g_{it}} u_i(
+    y_{it} - R_{it} T_{it}(y_{it}, g_{it}) - (1 - R_{it}) T_{it}(y_{it}) - g_{it}, g_{it}, g_{it} + G_{-it}
+  ).
+\end{align}
+
+## First-Order Condition
+
+\begin{align}
+  - \frac{\partial u_i}{\partial x_{it}}
+  \left( R_{it} \frac{\partial T_{it}}{\partial g_{it}}(y_{it}, g_{it}) + 1 \right)
+  + \frac{\partial u_i}{\partial g_{it}} = 0
+\end{align}
+
+- $\partial T_{it} / \partial g_{it} < 0$ is tax incentive of charitable giving.
+  - Let $s_{it} \equiv |\partial T_{it} / \partial g_{it}|$ be size of tax incentive.
+  - Relative giving price is $1 - s_{it}$
+  - As we explain later, there is *within* variation of $s_{it}$ due to tax reform.
+
+Let $g_i(y_{it}, 1 - R_{it} s_{it})$ be a demand function of charitable giving.
+
+- Define $g_i(1 - s_{it}, y_{it})$ and $g_i(1, y_{it})$ to be the optimal levels of donations (potential outcomes) for choices $R_{it} = 1, 0$ respectively.
+
+## Self-Selection of Tax Relief
+
+We can write indirect utility as
+
+\begin{align}
+  &v_i(1 - s_{it}, y_{it}, G_{-it}) - K_{it},  \\
+  &v_i(1, y_{it}, G_{-it}).
+\end{align}
+
+Thus, individual $i$ applies for tax relief in year $t$,
+that is, $R_{it} = 1$ iff
+
+\begin{align}
+  \Delta v_{it} \equiv
+  v_i(1 - s_{it}, y_{it}, G_{-it}) - v_i(1, y_{it}, G_{-it})
+  \ge K_{it}.
+\end{align}
+
+## Summary of Conceptual Framework
+
+Potential outcomes: $g_i(1 - s_{it}, y_{it})$ if $R_{it} = 1$. $g_i(1, y_{it})$ if $R_{it} = 0$
+
+Observed outcome:
+
+\begin{align}
+  g_i(1 - R_{it} s_{it}, y_{it}) = g_i(1, y_{it}) + R_{it}(g_i(1 - s_{it}, y_{it}) - g_i(1, y_{it}))
+\end{align}
+
+Selection of tax relief:
+
+\begin{align}
+  R_{it} = 1[\Delta v_{it} - K_{it} \ge 0]
+\end{align}
+
+# Identification Strategy
+
+## Statistical Model
+
+We assume the demand function $g_i(y_{it}, 1 - R_{it} s_{it})$ can be written as the following log-log demand function with two-way FEs:
+
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma \ln(1 - R_{it}s_{it}) + \beta X'_{it} + \iota_t + u_{it}.
+\end{align}
+
+- $\theta_i$ and $\iota_t$ are individual and time FE, respectively.
+- $X_{it}$ includes pre-tax income ($y_{it}$) and others.
+- If $R_{it} = 1$, then the logged price of giving is $\ln(1 - s_{it})$. Otherwise, $\ln 1 = 0$.
+
+## Within Price Variation for Identification $\gamma$
+
+The *within* price variation can be decomposed into two variations:
+
+1. Within variation of tax incentive ($s_{it}$)
+    - Major source: 2014 tax reform
+    - Before 2014, tax deduction (所得控除) was used for tax relief on charitable giving.
+      - the giving price depended on income level.
+    -	After 2014, tax credit (税額控除) started to be used for tax relief on charitable giving.
+      - The tax credit rate was determined as 15\%.
+      - Giving price is 0.85, irrespective of income level.
+1. Within variation of application for tax relief ($R_{it}$)
+    - This variation is endogenous (self-selection problem)
+
+## 2014 Tax Reform in South Korea
+
+**Tax deduction system (until 2013)**
+
+\begin{align}
+  T_{it}(y_{it}, g_{it}) = T_{it}(y_{it} - g_{it})
+\end{align}
+
+- In 2012 and 2013, the marginal tax rate was the same, though it was different from ones before 2011.
+- Tax incentive is $s_{it} = T'(y_{it} - g_{it})$
+
+**Tax credit system (from 2014)**
+
+\begin{align}
+  T_{it}(y_{it}, g_{it}) = T_{it}(y_{it}) - m g_{it}
+\end{align}
+
+- $m$ is tax credit rate and is $m = 0.15$
+- Tax incentive is $s_{it} = m$
+
+## Source of Endogenity
+
+1. Usage of tax return data only captures declared charitable giving.
+    - If the charitable giving is not declared, tax relief has a little effect.
+    - Some papers use survey data to deal with this problem (e.g.~Rehavi and Shack, 2013).
+    - **Following them, we use survey panel data of Korea.**
+2. If the declaration cost is ignored, the estimation should be biased.
+    -  The giving price depends not only on marginal tax rate and tax credit rate, but also on the declaration behavior.
+    -  As far as we know, only Almunia et al.~(2020) deal with this problem, though they used tax return data.
+    - **We use instrumental variable (IV) strategy to control this endogneity.**
 
 # References {-}
-
-::: {#refs_main}
-:::
