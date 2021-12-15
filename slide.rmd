@@ -29,6 +29,8 @@ output:
     toc: false
     slide_level: 2
     template: template/tex/plain.tex
+params:
+  preview: false
 ---
 
 ```{r knit_command, eval = FALSE, include = FALSE, echo = FALSE}
@@ -53,7 +55,32 @@ knitr::opts_chunk$set(
 
 library(here)
 knitr::opts_knit$set(root.dir = here())
+
+options(
+  knitr.kable.NA = " ",
+  knitr.table.format = "latex",
+  modelsummary_stars_note = FALSE
+)
 ```
+
+```{r include = FALSE}
+library(xfun)
+xfun::pkg_attach2(c(
+  "tidyverse", "rlist", "modelsummary", "kableExtra",
+  "estimatr", "fixest"
+))
+
+lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
+```
+
+## お詫び
+
+私の準備不足のために、
+本スライドと他のスライド（12/5に行われた公共選択学会で共著者の後藤さんが使用された日本語スライド）
+を併用してご報告させていただきます。
+
+皆さまにご不便をおかけして申し訳ありません<(_ _)>
+
 
 ## Introduction
 
@@ -79,8 +106,8 @@ Result
 1. Baseline results show that the giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.7 in terms of extensive margins in Korea.
 2. The estimated giving price elasticity for those who declare charitable giving is around -1.2 -1.6.
     - These estimates are more elastic than the estimates in the extant research, many of which show around -1.
-3. (Not in the paper) The estimated declaration cost of giving is KRW (\$).
-4. (Not in the paper) Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
+3. By reducing application cost, we can increase charitable giving. 
+4. Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
 
 # Conceptual Frameworks
 
@@ -202,11 +229,50 @@ Our major *within* variation of tax incentive ($s_{it}$) comes from the 2014 tax
 
 - Giving price is endogenous to the amount of giving before 2014
   - $s_t(y_{it}, g_{it}) = T'(y_{it} - g_{it})$ if $t < 2014$. $s_t(y_{it}, g_{it}) = 0.15$ if $t \ge 2014$.
-  - $1 - s_t(y_{it}, g_{it})$ is called as the last-price
+  - $1 - R_{it} s_t(y_{it}, g_{it})$ is called as the last-price $s^f_t(y_{it}) = s_t(y_{it}, 0)$
+  - Instead, we use the first-price $1 - R_{it} s^f_t(y_{it})$ where 
 - If the declaration cost is ignored, the estimation should be biased.
 	- The giving price depends not only on marginal tax rate and tax credit rate, but also on the declaration behavior.
   - As far as we know, only @Almunia2020 deal with this problem, though they used tax return data.
+  - We use the first-price of giving if taxpayers had applied for tax relief $1 - s^f_t(y_{it})$.
 
-**We use the first-price of giving $1 - s^f_t(y_{it})$ as an instrumental variable (IV) of $1 - R_{it}s_t(y_{it}, g_{it})$, where $s^f_t(y_{it}) = s_t(y_{it}, 0)$.**
+## First-Stage Equation
+
+\begin{align}
+  \ln(1 - R_{it}s^f_{it})
+  = \theta_{1i} + \delta_1 \ln(1 - s^f_{it}) + \delta_2 X'_{it} + \iota_{1i} + v_{it}
+\end{align}
+
+Validity of instrument
+
+- Since $\ln(1 - R_{it} s^f_{it}) = R_{it} \times \ln(1 - s^f_{it})$, we include the effect of first price on charitable giving in outcome equation.
+- Thus, instument does not affect outcomes conditional on covariates (Exclusion restriction)
+- Increasing the first-price decreases the benefit of tax relief ($\Delta v_{it}$). There is no taxpayers who apply for tax relief by an increase of price (Monotonicity).
+
+# Data
+
+```{r}
+knitr::spin_child("script/R/1-summary.R")
+```
+
+# Estimating Conventional Price Elasticities
+
+```{r}
+knitr::spin_child("script/R/2-elasticity.R")
+```
+
+# Control Function Approach
+
+```{r}
+knitr::spin_child("script/R/3-cf_approach.R")
+```
+
+# Welfare Implication
+
+```{r eval = FALSE}
+knitr::spin_child("script/R/4-welfare.R")
+```
+
+# Conclusion
 
 # References {-}

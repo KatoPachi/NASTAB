@@ -67,32 +67,6 @@ dplyr::filter(
 )
 
 #'
-#' # Control Function Approach
-#'
-#' Alternative approach to evaluate tax incentive is
-#' the control function approach.
-#' To clarify the idea of this approach,
-#' we reformulate the second-stage equation as follows:
-#'
-#' \begin{align*}
-#'   \ln g_{it}
-#'   &= \theta_i + \gamma \ln(1 - R_{it}s_{it})
-#'   + \beta X'_{it} + \iota_t + u_{it} \\
-#'   &= \theta_i + \gamma (R_{it} \times \ln(1 - s_{it}))
-#'   + \beta X'_{it} + \iota_t + u_{it}.
-#' \end{align*}
-#'
-#' Next, we define the selection equation of tax relief as follows:
-#'
-#' \begin{align*}
-#'   R_{it} = 1[\theta_{i1} + \delta_1 Z'_{it} + \delta_2 \ln(1 - s_{it})
-#'   + \beta_1 X'_{it} + \iota_{t1} + v_{it} > 0].
-#' \end{align*}
-#'
-#' where a vector $Z_{it}$ is instuments manipulating applying cost $K_{it}$.
-#'
-#' If we have cross sectional data,
-#'
 #' ## First-Stage Result: Who Applied for Tax Relief?
 #'
 #+
@@ -155,16 +129,17 @@ est_stage1_sep %>%
   modelsummary(
     title = "Probit Estimation of Selection of Applying for Tax Relief",
     coef_omit = "factor",
-    # coef_map = c(
-    #   "employee" = "1 = Wage earner",
-    #   "log_price" = "log(first price)",
-    #   "log_pinc_all" = "log(income)",
-    #   "age" = "Age",
-    #   "sqage" = "Square of age",
-    #   "gender" = "1 = female",
-    #   "univ" = "1 = University graduate",
-    #   "highschool" = "1 = Highschool graduate"
-    # ),
+    coef_map = c(
+      "employee" = "1 = Wage earner",
+      "tax_accountant_per" = "#. Tax Accountant",
+      "log_price" = "log(first price)",
+      "log_pinc_all" = "log(income)",
+      "age" = "Age",
+      "sqage" = "Square of age",
+      "gender" = "1 = female",
+      "univ" = "1 = University graduate",
+      "highschool" = "1 = Highschool graduate"
+    ),
     gof_omit = "R2|AIC|BIC",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     # add_rows = tribble(
@@ -173,18 +148,18 @@ est_stage1_sep %>%
     #   "Industry dummies", "X", "X", "X", "X", "X", "X", "X",
     # )
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 6) %>%
   kableExtra::add_header_above(c(
     " " = 2, "Separated Probit Model" = 6
-  )) %>%
-  footnote(
-    general_title = "",
-    general = paste(
-      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
-    ),
-    threeparttable = TRUE,
-    escape = FALSE
-  )
+  )) #%>%
+  # footnote(
+  #   general_title = "",
+  #   general = paste(
+  #     "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
+  #   ),
+  #   threeparttable = TRUE,
+  #   escape = FALSE
+  # )
 
 #'
 #+
@@ -219,7 +194,7 @@ estdf <- df %>%
   select(-poolmod, -sepmod)
 
 #'
-#' ## Second-Stage Result
+#' ## Second-Stage Result ($R_{it} = 1$)
 #'
 #+
 fixest::setFixest_fml(
@@ -253,12 +228,12 @@ est_stage2r1 %>%
   modelsummary(
     title = "Estimation of Outcome Equation for $R_{it} = 1$",
     # coef_omit = "factor",
-    # coef_map = c(
-    #   "log_price" = "log(first price)",
-    #   "log_pinc_all" = "log(income)",
-    #   "gr_sep" = "Selection correction term (separate)",
-    #   "gr_pool" = "Selection correction term (pool)"
-    # ),
+    coef_map = c(
+      "log_price" = "log(first price)",
+      "log_pinc_all" = "log(income)",
+      "gr_sep" = "Selection correction term (separate)",
+      "gr_pool" = "Selection correction term (pool)"
+    ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1)
     # add_rows = tribble(
@@ -268,16 +243,18 @@ est_stage2r1 %>%
     #   "Square of Age", "X", "X", "X"
     # )
   ) %>%
-  footnote(
-    general_title = "",
-    general = paste(
-      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
-    ),
-    threeparttable = TRUE,
-    escape = FALSE
-  )
+  kableExtra::kable_styling(font_size = 7) #%>%
+  # footnote(
+  #   general_title = "",
+  #   general = paste(
+  #     "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
+  #   ),
+  #   threeparttable = TRUE,
+  #   escape = FALSE
+  # )
 
 #'
+#' ## Second-Stage Result ($R_{it} = 0$)
 #+
 fixest::setFixest_fml(
   ..stage2 = ~ log_pinc_all +
@@ -334,11 +311,11 @@ est_stage2r0 %>%
   modelsummary(
     title = "Estimation of Outcome Equation for $R_{it} = 0$",
     # coef_omit = "factor",
-    # coef_map = c(
-    #   "log_pinc_all" = "log(income)",
-    #   "gr_sep" = "Selection correction term (separate)",
-    #   "gr_pool" = "Selection correction term (pool)"
-    # ),
+    coef_map = c(
+      "log_pinc_all" = "log(income)",
+      "gr_sep" = "Selection correction term (separate)",
+      "gr_pool" = "Selection correction term (pool)"
+    ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1)
     # add_rows = tribble(
@@ -349,17 +326,18 @@ est_stage2r0 %>%
     #   "Square of Age", "X", "X", "X", "X", "X", "X", "X", "X", "X"
     # )
   ) %>%
+  kableExtra::kable_styling(font_size = 6) %>%
   kableExtra::add_header_above(c(
     " " = 1, "Overall" = 3, "Intensive" = 3, "Extensive" = 3
-  )) %>%
-  footnote(
-    general_title = "",
-    general = paste(
-      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
-    ),
-    threeparttable = TRUE,
-    escape = FALSE
-  )
+  )) #%>%
+  # footnote(
+  #   general_title = "",
+  #   general = paste(
+  #     "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$."
+  #   ),
+  #   threeparttable = TRUE,
+  #   escape = FALSE
+  # )
 
 #'
 #' ## Estimating Effect of Tax Incentive
@@ -427,7 +405,8 @@ set_preddf %>%
       value * (` ` = mean) * estimand,
     data = .,
     fmt = 3
-  )
+  ) %>%
+  kableExtra::kable_styling(font_size = 7)
 
 
 # /*

@@ -155,11 +155,20 @@
 \author[shortname]{ Hiroki Kato \inst{1} \and  Tsuyoshi Goto \inst{2} \and  Yong-Rok Kim \inst{3} \and }
 \institute[shortinst]{ \inst{1} Osaka University \and  \inst{2} Chiba University \and  \inst{3} Kansai University \and }
 
-\date{2021/12/13}
+\date{2021/12/14}
 
 
 \begin{document}
 \frame{\titlepage}
+
+\begin{frame}{お詫び}
+\protect\hypertarget{ux304aux8a6bux3073}{}
+私の準備不足のために、
+本スライドと他のスライド（12/5に行われた公共選択学会で共著者の後藤さんが使用された日本語スライド）
+を併用してご報告させていただきます。
+
+皆さまにご不便をおかけして申し訳ありません\textless(\_ \_)\textgreater{}
+\end{frame}
 
 \begin{frame}{Introduction}
 \protect\hypertarget{introduction}{}
@@ -226,9 +235,9 @@ Result
     These estimates are more elastic than the estimates in the extant research, many of which show around -1.
   \end{itemize}
 \item
-  (Not in the paper) The estimated declaration cost of giving is KRW (\$).
+  By reducing application cost, we can increase charitable giving.
 \item
-  (Not in the paper) Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
+  Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
 \end{enumerate}
 \end{frame}
 
@@ -425,7 +434,9 @@ Our major \emph{within} variation of tax incentive (\(s_{it}\)) comes from the 2
   \item
     \(s_t(y_{it}, g_{it}) = T'(y_{it} - g_{it})\) if \(t < 2014\). \(s_t(y_{it}, g_{it}) = 0.15\) if \(t \ge 2014\).
   \item
-    \(1 - s_t(y_{it}, g_{it})\) is called as the last-price
+    \(1 - R_{it} s_t(y_{it}, g_{it})\) is called as the last-price \(s^f_t(y_{it}) = s_t(y_{it}, 0)\)
+  \item
+    Instead, we use the first-price \(1 - R_{it} s^f_t(y_{it})\) where
   \end{itemize}
 \item
   If the declaration cost is ignored, the estimation should be biased.
@@ -436,11 +447,340 @@ Our major \emph{within} variation of tax incentive (\(s_{it}\)) comes from the 2
     The giving price depends not only on marginal tax rate and tax credit rate, but also on the declaration behavior.
   \item
     As far as we know, only Almunia et al. (2020) deal with this problem, though they used tax return data.
+  \item
+    We use the first-price of giving if taxpayers had applied for tax relief \(1 - s^f_t(y_{it})\).
   \end{itemize}
 \end{itemize}
-
-\textbf{We use the first-price of giving \(1 - s^f_t(y_{it})\) as an instrumental variable (IV) of \(1 - R_{it}s_t(y_{it}, g_{it})\), where \(s^f_t(y_{it}) = s_t(y_{it}, 0)\).}
 \end{frame}
+
+\begin{frame}{First-Stage Equation}
+\protect\hypertarget{first-stage-equation}{}
+\begin{align}
+  \ln(1 - R_{it}s^f_{it})
+  = \theta_{1i} + \delta_1 \ln(1 - s^f_{it}) + \delta_2 X'_{it} + \iota_{1i} + v_{it}
+\end{align}
+
+Validity of instrument
+
+\begin{itemize}
+\tightlist
+\item
+  Since \(\ln(1 - R_{it} s^f_{it}) = R_{it} \times \ln(1 - s^f_{it})\), we include the effect of first price on charitable giving in outcome equation.
+\item
+  Thus, instument does not affect outcomes conditional on covariates (Exclusion restriction)
+\item
+  Increasing the first-price decreases the benefit of tax relief (\(\Delta v_{it}\)). There is no taxpayers who apply for tax relief by an increase of price (Monotonicity).
+\end{itemize}
+\end{frame}
+
+\hypertarget{data}{%
+\section{Data}\label{data}}
+
+\begin{frame}{Data}
+\protect\hypertarget{data-1}{}
+We use the Korean annual financial panel survey,
+called the National Survey of Tax and Benefit (hereafter, NaSTaB).
+
+\begin{itemize}
+\tightlist
+\item
+  The subjects of this survey are general households and household members living in 15 cities and provinces nationwide.
+\item
+  This survey is based on a face-to-face interview.
+\item
+  Data is constructed as the subjects represent the population of Korean society.
+\item
+  We exclude the subject of the sample, whose age is under 23, since they are not likely to have income or assets.
+\item
+  We use data from 2013 to 2017.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Descriptive Statistics}
+\protect\hypertarget{descriptive-statistics}{}
+\begin{table}
+
+\caption{\label{tab:SummaryCovariate}Descriptive Statistics}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lcccccc}
+\toprule
+  & N & Mean & Std.Dev. & Min & Median & Max\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Charitable Donations}}\\
+\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 40064 & 36.64 & 153.72 & 0.00 & 0.00 & 10000.00\\
+\hspace{1em}Dummary of donation > 0 & 40064 & 0.24 & 0.43 & 0.00 & 0.00 & 1.00\\
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Income, giving price, and tax report}}\\
+\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 40054 & 1674.04 & 2733.18 & 0.00 & 0.00 & 91772.00\\
+\hspace{1em}First giving relative price & 40063 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
+\hspace{1em}Dummy of declaration of a tax relief & 40064 & 0.11 & 0.31 & 0.00 & 0.00 & 1.00\\
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Covariates}}\\
+\hspace{1em}Age & 40064 & 54.20 & 16.31 & 24.00 & 52.00 & 104.00\\
+\hspace{1em}Female dummy & 40064 & 0.43 & 0.50 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}University graduate & 40063 & 0.41 & 0.49 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}High school graduate dummy & 40063 & 0.31 & 0.46 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Junior high school graduate dummy & 40063 & 0.28 & 0.45 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Wage earner dummy & 29753 & 0.54 & 0.50 & 0.00 & 1.00 & 1.00\\
+\hspace{1em}\#.Tax accountant / population & 36259 & 1.04 & 0.51 & 0.32 & 0.92 & 2.24\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Summary Statistics: Charitable Giving}
+\protect\hypertarget{summary-statistics-charitable-giving}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome-1} 
+
+}
+
+\caption{Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.}\label{fig:SummaryOutcome}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Summary: Income and Giving Price}
+\protect\hypertarget{summary-income-and-giving-price}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryPrice-1} 
+
+}
+
+\caption{Income Distribution and Relative Giving Price in 2013. Notes: The left and right axis measure the relative frequency of respondents and the relative giving price, respectively. A blue step line and a red dashed horizontal line represents the giving price in 2013 and 2014, respectively. The grey bar shows income distribution in 2013.}\label{fig:SummaryPrice}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Summary: Charitable Giving by Income Group}
+\protect\hypertarget{summary-charitable-giving-by-income-group}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome2-1} 
+
+}
+
+\caption{Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryOutcome2}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Summary: Share of Tax Relief}
+\protect\hypertarget{summary-share-of-tax-relief}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryRelief-1} 
+
+}
+
+\caption{Share of Tax Relief. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryRelief}
+\end{figure}
+\end{frame}
+
+\hypertarget{estimating-conventional-price-elasticities}{%
+\section{Estimating Conventional Price Elasticities}\label{estimating-conventional-price-elasticities}}
+
+\begin{frame}{Result: First-Price Elasticity}
+\protect\hypertarget{result-first-price-elasticity}{}
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-12}First-Price Elasticities}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Overall} & \multicolumn{2}{c}{Intensive} & \multicolumn{2}{c}{Extensive} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-5} \cmidrule(l{3pt}r{3pt}){6-6} \cmidrule(l{3pt}r{3pt}){7-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+log(first price) & -10.195*** & -2.715*** & -0.851*** & -1.490*** & -2.757*** & -0.621***\\
+ & (0.303) & (0.583) & (0.219) & (0.359) & (0.073) & (0.129)\\
+\midrule
+Implied price elasticity &  &  &  &  & -10.484*** & -2.360***\\
+ &  &  &  &  & (0.279) & (0.489)\\
+First-stage: Instrument &  & 0.371 &  & 0.670 &  & 0.371\\
+ &  & [451.8] &  & [869.4] &  & [451.8]\\
+Num.Obs. & 26922 & 26922 & 7080 & 7080 & 26922 & 26922\\
+R2 & 0.747 & 0.727 & 0.820 & 0.820 & 0.718 & 0.685\\
+R2 Adj. & 0.661 & 0.633 & 0.694 & 0.693 & 0.622 & 0.577\\
+FE: area & X & X & X & X & X & X\\
+FE: industry & X & X & X & X & X & X\\
+FE: panelid & X & X & X & X & X & X\\
+FE: year & X & X & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Result: Last-Price Elasticity}
+\protect\hypertarget{result-last-price-elasticity}{}
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-13}Last-Price Elasticities}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Overall} & \multicolumn{2}{c}{Intensive} & \multicolumn{2}{c}{Extensive} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-5} \cmidrule(l{3pt}r{3pt}){6-6} \cmidrule(l{3pt}r{3pt}){7-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+log(last price) & -10.484*** & -6.479*** & -0.635*** & -1.852*** & -2.881*** & -1.600***\\
+ & (0.304) & (0.574) & (0.237) & (0.448) & (0.073) & (0.127)\\
+\midrule
+Implied price elasticity &  &  &  &  & -11.687*** & -6.490***\\
+ &  &  &  &  & (0.295) & (0.514)\\
+First-stage: Instrument &  & 0.363 &  & 0.708 &  & 0.363\\
+ &  & [438.3] &  & [432.4] &  & [438.3]\\
+Num.Obs. & 26334 & 26334 & 6492 & 6492 & 26334 & 26334\\
+R2 & 0.761 & 0.755 & 0.821 & 0.820 & 0.739 & 0.727\\
+R2 Adj. & 0.677 & 0.669 & 0.690 & 0.687 & 0.647 & 0.631\\
+FE: area & X & X & X & X & X & X\\
+FE: industry & X & X & X & X & X & X\\
+FE: panelid & X & X & X & X & X & X\\
+FE: year & X & X & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\hypertarget{control-function-approach}{%
+\section{Control Function Approach}\label{control-function-approach}}
+
+\begin{frame}{First-Stage Result: Who Applied for Tax Relief?}
+\protect\hypertarget{first-stage-result-who-applied-for-tax-relief}{}
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-19}Probit Estimation of Selection of Applying for Tax Relief}
+\centering
+\fontsize{6}{8}\selectfont
+\begin{tabular}[t]{lccccccc}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{6}{c}{Separated Probit Model} \\
+\cmidrule(l{3pt}r{3pt}){3-8}
+  & Pooled & 2012 & 2013 & 2014 & 2015 & 2016 & 2017\\
+\midrule
+1 = Wage earner & 0.478*** & 0.457*** & 0.228** & 0.611*** & 0.538*** & 0.440*** & 0.809***\\
+ & (0.069) & (0.097) & (0.095) & (0.133) & (0.122) & (0.107) & (0.130)\\
+\#. Tax Accountant & 0.852** & 0.110 & -0.464 & -0.204 & -0.178 & -0.293 & -0.130\\
+ & (0.363) & (0.584) & (0.442) & (0.373) & (0.241) & (0.221) & (0.244)\\
+log(first price) & -0.150 & -1.132 & -1.979** &  &  &  & \\
+ & (0.271) & (0.884) & (0.873) &  &  &  & \\
+log(income) & 18.959*** & 15.896*** & 16.033*** & 18.768*** & 19.124*** & 17.022*** & 21.084***\\
+ & (1.025) & (3.049) & (2.993) & (1.514) & (1.399) & (1.334) & (1.354)\\
+Age & 0.041*** & 0.057*** & 0.036* & 0.044 & 0.023 & 0.027 & 0.058***\\
+ & (0.006) & (0.021) & (0.020) & (0.027) & (0.024) & (0.022) & (0.022)\\
+Square of age & -0.044*** & -0.062*** & -0.036* & -0.049 & -0.031 & -0.027 & -0.060**\\
+ & (0.006) & (0.024) & (0.022) & (0.031) & (0.027) & (0.025) & (0.024)\\
+1 = female & 0.111*** & 0.012 & 0.216*** & 0.153* & 0.068 & 0.029 & 0.181***\\
+ & (0.037) & (0.068) & (0.066) & (0.080) & (0.075) & (0.072) & (0.069)\\
+1 = University graduate & 0.183*** & 0.294** & 0.262* & 0.150 & 0.194 & 0.268 & -0.098\\
+ & (0.056) & (0.149) & (0.139) & (0.192) & (0.191) & (0.180) & (0.166)\\
+1 = Highschool graduate & 0.138*** & 0.265* & 0.224* & 0.044 & 0.171 & 0.172 & -0.092\\
+ & (0.051) & (0.144) & (0.133) & (0.188) & (0.187) & (0.176) & (0.162)\\
+\midrule
+Num.Obs. & 26922 & 4261 & 4391 & 4383 & 4550 & 4611 & 4726\\
+Log.Lik. & -7489.763 & -1383.811 & -1432.453 & -977.129 & -1116.751 & -1181.082 & -1267.813\\
+Std. Errors & Clustered (year) & Standard & Standard & Standard & Standard & Standard & Standard\\
+FE: year & X &  &  &  &  &  & \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Second-Stage Result (\(R_{it} = 1\))}
+\protect\hypertarget{second-stage-result-r_it-1}{}
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-21}Estimation of Outcome Equation for $R_{it} = 1$}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+  & (1) & (2) & (3)\\
+\midrule
+log(first price) & -1.325*** & -1.306*** & -1.279***\\
+ & (0.386) & (0.384) & (0.387)\\
+log(income) & 2.032 & 1.456 & 3.958*\\
+ & (1.515) & (1.839) & (2.231)\\
+Selection correction term (separate) &  & -0.056 & \\
+ &  & (0.133) & \\
+Selection correction term (pool) &  &  & 0.209\\
+ &  &  & (0.193)\\
+\midrule
+Num.Obs. & 3646 & 3643 & 3643\\
+R2 & 0.839 & 0.839 & 0.839\\
+R2 Adj. & 0.725 & 0.725 & 0.725\\
+FE: panelid & X & X & X\\
+FE: year & X & X & X\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Second-Stage Result (\(R_{it} = 0\))}
+\protect\hypertarget{second-stage-result-r_it-0}{}
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-22}Estimation of Outcome Equation for $R_{it} = 0$}
+\centering
+\fontsize{6}{8}\selectfont
+\begin{tabular}[t]{lccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Overall} & \multicolumn{3}{c}{Intensive} & \multicolumn{3}{c}{Extensive} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7} \cmidrule(l{3pt}r{3pt}){8-10}
+  & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9)\\
+\midrule
+log(income) & 2.731** & 2.723* & 3.311* & 0.680 & 2.727 & 4.605 & 0.537** & 0.514 & 0.523\\
+ & (1.114) & (1.556) & (1.753) & (1.615) & (3.188) & (4.191) & (0.249) & (0.352) & (0.405)\\
+Selection correction term (separate) &  & 0.000 &  &  & -0.174 &  &  & 0.001 & \\
+ &  & (0.130) &  &  & (0.248) &  &  & (0.031) & \\
+Selection correction term (pool) &  &  & -0.063 &  &  & -0.336 &  &  & 0.000\\
+ &  &  & (0.165) &  &  & (0.305) &  &  & (0.040)\\
+\midrule
+Num.Obs. & 23430 & 23279 & 23279 & 3463 & 3437 & 3437 & 23430 & 23279 & 23279\\
+R2 & 0.635 & 0.636 & 0.636 & 0.865 & 0.866 & 0.866 & 0.580 & 0.580 & 0.580\\
+R2 Adj. & 0.496 & 0.497 & 0.497 & 0.685 & 0.687 & 0.687 & 0.419 & 0.420 & 0.420\\
+FE: panelid & X & X & X & X & X & X & X & X & X\\
+FE: year & X & X & X & X & X & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Estimating Effect of Tax Incentive}
+\protect\hypertarget{estimating-effect-of-tax-incentive}{}
+\begin{table}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{llrrr}
+\toprule
+Outcome & Include correction term? & ATE & ATT & ATU\\
+\midrule
+extensive & No & 0.834 & 0.624 & 0.852\\
+ & Pool & 0.834 & 0.623 & 0.852\\
+ & Separate & 0.834 & 0.624 & 0.852\\
+intensive & No & 0.112 & 0.151 & 0.086\\
+ & Pool & 0.060 & 0.413 & -0.178\\
+ & Separate & 0.205 & 0.281 & 0.153\\
+overall & No & 2.405 & 2.353 & 2.442\\
+ & Pool & 2.267 & 2.401 & 2.172\\
+ & Separate & 2.445 & 2.353 & 2.511\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\hypertarget{welfare-implication}{%
+\section{Welfare Implication}\label{welfare-implication}}
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
 
 \hypertarget{references}{%
 \section*{References}\label{references}}
@@ -453,7 +793,7 @@ Our major \emph{within} variation of tax incentive (\(s_{it}\)) comes from the 2
 Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
 
 \leavevmode\vadjust pre{\hypertarget{ref-Auten2002}{}}%
-Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. Charitable giving, income, and taxes: An analysis of panel data. American Economic Review 92, 371--382.
+Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. \href{http://www.jstor.org/stable/3083340}{Charitable giving, income, and taxes: An analysis of panel data}. American Economic Review 92, 371--382.
 
 \leavevmode\vadjust pre{\hypertarget{ref-Fack2016}{}}%
 Fack, G., Landais, C., 2016. The effect of tax enforcement on tax elasticities: Evidence from charitable contributions in france. Journal of Public Economics 133, 23--40. doi:\url{https://doi.org/10.1016/j.jpubeco.2015.10.004}
