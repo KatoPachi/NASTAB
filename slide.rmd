@@ -73,15 +73,6 @@ xfun::pkg_attach2(c(
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 ```
 
-## お詫び
-
-私の準備不足のために、
-本スライドと他のスライド（12/5に行われた公共選択学会で共著者の後藤さんが使用された日本語スライド）
-を併用してご報告させていただきます。
-
-皆さまにご不便をおかけして申し訳ありません<(_ _)>
-
-
 ## Introduction
 
 - In many countries, tax relief for charitable giving are implemented.
@@ -109,7 +100,7 @@ Result
 3. By reducing application cost, we can increase charitable giving. 
 4. Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
 
-# Conceptual Frameworks
+# Conceptual Framework
 
 ## Optimization Problem
 
@@ -118,14 +109,14 @@ consider allocation problem between private consumption ($x_{it}$) and charitabl
 
 \begin{align}
   \max_{x_{it}, g_{it}, R_{it}} &U(x_{it}, g_{it}, G_t)
-  = u_i(x_{it}, g_{it}, G_t) - R_{it}K_{it}, \\
+  = u_i(x_{it}, g_{it}, G_t) - R_{it}K(Z_{it}), \\
   \text{s.t.}\:\:
   &x_{it} + g_{it}
   = y_{it} - R_{it} T_{it}(y_{it}, g_{it}) - (1 - R_{it}) T_{it}(y_{it}), \\
   &G_t = g_{it} + G_{-it},
 \end{align}
 
-where $y_{it}$ is pre-tax total income, $R_{it}$ is a dummy of declaration of tax relief and $T_{it}(y_{it})$ and $T_{it}(y_{it}, g_{it})$ are respectively the amount of tax when $i$ does not declare tax relief and when $i$ declares tax relief in year $t$. $G_{-it}$ is public goods supplied by others.
+where $y_{it}$ is pre-tax total income, $R_{it}$ is a dummy of declaration of tax relief and $T_{it}(y_{it})$ and $T_{it}(y_{it}, g_{it})$ are respectively the amount of tax when $i$ does not declare tax relief and when $i$ declares tax relief in year $t$. $G_{-it}$ is public goods supplied by others. $K(Z_{it})$ is application cost which is a function of instrument $Z_{it}$.
 
 ## Remarks on Optimization Problem
 
@@ -142,7 +133,7 @@ Given $R_{it}$, optimal level of donations sloves
   ).
 \end{align}
 
-- We can ignore application cost $K_{it}$ when solving optimal giving level because the application cost does not depend on $g_{it}$
+- We can ignore application cost $K(Z_{it})$ when solving optimal giving level because the application cost does not depend on $g_{it}$
 
 ## First-Order Condition
 
@@ -157,16 +148,14 @@ Given $R_{it}$, optimal level of donations sloves
   - Relative giving price is $1 - s_{it}$
   - As we explain later, there is *within* variation of $s_{it}$ due to tax reform.
 
-Let $g_i(1 - R_{it} s_{it}, y_{it})$ be a demand function of charitable giving.
-
-- Define $g_i(1 - s_{it}, y_{it})$ and $g_i(1, y_{it})$ to be the optimal levels of donations (potential outcomes) for choices $R_{it} = 1, 0$ respectively.
+Define $g_i(1 - s_{it}, y_{it})$ and $g_i(1, y_{it})$ to be the optimal levels of donations (potential outcomes) for choices $R_{it} = 1, 0$ respectively.
 
 ## Self-Selection of Tax Relief
 
-We can write indirect utility (without application cost) as
+We can write indirect utility as
 
 \begin{align}
-  &v_i(1 - s_{it}, y_{it}, G_{-it}) - K_{it},  \\
+  &v_i(1 - s_{it}, y_{it}, G_{-it}) - K(Z_{it}),  \\
   &v_i(1, y_{it}, G_{-it}).
 \end{align}
 
@@ -176,36 +165,42 @@ that is, $R_{it} = 1$ iff
 \begin{align}
   \Delta v_{it} \equiv
   v_i(1 - s_{it}, y_{it}, G_{-it}) - v_i(1, y_{it}, G_{-it})
-  \ge K_{it}.
+  \ge K(Z_{it}).
 \end{align}
 
 
 # Identification Strategy
 ## Outcome Equation
 
-We assume the demand function $g_i(y_{it}, 1 - R_{it} s_{it})$ can be written as the following log-log demand function with two-way FEs:
+We assume the demand function $g_i(1 - s_{it}, y_{it})$ and $g_i(1, y_{it})$ can be written as the following log-log demand function with two-way FEs:
 
 \begin{align}
-  \ln g_{it} = \theta_i + \gamma \ln(1 - R_{it}s_{it}) + \beta X'_{it} + \iota_t + u_{it}.
+  \ln g_i(1 - s_{it}, y_{it}) &= \theta_i + \gamma \ln (1 - s_{it}) + \beta X'_{it} + \iota_t + u_{it}, \\
+  \ln g_i(1, y_{it}) &= \theta_i + \beta X'_{it} + \iota_t + u_{it}.
+\end{align}
+
+Thus, observed outcome equation is
+
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma R_{it} \times \ln(1 - s_{it}) + \beta X'_{it} + \iota_t + u_{it}.
 \end{align}
 
 - $\theta_i$ and $\iota_t$ are individual and time FE, respectively.
 - $X_{it}$ includes pre-tax income ($y_{it}$) and others.
-- If $R_{it} = 1$, then the logged price of giving is $\ln(1 - s_{it})$; otherwise, $\ln 1 = 0$.
+- If $R_{it} = 0$, the relative price is one (its logged value is $\ln 1 = 0$).
+- Our parameter of interest is $\gamma$, which represents the price elasticity of charitable giving.
 
-Our parameter of interest is $\gamma$, which represents the price elasticity of charitable giving.
+## Source of Price Variation
 
-## 2014 Tax Reform in South Korea
+1. Within variation of tax incentive ($s_{it}$)
+    - Major variation comes from the 2014 tax reform
+    - Before 2014, tax deduction (所得控除) was used for tax relief on charitable giving.
+    -	After 2014, tax credit (税額控除) started to be used for tax relief on charitable giving. 
+1. Within variation of application for tax relief ($R_{it}$)
+    - This variation is endogenous.
+    - We use **wage earner dummy** and **number of tax accountant** as instrumental variables (IV).
 
-Our major *within* variation of tax incentive ($s_{it}$) comes from the 2014 tax reform.
-
-- Before 2014, tax deduction (所得控除) was used for tax relief on charitable giving.
-    - the giving price depended on income level.
--	After 2014, tax credit (税額控除) started to be used for tax relief on charitable giving.
-    - The tax credit rate was determined as 15\%.
-    - Giving price is 0.85, irrespective of income level.
-
-## 2014 Tax Reform in South Korea
+## Background: 2014 Tax Reform in South Korea
 
 **Tax deduction system (until 2013)**
 
@@ -215,6 +210,7 @@ Our major *within* variation of tax incentive ($s_{it}$) comes from the 2014 tax
 
 - In 2012 and 2013, the marginal tax rate was the same, though it was different from ones before 2011.
 - Tax incentive is $s_{it} = T'(y_{it} - g_{it})$
+- The giving price depended on income level and giving level
 
 **Tax credit system (from 2014)**
 
@@ -225,45 +221,25 @@ Our major *within* variation of tax incentive ($s_{it}$) comes from the 2014 tax
 - $m$ is tax credit rate and is $m = 0.15$
 - Tax incentive is $s_{it} = m$
 
-## Source of Endogeneity
+## Background: Application System for Wage Earners
 
-- Giving price is endogenous to the amount of giving before 2014
-  - $s_t(y_{it}, g_{it}) = T'(y_{it} - g_{it})$ if $t < 2014$. $s_t(y_{it}, g_{it}) = 0.15$ if $t \ge 2014$.
-  - $1 - R_{it} s_t(y_{it}, g_{it})$ is called as the last-price $s^f_t(y_{it}) = s_t(y_{it}, 0)$
-  - Instead, we use the first-price $1 - R_{it} s^f_t(y_{it})$ where 
-- If the declaration cost is ignored, the estimation should be biased.
-	- The giving price depends not only on marginal tax rate and tax credit rate, but also on the declaration behavior.
-  - As far as we know, only @Almunia2020 deal with this problem, though they used tax return data.
-  - We use the first-price of giving if taxpayers had applied for tax relief $1 - s^f_t(y_{it})$.
-
-## First-Stage Equation
-
-\begin{align}
-  \ln(1 - R_{it}s^f_{it})
-  = \theta_{1i} + \delta_1 \ln(1 - s^f_{it}) + \delta_2 X'_{it} + \iota_{1i} + v_{it}
-\end{align}
-
-Validity of instrument
-
-- Since $\ln(1 - R_{it} s^f_{it}) = R_{it} \times \ln(1 - s^f_{it})$, we include the effect of first price on charitable giving in outcome equation.
-- Thus, instument does not affect outcomes conditional on covariates (Exclusion restriction)
-- Increasing the first-price decreases the benefit of tax relief ($\Delta v_{it}$). There is no taxpayers who apply for tax relief by an increase of price (Monotonicity).
+## Background: Application System for Non Wage Earners
 
 # Data
 
-```{r}
+```{r eval = FALSE}
 knitr::spin_child("script/R/1-summary.R")
 ```
 
 # Estimating Conventional Price Elasticities
 
-```{r}
+```{r eval = FALSE}
 knitr::spin_child("script/R/2-elasticity.R")
 ```
 
 # Control Function Approach
 
-```{r}
+```{r eval = FALSE}
 knitr::spin_child("script/R/3-cf_approach.R")
 ```
 
