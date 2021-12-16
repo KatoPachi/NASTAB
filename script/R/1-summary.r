@@ -2,9 +2,10 @@
 #' title: "Preview: Data"
 #' author: Hiroki Kato
 #' output:
-#'   html_document:
+#'   bookdown::html_document2:
 #'     toc: true
 #'     toc_float: true
+#'     number_sections: false
 #' params:
 #'   preview: true
 #' ---
@@ -56,7 +57,9 @@ df <- readr::read_csv(
     avg_welfare_tax = col_double(),
     opt_welfare_tax = col_double(),
     now_balance = col_double(),
-    ideal_balance = col_double()
+    ideal_balance = col_double(),
+    accountant = col_double(),
+    consult = col_double()
   )
 ) %>%
 dplyr::filter(
@@ -102,11 +105,12 @@ df %>%
     (`First giving relative price` = price) +
     (`Dummy of declaration of a tax relief` = ext_benefit_tl) +
     (`Age` = age) +
-    # (`Female dummy` = gender) +
-    # (`University graduate` = univ) +
-    # (`High school graduate dummy` = highschool) +
-    # (`Junior high school graduate dummy` = juniorhigh) +
-    (`Wage earner dummy` = employee) ~
+    (`Female dummy` = gender) +
+    (`University graduate` = univ) +
+    (`High school graduate dummy` = highschool) +
+    (`Junior high school graduate dummy` = juniorhigh) +
+    (`Wage earner dummy` = employee) +
+    (`# Tax accountant /population` = tax_accountant_per) ~
     N +
     (`Mean` = mean) * Arguments(na.rm = TRUE) +
     (`Std.Dev.` = sd) * Arguments(na.rm = TRUE) +
@@ -117,10 +121,10 @@ df %>%
     data = .,
     align = "lcccccc"
   ) %>%
-  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::kable_styling() %>%
   kableExtra::pack_rows("Charitable Donations", 1, 2) %>%
   kableExtra::pack_rows("Income, giving price, and tax report", 3, 5) %>%
-  kableExtra::pack_rows("Individual Characteristics", 6, 7)
+  kableExtra::pack_rows("Individual Characteristics", 6, 12)
 
 #'
 #+ SummaryOutcome, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.", out.width = "85%", out.extra = ""
@@ -152,7 +156,7 @@ df %>%
     size = 1
   ) +
   geom_hline(aes(yintercept = 0)) +
-  geom_vline(aes(xintercept = 2013.5), color = "red", linetype = 2, size = 1) +
+  geom_vline(aes(xintercept = 2013.5), linetype = 2, size = 1) +
   scale_fill_manual(NULL, values = "grey80") +
   scale_color_manual(NULL, values = "blue") +
   scale_y_continuous(sec.axis = sec_axis(
@@ -162,6 +166,46 @@ df %>%
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(x = "Year", y = "Proportion of Donors") +
   ggtemp(size = list(title = 15, text = 13))
+
+#'
+#+ SummaryOutcome2, fig.cap = "Distribution of Charitable Giving among Those Who Donated", out.width = "85%", out.extra = ""
+df %>%
+  filter(year <= 2017) %>%
+  filter(!is.na(ext_benefit_tl) & i_ext_giving == 1) %>%
+  mutate(ext_benefit_tl = factor(
+    ext_benefit_tl,
+    levels = 1:0,
+    labels = c("Applied for tax relief", "Did not apply for tax relief")
+  )) %>%
+  ggplot(aes(x = log_total_g)) +
+  geom_density(aes(linetype = ext_benefit_tl)) +
+  facet_wrap(~ year) +
+  labs(
+    x = "Charitable Giving (Logged Value)",
+    linetype = ""
+  ) +
+  ggtemp()
+
+#'
+#+ SummaryOutcome3, fig.cap = "Proportion of Donors By Having Applied for Tax Relief", out.width = "85%", out.extra = ""
+df %>%
+  filter(year <= 2017 & !is.na(ext_benefit_tl)) %>%
+  group_by(year, ext_benefit_tl) %>%
+  summarize(mu = mean(i_ext_giving, na.rm = TRUE)) %>%
+  mutate(ext_benefit_tl = factor(
+    ext_benefit_tl,
+    levels = 1:0,
+    labels = c("Applied for tax relief", "Did not apply for tax relief")
+  )) %>%
+  ggplot(aes(x = year, y = mu, group = ext_benefit_tl)) +
+  geom_point(aes(shape = ext_benefit_tl), size = 4) +
+  geom_line() +
+  labs(
+    x = "Year",
+    y = "Proportion of Donors",
+    shape = ""
+  ) +
+  ggtemp()
 
 #'
 #' Table \@ref(tab:SummaryCovariate)
@@ -269,7 +313,7 @@ df %>%
   ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
   geom_point(aes(shape = employee), color = "black", size = 4) +
   geom_line(aes(linetype = employee)) +
-  geom_vline(aes(xintercept = 2013.5)) +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(
     x = "Year",
@@ -290,6 +334,109 @@ df %>%
 #'
 #' [^total_labor]: Tax filing is used for *total* income (e.g., business income, dividend income and rental income). Tax withholding is used for *labor* income.
 #'
+#+ SummaryRelief2, fig.cap = "Proportion of Having Applied for Tax Relief in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "85%", out.extra = ""
+df %>%
+  mutate(group = case_when(
+    credit_loss == 1 ~ 3,
+    credit_neutral == 1 ~ 2,
+    credit_benefit == 1 ~ 1
+  )) %>%
+  dplyr::filter(year <= 2017) %>%
+  dplyr::filter(!is.na(group)) %>%
+  group_by(year, group) %>%
+  summarize(mu = mean(ext_benefit_tl, na.rm = TRUE)) %>%
+  mutate(group = factor(
+    group,
+    labels = c("< 1200", "[1200, 4600]", "> 4600")
+  )) %>%
+  ggplot(aes(x = year, y = mu, group = group)) +
+  geom_point(aes(shape = group), size = 4) +
+  geom_line() +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(
+    x = "Year",
+    y = "Proportion of Having Applied for Tax Relief",
+    shape = "Income group (unit:10,000KRW)"
+  ) +
+  ggtemp(size = list(title = 15, text = 13, caption = 13))
+
+#'
+#+ SummaryOutcome4, fig.cap = "Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "85%", out.extra = ""
+df %>%
+  mutate(group = case_when(
+    credit_loss == 1 ~ 3,
+    credit_neutral == 1 ~ 2,
+    credit_benefit == 1 ~ 1
+  )) %>%
+  dplyr::filter(year <= 2017) %>%
+  dplyr::filter(!is.na(group) & i_ext_giving == 1) %>%
+  group_by(year, group) %>%
+  summarize(mu = mean(log_total_g, na.rm = TRUE)) %>%
+  tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
+  mutate(base = `2013`) %>%
+  dplyr::select(group, base, everything()) %>%
+  tidyr::pivot_longer(-(group:base), values_to = "mu", names_to = "year") %>%
+  mutate(mu = mu / base, year = as.numeric(year)) %>%
+  mutate(group = factor(
+    group,
+    labels = c("< 1200", "[1200, 4600]", "> 4600")
+  )) %>%
+  ggplot(aes(x = year, y = mu, group = group)) +
+  geom_point(aes(shape = group), size = 4) +
+  geom_line() +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  geom_hline(aes(yintercept = 1), linetype = 3) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(
+    x = "Year",
+    y = "The ratio of mean donations (logged value)",
+    shape = "Income group (unit:10,000KRW)",
+    caption = paste(
+      "The ratio is calculated by",
+      "(mean of logged donation in year t) / (mean of logged donation in 2013)."
+    )
+  ) +
+  ggtemp(size = list(title = 15, text = 13, caption = 13))
+
+#+ SummaryOutcome5, fig.cap = "Proportion of Donors in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "85%", out.extra = ""
+df %>%
+  mutate(group = case_when(
+    credit_loss == 1 ~ 3,
+    credit_neutral == 1 ~ 2,
+    credit_benefit == 1 ~ 1
+  )) %>%
+  dplyr::filter(year <= 2017) %>%
+  dplyr::filter(!is.na(group)) %>%
+  group_by(year, group) %>%
+  summarize(mu = mean(i_ext_giving, na.rm = TRUE)) %>%
+  tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
+  mutate(base = `2013`) %>%
+  dplyr::select(group, base, everything()) %>%
+  tidyr::pivot_longer(-(group:base), values_to = "mu", names_to = "year") %>%
+  mutate(mu = mu / base, year = as.numeric(year)) %>%
+  mutate(group = factor(
+    group,
+    labels = c("< 1200", "[1200, 4600]", "> 4600")
+  )) %>%
+  ggplot(aes(x = year, y = mu, group = group)) +
+  geom_point(aes(shape = group), size = 4) +
+  geom_line() +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  geom_hline(aes(yintercept = 1), linetype = 3) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(
+    x = "Year",
+    y = "The ratio of proportion of donors",
+    shape = "Income group (unit:10,000KRW)",
+    caption = paste(
+      "The ratio is calculated by",
+      "(proportion of donors in year t) / (proportion of donors in 2013)."
+    )
+  ) +
+  ggtemp(size = list(title = 15, text = 13, caption = 13))
+
+
 # /*
 #+
 rmarkdown::render(
