@@ -71,7 +71,7 @@ dplyr::filter(
 #'
 #+
 fixest::setFixest_fml(
-  ..stage1 = ~ employee * tax_accountant_per +
+  ..stage1 = ~ employee + tax_accountant_per +
     log_price + log_pinc_all +
     age + sqage + gender + univ + highschool +
     factor(industry) + factor(area)
