@@ -103,13 +103,13 @@ df %>%
     data = .,
     align = "lcccccc"
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 6) %>%
   kableExtra::pack_rows("Charitable Donations", 1, 2) %>%
   kableExtra::pack_rows("Income, giving price, and tax report", 3, 5) %>%
   kableExtra::pack_rows("Individual Characteristics", 6, 12)
 
 #'
-#' ## Summary Statistics: Charitable Giving
+#' ## Time Series of Charitable Giving
 #'
 #+ SummaryOutcome, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.", out.extra = "", out.width = "70%"
 df %>%
@@ -152,6 +152,8 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
+#' ## Distribution of Charitable Giving
+#'
 #+ SummaryOutcome2, fig.cap = "Distribution of Charitable Giving among Those Who Donated", out.width = "85%", out.extra = ""
 df %>%
   filter(year <= 2017) %>%
@@ -170,6 +172,8 @@ df %>%
   ) +
   ggtemp()
 
+#'
+#' ## Proportion of Donors By Having Applied for Tax Relief
 #'
 #+ SummaryOutcome3, fig.cap = "Proportion of Donors By Having Applied for Tax Relief", out.width = "85%", out.extra = ""
 df %>%
@@ -192,27 +196,7 @@ df %>%
   ggtemp()
 
 #'
-#' Table \@ref(tab:SummaryCovariate)
-#' shows summary statistics of our data.[^Question]
-#' The first panel of this table shows variables about charitable giving.
-#' The NaSTaB asks respondents to answer the amount of donation last year.
-#' This is the first outcome variables.
-#' Using this, we make a dummy taking 1 if respondent donated last year.
-#' This is the second outcome variables to
-#' estimate the price effect on the decision of donations.
-#' This table shows that
-#' the average amount of donation is almost 300,000 KRW (300 USD),
-#' and the proportion of donors is roughly 20\%.
-#' Figure \@ref(fig:SummaryOutcome) shows the time-series of two variables.
-#' The blue line shows the average amount of donation among donors.
-#' In each year, its value is nearly 1.5 million KRW (1,500 USD),
-#' which is 7\% of average annual taxable income.
-#' The gray bar shows the proportion of donors.
-#' After the tax reform, the proportion of donors decreases
-#' by 2 percentage points.
-#' After that, the proportion of donors is greter than 20\%.
-#'
-#' [^Question]: Respondents answer the amount of donation for seven specific purposes last year. Seven specific purposes are policitical parties, educational organizations, social welfare organizations, organizations for culutre and art, religious groups, charity activies organaized by religious group, other purposes. We sum up the amount of donations, and consider it as the annual charitable giving.
+#' ## Income Distribution and Giving Price
 #'
 #+ SummaryPrice, fig.cap = "Income Distribution and Relative Giving Price in 2013. Notes: The left and right axis measure the relative frequency of respondents and the relative giving price, respectively. A blue step line and a red dashed horizontal line represents the giving price in 2013 and 2014, respectively. The grey bar shows income distribution in 2013.", out.extra = "", out.width = "70%"
 df %>%
@@ -246,9 +230,9 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' ## Summary: Charitable Giving by Income Group
+#' ## Charitable Giving by Income Group (Overall)
 #'
-#+ SummaryOutcome2, fig.cap = "Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.extra = "", out.width = "70%"
+#+ SummaryOutcome4, fig.cap = "Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.extra = "", out.width = "70%"
 df %>%
   mutate(group = case_when(
     credit_loss == 1 ~ 3,
@@ -285,67 +269,9 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' ## Summary: Share of Tax Relief
+#' ## Charitable Giving by Income Group (Intensive Margin)
 #'
-#+ SummaryRelief, fig.cap = "Share of Tax Relief. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", out.width = "70%"
-df %>%
-  dplyr::filter(year <= 2017) %>%
-  dplyr::filter(!is.na(employee) & i_ext_giving == 1) %>%
-  mutate(employee = factor(
-    employee,
-    levels = c(1, 0), labels = c("Yes", "No")
-  )) %>%
-  group_by(year, employee) %>%
-  summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
-  mutate(employee = factor(employee)) %>%
-  ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
-  geom_point(aes(shape = employee), color = "black", size = 4) +
-  geom_line(aes(linetype = employee)) +
-  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
-  labs(
-    x = "Year",
-    y = "share of declaration of a tax relief",
-    caption = paste(
-      "The share is calculated by",
-      "(#. Respondents who applied for tax relief)",
-      "/ (#. Respondents who donated)."
-    ),
-    shape = "Wage earner",
-    linetype = "Wage earner"
-  ) +
-  ggtemp(size = list(title = 15, text = 13))
-
-#'
-#+ SummaryRelief2, fig.cap = "Proportion of Having Applied for Tax Relief in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "85%", out.extra = ""
-df %>%
-  mutate(group = case_when(
-    credit_loss == 1 ~ 3,
-    credit_neutral == 1 ~ 2,
-    credit_benefit == 1 ~ 1
-  )) %>%
-  dplyr::filter(year <= 2017) %>%
-  dplyr::filter(!is.na(group)) %>%
-  group_by(year, group) %>%
-  summarize(mu = mean(ext_benefit_tl, na.rm = TRUE)) %>%
-  mutate(group = factor(
-    group,
-    labels = c("< 1200", "[1200, 4600]", "> 4600")
-  )) %>%
-  ggplot(aes(x = year, y = mu, group = group)) +
-  geom_point(aes(shape = group), size = 4) +
-  geom_line() +
-  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
-  labs(
-    x = "Year",
-    y = "Proportion of Having Applied for Tax Relief",
-    shape = "Income group (unit:10,000KRW)"
-  ) +
-  ggtemp(size = list(title = 15, text = 13, caption = 13))
-
-#'
-#+ SummaryOutcome4, fig.cap = "Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "85%", out.extra = ""
+#+ SummaryOutcome5, fig.cap = "Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "70%", out.extra = ""
 df %>%
   mutate(group = case_when(
     credit_loss == 1 ~ 3,
@@ -382,7 +308,10 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-#+ SummaryOutcome5, fig.cap = "Proportion of Donors in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "85%", out.extra = ""
+#'
+#' ## Charitable Giving by Income Group (Extensive Margin)
+#'
+#+ SummaryOutcome6, fig.cap = "Proportion of Donors in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "70%", out.extra = ""
 df %>%
   mutate(group = case_when(
     credit_loss == 1 ~ 3,
@@ -416,6 +345,68 @@ df %>%
       "The ratio is calculated by",
       "(proportion of donors in year t) / (proportion of donors in 2013)."
     )
+  ) +
+  ggtemp(size = list(title = 15, text = 13, caption = 13))
+
+#'
+#' ## Share of Tax Relief Grouped by Wage Earner or not
+#'
+#+ SummaryRelief, fig.cap = "Share of Tax Relief. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", out.width = "70%"
+df %>%
+  dplyr::filter(year <= 2017) %>%
+  dplyr::filter(!is.na(employee) & i_ext_giving == 1) %>%
+  mutate(employee = factor(
+    employee,
+    levels = c(1, 0), labels = c("Yes", "No")
+  )) %>%
+  group_by(year, employee) %>%
+  summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
+  mutate(employee = factor(employee)) %>%
+  ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
+  geom_point(aes(shape = employee), color = "black", size = 4) +
+  geom_line(aes(linetype = employee)) +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(
+    x = "Year",
+    y = "share of declaration of a tax relief",
+    caption = paste(
+      "The share is calculated by",
+      "(#. Respondents who applied for tax relief)",
+      "/ (#. Respondents who donated)."
+    ),
+    shape = "Wage earner",
+    linetype = "Wage earner"
+  ) +
+  ggtemp(size = list(title = 15, text = 13))
+
+#'
+#' ## Share of Tax Relief Grouped By Three Income Group
+#'
+#+ SummaryRelief2, fig.cap = "Proportion of Having Applied for Tax Relief in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.width = "85%", out.extra = ""
+df %>%
+  mutate(group = case_when(
+    credit_loss == 1 ~ 3,
+    credit_neutral == 1 ~ 2,
+    credit_benefit == 1 ~ 1
+  )) %>%
+  dplyr::filter(year <= 2017) %>%
+  dplyr::filter(!is.na(group)) %>%
+  group_by(year, group) %>%
+  summarize(mu = mean(ext_benefit_tl, na.rm = TRUE)) %>%
+  mutate(group = factor(
+    group,
+    labels = c("< 1200", "[1200, 4600]", "> 4600")
+  )) %>%
+  ggplot(aes(x = year, y = mu, group = group)) +
+  geom_point(aes(shape = group), size = 4) +
+  geom_line() +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(
+    x = "Year",
+    y = "Proportion of Having Applied for Tax Relief",
+    shape = "Income group (unit:10,000KRW)"
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 

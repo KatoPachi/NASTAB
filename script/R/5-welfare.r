@@ -86,7 +86,7 @@ est_stage2r1 <- stage2r1 %>%
   ))
 
 #'
-#' # Welfare Implication
+#' ## Partial Effect of Price (Subsets with $R_{it} = 0$)
 #'
 #+
 apemod <- list(
@@ -104,7 +104,7 @@ est_apemod0 <- apemod %>%
 
 est_apemod0 %>%
   modelsummary(
-    title = "Partial Effect of Price (Subsets with $R_{it} = 0$)",
+    # title = "Partial Effect of Price (Subsets with $R_{it} = 0$)",
     coef_map = c(
       "price" = "First price",
       "log_pinc_all" = "log(income)",
@@ -119,7 +119,7 @@ est_apemod0 %>%
       "Method of IMR", "", "Pooled", "Separate"
     )
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 7) %>%
   footnote(
     general_title = "",
     general = paste(
@@ -130,6 +130,8 @@ est_apemod0 %>%
     escape = FALSE
   )
 
+#'
+#' ## Improve Welfare by Increasing Tax Incentive
 #'
 #+
 rawvalue <- function(x) x
@@ -179,7 +181,7 @@ elast %>%
     data = .,
     fmt = 3
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 6) %>%
   footnote(
     general_title = "",
     general = paste(
