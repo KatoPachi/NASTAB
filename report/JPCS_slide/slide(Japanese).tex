@@ -59,53 +59,34 @@
 	
 	\begin{frame}{Introduction}
 		\protect\hypertarget{introduction-2}{}
+		
 		\begin{enumerate}
 			\item ベースラインの結果では、寄付の価格弾力性が\\
 			Intensive Marginsで-1.4以下、\\
 			Extensive Marginsで-1.7以下となった。
 			\begin{itemize}
-				\item 申告コストを考慮しない場合はIntensive Marginsで-0.9
+				\item 申告コストを考慮しない場合は\\
+				Intensive Marginsで-0.9, Extensive Marginsで-10.2
+				\item 既存研究：Intensive Marginsの寄付の価格弾力性が約-1\\
+				Extensive Marginsの寄付の価格弾力性が0近辺\\
+				$\to$ 比較的弾力的な推定結果が得られた。
 			\end{itemize}
 			\item 寄付申告者に絞ると、価格弾力性はIntensive Marginsで-1.2\(\sim\)-1.6。
-		\end{enumerate}
-		既存研究：Intensive Marginsの寄付の価格弾力性が約-1\\
-		$\to$ 比較的弾力的な推定結果が得られた。\\
-		\begin{enumerate}
-			\setcounter{enumi}{2}
-			\item 推定値をもとに社会厚生を分析すると韓国では寄付優遇を拡充することで厚生が増大する可能性が高い。
-			\item 寄付申告による寄付の増加は概ね20\%だとCFアプローチからわかった。
+			\item 推定値をもとに社会厚生を分析すると韓国では寄付優遇を拡充することで厚生が増大する可能性が高く、寄付申告コストを下げることによる厚生増大よりも効果がある可能性が高い。
+			\item CFアプローチによる分析結果では寄付申告による寄付額の増加は概ね6$\sim$20ppt、寄付確率の増加は概ね83pptである。
 		\end{enumerate}
 	\end{frame}
-	
-	\begin{frame}{韓国の所得税の申告制度}
-		\protect\hypertarget{tax-reform-in-south-korea}{}
-		韓国では所得税納税者は寄付に対して税制上の優遇を受けることができる。
-		\begin{itemize}
-			\item 優遇を受けるためには、寄付の証明書を提出して寄付を申告する必要がある。
-			\item 給与所得者は所得税を源泉徴収で納税し、寄付の申告は会社で行う。
-			\begin{itemize}
-				\item 給与所得者は証明書の提出は随時行うことができる。
-			\end{itemize}
-			\item 非給与所得者は所得税を確定申告で行い、寄付の申告は国税庁を通じて行う。			
-			\begin{itemize}
-				\item 非給与所得者は確定申告時まで証明書を保存しておく必要がある。
-			\end{itemize}
-		\end{itemize}
-	\end{frame}
-	
-	
-	\begin{frame}{2014年の韓国での税制改正}
-		\protect\hypertarget{tax-reform-in-south-korea-2}{}
+		
+	\begin{frame}{寄付のモデル}
 		Model
 		\begin{itemize}
 			\item 私的財消費(\(x_{i}\))と寄付(\(g_{i}\))を考える。
 			\item \(y_{i}\)を課税前所得、\(R_{i}\)を寄付申告を示すダミー、\(T(y_i)\)と\(T(y_{i}, g_{i})\)を個人$i$が寄付申告をしなかったときの課税額と申告したときの課税額、$K$を寄付申告のコストだとする。
 			\item 予算制約は以下のように表せる。
 		\end{itemize}
-		
-		\[x_{i} + g_{i} = y_{i} - R_iK- R_iT(y_{i}, g_{i})-(1-R_i)T(y_i)\]
-		
-		
+		\begin{align}
+		x_{i} + g_{i} = y_{i} - R_iK- R_iT(y_{i}, g_{i})-(1-R_i)T(y_i)\notag
+		\end{align}
 		\begin{itemize}
 			\item 個人$i$が寄付を申告するかは、申告時の課税額の減少が申告コストを上回るかによる。
 			\begin{align}
@@ -122,7 +103,7 @@
 		\[T(y_{i}, g_{i}) = T(y_{i} - g_{i})\]
 		
 		\begin{itemize}
-			\item 対数を取ったときの寄付価格は\(R_{i}\ln(1 - T'(y_{i} - g_{i}))\)と表せる。
+			\item (私的財消費を1としたときの相対的な)寄付申告時の寄付価格は$p_i=1 - T'(y_{i} - g_{i})$と表せる。
 			\item 2012年と2013年の韓国の所得税率は同じだが、2011年以前は異なる所得税率であった。
 		\end{itemize}
 		
@@ -131,10 +112,10 @@
 		
 		\begin{itemize}
 			\item \(m\)は税額控除率で\(m = 0.15\)と設定されている。
-			\item 対数をとったときの寄付価格は\(R_{i}\ln(1 - 0.15) = R_{i}\ln 0.85\)と表せる。
+			\item 寄付申告時の寄付価格は$p=1 - 0.15 = 0.85$と表せる。
 		\end{itemize}
 		
-		Note: 寄付申告を行わなかった者の直面する寄付価格は\(\ln1 =0\)となる。
+		Note: 寄付申告を行わなかった者の直面する寄付価格は私的財消費と同様に1となる。
 	\end{frame}
 
 \begin{frame}{Data}
@@ -152,35 +133,6 @@
 		\item 所得4600万KRW以上の人については増加
 	\end{itemize}
 \end{frame}
-	
-	\begin{frame}{内生性の問題}
-		\begin{enumerate}
-			\item 課税申告データの使用は申告された寄付額のみを捉えることとなる。
-			\begin{itemize}
-				\item 未申告の寄付に寄付の税制優遇は無意味のはず(=推定バイアスに繋がる)
-				\item 先行研究ではサーベイデータでこの問題に対処 (e.g.~Rehavi and Shack, 2013).
-				\item \textbf{本稿でも韓国のサーベイデータでこの問題に対処。}
-			\end{itemize}
-			\item 申告コストが無視されると推定バイアスが発生する可能性。
-			\begin{itemize}
-				\item 申告コストが安くて寄付価格が安くなる人だけを捉えて推定する可能性(Self-selectionバイアス)
-				\item 知る限りAlmunia et al.~(2020)のみが申告コストを考慮しているが、課税申告データを使用してしまっている。
-				\item\textbf{本稿では給与所得者と非給与所得者の違いを操作変数(IV)として採用し、申告コストを考慮。}
-			\end{itemize}
-		\end{enumerate}
-	\end{frame}
-	
-	\begin{frame}{Data}
-		使用するデータは韓国のNational Survey of Tax and Benefit(NaSTab)のデータ
-		\begin{itemize}
-			\item このデータの対象は韓国全体の15の市と地域の一般世帯とその構成員。
-			\item データは主に対面のインタビュー形式で回答されたもの。
-			\item データサンプルは韓国の一般的な社会構成が代表されるように構成されている。
-			\item 本稿では所得や資産がないと思われる23歳以下のサンプルは除いて分析している。
-			\item データとして2012$\sim$2017年のデータを使用。(2014年の制度改正に着目)
-		\end{itemize}
-	\end{frame}
-
 \begin{frame}{Data}
 	\begin{figure}
 		\centering
@@ -188,44 +140,117 @@
 		\caption{寄付者の割合と寄付者の平均寄付額}
 		\label{fig:1}
 	\end{figure}
-\small
+	\small
 	\begin{itemize}
 		\item 20$\sim$30\%の人が寄付を実施
 		\item 寄付者の平均寄付額は150万KRW($\simeq$15万円)程度
 	\end{itemize}
 \end{frame}
-
-
-
-\begin{frame}{Data}
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.7\linewidth]{Fig_Diff}
-		\caption{各所得グループでの平均寄付額(対数)}
-		\label{fig:3}
-	\end{figure}
-\small
-	2012年と2013年に比べ、2014年以降の寄付額は
+	\begin{frame}{Data}
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.7\linewidth]{Fig_Diff}
+			\caption{各所得グループでの平均寄付額(対数)}
+			\label{fig:3}
+		\end{figure}
+		\small
+		2012年と2013年に比べ、2014年以降の寄付額は
+		\begin{itemize}
+			\item 所得1200万KRW未満の人については増加
+			\item 所得1200万KRW$\sim$4600万KRWの人についてはやや増加
+			\item 所得4600万KRW以上の人については減少
+		\end{itemize}
+	\end{frame}
+	\begin{frame}{内生性の問題}
+		価格弾力性の推定：寄付額$\ln g_i$を寄付価格$\ln p_i$でそのまま回帰(???)\\
+		
+		\
+		
+		$\to$申告コストが無視されると推定バイアスが発生。
+			\begin{itemize}
+				\item 申告コストが安くて寄付価格が安くなる人だけを捉えて推定する可能性(Self-selectionバイアス)
+				\item 知る限りAlmunia et al.~(2020)のみが申告コストを考慮しているが、課税申告データを使用してしまっている。\\
+				$\to$ 課税申告者のSample-selectionバイアスが発生
+				\item\textbf{本稿では\ajMaru1サーベイデータを使いながら、\\\ajMaru2操作変数法(IV)とCFアプローチで申告コストを考慮。}
+			\end{itemize}
+	\end{frame}
+	\begin{frame}{Data}
+	使用するデータは韓国のNational Survey of Tax and Benefit(NaSTab)のサーベイデータ
 	\begin{itemize}
-		\item 所得1200万KRW未満の人については増加
-		\item 所得1200万KRW$\sim$4600万KRWの人についてはやや増加
-		\item 所得4600万KRW以上の人については減少
+		\item このデータの対象は韓国全体の15の市と地域の一般世帯とその構成員。
+		\item データは主に対面のインタビュー形式で回答されたもの。
+		\item データサンプルは韓国の一般的な社会構成が代表されるように構成されている。
+		\item 本稿では所得や資産がないと思われる23歳以下のサンプルは除いて分析している。
+		\item データとして2012$\sim$2017年のデータを使用。(2014年の制度改正に着目)
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Data}
+	\begin{frame}{操作変数１：給与所得者ダミー}
+		韓国では所得税納税者は寄付に対して税制上の優遇を受けることができる。
+		\begin{itemize}
+			\item 優遇を受けるためには、１年間の寄付の証明書を提出して寄付申告する必要がある。
+			\item 給与所得者は所得税を源泉徴収で納税し、寄付申告は会社で行う。
+			\begin{itemize}
+				\item 給与所得者は証明書の提出は随時行うことができる。
+				\item 控除制度の正しい理解や書類作成の必要は特にない。
+			\end{itemize}
+			\item 非給与所得者は所得納税を確定申告で行い、寄付申告は確定申告時に国税庁で行う。			
+			\begin{itemize}
+				\item 確定申告は翌年の５月に実施。
+				\item 非給与所得者は確定申告時まで証明書を保存しておく必要がある。\\
+				$\to$ 寄付証明書の発行をめぐり、寄付団体に５月頃問い合わせが殺到。
+				\item 確定申告時には寄付金控除を受けるための申請書類を作成する必要。
+			\end{itemize}
+		\end{itemize}
+	$\to$ 給与所得者のほうが寄付の申告コストが低いと考えられる。
+	\end{frame}
+\begin{frame}{操作変数１：給与所得者ダミー}
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{Fig_Declaration}
-		\caption{寄付申告者の割合}
+		\caption{寄付申告者の割合(=全体に占める寄付申告者数)}
 		\label{fig:4}
 	\end{figure}
-\small
+	\small
 	\begin{itemize}
-		\item 給与所得者は税制優遇を受けるため、より寄付の申告を行う傾向があるとわかる。\\
+		\item 給与所得者は寄付申告を行う傾向がより高いとわかる。
+		\item 寄付者を分母にしてもこの傾向は変わらない。\\
 		$\to$ これは申告コストの違いを捉えたものだと考えられる。
 	\end{itemize}
 \end{frame}
+\begin{frame}{操作変数２：県別の税理士数}
+	\begin{itemize}
+		\item 寄付金控除には税制についての知識が必要
+		\item 税理士へアクセスしやすいほうが控除を受ける可能性が高まる。\\
+		例 Zwick(2021, AEJEP) 熟練した税理士を雇える企業はそうでない\\
+		\quad 企業より税制を積極的に活用できる。
+		\item 税理士へのアクセスを捉える変数として「県別の税理士数」を操作変数として使用
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{操作変数の妥当性：除外制約と単調性}
+	\begin{enumerate}
+	\item 給与所得者ダミー
+	\begin{itemize}
+		\item 所得や業種をコントロールすれば、給与所得者であるかどうかは直接寄付額に影響しない。
+		\item 給与所得者のほうが非給与所得者より寄付申告コストが安いと考えられる。
+	\end{itemize}
+	\item 県別の税理士数
+	\begin{itemize}
+		\item 税理士へアクセスしやすいかどうかは直接寄付額に影響しない。
+		\item 税理士数が多いほうが税理士へアクセスしやすく寄付申告コストを下げられると考えられる。\\
+	\end{itemize}
+それぞれ、Weak IVについては1段階目推定で確認\\
+→クリアされていると考えられる。
+\end{enumerate}
+\end{frame}
+
+
+
+
+
+
+
 
 \begin{frame}{Data}
 	\begin{table}
@@ -244,7 +269,7 @@
 		\item 所得1200万KRW$\sim$4600万KRW：寄付価格は同じ
 		\item 所得4600万KRW以上：寄付価格は増加
 	\end{itemize}
-	\item さらに申告コストの差の影響を捉えるために、サンプルが給与所得者かどうかをみるダミーをIVとして使用。
+	\item さらに申告コストの差の影響を捉えるために、給与所得者かどうかをみるダミーと県別の税理士数をIVとして使用。
 \end{itemize}
 \end{frame}
 
@@ -255,6 +280,8 @@
 			\ln g_{it} = \varepsilon_pR_{it} \ln p_{it}(y_{it}, g_{it}) + \varepsilon_y \ln y_{it} + \bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + u_{it}\tag{5}
 		\end{align}
 	$\mu_i, \iota_t$と$ u_{it}$はそれぞれ個人固定効果、年の固定効果、誤差項 
+	\item $R_{it} \ln p_{it}(y_{it}, g_{it})$は寄付価格の対数値\\
+	非寄付申告者は$R_{it}=0$である(、かつ$\ln 1=0$となる)。
 	\item $\bm{X}_{it}$は年齢の2乗、産業(職業)ダミー、地域ダミー
 	\item 寄付の研究文脈では\textbf{intensive margins}と\textbf{extensive margins}を分けて弾力性を推定することが行われている。
 	\begin{itemize}
@@ -267,7 +294,7 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{推定モデル: $p_{it}$の内生性}
+\begin{frame}{推定モデル:寄付価格$p_{it}$の内生性}
 	\begin{itemize}
 		\item (私的財\$1と比較した)寄付の価格は
 		\begin{align}
@@ -282,7 +309,6 @@
 			p_{it}^f(y_{it})=p_{it}(y_{it},0)\notag
 		\end{align}
 		を実際の寄付価格$p_{it}(y_{it},0)$の代わりに使用
-		\item 実際の寄付価格$p_{it}(y_{it},0)$は``last-price of giving"と呼ばれ、これについても分析し頑健性を確認。
 	\end{itemize}
 \end{frame}
 
@@ -291,11 +317,12 @@
 		\item 寄付者は寄付を申告するかどうかを自ら選択できるため、寄付申告$R_{it}$は内生的となる。
 		\item そのため、給与所得者ダミー$WageEarner_{it}$を寄付申告$R_{it}$の操作変数として用い、以下を分析。
 		\begin{align}
-			\ln g_{it} = \varepsilon_pR_{it} \ln p_{it}^f(y_{it}) + \varepsilon_y \ln y_{it} + \bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + u_{it}\tag{7}
+			\ln g_{it} &= \varepsilon_pR_{it} \ln p_{it}^f(y_{it}) + \varepsilon_y \ln y_{it} + \bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + u_{it}\tag{7}\\
+			R_{it} &=\psi WageEarner_{it}+\bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + u_{it}\notag
 		\end{align} 
 	 	\begin{itemize}
 	 		\item 2段階最小二乗法(2SLS)に基づく推定
-			\item 給与所得者ダミー$WageEarner_{it}$は所得や職業ダミーをコントロールした上では誤差項$u_{it}$とは相関しないと考えられる。
+			\item 県別税理士数については後ほど使用
 		\end{itemize}
 	\end{itemize}
 \end{frame}
@@ -329,7 +356,7 @@
 		\caption{First-Price Elasticities (Intensive Margins)}
 		\label{tab:2}
 	\end{table}
-Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度となった。\\
+Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度。\\
 (申告コストを考慮しない通常のモデルでの推定値は-0.91)
 \end{frame}
 
@@ -340,22 +367,46 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 		\caption{First-Price Elasticities (Extensive Margins)}
 		\label{tab:3}
 	\end{table}
-	Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.7 $\sim$ -2.9となった。
+	Extensive marginsでの寄付の価格弾力性の推定値は概ね-1.7 $\sim$ -2.9。\\
+	(申告コストを考慮しない通常のモデルでの推定値は-10.29)
 \end{frame}
 
 \begin{frame}{結果}
 	\begin{itemize}
-		\item 分析結果から韓国での寄付の価格弾力性は多くの先行研究で示された値より弾力的であることがわかった。
+		\item 分析結果：韓国での寄付の価格弾力性は先行研究より弾力的。
+		\item Intensive Marginsでの価格弾力性は-1.5程度
 		\begin{itemize}
 			\item 多くの先行研究ではIntensive Marginsの寄付の価格弾力性は-1程度
-			\item 申告コストをIVに使用しない分析では-0.91となったため、申告コストの無視で過小推定になった可能性
-		  	\item Extensive Marginsの寄付の価格弾力性についても先行研究と比べかなり弾力的な値\\
-		  	e.g. Almunia et al.(2020)は最も弾力的な値で-0.73\\
-		  	e.g. Backus and Grant (2019)では統計的に有意でなく、概ね0
-		  \end{itemize}
+			\item 申告コストをIVに使用しない分析では-0.91\\
+			…申告コストの無視で(絶対値の意味で)過小推定になった可能性\\
+			\quad 
+			\item 申告コストの無視：申告で常に得するような個人の影響を過大に評価\\
+			$\to$こうした個人が多少の価格変動には動じない\\
+			$\to$(絶対値の意味で)過小な推定値が実現
+		\end{itemize}
 	\end{itemize}
 \end{frame}
-
+\begin{frame}{結果}
+		\begin{itemize}
+			\item 分析結果：韓国での寄付の価格弾力性は先行研究より弾力的。
+			\item Extensive Marginsでの価格弾力性は概ね-1.7 $\sim$ -2.9
+			\begin{itemize}
+				\item Extensive Marginsの寄付の価格弾力性は先行研究と比べかなり弾力的\\
+				e.g. Almunia et al.(2020)は最も弾力的な値で-0.73\\
+				e.g. Backus and Grant (2019)では統計的に有意でなく、概ね0\\
+				$\to$これらの研究はデータや識別源が根本的に異なる
+				\item 申告コストをIVに使用しない分析では-10.29\\
+				…申告行動の内生性の無視で(絶対値の意味で)過大推定の可能性\\
+				\quad 
+				\item 通常のOLS：申告行動の内生性を無視\\
+				$\to$寄付価格の変動がある人はそもそも申告者しかありえない\\
+				$\to$寄付しなくなる人は申告しないので寄付価格は常に$p=1$に上昇\\
+				$\to$「寄付価格の上昇で寄付をやめる」という誤った解釈で過大推定
+				\item 申告コストをIVに使用\\
+				「寄付を中止$\to$申告中止」という逆の因果を取り除く
+			\end{itemize}
+		\end{itemize}
+\end{frame}
 \begin{frame}{結果：ロバストネスチェック}
  様々なロバストネスチェックを実施
 		\begin{enumerate}
@@ -494,20 +545,23 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 	\end{itemize}
 \end{frame}
 
-	\begin{frame}{Conclusion}
-	分析の結果
+	\begin{frame}{Introduction}
+	\protect\hypertarget{introduction-2}{}
+	
 	\begin{enumerate}
-		\item ベースラインの結果では、寄付の価格弾力性がIntensive Marginsで-1.4以下、Extensive Marginsで-1.7以下となった。
+		\item ベースラインの結果では、寄付の価格弾力性が\\
+		Intensive Marginsで-1.4以下、\\
+		Extensive Marginsで-1.7以下となった。
 		\begin{itemize}
-			\item 寄付の申告コストを考慮しない結果ではIntensive Marginsで-0.9となった。
+			\item 申告コストを考慮しない場合は\\
+			Intensive Marginsで-0.9, Extensive Marginsで-10.2
+			\item 既存研究：Intensive Marginsの寄付の価格弾力性が約-1\\
+			Extensive Marginsの寄付の価格弾力性が0近辺\\
+			$\to$ 比較的弾力的な推定結果が得られた。
 		\end{itemize}
-		\item 寄付の申告者に絞った分析結果では寄付の価格弾力性はIntensive Marginsで-1.2\(\sim\)-1.6となった。
-	\end{enumerate}
-	既存研究の多くではIntensive Marginsの寄付の価格弾力性が約-1であり、これよりも概ね弾力的な推定結果が得られた。
-	\begin{enumerate}
-		\setcounter{enumi}{2}
-		\item 推定値をもとに社会厚生を分析すると韓国では寄付の税制優遇を拡充することで厚生が増大する可能性が高いことがわかった。
-		\item 寄付の申告が行われることによる寄付の増加は概ね20\%程度だとCFアプローチからわかった。
+		\item 寄付申告者に絞ると、価格弾力性はIntensive Marginsで-1.2\(\sim\)-1.6。
+		\item 推定値をもとに社会厚生を分析すると韓国では寄付優遇を拡充することで厚生が増大する可能性が高く、寄付申告コストを下げることによる厚生増大よりも効果がある可能性が高い。
+		\item CFアプローチによる分析結果では寄付申告による寄付額の増加は概ね6$\sim$20ppt、寄付確率の増加は概ね83pptである。
 	\end{enumerate}
 \end{frame}
 \end{document}
