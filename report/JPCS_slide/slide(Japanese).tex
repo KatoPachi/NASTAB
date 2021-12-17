@@ -185,7 +185,7 @@
 	\end{itemize}
 \end{frame}
 
-	\begin{frame}{操作変数１：給与所得者ダミー}
+	\begin{frame}{操作変数：給与所得者ダミー}
 		韓国では所得税納税者は寄付に対して税制上の優遇を受けることができる。
 		\begin{itemize}
 			\item 優遇を受けるためには、１年間の寄付の証明書を提出して寄付申告する必要がある。
@@ -204,7 +204,7 @@
 		\end{itemize}
 	$\to$ 給与所得者のほうが寄付の申告コストが低いと考えられる。
 	\end{frame}
-\begin{frame}{操作変数１：給与所得者ダミー}
+\begin{frame}{操作変数：給与所得者ダミー}
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.7\linewidth]{Fig_Declaration}
@@ -218,31 +218,15 @@
 		$\to$ これは申告コストの違いを捉えたものだと考えられる。
 	\end{itemize}
 \end{frame}
-\begin{frame}{操作変数２：県別の税理士数}
-	\begin{itemize}
-		\item 寄付金控除には税制についての知識が必要
-		\item 税理士へアクセスしやすいほうが控除を受ける可能性が高まる。\\
-		例 Zwick(2021, AEJEP) 熟練した税理士を雇える企業はそうでない\\
-		\quad 企業より税制を積極的に活用できる。
-		\item 税理士へのアクセスを捉える変数として「県別の税理士数」を操作変数として使用
-	\end{itemize}
-\end{frame}
 
 \begin{frame}{操作変数の妥当性：除外制約と単調性}
-	\begin{enumerate}
-	\item 給与所得者ダミー
+給与所得者ダミー
 	\begin{itemize}
 		\item 所得や業種をコントロールすれば、給与所得者であるかどうかは直接寄付額に影響しない。
 		\item 給与所得者のほうが非給与所得者より寄付申告コストが安いと考えられる。
-	\end{itemize}
-	\item 県別の税理士数
-	\begin{itemize}
-		\item 税理士へアクセスしやすいかどうかは直接寄付額に影響しない。
-		\item 税理士数が多いほうが税理士へアクセスしやすく寄付申告コストを下げられると考えられる。\\
-	\end{itemize}
-それぞれ、Weak IVについては1段階目推定で確認\\
+		\item Weak IVについては1段階目推定で確認\\
 →クリアされていると考えられる。
-\end{enumerate}
+\end{itemize}
 \end{frame}
 
 
@@ -269,7 +253,7 @@
 		\item 所得1200万KRW$\sim$4600万KRW：寄付価格は同じ
 		\item 所得4600万KRW以上：寄付価格は増加
 	\end{itemize}
-	\item さらに申告コストの差の影響を捉えるために、給与所得者かどうかをみるダミーと県別の税理士数をIVとして使用。
+	\item さらに申告コストの差の影響を捉えるために、給与所得者かどうかをみるダミーをIVとして使用。
 \end{itemize}
 \end{frame}
 
@@ -322,7 +306,6 @@
 		\end{align} 
 	 	\begin{itemize}
 	 		\item 2段階最小二乗法(2SLS)に基づく推定
-			\item 県別税理士数については後ほど使用
 		\end{itemize}
 	\end{itemize}
 \end{frame}
@@ -441,6 +424,7 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 		\item $G$は政府供給も含めた社会の寄付総量。
 		\item $G_{-i}$は社会の寄付総量から$i$の寄付を除いたもの。
 		\item 簡単化のため、所得税は線形で税率$\tau$とする。
+		\item 社会の人口は1と基準化
 	\end{itemize}
 \end{frame}
 
@@ -493,7 +477,7 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 		\begin{itemize}
 		\item サブサンプル分析より$\epsilon$は1.304 $\sim$ 1.603
 		\item MCPFは$\lambda\in[1,2]$だと仮定し、$\frac{\lambda-1}{\lambda}\in[0,\frac12]$となる。
-		\item 2017年データを使うと、$\frac{g_p^0}{g^1}$は約0.12
+		\item 2017年データの$g^1$と$g_p^0$の推定値を使うと、$\frac{g_p^0}{g^1}$は0.279$\sim$0.471
 		\end{itemize}
 		\item $\frac{dW}{dp}<0$がいえ、寄付価格低下で社会厚生が上がると示唆。
 	\end{itemize}
@@ -506,8 +490,10 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 		\frac{dW}{dK}=&[F(\theta(p))-1]+\lambda(1-p)g(p:\theta(p))\underbrace{f(\theta(p))}_{\simeq0}\frac{\partial \theta(p)}{\partial K}\notag\\
 		=&F(\theta(p))-1<0\notag
 	\end{align}
-	$F(\theta(p))$は寄付申告しない人の割合を表すことから、$F(\theta(p))-1$は寄付申告者の割合の負値であるといえる。\\
-	寄付申告者の私的財消費が$dK$だけ増える。
+\begin{itemize}
+	\item $F(\theta(p))$は寄付申告しない人の割合を表すことから、$F(\theta(p))-1$は寄付申告者の割合の負値であるといえる。
+	\item 社会厚生へは寄付申告者の私的財消費が$dK$だけ増える効果が見られる。
+\end{itemize}
 \end{frame}
 
 \begin{frame}{社会厚生への含意}
@@ -518,7 +504,7 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 	\end{align}2017年のデータを使うとそれぞれ
 	\begin{itemize}
 		\item $\frac{dW}{dK}=F(\theta(p))-1=-0.107$
-		\item MCPFについて、$\lambda\in[1,2]$とすると、$\frac{dW}{dp}\in[-257.525, -211.4125]$
+		\item MCPFについて、$\lambda\in[1,2]$とすると、$\frac{dW}{dp}\in[-237.9, -169.9]$
 		\item 申告コストよりも寄付価格を下げた方が厚生増大は大きい。
 		\begin{itemize}
 			\item 申告コストの微小な低下は寄付申告者(+$\alpha$)の所得にのみ影響し、寄付を増やす効果はあまりない。
@@ -544,7 +530,7 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 
 
 \begin{frame}{寄付申告の差による寄付額の差}
-一般化残差を説明変数に加えた次の推定式を寄付者を対象に以下のように実行
+一般化残差$\hat{r}_{it}$を説明変数に加えた次の推定式を寄付者を対象に以下のように実行
 		\begin{align}
 			\ln g_{it} = \varepsilon_p\ln p_{it}+\varepsilon_y \ln y_{it} + \bm{X}_{it}\bm{\beta} + \mu_i + \iota_t + \hat{r}_{it}+u_{it}\notag
 		\end{align}
@@ -562,20 +548,19 @@ Intensive marginsでの寄付の価格弾力性の推定値は概ね-1.5程度�
 		\end{enumerate}
 	\end{frame}
 
-\begin{frame}{寄付申告の差による寄付額の差}
+\begin{frame}{寄付申告による寄付確率・寄付額の変化}
+	非寄付申告者の寄付価格$1$から寄付申告者の寄付価格$p$に変化したとき
 	\begin{itemize}
-		\item 寄付者が非寄付申告者から寄付申告者となったときの寄付の増加$d \ln g$は以下のように推定された。
-		\begin{itemize}
-			\item 寄付者全体での平均効果(ATE): 0.201\\
-			$\to$ 今よりも20.1ppt寄付額が増加
-			\item 寄付者のうち申告者での平均効果(ATT): 0.295\\
-			$\to$ 今よりも29.5ppt寄付額が増加
-			\item 寄付者のうち非申告者での平均効果(ATU): 0.138\\
-			$\to$ 今よりも13.8ppt寄付額が増加
-		\end{itemize}
-		(※Pooled Probitの仮定を行った場合での推定結果)
-		\item 寄付申告で税制優遇が受けられるようになったことで概ね20pptほど寄付額が増加することがわかる。
+		\item Extensive Margin：寄付確率(=寄付するかどうかの確率)の増加。
+		\item Intensive Margin：寄付者の寄付額の増加。
 	\end{itemize}
+	\begin{figure}
+		\centering
+		\includegraphics[width=8cm]{Tab_CF}
+		\caption{寄付申告による寄付確率・寄付額の変化}
+		\label{fig:tabcf}
+	\end{figure}
+	ここでCorrection termとは一般化残差$\hat{r}_{it}$を指す。
 \end{frame}
 
 	\begin{frame}{Introduction}
