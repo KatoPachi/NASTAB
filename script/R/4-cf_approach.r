@@ -67,8 +67,7 @@ dplyr::filter(
 )
 
 #'
-#' # Control Function Approach
-#'
+#' ## Estimation of Outcome Equation for $R_{it} = 1$
 #'
 #+
 fixest::setFixest_fml(
@@ -90,7 +89,7 @@ est_stage2r1 <- stage2r1 %>%
 
 est_stage2r1 %>%
   modelsummary(
-    title = "Estimation of Outcome Equation for $R_{it} = 1$",
+    # title = "Estimation of Outcome Equation for $R_{it} = 1$",
     coef_map = c(
       "log_price" = "log(first price)",
       "log_pinc_all" = "log(income)",
@@ -104,6 +103,7 @@ est_stage2r1 %>%
       "Square of Age", "X", "X", "X"
     )
   ) %>%
+  kableExtra::kable_styling(font_size = 7) %>%
   footnote(
     general_title = "",
     general = paste(
@@ -113,6 +113,8 @@ est_stage2r1 %>%
     escape = FALSE
   )
 
+#'
+#' ## Estimation of Outcome Equation for $R_{it} = 0$
 #'
 #+
 stage2r0 <- estdf %>%
@@ -150,7 +152,7 @@ est_stage2r0 <- stage2r0 %>%
 
 est_stage2r0 %>%
   modelsummary(
-    title = "Estimation of Outcome Equation for $R_{it} = 0$",
+    # title = "Estimation of Outcome Equation for $R_{it} = 0$",
     coef_map = c(
       "log_pinc_all" = "log(income)",
       "gr_sep" = "Selection correction term (separate)",
@@ -163,6 +165,7 @@ est_stage2r0 %>%
       "Square of Age", "X", "X", "X", "X", "X", "X"
     )
   ) %>%
+  kableExtra::kable_styling(font_size = 7) %>%
   kableExtra::add_header_above(c(
     " " = 1, "Intensive" = 3, "Extensive" = 3
   )) %>%

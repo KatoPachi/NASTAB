@@ -66,7 +66,7 @@ dplyr::filter(
 )
 
 #'
-#' # Estimating Conventional Price Elasticity of Charitable Giving
+#' ## Intensive-Margin Price Elasticity
 #'
 #+
 fixest::setFixest_fml(
@@ -126,14 +126,14 @@ est_int_first %>%
       "log_price:ext_benefit_tl" = "Application x log(first price)",
       "log_price:psc_pool" = "PS of application x log(first price)",
       "log_price:psc_sep" = "PS of application x log(first price)",
-      "fit_log_price:ext_benefit_tl" = "Application x log(first price)",
-      "log_pinc_all" = "log(income)"
+      "fit_log_price:ext_benefit_tl" = "Application x log(first price)"#,
+      # "log_pinc_all" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 7) %>%
   kableExtra::add_header_above(c(
     " " = 1, "FE" = 3, "FE-2SLS" = 2
   )) %>%
@@ -148,6 +148,8 @@ est_int_first %>%
     escape = FALSE
   )
 
+#'
+#' ## Extensive-Margin Price Elasticity
 #'
 #+
 ext_first <- list(
@@ -227,14 +229,14 @@ est_ext_first %>%
       "log_price:ext_benefit_tl" = "Application x log(first price)",
       "log_price:psc_pool" = "PS of application x log(first price)",
       "log_price:psc_sep" = "PS of application x log(first price)",
-      "fit_log_price:ext_benefit_tl" = "Application x log(first price)",
-      "log_pinc_all" = "log(income)"
+      "fit_log_price:ext_benefit_tl" = "Application x log(first price)"#,
+      # "log_pinc_all" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 7) %>%
   kableExtra::add_header_above(c(
     " " = 1, "FE" = 3, "FE-2SLS" = 2
   )) %>%

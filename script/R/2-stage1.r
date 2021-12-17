@@ -67,7 +67,7 @@ dplyr::filter(
 )
 
 #'
-#' # First-Stage Result: Who Applied for Tax Relief?
+#' ## Probit Estimation of Selection of Applying for Tax Relief
 #'
 #+
 fixest::setFixest_fml(
@@ -127,11 +127,11 @@ est_stage1_sep %>%
   pull(sepmod, name = year) %>%
   list.merge(list("Pooled" = est_stage1_pool), .) %>%
   modelsummary(
-    title = "Probit Estimation of Selection of Applying for Tax Relief",
+    # title = "Probit Estimation of Selection of Applying for Tax Relief",
     coef_map = c(
       "employee" = "Wage earner",
-      "tax_accountant_per" = "\\# Tax accountant",
-      "employee:tax_accountant_per" = "Wage earner x \\# Tax accountant",
+      "tax_accountant_per" = "# Tax accountant",
+      "employee:tax_accountant_per" = "Wage earner x # Tax accountant",
       "log_price" = "log(first price)",
       "log_pinc_all" = "log(income)",
       "age" = "Age",
@@ -141,14 +141,14 @@ est_stage1_sep %>%
       "highschool" = "Highschool graduate"
     ),
     gof_omit = "R2|AIC|BIC",
-    stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = tribble(
-      ~term, ~Pooled, ~"2012", ~"2013", ~"2014", ~"2015", ~"2016", ~"2017",
-      "Area dummies", "X", "X", "X", "X", "X", "X", "X",
-      "Industry dummies", "X", "X", "X", "X", "X", "X", "X",
-    )
+    stars = c("***" = .01, "**" = .05, "*" = .1)
+    # add_rows = tribble(
+    #   ~term, ~Pooled, ~"2012", ~"2013", ~"2014", ~"2015", ~"2016", ~"2017",
+    #   "Area dummies", "X", "X", "X", "X", "X", "X", "X",
+    #   "Industry dummies", "X", "X", "X", "X", "X", "X", "X",
+    # )
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 6) %>%
   kableExtra::add_header_above(c(
     " " = 2, "Separated Probit Model" = 6
   )) %>%

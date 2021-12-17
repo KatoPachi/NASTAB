@@ -227,26 +227,32 @@ Thus, observed outcome equation is
 
 # Data
 
-```{r eval = FALSE}
+```{r}
 knitr::spin_child("script/R/1-summary.R")
+```
+
+# First-Stage Result: Who Applied for Tax Relief?
+
+```{r}
+knitr::spin_child("script/R/2-stage1.R")
 ```
 
 # Estimating Conventional Price Elasticities
 
-```{r eval = FALSE}
-knitr::spin_child("script/R/2-elasticity.R")
+```{r}
+knitr::spin_child("script/R/3-elasticity.R")
 ```
 
 # Control Function Approach
 
-```{r eval = FALSE}
-knitr::spin_child("script/R/3-cf_approach.R")
+```{r}
+knitr::spin_child("script/R/4-cf_approach.R")
 ```
 
 # Welfare Implication
 
-```{r eval = FALSE}
-knitr::spin_child("script/R/4-welfare.R")
+```{r}
+knitr::spin_child("script/R/5-welfare.R")
 ```
 
 # Conclusion

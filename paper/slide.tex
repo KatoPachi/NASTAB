@@ -155,7 +155,7 @@
 \author[shortname]{ Hiroki Kato \inst{1} \and  Tsuyoshi Goto \inst{2} \and  Yong-Rok Kim \inst{3} \and }
 \institute[shortinst]{ \inst{1} Osaka University \and  \inst{2} Chiba University \and  \inst{3} Kansai University \and }
 
-\date{2021/12/15}
+\date{2021/12/17}
 
 
 \begin{document}
@@ -429,14 +429,445 @@ Thus, observed outcome equation is
 \hypertarget{data}{%
 \section{Data}\label{data}}
 
+\begin{frame}{Data}
+\protect\hypertarget{data-1}{}
+We use the Korean annual financial panel survey,
+called the National Survey of Tax and Benefit (hereafter, NaSTaB).
+
+\begin{itemize}
+\tightlist
+\item
+  The subjects of this survey are general households and household members living in 15 cities and provinces nationwide.
+\item
+  This survey is based on a face-to-face interview.
+\item
+  Data is constructed as the subjects represent the population of Korean society.
+\item
+  We exclude the subject of the sample, whose age is under 23, since they are not likely to have income or assets.
+\item
+  We use data from 2013 to 2017.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Descriptive Statistics}
+\protect\hypertarget{descriptive-statistics}{}
+\begin{table}
+
+\caption{\label{tab:SummaryCovariate}Descriptive Statistics}
+\centering
+\fontsize{6}{8}\selectfont
+\begin{tabular}[t]{lcccccc}
+\toprule
+  & N & Mean & Std.Dev. & Min & Median & Max\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Charitable Donations}}\\
+\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 40064 & 36.64 & 153.72 & 0.00 & 0.00 & 10000.00\\
+\hspace{1em}Dummary of donation > 0 & 40064 & 0.24 & 0.43 & 0.00 & 0.00 & 1.00\\
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Income, giving price, and tax report}}\\
+\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 40054 & 1674.04 & 2733.18 & 0.00 & 0.00 & 91772.00\\
+\hspace{1em}First giving relative price & 40063 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
+\hspace{1em}Dummy of declaration of a tax relief & 40064 & 0.11 & 0.31 & 0.00 & 0.00 & 1.00\\
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
+\hspace{1em}Age & 40064 & 54.20 & 16.31 & 24.00 & 52.00 & 104.00\\
+\hspace{1em}Female dummy & 40064 & 0.43 & 0.50 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}University graduate & 40063 & 0.41 & 0.49 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}High school graduate dummy & 40063 & 0.31 & 0.46 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Junior high school graduate dummy & 40063 & 0.28 & 0.45 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Wage earner dummy & 29753 & 0.54 & 0.50 & 0.00 & 1.00 & 1.00\\
+\hspace{1em}\#.Tax accountant / population & 36259 & 1.04 & 0.51 & 0.32 & 0.92 & 2.24\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Time Series of Charitable Giving}
+\protect\hypertarget{time-series-of-charitable-giving}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome-1} 
+
+}
+
+\caption{Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.}\label{fig:SummaryOutcome}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Distribution of Charitable Giving}
+\protect\hypertarget{distribution-of-charitable-giving}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.85\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome2-1} 
+
+}
+
+\caption{Distribution of Charitable Giving among Those Who Donated}\label{fig:SummaryOutcome2}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Proportion of Donors By Having Applied for Tax Relief}
+\protect\hypertarget{proportion-of-donors-by-having-applied-for-tax-relief}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.85\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome3-1} 
+
+}
+
+\caption{Proportion of Donors By Having Applied for Tax Relief}\label{fig:SummaryOutcome3}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Income Distribution and Giving Price}
+\protect\hypertarget{income-distribution-and-giving-price}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryPrice-1} 
+
+}
+
+\caption{Income Distribution and Relative Giving Price in 2013. Notes: The left and right axis measure the relative frequency of respondents and the relative giving price, respectively. A blue step line and a red dashed horizontal line represents the giving price in 2013 and 2014, respectively. The grey bar shows income distribution in 2013.}\label{fig:SummaryPrice}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Charitable Giving by Income Group (Overall)}
+\protect\hypertarget{charitable-giving-by-income-group-overall}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome4-1} 
+
+}
+
+\caption{Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryOutcome4}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Charitable Giving by Income Group (Intensive Margin)}
+\protect\hypertarget{charitable-giving-by-income-group-intensive-margin}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome5-1} 
+
+}
+
+\caption{Average Logged Giving in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryOutcome5}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Charitable Giving by Income Group (Extensive Margin)}
+\protect\hypertarget{charitable-giving-by-income-group-extensive-margin}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome6-1} 
+
+}
+
+\caption{Proportion of Donors in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryOutcome6}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Share of Tax Relief Grouped by Wage Earner or not}
+\protect\hypertarget{share-of-tax-relief-grouped-by-wage-earner-or-not}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryRelief-1} 
+
+}
+
+\caption{Share of Tax Relief. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryRelief}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Share of Tax Relief Grouped By Three Income Group}
+\protect\hypertarget{share-of-tax-relief-grouped-by-three-income-group}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.85\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryRelief2-1} 
+
+}
+
+\caption{Proportion of Having Applied for Tax Relief in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryRelief2}
+\end{figure}
+\end{frame}
+
+\hypertarget{first-stage-result-who-applied-for-tax-relief}{%
+\section{First-Stage Result: Who Applied for Tax Relief?}\label{first-stage-result-who-applied-for-tax-relief}}
+
+\begin{frame}{Probit Estimation of Selection of Applying for Tax Relief}
+\protect\hypertarget{probit-estimation-of-selection-of-applying-for-tax-relief}{}
+\begin{table}
+\centering
+\fontsize{6}{8}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccccc}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{6}{c}{Separated Probit Model} \\
+\cmidrule(l{3pt}r{3pt}){3-8}
+  & Pooled & 2012 & 2013 & 2014 & 2015 & 2016 & 2017\\
+\midrule
+Wage earner & 0.478*** & 0.457*** & 0.228** & 0.611*** & 0.538*** & 0.440*** & 0.809***\\
+ & (0.069) & (0.097) & (0.095) & (0.133) & (0.122) & (0.107) & (0.130)\\
+\# Tax accountant & 0.852** & 0.110 & -0.464 & -0.204 & -0.178 & -0.293 & -0.130\\
+ & (0.363) & (0.584) & (0.442) & (0.373) & (0.241) & (0.221) & (0.244)\\
+log(first price) & -0.150 & -1.132 & -1.979** &  &  &  & \\
+ & (0.271) & (0.884) & (0.873) &  &  &  & \\
+log(income) & 18.959*** & 15.896*** & 16.033*** & 18.768*** & 19.124*** & 17.022*** & 21.084***\\
+ & (1.025) & (3.049) & (2.993) & (1.514) & (1.399) & (1.334) & (1.354)\\
+Age & 0.041*** & 0.057*** & 0.036* & 0.044 & 0.023 & 0.027 & 0.058***\\
+ & (0.006) & (0.021) & (0.020) & (0.027) & (0.024) & (0.022) & (0.022)\\
+Square of age & -0.044*** & -0.062*** & -0.036* & -0.049 & -0.031 & -0.027 & -0.060**\\
+ & (0.006) & (0.024) & (0.022) & (0.031) & (0.027) & (0.025) & (0.024)\\
+female & 0.111*** & 0.012 & 0.216*** & 0.153* & 0.068 & 0.029 & 0.181***\\
+ & (0.037) & (0.068) & (0.066) & (0.080) & (0.075) & (0.072) & (0.069)\\
+University graduate & 0.183*** & 0.294** & 0.262* & 0.150 & 0.194 & 0.268 & -0.098\\
+ & (0.056) & (0.149) & (0.139) & (0.192) & (0.191) & (0.180) & (0.166)\\
+Highschool graduate & 0.138*** & 0.265* & 0.224* & 0.044 & 0.171 & 0.172 & -0.092\\
+ & (0.051) & (0.144) & (0.133) & (0.188) & (0.187) & (0.176) & (0.162)\\
+\midrule
+Num.Obs. & 26922 & 4261 & 4391 & 4383 & 4550 & 4611 & 4726\\
+Log.Lik. & -7489.763 & -1383.811 & -1432.453 & -977.129 & -1116.751 & -1181.082 & -1267.813\\
+Std. Errors & Clustered (year) & Standard & Standard & Standard & Standard & Standard & Standard\\
+FE: year & X &  &  &  &  &  & \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
 \hypertarget{estimating-conventional-price-elasticities}{%
 \section{Estimating Conventional Price Elasticities}\label{estimating-conventional-price-elasticities}}
+
+\begin{frame}{Intensive-Margin Price Elasticity}
+\protect\hypertarget{intensive-margin-price-elasticity}{}
+\begin{table}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE} & \multicolumn{2}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-6}
+  & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+Application x log(first price) & -0.851*** &  &  & -0.813 & -1.716*\\
+ & (0.219) &  &  & (0.854) & (0.907)\\
+PS of application x log(first price) &  & -1.527*** & -1.561*** &  & \\
+ &  & (0.371) & (0.354) &  & \\
+\midrule
+Num.Obs. & 7109 & 7080 & 7080 & 7080 & 7080\\
+R2 & 0.820 & 0.820 & 0.820 & 0.820 & 0.820\\
+First-stage: Instrument &  &  &  & -0.360 & -0.250\\
+ &  &  &  & [162.5] & [181.0]\\
+R2 Adj. & 0.693 & 0.693 & 0.694 & 0.694 & 0.692\\
+FE: area & X & X & X & X & X\\
+FE: industry & X & X & X & X & X\\
+FE: panelid & X & X & X & X & X\\
+FE: year & X & X & X & X & X\\
+Square of age & X & X & X & X & X\\
+Method of Propensity Score &  & Pooled & Separated & Pooled & Separated\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Extensive-Margin Price Elasticity}
+\protect\hypertarget{extensive-margin-price-elasticity}{}
+\begin{table}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE} & \multicolumn{2}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-6}
+  & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+Application x log(first price) & -2.759*** &  &  & -1.401*** & -1.847***\\
+ & (0.074) &  &  & (0.208) & (0.193)\\
+PS of application x log(first price) &  & -0.474*** & -0.563*** &  & \\
+ &  & (0.103) & (0.097) &  & \\
+\midrule
+Num.Obs. & 27076 & 26922 & 26922 & 26922 & 26922\\
+R2 & 0.717 & 0.663 & 0.663 & 0.704 & 0.712\\
+First-stage: Instrument &  &  &  & -0.275 & -0.216\\
+ &  &  &  & [347.9] & [375.7]\\
+Implied price elasticity & -10.509*** & -1.804*** & -2.141*** & -5.326*** & -7.024***\\
+ & (0.281) & (0.390) & (0.369) & (0.792) & (0.733)\\
+R2 Adj. & 0.620 & 0.547 & 0.547 & 0.603 & 0.613\\
+FE: area & X & X & X & X & X\\
+FE: industry & X & X & X & X & X\\
+FE: panelid & X & X & X & X & X\\
+FE: year & X & X & X & X & X\\
+Square of age & X & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
 
 \hypertarget{control-function-approach}{%
 \section{Control Function Approach}\label{control-function-approach}}
 
+\begin{frame}{Estimation of Outcome Equation for \(R_{it} = 1\)}
+\protect\hypertarget{estimation-of-outcome-equation-for-r_it-1}{}
+\begin{table}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+  & (1) & (2) & (3)\\
+\midrule
+log(first price) & -1.325*** & -1.307*** & -1.279***\\
+ & (0.386) & (0.384) & (0.387)\\
+log(income) & 2.030 & 1.455 & 3.957*\\
+ & (1.515) & (1.837) & (2.229)\\
+Selection correction term (separate) &  & -0.056 & \\
+ &  & (0.133) & \\
+Selection correction term (pool) &  &  & 0.209\\
+ &  &  & (0.193)\\
+\midrule
+Num.Obs. & 3646 & 3643 & 3643\\
+R2 & 0.839 & 0.839 & 0.839\\
+R2 Adj. & 0.726 & 0.725 & 0.726\\
+FE: area & X & X & X\\
+FE: industry & X & X & X\\
+FE: panelid & X & X & X\\
+FE: year & X & X & X\\
+Square of Age & X & X & X\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Estimation of Outcome Equation for \(R_{it} = 0\)}
+\protect\hypertarget{estimation-of-outcome-equation-for-r_it-0}{}
+\begin{table}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive} & \multicolumn{3}{c}{Extensive} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+log(income) & 0.696 & 2.765 & 4.660 & 0.535** & 0.513 & 0.524\\
+ & (1.613) & (3.186) & (4.188) & (0.249) & (0.352) & (0.405)\\
+Selection correction term (separate) &  & -0.176 &  &  & 0.001 & \\
+ &  & (0.248) &  &  & (0.031) & \\
+Selection correction term (pool) &  &  & -0.340 &  &  & 0.000\\
+ &  &  & (0.305) &  &  & (0.040)\\
+\midrule
+Num.Obs. & 3463 & 3437 & 3437 & 23430 & 23279 & 23279\\
+R2 & 0.865 & 0.866 & 0.866 & 0.580 & 0.580 & 0.580\\
+R2 Adj. & 0.685 & 0.687 & 0.687 & 0.419 & 0.420 & 0.420\\
+FE: area & X & X & X & X & X & X\\
+FE: industry & X & X & X & X & X & X\\
+FE: panelid & X & X & X & X & X & X\\
+FE: year & X & X & X & X & X & X\\
+Square of Age & X & X & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Estimating Effect of Tax Incentive}
+\protect\hypertarget{estimating-effect-of-tax-incentive}{}
+\begin{table}
+\centering
+\begin{tabular}[t]{llrrr}
+\toprule
+Outcome & Include correction term? & ATE & ATT & ATU\\
+\midrule
+extensive & No & 0.834 & 0.624 & 0.852\\
+ & Pool & 0.834 & 0.623 & 0.852\\
+ & Separate & 0.834 & 0.622 & 0.852\\
+intensive & No & 0.112 & 0.151 & 0.086\\
+ & Pool & 0.062 & 0.416 & -0.178\\
+ & Separate & 0.206 & 0.283 & 0.153\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
 \hypertarget{welfare-implication}{%
 \section{Welfare Implication}\label{welfare-implication}}
+
+\begin{frame}{Partial Effect of Price (Subsets with \(R_{it} = 0\))}
+\protect\hypertarget{partial-effect-of-price-subsets-with-r_it-0}{}
+\begin{table}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+  & (1) & (2) & (3)\\
+\midrule
+First price & 46.257 & 77.970 & 56.066\\
+ & (147.244) & (156.865) & (147.440)\\
+log(income) & -256.907 & -965.220 & -646.690\\
+ & (425.966) & (1025.181) & (807.601)\\
+Correction term &  & 69.254 & 42.673\\
+ &  & (70.117) & (56.301)\\
+\midrule
+Num.Obs. & 3463 & 3437 & 3437\\
+R2 Adj. & 0.622 & 0.622 & 0.622\\
+FE: area & X & X & X\\
+FE: industry & X & X & X\\
+FE: panelid & X & X & X\\
+FE: year & X & X & X\\
+Square age & X & X & X\\
+Method of IMR &  & Pooled & Separate\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Improve Welfare by Increasing Tax Incentive}
+\protect\hypertarget{improve-welfare-by-increasing-tax-incentive}{}
+\begin{table}
+\centering
+\fontsize{6}{8}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lrrrr}
+\toprule
+model & Elasticity (R = 1) & Partial Effect (R = 0) & Sum of Giving (R = 1) & Partial Effect (R = 0) / Sum of Giving (R = 1)\\
+\midrule
+(1) & 1.325 & 160187.730 & 639992.100 & 0.250\\
+(2) & 1.307 & 267982.430 & 639992.100 & 0.419\\
+(3) & 1.279 & 192700.418 & 639992.100 & 0.301\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Partial effect for R = 0 is multiplied by observations.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
 
 \hypertarget{conclusion}{%
 \section{Conclusion}\label{conclusion}}
