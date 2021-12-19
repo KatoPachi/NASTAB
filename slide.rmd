@@ -169,6 +169,39 @@ that is, $R_{it} = 1$ iff
 \end{align}
 
 
+# Institutional Background in South Korea
+
+## 2014 Tax Reform
+
+Since 2014, tax relief of charitable giving has changed from **income deduction (所得控除)** to **tax credit (税額控除)**.
+
+- Income deductions are more advantageous for high-income groups than low-income groups because the higher the income, the greater the decrease in tax burden.
+- The 2014 tax reform aimed to alleviate the regressiveness of taxes and improve the equilibrium of taxation by changing from income deductions to tax credits.
+- We exploit this reform as a main source of variation for identification
+  - Difference-in-Difference
+
+## 2014 Tax Reform
+
+**Tax deduction system (until 2013)**
+
+\begin{align}
+  T_{it}(y_{it}, g_{it}) = T_{it}(y_{it} - g_{it})
+\end{align}
+
+- Tax incentive is $s_{it} = T'(y_{it} - g_{it})$
+- In 2012 and 2013, the marginal tax rate was the same, though it was different from ones before 2011.
+- The giving price depended on income level ($y_{it}$) and giving level ($g_{it}$)
+
+**Tax credit system (from 2014)**
+
+\begin{align}
+  T_{it}(y_{it}, g_{it}) = T_{it}(y_{it}) - m g_{it}
+\end{align}
+
+- $m$ is tax credit rate and is $m = 0.15$
+- Tax incentive is $s_{it} = m$
+
+<!--
 # Identification Strategy
 ## Outcome Equation
 
@@ -189,41 +222,7 @@ Thus, observed outcome equation is
 - $X_{it}$ includes pre-tax income ($y_{it}$) and others.
 - If $R_{it} = 0$, the relative price is one (its logged value is $\ln 1 = 0$).
 - Our parameter of interest is $\gamma$, which represents the price elasticity of charitable giving.
-
-## Source of Price Variation
-
-1. Within variation of tax incentive ($s_{it}$)
-    - Major variation comes from the 2014 tax reform
-    - Before 2014, tax deduction (所得控除) was used for tax relief on charitable giving.
-    -	After 2014, tax credit (税額控除) started to be used for tax relief on charitable giving. 
-1. Within variation of application for tax relief ($R_{it}$)
-    - This variation is endogenous.
-    - We use **wage earner dummy** and **number of tax accountant** as instrumental variables (IV).
-
-## Background: 2014 Tax Reform in South Korea
-
-**Tax deduction system (until 2013)**
-
-\begin{align}
-  T_{it}(y_{it}, g_{it}) = T_{it}(y_{it} - g_{it})
-\end{align}
-
-- In 2012 and 2013, the marginal tax rate was the same, though it was different from ones before 2011.
-- Tax incentive is $s_{it} = T'(y_{it} - g_{it})$
-- The giving price depended on income level and giving level
-
-**Tax credit system (from 2014)**
-
-\begin{align}
-  T_{it}(y_{it}, g_{it}) = T_{it}(y_{it}) - m g_{it}
-\end{align}
-
-- $m$ is tax credit rate and is $m = 0.15$
-- Tax incentive is $s_{it} = m$
-
-## Background: Application System for Wage Earners
-
-## Background: Application System for Non Wage Earners
+-->
 
 # Data
 
@@ -233,25 +232,25 @@ knitr::spin_child("script/R/1-summary.R")
 
 # First-Stage Result: Who Applied for Tax Relief?
 
-```{r}
+```{r eval = FALSE}
 knitr::spin_child("script/R/2-stage1.R")
 ```
 
 # Estimating Conventional Price Elasticities
 
-```{r}
+```{r eval = FALSE}
 knitr::spin_child("script/R/3-elasticity.R")
 ```
 
 # Control Function Approach
 
-```{r}
+```{r eval = FALSE}
 knitr::spin_child("script/R/4-cf_approach.R")
 ```
 
 # Welfare Implication
 
-```{r}
+```{r eval = FALSE}
 knitr::spin_child("script/R/5-welfare.R")
 ```
 
