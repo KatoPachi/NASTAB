@@ -155,7 +155,7 @@
 \author[shortname]{ Hiroki Kato \inst{1} \and  Tsuyoshi Goto \inst{2} \and  Yong-Rok Kim \inst{3} \and }
 \institute[shortinst]{ \inst{1} Osaka University \and  \inst{2} Chiba University \and  \inst{3} Kansai University \and }
 
-\date{2021/12/18}
+\date{2021/12/23}
 
 
 \begin{document}
@@ -385,23 +385,32 @@ Since 2014, tax relief of charitable giving has changed from \textbf{income dedu
 \hypertarget{data}{%
 \section{Data}\label{data}}
 
-\begin{frame}{Data}
-\protect\hypertarget{data-1}{}
-We use the Korean annual financial panel survey,
-called the National Survey of Tax and Benefit (hereafter, NaSTaB).
-
+\begin{frame}{National Survey of Tax and Benefit (NaSTaB)}
+\protect\hypertarget{national-survey-of-tax-and-benefit-nastab}{}
 \begin{itemize}
 \tightlist
 \item
-  The subjects of this survey are general households and household members living in 15 cities and provinces nationwide.
+  NaSTaB has been implemented by The Korea Institute of Taxation and Finance since 2008
 \item
-  This survey is based on a face-to-face interview.
+  The NaSTaB is an annual panel data on households' tax burden and public benefits
 \item
-  Data is constructed as the subjects represent the population of Korean society.
+  The unit of analysis is 5,634 households throughout the country
+
+  \begin{itemize}
+  \tightlist
+  \item
+    5,634 family heads and family members with more than 15 years old and with income or economically active
+  \end{itemize}
 \item
-  We exclude the subject of the sample, whose age is under 23, since they are not likely to have income or assets.
-\item
-  We use data from 2013 to 2017 to focus the 2014 tax reform.
+  Our analysis uses the NaSTaB data from (i) 2013-2018 and (ii) excluding respondents under the age of 23.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    using the NaSTaB data before 2012 captures the effects of other tax reform than the reform in 2014.
+  \item
+    we exclude respondents whose age is under 23 because they are not likely to have income or assets.
+  \end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -417,13 +426,13 @@ called the National Survey of Tax and Benefit (hereafter, NaSTaB).
   & N & Mean & Std.Dev. & Min & Median & Max\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{7}{l}{\textbf{Charitable Donations}}\\
+\multicolumn{7}{l}{\textbf{Income and giving price}}\\
+\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 36249 & 1754.32 & 2702.16 & 0.00 & 0.00 & 50000.00\\
+\hspace{1em}Relative first price of giving & 36258 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
+\addlinespace[0.3em]
+\multicolumn{7}{l}{\textbf{Charitable giving}}\\
 \hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 36259 & 35.86 & 153.36 & 0.00 & 0.00 & 10000.00\\
 \hspace{1em}Dummary of donation > 0 & 36259 & 0.24 & 0.43 & 0.00 & 0.00 & 1.00\\
-\addlinespace[0.3em]
-\multicolumn{7}{l}{\textbf{Income, giving price, and tax report}}\\
-\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 36249 & 1754.32 & 2702.16 & 0.00 & 0.00 & 50000.00\\
-\hspace{1em}First giving relative price & 36258 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
 \hspace{1em}Dummy of declaration of a tax relief & 36259 & 0.10 & 0.30 & 0.00 & 0.00 & 1.00\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
@@ -439,118 +448,329 @@ called the National Survey of Tax and Benefit (hereafter, NaSTaB).
 \end{table}
 \end{frame}
 
-\begin{frame}{Income Distribution and Giving Price}
-\protect\hypertarget{income-distribution-and-giving-price}{}
+\begin{frame}{Right-Skewed Income Distribution and Price Variation for Identification}
+\protect\hypertarget{right-skewed-income-distribution-and-price-variation-for-identification}{}
 \begin{figure}[t]
 
 {\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryPrice-1} 
 
 }
 
-\caption{Income Distribution and Relative Giving Price in 2013. Notes: The left and right axis measure the relative frequency of respondents and the relative giving price, respectively. A blue step line and a red dashed horizontal line represents the giving price in 2013 and 2014, respectively. The grey bar shows income distribution in 2013.}\label{fig:SummaryPrice}
+\caption{Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.}\label{fig:SummaryPrice}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Remarks on Figure \ref{fig:SummaryPrice}}
-\protect\hypertarget{remarks-on-figure-reffigsummaryprice}{}
-The 2014 tax reform
+\begin{frame}{Message from Figure \ref{fig:SummaryPrice}: Right-Skewed Distribution}
+\protect\hypertarget{message-from-figure-reffigsummaryprice-right-skewed-distribution}{}
+\begin{itemize}
+\tightlist
+\item
+  NaSTaB contains the annual taxable labor income last year
+\item
+  Our sample includes subjects with no labor income (e.g.~housewives)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Table \ref{tab:SummaryCovariate}: the average income is 17.54 million KRW
+  \end{itemize}
+\item
+  National Tax Statistical Yearbook 2012-2018 (Korean National Tax Service): the average annual taxable income is 32.77 million KRW
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Sample: employees who submitted the tax return
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Message from Figure \ref{fig:SummaryPrice}: Price Variation}
+\protect\hypertarget{message-from-figure-reffigsummaryprice-price-variation}{}
+Based on changes in tax incentive due to the 2014 tax reform,
+we can devide into three income groups:
+
+\begin{enumerate}
+\tightlist
+\item
+  less than 120 million KRW
+
+  \begin{itemize}
+  \tightlist
+  \item
+    2014 tax reform has expanded tax incentive (decreased giving price)
+  \end{itemize}
+\item
+  between 120 million KRW and 460 million KRW
+
+  \begin{itemize}
+  \tightlist
+  \item
+    2014 tax reform has unchanged tax incentive
+  \end{itemize}
+\item
+  more than 460 million KRW.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    2014 tax reform has decreased tax incentive (increaed giving price)
+  \end{itemize}
+\end{enumerate}
+
+This is main source of identification for effect of tax incentive on giving.
+\end{frame}
+
+\begin{frame}{Donors Decreased Immediately After Tax Reform}
+\protect\hypertarget{donors-decreased-immediately-after-tax-reform}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGiving-1} 
+
+}
+
+\caption{Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.}\label{fig:SummaryGiving}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Message from Figure \ref{fig:SummaryGiving}}
+\protect\hypertarget{message-from-figure-reffigsummarygiving}{}
+\begin{itemize}
+\tightlist
+\item
+  Proportion of donors across years: 24\% (Table \ref{tab:SummaryCovariate})
+\item
+  2014: Proportion of donors is lower than before the tax reform
+
+  \begin{itemize}
+  \tightlist
+  \item
+    After that, proportion of donors has continued to increase, finally surpassing that before the tax reform
+  \end{itemize}
+\end{itemize}
+
+Notes:
 
 \begin{itemize}
 \tightlist
 \item
-  has decreased the relative price of giving for those whose income is less than 12 million KRW (treatment)
+  average donation conditional on donors has been stable across year
+
+  \begin{itemize}
+  \tightlist
+  \item
+    1.5 million KRW (7\% of average income)
+  \item
+    Table \ref{tab:SummaryCovariate}: Unconditional average donation is 358,600 KRW (2\% of average income)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Price Effect Can Be Observed}
+\protect\hypertarget{price-effect-can-be-observed}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingOverall-1} 
+
+}
+
+\caption{Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingOverall}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Message from Figure \ref{fig:SummaryGivingOverall}}
+\protect\hypertarget{message-from-figure-reffigsummarygivingoverall}{}
+\begin{itemize}
+\tightlist
 \item
-  has unchanged the relative price of giving for those whose income is between 12 million KRW and 46 million KRW (control)
-\item
-  has increased the relative price of giving for those whose income is more than 46 million KRW (treatment)
+  Price effect = Tax incentive increases charitable giving
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Donations for income groups with unchanged or increased tax incentives have exceeded those in 2013 since 2015
+  \item
+    Donations for income groups with reduced tax incentives have been lower than before tax reform since 2015
+  \end{itemize}
 \end{itemize}
 
-We exploit this within variation due to exogenous tax reform
-for identification.
+Notes:
+
+\begin{enumerate}
+\tightlist
+\item
+  Prior to the 2014 tax reform, donations did not change in all groups
+\item
+  Donations for all groups were lower than in 2013
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Donations for income groups with reduced tax incentive due to the 2014 tax reform was 40\% of that in 2013
+  \item
+    Announcement effect? Learning effect (瀧井先生のコメント)?
+  \end{itemize}
+\end{enumerate}
 \end{frame}
 
-\begin{frame}{Charitable Giving By Income Groups}
-\protect\hypertarget{charitable-giving-by-income-groups}{}
+\begin{frame}{Price Effect Can Be Partially Observed for Intensive Margin}
+\protect\hypertarget{price-effect-can-be-partially-observed-for-intensive-margin}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcomeOverall-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingIntensive-1} 
 
 }
 
-\caption{Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The grup means are normalized to be one in 2013.}\label{fig:SummaryOutcomeOverall}
+\caption{Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingIntensive}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Charitable Giving by Income Group Conditional On Donors}
-\protect\hypertarget{charitable-giving-by-income-group-conditional-on-donors}{}
+\begin{frame}{Price Effect Can Be Observed for Extensive Margin}
+\protect\hypertarget{price-effect-can-be-observed-for-extensive-margin}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcomeIntensive-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingExtensive-1} 
 
 }
 
-\caption{Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The grup means are normalized to be one in 2013.}\label{fig:SummaryOutcomeIntensive}
+\caption{Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingExtensive}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Propotion of Donors by Income Groups (Extensive Margin)}
-\protect\hypertarget{propotion-of-donors-by-income-groups-extensive-margin}{}
+\begin{frame}{Message from Figure \ref{fig:SummaryGivingIntensive} and \ref{fig:SummaryGivingExtensive}}
+\protect\hypertarget{message-from-figure-reffigsummarygivingintensive-and-reffigsummarygivingextensive}{}
+\begin{itemize}
+\tightlist
+\item
+  Intensive margin (How much donors give): Price effect can be partially observed
+
+  \begin{itemize}
+  \tightlist
+  \item
+    tax incentiveが変化しない所得層が寄付を最も増やしていたが、tax incentiveが減少した所得層はあまり寄付を増やさなかった
+  \item
+    tax incentiveが変化しない所得層の方がtax incentiveが拡充された所得層よりも寄付を増やしていた(price effectではない)
+  \end{itemize}
+\item
+  Extensive margin (Whethre respondents donate): Price effect can be observed
+
+  \begin{itemize}
+  \tightlist
+  \item
+    全体の寄付の増加率のグラフ（Figure \ref{fig:SummaryGivingOverall}）と同じ傾向
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Application for Tax Relief Decreased After Tax Reform}
+\protect\hypertarget{application-for-tax-relief-decreased-after-tax-reform}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome6-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryReliefbyIncome-1} 
 
 }
 
-\caption{Proportion of Donors bn Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The grup means are normalized to be one in 2013.}\label{fig:SummaryOutcome6}
+\caption{Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryReliefbyIncome}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Distribution of Charitable Giving}
-\protect\hypertarget{distribution-of-charitable-giving}{}
+\begin{frame}{Message from Figure \ref{fig:SummaryReliefbyIncome}}
+\protect\hypertarget{message-from-figure-reffigsummaryreliefbyincome}{}
+\begin{enumerate}
+\tightlist
+\item
+  2014年税制改革以降、寄付控除を申請した人の割合は減少した
+
+  \begin{itemize}
+  \tightlist
+  \item
+    全体を通した寄付控除の申請比率：10\% (Table \ref{tab:SummaryCovariate})
+  \item
+    tax incentiveが減少した所得層の寄付控除の申請比率が減少した
+  \end{itemize}
+\item
+  tax incentiveが増加した所得層の寄付者の割合が増えたにも関わらず、寄付控除の申請比率は伸びていない
+
+  \begin{itemize}
+  \tightlist
+  \item
+    寄付控除を申告することで得するはずなのに、それをしていない人がいる \(\to\) 申請コストが存在する
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Similar Distribution of Giving Regardless of Application}
+\protect\hypertarget{similar-distribution-of-giving-regardless-of-application}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.85\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome2-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingIntensiveDist-1} 
 
 }
 
-\caption{Distribution of Charitable Giving among Those Who Donated}\label{fig:SummaryOutcome2}
+\caption{Distribution of Charitable Giving among Those Who Donated}\label{fig:SummaryGivingIntensiveDist}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Proportion of Donors By Having Applied for Tax Relief}
-\protect\hypertarget{proportion-of-donors-by-having-applied-for-tax-relief}{}
+\begin{frame}{Message from Figure \ref{fig:SummaryGivingIntensiveDist}}
+\protect\hypertarget{message-from-figure-reffigsummarygivingintensivedist}{}
+\begin{itemize}
+\tightlist
+\item
+  すべての年においても、寄付者に限定した寄付の分布は寄付控除の申請の有無に依存しない
+
+  \begin{itemize}
+  \tightlist
+  \item
+    寄付控除を申請していない人の寄付額の分布が申請している人よりも左側にあるならば、申請コストの程度は小さいと予想される
+  \item
+    分布の形状がほとんど一致しているので、申請コストの程度はかなり大きいと予想される
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Wage Earners Are More Likely to Apply (1)}
+\protect\hypertarget{wage-earners-are-more-likely-to-apply-1}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.85\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryOutcome3-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryReliefbyEarner-1} 
 
 }
 
-\caption{Proportion of Donors By Having Applied for Tax Relief}\label{fig:SummaryOutcome3}
+\caption{Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Share of Tax Relief Grouped by Wage Earner or not}
-\protect\hypertarget{share-of-tax-relief-grouped-by-wage-earner-or-not}{}
+\begin{frame}{Wage Earners Are More Likely to Apply (2)}
+\protect\hypertarget{wage-earners-are-more-likely-to-apply-2}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryRelief-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryReliefbyEarner2-1} 
 
 }
 
-\caption{Share of Tax Relief. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryRelief}
+\caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Share of Tax Relief Grouped By Three Income Group}
-\protect\hypertarget{share-of-tax-relief-grouped-by-three-income-group}{}
-\begin{figure}[t]
+\begin{frame}{Message from Figure \ref{fig:SummaryReliefbyEarner} and \ref{fig:SummaryReliefbyEarner2}}
+\protect\hypertarget{message-from-figure-reffigsummaryreliefbyearner-and-reffigsummaryreliefbyearner2}{}
+\begin{itemize}
+\tightlist
+\item
+  給与所得者はそうでない人よりも寄付控除を申請しやすい
 
-{\centering \includegraphics[width=0.85\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryRelief2-1} 
-
-}
-
-\caption{Proportion of Having Applied for Tax Relief in Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryRelief2}
-\end{figure}
+  \begin{itemize}
+  \tightlist
+  \item
+    自営業者（非給与所得者の主）は寄付の証明書を常に保管しているようなことはない（申請期限前に問い合わせが殺到する）
+  \item
+    給与所得者の方が申請しやすい環境にあることがデータからもわかる
+  \item
+    給与所得者かどうかで寄付者の比率が異なる可能性を考慮して、寄付者に限定しても同じ傾向である(Figure \ref{fig:SummaryReliefbyEarner2})
+  \end{itemize}
+\item
+  2014年税制改革以降、寄付控除の申請比率は減少している（とくに、給与所得者）
+\end{itemize}
 \end{frame}
 
 \hypertarget{first-stage-result-who-applied-for-tax-relief}{%
