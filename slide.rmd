@@ -50,7 +50,8 @@ knitr::opts_chunk$set(
   cache = FALSE,
   include = TRUE,
   fig.width = 10, fig.height = 6,
-  fig.align = "center", fig.pos = "t"
+  fig.align = "center", fig.pos = "t",
+  out.width = "70%"
 )
 
 library(here)
