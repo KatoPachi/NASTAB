@@ -15,19 +15,23 @@ ses <- raw %>%
     hhid, pid, year, wave, p_page, p_pedu, p_pgen, h_b10,
     pca201:pca228, pinc_all, inc_bb1,
     pga001, pgb110, pgb120, pgb151:pgb159, pgb051:pgb058, pgb090,
-    pgc007, pgc008, pea002, pgb020, pga020
+    pgc007, pgc008, pea002, pgb020, pga020,
+    p_aa005, paa008, pda207, pda209
   ) %>%
   dplyr::rename(
     age = p_page, #年齢
     educ = p_pedu, #学歴
     sex = p_pgen, #性別
     area = h_b10, #地域コード
+    workpos = p_aa005, #労働形態
     d_deduct_linc = pca201, #労働所得控除の有無
     deduct_linc = pca202, #労働所得控除額
-    d_deduct_donate = pca225, #寄付金所得控除の有無
-    deduct_donate = pca226, #寄付金所得控除額
-    d_credit_donate = pca227, #寄付金税額控除の有無
-    credit_donate = pca228, #寄付金税額控除額
+    d_deduct_donate_linc = pca225, #労働所得の寄付金所得控除の有無
+    deduct_donate_linc = pca226, #寄付金所得控除額
+    d_credit_donate_linc = pca227, #労働所得の寄付金税額控除の有無
+    credit_donate_linc = pca228, #寄付金税額控除額
+    d_deduct_donate_tinc = pda207, #総合所得の寄付金所得控除の有無
+    d_credit_donate_tinc = pda209, #総合所得の寄付金税額控除の有無
     tinc = pinc_all, #昨年1年間の総合所得
     linc = inc_bb1, #昨年1年間の労働所得
 
@@ -61,7 +65,11 @@ ses <- raw %>%
     polipref = pga020 #政治的な立ち位置（1:極右 <-> 5:極左）
   ) %>%
   mutate_at(
-    vars(d_deduct_linc, d_deduct_donate, d_credit_donate),
+    vars(
+      d_deduct_linc,
+      d_deduct_donate_linc, d_credit_donate_linc,
+      d_deduct_donate_tinc, d_credit_donate_tinc,
+    ),
     list(~ case_when(
       as.numeric(.) == 2 ~ 0,
       as.numeric(.) == -9 ~ NA_real_,
@@ -74,15 +82,47 @@ ses <- raw %>%
       deduct_linc == -9 ~ NA_real_,
       TRUE ~ as.numeric(deduct_linc)
     ),
-    deduct_donate = case_when(
-      d_deduct_donate == 0 ~ 0,
-      deduct_donate == -9 ~ NA_real_,
-      TRUE ~ as.numeric(deduct_donate)
+
+    d_deduct_donate_linc = case_when(
+      !is.na(d_deduct_donate_linc) ~ d_deduct_donate_linc,
+      linc == 0 ~ 0
     ),
-    credit_donate = case_when(
-      d_credit_donate == 0 ~ 0,
-      credit_donate == -9 ~ NA_real_,
-      TRUE ~ as.numeric(credit_donate)
+    d_credit_donate_linc = case_when(
+      !is.na(d_credit_donate_linc) ~ d_credit_donate_linc,
+      linc == 0 ~ 0
+    ),
+    d_relief_donate_linc = if_else(
+      year >= 2014, d_deduct_donate_linc, d_credit_donate_linc
+    ),
+
+    d_deduct_donate_tinc = case_when(
+      !is.na(d_deduct_donate_tinc) ~ d_deduct_donate_tinc,
+      tinc == 0 ~ 0
+    ),
+    d_credit_donate_tinc = case_when(
+      !is.na(d_credit_donate_tinc) ~ d_credit_donate_tinc,
+      tinc == 0 ~ 0
+    ),
+    d_relief_donate_tinc = if_else(
+      year >= 2014, d_deduct_donate_tinc, d_credit_donate_tinc
+    ),
+
+    d_relief_donate = case_when(
+      is.na(d_relief_donate_linc) ~ d_relief_donate_tinc,
+      is.na(d_relief_donate_tinc) ~ d_relief_donate_linc,
+      d_relief_donate_tinc + d_relief_donate_linc == 0 ~ 0,
+      d_relief_donate_tinc + d_relief_donate_linc != 0 ~ 1
+    ),
+
+    deduct_donate_linc = case_when(
+      d_deduct_donate_linc == 0 ~ 0,
+      deduct_donate_linc == -9 ~ NA_real_,
+      TRUE ~ as.numeric(deduct_donate_linc)
+    ),
+    credit_donate_linc = case_when(
+      d_credit_donate_linc == 0 ~ 0,
+      credit_donate_linc == -9 ~ NA_real_,
+      TRUE ~ as.numeric(credit_donate_linc)
     ),
 
     trust = 6 - trust, #5:very high <-> 1:very low
@@ -109,10 +149,15 @@ ses_label <- list(
   area = "[世帯]地域コード",
   d_deduct_linc = "[世帯員]労働所得控除の有無",
   deduct_linc = "[世帯員]労働所得控除額",
-  d_deduct_donate = "[世帯員]寄付金所得控除の有無",
-  deduct_donate = "[世帯員]寄付金所得控除額",
-  d_credit_donate = "[世帯員]寄付金税額控除の有無",
-  credit_donate = "[世帯員]寄付金税額控除額",
+  d_deduct_donate_linc = "[世帯員]労働所得に対する寄付金所得控除の有無",
+  d_credit_donate_linc = "[世帯員]労働所得に対する寄付金税額控除の有無",
+  d_relief_donate_linc = "[世帯員]労働所得に対する寄付金控除の有無",
+  d_deduct_donate_tinc = "[世帯員]総合所得に対する寄付金所得控除の有無",
+  d_credit_donate_tinc = "[世帯員]総合所得に対する寄付金税額控除の有無",
+  d_relief_donate_tinc = "[世帯員]総合所得に対する寄付金控除の有無",
+  d_relief_donate = "[世帯員]労働・総合所得に対する寄付金控除の有無",
+  deduct_donate_linc = "[世帯員]労働所得に対する寄付金所得控除額",
+  credit_donate_linc = "[世帯員]労働所得に対する寄付金税額控除額",
   trust = "[世帯員]政治家への信頼度（2015-2018年調査）",
   welfare = "[世帯員]納税レベルに対する福祉水準（2009-2018年調査）",
   avg_balance = "[世帯員]税負担と福祉水準の程度（2015-2018年調査）",
@@ -372,6 +417,7 @@ attr(dt$year, "label") <- "年度（調査年度の前年）"
 
 dt <- dt %>%
   dplyr::mutate(
+    employee = if_else(workpos == 1, 1, 0),
     sex = sex - 1,
     univ = case_when(
       educ == 3 ~ 1,
@@ -527,6 +573,7 @@ names(dt)
 #' 変数ラベルの設定
 #+
 cov_label <- list(
+  employee = "[世帯員]常用職（給与所得者）ダミー",
   univ = "[世帯員]大卒ダミー",
   highschool = "[世帯員]高卒ダミー",
   junior = "[世帯員]中卒ダミー",
