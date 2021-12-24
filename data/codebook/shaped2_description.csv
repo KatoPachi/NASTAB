@@ -144,3 +144,12 @@ age_d3,age - age (lag = 3)
 sqage_d1,sqage - sqage (lag = 1)
 sqage_d2,sqage - sqage (lag = 2)
 sqage_d3,sqage - sqage (lag = 3)
+village_accountant,[地域]村税理士制度に登録している税理士の数
+village_consult,[地域]村税理士制度の相談件数
+pops,[地域]人口
+pub_accountant_firm,[地域]公認会計士事務所の数
+pub_accountant,[地域]公認会計士の人数
+tax_accountant_firm,[地域]税理士事務所の数
+tax_accountant,[地域]税理士の人数
+pub_accountant_per,[地域]公認会計士の人数 / 人口
+tax_accountant_per,[地域]税理士の人数 / 人口
