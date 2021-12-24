@@ -92,7 +92,7 @@ ses <- raw %>%
       linc == 0 ~ 0
     ),
     d_relief_donate_linc = if_else(
-      year >= 2014, d_deduct_donate_linc, d_credit_donate_linc
+      year >= 2014, d_credit_donate_linc, d_deduct_donate_linc
     ),
 
     d_deduct_donate_tinc = case_when(
@@ -104,7 +104,7 @@ ses <- raw %>%
       tinc == 0 ~ 0
     ),
     d_relief_donate_tinc = if_else(
-      year >= 2014, d_deduct_donate_tinc, d_credit_donate_tinc
+      year >= 2014, d_credit_donate_tinc, d_deduct_donate_tinc
     ),
 
     d_relief_donate = case_when(
@@ -234,7 +234,11 @@ donate_amount <- raw %>%
 donate_member <- donate_purpose %>%
   dplyr::left_join(donate_amount, by = c("hhid", "pid", "year", "key")) %>%
   dplyr::select(-key) %>%
-  mutate(amount = if_else(amount == -9, NA_real_, amount)) %>%
+  mutate(amount = case_when(
+    is.na(amount) ~ 0,
+    amount == -9 ~ NA_real_,
+    TRUE ~ amount
+  )) %>%
   dplyr::filter(!is.na(amount)) %>%
   dplyr::group_by(hhid, pid, year, purpose) %>%
   dplyr::summarise(amount = sum(amount, na.rm = TRUE)) %>%
@@ -660,3 +664,14 @@ cov_label <- list(
 for (i in names(cov_label)) {
   attr(dt[[i]], "label") <- cov_label[[i]]
 }
+
+#' 1. データの期間と年齢を制限する
+#' 2. 控除申請と寄付行動でデータを制限する
+#+
+dt <- dt %>%
+  dplyr::filter(year >= 2012 & age >= 24) %>%
+  dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1))
+
+#' CSVファイルに書き出す
+#+
+readr::write_csv(dt, file = "data/shaped2.csv")
