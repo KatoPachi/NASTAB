@@ -113,12 +113,12 @@ ses_label <- list(
   deduct_donate = "[世帯員]寄付金所得控除額",
   d_credit_donate = "[世帯員]寄付金税額控除の有無",
   credit_donate = "[世帯員]寄付金税額控除額",
-  trust = "[世帯員]政治家への信頼度",
-  welfare = "[世帯員]納税レベルに対する福祉水準",
-  avg_balance = "[世帯員]税負担と福祉水準の程度",
-  opt_balance = "[世帯員]望ましい税負担と福祉水準の程度",
-  addtax = "[世帯員]福祉拡充の追加課税への選好（2018年調査）",
-  polipref = "[世帯員]政治的選好（left or right）",
+  trust = "[世帯員]政治家への信頼度（2015-2018年調査）",
+  welfare = "[世帯員]納税レベルに対する福祉水準（2009-2018年調査）",
+  avg_balance = "[世帯員]税負担と福祉水準の程度（2015-2018年調査）",
+  opt_balance = "[世帯員]望ましい税負担と福祉水準の程度（2015-2018年調査）",
+  addtax = "[世帯員]福祉拡充の追加課税への選好（2015-2018年調査）",
+  polipref = "[世帯員]政治的選好（left or right）（2015-2018年調査）",
   opttax_tinc_1 = "[世帯員]年間所得10mKRWの適切な税率（2018年調査）",
   opttax_tinc_3 = "[世帯員]年間所得30mKRWの適切な税率（2018年調査）",
   opttax_tinc_5 = "[世帯員]年間所得50mKRWの適切な税率（2018年調査）",
@@ -357,4 +357,259 @@ tax_label <- list(
 
 for (i in names(tax_label)) {
   attr(tax[[i]], "label") <- tax_label[[i]]
+}
+
+#'
+#' ここまでのデータのマージと変数の処理
+#+
+dt <- donate %>%
+  dplyr::left_join(tax, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(ses, by = c("hhid", "pid", "year")) %>%
+  dplyr::select(-tinc.y, -linc.y) %>%
+  dplyr::rename(tinc = tinc.x, linc = linc.x)
+
+attr(dt$year, "label") <- "年度（調査年度の前年）"
+
+dt <- dt %>%
+  dplyr::mutate(
+    sex = sex - 1,
+    univ = case_when(
+      educ == 3 ~ 1,
+      !is.na(educ) ~ 0,
+      TRUE ~ NA_real_
+    ),
+    highschool = case_when(
+      educ == 2 ~ 1,
+      !is.na(educ) ~ 0,
+      TRUE ~ NA_real_
+    ),
+    junior = case_when(
+      educ == 1 ~ 1,
+      !is.na(educ) ~ 0,
+      TRUE ~ NA_real_
+    ),
+    sqage = age^2 / 100,
+    credit_treat = case_when(
+      credit_benefit == 1 ~ 1,
+      credit_neutral == 1 ~ 2,
+      credit_loss == 1 ~ 3,
+      TRUE ~ NA_real_
+    ),
+    avg_balance_5scale = case_when(
+      avg_balance == 1 ~ 2,
+      avg_balance %in% c(2, 4) ~ 1,
+      avg_balance %in% c(6, 8) ~ -1,
+      avg_balance == 9 ~ -2,
+      is.na(avg_balance) ~ NA_real_,
+      TRUE ~ 0
+    ),
+    opt_balance_5scale = case_when(
+      opt_balance == 1 ~ 2,
+      opt_balance %in% c(2, 4) ~ 1,
+      opt_balance %in% c(6, 8) ~ -1,
+      opt_balance == 9 ~ -2,
+      is.na(avg_balance) ~ NA_real_,
+      TRUE ~ 0
+    ),
+    price = case_when(
+      year < 2014 ~ 1 - first_mtr,
+      year >= 2014 ~ 1 - 0.15
+    ),
+    lprice = case_when(
+      year < 2014 ~ 1 - last_mtr,
+      year >= 2014 ~ 1 - 0.15
+    ),
+    price_l1_deduct = 1 - first_mtr_l1,
+    price_l2_deduct = 1 - first_mtr_l2,
+    price_l3_deduct = 1 - first_mtr_l3
+  )
+
+dt <- dt %>%
+  dplyr::group_by(pid) %>%
+  dplyr::mutate(
+    price_l1 = dplyr::lag(price, order_by = year),
+    price_l2 = dplyr::lag(price, n = 2, order_by = year),
+    price_l3 = dplyr::lag(price, n = 3, order_by = year)
+  ) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(
+    price_iv1 = case_when(
+      year > 2013 ~ (1 - 0.15) / price_l1,
+      year <= 2013 ~ price_l1_deduct / price_l1
+    ),
+    price_iv2 = case_when(
+      year > 2013 ~ (1 - 0.15) / price_l2,
+      year <= 2013 ~ price_l2_deduct / price_l2
+    ),
+    price_iv3 = case_when(
+      year > 2013 ~ (1 - 0.15) / price_l3,
+      year <= 2013 ~ price_l3_deduct / price_l3
+    )
+  )
+
+dt <- dt %>%
+  dplyr::mutate_at(
+    vars(price, lprice, price_iv1, price_iv2, price_iv3),
+    list(ln = ~ log(.))
+  ) %>%
+  dplyr::mutate_at(
+    vars(starts_with("donate")),
+    list(ln = ~ log(. + 1))
+  ) %>%
+  dplyr::mutate(linc_ln = log(linc + 100000)) %>%
+  dplyr::group_by(pid) %>%
+  dplyr::mutate_at(
+    vars(
+      price_ln, donate_ln, donate_religious_ln,
+      donate_welfare_ln, donate_educ_ln, donate_poliparty_ln,
+      donate_others_ln, donate_religious_action_ln,
+      donate_culture_ln, donate_unknown_ln, linc_ln,
+      age, sqage
+    ),
+    list(
+      l1 = ~dplyr::lag(., order_by = year),
+      l2 = ~dplyr::lag(., n = 2, order_by = year),
+      l3 = ~dplyr::lag(., n = 3, order_by = year)
+    )
+  ) %>%
+  dplyr::ungroup()
+
+dt <- dt %>%
+  dplyr::mutate(
+    price_ln_d1 = price_ln - price_ln_l1,
+    price_ln_d2 = price_ln - price_ln_l2,
+    price_ln_d3 = price_ln - price_ln_l3,
+    donate_ln_d1 = donate_ln - donate_ln_l1,
+    donate_ln_d2 = donate_ln - donate_ln_l2,
+    donate_ln_d3 = donate_ln - donate_ln_l3,
+    donate_religious_ln_d1 = donate_religious_ln - donate_religious_ln_l1,
+    donate_religious_ln_d2 = donate_religious_ln - donate_religious_ln_l2,
+    donate_religious_ln_d3 = donate_religious_ln - donate_religious_ln_l3,
+    donate_welfare_ln_d1 = donate_welfare_ln - donate_welfare_ln_l1,
+    donate_welfare_ln_d2 = donate_welfare_ln - donate_welfare_ln_l2,
+    donate_welfare_ln_d3 = donate_welfare_ln - donate_welfare_ln_l3,
+    donate_educ_ln_d1 = donate_educ_ln - donate_educ_ln_l1,
+    donate_educ_ln_d2 = donate_educ_ln - donate_educ_ln_l2,
+    donate_educ_ln_d3 = donate_educ_ln - donate_educ_ln_l3,
+    donate_poliparty_ln_d1 = donate_poliparty_ln - donate_poliparty_ln_l1,
+    donate_poliparty_ln_d2 = donate_poliparty_ln - donate_poliparty_ln_l2,
+    donate_poliparty_ln_d3 = donate_poliparty_ln - donate_poliparty_ln_l3,
+    donate_others_ln_d1 = donate_others_ln - donate_others_ln_l1,
+    donate_others_ln_d2 = donate_others_ln - donate_others_ln_l2,
+    donate_others_ln_d3 = donate_others_ln - donate_others_ln_l3,
+    donate_religious_action_ln_d1 =
+      donate_religious_action_ln - donate_religious_action_ln_l1,
+    donate_religious_action_ln_d2 =
+      donate_religious_action_ln - donate_religious_action_ln_l2,
+    donate_religious_action_ln_d3 =
+      donate_religious_action_ln - donate_religious_action_ln_l3,
+    donate_culture_ln_d1 = donate_culture_ln - donate_culture_ln_l1,
+    donate_culture_ln_d2 = donate_culture_ln - donate_culture_ln_l2,
+    donate_culture_ln_d3 = donate_culture_ln - donate_culture_ln_l3,
+    donate_unknown_ln_d1 = donate_unknown_ln - donate_unknown_ln_l1,
+    donate_unknown_ln_d2 = donate_unknown_ln - donate_unknown_ln_l2,
+    donate_unknown_ln_d3 = donate_unknown_ln - donate_unknown_ln_l3,
+    linc_ln_d1 = linc_ln - linc_ln_l1,
+    linc_ln_d2 = linc_ln - linc_ln_l2,
+    linc_ln_d3 = linc_ln - linc_ln_l3,
+    age_d1 = age - age_l1,
+    age_d2 = age - age_l2,
+    age_d3 = age - age_l3,
+    sqage_d1 = sqage - sqage_l1,
+    sqage_d2 = sqage - sqage_l2,
+    sqage_d3 = sqage - sqage_l3
+  ) %>%
+  dplyr::select(- (price_ln_l1:sqage_l3))
+
+names(dt)
+
+#'
+#' 変数ラベルの設定
+#+
+cov_label <- list(
+  univ = "[世帯員]大卒ダミー",
+  highschool = "[世帯員]高卒ダミー",
+  junior = "[世帯員]中卒ダミー",
+  sqage = "[世帯員]年齢の二乗/100",
+  credit_treat = "[世帯員]2014年税制改正の利益",
+  avg_balance_5scale = "[世帯員]現在の税負担と福祉水準のバランス(5段階)",
+  opt_balance_5scale = "[世帯員]理想的な税負担と福祉水準のバランス(5段階)",
+  price = "[世帯員]first giving price",
+  lprice = "[世帯員]last giving price",
+  price_l1_deduct = "[世帯員]first giving price (lag1 income, tax deduction)",
+  price_l2_deduct = "[世帯員]first giving price (lag2 income, tax deduction)",
+  price_l3_deduct = "[世帯員]first giving price (lag3 income, tax deduction)",
+  price_l1 = "[世帯員]first giving price (lag = 1)",
+  price_l2 = "[世帯員]first giving price (lag = 2)",
+  price_l3 = "[世帯員]first giving price (lag = 3)",
+  price_iv1 = "[世帯員]first price with lag1 inc/lag1 first price",
+  price_iv2 = "[世帯員]first price with lag2 inc/lag2 first price",
+  price_iv3 = "[世帯員]first price with lag3 inc/lag3 first price",
+  price_ln = "priceの対数値",
+  lprice_ln = "lpriceの対数値",
+  price_iv1_ln = "price_iv1の対数値",
+  price_iv2_ln = "price_iv2の対数値",
+  price_iv3_ln = "price_iv3の対数値",
+  donate_ln = "donateの対数値",
+  donate_religious_ln = "donate_religiousの対数値",
+  donate_welfare_ln = "donate_welfareの対数値",
+  donate_educ_ln = "donate_educの対数値",
+  donate_poliparty_ln = "donate_polipartyの対数値",
+  donate_others_ln = "donate_othersの対数値",
+  donate_religious_action_ln = "donate_religious_actionの対数値",
+  donate_culture_ln = "donate_cultureの対数値",
+  donate_unknown_ln = "donate_unknownの対数値",
+  linc_ln = "lincの対数値",
+  price_ln_d1 = "price_ln - price_ln (lag = 1)",
+  price_ln_d2 = "price_ln - price_ln (lag = 2)",
+  price_ln_d3 = "price_ln - price_ln (lag = 3)",
+  donate_ln_d1 = "donate_ln - donate_ln (lag = 1)",
+  donate_ln_d2 = "donate_ln - donate_ln (lag = 2)",
+  donate_ln_d3 = "donate_ln - donate_ln (lag = 3)",
+  donate_religious_ln_d1 =
+    "donate_religious_ln - donate_religious_ln (lag = 1)",
+  donate_religious_ln_d2 =
+    "donate_religious_ln - donate_religious_ln (lag = 2)",
+  donate_religious_ln_d3 =
+    "donate_religious_ln - donate_religious_ln (lag = 3)",
+  donate_welfare_ln_d1 = "donate_welfare_ln - donate_welfare_ln (lag = 1)",
+  donate_welfare_ln_d2 = "donate_welfare_ln - donate_welfare_ln (lag = 2)",
+  donate_welfare_ln_d3 = "donate_welfare_ln - donate_welfare_ln (lag = 3)",
+  donate_educ_ln_d1 = "donate_educ_ln - donate_educ_ln (lag = 1)",
+  donate_educ_ln_d2 = "donate_educ_ln - donate_educ_ln (lag = 2)",
+  donate_educ_ln_d3 = "donate_educ_ln - donate_educ_ln (lag = 3)",
+  donate_poliparty_ln_d1 =
+    "donate_poliparty_ln - donate_poliparty_ln (lag = 1)",
+  donate_poliparty_ln_d2 =
+    "donate_poliparty_ln - donate_poliparty_ln (lag = 2)",
+  donate_poliparty_ln_d3 =
+    "donate_poliparty_ln - donate_poliparty_ln (lag = 3)",
+  donate_others_ln_d1 = "donate_others_ln - donate_others_ln (lag = 1)",
+  donate_others_ln_d2 = "donate_others_ln - donate_others_ln (lag = 2)",
+  donate_others_ln_d3 = "donate_others_ln - donate_others_ln (lag = 3)",
+  donate_religious_action_ln_d1 =
+    "donate_religious_action_ln - donate_religious_action_ln (lag = 1)",
+  donate_religious_action_ln_d2 =
+    "donate_religious_action_ln - donate_religious_action_ln (lag = 2)",
+  donate_religious_action_ln_d3 =
+    "donate_religious_action_ln - donate_religious_action_ln (lag = 3)",
+  donate_culture_ln_d1 = "donate_culture_ln - donate_culture_ln (lag = 1)",
+  donate_culture_ln_d2 = "donate_culture_ln - donate_culture_ln (lag = 2)",
+  donate_culture_ln_d3 = "donate_culture_ln - donate_culture_ln (lag = 3)",
+  donate_unknown_ln_d1 = "donate_unknown_ln - donate_unknown_ln (lag = 1)",
+  donate_unknown_ln_d2 = "donate_unknown_ln - donate_unknown_ln (lag = 2)",
+  donate_unknown_ln_d3 = "donate_unknown_ln - donate_unknown_ln (lag = 3)",
+  linc_ln_d1 = "linc_ln - linc_ln (lag = 1)",
+  linc_ln_d2 = "linc_ln - linc_ln (lag = 2)",
+  linc_ln_d3 = "linc_ln - linc_ln (lag = 3)",
+  age_d1 = "age - age (lag = 1)",
+  age_d2 = "age - age (lag = 2)",
+  age_d3 = "age - age (lag = 3)",
+  sqage_d1 = "sqage - sqage (lag = 1)",
+  sqage_d2 = "sqage - sqage (lag = 2)",
+  sqage_d3 = "sqage - sqage (lag = 3)"
+)
+
+for (i in names(cov_label)) {
+  attr(dt[[i]], "label") <- cov_label[[i]]
 }
