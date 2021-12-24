@@ -24,6 +24,7 @@ ses <- raw %>%
     sex = p_pgen, #性別
     area = h_b10, #地域コード
     workpos = p_aa005, #労働形態
+    indust = paa008, #産業
     d_deduct_linc = pca201, #労働所得控除の有無
     deduct_linc = pca202, #労働所得控除額
     d_deduct_donate_linc = pca225, #労働所得の寄付金所得控除の有無
