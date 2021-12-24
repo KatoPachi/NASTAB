@@ -41,127 +41,53 @@ xfun::pkg_attach2(c(
   "estimatr", "fixest"
 ))
 
-lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
+lapply(Sys.glob(file.path("script/functions", "*.r")), source)
 
 #'
 #+ include = FALSE
-df <- readr::read_csv(
-  "data/shaped2_propensity.csv",
-  col_types = cols(
-    ext_credit_giving = col_double(),
-    krw_credit_giving = col_double(),
-    trust_politician = col_double(),
-    political_pref = col_double(),
-    addtax = col_double(),
-    avg_welfare_tax = col_double(),
-    opt_welfare_tax = col_double(),
-    now_balance = col_double(),
-    ideal_balance = col_double(),
-    accountant = col_double(),
-    consult = col_double()
-  )
-) %>%
-dplyr::filter(
-  ext_benefit_tl == 0 | (ext_benefit_tl == 1 & i_ext_giving == 1)
-)
+df <- readr::read_csv("data/shaped2.csv")
 
 #'
 #' # Estimating Conventional Price Elasticity of Charitable Giving
 #'
 #+
 fixest::setFixest_fml(
-  ..cov = ~ log_pinc_all + sqage | year + panelid + industry + area
+  ..cov = ~ linc_ln + sqage | year + pid + indust + area
 )
 
-int_first <- list(
-  "(1)" = log_total_g ~ log_price:ext_benefit_tl + ..cov,
-  "(2)" = log_total_g ~ log_price:psc_pool + ..cov,
-  "(3)" = log_total_g ~ log_price:psc_sep + ..cov,
-  "(4)" = log_total_g ~ ..cov | log_price:ext_benefit_tl ~ psc_pool,
-  "(5)" = log_total_g ~ ..cov | log_price:ext_benefit_tl ~ psc_sep
-)
-
-est_int_first <- int_first %>%
-  purrr::map(~ fixest::feols(
-    xpd(.), subset(df, i_ext_giving == 1), cluster = ~panelid
-  ))
-
-stage1_int_first <- est_int_first[c(4, 5)] %>%
-  purrr::map(function(x) {
-    coef <- x$iv_first_stage[["log_price:ext_benefit_tl"]]$coeftable[1, 1]
-    ivwald <- fitstat(x, "ivwald")[[1]]$stat
-
-    tibble(coef = coef, wald = ivwald) %>%
-      pivot_longer(everything()) %>%
-      mutate(value = case_when(
-        name == "coef" ~ sprintf("%1.3f", value),
-        name == "wald" ~ sprintf("[%1.1f]", value)
-      ))
-  }) %>%
-  reduce(left_join, by = "name") %>%
-  bind_cols(tribble(
-    ~value.a, ~value.b, ~value.c,
-    "", "", "",
-    "", "", ""
-  )) %>%
-  select(name, value.a, value.b, value.c, value.x, value.y) %>%
-  setNames(c("term", sprintf("(%1d)", 1:5))) %>%
-  mutate(term = recode(
-    term, "coef" = "First-stage: Instrument", .default = ""
-  ))
-
-addtab <- stage1_int_first %>%
-  bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
-    "Square of age", "X", "X", "X", "X", "X",
-    "Method of Propensity Score", "", "Pooled", "Separated",
-    "Pooled", "Separated"
-  ))
-
-attr(addtab, "position") <- c(7, 8)
-
-est_int_first %>%
-  modelsummary(
-    coef_map = c(
-      "log_price:ext_benefit_tl" = "Application x log(first price)",
-      "log_price:psc_pool" = "PS of application x log(first price)",
-      "log_price:psc_sep" = "PS of application x log(first price)",
-      "fit_log_price:ext_benefit_tl" = "Application x log(first price)",
-      "log_pinc_all" = "log(income)"
-    ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
-    stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = addtab
-  ) %>%
-  kableExtra::kable_styling() %>%
-  kableExtra::add_header_above(c(
-    " " = 1, "FE" = 3, "FE-2SLS" = 2
-  )) %>%
-  footnote(
-    general_title = "",
-    general = paste(
-      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
-      "Standard errors are clustered at individual level.",
-      "A square bracket is wald statistics of instrument."
-    ),
-    threeparttable = TRUE,
-    escape = FALSE
+lastmod <- list(
+  "(1)" = list(
+    mod = donate_ln ~ lprice_ln:d_relief_donate + ..cov,
+    data = df
+  ),
+  "(2)" = list(
+    mod = donate_ln ~ ..cov | lprice_ln:d_relief_donate ~ price_ln,
+    data = df
+  ),
+  "(3)" = list(
+    mod = donate_ln ~ lprice_ln:d_relief_donate + ..cov,
+    data = subset(df, d_donate == 1)
+  ),
+  "(4)" = list(
+    mod = donate_ln ~ ..cov | lprice_ln:d_relief_donate ~ price_ln,
+    data = subset(df, d_donate == 1)
+  ),
+  "(5)" = list(
+    mod = d_donate ~ lprice_ln:d_relief_donate + ..cov,
+    data = df
+  ),
+  "(6)" = list(
+    mod = d_donate ~ ..cov | lprice_ln:d_relief_donate ~ price_ln,
+    data = df
   )
-
-#'
-#+
-ext_first <- list(
-  "(1)" = i_ext_giving ~ log_price:ext_benefit_tl + ..cov,
-  "(2)" = i_ext_giving ~ log_price:psc_pool + ..cov,
-  "(3)" = i_ext_giving ~ log_price:psc_sep + ..cov,
-  "(4)" = i_ext_giving ~ ..cov | log_price:ext_benefit_tl ~ psc_pool,
-  "(5)" = i_ext_giving ~ ..cov | log_price:ext_benefit_tl ~ psc_sep
 )
 
-est_ext_first <- ext_first %>%
-  purrr::map(~ fixest::feols(xpd(.), df, cluster = ~panelid))
+est_lastmod <- lastmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.$mod), data = .$data, cluster = ~ pid
+  ))
 
-impelast <- est_ext_first %>%
+impelast_lastmod <- est_lastmod[c(5, 6)] %>%
   purrr::map(function(x) {
     dbar <- mean(x$fitted.values + x$residuals)
 
@@ -180,14 +106,21 @@ impelast <- est_ext_first %>%
       pivot_longer(everything())
   }) %>%
   reduce(left_join, by = "name") %>%
-  setNames(c("term", sprintf("(%1d)", 1:5))) %>%
+  bind_cols(tribble(
+    ~value.a, ~value.b, ~value.c, ~value.d,
+    "", "", "", "",
+    "", "", "", ""
+  )) %>%
+  select(name, value.a:value.d, value.x:value.y) %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
   mutate(term = recode(
-    term, "estimate" = "Implied price elasticity", .default = ""
+    term,
+    "estimate" = "Implied price elasticity", .default = ""
   ))
 
-stage1_ext_first <- est_ext_first[c(4, 5)] %>%
+stage1_lastmod <- est_lastmod[c(2, 4, 6)] %>%
   purrr::map(function(x) {
-    coef <- x$iv_first_stage[["log_price:ext_benefit_tl"]]$coeftable[1, 1]
+    coef <- x$iv_first_stage[["lprice_ln:d_relief_donate"]]$coeftable[1, 1]
     ivwald <- fitstat(x, "ivwald")[[1]]$stat
 
     tibble(coef = coef, wald = ivwald) %>%
@@ -195,9 +128,7 @@ stage1_ext_first <- est_ext_first[c(4, 5)] %>%
       mutate(value = case_when(
         name == "coef" ~ sprintf("%1.3f", value),
         name == "wald" ~ sprintf("[%1.1f]", value)
-      )) %>%
-      mutate(value2 = c("", "")) %>%
-      select(name, value2, value)
+      ))
   }) %>%
   reduce(left_join, by = "name") %>%
   bind_cols(tribble(
@@ -205,30 +136,27 @@ stage1_ext_first <- est_ext_first[c(4, 5)] %>%
     "", "", "",
     "", "", ""
   )) %>%
-  select(name, value.a, value.b, value.c, value.x, value.y) %>%
-  setNames(c("term", sprintf("(%1d)", 1:5))) %>%
+  select(name, value.a, value.x, value.b, value.y, value.c, value) %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
   mutate(term = recode(
-    term,
-    "coef" = "First-stage: Instrument", .default = ""
+    term, "coef" = "First-stage: log(first price)", .default = ""
   ))
 
-addtab <- stage1_ext_first %>%
-  bind_rows(impelast) %>%
+addtab <- impelast_lastmod %>%
+  bind_rows(stage1_lastmod) %>%
   bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)",
-    "Square of age", "X", "X", "X", "X", "X"
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~ "(6)",
+    "Square of age", "X", "X", "X", "X", "X", "X"
   ))
 
-attr(addtab, "position") <- c(7:10)
+attr(addtab, "position") <- 5:8
 
-est_ext_first %>%
+est_lastmod %>%
   modelsummary(
     coef_map = c(
-      "log_price:ext_benefit_tl" = "Application x log(first price)",
-      "log_price:psc_pool" = "PS of application x log(first price)",
-      "log_price:psc_sep" = "PS of application x log(first price)",
-      "fit_log_price:ext_benefit_tl" = "Application x log(first price)",
-      "log_pinc_all" = "log(income)"
+      "lprice_ln:d_relief_donate" = "log(last price)",
+      "fit_lprice_ln:d_relief_donate" = "log(last price)",
+      "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
@@ -236,7 +164,12 @@ est_ext_first %>%
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
-    " " = 1, "FE" = 3, "FE-2SLS" = 2
+    " ", "FE", "FE-2SLS",
+    "FE", "FE-2SLS", "FE", "FE-2SLS"
+  )) %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Overall" = 2,
+    "Intensive margin" = 2, "Extensive margin" = 2
   )) %>%
   footnote(
     general_title = "",
@@ -252,7 +185,7 @@ est_ext_first %>%
 # /*
 #+
 rmarkdown::render(
-  "script/R/3-elasticity.r",
+  "script/3-elasticity.r",
   output_dir = "report/view"
 )
 # */
