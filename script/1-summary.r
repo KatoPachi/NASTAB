@@ -46,25 +46,7 @@ lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 #' # Data
 #'
 #+
-df <- readr::read_csv(
-  "data/shaped2.csv",
-  col_types = cols(
-    ext_credit_giving = col_double(),
-    krw_credit_giving = col_double(),
-    trust_politician = col_double(),
-    political_pref = col_double(),
-    addtax = col_double(),
-    avg_welfare_tax = col_double(),
-    opt_welfare_tax = col_double(),
-    now_balance = col_double(),
-    ideal_balance = col_double(),
-    accountant = col_double(),
-    consult = col_double()
-  )) %>%
-  dplyr::filter(
-    ext_benefit_tl == 0 | (ext_benefit_tl == 1 & i_ext_giving == 1)
-  ) %>%
-  dplyr::filter(year <= 2017)
+df <- readr::read_csv("data/shaped2.csv")
 
 #'
 #' We use the National Survey of Tax and Benefit (hereafter, NaSTaB),
@@ -87,16 +69,16 @@ df <- readr::read_csv(
 #+ SummaryCovariate
 df %>%
   datasummary(
-    (`Annual taxable labor income (unit: 10,000KRW)` = lincome) +
-    (`Relative first price of giving` = price) +
-    (`Annual chariatable giving (unit: 10,000KRW)` = i_total_giving) +
-    (`Dummary of donation > 0` = i_ext_giving) +
-    (`Dummy of declaration of a tax relief` = ext_benefit_tl) +
+    (`Annual taxable labor income (unit: 10,000KRW)` = linc) +
+    (`First giving relative price` = price) +
+    (`Annual chariatable giving (unit: 10,000KRW)` = donate) +
+    (`Dummary of donation > 0` = d_donate) +
+    (`Dummy of declaration of a tax relief` = d_relief_donate) +
     (`Age` = age) +
-    (`Female dummy` = gender) +
+    (`Female dummy` = sex) +
     (`University graduate` = univ) +
     (`High school graduate dummy` = highschool) +
-    (`Junior high school graduate dummy` = juniorhigh) +
+    (`Junior high school graduate dummy` = junior) +
     (`Wage earner dummy` = employee) +
     (`# Tax accountant /population` = tax_accountant_per) ~
     N +
@@ -113,6 +95,47 @@ df %>%
   kableExtra::pack_rows("Income and giving price", 1, 2) %>%
   kableExtra::pack_rows("Charitable giving", 3, 5) %>%
   kableExtra::pack_rows("Individual Characteristics", 6, 12)
+
+#'
+#+ SummaryOutcome, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.", out.width = "85%", out.extra = ""
+df %>%
+  mutate(
+    i_total_giving = if_else(i_ext_giving == 1, i_total_giving, NA_real_)
+  ) %>%
+  group_by(year) %>%
+  summarize_at(
+    vars(i_ext_giving, i_total_giving), list(~mean(., na.rm = TRUE))
+  ) %>%
+  ggplot(aes(x = year)) +
+  geom_bar(
+    aes(y = i_ext_giving, fill = "Proportion of Donors"),
+    stat = "identity", color = "black"
+  ) +
+  geom_point(
+    aes(
+      y = i_total_giving / 1000,
+      color = "Average Amoount of Donations among Donors"
+    ),
+    size = 2
+  ) +
+  geom_line(
+    aes(
+      y = i_total_giving / 1000,
+      color = "Average Amoount of Donations among Donors"
+    ),
+    size = 1
+  ) +
+  geom_hline(aes(yintercept = 0)) +
+  geom_vline(aes(xintercept = 2013.5), color = "red", linetype = 2, size = 1) +
+  scale_fill_manual(NULL, values = "grey80") +
+  scale_color_manual(NULL, values = "blue") +
+  scale_y_continuous(sec.axis = sec_axis(
+    ~ . * 1000,
+    name = "Average Amout of Donations among Donors"
+  )) +
+  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  labs(x = "Year", y = "Proportion of Donors") +
+  ggtemp(size = list(title = 15, text = 13))
 
 #'
 #' Our analysis uses the NaSTaB data from (i) 2013-2018
