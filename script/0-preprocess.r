@@ -666,6 +666,55 @@ for (i in names(cov_label)) {
   attr(dt[[i]], "label") <- cov_label[[i]]
 }
 
+#' 税理士関連データの追加
+#+
+village <- readr::read_csv("data/origin/village_tax_accountant.csv")
+
+account <- haven::read_dta("data/origin/accountant.dta") %>%
+  as_tibble() %>%
+  dplyr::select(
+    h_b10, year, "人口", "公認会計", "公認会計_従事者", "税理", "税理_従事者"
+  ) %>%
+  dplyr::rename(
+    area = h_b10,
+    pops = "人口",
+    pub_accountant_firm = "公認会計",
+    pub_accountant = "公認会計_従事者",
+    tax_accountant_firm = "税理",
+    tax_accountant = "税理_従事者"
+  ) %>%
+  dplyr::mutate(
+    pub_accountant_per = pub_accountant / pops,
+    tax_accountant_per = tax_accountant / pops
+  )
+
+dt <- dt %>%
+  dplyr::left_join(village, by = c("year", "area")) %>%
+  dplyr::mutate(
+    village_accountant = if_else(year <= 2015, 0, accountant),
+    village_consult = if_else(year <= 2015, 0, consult)
+  ) %>%
+  dplyr::left_join(account, by = c("year", "area")) %>%
+  dplyr::select(-accountant, -consult)
+
+#' 税理士関連変数のラベル設定
+#+
+account_label <- list(
+  village_accountant = "[地域]村税理士制度に登録している税理士の数",
+  village_consult = "[地域]村税理士制度の相談件数",
+  pops = "[地域]人口",
+  pub_accountant_firm = "[地域]公認会計士事務所の数",
+  pub_accountant = "[地域]公認会計士の人数",
+  pub_accountant_per = "[地域]公認会計士の人数 / 人口",
+  tax_accountant_firm = "[地域]税理士事務所の数",
+  tax_accountant = "[地域]税理士の人数",
+  tax_accountant_per = "[地域]税理士の人数 / 人口"
+)
+
+for (i in names(account_label)) {
+  attr(dt[[i]], "label") <- account_label[[i]]
+}
+
 #' 1. データの期間と年齢を制限する
 #' 2. 控除申請と寄付行動でデータを制限する
 #+

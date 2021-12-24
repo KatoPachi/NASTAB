@@ -90,7 +90,8 @@ df %>%
     (`University graduate` = univ) +
     (`High school graduate dummy` = highschool) +
     (`Junior high school graduate dummy` = junior) +
-    (`Wage earner dummy` = employee) ~
+    (`Wage earner dummy` = employee) +
+    (`# Tax accountant /population` = tax_accountant_per) ~
     N +
     (`Mean` = mean) * Arguments(na.rm = TRUE) +
     (`Std.Dev.` = sd) * Arguments(na.rm = TRUE) +
@@ -104,7 +105,7 @@ df %>%
   kableExtra::kable_styling() %>%
   kableExtra::pack_rows("Income and giving price", 1, 2) %>%
   kableExtra::pack_rows("Charitable giving", 3, 5) %>%
-  kableExtra::pack_rows("Individual Characteristics", 6, 11)
+  kableExtra::pack_rows("Individual Characteristics", 6, 12)
 
 #'
 #+ SummaryOutcome, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.", out.width = "85%", out.extra = ""
