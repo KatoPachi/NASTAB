@@ -238,3 +238,123 @@ donate_label <- list(
 for (i in names(donate_label)) {
   attr(donate[[i]], "label") <- donate_label[[i]]
 }
+
+#'
+#' 税率に関するデータの作成
+#+
+mtr <- readr::read_csv("data/origin/mtrdt.csv")
+
+inc <- ses %>%
+  dplyr::select(hhid, pid, year, tinc, linc)
+
+# first marginal tax rate(寄付額を差し引く前の税率)
+firstdt <- inc %>%
+  dplyr::left_join(mtr, by = "year") %>%
+  dplyr::filter(!is.na(linc)) %>%
+  dplyr::filter(lower_income_10000won <= linc) %>%
+  dplyr::group_by(pid, year) %>%
+  dplyr::mutate(first_mtr = max(MTR)) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(-lower_income_10000won, -MTR, -tinc, -linc) %>%
+  dplyr::distinct(.keep_all = TRUE)
+
+# last marginal tax rate(寄付額を差し引いた後の税率)
+lastdt <- inc %>%
+  dplyr::left_join(donate, by = c("pid", "year", "hhid")) %>%
+  dplyr::left_join(mtr, by = "year") %>%
+  dplyr::filter(!is.na(linc) & !is.na(donate)) %>%
+  dplyr::mutate(subtract_linc = linc - donate) %>%
+  dplyr::filter(lower_income_10000won <= subtract_linc) %>%
+  dplyr::group_by(pid, year) %>%
+  dplyr::mutate(last_mtr = max(MTR)) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(hhid, pid, year, subtract_linc, last_mtr) %>%
+  dplyr::distinct(.keep_all = TRUE)
+
+# 所得のラグ変数を作成
+lagdt <- inc %>%
+  dplyr::group_by(pid) %>%
+  dplyr::mutate(
+    linc_l1 = dplyr::lag(linc, order_by = year),
+    linc_l2 = dplyr::lag(linc, n = 2, order_by = year),
+    linc_l3 = dplyr::lag(linc, n = 3, order_by = year)
+  ) %>%
+  dplyr::ungroup()
+
+# 1期ラグ所得に基づいた税率の計算
+lag1dt <- lagdt %>%
+  dplyr::select(hhid, pid, year, linc_l1) %>%
+  dplyr::left_join(mtr, by = "year") %>%
+  dplyr::filter(!is.na(linc_l1)) %>%
+  dplyr::filter(lower_income_10000won <= linc_l1) %>%
+  dplyr::group_by(pid, year) %>%
+  dplyr::mutate(first_mtr_l1 = max(MTR)) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(-lower_income_10000won, -MTR) %>%
+  dplyr::distinct(.keep_all = TRUE)
+
+# 2期ラグ所得に基づいた税率の計算
+lag2dt <- lagdt %>%
+  dplyr::select(hhid, pid, year, linc_l2) %>%
+  dplyr::left_join(mtr, by = "year") %>%
+  dplyr::filter(!is.na(linc_l2)) %>%
+  dplyr::filter(lower_income_10000won <= linc_l2) %>%
+  dplyr::group_by(pid, year) %>%
+  dplyr::mutate(first_mtr_l2 = max(MTR)) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(-lower_income_10000won, -MTR) %>%
+  dplyr::distinct(.keep_all = TRUE)
+
+# 3期ラグ所得に基づいた税率の計算
+lag3dt <- lagdt %>%
+  dplyr::select(hhid, pid, year, linc_l3) %>%
+  dplyr::left_join(mtr, by = "year") %>%
+  dplyr::filter(!is.na(linc_l3)) %>%
+  dplyr::filter(lower_income_10000won <= linc_l3) %>%
+  dplyr::group_by(pid, year) %>%
+  dplyr::mutate(first_mtr_l3 = max(MTR)) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(-lower_income_10000won, -MTR) %>%
+  dplyr::distinct(.keep_all = TRUE)
+
+# 2014年税制改革によるトリートメントグループの作成
+treatdt <- firstdt %>%
+  dplyr::filter(year == 2013) %>%
+  dplyr::select(hhid, pid, first_mtr) %>%
+  dplyr::mutate(
+    credit_benefit = if_else(first_mtr < 0.15, 1, 0),
+    credit_neutral = if_else(first_mtr == 0.15, 1, 0),
+    credit_loss = if_else(first_mtr > 0.15, 1, 0),
+  ) %>%
+  dplyr::select(-first_mtr)
+
+# ここまでのデータのマージ
+tax <- inc %>%
+  dplyr::left_join(firstdt, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(lastdt, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(lag1dt, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(lag2dt, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(lag3dt, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(treatdt, by = c("hhid", "pid"))
+
+#'
+#' 税率に関する変数ラベルの設定
+#+
+tax_label <- list(
+  first_mtr = "[世帯員]年間労働所得ベースの限界所得税率",
+  subtract_linc = "[世帯員]年間労働所得（-寄付額）",
+  last_mtr = "[世帯員]寄付を差し引いた年間労働所得ベースの限界所得税率",
+  linc_l1 = "[世帯員]年間労働所得（lag = 1）",
+  linc_l2 = "[世帯員]年間労働所得（lag = 2）",
+  linc_l3 = "[世帯員]年間労働所得（lag = 3）",
+  first_mtr_l1 = "[世帯員]年間労働所得ベースの限界所得税率(lag = 1)",
+  first_mtr_l2 = "[世帯員]年間労働所得ベースの限界所得税率(lag = 2)",
+  first_mtr_l3 = "[世帯員]年間労働所得ベースの限界所得税率(lag = 3)",
+  credit_neutral = "[世帯員]税制改正の利益（2013年First MTR = 0.15）",
+  credit_benefit = "[世帯員]税制改正の利益(2013年First MTR < 0.15)",
+  credit_loss = "[世帯員]税制改正の利益(2013年First MTR > 0.15)"
+)
+
+for (i in names(tax_label)) {
+  attr(tax[[i]], "label") <- tax_label[[i]]
+}
