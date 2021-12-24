@@ -45,23 +45,7 @@ lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 #' # Data
 #'
 #+
-df <- readr::read_csv(
-  "data/shaped2.csv",
-  col_types = cols(
-    ext_credit_giving = col_double(),
-    krw_credit_giving = col_double(),
-    trust_politician = col_double(),
-    political_pref = col_double(),
-    addtax = col_double(),
-    avg_welfare_tax = col_double(),
-    opt_welfare_tax = col_double(),
-    now_balance = col_double(),
-    ideal_balance = col_double()
-  )
-) %>%
-dplyr::filter(
-  ext_benefit_tl == 0 | (ext_benefit_tl == 1 & i_ext_giving == 1)
-)
+df <- readr::read_csv("data/shaped2.csv")
 
 #'
 #' The National Survey of Tax and Benefit (hereafter, NaSTab) is
@@ -96,16 +80,16 @@ dplyr::filter(
 #+ SummaryCovariate
 df %>%
   datasummary(
-    (`Annual chariatable giving (unit: 10,000KRW)` = i_total_giving) +
-    (`Dummary of donation > 0` = i_ext_giving) +
-    (`Annual taxable labor income (unit: 10,000KRW)` = lincome) +
+    (`Annual taxable labor income (unit: 10,000KRW)` = linc) +
     (`First giving relative price` = price) +
-    (`Dummy of declaration of a tax relief` = ext_benefit_tl) +
+    (`Annual chariatable giving (unit: 10,000KRW)` = donate) +
+    (`Dummary of donation > 0` = d_donate) +
+    (`Dummy of declaration of a tax relief` = d_relief_donate) +
     (`Age` = age) +
-    # (`Female dummy` = gender) +
-    # (`University graduate` = univ) +
-    # (`High school graduate dummy` = highschool) +
-    # (`Junior high school graduate dummy` = juniorhigh) +
+    (`Female dummy` = sex) +
+    (`University graduate` = univ) +
+    (`High school graduate dummy` = highschool) +
+    (`Junior high school graduate dummy` = junior) +
     (`Wage earner dummy` = employee) ~
     N +
     (`Mean` = mean) * Arguments(na.rm = TRUE) +
@@ -117,10 +101,10 @@ df %>%
     data = .,
     align = "lcccccc"
   ) %>%
-  kableExtra::kable_styling(font_size = 9) %>%
-  kableExtra::pack_rows("Charitable Donations", 1, 2) %>%
-  kableExtra::pack_rows("Income, giving price, and tax report", 3, 5) %>%
-  kableExtra::pack_rows("Individual Characteristics", 6, 7)
+  kableExtra::kable_styling() %>%
+  kableExtra::pack_rows("Income and giving price", 1, 2) %>%
+  kableExtra::pack_rows("Charitable giving", 3, 5) %>%
+  kableExtra::pack_rows("Individual Characteristics", 6, 11)
 
 #'
 #+ SummaryOutcome, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors and the average amount of donations among donors, respectively. Authors made this graph based on NaSTaB data.", out.width = "85%", out.extra = ""
