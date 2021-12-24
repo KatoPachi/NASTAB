@@ -145,3 +145,96 @@ ses_label <- list(
 for (i in names(ses_label)) {
   attr(ses[[i]], "label") <- ses_label[[i]]
 }
+
+#'
+#' 寄付データの作成
+#+
+# 寄付先データ
+donate_purpose <- raw %>%
+  dplyr::select(
+    hhid, pid, year, hcr004, hcr007, hcr010,
+    hcr013, hcr016, hcr019
+  ) %>%
+  tidyr::pivot_longer(hcr004:hcr019, names_prefix = "hcr") %>%
+  rename(key = name, purpose = value) %>%
+  mutate(
+    purpose = as.numeric(purpose),
+    key = dplyr::recode(
+      key, "004" = "005", "007" = "008", "010" = "011",
+      "013" = "014", "016" = "017", "019" = "020"
+    ),
+    purpose = dplyr::recode(
+      purpose,
+      "1" = "poliparty",
+      "2" = "educ",
+      "3" = "welfare",
+      "4" = "culture",
+      "5" = "religious",
+      "6" = "religious_action",
+      "7" = "others",
+      "-9" = "unknown"
+    )
+  )
+
+# 寄付支出データ（個人単位）
+donate_amount <- raw %>%
+  dplyr::select(
+    hhid, pid, year,
+    hcr005, hcr008, hcr011, hcr014, hcr017, hcr020
+  ) %>%
+  tidyr::pivot_longer(hcr005:hcr020, names_prefix = "hcr") %>%
+  rename(key = name, amount = value)
+
+# 寄付先データと支出データのマージ（個人単位）
+donate_member <- donate_purpose %>%
+  dplyr::left_join(donate_amount, by = c("hhid", "pid", "year", "key")) %>%
+  dplyr::select(-key) %>%
+  mutate(amount = if_else(amount == -9, NA_real_, amount)) %>%
+  dplyr::filter(!is.na(amount)) %>%
+  dplyr::group_by(hhid, pid, year, purpose) %>%
+  dplyr::summarise(amount = sum(amount, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>%
+  tidyr::pivot_wider(
+    names_from = purpose, values_from = amount,
+    values_fill = 0, names_prefix = "donate_"
+  ) %>%
+  mutate(
+    donate = donate_religious + donate_welfare + donate_educ + donate_others +
+      donate_religious_action + donate_culture + donate_unknown,
+    d_donate = if_else(donate > 0, 1, 0)
+  )
+
+# 寄付支出データ（世帯単位）
+donate_household <- raw %>%
+  dplyr::select(hhid, pid, year, h_exp_cr, hcr001) %>%
+  rename(h_donate = h_exp_cr, d_h_donate = hcr001) %>%
+  mutate(
+    d_h_donate = as.numeric(d_h_donate),
+    d_h_donate = if_else(d_h_donate == 2, 0, d_h_donate)
+  )
+
+# 個人単位データと世帯単位データのマージ
+donate <- donate_member %>%
+  dplyr::left_join(donate_household, by = c("hhid", "pid", "year"))
+
+#'
+#' 寄付データのラベルを設定
+#+
+donate_label <- list(
+  donate_religious = "[世帯員]宗教団体に対する寄付（単位:10,000KRW）",
+  donate_welfare = "[世帯員]社会福祉団体に対する寄付（単位:10,000KRW）",
+  donate_educ = "[世帯員]教育団体に対する寄付（単位:10,000KRW）",
+  donate_poliparty = "[世帯員]政治団体に対する寄付（単位:10,000KRW）",
+  donate_culture = "[世帯員]文化団体に対する寄付（単位:10,000KRW）",
+  donate_religious_action = "[世帯員]宗教団体の貧困救済活動に対する寄付（単位:10,000KRW）",
+  donate_others = "[世帯員]その他の団体に対する寄付（単位:10,000KRW）",
+  donate_unknown = "[世帯員]支出先不明の寄付（単位:10,000KRW）",
+  donate = "[世帯員]年間寄付金支出総額（単位:10,000KRW）",
+  d_donate = "[世帯員]寄付金支出の有無",
+  h_donate = "[世帯]年間寄付金支出総額（単位:10,000KRW）",
+  d_h_donate = "[世帯]寄付金支出の有無"
+)
+
+for (i in names(donate_label)) {
+  attr(donate[[i]], "label") <- donate_label[[i]]
+}
