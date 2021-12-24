@@ -251,7 +251,8 @@ donate_member <- donate_purpose %>%
     donate = donate_religious + donate_welfare + donate_educ + donate_others +
       donate_religious_action + donate_culture + donate_unknown,
     d_donate = if_else(donate > 0, 1, 0)
-  )
+  ) %>%
+  dplyr::select(-donate_NA)
 
 # 寄付支出データ（世帯単位）
 donate_household <- raw %>%
@@ -675,3 +676,16 @@ dt <- dt %>%
 #' CSVファイルに書き出す
 #+
 readr::write_csv(dt, file = "data/shaped2.csv")
+
+#' 変数の記述に関するcsvデータの作成
+#+
+book <- data.frame(variable = NULL, descript = NULL)
+
+for (i in names(dt)) {
+  book <- bind_rows(book, c(
+    variable = i,
+    descript = attr(dt[[i]], "label")
+  ))
+}
+
+readr::write_csv(book, file = "data/codebook/shaped2_description.csv")
