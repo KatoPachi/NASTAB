@@ -429,6 +429,91 @@ est_kdiffmod %>%
     escape = FALSE
   )
 
+#'
+#' ## Heterogenous Price Elasticity
+#'
+#+ CovHeteroElasticity
+covdt <- list(
+  female = subset(df, sex == 1),
+  male = subset(df, sex == 0),
+  univ = subset(df, univ == 1),
+  highschool = subset(df, highschool == 1),
+  junior = subset(df, junior == 1),
+  gen_less40 = subset(df, age < 40),
+  gen40 = subset(df, 40 <= age & age <= 50),
+  gen_over50 = subset(df, 50 < age),
+  wage = subset(df, employee == 1),
+  nonwage = subset(df, employee == 0)
+)
+
+intcov <- covdt %>%
+  purrr::map(~ fixest::feols(
+    donate_ln ~ linc_ln + sqage | pid + year + indust + area |
+      d_relief_donate:lprice_ln ~ price_ln,
+    data = subset(., d_donate == 1), cluster = ~ pid
+  )) %>%
+  modelsummary(
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    output = "data.frame"
+  ) %>%
+  filter(str_detect(term, "fit_d_relief_donate|Num.Obs.")) %>%
+  dplyr::select(-term, -statistic) %>%
+  dplyr::mutate(part = c("coef", "se", "N")) %>%
+  pivot_longer(-part, names_to = "subset", values_to = "intensive") %>%
+  pivot_wider(names_from = part, values_from = intensive) %>%
+  pivot_longer(coef:se, names_to = "stat", values_to = "intensive") %>%
+  dplyr::select(cov = subset, stat, intensive, N_intensive = N)
+
+extcov <- covdt %>%
+  purrr::map(~ fixest::feols(
+    d_donate ~ linc_ln + sqage | pid + year + indust + area |
+      d_relief_donate:lprice_ln ~ price_ln,
+    data = ., cluster = ~pid
+  )) %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    tidy(x) %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        coef = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        se = sprintf("(%1.3f)", std.error / dbar),
+        N = sprintf("%1d", glance(x)$nobs)
+      ) %>%
+      select(coef, se, N) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("part", names(covdt))) %>%
+  pivot_longer(-part, names_to = "subset", values_to = "extensive") %>%
+  pivot_wider(names_from = part, values_from = extensive) %>%
+  pivot_longer(coef:se, names_to = "stat", values_to = "extensive") %>%
+  dplyr::select(cov = subset, stat, extensive, N_extensive = N)
+
+intcov %>%
+  dplyr::left_join(extcov, by = c("cov", "stat")) %>%
+  dplyr::mutate_at(
+    vars(cov, N_intensive, N_extensive),
+    list(~ if_else(stat == "se", "", .))
+  ) %>%
+  dplyr::select(-stat) %>%
+  kable(
+    col.names = c("Covariate", "Estimate", "N", "Estimate", "N"),
+    align = "lcccc"
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Intensive margin" = 2, "Extensive margin" = 2
+  ))
+
+#'
+#+
+
 
 # /*
 #+
