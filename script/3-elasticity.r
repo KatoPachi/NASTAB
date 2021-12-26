@@ -502,6 +502,19 @@ intcov %>%
     list(~ if_else(stat == "se", "", .))
   ) %>%
   dplyr::select(-stat) %>%
+  dplyr::mutate(cov = recode(
+    cov,
+    "female" = "Female",
+    "male" = "Male",
+    "univ" = "University graduate",
+    "highschool" = "High school graduate",
+    "junior" = "Less than junior high school graduate",
+    "gen_less40" = "Age < 40",
+    "gen40" = "40 $\\le$ Age $\\le$ 50",
+    "gen_over50" = "50 < Age",
+    "wage" = "Wage earner",
+    "nonwage" = "Non wage earner"
+  )) %>%
   kable(
     col.names = c("Covariate", "Estimate", "N", "Estimate", "N"),
     align = "lcccc"
