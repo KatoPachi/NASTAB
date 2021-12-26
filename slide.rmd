@@ -233,14 +233,12 @@ knitr::spin_child("script/1-summary.R")
 
 # Estimating Conventional Price Elasticities
 
-```{r eval = FALSE}
-knitr::spin_child("script/R/3-elasticity.R")
+```{r}
+knitr::spin_child("script/3-elasticity.R")
 ```
 
 
 # Conclusion
-
-# References {-}
 
 # Appendix
 
@@ -253,3 +251,30 @@ knitr::spin_child("script/R/3-elasticity.R")
 
 ```{r SummaryReliefbyEarner2, ref.label = "SummaryReliefbyEarner2", fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""}
 ```
+
+## Price Elasticity Excluding Announcement Effect
+
+```{r WoAnnoucementElasticity, ref.label = "WoAnnoucementElasticity"}
+```
+
+## Subsample Analysis for Those Who Applied for Tax Relief
+
+```{r R1Elasticity, ref.label= "R1Elasticity"}
+```
+
+## $k$-th Difference Model
+
+```{r KdiffElasticity, ref.label="KdiffElasticity"}
+```
+
+## Heterogenous Price Elasticity in terms of Covariates
+
+```{r CovHeteroElasticity, ref.label = "CovHeteroElasticity"}
+```
+
+## Heterogenous Price Elasticity in terms of Organization Type
+
+```{r TypeHeteroElasticity, ref.label = "TypeHeteroElasticity"}
+```
+
+# References {-}

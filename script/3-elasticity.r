@@ -52,54 +52,36 @@ df <- readr::read_csv("data/shaped2.csv")
 #'
 #' ## Emprical Strategies
 #'
-#' We start to esimate the effect of tax incentive
-#' by estimating the price elasticity of charitable giving,
-#' using the 2014 tax reform as exogenous shock of tax incentive.
-#' Following @Almunia2020, we estimate two types of elasticities:
-#' the intensive-margin price elasticity and
-#' the extensive-margin price elasticity.
-#' The intensive-margin price elasticity indicates
-#' how much a 1% increase of price increases the amount of donations
-#' conditional on donors.
-#' The extensive-margin price elasticity indicates
-#' how much the probability of donating increases with a 1% increase of price.
+#' - We start to esimate the effect of tax incentive by estimating the price elasticity of charitable giving
+#' - Following @Almunia2020, we estimate two types of elasticities: the intensive-margin price elasticity and the extensive-margin price elasticity
+#'   - The intensive-margin price elasticity: how much a 1% increase of price increases the amount of donations conditional on donors.
+#'   - The extensive-margin price elasticity: how much the probability of donating increases with a 1% increase of price.
 #'
-#' To estimate the intensive-margin price elasticity,
-#' we use the NaSTaB data which consists of donors only and
-#' estimate the following log-log demand function with two-way fixed effects:
+#' ## Estimation Equation for Intensive-Margin Elasticity
 #'
 #' \begin{align}
 #'   \ln g_{it} = \theta_i + \gamma \ln p_t(y_{it}, R_{it}, g_{it})
 #'   + \beta X_{it} + \lambda_t + u_{it}, (\#eq:intensive)
 #' \end{align}
 #'
-#' where $X_{it}$ is a vector of covariate including income $y_{it}$,
-#' $\theta_i$ is an individual fixed effect,
-#' $\lambda_t$ is a time fixed effect,
-#' and $u_{it}$ is an idiosyncratic error.
-#' Our prameter of interest is $\gamma$,
-#' which represents the intensive-margin price elasticity.
+#' - $X_{it}$ is a vector of covariate including income $y_{it}$
+#' - $\theta_i$ is an individual fixed effect, and $\lambda_t$ is a time fixed effect
+#' - $u_{it}$ is an idiosyncratic error
+#' - Our prameter of interest is $\gamma$, which represents the intensive-margin price elasticity.
 #'
-#' To estimate the extensive-margin price elasticity,
-#' we estimat the following linear probability model with two-way fixed effects:
+#' ## Estimation Equation for Extensive-Margin Elasticity
 #'
 #' \begin{align}
 #'   D_{it} = \theta_i + \delta \ln p_t(y_{it}, R_{it}, g_{it})
 #'   + \beta X_{it} + \lambda_t + u_{it}, (\#eq:extensive)
 #' \end{align}
 #'
-#' where $D_{it}$ is a dummy taking one
-#' if positive giving is observed ($g_{it} > 0$).
-#' Our prameter of interest is $\delta$.
-#' We cannot interpret the parameter $\delta$
-#' as the extensive-margin price elasticity
-#' beucase the outcome is a dummy variable.
-#' Thus, the extensive-maring price elasticity can be calculated as
-#' $\hat{\delta} / \bar{D}$ where $\bar{D}$ is sample mean of $D_{it}$.
+#' - $D_{it}$ is a dummy taking one if positive giving is observed ($g_{it} > 0$).
+#' - Our prameter of interest is $\delta$
+#'   - We cannot interpret the parameter $\delta$ as the extensive-margin price elasticity beucase the outcome is a dummy variable.
+#'   - the extensive-maring price elasticity can be calculated as $\hat{\delta} / \bar{D}$ where $\bar{D}$ is sample mean of $D_{it}$.
 #'
-#' Although our main identification comes from the 2014 tax reform,
-#' the giving price is endogenous.
-#' The giving price is formulated as follows:
+#' ## Endogenous Giving Price
 #'
 #' \begin{align}
 #'   p_t(y_{it}, R_{it}, g_{it}) =
@@ -109,14 +91,9 @@ df <- readr::read_csv("data/shaped2.csv")
 #'   \end{cases},
 #' \end{align}
 #'
-#' where $T'_t(\cdot)$ is marginal tax rate in year $t$,
-#' and $m$ is tax credit rate ($m = 0.15$).
-#' When tax deduction was applied,
-#' the function of price giving depends on charitable giving ($g_{it}$).
-#' Following past literatures estimating price elasticity of giving,
-#' we use the *first*-unit price of giving defined by $p_t(y_{it}, 1, 0)$
-#' as an instrument for the *last*-unit price, $p_t(y_{it}, R_{it}, g_{it})$.
-#' As long as income, $y_{iy}$, is exogenous, this instrument is exogoneous.
+#' - $T'_t(\cdot)$ is marginal tax rate in year $t$, and $m$ is tax credit rate ($m = 0.15$).
+#' - When tax deduction was applied, the function of price giving depends on charitable giving ($g_{it}$).
+#' - Following past literatures estimating price elasticity of giving, we use the *first*-unit price of giving defined by $p_t(y_{it}, 1, 0)$ as an instrument for the *last*-unit price, $p_t(y_{it}, R_{it}, g_{it})$.
 #'
 #' ## Estimation Results
 #'
@@ -219,21 +196,21 @@ addtab <- impelast_lastmod %>%
     "Square of age", "X", "X", "X", "X", "X", "X"
   ))
 
-attr(addtab, "position") <- 5:8
+attr(addtab, "position") <- 3:6
 
 est_lastmod %>%
   modelsummary(
     title = "Estimation of Last-Unit Price Elasticities",
     coef_map = c(
       "lprice_ln:d_relief_donate" = "log(last price)",
-      "fit_lprice_ln:d_relief_donate" = "log(last price)",
-      "linc_ln" = "log(income)"
+      "fit_lprice_ln:d_relief_donate" = "log(last price)"#,
+      # "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    gof_omit = "R2|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 7) %>%
   kableExtra::add_header_above(c(
     " ", "FE", "FE-2SLS",
     "FE", "FE-2SLS", "FE", "FE-2SLS"
@@ -254,38 +231,24 @@ est_lastmod %>%
   )
 
 #'
-#' Table \@ref(tab:MainElasticity)
-#' shows the last-unit price elasticity of giving.
-#' Column 1 and 2 estimate the equation \@ref(eq:intensive).
-#' When we do not take endogenous nature of giving price into account,
-#' the *overall* price elasticity is down-ward biased.
-#' When estimating the equation \@ref(eq:intensive)
-#' by 2SLS including fixed effects (FE-2SLS),
-#' the estimated price elasticity is -6.3%.
-#' In column 3 and 4,
-#' we estimate the equation \@ref(eq:intensive),
-#' using the NaSTaB data consisting of donors only.
-#' When we do not take endogenous nature of giving price into account,
-#' the intensive-margin price elasticity has upward-bias.
-#' The intensive-margin price elasticity is about -2%,
-#' which is statistically significant (column 4).
-#' In other words, 1% decrease of giving price by increaseing tax incentive
-#' increases charitable giving conditional on donors by 2%.
-#' Column 5 and 6 estimate the equation \@ref(eq:extensive).
-#' When we do not take endogenous nature of giving price into account,
-#' the extensive-margin price elasticity has downward-bias.
-#' The estimated coefficient of logged value of last-unit price is -1.5,
-#' which is statistically significant (column 6).
-#' Thus, the extensive-margin price elasticity is -5.8.
-#' In other words, 1% decrease of giving price by increasing tax incentive
-#' increases the probability of donating by about 6%.
+#' ## Message from Table \@ref(tab:MainElasticity)
 #'
+#' - Column 3 and 4: we estimate the equation \@ref(eq:intensive), using the NaSTaB data consisting of donors only.
+#'   - When we do not take endogenous nature of giving price into account, the intensive-margin price elasticity has upward-bias
+#'   - The intensive-margin price elasticity is about -2% (column 4)
+#' - Column 5 and 6 estimate the equation \@ref(eq:extensive)
+#'   - When we do not take endogenous nature of giving price into account, the extensive-margin price elasticity has downward-bias
+#'   - The estimated coefficient of logged value of last-unit price is -1.5 (column 6).
+#'   - The extensive-margin price elasticity is -5.8.
+#'
+#' <!--
 #' - **加藤コメント1：他の文献との比較は入れておきたいところ**
 #' - **加藤コメント2：バイアスの方向に関する議論はここに入れておきます**
+#' -->
 #'
 #' ## Robustness Analysis
 #'
-#+ WoAnnoucementElasticity
+#+ WoAnnoucementElasticity, include = FALSE
 est_rob_lastmod <- lastmod %>%
   purrr::map(~ fixest::feols(
     xpd(.$mod), data = subset(.$data, year < 2013 | 2014 < year),
@@ -354,7 +317,7 @@ addtab <- impelast_rob_lastmod %>%
     "Square of age", "X", "X", "X", "X", "X", "X"
   ))
 
-attr(addtab, "position") <- 5:8
+attr(addtab, "position") <- 3:6
 
 est_rob_lastmod %>%
   modelsummary(
@@ -364,14 +327,14 @@ est_rob_lastmod %>%
     ),
     coef_map = c(
       "lprice_ln:d_relief_donate" = "log(last price)",
-      "fit_lprice_ln:d_relief_donate" = "log(last price)",
-      "linc_ln" = "log(income)"
+      "fit_lprice_ln:d_relief_donate" = "log(last price)"#,
+      # "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std",
+    gof_omit = "R2|AIC|BIC|Log|Std",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 7) %>%
   kableExtra::add_header_above(c(
     " ", "FE", "FE-2SLS",
     "FE", "FE-2SLS", "FE", "FE-2SLS"
@@ -392,21 +355,7 @@ est_rob_lastmod %>%
   )
 
 #'
-#' We performed three robustness test for the last-unit price elasticity.
-#' First, we estimate the price elasticity excluding 2013 and 2014 data
-#' to eliminate the effect of tax reform announcement.
-#' Since the 2014 tax reform was announced the previous year,
-#' those who make the relative price of giving higher (cheaper)
-#' by the reform may increase (decrease) donations before the reform.
-#' Therefore, the price elasticity is under-biased
-#' due to the announcement effect of tax reform.
-#' As a result, the estimated price elasticities
-#' shown in Table \@ref(tab:WoAnnoucementElasticity) is similar to
-#' ones shown in Table \@ref(tab:MainElasticity).
-#' This implies that estimated last-unit price elasticity is robust against
-#' the announcement effect of 2014 tax reform.
-#'
-#+ R1Elasticity
+#+ R1Elasticity, include = FALSE
 r1mod <- list(
   "(1)" = fixest::xpd(donate_ln ~ price_ln + ..cov),
   "(2)" = fixest::xpd(
@@ -437,7 +386,7 @@ addtab <- tribble(
   "Square of age", "X", "X", "X", "X"
 )
 
-attr(addtab, "position") <- c(15, 16)
+attr(addtab, "position") <- c(13, 14)
 
 est_r1mod %>%
   modelsummary(
@@ -456,11 +405,11 @@ est_r1mod %>%
       "d(linc_ln, 1)" = "1-year lag of income",
       "d(linc_ln, -1)" = "1-year lead of income"
     ),
-    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    gof_omit = "^(?!FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 5) %>%
   footnote(
     general_title = "",
     general = paste(
@@ -473,23 +422,7 @@ est_r1mod %>%
   )
 
 #'
-#' Second robustness test is to estimate the price elasticity,
-#' using a sample limited to those who applied for tax relief.
-#' Since those who applied for tax relief should have donated,
-#' we cannot estimate the extensive-margin price elasticity
-#' but the intensive-margin price elasticity.
-#' The first-unit price elasticity is -1.2,
-#' and the last-unit price elasticity is -1.3,
-#' which are statistically significant
-#' (column 1 and 3 in Table \@ref(tab:R1Elasticity)).
-#' To directly control the dynamic effects of
-#' price and income changes on donations,
-#' we add lagged and future changes of these variables
-#' to the explanatory variables.
-#' When controling this effect,
-#' the price elasticity is statistically insignificant.
-#'
-#+ KdiffElasticity
+#+ KdiffElasticity, include = FALSE
 fixest::setFixest_fml(
   ..kdiff1 = ~ linc_ln_d1 + sqage_d1,
   ..kdiff2 = ~ linc_ln_d2 + sqage_d2,
@@ -541,7 +474,7 @@ addtab <- stage1_kdiffmod %>%
     "Difference of square age", "X", "X", "X"
   ))
 
-attr(addtab, "position") <- c(5, 6)
+attr(addtab, "position") <- c(3, 4)
 
 est_kdiffmod %>%
   modelsummary(
@@ -550,17 +483,17 @@ est_kdiffmod %>%
     ),
     coef_map = c(
       "fit_price_ln_d1" = "Difference of logged first price",
-      "linc_ln_d1" = "Difference of logged income",
+      # "linc_ln_d1" = "Difference of logged income",
       "fit_price_ln_d2" = "Difference of logged first price",
-      "linc_ln_d2" = "Difference of logged income",
-      "fit_price_ln_d3" = "Difference of logged first price",
-      "linc_ln_d3" = "Difference of logged income"
+      # "linc_ln_d2" = "Difference of logged income",
+      "fit_price_ln_d3" = "Difference of logged first price"#,
+      # "linc_ln_d3" = "Difference of logged income"
     ),
-    gof_omit = "^(?!R2 Adj.|FE|N|Std.Errors)",
+    gof_omit = "^(?!FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " " = 1, "1-year lag" = 1,
     "2-year lag" = 1, "3-year lag" = 1
@@ -578,26 +511,20 @@ est_kdiffmod %>%
   )
 
 #'
-#' Finally, we estimate the price elasticity
-#' to deal with endogenous nature of income.
-#' Because the first-unit price depends on income
-#' under the tax deduction system,
-#' the first-unit price is an endogenous variable if income is endogenous.
-#' To overcome this problem, we estimate the $k$-th order difference model.
-#' When estimating this model,
-#' we use the difference of logged price between in year $t - k$ and in year $t$
-#' fixing income in year $t - k$,
-#' that is, $\ln p_t(y_{it-k}, 1, 0) - \ln p_{t-k}(y_{it-k}, 1, 0)$
-#' as an instument for the difference of logged price between
-#' in year $t - k$ and in year $t$,
-#' that is, $\ln p_t(y_{it}, 1, 0) - \ln p_{t-k}(y_{it-k}, 1, 0)$.
-#' As a result, estimated intensive-margin price elasticity is
-#' between -1.8 and -4.1, which is statisically significant
-#' (Table \@ref(tab:KdiffElasticity)).
+#' 1. Price elasticity excluding 2013 and 2014 data (Table \@ref(tab:WoAnnoucementElasticity))
+#'     - to eliminate the effect of tax reform announcement.
+#'     - estimated last-unit price elasticity is robust against the announcement effect of 2014 tax reform.
+#' 2. Price elasticity with a sample limited to those who applied for tax relief (Table \@ref(tab:R1Elasticity))
+#'     - the first-unit price elasticity is -1.2, and the last-unit price elasticity is -1.3
+#'     - To directly control the dynamic effects, we add lagged and future changes of these variables
+#'     - When controling this effect, the price elasticity is statistically insignificant.
+#' 3. Price elasticity to deal with endogenous nature of income (Table \@ref(tab:KdiffElasticity))
+#'     - we estimate the $k$-th order difference model.
+#'     - estimated intensive-margin price elasticity is between -1.8 and -4.1, which is statisically significant
 #'
-#' ## Heterogenous Price Elasticity
+#' ## Heterogenous Price Elasticity (1)
 #'
-#+ CovHeteroElasticity
+#+ CovHeteroElasticity, include = FALSE
 covdt <- list(
   female = subset(df, sex == 1),
   male = subset(df, sex == 0),
@@ -680,9 +607,10 @@ intcov %>%
       "Covariate", "Estimate", "S.E.", "N",
       "Estimate", "S.E.", "N"
     ),
-    align = "lcccccc"
+    align = "lcccccc",
+    escape = FALSE, booktabs = TRUE, linesep = ""
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " " = 1, "Intensive margin" = 3, "Extensive margin" = 3
   )) %>%
@@ -697,24 +625,16 @@ intcov %>%
   )
 
 #'
-#' We estimate heterogeneity of the last-unit price elasticity
-#' in terms of individual characteristics
-#' (Table \@ref(tab:CovHeteroElasticity)).
-#' We obtain four key findings.
-#' First, the intensive-margin price elasticity for males is
-#' higher than for females,
-#' while the extensive-margin price elasticity for males is
-#' lower than for females in terms of absoluate value.
-#' Second, the higher the education level,
-#' the higher the intensive-margin price elasticity,
-#' but the lower the extensive-margin price elasticity
-#' in terms of absolute value.
-#' Third, individuals in 40s are sensitive to tax incentives
-#' in both intensive-margin and extensive-margin.
-#' Fourth, wage earners are sensitive to tax incentive,
-#' while non wage earners are insenstive to tax incentive.
+#' We estimate heterogeneity of the last-unit price elasticity in terms of individual characteristics (Table \@ref(tab:CovHeteroElasticity))
 #'
-#+ TypeHeteroElasticity
+#' 1. intensive-margin price elasticity for males is higher than for females, while the extensive-margin price elasticity for males is lower than for females
+#' 1. the higher the education level, the higher the intensive-margin price elasticity, but the lower the extensive-margin price elasticity
+#' 1. individuals in 40s are sensitive to tax incentives in both intensive-margin and extensive-margin.
+#' 1. wage earners are sensitive to tax incentive, while non wage earners are insenstive to tax incentive.
+#'
+#' ## Heterogenous Price Elasticity (2)
+#'
+#+ TypeHeteroElasticity, include = FALSE
 donate_type <- list(
   welfare = "donate_welfare",
   educ = "donate_educ",
@@ -802,9 +722,10 @@ int_type %>%
       "Type", "Estimate", "S.E.", "N",
       "Estimate", "S.E.", "N"
     ),
-    align = "lcccccc"
+    align = "lcccccc",
+    booktabs = TRUE, linesep = ""
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " " = 1, "Intensive margin" = 3, "Extensive margin" = 3
   )) %>%
@@ -821,18 +742,11 @@ int_type %>%
   )
 
 #'
-#' Since the NaSTaB data contains information about
-#' what kind of organization the donation was made to,
-#' we estimate the last-unit price elasticity
-#' for each organization to which the donation is made
-#' (Table \@ref(tab:TypeHeteroElasticity)).
-#' We obtain two key findings.
-#' First, charitable giving for social welfare organization
-#' and religious institution is sensitive to tax incentive
-#' in terms of both intensive margin and extensive margin.
-#' Second, tax incentive negatively affects
-#' decision of donation for educational organization
-#' and political parties.
+#' We estimate the last-unit price elasticity for each organization to which the donation is made
+#' (Table \@ref(tab:TypeHeteroElasticity))
+#'
+#' 1. charitable giving for social welfare organization and religious institution is sensitive to tax incentive in terms of both intensive margin and extensive margin
+#' 1. tax incentive negatively affects decision of donation for educational organization and political parties
 #'
 # /*
 #+
