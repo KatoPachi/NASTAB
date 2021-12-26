@@ -595,6 +595,245 @@ est_kdiffmod %>%
 #' between -1.8 and -4.1, which is statisically significant
 #' (Table \@ref(tab:KdiffElasticity)).
 #'
+#' ## Heterogenous Price Elasticity
+#'
+#+ CovHeteroElasticity
+covdt <- list(
+  female = subset(df, sex == 1),
+  male = subset(df, sex == 0),
+  univ = subset(df, univ == 1),
+  highschool = subset(df, highschool == 1),
+  junior = subset(df, junior == 1),
+  gen_less40 = subset(df, age < 40),
+  gen40 = subset(df, 40 <= age & age <= 50),
+  gen_over50 = subset(df, 50 < age),
+  wage = subset(df, employee == 1),
+  nonwage = subset(df, employee == 0)
+)
+
+intcov <- covdt %>%
+  purrr::map(~ fixest::feols(
+    donate_ln ~ linc_ln + sqage | pid + year + indust + area |
+      d_relief_donate:lprice_ln ~ price_ln,
+    data = subset(., d_donate == 1), cluster = ~ pid
+  )) %>%
+  modelsummary(
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    output = "data.frame"
+  ) %>%
+  filter(str_detect(term, "fit_d_relief_donate|Num.Obs.")) %>%
+  dplyr::select(-term, -statistic) %>%
+  dplyr::mutate(part = c("coef", "se", "N")) %>%
+  pivot_longer(-part, names_to = "cov", values_to = "intensive") %>%
+  pivot_wider(names_from = part, values_from = intensive)
+
+extcov <- covdt %>%
+  purrr::map(~ fixest::feols(
+    d_donate ~ linc_ln + sqage | pid + year + indust + area |
+      d_relief_donate:lprice_ln ~ price_ln,
+    data = ., cluster = ~pid
+  )) %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    tidy(x) %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        coef = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        se = sprintf("(%1.3f)", std.error / dbar),
+        N = sprintf("%1d", glance(x)$nobs)
+      ) %>%
+      select(coef, se, N) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("part", names(covdt))) %>%
+  pivot_longer(-part, names_to = "cov", values_to = "extensive") %>%
+  pivot_wider(names_from = part, values_from = extensive)
+
+intcov %>%
+  dplyr::left_join(extcov, by = "cov") %>%
+  dplyr::mutate(cov = recode(
+    cov,
+    "female" = "Female",
+    "male" = "Male",
+    "univ" = "University graduate",
+    "highschool" = "High school graduate",
+    "junior" = "Less than junior high school graduate",
+    "gen_less40" = "Age < 40",
+    "gen40" = "40 $\\le$ Age $\\le$ 50",
+    "gen_over50" = "50 < Age",
+    "wage" = "Wage earner",
+    "nonwage" = "Non wage earner"
+  )) %>%
+  kable(
+    caption = paste(
+      "Heterogenous Last-Unit Price Elasticities",
+      "in terms of Individual Characteristics"
+    ),
+    col.names = c(
+      "Covariate", "Estimate", "S.E.", "N",
+      "Estimate", "S.E.", "N"
+    ),
+    align = "lcccccc"
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Intensive margin" = 3, "Extensive margin" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#' We estimate heterogeneity of the last-unit price elasticity
+#' in terms of individual characteristics
+#' (Table \@ref(tab:CovHeteroElasticity)).
+#' We obtain four key findings.
+#' First, the intensive-margin price elasticity for males is
+#' higher than for females,
+#' while the extensive-margin price elasticity for males is
+#' lower than for females in terms of absoluate value.
+#' Second, the higher the education level,
+#' the higher the intensive-margin price elasticity,
+#' but the lower the extensive-margin price elasticity
+#' in terms of absolute value.
+#' Third, individuals in 40s are sensitive to tax incentives
+#' in both intensive-margin and extensive-margin.
+#' Fourth, wage earners are sensitive to tax incentive,
+#' while non wage earners are insenstive to tax incentive.
+#'
+#+ TypeHeteroElasticity
+donate_type <- list(
+  welfare = "donate_welfare",
+  educ = "donate_educ",
+  culture = "donate_culture",
+  poliparty = "donate_poliparty",
+  religious = "donate_religious",
+  religious_action = "donate_religious_action",
+  other = "donate_others"
+)
+
+int_type <- donate_type[c(1, 2, 4, 5, 6, 7)] %>%
+  purrr::map(function(x) {
+    mod <- paste(
+      paste(x, "_ln", sep = ""),
+      "~ linc_ln + sqage | pid + year + indust + area |",
+      "d_relief_donate:lprice_ln ~ price_ln"
+    )
+
+    cond <- paste("d_", x, sep = "")
+
+    fixest::feols(
+      formula(mod), data = df[df[, cond] == 1, ], cluster = ~ pid
+    )
+  }) %>%
+  modelsummary(
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    output = "data.frame"
+  ) %>%
+  filter(str_detect(term, "fit_d_relief_donate|Num.Obs.")) %>%
+  dplyr::select(-term, -statistic) %>%
+  dplyr::mutate(part = c("coef", "se", "N")) %>%
+  pivot_longer(-part, names_to = "type", values_to = "intensive") %>%
+  pivot_wider(names_from = part, values_from = intensive)
+
+ext_type <- donate_type %>%
+  purrr::map(function(x) {
+    mod <- paste(
+      paste("d_", x, sep = ""),
+      "~ linc_ln + sqage | pid + year + indust + area |",
+      "d_relief_donate:lprice_ln ~ price_ln"
+    )
+
+    fixest::feols(formula(mod), data = df, cluster = ~pid)
+  }) %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    tidy(x) %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        coef = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        se = sprintf("(%1.3f)", std.error / dbar),
+        N = sprintf("%1d", glance(x)$nobs)
+      ) %>%
+      select(coef, se, N) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("part", names(donate_type))) %>%
+  pivot_longer(-part, names_to = "type", values_to = "extensive") %>%
+  pivot_wider(names_from = part, values_from = extensive)
+
+int_type %>%
+  dplyr::right_join(ext_type, by = "type") %>%
+  dplyr::mutate(type = recode(
+    type,
+    "welfare" = "Social welfare",
+    "educ" = "Education",
+    "culture" = "Culture",
+    "poliparty" = "Political party",
+    "religious" = "Religious institution",
+    "religious_action" = "Relief activities by religious institution",
+    "other" = "Others"
+  )) %>%
+  kable(
+    caption = paste(
+      "Estimating Last-Unit Price Elasticities for Each Oraganization Type"
+    ),
+    col.names = c(
+      "Type", "Estimate", "S.E.", "N",
+      "Estimate", "S.E.", "N"
+    ),
+    align = "lcccccc"
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Intensive margin" = 3, "Extensive margin" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "We cannot the intensive-margin price elasticity",
+      "for donations for culture due to small sample."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#' Since the NaSTaB data contains information about
+#' what kind of organization the donation was made to,
+#' we estimate the last-unit price elasticity
+#' for each organization to which the donation is made
+#' (Table \@ref(tab:TypeHeteroElasticity)).
+#' We obtain two key findings.
+#' First, charitable giving for social welfare organization
+#' and religious institution is sensitive to tax incentive
+#' in terms of both intensive margin and extensive margin.
+#' Second, tax incentive negatively affects
+#' decision of donation for educational organization
+#' and political parties.
+#'
 # /*
 #+
 rmarkdown::render(
