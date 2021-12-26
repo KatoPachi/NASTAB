@@ -526,7 +526,106 @@ intcov %>%
 
 #'
 #+
+donate_type <- list(
+  welfare = "donate_welfare",
+  educ = "donate_educ",
+  culture = "donate_culture",
+  poliparty = "donate_poliparty",
+  religious = "donate_religious",
+  religious_action = "donate_religious_action",
+  other = "donate_others"
+)
 
+int_type <- donate_type[c(1, 2, 4, 5, 6, 7)] %>%
+  purrr::map(function(x) {
+    mod <- paste(
+      paste(x, "_ln", sep = ""),
+      "~ linc_ln + sqage | pid + year + indust + area |",
+      "d_relief_donate:lprice_ln ~ price_ln"
+    )
+
+    cond <- paste("d_", x, sep = "")
+
+    fixest::feols(
+      formula(mod), data = df[df[, cond] == 1, ], cluster = ~ pid
+    )
+  }) %>%
+  modelsummary(
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    output = "data.frame"
+  ) %>%
+  filter(str_detect(term, "fit_d_relief_donate|Num.Obs.")) %>%
+  dplyr::select(-term, -statistic) %>%
+  dplyr::mutate(part = c("coef", "se", "N")) %>%
+  pivot_longer(-part, names_to = "subset", values_to = "intensive") %>%
+  pivot_wider(names_from = part, values_from = intensive) %>%
+  pivot_longer(coef:se, names_to = "stat", values_to = "intensive") %>%
+  dplyr::select(type = subset, stat, intensive, N_intensive = N)
+
+ext_type <- donate_type %>%
+  purrr::map(function(x) {
+    mod <- paste(
+      paste("d_", x, sep = ""),
+      "~ linc_ln + sqage | pid + year + indust + area |",
+      "d_relief_donate:lprice_ln ~ price_ln"
+    )
+
+    fixest::feols(formula(mod), data = df, cluster = ~pid)
+  }) %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    tidy(x) %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        coef = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        se = sprintf("(%1.3f)", std.error / dbar),
+        N = sprintf("%1d", glance(x)$nobs)
+      ) %>%
+      select(coef, se, N) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("part", names(donate_type))) %>%
+  pivot_longer(-part, names_to = "subset", values_to = "extensive") %>%
+  pivot_wider(names_from = part, values_from = extensive) %>%
+  pivot_longer(coef:se, names_to = "stat", values_to = "extensive") %>%
+  dplyr::select(type = subset, stat, extensive, N_extensive = N)
+
+int_type %>%
+  dplyr::right_join(ext_type, by = c("type", "stat")) %>%
+  dplyr::mutate_at(
+    vars(type, N_intensive, N_extensive),
+    list(~ if_else(stat == "se", "", .))
+  ) %>%
+  dplyr::mutate_at(
+    vars(intensive, N_intensive),
+    list(~ if_else(is.na(.), "", .))
+  ) %>%
+  dplyr::select(-stat) %>%
+  dplyr::mutate(type = recode(
+    type,
+    "welfare" = "Social welfare",
+    "educ" = "Education",
+    "culture" = "Culture",
+    "poliparty" = "Political party",
+    "religious" = "Religious institution",
+    "religious_action" = "Relief activities by religious institution",
+    "other" = "Others"
+  )) %>%
+  kable(
+    col.names = c("Type", "Estimate", "N", "Estimate", "N"),
+    align = "lcccc"
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Intensive margin" = 2, "Extensive margin" = 2
+  ))
 
 # /*
 #+
