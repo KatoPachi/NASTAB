@@ -459,10 +459,8 @@ intcov <- covdt %>%
   filter(str_detect(term, "fit_d_relief_donate|Num.Obs.")) %>%
   dplyr::select(-term, -statistic) %>%
   dplyr::mutate(part = c("coef", "se", "N")) %>%
-  pivot_longer(-part, names_to = "subset", values_to = "intensive") %>%
-  pivot_wider(names_from = part, values_from = intensive) %>%
-  pivot_longer(coef:se, names_to = "stat", values_to = "intensive") %>%
-  dplyr::select(cov = subset, stat, intensive, N_intensive = N)
+  pivot_longer(-part, names_to = "cov", values_to = "intensive") %>%
+  pivot_wider(names_from = part, values_from = intensive)
 
 extcov <- covdt %>%
   purrr::map(~ fixest::feols(
@@ -490,18 +488,11 @@ extcov <- covdt %>%
   }) %>%
   reduce(left_join, by = "name") %>%
   setNames(c("part", names(covdt))) %>%
-  pivot_longer(-part, names_to = "subset", values_to = "extensive") %>%
-  pivot_wider(names_from = part, values_from = extensive) %>%
-  pivot_longer(coef:se, names_to = "stat", values_to = "extensive") %>%
-  dplyr::select(cov = subset, stat, extensive, N_extensive = N)
+  pivot_longer(-part, names_to = "cov", values_to = "extensive") %>%
+  pivot_wider(names_from = part, values_from = extensive)
 
 intcov %>%
-  dplyr::left_join(extcov, by = c("cov", "stat")) %>%
-  dplyr::mutate_at(
-    vars(cov, N_intensive, N_extensive),
-    list(~ if_else(stat == "se", "", .))
-  ) %>%
-  dplyr::select(-stat) %>%
+  dplyr::left_join(extcov, by = "cov") %>%
   dplyr::mutate(cov = recode(
     cov,
     "female" = "Female",
@@ -516,13 +507,25 @@ intcov %>%
     "nonwage" = "Non wage earner"
   )) %>%
   kable(
-    col.names = c("Covariate", "Estimate", "N", "Estimate", "N"),
-    align = "lcccc"
+    col.names = c(
+      "Covariate", "Estimate", "S.E.", "N",
+      "Estimate", "S.E.", "N"
+    ),
+    align = "lcccccc"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
-    " " = 1, "Intensive margin" = 2, "Extensive margin" = 2
-  ))
+    " " = 1, "Intensive margin" = 3, "Extensive margin" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 #+
@@ -557,10 +560,8 @@ int_type <- donate_type[c(1, 2, 4, 5, 6, 7)] %>%
   filter(str_detect(term, "fit_d_relief_donate|Num.Obs.")) %>%
   dplyr::select(-term, -statistic) %>%
   dplyr::mutate(part = c("coef", "se", "N")) %>%
-  pivot_longer(-part, names_to = "subset", values_to = "intensive") %>%
-  pivot_wider(names_from = part, values_from = intensive) %>%
-  pivot_longer(coef:se, names_to = "stat", values_to = "intensive") %>%
-  dplyr::select(type = subset, stat, intensive, N_intensive = N)
+  pivot_longer(-part, names_to = "type", values_to = "intensive") %>%
+  pivot_wider(names_from = part, values_from = intensive)
 
 ext_type <- donate_type %>%
   purrr::map(function(x) {
@@ -592,22 +593,11 @@ ext_type <- donate_type %>%
   }) %>%
   reduce(left_join, by = "name") %>%
   setNames(c("part", names(donate_type))) %>%
-  pivot_longer(-part, names_to = "subset", values_to = "extensive") %>%
-  pivot_wider(names_from = part, values_from = extensive) %>%
-  pivot_longer(coef:se, names_to = "stat", values_to = "extensive") %>%
-  dplyr::select(type = subset, stat, extensive, N_extensive = N)
+  pivot_longer(-part, names_to = "type", values_to = "extensive") %>%
+  pivot_wider(names_from = part, values_from = extensive)
 
 int_type %>%
-  dplyr::right_join(ext_type, by = c("type", "stat")) %>%
-  dplyr::mutate_at(
-    vars(type, N_intensive, N_extensive),
-    list(~ if_else(stat == "se", "", .))
-  ) %>%
-  dplyr::mutate_at(
-    vars(intensive, N_intensive),
-    list(~ if_else(is.na(.), "", .))
-  ) %>%
-  dplyr::select(-stat) %>%
+  dplyr::right_join(ext_type, by = "type") %>%
   dplyr::mutate(type = recode(
     type,
     "welfare" = "Social welfare",
@@ -619,13 +609,27 @@ int_type %>%
     "other" = "Others"
   )) %>%
   kable(
-    col.names = c("Type", "Estimate", "N", "Estimate", "N"),
-    align = "lcccc"
+    col.names = c(
+      "Type", "Estimate", "S.E.", "N",
+      "Estimate", "S.E.", "N"
+    ),
+    align = "lcccccc"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
-    " " = 1, "Intensive margin" = 2, "Extensive margin" = 2
-  ))
+    " " = 1, "Intensive margin" = 3, "Extensive margin" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "We cannot the intensive-margin price elasticity",
+      "for donations for culture due to small sample."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 # /*
 #+
