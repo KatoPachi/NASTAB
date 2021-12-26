@@ -36,20 +36,50 @@ options(
 library(xfun)
 xfun::pkg_attach2(c(
   "tidyverse", "rlist", "modelsummary", "kableExtra",
-  "estimatr", "fixest"
+  "estimatr", "fixest",
+  "ivmte", "splines2", "gurobi"
 ))
 
-lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
+lapply(Sys.glob(file.path("script/functions", "*.r")), source)
 
 #'
 #+
 df <- readr::read_csv("data/shaped2.csv")
 
 #'
+#+ include = FALSE
+# check whether "gurobi" works
+# create optimization problem
+model <- list()
+model$obj        <- c(1, 1, 2)
+model$modelsense <- "max"
+model$rhs        <- c(4, 1)
+model$sense      <- c("<", ">")
+model$vtype      <- "B"
+model$A          <- matrix(c(1, 2, 3, 1, 1, 0), nrow = 2, ncol = 3,
+                           byrow = TRUE)
+
+# solve the optimization problem using Gurobi
+result <- gurobi(model, list())
+
+#'
+#+
+intensive_mte <- ivmte(
+  data = df,
+  target = "atu",
+  m0 = ~ u + linc_ln + factor(year),
+  m1 = ~ u + price_ln + linc_ln + factor(year),
+  ivlike = donate_ln ~ price_ln + linc_ln + factor(year),
+  propensity = d_relief_donate ~ employee,
+  link = "probit",
+  bootstraps = 100
+)
+
+#'
 # /*
 #+
 rmarkdown::render(
-  "script/R/1-summary.r",
+  "script/4-mte.r",
   output_dir = "report/view"
 )
 # */
