@@ -248,12 +248,20 @@ donate_member <- donate_purpose %>%
     names_from = purpose, values_from = amount,
     values_fill = 0, names_prefix = "donate_"
   ) %>%
+  dplyr::select(-donate_NA) %>%
   mutate(
     donate = donate_religious + donate_welfare + donate_educ + donate_others +
       donate_religious_action + donate_culture + donate_unknown,
-    d_donate = if_else(donate > 0, 1, 0)
-  ) %>%
-  dplyr::select(-donate_NA)
+    d_donate = if_else(donate > 0, 1, 0),
+    d_donate_religious = if_else(donate_religious > 0, 1, 0),
+    d_donate_welfare = if_else(donate_welfare > 0, 1, 0),
+    d_donate_educ = if_else(donate_educ > 0, 1, 0),
+    d_donate_others = if_else(donate_others > 0, 1, 0),
+    d_donate_poliparty = if_else(donate_poliparty > 0, 1, 0),
+    d_donate_religious_action = if_else(donate_religious_action > 0, 1, 0),
+    d_donate_culture = if_else(donate_culture > 0, 1, 0),
+    d_donate_unknown = if_else(donate_unknown > 0, 1, 0)
+  )
 
 # 寄付支出データ（世帯単位）
 donate_household <- raw %>%
@@ -281,6 +289,14 @@ donate_label <- list(
   donate_others = "[世帯員]その他の団体に対する寄付（単位:10,000KRW）",
   donate_unknown = "[世帯員]支出先不明の寄付（単位:10,000KRW）",
   donate = "[世帯員]年間寄付金支出総額（単位:10,000KRW）",
+  d_donate_religious = "[世帯員]宗教団体に対する寄付の有無",
+  d_donate_welfare = "[世帯員]社会福祉団体に対する寄付の有無",
+  d_donate_educ = "[世帯員]教育団体に対する寄付の有無",
+  d_donate_poliparty = "[世帯員]政治団体に対する寄付の有無",
+  d_donate_culture = "[世帯員]文化団体に対する寄付の有無",
+  d_donate_religious_action = "[世帯員]宗教団体の貧困救済活動に対する寄付の有無",
+  d_donate_others = "[世帯員]その他の団体に対する寄付の有無",
+  d_donate_unknown = "[世帯員]支出先不明の寄付の有無",
   d_donate = "[世帯員]寄付金支出の有無",
   h_donate = "[世帯]年間寄付金支出総額（単位:10,000KRW）",
   d_h_donate = "[世帯]寄付金支出の有無"
