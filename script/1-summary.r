@@ -125,7 +125,9 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' ## Message from Figure \@ref(fig:SummaryPrice): Right-Skewed Distribution
+#' ## Message from Figure \@ref(fig:SummaryPrice)
+#'
+#' Right-skewed income distribution:
 #'
 #' - NaSTaB contains the annual taxable labor income last year
 #' - Our sample includes subjects with no labor income (e.g. housewives)
@@ -133,19 +135,13 @@ df %>%
 #' - National Tax Statistical Yearbook 2012-2018 (Korean National Tax Service): the average annual taxable income is 32.77 million KRW
 #'   - Sample: employees who submitted the tax return
 #'
-#' ## Message from Figure \@ref(fig:SummaryPrice): Price Variation
+#' Price variation for indetification
 #'
-#' Based on changes in tax incentive due to the 2014 tax reform,
-#' we can devide into three income groups:
-#'
-#' 1. less than 120 million KRW
-#'     - 2014 tax reform has expanded tax incentive (decreased giving price)
-#' 1. between 120 million KRW and 460 million KRW
-#'     - 2014 tax reform has unchanged tax incentive
-#' 1. more than 460 million KRW.
-#'     - 2014 tax reform has decreased tax incentive (increaed giving price)
-#'
-#' This is main source of identification for effect of tax incentive on giving.
+#' - Based on changes in tax incentive due to the 2014 tax reform, we can devide into three income groups:
+#'     1. less than 120 million KRW: expanded tax incentive (decreased giving price)
+#'     1. between 120 million KRW and 460 million KRW: unchanged tax incentive
+#'     1. more than 460 million KRW: decreased tax incentive (increaed giving price)
+#' - This is main source of identification for effect of tax incentive on giving.
 #'
 #' ## Donors Decreased Immediately After Tax Reform
 #'
@@ -242,16 +238,17 @@ df %>%
 #'
 #' ## Message from Figure \@ref(fig:SummaryGivingOverall)
 #'
-#' - Price effect = Tax incentive increases charitable giving
-#'   - Donations for income groups with unchanged or increased tax incentives have exceeded those in 2013 since 2015
-#'   - Donations for income groups with reduced tax incentives have been lower than before tax reform since 2015
+#' Price effect = Tax incentive increases charitable giving
 #'
-#' Notes:
+#' - Donations for income groups with unchanged or increased tax incentives have exceeded those in 2013 since 2015
+#' - Donations for income groups with reduced tax incentives have been lower than before tax reform since 2015
+#'
+#' Other findings:
 #'
 #' 1. Prior to the 2014 tax reform, donations did not change in all groups
 #' 1. Donations for all groups were lower than in 2013
 #'     - Donations for income groups with reduced tax incentive due to the 2014 tax reform was 40% of that in 2013
-#'     - Announcement effect? Learning effect (瀧井先生のコメント)?
+#'     - Announcement effect? Learning effect?
 #'
 #' ## Price Effect Can Be Partially Observed for Intensive Margin
 #'
@@ -329,11 +326,14 @@ df %>%
 #'
 #' ## Message from Figure \@ref(fig:SummaryGivingIntensive) and \@ref(fig:SummaryGivingExtensive)
 #'
-#' - Intensive margin (How much donors give): Price effect can be partially observed
-#'   - tax incentiveが変化しない所得層が寄付を最も増やしていたが、tax incentiveが減少した所得層はあまり寄付を増やさなかった
-#'   - tax incentiveが変化しない所得層の方がtax incentiveが拡充された所得層よりも寄付を増やしていた(price effectではない)
-#' - Extensive margin (Whethre respondents donate): Price effect can be observed
-#'   - 全体の寄付の増加率のグラフ（Figure \@ref(fig:SummaryGivingOverall)）と同じ傾向
+#' Intensive margin (How much donors give): Price effect can be partially observed
+#'
+#' - The income group that increased the donation most was the group whose tax incentive did not change, but the donation of the income group that decreased the tax incentive did not change significantly.
+#' - Income groups with unchanged tax incentives has increased donations more than income groups with expanded tax incentives (opposite to the price effect).
+#'
+#' Extensive margin (Whethre respondents donate): Price effect can be observed
+#'
+#' - Same trend as Figure \@ref(fig:SummaryGivingOverall)
 #'
 #' ## Application for Tax Relief Decreased After Tax Reform
 #'
@@ -372,17 +372,7 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' ## Message from Figure \@ref(fig:SummaryReliefbyIncome)
-#'
-#' 1. 2014年税制改革以降、寄付控除を申請した人の割合は減少した
-#'     - 全体を通した寄付控除の申請比率：10% (Table \@ref(tab:SummaryCovariate))
-#'     - tax incentiveが減少した所得層の寄付控除の申請比率が減少した
-#' 2. tax incentiveが増加した所得層の寄付者の割合が増えたにも関わらず、寄付控除の申請比率は伸びていない
-#'     - 寄付控除を申告することで得するはずなのに、それをしていない人がいる $\to$ 申請コストが存在する
-#'
-#' ## Similar Distribution of Giving Regardless of Application
-#'
-#+ SummaryGivingIntensiveDist, fig.cap = "Distribution of Charitable Giving among Those Who Donated", out.extra = ""
+#+ SummaryGivingIntensiveDist, include = FALSE
 df %>%
   filter(year <= 2017) %>%
   filter(!is.na(d_relief_donate) & d_donate == 1) %>%
@@ -401,30 +391,17 @@ df %>%
   ggtemp()
 
 #'
-#' Figure \@ref(fig:SummaryReliefbyIncome) shows
-#' proportion of application for tax relief by three income groups.
-#' This figure has two key findings.
-#' First, tax incentive negatively correlated with application for tax relief.
-#' Since the 2014 tax reform,
-#' the share of application for tax relief has not increased
-#' in all income groups compared to 2013.
-#' In particular, the decrease in the application rate is the largest
-#' among income groups whose tax incentives decreased
-#' due to the 2014 tax reform.
+#' ## Message from Figure \@ref(fig:SummaryReliefbyIncome)
 #'
-#' Second, the trend of application for tax relief does not match
-#' the trend of share of donors.
-#' If there is no application cost,
-#' the trend shown in Figure \@ref(fig:SummaryReliefbyIncome) is
-#' same as Figure \@ref(fig:SummaryGivingExtensive)
-#' because all donors should apply for tax relief.
-#' Thus, Figure \@ref(fig:SummaryGivingExtensive) and
-#' \@ref(fig:SummaryReliefbyIncome) imply that
-#' there is cost to apply for tax relief.
-#' The distribution of donations conditional on donors does not change
-#' significantly depending on whether or not they have applied for tax relief,
-#' suggesting that the application cost is high
-#' (Figure \@ref(fig:SummaryGivingIntensiveDist)).
+#' 1. tax incentive negatively correlated with application for tax relief.
+#'     - Since the 2014 tax reform, the share of application for tax relief has not increased in all income groups compared to 2013.
+#'     - the decrease in the application rate is the largest among income groups whose tax incentives decreased due to the 2014 tax reform.
+#' 2. the trend of application for tax relief does not match the trend of share of donors.
+#'     - If there is no application cost, all donors should apply for tax relief
+#'     - Figure \@ref(fig:SummaryGivingExtensive) and \@ref(fig:SummaryReliefbyIncome) imply that there is cost to apply for tax relief.
+#'     - The distribution of donations conditional on donors does not change significantly depending on whether or not they have applied for tax relief, suggesting that the application cost is high (Figure \@ref(fig:SummaryGivingIntensiveDist)).
+#'
+#' ## Wage Earners Are More Likely to Apply for Tax Relief
 #'
 #+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""
 df %>%
@@ -451,9 +428,7 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
-#' ## Wage Earners Are More Likely to Apply (2)
-#'
-#+ SummaryReliefbyEarner2, fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""
+#+ SummaryReliefbyEarner2, include = FALSE
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(employee) & d_donate == 1) %>%
@@ -478,20 +453,14 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
-#' Figure \@ref(fig:SummaryReliefbyEarner)
-#' shows the proportion of application by wage earners or not.
-#' Employment status is one dimension of variation of applied cost.
-#' For the declaration, self-employed workers have to retain the certificate
-#' until they submit tax return
-#' although wage earners can declare tax relief and submit the certificate
-#' through their company at any time.
-#' This figure shows that the proportion of declaring a tax relief
-#' among wage earners is higher than the others,
-#' suggesting that application cost for wage earners
-#' is lower than for other than wage earners.
-#' This trend does not change
-#' when we calculate the proportion of application conditional on donors
-#' (Figure \@ref(fig:SummaryReliefbyEarner2)).
+#' ## Message from Figure \@ref(fig:SummaryReliefbyEarner)
+#'
+#' - Employment status is one dimension of variation of applied cost.
+#'   - self-employed workers have to retain the certificate until they submit tax return.
+#'   - wage earners can declare tax relief and submit the certificate through their company at any time.
+#' - the proportion of declaring a tax relief among wage earners is higher than the others
+#'   - Application cost for wage earners is lower than for other than wage earners
+#'   - This trend does not change when we calculate the proportion of application conditional on donors (Figure \@ref(fig:SummaryReliefbyEarner2)).
 #'
 # /*
 #+

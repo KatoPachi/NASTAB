@@ -74,6 +74,7 @@ xfun::pkg_attach2(c(
 lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 ```
 
+<!---
 ## Introduction
 
 - In many countries, tax relief for charitable giving are implemented.
@@ -202,7 +203,6 @@ Since 2014, tax relief of charitable giving has changed from **income deduction 
 - $m$ is tax credit rate and is $m = 0.15$
 - Tax incentive is $s_{it} = m$
 
-<!--
 # Identification Strategy
 ## Outcome Equation
 
@@ -228,13 +228,7 @@ Thus, observed outcome equation is
 # Data
 
 ```{r}
-knitr::spin_child("script/R/1-summary.R")
-```
-
-# First-Stage Result: Who Applied for Tax Relief?
-
-```{r eval = FALSE}
-knitr::spin_child("script/R/2-stage1.R")
+knitr::spin_child("script/1-summary.R")
 ```
 
 # Estimating Conventional Price Elasticities
@@ -243,18 +237,19 @@ knitr::spin_child("script/R/2-stage1.R")
 knitr::spin_child("script/R/3-elasticity.R")
 ```
 
-# Control Function Approach
-
-```{r eval = FALSE}
-knitr::spin_child("script/R/4-cf_approach.R")
-```
-
-# Welfare Implication
-
-```{r eval = FALSE}
-knitr::spin_child("script/R/5-welfare.R")
-```
 
 # Conclusion
 
 # References {-}
+
+# Appendix
+
+## Distribution of Donations Conditional on Donors
+
+```{r SummaryGivingIntensiveDist, ref.label = "SummaryGivingIntensiveDist", fig.cap = "Distribution of Charitable Giving among Those Who Donated", out.extra = ""}
+```
+
+## Share of Application Conditional on Donors by Wage Earners
+
+```{r SummaryReliefbyEarner2, ref.label = "SummaryReliefbyEarner2", fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""}
+```
