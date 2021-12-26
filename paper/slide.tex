@@ -122,29 +122,6 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-\newlength{\cslhangindent}
-\setlength{\cslhangindent}{1.5em}
-\newlength{\csllabelwidth}
-\setlength{\csllabelwidth}{3em}
-\newlength{\cslentryspacingunit} % times entry-spacing
-\setlength{\cslentryspacingunit}{\parskip}
-\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
- {% don't indent paragraphs
-  \setlength{\parindent}{0pt}
-  % turn on hanging indent if param 1 is 1
-  \ifodd #1
-  \let\oldpar\par
-  \def\par{\hangindent=\cslhangindent\oldpar}
-  \fi
-  % set entry spacing
-  \setlength{\parskip}{#2\cslentryspacingunit}
- }%
- {}
-\usepackage{calc}
-\newcommand{\CSLBlock}[1]{#1\hfill\break}
-\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
-\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
-\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 
 \ifLuaTeX
@@ -155,231 +132,13 @@
 \author[shortname]{ Hiroki Kato \inst{1} \and  Tsuyoshi Goto \inst{2} \and  Yong-Rok Kim \inst{3} \and }
 \institute[shortinst]{ \inst{1} Osaka University \and  \inst{2} Chiba University \and  \inst{3} Kansai University \and }
 
-\date{2021/12/23}
+\date{2021/12/27}
 
 
 \begin{document}
 \frame{\titlepage}
 
-\begin{frame}{Introduction}
-\protect\hypertarget{introduction}{}
-\begin{itemize}
-\tightlist
-\item
-  In many countries, tax relief for charitable giving are implemented.
-\item
-  The elasticity of giving tax relief is known as a key parameter to evaluate the welfare implication (Saez, 2004).
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Intuitively, if the elasticity is more than 1 in absolute value, \$1 of tax relief make more than \$1 of charitable giving.
-  \end{itemize}
-\item
-  Many papers investigate the elasticity based on tax return data (Almunia et al., 2020; Auten et al., 2002).
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Introduction}
-\protect\hypertarget{introduction-1}{}
-\begin{itemize}
-\tightlist
-\item
-  However, the tax return data record only the declared charitable giving.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    First issue: \textbf{Actual donations is different from declared donations.} (Fack and Landais, 2016; Gillitzer and Skov, 2018)
-  \item
-    We use panel survey data in South Korea to deal with this issue.
-  \end{itemize}
-\item
-  Tax payers decide the amount of donation and whether to declare tax relief based on the size of tax incentive and declaration cost.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Second issue: Neglect of this declaration cost may bias the estimations of elasticity.
-  \item
-    We use instrumental variable (IV) and control function approach for this issue.
-  \end{itemize}
-\item
-  Based on DID as an identification strategy, we investigate the giving price elasticity of South Korea.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Introduction}
-\protect\hypertarget{introduction-2}{}
-Result
-
-\begin{enumerate}
-\tightlist
-\item
-  Baseline results show that the giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.7 in terms of extensive margins in Korea.
-\item
-  The estimated giving price elasticity for those who declare charitable giving is around -1.2 -1.6.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    These estimates are more elastic than the estimates in the extant research, many of which show around -1.
-  \end{itemize}
-\item
-  By reducing application cost, we can increase charitable giving.
-\item
-  Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
-\end{enumerate}
-\end{frame}
-
-\hypertarget{conceptual-framework}{%
-\section{Conceptual Framework}\label{conceptual-framework}}
-
-\begin{frame}{Optimization Problem}
-\protect\hypertarget{optimization-problem}{}
-Following Almunia et al. (2020),
-consider allocation problem between private consumption (\(x_{it}\)) and charitable giving (\(g_{it}\))
-
-\begin{align}
-  \max_{x_{it}, g_{it}, R_{it}} &U(x_{it}, g_{it}, G_t)
-  = u_i(x_{it}, g_{it}, G_t) - R_{it}K(Z_{it}), \\
-  \text{s.t.}\:\:
-  &x_{it} + g_{it}
-  = y_{it} - R_{it} T_{it}(y_{it}, g_{it}) - (1 - R_{it}) T_{it}(y_{it}), \\
-  &G_t = g_{it} + G_{-it},
-\end{align}
-
-where \(y_{it}\) is pre-tax total income, \(R_{it}\) is a dummy of declaration of tax relief and \(T_{it}(y_{it})\) and \(T_{it}(y_{it}, g_{it})\) are respectively the amount of tax when \(i\) does not declare tax relief and when \(i\) declares tax relief in year \(t\). \(G_{-it}\) is public goods supplied by others. \(K(Z_{it})\) is application cost which is a function of instrument \(Z_{it}\).
-\end{frame}
-
-\begin{frame}{Remarks on Optimization Problem}
-\protect\hypertarget{remarks-on-optimization-problem}{}
-We assume
-
-\begin{itemize}
-\tightlist
-\item
-  No saving
-\item
-  \(G_{-it}\) is large enough to \(\frac{\partial u_i}{\partial G}(x, g, G) \approx 0\)
-\end{itemize}
-
-Given \(R_{it}\), optimal level of donations sloves
-
-\begin{align}
-  \max_{g_{it}} u_i(
-    y_{it} - R_{it} T_{it}(y_{it}, g_{it}) - (1 - R_{it}) T_{it}(y_{it}) - g_{it}, g_{it}, g_{it} + G_{-it}
-  ).
-\end{align}
-
-\begin{itemize}
-\tightlist
-\item
-  We can ignore application cost \(K(Z_{it})\) when solving optimal giving level because the application cost does not depend on \(g_{it}\)
-\end{itemize}
-\end{frame}
-
-\begin{frame}{First-Order Condition}
-\protect\hypertarget{first-order-condition}{}
-\begin{align}
-  - \frac{\partial u_i}{\partial x_{it}}
-  \left( R_{it} \frac{\partial T_{it}}{\partial g_{it}}(y_{it}, g_{it}) + 1 \right)
-  + \frac{\partial u_i}{\partial g_{it}} = 0
-\end{align}
-
-\begin{itemize}
-\tightlist
-\item
-  \(\partial T_{it} / \partial g_{it} < 0\) is tax incentive of charitable giving.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Let \(s_{it} \equiv |\partial T_{it} / \partial g_{it}|\) be size of tax incentive.
-  \item
-    Relative giving price is \(1 - s_{it}\)
-  \item
-    As we explain later, there is \emph{within} variation of \(s_{it}\) due to tax reform.
-  \end{itemize}
-\end{itemize}
-
-Define \(g_i(1 - s_{it}, y_{it})\) and \(g_i(1, y_{it})\) to be the optimal levels of donations (potential outcomes) for choices \(R_{it} = 1, 0\) respectively.
-\end{frame}
-
-\begin{frame}{Self-Selection of Tax Relief}
-\protect\hypertarget{self-selection-of-tax-relief}{}
-We can write indirect utility as
-
-\begin{align}
-  &v_i(1 - s_{it}, y_{it}, G_{-it}) - K(Z_{it}),  \\
-  &v_i(1, y_{it}, G_{-it}).
-\end{align}
-
-Thus, individual \(i\) applies for tax relief in year \(t\),
-that is, \(R_{it} = 1\) iff
-
-\begin{align}
-  \Delta v_{it} \equiv
-  v_i(1 - s_{it}, y_{it}, G_{-it}) - v_i(1, y_{it}, G_{-it})
-  \ge K(Z_{it}).
-\end{align}
-\end{frame}
-
-\hypertarget{institutional-background-in-south-korea}{%
-\section{Institutional Background in South Korea}\label{institutional-background-in-south-korea}}
-
-\begin{frame}{2014 Tax Reform}
-\protect\hypertarget{tax-reform}{}
-Since 2014, tax relief of charitable giving has changed from \textbf{income deduction (所得控除)} to \textbf{tax credit (税額控除)}.
-
-\begin{itemize}
-\tightlist
-\item
-  Income deductions are more advantageous for high-income groups than low-income groups because the higher the income, the greater the decrease in tax burden.
-\item
-  The 2014 tax reform aimed to alleviate the regressiveness of taxes and improve the equilibrium of taxation by changing from income deductions to tax credits.
-\item
-  We exploit this reform as a main source of variation for identification
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Difference-in-Difference
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{2014 Tax Reform}
-\protect\hypertarget{tax-reform-1}{}
-\textbf{Tax deduction system (until 2013)}
-
-\begin{align}
-  T_{it}(y_{it}, g_{it}) = T_{it}(y_{it} - g_{it})
-\end{align}
-
-\begin{itemize}
-\tightlist
-\item
-  Tax incentive is \(s_{it} = T'(y_{it} - g_{it})\)
-\item
-  In 2012 and 2013, the marginal tax rate was the same, though it was different from ones before 2011.
-\item
-  The giving price depended on income level (\(y_{it}\)) and giving level (\(g_{it}\))
-\end{itemize}
-
-\textbf{Tax credit system (from 2014)}
-
-\begin{align}
-  T_{it}(y_{it}, g_{it}) = T_{it}(y_{it}) - m g_{it}
-\end{align}
-
-\begin{itemize}
-\tightlist
-\item
-  \(m\) is tax credit rate and is \(m = 0.15\)
-\item
-  Tax incentive is \(s_{it} = m\)
-\end{itemize}
+\begin{frame}
 \end{frame}
 
 \hypertarget{data}{%
@@ -427,22 +186,22 @@ Since 2014, tax relief of charitable giving has changed from \textbf{income dedu
 \midrule
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Income and giving price}}\\
-\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 36249 & 1754.32 & 2702.16 & 0.00 & 0.00 & 50000.00\\
-\hspace{1em}Relative first price of giving & 36258 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
+\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 36189 & 1747.26 & 2696.77 & 0.00 & 0.00 & 50000.00\\
+\hspace{1em}First giving relative price & 36198 & 0.86 & 0.04 & 0.62 & 0.85 & 0.94\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Charitable giving}}\\
-\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 36259 & 35.86 & 153.36 & 0.00 & 0.00 & 10000.00\\
-\hspace{1em}Dummary of donation > 0 & 36259 & 0.24 & 0.43 & 0.00 & 0.00 & 1.00\\
-\hspace{1em}Dummy of declaration of a tax relief & 36259 & 0.10 & 0.30 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 36199 & 35.64 & 153.20 & 0.00 & 0.00 & 10000.00\\
+\hspace{1em}Dummary of donation > 0 & 36199 & 0.24 & 0.42 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Dummy of declaration of a tax relief & 36199 & 0.10 & 0.30 & 0.00 & 0.00 & 1.00\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
-\hspace{1em}Age & 36259 & 53.43 & 16.21 & 24.00 & 51.00 & 103.00\\
-\hspace{1em}Female dummy & 36259 & 0.43 & 0.50 & 0.00 & 0.00 & 1.00\\
-\hspace{1em}University graduate & 36258 & 0.42 & 0.49 & 0.00 & 0.00 & 1.00\\
-\hspace{1em}High school graduate dummy & 36258 & 0.31 & 0.46 & 0.00 & 0.00 & 1.00\\
-\hspace{1em}Junior high school graduate dummy & 36258 & 0.27 & 0.44 & 0.00 & 0.00 & 1.00\\
-\hspace{1em}Wage earner dummy & 27453 & 0.56 & 0.50 & 0.00 & 1.00 & 1.00\\
-\hspace{1em}\#.Tax accountant / population & 36259 & 1.04 & 0.51 & 0.32 & 0.92 & 2.24\\
+\hspace{1em}Age & 36199 & 53.45 & 16.22 & 24.00 & 51.00 & 103.00\\
+\hspace{1em}Female dummy & 36199 & 0.43 & 0.50 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}University graduate & 36198 & 0.42 & 0.49 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}High school graduate dummy & 36198 & 0.31 & 0.46 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Junior high school graduate dummy & 36198 & 0.27 & 0.44 & 0.00 & 0.00 & 1.00\\
+\hspace{1em}Wage earner dummy & 27394 & 0.56 & 0.50 & 0.00 & 1.00 & 1.00\\
+\hspace{1em}\#.Tax accountant / population & 36199 & 1.04 & 0.51 & 0.32 & 0.92 & 2.24\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -460,8 +219,10 @@ Since 2014, tax relief of charitable giving has changed from \textbf{income dedu
 \end{figure}
 \end{frame}
 
-\begin{frame}{Message from Figure \ref{fig:SummaryPrice}: Right-Skewed Distribution}
-\protect\hypertarget{message-from-figure-reffigsummaryprice-right-skewed-distribution}{}
+\begin{frame}{Message from Figure \ref{fig:SummaryPrice}}
+\protect\hypertarget{message-from-figure-reffigsummaryprice}{}
+Right-skewed income distribution:
+
 \begin{itemize}
 \tightlist
 \item
@@ -483,42 +244,26 @@ Since 2014, tax relief of charitable giving has changed from \textbf{income dedu
     Sample: employees who submitted the tax return
   \end{itemize}
 \end{itemize}
-\end{frame}
 
-\begin{frame}{Message from Figure \ref{fig:SummaryPrice}: Price Variation}
-\protect\hypertarget{message-from-figure-reffigsummaryprice-price-variation}{}
-Based on changes in tax incentive due to the 2014 tax reform,
-we can devide into three income groups:
+Price variation for indetification
 
-\begin{enumerate}
+\begin{itemize}
 \tightlist
 \item
-  less than 120 million KRW
+  Based on changes in tax incentive due to the 2014 tax reform, we can devide into three income groups:
 
-  \begin{itemize}
+  \begin{enumerate}
   \tightlist
   \item
-    2014 tax reform has expanded tax incentive (decreased giving price)
-  \end{itemize}
+    less than 120 million KRW: expanded tax incentive (decreased giving price)
+  \item
+    between 120 million KRW and 460 million KRW: unchanged tax incentive
+  \item
+    more than 460 million KRW: decreased tax incentive (increaed giving price)
+  \end{enumerate}
 \item
-  between 120 million KRW and 460 million KRW
-
-  \begin{itemize}
-  \tightlist
-  \item
-    2014 tax reform has unchanged tax incentive
-  \end{itemize}
-\item
-  more than 460 million KRW.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    2014 tax reform has decreased tax incentive (increaed giving price)
-  \end{itemize}
-\end{enumerate}
-
-This is main source of identification for effect of tax incentive on giving.
+  This is main source of identification for effect of tax incentive on giving.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Donors Decreased Immediately After Tax Reform}
@@ -580,21 +325,17 @@ Notes:
 
 \begin{frame}{Message from Figure \ref{fig:SummaryGivingOverall}}
 \protect\hypertarget{message-from-figure-reffigsummarygivingoverall}{}
+Price effect = Tax incentive increases charitable giving
+
 \begin{itemize}
 \tightlist
 \item
-  Price effect = Tax incentive increases charitable giving
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Donations for income groups with unchanged or increased tax incentives have exceeded those in 2013 since 2015
-  \item
-    Donations for income groups with reduced tax incentives have been lower than before tax reform since 2015
-  \end{itemize}
+  Donations for income groups with unchanged or increased tax incentives have exceeded those in 2013 since 2015
+\item
+  Donations for income groups with reduced tax incentives have been lower than before tax reform since 2015
 \end{itemize}
 
-Notes:
+Other findings:
 
 \begin{enumerate}
 \tightlist
@@ -608,7 +349,7 @@ Notes:
   \item
     Donations for income groups with reduced tax incentive due to the 2014 tax reform was 40\% of that in 2013
   \item
-    Announcement effect? Learning effect (瀧井先生のコメント)?
+    Announcement effect? Learning effect?
   \end{itemize}
 \end{enumerate}
 \end{frame}
@@ -639,26 +380,22 @@ Notes:
 
 \begin{frame}{Message from Figure \ref{fig:SummaryGivingIntensive} and \ref{fig:SummaryGivingExtensive}}
 \protect\hypertarget{message-from-figure-reffigsummarygivingintensive-and-reffigsummarygivingextensive}{}
+Intensive margin (How much donors give): Price effect can be partially observed
+
 \begin{itemize}
 \tightlist
 \item
-  Intensive margin (How much donors give): Price effect can be partially observed
-
-  \begin{itemize}
-  \tightlist
-  \item
-    tax incentiveが変化しない所得層が寄付を最も増やしていたが、tax incentiveが減少した所得層はあまり寄付を増やさなかった
-  \item
-    tax incentiveが変化しない所得層の方がtax incentiveが拡充された所得層よりも寄付を増やしていた(price effectではない)
-  \end{itemize}
+  The income group that increased the donation most was the group whose tax incentive did not change, but the donation of the income group that decreased the tax incentive did not change significantly.
 \item
-  Extensive margin (Whethre respondents donate): Price effect can be observed
+  Income groups with unchanged tax incentives has increased donations more than income groups with expanded tax incentives (opposite to the price effect).
+\end{itemize}
 
-  \begin{itemize}
-  \tightlist
-  \item
-    全体の寄付の増加率のグラフ（Figure \ref{fig:SummaryGivingOverall}）と同じ傾向
-  \end{itemize}
+Extensive margin (Whethre respondents donate): Price effect can be observed
+
+\begin{itemize}
+\tightlist
+\item
+  Same trend as Figure \ref{fig:SummaryGivingOverall}
 \end{itemize}
 \end{frame}
 
@@ -670,7 +407,7 @@ Notes:
 
 }
 
-\caption{Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.}\label{fig:SummaryReliefbyIncome}
+\caption{Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryReliefbyIncome}
 \end{figure}
 \end{frame}
 
@@ -679,57 +416,32 @@ Notes:
 \begin{enumerate}
 \tightlist
 \item
-  2014年税制改革以降、寄付控除を申請した人の割合は減少した
+  tax incentive negatively correlated with application for tax relief.
 
   \begin{itemize}
   \tightlist
   \item
-    全体を通した寄付控除の申請比率：10\% (Table \ref{tab:SummaryCovariate})
+    Since the 2014 tax reform, the share of application for tax relief has not increased in all income groups compared to 2013.
   \item
-    tax incentiveが減少した所得層の寄付控除の申請比率が減少した
+    the decrease in the application rate is the largest among income groups whose tax incentives decreased due to the 2014 tax reform.
   \end{itemize}
 \item
-  tax incentiveが増加した所得層の寄付者の割合が増えたにも関わらず、寄付控除の申請比率は伸びていない
+  the trend of application for tax relief does not match the trend of share of donors.
 
   \begin{itemize}
   \tightlist
   \item
-    寄付控除を申告することで得するはずなのに、それをしていない人がいる \(\to\) 申請コストが存在する
+    If there is no application cost, all donors should apply for tax relief
+  \item
+    Figure \ref{fig:SummaryGivingExtensive} and \ref{fig:SummaryReliefbyIncome} imply that there is cost to apply for tax relief.
+  \item
+    The distribution of donations conditional on donors does not change significantly depending on whether or not they have applied for tax relief, suggesting that the application cost is high (Figure \ref{fig:SummaryGivingIntensiveDist}).
   \end{itemize}
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Similar Distribution of Giving Regardless of Application}
-\protect\hypertarget{similar-distribution-of-giving-regardless-of-application}{}
-\begin{figure}[t]
-
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingIntensiveDist-1} 
-
-}
-
-\caption{Distribution of Charitable Giving among Those Who Donated}\label{fig:SummaryGivingIntensiveDist}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Message from Figure \ref{fig:SummaryGivingIntensiveDist}}
-\protect\hypertarget{message-from-figure-reffigsummarygivingintensivedist}{}
-\begin{itemize}
-\tightlist
-\item
-  すべての年においても、寄付者に限定した寄付の分布は寄付控除の申請の有無に依存しない
-
-  \begin{itemize}
-  \tightlist
-  \item
-    寄付控除を申請していない人の寄付額の分布が申請している人よりも左側にあるならば、申請コストの程度は小さいと予想される
-  \item
-    分布の形状がほとんど一致しているので、申請コストの程度はかなり大きいと予想される
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Wage Earners Are More Likely to Apply (1)}
-\protect\hypertarget{wage-earners-are-more-likely-to-apply-1}{}
+\begin{frame}{Wage Earners Are More Likely to Apply for Tax Relief}
+\protect\hypertarget{wage-earners-are-more-likely-to-apply-for-tax-relief}{}
 \begin{figure}[t]
 
 {\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryReliefbyEarner-1} 
@@ -740,50 +452,35 @@ Notes:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Wage Earners Are More Likely to Apply (2)}
-\protect\hypertarget{wage-earners-are-more-likely-to-apply-2}{}
-\begin{figure}[t]
-
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryReliefbyEarner2-1} 
-
-}
-
-\caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Message from Figure \ref{fig:SummaryReliefbyEarner} and \ref{fig:SummaryReliefbyEarner2}}
-\protect\hypertarget{message-from-figure-reffigsummaryreliefbyearner-and-reffigsummaryreliefbyearner2}{}
+\begin{frame}{Message from Figure \ref{fig:SummaryReliefbyEarner}}
+\protect\hypertarget{message-from-figure-reffigsummaryreliefbyearner}{}
 \begin{itemize}
 \tightlist
 \item
-  給与所得者はそうでない人よりも寄付控除を申請しやすい
+  Employment status is one dimension of variation of applied cost.
 
   \begin{itemize}
   \tightlist
   \item
-    自営業者（非給与所得者の主）は寄付の証明書を常に保管しているようなことはない（申請期限前に問い合わせが殺到する）
+    self-employed workers have to retain the certificate until they submit tax return.
   \item
-    給与所得者の方が申請しやすい環境にあることがデータからもわかる
-  \item
-    給与所得者かどうかで寄付者の比率が異なる可能性を考慮して、寄付者に限定しても同じ傾向である(Figure \ref{fig:SummaryReliefbyEarner2})
+    wage earners can declare tax relief and submit the certificate through their company at any time.
   \end{itemize}
 \item
-  2014年税制改革以降、寄付控除の申請比率は減少している（とくに、給与所得者）
+  the proportion of declaring a tax relief among wage earners is higher than the others
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Application cost for wage earners is lower than for other than wage earners
+  \item
+    This trend does not change when we calculate the proportion of application conditional on donors (Figure \ref{fig:SummaryReliefbyEarner2}).
+  \end{itemize}
 \end{itemize}
 \end{frame}
 
-\hypertarget{first-stage-result-who-applied-for-tax-relief}{%
-\section{First-Stage Result: Who Applied for Tax Relief?}\label{first-stage-result-who-applied-for-tax-relief}}
-
 \hypertarget{estimating-conventional-price-elasticities}{%
 \section{Estimating Conventional Price Elasticities}\label{estimating-conventional-price-elasticities}}
-
-\hypertarget{control-function-approach}{%
-\section{Control Function Approach}\label{control-function-approach}}
-
-\hypertarget{welfare-implication}{%
-\section{Welfare Implication}\label{welfare-implication}}
 
 \hypertarget{conclusion}{%
 \section{Conclusion}\label{conclusion}}
@@ -792,25 +489,31 @@ Notes:
 \section*{References}\label{references}}
 \addcontentsline{toc}{section}{References}
 
-\begin{frame}{References}
-\hypertarget{refs}{}
-\begin{CSLReferences}{1}{0}
-\leavevmode\vadjust pre{\hypertarget{ref-Almunia2020}{}}%
-Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
+\hypertarget{appendix}{%
+\section{Appendix}\label{appendix}}
 
-\leavevmode\vadjust pre{\hypertarget{ref-Auten2002}{}}%
-Auten, G.E., Sieg, H., Clotfelter, C.T., 2002. \href{http://www.jstor.org/stable/3083340}{Charitable giving, income, and taxes: An analysis of panel data}. American Economic Review 92, 371--382.
+\begin{frame}{Distribution of Donations Conditional on Donors}
+\protect\hypertarget{distribution-of-donations-conditional-on-donors}{}
+\begin{figure}[t]
 
-\leavevmode\vadjust pre{\hypertarget{ref-Fack2016}{}}%
-Fack, G., Landais, C., 2016. The effect of tax enforcement on tax elasticities: Evidence from charitable contributions in france. Journal of Public Economics 133, 23--40. doi:\url{https://doi.org/10.1016/j.jpubeco.2015.10.004}
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingIntensiveDist-1} 
 
-\leavevmode\vadjust pre{\hypertarget{ref-Gillitzer2018}{}}%
-Gillitzer, C., Skov, P.E., 2018. {The use of third-party information reporting for tax deductions: evidence and implications from charitable deductions in Denmark}. Oxford Economic Papers 70, 892--916. doi:\href{https://doi.org/10.1093/oep/gpx055}{10.1093/oep/gpx055}
+}
 
-\leavevmode\vadjust pre{\hypertarget{ref-Saez2004}{}}%
-Saez, E., 2004. The optimal treatment of tax expenditures. Journal of Public Economics 88, 2657--2684. doi:\href{https://doi.org/10.1016/j.jpubeco.2003.09.004}{10.1016/j.jpubeco.2003.09.004}
+\caption{Distribution of Charitable Giving among Those Who Donated}\label{fig:SummaryGivingIntensiveDist}
+\end{figure}
+\end{frame}
 
-\end{CSLReferences}
+\begin{frame}{Share of Application Conditional on Donors by Wage Earners}
+\protect\hypertarget{share-of-application-conditional-on-donors-by-wage-earners}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryReliefbyEarner2-1} 
+
+}
+
+\caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
+\end{figure}
 \end{frame}
 
 \end{document}
