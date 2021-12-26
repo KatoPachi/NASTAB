@@ -262,7 +262,9 @@ df %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
   dplyr::select(credit_treat, base, everything()) %>%
-  tidyr::pivot_longer(-(credit_treat:base), values_to = "mu", names_to = "year") %>%
+  tidyr::pivot_longer(
+    -(credit_treat:base), values_to = "mu", names_to = "year"
+  ) %>%
   mutate(mu = mu - base, year = as.numeric(year)) %>%
   mutate(credit_treat = factor(
     credit_treat,
@@ -317,7 +319,9 @@ df %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
   dplyr::select(credit_treat, base, everything()) %>%
-  tidyr::pivot_longer(-(credit_treat:base), values_to = "mu", names_to = "year") %>%
+  tidyr::pivot_longer(
+    -(credit_treat:base), values_to = "mu", names_to = "year"
+  ) %>%
   mutate(mu = mu - base, year = as.numeric(year)) %>%
   mutate(credit_treat = factor(
     credit_treat,
@@ -350,7 +354,9 @@ df %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
   dplyr::select(credit_treat, base, everything()) %>%
-  tidyr::pivot_longer(-(credit_treat:base), values_to = "mu", names_to = "year") %>%
+  tidyr::pivot_longer(
+    -(credit_treat:base), values_to = "mu", names_to = "year"
+  ) %>%
   mutate(mu = mu - base, year = as.numeric(year)) %>%
   mutate(credit_treat = factor(
     credit_treat,
@@ -388,7 +394,7 @@ df %>%
 #'
 #' [^total_labor]: Tax filing is used for *total* income (e.g., business income, dividend income and rental income). Tax withholding is used for *labor* income.
 #'
-#+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.extra = ""
+#+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(credit_treat)) %>%
@@ -397,7 +403,9 @@ df %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
   dplyr::select(credit_treat, base, everything()) %>%
-  tidyr::pivot_longer(-(credit_treat:base), values_to = "mu", names_to = "year") %>%
+  tidyr::pivot_longer(
+    -(credit_treat:base), values_to = "mu", names_to = "year"
+  ) %>%
   mutate(mu = mu - base, year = as.numeric(year)) %>%
   mutate(credit_treat = factor(
     credit_treat,
@@ -439,6 +447,31 @@ df %>%
   ) +
   ggtemp()
 
+#'
+#' Figure \@ref(fig:SummaryReliefbyIncome) shows
+#' proportion of application for tax relief by three income groups.
+#' This figure has two key findings.
+#' First, tax incentive negatively correlated with application for tax relief.
+#' Since the 2014 tax reform,
+#' the share of application for tax relief has not increased
+#' in all income groups compared to 2013.
+#' In particular, the decrease in the application rate is the largest
+#' among income groups whose tax incentives decreased
+#' due to the 2014 tax reform.
+#'
+#' Second, the trend of application for tax relief does not match
+#' the trend of share of donors.
+#' If there is no application cost,
+#' the trend shown in Figure \@ref(fig:SummaryReliefbyIncome) is
+#' same as Figure \@ref(fig:SummaryGivingExtensive)
+#' because all donors should apply for tax relief.
+#' Thus, Figure \@ref(fig:SummaryGivingExtensive) and
+#' \@ref(fig:SummaryReliefbyIncome) imply that
+#' there is cost to apply for tax relief.
+#' The distribution of donations conditional on donors does not change
+#' significantly depending on whether or not they have applied for tax relief,
+#' suggesting that the application cost is high
+#' (Figure \@ref(fig:SummaryGivingIntensiveDist)).
 #'
 #+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""
 df %>%
@@ -489,6 +522,22 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13))
 
+#'
+#' Figure \@ref(fig:SummaryReliefbyEarner)
+#' shows the proportion of application by wage earners or not.
+#' Employment status is one dimension of variation of applied cost.
+#' For the declaration, self-employed workers have to retain the certificate
+#' until they submit tax return
+#' although wage earners can declare tax relief and submit the certificate
+#' through their company at any time.
+#' This figure shows that the proportion of declaring a tax relief
+#' among wage earners is higher than the others,
+#' suggesting that application cost for wage earners
+#' is lower than for other than wage earners.
+#' This trend does not change
+#' when we calculate the proportion of application conditional on donors
+#' (Figure \@ref(fig:SummaryReliefbyEarner2)).
+#'
 # /*
 #+
 rmarkdown::render(
