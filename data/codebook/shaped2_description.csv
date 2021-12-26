@@ -12,6 +12,14 @@ donate_culture,"[世帯員]文化団体に対する寄付（単位:10,000KRW）"
 donate_unknown,"[世帯員]支出先不明の寄付（単位:10,000KRW）"
 donate,"[世帯員]年間寄付金支出総額（単位:10,000KRW）"
 d_donate,[世帯員]寄付金支出の有無
+d_donate_religious,[世帯員]宗教団体に対する寄付の有無
+d_donate_welfare,[世帯員]社会福祉団体に対する寄付の有無
+d_donate_educ,[世帯員]教育団体に対する寄付の有無
+d_donate_others,[世帯員]その他の団体に対する寄付の有無
+d_donate_poliparty,[世帯員]政治団体に対する寄付の有無
+d_donate_religious_action,[世帯員]宗教団体の貧困救済活動に対する寄付の有無
+d_donate_culture,[世帯員]文化団体に対する寄付の有無
+d_donate_unknown,[世帯員]支出先不明の寄付の有無
 h_donate,"[世帯]年間寄付金支出総額（単位:10,000KRW）"
 d_h_donate,[世帯]寄付金支出の有無
 tinc,"[世帯員]年間所得総額（単位: 10,000KRW）"
