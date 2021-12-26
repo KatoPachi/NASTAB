@@ -40,29 +40,11 @@ xfun::pkg_attach2(c(
   "estimatr", "fixest"
 ))
 
-lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
+lapply(Sys.glob(file.path("script/functions", "*.r")), source)
 
 #'
 #+
-df <- readr::read_csv(
-  "data/shaped2.csv",
-  col_types = cols(
-    ext_credit_giving = col_double(),
-    krw_credit_giving = col_double(),
-    trust_politician = col_double(),
-    political_pref = col_double(),
-    addtax = col_double(),
-    avg_welfare_tax = col_double(),
-    opt_welfare_tax = col_double(),
-    now_balance = col_double(),
-    ideal_balance = col_double(),
-    accountant = col_double(),
-    consult = col_double()
-  )) %>%
-  dplyr::filter(
-    ext_benefit_tl == 0 | (ext_benefit_tl == 1 & i_ext_giving == 1)
-  ) %>%
-  dplyr::filter(year <= 2017)
+df <- readr::read_csv("data/shaped2.csv")
 
 #'
 #' ## National Survey of Tax and Benefit (NaSTaB)
@@ -81,16 +63,16 @@ df <- readr::read_csv(
 df %>%
   dplyr::filter(year <= 2017) %>%
   datasummary(
-    (`Annual taxable labor income (unit: 10,000KRW)` = lincome) +
-    (`Relative first price of giving` = price) +
-    (`Annual chariatable giving (unit: 10,000KRW)` = i_total_giving) +
-    (`Dummary of donation > 0` = i_ext_giving) +
-    (`Dummy of declaration of a tax relief` = ext_benefit_tl) +
+    (`Annual taxable labor income (unit: 10,000KRW)` = linc) +
+    (`First giving relative price` = price) +
+    (`Annual chariatable giving (unit: 10,000KRW)` = donate) +
+    (`Dummary of donation > 0` = d_donate) +
+    (`Dummy of declaration of a tax relief` = d_relief_donate) +
     (`Age` = age) +
-    (`Female dummy` = gender) +
+    (`Female dummy` = sex) +
     (`University graduate` = univ) +
     (`High school graduate dummy` = highschool) +
-    (`Junior high school graduate dummy` = juniorhigh) +
+    (`Junior high school graduate dummy` = junior) +
     (`Wage earner dummy` = employee) +
     (`#.Tax accountant / population` = tax_accountant_per) ~
     N +
@@ -114,8 +96,8 @@ df %>%
 #+ SummaryPrice, fig.cap = "Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.", out.extra = ""
 df %>%
   filter(year == 2013) %>%
-  dplyr::select(lincome, price) %>%
-  ggplot(aes(x = lincome)) +
+  dplyr::select(linc, price) %>%
+  ggplot(aes(x = linc)) +
   geom_histogram(
     aes(y = ..count.. / sum(..count..), fill = "Relative frequency"),
     color = "black"
@@ -170,27 +152,27 @@ df %>%
 #+ SummaryGiving, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.", out.extra = ""
 df %>%
   mutate(
-    i_total_giving = if_else(i_ext_giving == 1, i_total_giving, NA_real_)
+    donate = if_else(d_donate == 1, donate, NA_real_)
   ) %>%
   group_by(year) %>%
   summarize_at(
-    vars(i_ext_giving, i_total_giving), list(~ mean(., na.rm = TRUE))
+    vars(d_donate, donate), list(~ mean(., na.rm = TRUE))
   ) %>%
   ggplot(aes(x = year)) +
   geom_bar(
-    aes(y = i_ext_giving, fill = "Proportion of Donors"),
+    aes(y = d_donate, fill = "Proportion of Donors"),
     stat = "identity", color = "black"
   ) +
   geom_point(
     aes(
-      y = i_total_giving / 1000,
+      y = donate / 1000,
       color = "Average Amoount of Donations among Donors"
     ),
     size = 3
   ) +
   geom_line(
     aes(
-      y = i_total_giving / 1000,
+      y = donate / 1000,
       color = "Average Amoount of Donations among Donors"
     )
   ) +
@@ -225,34 +207,31 @@ df %>%
 #'
 #+ SummaryGivingOverall, fig.cap = "Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
 df %>%
-  mutate(group = case_when(
-    credit_loss == 1 ~ 3,
-    credit_neutral == 1 ~ 2,
-    credit_benefit == 1 ~ 1
-  )) %>%
   dplyr::filter(year <= 2017) %>%
-  dplyr::filter(!is.na(group)) %>%
-  group_by(year, group) %>%
-  summarize(mu = mean(log_total_g, na.rm = TRUE)) %>%
+  dplyr::filter(!is.na(credit_treat)) %>%
+  group_by(year, credit_treat) %>%
+  summarize(mu = mean(donate_ln, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
-  dplyr::select(group, base, everything()) %>%
-  tidyr::pivot_longer(-(group:base), values_to = "mu", names_to = "year") %>%
+  dplyr::select(credit_treat, base, everything()) %>%
+  tidyr::pivot_longer(
+    -(credit_treat:base), values_to = "mu", names_to = "year"
+  ) %>%
   mutate(mu = mu - base, year = as.numeric(year)) %>%
-  mutate(group = factor(
-    group,
+  mutate(credit_treat = factor(
+    credit_treat,
     labels = c("< 1200", "[1200, 4600]", "> 4600")
   )) %>%
-  ggplot(aes(x = year, y = mu, group = group)) +
+  ggplot(aes(x = year, y = mu, group = credit_treat)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   geom_hline(aes(yintercept = 0), linetype = 3) +
-  geom_point(aes(shape = group), size = 4) +
+  geom_point(aes(shape = credit_treat), size = 4) +
   geom_line() +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(
     x = "Year",
     y = "Diff. of average logged giving",
-    shape = "Income group (unit:10,000KRW)",
+    shape = "Income credit_treat (unit:10,000KRW)",
     caption = paste(
       "The difference is calculated by",
       "(mean of logged donation in year t) - (mean of logged donation in 2013)."
@@ -278,28 +257,25 @@ df %>%
 #'
 #+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
 df %>%
-  mutate(group = case_when(
-    credit_loss == 1 ~ 3,
-    credit_neutral == 1 ~ 2,
-    credit_benefit == 1 ~ 1
-  )) %>%
   dplyr::filter(year <= 2017) %>%
-  dplyr::filter(!is.na(group) & i_ext_giving == 1) %>%
-  group_by(year, group) %>%
-  summarize(mu = mean(log_total_g, na.rm = TRUE)) %>%
+  dplyr::filter(!is.na(credit_treat) & d_donate == 1) %>%
+  group_by(year, credit_treat) %>%
+  summarize(mu = mean(donate_ln, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
-  dplyr::select(group, base, everything()) %>%
-  tidyr::pivot_longer(-(group:base), values_to = "mu", names_to = "year") %>%
+  dplyr::select(credit_treat, base, everything()) %>%
+  tidyr::pivot_longer(
+    -(credit_treat:base), values_to = "mu", names_to = "year"
+  ) %>%
   mutate(mu = mu - base, year = as.numeric(year)) %>%
-  mutate(group = factor(
-    group,
+  mutate(credit_treat = factor(
+    credit_treat,
     labels = c("< 1200", "[1200, 4600]", "> 4600")
   )) %>%
-  ggplot(aes(x = year, y = mu, group = group)) +
+  ggplot(aes(x = year, y = mu, group = credit_treat)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   geom_hline(aes(yintercept = 0), linetype = 3) +
-  geom_point(aes(shape = group), size = 4) +
+  geom_point(aes(shape = credit_treat), size = 4) +
   geom_line() +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(
@@ -318,28 +294,25 @@ df %>%
 #'
 #+ SummaryGivingExtensive, fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
 df %>%
-  mutate(group = case_when(
-    credit_loss == 1 ~ 3,
-    credit_neutral == 1 ~ 2,
-    credit_benefit == 1 ~ 1
-  )) %>%
   dplyr::filter(year <= 2017) %>%
-  dplyr::filter(!is.na(group)) %>%
-  group_by(year, group) %>%
-  summarize(mu = mean(i_ext_giving, na.rm = TRUE)) %>%
+  dplyr::filter(!is.na(credit_treat)) %>%
+  group_by(year, credit_treat) %>%
+  summarize(mu = mean(d_donate, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
-  dplyr::select(group, base, everything()) %>%
-  tidyr::pivot_longer(-(group:base), values_to = "mu", names_to = "year") %>%
+  dplyr::select(credit_treat, base, everything()) %>%
+  tidyr::pivot_longer(
+    -(credit_treat:base), values_to = "mu", names_to = "year"
+  ) %>%
   mutate(mu = mu - base, year = as.numeric(year)) %>%
-  mutate(group = factor(
-    group,
+  mutate(credit_treat = factor(
+    credit_treat,
     labels = c("< 1200", "[1200, 4600]", "> 4600")
   )) %>%
-  ggplot(aes(x = year, y = mu, group = group)) +
+  ggplot(aes(x = year, y = mu, group = credit_treat)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   geom_hline(aes(yintercept = 0), linetype = 3) +
-  geom_point(aes(shape = group), size = 4) +
+  geom_point(aes(shape = credit_treat), size = 4) +
   geom_line() +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(
@@ -364,30 +337,27 @@ df %>%
 #'
 #' ## Application for Tax Relief Decreased After Tax Reform
 #'
-#+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014.", out.extra = ""
+#+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
 df %>%
-  mutate(group = case_when(
-    credit_loss == 1 ~ 3,
-    credit_neutral == 1 ~ 2,
-    credit_benefit == 1 ~ 1
-  )) %>%
   dplyr::filter(year <= 2017) %>%
-  dplyr::filter(!is.na(group)) %>%
-  group_by(year, group) %>%
-  summarize(mu = mean(ext_benefit_tl, na.rm = TRUE)) %>%
+  dplyr::filter(!is.na(credit_treat)) %>%
+  group_by(year, credit_treat) %>%
+  summarize(mu = mean(d_relief_donate, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
-  dplyr::select(group, base, everything()) %>%
-  tidyr::pivot_longer(-(group:base), values_to = "mu", names_to = "year") %>%
+  dplyr::select(credit_treat, base, everything()) %>%
+  tidyr::pivot_longer(
+    -(credit_treat:base), values_to = "mu", names_to = "year"
+  ) %>%
   mutate(mu = mu - base, year = as.numeric(year)) %>%
-  mutate(group = factor(
-    group,
+  mutate(credit_treat = factor(
+    credit_treat,
     labels = c("< 1200", "[1200, 4600]", "> 4600")
   )) %>%
-  ggplot(aes(x = year, y = mu, group = group)) +
+  ggplot(aes(x = year, y = mu, group = credit_treat)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   geom_hline(aes(yintercept = 0), linetype = 3) +
-  geom_point(aes(shape = group), size = 4) +
+  geom_point(aes(shape = credit_treat), size = 4) +
   geom_line() +
   scale_x_continuous(breaks = seq(2012, 2018, 1)) +
   labs(
@@ -415,14 +385,14 @@ df %>%
 #+ SummaryGivingIntensiveDist, fig.cap = "Distribution of Charitable Giving among Those Who Donated", out.extra = ""
 df %>%
   filter(year <= 2017) %>%
-  filter(!is.na(ext_benefit_tl) & i_ext_giving == 1) %>%
-  mutate(ext_benefit_tl = factor(
-    ext_benefit_tl,
+  filter(!is.na(d_relief_donate) & d_donate == 1) %>%
+  mutate(d_relief_donate = factor(
+    d_relief_donate,
     levels = 1:0,
     labels = c("Applied for tax relief", "Did not apply for tax relief")
   )) %>%
-  ggplot(aes(x = log_total_g)) +
-  geom_density(aes(linetype = ext_benefit_tl)) +
+  ggplot(aes(x = donate_ln)) +
+  geom_density(aes(linetype = d_relief_donate)) +
   facet_wrap(~ year) +
   labs(
     x = "Charitable Giving (Logged Value)",
@@ -431,13 +401,30 @@ df %>%
   ggtemp()
 
 #'
-#' ## Message from Figure \@ref(fig:SummaryGivingIntensiveDist)
+#' Figure \@ref(fig:SummaryReliefbyIncome) shows
+#' proportion of application for tax relief by three income groups.
+#' This figure has two key findings.
+#' First, tax incentive negatively correlated with application for tax relief.
+#' Since the 2014 tax reform,
+#' the share of application for tax relief has not increased
+#' in all income groups compared to 2013.
+#' In particular, the decrease in the application rate is the largest
+#' among income groups whose tax incentives decreased
+#' due to the 2014 tax reform.
 #'
-#' - すべての年においても、寄付者に限定した寄付の分布は寄付控除の申請の有無に依存しない
-#'   - 寄付控除を申請していない人の寄付額の分布が申請している人よりも左側にあるならば、申請コストの程度は小さいと予想される
-#'   - 分布の形状がほとんど一致しているので、申請コストの程度はかなり大きいと予想される
-#'
-#' ## Wage Earners Are More Likely to Apply (1)
+#' Second, the trend of application for tax relief does not match
+#' the trend of share of donors.
+#' If there is no application cost,
+#' the trend shown in Figure \@ref(fig:SummaryReliefbyIncome) is
+#' same as Figure \@ref(fig:SummaryGivingExtensive)
+#' because all donors should apply for tax relief.
+#' Thus, Figure \@ref(fig:SummaryGivingExtensive) and
+#' \@ref(fig:SummaryReliefbyIncome) imply that
+#' there is cost to apply for tax relief.
+#' The distribution of donations conditional on donors does not change
+#' significantly depending on whether or not they have applied for tax relief,
+#' suggesting that the application cost is high
+#' (Figure \@ref(fig:SummaryGivingIntensiveDist)).
 #'
 #+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""
 df %>%
@@ -448,9 +435,9 @@ df %>%
     levels = c(1, 0), labels = c("Wage earners", "Others")
   )) %>%
   group_by(year, employee) %>%
-  summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
+  summarize_at(vars(d_relief_donate), list(~ mean(., na.rm = TRUE))) %>%
   mutate(employee = factor(employee)) %>%
-  ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
+  ggplot(aes(x = year, y = d_relief_donate, group = employee)) +
   geom_point(aes(shape = employee), color = "black", size = 4) +
   geom_line(aes(linetype = employee)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
@@ -469,15 +456,15 @@ df %>%
 #+ SummaryReliefbyEarner2, fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""
 df %>%
   dplyr::filter(year <= 2017) %>%
-  dplyr::filter(!is.na(employee) & i_ext_giving == 1) %>%
+  dplyr::filter(!is.na(employee) & d_donate == 1) %>%
   mutate(employee = factor(
     employee,
     levels = c(1, 0), labels = c("Wage earners", "Others")
   )) %>%
   group_by(year, employee) %>%
-  summarize_at(vars(ext_benefit_tl), list(~ mean(., na.rm = TRUE))) %>%
+  summarize_at(vars(d_relief_donate), list(~ mean(., na.rm = TRUE))) %>%
   mutate(employee = factor(employee)) %>%
-  ggplot(aes(x = year, y = ext_benefit_tl, group = employee)) +
+  ggplot(aes(x = year, y = d_relief_donate, group = employee)) +
   geom_point(aes(shape = employee), color = "black", size = 4) +
   geom_line(aes(linetype = employee)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
@@ -491,18 +478,25 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
-#' ## Message from Figure \@ref(fig:SummaryReliefbyEarner) and \@ref(fig:SummaryReliefbyEarner2)
-#'
-#' - 給与所得者はそうでない人よりも寄付控除を申請しやすい
-#'   - 自営業者（非給与所得者の主）は寄付の証明書を常に保管しているようなことはない（申請期限前に問い合わせが殺到する）
-#'   - 給与所得者の方が申請しやすい環境にあることがデータからもわかる
-#'   - 給与所得者かどうかで寄付者の比率が異なる可能性を考慮して、寄付者に限定しても同じ傾向である(Figure \@ref(fig:SummaryReliefbyEarner2))
-#' - 2014年税制改革以降、寄付控除の申請比率は減少している（とくに、給与所得者）
+#' Figure \@ref(fig:SummaryReliefbyEarner)
+#' shows the proportion of application by wage earners or not.
+#' Employment status is one dimension of variation of applied cost.
+#' For the declaration, self-employed workers have to retain the certificate
+#' until they submit tax return
+#' although wage earners can declare tax relief and submit the certificate
+#' through their company at any time.
+#' This figure shows that the proportion of declaring a tax relief
+#' among wage earners is higher than the others,
+#' suggesting that application cost for wage earners
+#' is lower than for other than wage earners.
+#' This trend does not change
+#' when we calculate the proportion of application conditional on donors
+#' (Figure \@ref(fig:SummaryReliefbyEarner2)).
 #'
 # /*
 #+
 rmarkdown::render(
-  "script/R/1-summary.r",
+  "script/1-summary.r",
   output_dir = "report/view"
 )
 # */
