@@ -388,7 +388,7 @@ df %>%
     x = "Charitable Giving (Logged Value)",
     linetype = ""
   ) +
-  ggtemp()
+  ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
 #' ## Message from Figure \@ref(fig:SummaryReliefbyIncome)

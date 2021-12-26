@@ -122,6 +122,29 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 
 \ifLuaTeX
@@ -482,12 +505,229 @@ Extensive margin (Whethre respondents donate): Price effect can be observed
 \hypertarget{estimating-conventional-price-elasticities}{%
 \section{Estimating Conventional Price Elasticities}\label{estimating-conventional-price-elasticities}}
 
+\begin{frame}{Emprical Strategies}
+\protect\hypertarget{emprical-strategies}{}
+\begin{itemize}
+\tightlist
+\item
+  We start to esimate the effect of tax incentive by estimating the price elasticity of charitable giving
+\item
+  Following Almunia et al. (2020), we estimate two types of elasticities: the intensive-margin price elasticity and the extensive-margin price elasticity
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The intensive-margin price elasticity: how much a 1\% increase of price increases the amount of donations conditional on donors.
+  \item
+    The extensive-margin price elasticity: how much the probability of donating increases with a 1\% increase of price.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Estimation Equation for Intensive-Margin Elasticity}
+\protect\hypertarget{estimation-equation-for-intensive-margin-elasticity}{}
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma \ln p_t(y_{it}, R_{it}, g_{it})
+  + \beta X_{it} + \lambda_t + u_{it}, \label{eq:intensive}
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  \(X_{it}\) is a vector of covariate including income \(y_{it}\)
+\item
+  \(\theta_i\) is an individual fixed effect, and \(\lambda_t\) is a time fixed effect
+\item
+  \(u_{it}\) is an idiosyncratic error
+\item
+  Our prameter of interest is \(\gamma\), which represents the intensive-margin price elasticity.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Estimation Equation for Extensive-Margin Elasticity}
+\protect\hypertarget{estimation-equation-for-extensive-margin-elasticity}{}
+\begin{align}
+  D_{it} = \theta_i + \delta \ln p_t(y_{it}, R_{it}, g_{it})
+  + \beta X_{it} + \lambda_t + u_{it}, \label{eq:extensive}
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  \(D_{it}\) is a dummy taking one if positive giving is observed (\(g_{it} > 0\)).
+\item
+  Our prameter of interest is \(\delta\)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    We cannot interpret the parameter \(\delta\) as the extensive-margin price elasticity beucase the outcome is a dummy variable.
+  \item
+    the extensive-maring price elasticity can be calculated as \(\hat{\delta} / \bar{D}\) where \(\bar{D}\) is sample mean of \(D_{it}\).
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Endogenous Giving Price}
+\protect\hypertarget{endogenous-giving-price}{}
+\begin{align}
+  p_t(y_{it}, R_{it}, g_{it}) =
+  \begin{cases}
+    1 - T'_t(y_{it} - R_{it} g_{it})  \quad\text{if}\quad t < 2014  \\
+    1 - R_{it} m \quad\text{if}\quad t \ge 2014
+  \end{cases},
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  \(T'_t(\cdot)\) is marginal tax rate in year \(t\), and \(m\) is tax credit rate (\(m = 0.15\)).
+\item
+  When tax deduction was applied, the function of price giving depends on charitable giving (\(g_{it}\)).
+\item
+  Following past literatures estimating price elasticity of giving, we use the \emph{first}-unit price of giving defined by \(p_t(y_{it}, 1, 0)\) as an instrument for the \emph{last}-unit price, \(p_t(y_{it}, R_{it}, g_{it})\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Estimation Results}
+\protect\hypertarget{estimation-results}{}
+\begin{table}
+
+\caption{\label{tab:MainElasticity}Estimation of Last-Unit Price Elasticities}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Overall} & \multicolumn{2}{c}{Intensive margin} & \multicolumn{2}{c}{Extensive margin} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-5} \cmidrule(l{3pt}r{3pt}){6-6} \cmidrule(l{3pt}r{3pt}){7-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+log(last price) & -10.856*** & -6.361*** & -0.634*** & -1.907*** & -2.945*** & -1.570***\\
+ & (0.300) & (0.579) & (0.231) & (0.451) & (0.071) & (0.127)\\
+\midrule
+Implied price elasticity &  &  &  &  & -11.684*** & -6.227***\\
+ &  &  &  &  & (0.281) & (0.502)\\
+First-stage: log(first price) &  & 0.353 &  & 0.726 &  & 0.353\\
+ &  & [407.8] &  & [442.4] &  & [407.8]\\
+Num.Obs. & 28696 & 28696 & 7234 & 7234 & 28696 & 28696\\
+FE: area & X & X & X & X & X & X\\
+FE: indust & X & X & X & X & X & X\\
+FE: pid & X & X & X & X & X & X\\
+FE: year & X & X & X & X & X & X\\
+Square of age & X & X & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Message from Table \ref{tab:MainElasticity}}
+\protect\hypertarget{message-from-table-reftabmainelasticity}{}
+\begin{itemize}
+\tightlist
+\item
+  Column 3 and 4: we estimate the equation \eqref{eq:intensive}, using the NaSTaB data consisting of donors only.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    When we do not take endogenous nature of giving price into account, the intensive-margin price elasticity has upward-bias
+  \item
+    The intensive-margin price elasticity is about -2\% (column 4)
+  \end{itemize}
+\item
+  Column 5 and 6 estimate the equation \eqref{eq:extensive}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    When we do not take endogenous nature of giving price into account, the extensive-margin price elasticity has downward-bias
+  \item
+    The estimated coefficient of logged value of last-unit price is -1.5 (column 6).
+  \item
+    The extensive-margin price elasticity is -5.8.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Robustness Analysis}
+\protect\hypertarget{robustness-analysis}{}
+\begin{enumerate}
+\tightlist
+\item
+  Price elasticity excluding 2013 and 2014 data (Table \ref{tab:WoAnnoucementElasticity})
+
+  \begin{itemize}
+  \tightlist
+  \item
+    to eliminate the effect of tax reform announcement.
+  \item
+    estimated last-unit price elasticity is robust against the announcement effect of 2014 tax reform.
+  \end{itemize}
+\item
+  Price elasticity with a sample limited to those who applied for tax relief (Table \ref{tab:R1Elasticity})
+
+  \begin{itemize}
+  \tightlist
+  \item
+    the first-unit price elasticity is -1.2, and the last-unit price elasticity is -1.3
+  \item
+    To directly control the dynamic effects, we add lagged and future changes of these variables
+  \item
+    When controling this effect, the price elasticity is statistically insignificant.
+  \end{itemize}
+\item
+  Price elasticity to deal with endogenous nature of income (Table \ref{tab:KdiffElasticity})
+
+  \begin{itemize}
+  \tightlist
+  \item
+    we estimate the \(k\)-th order difference model.
+  \item
+    estimated intensive-margin price elasticity is between -1.8 and -4.1, which is statisically significant
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Heterogenous Price Elasticity (1)}
+\protect\hypertarget{heterogenous-price-elasticity-1}{}
+We estimate heterogeneity of the last-unit price elasticity in terms of individual characteristics (Table \ref{tab:CovHeteroElasticity})
+
+\begin{enumerate}
+\tightlist
+\item
+  intensive-margin price elasticity for males is higher than for females, while the extensive-margin price elasticity for males is lower than for females
+\item
+  the higher the education level, the higher the intensive-margin price elasticity, but the lower the extensive-margin price elasticity
+\item
+  individuals in 40s are sensitive to tax incentives in both intensive-margin and extensive-margin.
+\item
+  wage earners are sensitive to tax incentive, while non wage earners are insenstive to tax incentive.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Heterogenous Price Elasticity (2)}
+\protect\hypertarget{heterogenous-price-elasticity-2}{}
+We estimate the last-unit price elasticity for each organization to which the donation is made
+(Table \ref{tab:TypeHeteroElasticity})
+
+\begin{enumerate}
+\tightlist
+\item
+  charitable giving for social welfare organization and religious institution is sensitive to tax incentive in terms of both intensive margin and extensive margin
+\item
+  tax incentive negatively affects decision of donation for educational organization and political parties
+\end{enumerate}
+\end{frame}
+
 \hypertarget{conclusion}{%
 \section{Conclusion}\label{conclusion}}
-
-\hypertarget{references}{%
-\section*{References}\label{references}}
-\addcontentsline{toc}{section}{References}
 
 \hypertarget{appendix}{%
 \section{Appendix}\label{appendix}}
@@ -514,6 +754,195 @@ Extensive margin (Whethre respondents donate): Price effect can be observed
 
 \caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
 \end{figure}
+\end{frame}
+
+\begin{frame}{Price Elasticity Excluding Announcement Effect}
+\protect\hypertarget{price-elasticity-excluding-announcement-effect}{}
+\begin{table}
+
+\caption{\label{tab:WoAnnoucementElasticity}Estimation of Last-Unit Price Elasticities Excluding 2013 and 2014 data}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Overall} & \multicolumn{2}{c}{Intensive margin} & \multicolumn{2}{c}{Extensive margin} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} & \multicolumn{1}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-5} \cmidrule(l{3pt}r{3pt}){6-6} \cmidrule(l{3pt}r{3pt}){7-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+log(last price) & -11.309*** & -6.331*** & -0.679** & -2.088*** & -3.097*** & -1.560***\\
+ & (0.372) & (0.798) & (0.333) & (0.600) & (0.086) & (0.170)\\
+\midrule
+Implied price elasticity &  &  &  &  & -11.574*** & -5.830***\\
+ &  &  &  &  & (0.320) & (0.634)\\
+First-stage: log(first price) &  & 0.363 &  & 0.796 &  & 0.363\\
+ &  & [244.3] &  & [270.6] &  & [244.3]\\
+Num.Obs. & 20198 & 20198 & 5405 & 5405 & 20198 & 20198\\
+FE: area & X & X & X & X & X & X\\
+FE: indust & X & X & X & X & X & X\\
+FE: pid & X & X & X & X & X & X\\
+FE: year & X & X & X & X & X & X\\
+Square of age & X & X & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Subsample Analysis for Those Who Applied for Tax Relief}
+\protect\hypertarget{subsample-analysis-for-those-who-applied-for-tax-relief}{}
+\begin{table}
+
+\caption{\label{tab:R1Elasticity}Estimating Intensive-Margin Price Elasticities for Those Who Applied for Tax Relief}
+\centering
+\fontsize{5}{7}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+  & (1) & (2) & (3) & (4)\\
+\midrule
+log(first price) & -1.203*** & -0.506 &  & \\
+ & (0.390) & (0.847) &  & \\
+log(last price) &  &  & -1.330*** & -0.254\\
+ &  &  & (0.452) & (0.903)\\
+log(income) & 0.525 & 6.126 & 0.532 & 6.093\\
+ & (0.776) & (5.365) & (0.785) & (5.503)\\
+1-year lag of price &  & 0.369 &  & 0.487\\
+ &  & (0.884) &  & (0.911)\\
+1-year lag of income &  & 1.040 &  & 1.129\\
+ &  & (4.777) &  & (5.030)\\
+1-year lead of income &  & -0.821 &  & -0.826\\
+ &  & (0.907) &  & (0.904)\\
+\midrule
+Instrument: log(first price) &  &  & 0.942 & -0.000\\
+ &  &  & [3083.6] & [0.0]\\
+Num.Obs. & 4079 & 1029 & 3972 & 1024\\
+FE: area & X & X & X & X\\
+FE: indust & X & X & X & X\\
+FE: pid & X & X & X & X\\
+FE: year & X & X & X & X\\
+Square of age & X & X & X & X\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. 1-year lead of price cannot be estimated because of collinearity.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{\(k\)-th Difference Model}
+\protect\hypertarget{k-th-difference-model}{}
+\begin{table}
+
+\caption{\label{tab:KdiffElasticity}$k$-th Difference Model Using Those Who Applied for Tax Relief}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{1-year lag} & \multicolumn{1}{c}{2-year lag} & \multicolumn{1}{c}{3-year lag} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+  & (1) & (2) & (3)\\
+\midrule
+Difference of logged first price & -1.890* & -2.530*** & -4.057***\\
+ & (1.107) & (0.895) & (0.720)\\
+\midrule
+First-stage: Instrument & 0.995 & 0.991 & 0.984\\
+ & [34401.5] & [31041.1] & [17987.3]\\
+Num.Obs. & 4014 & 3903 & 3765\\
+FE: area & X & X & X\\
+FE: indust & X & X & X\\
+FE: year & X & X & X\\
+Difference of square age & X & X & X\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Instrument is difference between lagged first price in year $t$ and in year $t - k$ fixing income in year $t - k$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Heterogenous Price Elasticity in terms of Covariates}
+\protect\hypertarget{heterogenous-price-elasticity-in-terms-of-covariates}{}
+\begin{table}
+
+\caption{\label{tab:CovHeteroElasticity}Heterogenous Last-Unit Price Elasticities in terms of Individual Characteristics}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive margin} & \multicolumn{3}{c}{Extensive margin} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+Covariate & Estimate & S.E. & N & Estimate & S.E. & N\\
+\midrule
+Female & -0.551 & (1.120) & 2921 & -9.786*** & (1.440) & 10674\\
+Male & -1.919*** & (0.523) & 4313 & -5.126*** & (0.554) & 18022\\
+University graduate & -2.048*** & (0.572) & 4723 & -4.494*** & (0.488) & 14778\\
+High school graduate & -1.611 & (1.066) & 1977 & -10.300*** & (1.483) & 9803\\
+Less than junior high school graduate & 1.012 & (1.467) & 534 & -23.121*** & (7.031) & 4115\\
+Age < 40 & -1.538 & (1.459) & 1889 & -1.870 & (2.211) & 7800\\
+40 $\le$ Age $\le$ 50 & -2.293*** & (0.781) & 2823 & -5.332*** & (0.627) & 9530\\
+50 < Age & -0.714 & (0.718) & 2522 & -8.170*** & (1.214) & 11366\\
+Wage earner & -1.966*** & (0.486) & 5517 & -2.009*** & (0.451) & 15596\\
+Non wage earner & -11.226 & (11.177) & 1690 & -21.142 & (33.822) & 12934\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Heterogenous Price Elasticity in terms of Organization Type}
+\protect\hypertarget{heterogenous-price-elasticity-in-terms-of-organization-type}{}
+\begin{table}
+
+\caption{\label{tab:TypeHeteroElasticity}Estimating Last-Unit Price Elasticities for Each Oraganization Type}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive margin} & \multicolumn{3}{c}{Extensive margin} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+Type & Estimate & S.E. & N & Estimate & S.E. & N\\
+\midrule
+Social welfare & -1.814** & (0.867) & 2990 & -5.514*** & (1.394) & 28696\\
+Education & 1.805 & (4.507) & 178 & 14.633* & (7.644) & 28696\\
+Political party & 17.955 & (47.747) & 258 & 20.448*** & (7.071) & 28696\\
+Religious institution & -1.300** & (0.619) & 3867 & -4.436*** & (1.040) & 28696\\
+Relief activities by religious institution & -4.985 & (3.092) & 532 & -2.378 & (4.125) & 28696\\
+Others & -3.847 & (3.780) & 422 & 2.706 & (4.644) & 28696\\
+Culture &  &  &  & 15.386 & (10.951) & 28696\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. We cannot the intensive-margin price elasticity for donations for culture due to small sample.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\hypertarget{references}{%
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
+
+\begin{frame}{References}
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-Almunia2020}{}}%
+Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? The effects of tax incentives on charitable donations in the UK. Journal of Public Economics 183. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
+
+\end{CSLReferences}
 \end{frame}
 
 \end{document}
