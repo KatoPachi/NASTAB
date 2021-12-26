@@ -507,6 +507,10 @@ intcov %>%
     "nonwage" = "Non wage earner"
   )) %>%
   kable(
+    caption = paste(
+      "Heterogenous Last-Unit Price Elasticities",
+      "in terms of Individual Characteristics"
+    ),
     col.names = c(
       "Covariate", "Estimate", "S.E.", "N",
       "Estimate", "S.E.", "N"
@@ -528,7 +532,24 @@ intcov %>%
   )
 
 #'
-#+
+#' We estimate heterogeneity of the last-unit price elasticity
+#' in terms of individual characteristics
+#' (Table \@ref(tab:CovHeteroElasticity)).
+#' We obtain four key findings.
+#' First, the intensive-margin price elasticity for males is
+#' higher than for females,
+#' while the extensive-margin price elasticity for males is
+#' lower than for females in terms of absoluate value.
+#' Second, the higher the education level,
+#' the higher the intensive-margin price elasticity,
+#' but the lower the extensive-margin price elasticity
+#' in terms of absolute value.
+#' Third, individuals in 40s are sensitive to tax incentives
+#' in both intensive-margin and extensive-margin.
+#' Fourth, wage earners are sensitive to tax incentive,
+#' while non wage earners are insenstive to tax incentive.
+#'
+#+ TypeHeteroElasticity
 donate_type <- list(
   welfare = "donate_welfare",
   educ = "donate_educ",
@@ -609,6 +630,9 @@ int_type %>%
     "other" = "Others"
   )) %>%
   kable(
+    caption = paste(
+      "Estimating Last-Unit Price Elasticities for Each Oraganization Type"
+    ),
     col.names = c(
       "Type", "Estimate", "S.E.", "N",
       "Estimate", "S.E.", "N"
@@ -631,6 +655,20 @@ int_type %>%
     escape = FALSE
   )
 
+#'
+#' Since the NaSTaB data contains information about
+#' what kind of organization the donation was made to,
+#' we estimate the last-unit price elasticity
+#' for each organization to which the donation is made
+#' (Table \@ref(tab:TypeHeteroElasticity)).
+#' We obtain two key findings.
+#' First, charitable giving for social welfare organization
+#' and religious institution is sensitive to tax incentive
+#' in terms of both intensive margin and extensive margin.
+#' Second, tax incentive negatively affects
+#' decision of donation for educational organization
+#' and political parties.
+#'
 # /*
 #+
 rmarkdown::render(
