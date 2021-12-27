@@ -65,14 +65,14 @@ result <- gurobi(model, list())
 #'
 #+
 intensive_mte <- ivmte(
-  data = df,
-  target = "atu",
+  data = subset(df, d_donate == 1),
+  target = "att",
   m0 = ~ u + linc_ln + factor(year),
   m1 = ~ u + price_ln + linc_ln + factor(year),
-  ivlike = donate_ln ~ price_ln + linc_ln + factor(year),
-  propensity = d_relief_donate ~ employee,
-  link = "probit",
-  bootstraps = 100
+  outcome = donate_ln,
+  propensity = d_relief_donate ~ employee + tax_accountant_per +
+    price_ln + linc_ln + factor(year),
+  link = "probit"
 )
 
 #'
