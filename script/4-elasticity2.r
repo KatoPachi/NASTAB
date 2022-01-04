@@ -129,25 +129,17 @@ fixest::setFixest_fml(
 lastmod <- list(
   "(1)" = list(
     mod = donate_ln ~ lprice_ln:d_relief_donate + ..cov,
-    data = df
+    data = subset(df, d_donate == 1)
   ),
   "(2)" = list(
     mod = donate_ln ~ ..cov | lprice_ln:d_relief_donate ~ price_ln,
-    data = df
+    data = subset(df, d_donate == 1)
   ),
   "(3)" = list(
-    mod = donate_ln ~ lprice_ln:d_relief_donate + ..cov,
-    data = subset(df, d_donate == 1)
-  ),
-  "(4)" = list(
-    mod = donate_ln ~ ..cov | lprice_ln:d_relief_donate ~ price_ln,
-    data = subset(df, d_donate == 1)
-  ),
-  "(5)" = list(
     mod = d_donate ~ lprice_ln:d_relief_donate + ..cov,
     data = df
   ),
-  "(6)" = list(
+  "(4)" = list(
     mod = d_donate ~ ..cov | lprice_ln:d_relief_donate ~ price_ln,
     data = df
   )
@@ -158,7 +150,7 @@ est_lastmod <- lastmod %>%
     xpd(.$mod), data = .$data, cluster = ~ pid
   ))
 
-impelast_lastmod <- est_lastmod[c(5, 6)] %>%
+impelast_lastmod <- est_lastmod[c(3, 4)] %>%
   purrr::map(function(x) {
     dbar <- mean(x$fitted.values + x$residuals)
 
@@ -178,18 +170,18 @@ impelast_lastmod <- est_lastmod[c(5, 6)] %>%
   }) %>%
   reduce(left_join, by = "name") %>%
   bind_cols(tribble(
-    ~value.a, ~value.b, ~value.c, ~value.d,
-    "", "", "", "",
-    "", "", "", ""
+    ~value.a, ~value.b,
+    "", "",
+    "", ""
   )) %>%
-  select(name, value.a:value.d, value.x:value.y) %>%
+  select(name, value.a, value.x, value.b, value.y) %>%
   setNames(c("term", sprintf("(%1d)", 1:6))) %>%
   mutate(term = recode(
     term,
     "estimate" = "Implied price elasticity", .default = ""
   ))
 
-stage1_lastmod <- est_lastmod[c(2, 4, 6)] %>%
+stage1_lastmod <- est_lastmod[c(2, 4)] %>%
   purrr::map(function(x) {
     coef <- x$iv_first_stage[["lprice_ln:d_relief_donate"]]$coeftable[1, 1]
     ivwald <- fitstat(x, "ivwald")[[1]]$stat
@@ -203,11 +195,11 @@ stage1_lastmod <- est_lastmod[c(2, 4, 6)] %>%
   }) %>%
   reduce(left_join, by = "name") %>%
   bind_cols(tribble(
-    ~value.a, ~value.b, ~value.c,
-    "", "", "",
-    "", "", ""
+    ~value.a, ~value.b,
+    "", "",
+    "", ""
   )) %>%
-  select(name, value.a, value.x, value.b, value.y, value.c, value) %>%
+  select(name, value.a, value.x, value.b, value.y) %>%
   setNames(c("term", sprintf("(%1d)", 1:6))) %>%
   mutate(term = recode(
     term, "coef" = "First-stage: log(first price)", .default = ""
@@ -216,8 +208,8 @@ stage1_lastmod <- est_lastmod[c(2, 4, 6)] %>%
 addtab <- impelast_lastmod %>%
   bind_rows(stage1_lastmod) %>%
   bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~ "(6)",
-    "Square of age", "X", "X", "X", "X", "X", "X"
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+    "Square of age", "X", "X", "X", "X"
   ))
 
 attr(addtab, "position") <- 3:6
@@ -237,11 +229,10 @@ est_lastmod %>%
   kableExtra::kable_styling(font_size = 7) %>%
   kableExtra::add_header_above(c(
     " ", "FE", "FE-2SLS",
-    "FE", "FE-2SLS", "FE", "FE-2SLS"
+    "FE", "FE-2SLS"
   )) %>%
   kableExtra::add_header_above(c(
-    " " = 1, "Overall" = 2,
-    "Intensive margin" = 2, "Extensive margin" = 2
+    " " = 1, "Intensive margin" = 2, "Extensive margin" = 2
   )) %>%
   footnote(
     general_title = "",
@@ -279,7 +270,7 @@ est_rob_lastmod <- lastmod %>%
     cluster = ~ pid
   ))
 
-impelast_rob_lastmod <- est_rob_lastmod[c(5, 6)] %>%
+impelast_rob_lastmod <- est_rob_lastmod[c(3, 4)] %>%
   purrr::map(function(x) {
     dbar <- mean(x$fitted.values + x$residuals)
 
@@ -299,18 +290,18 @@ impelast_rob_lastmod <- est_rob_lastmod[c(5, 6)] %>%
   }) %>%
   reduce(left_join, by = "name") %>%
   bind_cols(tribble(
-    ~value.a, ~value.b, ~value.c, ~value.d,
-    "", "", "", "",
-    "", "", "", ""
+    ~value.a, ~value.b,
+    "", "",
+    "", ""
   )) %>%
-  select(name, value.a:value.d, value.x:value.y) %>%
+  select(name, value.a, value.x, value.b, value.y) %>%
   setNames(c("term", sprintf("(%1d)", 1:6))) %>%
   mutate(term = recode(
     term,
     "estimate" = "Implied price elasticity", .default = ""
   ))
 
-stage1_rob_lastmod <- est_rob_lastmod[c(2, 4, 6)] %>%
+stage1_rob_lastmod <- est_rob_lastmod[c(2, 4)] %>%
   purrr::map(function(x) {
     coef <- x$iv_first_stage[["lprice_ln:d_relief_donate"]]$coeftable[1, 1]
     ivwald <- fitstat(x, "ivwald")[[1]]$stat
@@ -324,21 +315,22 @@ stage1_rob_lastmod <- est_rob_lastmod[c(2, 4, 6)] %>%
   }) %>%
   reduce(left_join, by = "name") %>%
   bind_cols(tribble(
-    ~value.a, ~value.b, ~value.c,
-    "", "", "",
-    "", "", ""
+    ~value.a, ~value.b,
+    "", "",
+    "", ""
   )) %>%
-  select(name, value.a, value.x, value.b, value.y, value.c, value) %>%
+  select(name, value.a, value.x, value.b, value.y) %>%
   setNames(c("term", sprintf("(%1d)", 1:6))) %>%
   mutate(term = recode(
-    term, "coef" = "First-stage: log(first price)", .default = ""
+    term,
+    "coef" = "First-stage: log(first price)", .default = ""
   ))
 
 addtab <- impelast_rob_lastmod %>%
   bind_rows(stage1_rob_lastmod) %>%
   bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~ "(6)",
-    "Square of age", "X", "X", "X", "X", "X", "X"
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+    "Square of age", "X", "X", "X", "X"
   ))
 
 attr(addtab, "position") <- 3:6
@@ -361,11 +353,10 @@ est_rob_lastmod %>%
   kableExtra::kable_styling(font_size = 7) %>%
   kableExtra::add_header_above(c(
     " ", "FE", "FE-2SLS",
-    "FE", "FE-2SLS", "FE", "FE-2SLS"
+    "FE", "FE-2SLS"
   )) %>%
   kableExtra::add_header_above(c(
-    " " = 1, "Overall" = 2,
-    "Intensive margin" = 2, "Extensive margin" = 2
+    " " = 1, "Intensive margin" = 2, "Extensive margin" = 2
   )) %>%
   footnote(
     general_title = "",
