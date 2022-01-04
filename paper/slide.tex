@@ -330,11 +330,9 @@ Result
 \begin{itemize}
 \tightlist
 \item
-  \(m\)は税額控除率であり、\(m = 0.15\)
+  \(m\)は税額控除率であり、\(m = 0.15\) \(\to\) 税インセンティブは\(s_{it} = m\)
 \item
-  税インセンティブは\(s_{it} = m\)
-\item
-  2014年の税制改革は税の逆進性を緩和し、税負担の公平性を改善することを目的として、所得に依存しない均一なインセンティブを導入した
+  2014年の税制改革は税の逆進性を緩和し、税負担の公平性を改善することを目的として、所得に依存しない均一なインセンティブを導入した (Fig. \ref{fig:SummaryPrice})
 \end{itemize}
 \end{frame}
 
@@ -379,38 +377,40 @@ Result
     確定申告時には寄付金控除を受けるための申請書類を作成する必要がある
   \end{itemize}
 \item
-  給与所得者のほうが寄付の申告コスト(\(K_{it}\))が低いと考えられる
+  給与所得者のほうが寄付の申告コスト(\(K_{it}\))が低いと考えられる (Fig. \ref{fig:SummaryReliefbyEarner})
 \end{itemize}
 \end{frame}
 
-\hypertarget{data}{%
-\section{Data}\label{data}}
+\hypertarget{ux30c7ux30fcux30bf}{%
+\section{データ}\label{ux30c7ux30fcux30bf}}
 
 \begin{frame}{National Survey of Tax and Benefit (NaSTaB)}
 \protect\hypertarget{national-survey-of-tax-and-benefit-nastab}{}
 \begin{itemize}
 \tightlist
 \item
-  NaSTaB has been implemented by The Korea Institute of Taxation and Finance since 2008
+  2008年からKorea Institute of Taxation and Financeが実施
 \item
-  The NaSTaB is an annual panel data on households' tax burden and public benefits
+  NaSTaBは家計の税負担や公的扶助などに関する年次パネルデータ
 \item
-  The unit of analysis is 5,634 households throughout the country
+  全国から5,634世帯を調査対象とする
 
   \begin{itemize}
   \tightlist
   \item
-    5,634 family heads and family members with more than 15 years old and with income or economically active
+    5,634人の世帯主と15歳以上で経済活動をしている世帯員が調査に回答する
   \end{itemize}
 \item
-  Our analysis uses the NaSTaB data from (i) 2013-2018 and (ii) excluding respondents under the age of 23.
+  我々の研究では(1)2013年から2018年かつ、(2)23歳以下の回答者を除いたデータを使用する
 
   \begin{itemize}
   \tightlist
   \item
-    using the NaSTaB data before 2012 captures the effects of other tax reform than the reform in 2014.
+    2012年と2013年の所得税率は変化していないが、2011年以前に所得税率の改正が何度か行われた (Table \ref{tab:TaxRate})
   \item
-    we exclude respondents whose age is under 23 because they are not likely to have income or assets.
+    2014年の制度改革に着目するために、2013年から2018年に限定する
+  \item
+    23歳以下の回答者は所得や資産を十分に持っていない可能性が高いので、データから除外する
   \end{itemize}
 \end{itemize}
 \end{frame}
@@ -449,8 +449,8 @@ Result
 \end{table}
 \end{frame}
 
-\begin{frame}{Right-Skewed Income Distribution and Price Variation for Identification}
-\protect\hypertarget{right-skewed-income-distribution-and-price-variation-for-identification}{}
+\begin{frame}{右歪曲の所得分布と寄付価格の変動}
+\protect\hypertarget{ux53f3ux6b6aux66f2ux306eux6240ux5f97ux5206ux5e03ux3068ux5bc4ux4ed8ux4fa1ux683cux306eux5909ux52d5}{}
 \begin{figure}[t]
 
 {\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryPrice-1} 
@@ -461,55 +461,8 @@ Result
 \end{figure}
 \end{frame}
 
-\begin{frame}{Message from Figure \ref{fig:SummaryPrice}}
-\protect\hypertarget{message-from-figure-reffigsummaryprice}{}
-Right-skewed income distribution:
-
-\begin{itemize}
-\tightlist
-\item
-  NaSTaB contains the annual taxable labor income last year
-\item
-  Our sample includes subjects with no labor income (e.g.~housewives)
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Table \ref{tab:SummaryCovariate}: the average income is 17.54 million KRW
-  \end{itemize}
-\item
-  National Tax Statistical Yearbook 2012-2018 (Korean National Tax Service): the average annual taxable income is 32.77 million KRW
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Sample: employees who submitted the tax return
-  \end{itemize}
-\end{itemize}
-
-Price variation for indetification
-
-\begin{itemize}
-\tightlist
-\item
-  Based on changes in tax incentive due to the 2014 tax reform, we can devide into three income groups:
-
-  \begin{enumerate}
-  \tightlist
-  \item
-    less than 120 million KRW: expanded tax incentive (decreased giving price)
-  \item
-    between 120 million KRW and 460 million KRW: unchanged tax incentive
-  \item
-    more than 460 million KRW: decreased tax incentive (increaed giving price)
-  \end{enumerate}
-\item
-  This is main source of identification for effect of tax incentive on giving.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Donors Decreased Immediately After Tax Reform}
-\protect\hypertarget{donors-decreased-immediately-after-tax-reform}{}
+\begin{frame}{2014年税制改革直後、寄付者比率が減少}
+\protect\hypertarget{ux5e74ux7a0eux5236ux6539ux9769ux76f4ux5f8cux5bc4ux4ed8ux8005ux6bd4ux7387ux304cux6e1bux5c11}{}
 \begin{figure}[t]
 
 {\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGiving-1} 
@@ -520,41 +473,8 @@ Price variation for indetification
 \end{figure}
 \end{frame}
 
-\begin{frame}{Message from Figure \ref{fig:SummaryGiving}}
-\protect\hypertarget{message-from-figure-reffigsummarygiving}{}
-\begin{itemize}
-\tightlist
-\item
-  Proportion of donors across years: 24\% (Table \ref{tab:SummaryCovariate})
-\item
-  2014: Proportion of donors is lower than before the tax reform
-
-  \begin{itemize}
-  \tightlist
-  \item
-    After that, proportion of donors has continued to increase, finally surpassing that before the tax reform
-  \end{itemize}
-\end{itemize}
-
-Notes:
-
-\begin{itemize}
-\tightlist
-\item
-  average donation conditional on donors has been stable across year
-
-  \begin{itemize}
-  \tightlist
-  \item
-    1.5 million KRW (7\% of average income)
-  \item
-    Table \ref{tab:SummaryCovariate}: Unconditional average donation is 358,600 KRW (2\% of average income)
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Price Effect Can Be Observed}
-\protect\hypertarget{price-effect-can-be-observed}{}
+\begin{frame}{税インセンティブは寄付額を増やした}
+\protect\hypertarget{ux7a0eux30a4ux30f3ux30bbux30f3ux30c6ux30a3ux30d6ux306fux5bc4ux4ed8ux984dux3092ux5897ux3084ux3057ux305f}{}
 \begin{figure}[t]
 
 {\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingOverall-1} 
@@ -565,39 +485,8 @@ Notes:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Message from Figure \ref{fig:SummaryGivingOverall}}
-\protect\hypertarget{message-from-figure-reffigsummarygivingoverall}{}
-Price effect = Tax incentive increases charitable giving
-
-\begin{itemize}
-\tightlist
-\item
-  Donations for income groups with unchanged or increased tax incentives have exceeded those in 2013 since 2015
-\item
-  Donations for income groups with reduced tax incentives have been lower than before tax reform since 2015
-\end{itemize}
-
-Other findings:
-
-\begin{enumerate}
-\tightlist
-\item
-  Prior to the 2014 tax reform, donations did not change in all groups
-\item
-  Donations for all groups were lower than in 2013
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Donations for income groups with reduced tax incentive due to the 2014 tax reform was 40\% of that in 2013
-  \item
-    Announcement effect? Learning effect?
-  \end{itemize}
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Price Effect Can Be Partially Observed for Intensive Margin}
-\protect\hypertarget{price-effect-can-be-partially-observed-for-intensive-margin}{}
+\begin{frame}{寄付者に限定すると、寄付額に対する価格効果ははっきりとしない}
+\protect\hypertarget{ux5bc4ux4ed8ux8005ux306bux9650ux5b9aux3059ux308bux3068ux5bc4ux4ed8ux984dux306bux5bfeux3059ux308bux4fa1ux683cux52b9ux679cux306fux306fux3063ux304dux308aux3068ux3057ux306aux3044}{}
 \begin{figure}[t]
 
 {\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingIntensive-1} 
@@ -608,8 +497,8 @@ Other findings:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Price Effect Can Be Observed for Extensive Margin}
-\protect\hypertarget{price-effect-can-be-observed-for-extensive-margin}{}
+\begin{frame}{税インセンティブは寄付者を増やした}
+\protect\hypertarget{ux7a0eux30a4ux30f3ux30bbux30f3ux30c6ux30a3ux30d6ux306fux5bc4ux4ed8ux8005ux3092ux5897ux3084ux3057ux305f}{}
 \begin{figure}[t]
 
 {\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryGivingExtensive-1} 
@@ -620,70 +509,8 @@ Other findings:
 \end{figure}
 \end{frame}
 
-\begin{frame}{Message from Figure \ref{fig:SummaryGivingIntensive} and \ref{fig:SummaryGivingExtensive}}
-\protect\hypertarget{message-from-figure-reffigsummarygivingintensive-and-reffigsummarygivingextensive}{}
-Intensive margin (How much donors give): Price effect can be partially observed
-
-\begin{itemize}
-\tightlist
-\item
-  The income group that increased the donation most was the group whose tax incentive did not change, but the donation of the income group that decreased the tax incentive did not change significantly.
-\item
-  Income groups with unchanged tax incentives has increased donations more than income groups with expanded tax incentives (opposite to the price effect).
-\end{itemize}
-
-Extensive margin (Whethre respondents donate): Price effect can be observed
-
-\begin{itemize}
-\tightlist
-\item
-  Same trend as Figure \ref{fig:SummaryGivingOverall}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Application for Tax Relief Decreased After Tax Reform}
-\protect\hypertarget{application-for-tax-relief-decreased-after-tax-reform}{}
-\begin{figure}[t]
-
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryReliefbyIncome-1} 
-
-}
-
-\caption{Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryReliefbyIncome}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Message from Figure \ref{fig:SummaryReliefbyIncome}}
-\protect\hypertarget{message-from-figure-reffigsummaryreliefbyincome}{}
-\begin{enumerate}
-\tightlist
-\item
-  tax incentive negatively correlated with application for tax relief.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Since the 2014 tax reform, the share of application for tax relief has not increased in all income groups compared to 2013.
-  \item
-    the decrease in the application rate is the largest among income groups whose tax incentives decreased due to the 2014 tax reform.
-  \end{itemize}
-\item
-  the trend of application for tax relief does not match the trend of share of donors.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    If there is no application cost, all donors should apply for tax relief
-  \item
-    Figure \ref{fig:SummaryGivingExtensive} and \ref{fig:SummaryReliefbyIncome} imply that there is cost to apply for tax relief.
-  \item
-    The distribution of donations conditional on donors does not change significantly depending on whether or not they have applied for tax relief, suggesting that the application cost is high (Figure \ref{fig:SummaryGivingIntensiveDist}).
-  \end{itemize}
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Wage Earners Are More Likely to Apply for Tax Relief}
-\protect\hypertarget{wage-earners-are-more-likely-to-apply-for-tax-relief}{}
+\begin{frame}{制度改革に関わらず、給与所得者は寄付申告をしやすい}
+\protect\hypertarget{ux5236ux5ea6ux6539ux9769ux306bux95a2ux308fux3089ux305aux7d66ux4e0eux6240ux5f97ux8005ux306fux5bc4ux4ed8ux7533ux544aux3092ux3057ux3084ux3059ux3044}{}
 \begin{figure}[t]
 
 {\centering \includegraphics[width=0.7\linewidth,]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/SummaryReliefbyEarner-1} 
@@ -692,33 +519,6 @@ Extensive margin (Whethre respondents donate): Price effect can be observed
 
 \caption{Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner}
 \end{figure}
-\end{frame}
-
-\begin{frame}{Message from Figure \ref{fig:SummaryReliefbyEarner}}
-\protect\hypertarget{message-from-figure-reffigsummaryreliefbyearner}{}
-\begin{itemize}
-\tightlist
-\item
-  Employment status is one dimension of variation of applied cost.
-
-  \begin{itemize}
-  \tightlist
-  \item
-    self-employed workers have to retain the certificate until they submit tax return.
-  \item
-    wage earners can declare tax relief and submit the certificate through their company at any time.
-  \end{itemize}
-\item
-  the proportion of declaring a tax relief among wage earners is higher than the others
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Application cost for wage earners is lower than for other than wage earners
-  \item
-    This trend does not change when we calculate the proportion of application conditional on donors (Figure \ref{fig:SummaryReliefbyEarner2}).
-  \end{itemize}
-\end{itemize}
 \end{frame}
 
 \hypertarget{estimating-conventional-price-elasticities}{%
@@ -950,6 +750,45 @@ We estimate the last-unit price elasticity for each organization to which the do
 
 \hypertarget{appendix}{%
 \section{Appendix}\label{appendix}}
+
+\begin{frame}{所得税率の変遷}
+\protect\hypertarget{ux6240ux5f97ux7a0eux7387ux306eux5909ux9077}{}
+\begin{table}
+
+\caption{\label{tab:TaxRate}Marginal Income Tax Rate}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccccc}
+\toprule
+Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{} 2013 & 2014 \textasciitilde{} 2016 & 2017 & 2018\\
+\midrule
+(A) \textasciitilde{} 1200 & 8\% & 6\% & 6\% & 6\% & 6\% & 6\% & 6\%\\
+\cmidrule{1-8}
+(B) 1200 \textasciitilde{} 4600 & 17\% & 16\% & 15\% & 15\% & 15\% & 15\% & 15\%\\
+\cmidrule{1-8}
+(C) 4600 \textasciitilde{} 8800 & 26\% & 25\% & 24\% & 24\% & 24\% & 24\% & 24\%\\
+\cmidrule{1-8}
+(D) 8800 \textasciitilde{} 15000 &  &  &  &  & 35\% &  & 35\%\\
+\cmidrule{1-1}
+\cmidrule{6-6}
+\cmidrule{8-8}
+(E) 15000 \textasciitilde{} 30000 &  &  &  & \multirow{-2}{*}{\centering\arraybackslash 35\%} &  & \multirow{-2}{*}{\centering\arraybackslash 35\%} & 38\%\\
+\cmidrule{1-1}
+\cmidrule{5-5}
+\cmidrule{7-8}
+(F) 30000 \textasciitilde{} 50000 &  &  &  &  &  & 38\% & 40\%\\
+\cmidrule{1-1}
+\cmidrule{7-8}
+(G) 50000 \textasciitilde{} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-2}{*}{\centering\arraybackslash 38\%} & \multirow{-3}{*}{\centering\arraybackslash 38\%} & 40\% & 42\%\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: Marginal income tax rates applied from 2008 to 2018 are summarized. The income level is shown in terms of 10,000 KRW, which is approximately 10 United States dollars (USD) at an exchange rate of 1,000 KRW to one USD.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
 
 \begin{frame}{Distribution of Donations Conditional on Donors}
 \protect\hypertarget{distribution-of-donations-conditional-on-donors}{}

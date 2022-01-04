@@ -173,7 +173,7 @@ $(g_{it}, y_{it})$を所与として、寄付控除の節税額が申告コス�
   - 確定申告時には寄付金控除を受けるための申請書類を作成する必要がある
 - 給与所得者のほうが寄付の申告コスト($K_{it}$)が低いと考えられる (Fig. \@ref(fig:SummaryReliefbyEarner))
 
-# Data
+# データ
 
 ```{r}
 knitr::spin_child("script/1-summary.R")
@@ -189,6 +189,38 @@ knitr::spin_child("script/3-elasticity.R")
 # Conclusion
 
 # Appendix
+
+## 所得税率の変遷
+
+```{r TaxRate}
+tab <- data.frame(
+    inc = c(
+        "(A) ~ 1200", "(B) 1200 ~ 4600", "(C) 4600 ~ 8800", "(D) 8800 ~ 15000",
+        "(E) 15000 ~ 30000", "(F) 30000 ~ 50000", "(G) 50000 ~"),
+    Y08 = c("8%", "17%", "26%", rep("35%", 4)),
+    Y09 = c("6%", "16%", "25%", rep("35%", 4)),
+    Y1011 = c("6%", "15%", "24%", rep("35%", 4)),
+    Y1213 = c("6%", "15%", "24%", rep("35%", 2), rep("38%", 2)),
+    Y1416 = c("6%", "15%", "24%", "35%", rep("38%", 3)),
+    Y17 = c("6%", "15%", "24%", rep("35%", 2), "38%", "40%"),
+    Y18 = c("6%", "15%", "24%", "35%", "38%", "40%", "42%")
+)
+
+knitr::kable(
+    tab,
+    caption = "Marginal Income Tax Rate",
+    col.names = c(
+      "Income/Year", "2008", "2009", "2010 ~ 2011",
+      "2012 ~ 2013", "2014 ~ 2016", "2017", "2018"
+    ),
+    row.names = FALSE,
+    align = "lccccccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>%
+kable_styling(font_size = 9) %>%
+collapse_rows(columns = 2:8, valign = "middle", latex_hline = "full") %>%
+footnote(general_title = "", general = "Notes: Marginal income tax rates applied from 2008 to 2018 are summarized. The income level is shown in terms of 10,000 KRW, which is approximately 10 United States dollars (USD) at an exchange rate of 1,000 KRW to one USD.", threeparttable = TRUE, escape = FALSE)
+```
 
 ## Distribution of Donations Conditional on Donors
 
