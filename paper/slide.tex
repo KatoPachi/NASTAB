@@ -521,91 +521,126 @@ Result
 \end{figure}
 \end{frame}
 
-\hypertarget{estimating-conventional-price-elasticities}{%
-\section{Estimating Conventional Price Elasticities}\label{estimating-conventional-price-elasticities}}
+\hypertarget{ux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027ux306eux63a8ux5b9a}{%
+\section{寄付の価格弾力性の推定}\label{ux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027ux306eux63a8ux5b9a}}
 
-\begin{frame}{Emprical Strategies}
-\protect\hypertarget{emprical-strategies}{}
-\begin{itemize}
+\begin{frame}{2種類の寄付の価格弾力性}
+\protect\hypertarget{ux7a2eux985eux306eux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027}{}
+Almunia et al. (2020) に従い、2種類の価格弾力性を推定する
+
+\begin{enumerate}
 \tightlist
 \item
-  We start to esimate the effect of tax incentive by estimating the price elasticity of charitable giving
+  Intensive-margin tax-price elasticity: 1\%の価格上昇で寄付者の寄付額が何\%増えるか？
 \item
-  Following (\textbf{Almunia2020?}), we estimate two types of elasticities: the intensive-margin price elasticity and the extensive-margin price elasticity
-
-  \begin{itemize}
-  \tightlist
-  \item
-    The intensive-margin price elasticity: how much a 1\% increase of price increases the amount of donations conditional on donors.
-  \item
-    The extensive-margin price elasticity: how much the probability of donating increases with a 1\% increase of price.
-  \end{itemize}
-\end{itemize}
+  Extensive-margin tax-price elasticity: 1\%の価格上昇で寄付確率が何\%増えるか？
+\end{enumerate}
 \end{frame}
 
-\begin{frame}{Estimation Equation for Intensive-Margin Elasticity}
-\protect\hypertarget{estimation-equation-for-intensive-margin-elasticity}{}
+\begin{frame}{Intensive-Margin Tax-Price Elasticityの推定方法}
+\protect\hypertarget{intensive-margin-tax-price-elasticityux306eux63a8ux5b9aux65b9ux6cd5}{}
 \begin{align}
-  \ln g_{it} = \theta_i + \gamma \ln p_t(y_{it}, R_{it}, g_{it})
+  \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - s_{it}))
   + \beta X_{it} + \lambda_t + u_{it}, \label{eq:intensive}
 \end{align}
 
 \begin{itemize}
 \tightlist
 \item
-  \(X_{it}\) is a vector of covariate including income \(y_{it}\)
+  \(X_{it}\)は課税前所得(\(y_{it}\))を含んだ共変量ベクトル
 \item
-  \(\theta_i\) is an individual fixed effect, and \(\lambda_t\) is a time fixed effect
+  \(\theta_i\)は個人固定効果、\(\lambda_t\)は時間固定効果
 \item
-  \(u_{it}\) is an idiosyncratic error
+  \(u_{it}\)はidiosyncratic error
 \item
-  Our prameter of interest is \(\gamma\), which represents the intensive-margin price elasticity.
+  関心のあるパラメータは\(\gamma\)で、intensive-margin tax-price elasticityを示す
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Estimation Equation for Extensive-Margin Elasticity}
-\protect\hypertarget{estimation-equation-for-extensive-margin-elasticity}{}
+\begin{frame}{Extensive-Margin Tax-Price Elasticityの推定方法}
+\protect\hypertarget{extensive-margin-tax-price-elasticityux306eux63a8ux5b9aux65b9ux6cd5}{}
 \begin{align}
-  D_{it} = \theta_i + \delta \ln p_t(y_{it}, R_{it}, g_{it})
+  D_{it} = \theta_i + \delta (R_{it} \times \ln (1 - s_{it}))
   + \beta X_{it} + \lambda_t + u_{it}, \label{eq:extensive}
 \end{align}
 
 \begin{itemize}
 \tightlist
 \item
-  \(D_{it}\) is a dummy taking one if positive giving is observed (\(g_{it} > 0\)).
+  \(D_{it}\)は正の寄付額(\(g_{it} > 0\))が観測されたら1を取るダミー変数
 \item
-  Our prameter of interest is \(\delta\)
+  関心のあるパラメータは\(\delta\)
 
   \begin{itemize}
   \tightlist
   \item
-    We cannot interpret the parameter \(\delta\) as the extensive-margin price elasticity beucase the outcome is a dummy variable.
+    二値のアウトカム変数なので、\(\delta\)は直接、価格弾力性として解釈できない
   \item
-    the extensive-maring price elasticity can be calculated as \(\hat{\delta} / \bar{D}\) where \(\bar{D}\) is sample mean of \(D_{it}\).
+    Extensive-Margin Tax-Price Elasticityは\(\hat{\delta} / \bar{D}\)で得られる（\(\bar{D}\)は\(D_{it}\)の標本平均）
   \end{itemize}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Endogenous Giving Price}
-\protect\hypertarget{endogenous-giving-price}{}
+\begin{frame}{寄付の相対価格の内生性}
+\protect\hypertarget{ux5bc4ux4ed8ux306eux76f8ux5bfeux4fa1ux683cux306eux5185ux751fux6027}{}
 \begin{align}
-  p_t(y_{it}, R_{it}, g_{it}) =
+  1 - s_{it} =
   \begin{cases}
-    1 - T'_t(y_{it} - R_{it} g_{it})  \quad\text{if}\quad t < 2014  \\
-    1 - R_{it} m \quad\text{if}\quad t \ge 2014
+    1 - T'_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
+    1 - m \quad\text{if}\quad t \ge 2014
   \end{cases},
 \end{align}
 
 \begin{itemize}
 \tightlist
 \item
-  \(T'_t(\cdot)\) is marginal tax rate in year \(t\), and \(m\) is tax credit rate (\(m = 0.15\)).
+  \(T'_t(\cdot)\)は\(t\)年の限界所得税率、\(m\)は税額控除率(\(m = 0.15\))
 \item
-  When tax deduction was applied, the function of price giving depends on charitable giving (\(g_{it}\)).
+  所得控除のとき、寄付価格は寄付額(\(g_{it}\))に依存する
 \item
-  Following past literatures estimating price elasticity of giving, we use the \emph{first}-unit price of giving defined by \(p_t(y_{it}, 1, 0)\) as an instrument for the \emph{last}-unit price, \(p_t(y_{it}, R_{it}, g_{it})\).
+  この価格は\emph{Last}-unit priceと呼ばれる
 \end{itemize}
+
+過去の研究にならい、本研究は以下の\emph{first}-unit priceを\emph{last}-unit priceの代わり（もしくはその操作変数）として用いる
+
+\begin{align}
+  1 - s^f_{it} =
+  \begin{cases}
+    1 - T'_t(y_{it} - 0)  \quad\text{if}\quad t < 2014  \\
+    1 - m \quad\text{if}\quad t \ge 2014
+  \end{cases},
+\end{align}
+\end{frame}
+
+\begin{frame}{寄付申告の内生性}
+\protect\hypertarget{ux5bc4ux4ed8ux7533ux544aux306eux5185ux751fux6027}{}
+給与所得者ダミーをexclusionとして用いる
+
+\begin{itemize}
+\tightlist
+\item
+  所得や業種をコントロールすれば、給与所得者であるかどうかは直接寄付額に影響しない
+\item
+  給与所得者のほうが非給与所得者より寄付申告コストが安いと考えられる
+\end{itemize}
+
+Wooldridge (2010) より、以下の二つの方法で推定する
+
+\begin{enumerate}
+\tightlist
+\item
+  給与所得者ダミー(\(Z_{it}\))とfirst-unit priceの交差項を\(R_{it} \times \ln (1 - s^f_{it})\)の操作変数として用いる
+\item
+  寄付申告の傾向スコア\(P_{it}\)とfirst-unit priceの交差項を操作変数として用いる
+
+  \begin{itemize}
+  \tightlist
+  \item
+    傾向スコア\(P_{it}\)は\(R_{it} = 1[\alpha_0 + \alpha_1 Z_{it} + \alpha_2 \ln(1 - s^f_{it}) + \alpha_3 X_{it} + u_{it0} > 0]\)をプロビット推定し、その予測確率で得る
+  \item
+    プロビット推定は係数が時間に対して一定と仮定したPooledモデルと係数が時間に対して異なると仮定したSeparatedモデルで推定
+  \end{itemize}
+\end{enumerate}
 \end{frame}
 
 \begin{frame}{Estimation Results}
@@ -1011,6 +1046,9 @@ Gillitzer, C., Skov, P.E., 2018. The use of third-party information reporting fo
 
 \leavevmode\vadjust pre{\hypertarget{ref-Saez2004}{}}%
 Saez, E., 2004. The optimal treatment of tax expenditures. Journal of Public Economics 88, 2657--2684. doi:\href{https://doi.org/10.1016/j.jpubeco.2003.09.004}{10.1016/j.jpubeco.2003.09.004}
+
+\leavevmode\vadjust pre{\hypertarget{ref-Wooldridge2010a}{}}%
+Wooldridge, J.M., 2010. Econometric analysis of cross section and panel data, 2nd ed. ed. {MIT Press}, {Cambridge, Mass}.
 
 \end{CSLReferences}
 \end{frame}

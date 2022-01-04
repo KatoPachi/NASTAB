@@ -179,12 +179,11 @@ $(g_{it}, y_{it})$を所与として、寄付控除の節税額が申告コス�
 knitr::spin_child("script/1-summary.R")
 ```
 
-# Estimating Conventional Price Elasticities
+# 寄付の価格弾力性の推定
 
 ```{r}
 knitr::spin_child("script/3-elasticity.R")
 ```
-
 
 # Conclusion
 

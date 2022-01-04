@@ -50,50 +50,74 @@ book <- readr::read_csv("data/codebook/shaped2_description.csv"); View(book)
 df <- readr::read_csv("data/shaped2.csv")
 
 #'
-#' ## Emprical Strategies
+#' ## 2種類の寄付の価格弾力性
 #'
-#' - We start to esimate the effect of tax incentive by estimating the price elasticity of charitable giving
-#' - Following @Almunia2020, we estimate two types of elasticities: the intensive-margin price elasticity and the extensive-margin price elasticity
-#'   - The intensive-margin price elasticity: how much a 1% increase of price increases the amount of donations conditional on donors.
-#'   - The extensive-margin price elasticity: how much the probability of donating increases with a 1% increase of price.
+#' @Scharf2020 に従い、2種類の価格弾力性を推定する
 #'
-#' ## Estimation Equation for Intensive-Margin Elasticity
+#' 1. Intensive-margin tax-price elasticity: 1%の価格上昇で寄付者の寄付額が何%増えるか？
+#' 1. Extensive-margin tax-price elasticity: 1%の価格上昇で寄付確率が何%増えるか？
+#'
+#' ## Intensive-Margin Tax-Price Elasticityの推定方法
 #'
 #' \begin{align}
-#'   \ln g_{it} = \theta_i + \gamma \ln p_t(y_{it}, R_{it}, g_{it})
+#'   \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - s_{it}))
 #'   + \beta X_{it} + \lambda_t + u_{it}, (\#eq:intensive)
 #' \end{align}
 #'
-#' - $X_{it}$ is a vector of covariate including income $y_{it}$
-#' - $\theta_i$ is an individual fixed effect, and $\lambda_t$ is a time fixed effect
-#' - $u_{it}$ is an idiosyncratic error
-#' - Our prameter of interest is $\gamma$, which represents the intensive-margin price elasticity.
+#' - $X_{it}$は課税前所得($y_{it}$)を含んだ共変量ベクトル
+#' - $\theta_i$は個人固定効果、$\lambda_t$は時間固定効果
+#' - $u_{it}$はidiosyncratic error
+#' - 関心のあるパラメータは$\gamma$で、intensive-margin tax-price elasticityを示す
 #'
-#' ## Estimation Equation for Extensive-Margin Elasticity
+#' ## Extensive-Margin Tax-Price Elasticityの推定方法
 #'
 #' \begin{align}
-#'   D_{it} = \theta_i + \delta \ln p_t(y_{it}, R_{it}, g_{it})
+#'   D_{it} = \theta_i + \delta (R_{it} \times \ln (1 - s_{it}))
 #'   + \beta X_{it} + \lambda_t + u_{it}, (\#eq:extensive)
 #' \end{align}
 #'
-#' - $D_{it}$ is a dummy taking one if positive giving is observed ($g_{it} > 0$).
-#' - Our prameter of interest is $\delta$
-#'   - We cannot interpret the parameter $\delta$ as the extensive-margin price elasticity beucase the outcome is a dummy variable.
-#'   - the extensive-maring price elasticity can be calculated as $\hat{\delta} / \bar{D}$ where $\bar{D}$ is sample mean of $D_{it}$.
+#' - $D_{it}$は正の寄付額($g_{it} > 0$)が観測されたら1を取るダミー変数
+#' - 関心のあるパラメータは$\delta$
+#'   - 二値のアウトカム変数なので、$\delta$は直接、価格弾力性として解釈できない
+#'   - Extensive-Margin Tax-Price Elasticityは$\hat{\delta} / \bar{D}$で得られる（$\bar{D}$は$D_{it}$の標本平均）
 #'
-#' ## Endogenous Giving Price
+#' ## 寄付の相対価格の内生性
 #'
 #' \begin{align}
-#'   p_t(y_{it}, R_{it}, g_{it}) =
+#'   1 - s_{it} =
 #'   \begin{cases}
-#'     1 - T'_t(y_{it} - R_{it} g_{it})  \quad\text{if}\quad t < 2014  \\
-#'     1 - R_{it} m \quad\text{if}\quad t \ge 2014
+#'     1 - T'_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
+#'     1 - m \quad\text{if}\quad t \ge 2014
 #'   \end{cases},
 #' \end{align}
 #'
-#' - $T'_t(\cdot)$ is marginal tax rate in year $t$, and $m$ is tax credit rate ($m = 0.15$).
-#' - When tax deduction was applied, the function of price giving depends on charitable giving ($g_{it}$).
-#' - Following past literatures estimating price elasticity of giving, we use the *first*-unit price of giving defined by $p_t(y_{it}, 1, 0)$ as an instrument for the *last*-unit price, $p_t(y_{it}, R_{it}, g_{it})$.
+#' - $T'_t(\cdot)$は$t$年の限界所得税率、$m$は税額控除率($m = 0.15$)
+#' - 所得控除のとき、寄付価格は寄付額($g_{it}$)に依存する
+#' - この価格は*Last*-unit priceと呼ばれる
+#'
+#' 過去の研究にならい、本研究は以下の*first*-unit priceを*last*-unit priceの代わり（もしくはその操作変数）として用いる
+#'
+#' \begin{align}
+#'   1 - s^f_{it} =
+#'   \begin{cases}
+#'     1 - T'_t(y_{it} - 0)  \quad\text{if}\quad t < 2014  \\
+#'     1 - m \quad\text{if}\quad t \ge 2014
+#'   \end{cases},
+#' \end{align}
+#'
+#' ## 寄付申告の内生性
+#'
+#' 給与所得者ダミーをexclusionとして用いる
+#'
+#' - 所得や業種をコントロールすれば、給与所得者であるかどうかは直接寄付額に影響しない
+#' - 給与所得者のほうが非給与所得者より寄付申告コストが安いと考えられる
+#'
+#' @Wooldridge2010a より、以下の二つの方法で推定する
+#'
+#' 1. 給与所得者ダミー($Z_{it}$)とfirst-unit priceの交差項を$R_{it} \times \ln (1 - s^f_{it})$の操作変数として用いる
+#' 1. 寄付申告の傾向スコア$P_{it}$とfirst-unit priceの交差項を操作変数として用いる
+#'     - 傾向スコア$P_{it}$は$R_{it} = 1[\alpha_0 + \alpha_1 Z_{it} + \alpha_2 \ln(1 - s^f_{it}) + \alpha_3 X_{it} + u_{it0} > 0]$をプロビット推定し、その予測確率で得る
+#'     - プロビット推定は係数が時間に対して一定と仮定したPooledモデルと係数が時間に対して異なると仮定したSeparatedモデルで推定
 #'
 #' ## Estimation Results
 #'
