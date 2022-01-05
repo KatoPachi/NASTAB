@@ -192,33 +192,16 @@
 
 \begin{frame}{税インセンティブの自己選択の問題}
 \protect\hypertarget{ux7a0eux30a4ux30f3ux30bbux30f3ux30c6ux30a3ux30d6ux306eux81eaux5df1ux9078ux629eux306eux554fux984c}{}
-税インセンティブと申告コストに基づいて、納税者は控除を受けるかどうかを意思決定する
+寄付控除を受けるためには確定申告での寄付申告が必要
 
-\begin{itemize}
-\tightlist
-\item
-  申告コストが大きいことを指摘している研究がいくつかある
-
-  \begin{itemize}
-  \tightlist
-  \item
-    アメリカの個人所得税の確定申告: 申告準備（Record keeping）のコスト \textgreater{} 申告自体（Tax filing）のコスト (Benzarti, 2020)
-  \item
-    イギリスの寄付控除の固定費用: 申告された寄付額の10\%に相当 (Almunia et al., 2020)
-  \item
-    デンマークの寄付控除でも、record keepingのコストを含めた様々なoptimization frictionがある (Gillitzer and Skov, 2018)
-  \end{itemize}
-\item
-  韓国においても、寄付控除を受けるためのコストは大きいと考えられる
-
-  \begin{itemize}
-  \tightlist
-  \item
-    控除を受けた寄付者の割合は42\% (from our data)
-  \item
-    控除を受けた寄付者の平均寄付額は174万ウォンである一方、控除を受けていない寄付者の平均寄付額は133万ウォン (from our data)
-  \end{itemize}
-\end{itemize}
+-税インセンティブと申告コストに基づいて、納税者は控除を受けるかどうかを意思決定する
+- 申告コストが大きいことを指摘している研究がいくつかある
+- アメリカの個人所得税の確定申告: 申告準備（Record keeping）のコスト \textgreater{} 申告自体（Tax filing）のコスト (Benzarti, 2020)
+- イギリスの寄付控除の固定費用: 申告された寄付額の10\%に相当 (Almunia et al., 2020)
+- デンマークの寄付控除でも、record keepingのコストを含めた様々なoptimization frictionがある (Gillitzer and Skov, 2018)
+- 韓国においても、寄付控除を受けるためのコストは大きいと考えられる
+- 控除を受けた寄付者の割合は42\% (from our data)
+- 控除を受けた寄付者の平均寄付額は174万ウォンである一方、控除を受けていない寄付者の平均寄付額は133万ウォン (from our data)
 \end{frame}
 
 \begin{frame}{本研究の概要(1)}
@@ -233,7 +216,7 @@
   \begin{itemize}
   \tightlist
   \item
-    サーベイデータの利点 \(\to\) 申告された寄付額は実際の寄付額と異なる測定誤差(Fack and Landais, 2016; Gillitzer and Skov, 2018)を回避できる
+    サーベイデータの利点 \(\to\) 申告された寄付額は実際の寄付額と異なるという測定誤差(Fack and Landais, 2016; Gillitzer and Skov, 2018)を回避できる
   \end{itemize}
 \item
   2014年の税制改革（所得控除 \(\to\) 税額控除）を税インセンティブの外生変動として利用したDIDで推定する
@@ -256,24 +239,24 @@
 
 \begin{frame}{本研究の概要(2)}
 \protect\hypertarget{ux672cux7814ux7a76ux306eux6982ux89812}{}
-Result
+結果
 
 \begin{enumerate}
 \tightlist
 \item
-  Baseline results show that the giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.7 in terms of extensive margins in Korea.
-\item
-  The estimated giving price elasticity for those who declare charitable giving is around -1.2 -1.6.
+  寄付の価格弾力性はintensive-marginについて約-1.5であり、extensive-marginについて約-1.7 \textasciitilde{} -2.8であった
 
   \begin{itemize}
   \tightlist
   \item
-    These estimates are more elastic than the estimates in the extant research, many of which show around -1.
+    寄付申告者に限定した推定 \(\to\) -1.2
+  \item
+    先行研究と比較して、弾力的な推定値となった
   \end{itemize}
 \item
-  By reducing application cost, we can increase charitable giving.
+  これらの推定値を用いると、寄付の税インセンティブを設けることは社会厚生の観点から望ましいことが分かった
 \item
-  Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
+  申告コストを下げるような政策によって、寄付を増やすことができる
 \end{enumerate}
 \end{frame}
 
@@ -614,7 +597,7 @@ Almunia et al. (2020) に従い、2種類の価格弾力性を推定する
 
 \begin{frame}{寄付申告の内生性}
 \protect\hypertarget{ux5bc4ux4ed8ux7533ux544aux306eux5185ux751fux6027}{}
-給与所得者ダミーをexclusionとして用いる
+給与所得者ダミーをIVとして用いる
 
 \begin{itemize}
 \tightlist
@@ -766,11 +749,235 @@ extensive-margin tax-price elasticityは-1.7から-5の間に入る
 \end{itemize}
 \end{frame}
 
+\hypertarget{ux793eux4f1aux539aux751fux3078ux306eux542bux610f}{%
+\section{社会厚生への含意}\label{ux793eux4f1aux539aux751fux3078ux306eux542bux610f}}
+
+\begin{frame}{モデルの設定}
+\protect\hypertarget{ux30e2ux30c7ux30ebux306eux8a2dux5b9a}{}
+Almunia et al. (2020) にならい、個人の効用関数を特定化し、以下の最適化問題を考える
+
+\begin{align}
+  \max_{x_i,g_i,R_i}&U(x_i,g_i,G)= x_i - R_iK +\theta u(g_i) + V(G)\notag\\
+  \text{s.t. }&x_i + g_i = R_i(y-T(y, g_i)) + (1-R_i)(y-T(y)),\notag\\
+  &\text{ and }G=g_i+G_{-i}\notag,
+\end{align}
+
+ただし\(\theta\in[\underline{\theta},\bar{\theta}\){]}は寄付選好で密度\(f(\cdot)\)に従う。
+
+\begin{itemize}
+\tightlist
+\item
+  \(G\)は政府供給も含めた社会の寄付総量。
+\item
+  \(G_{-i}\)は社会の寄付総量から\(i\)の寄付を除いたもの。
+\item
+  簡単化のため、所得税は線形で税率\(\tau\)とする。
+\item
+  社会の人口は1と基準化
+\end{itemize}
+\end{frame}
+
+\begin{frame}{最適化}
+\protect\hypertarget{ux6700ux9069ux5316}{}
+\begin{itemize}
+\tightlist
+\item
+  最適化問題の結果、寄付者のうち寄付申告をする人としない人の(寄付に関する)間接効用関数はそれぞれ以下のようになる。
+\end{itemize}
+
+\begin{align}
+  \nu(p;\theta)&=\theta_i u(g(p;\theta))-pg(p;\theta)\notag\\
+  \nu(1;\theta)&=\theta_i u(g(1;\theta))-g(1;\theta)\notag.
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  \((1-\tau)y\)、\(K\)、\(V(G)\)は各人で共通なので、とりあえず捨象している。(申告コスト\(K\)について\(K_H>K_L\)というような差があっても以下の議論はほぼ変わらない。)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{社会厚生関数の設定}
+\protect\hypertarget{ux793eux4f1aux539aux751fux95a2ux6570ux306eux8a2dux5b9a}{}
+\begin{itemize}
+\tightlist
+\item
+  寄付選好\(\theta\)と寄付価格\(p\)の大きさによって社会には以下の3種類の人が存在。
+  1. 非寄付者: \(\theta\le \theta_0\)
+  2. 寄付者かつ非寄付申告者: \(\theta\in(\theta_0,\theta(p)]\) \(\to\) 彼らの寄付総額を\(g^0(p)\equiv\int_{\theta_0}^{\theta(p)}g(1;\theta)f(\theta)d\theta\)とする。
+
+  \begin{enumerate}
+  \setcounter{enumi}{2}
+  \tightlist
+  \item
+    寄付者かつ寄付申告者: \(\theta>\theta(p)\) \(\to\) 彼らの寄付総額を\(g^1(p)\equiv\int_{\theta(q)}^{\bar{\theta}}g(p;\theta)f(\theta)d\theta\)とする。
+  \end{enumerate}
+\item
+  社会厚生は以下のようになる。
+  \begin{align}
+  W=V(G)&+\int_{\theta(p)}^{\bar{\theta}}(\nu(p;\theta)-K)f(\theta)d\theta\notag\\
+  &+\int_{\theta_0}^{\theta(p)}\nu(1;\theta)f(\theta)d\theta+\lambda[ty-(1-p)g^1(p)-G_g]\notag
+  \end{align}
+\end{itemize}
+
+ただし\(\lambda\)は公的資金の限界費用(MCPF)を表す。
+- 政府はMCPFと公共財の限界効用が等しくなるように公共財を供給し\(\lambda=V'\)となる(Saez, 2004)。
+\end{frame}
+
+\begin{frame}{寄付価格の社会厚生に対する効果(1)}
+\protect\hypertarget{ux5bc4ux4ed8ux4fa1ux683cux306eux793eux4f1aux539aux751fux306bux5bfeux3059ux308bux52b9ux679c1}{}
+\begin{itemize}
+\tightlist
+\item
+  寄付価格\(p\)を変化させたときの社会厚生\(W\)の変化を考えると
+\end{itemize}
+
+\begin{align}
+  dW 
+  =(g_p^0+g_p^1)V'dp+\int_{\theta(p)}^{\bar{\theta}}\underbrace{\nu_p(p;\theta)}_{=-g(p;\theta)}f(\theta)d\theta dp+\lambda[g^1-(1-p)g^1_p]dp\notag
+\end{align}
+
+なので、\(\lambda=V'\)より
+
+\begin{align}
+  \frac{dW}{dp} =\lambda (g_p^0+g_p^1)+(\lambda-1)g^1-\lambda(1-p)g_p^1\notag
+\end{align}
+\end{frame}
+
+\begin{frame}{寄付価格の社会厚生に対する効果(2)}
+\protect\hypertarget{ux5bc4ux4ed8ux4fa1ux683cux306eux793eux4f1aux539aux751fux306bux5bfeux3059ux308bux52b9ux679c2}{}
+\begin{itemize}
+\tightlist
+\item
+  寄付価格を下げたときに社会厚生が上がる\(\frac{dW}{dp}<0\)の条件は
+\end{itemize}
+
+\begin{align}
+  \epsilon\equiv -\frac{pg_p^1}{g^1}>\frac{\lambda-1}{\lambda}+\frac{g_p^0}{g^1}\notag.
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  サブサンプル分析より\(\epsilon\)は1.304 \(\sim\) 1.603
+
+  \begin{itemize}
+  \tightlist
+  \item
+    MCPFは\(\lambda\in[1,2]\)だと仮定し、\(\frac{\lambda-1}{\lambda}\in[0,\frac12]\)となる。
+  \item
+    2017年データの\(g^1\)と\(g_p^0\)の推定値を使うと、\(\frac{g_p^0}{g^1}\)は0.279\$\sim\$0.471
+  \end{itemize}
+\item
+  \(\frac{dW}{dp}<0\)がいえ、寄付価格低下で社会厚生が上がると示唆。
+\end{itemize}
+\end{frame}
+
+\begin{frame}{申告コストの社会厚生に対する効果}
+\protect\hypertarget{ux7533ux544aux30b3ux30b9ux30c8ux306eux793eux4f1aux539aux751fux306bux5bfeux3059ux308bux52b9ux679c}{}
+\(W\)を\(K\)で微分すると
+
+\begin{align}
+  \frac{dW}{dK}=&[F(\theta(p))-1]+\lambda(1-p)g(p:\theta(p))\underbrace{f(\theta(p))}_{\simeq0}\frac{\partial \theta(p)}{\partial K}\notag\\
+  =&F(\theta(p))-1<0\notag
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  \(F(\theta(p))\)は寄付申告しない人の割合を表すことから、\(F(\theta(p))-1\)は寄付申告者の割合の負値であるといえる。
+\item
+  社会厚生へは寄付申告者の私的財消費が\(dK\)だけ増える効果が見られる。
+\end{itemize}
+\end{frame}
+
+\begin{frame}{社会厚生への含意}
+\protect\hypertarget{ux793eux4f1aux539aux751fux3078ux306eux542bux610f-1}{}
+申告コスト\(K\)と寄付価格\(p\)を下げた場合の厚生への効果は
+
+\begin{align}
+  \frac{dW}{dK}=&F(\theta(p))-1<0\notag\\
+  \frac{dW}{dp}=&\lambda g_p^0+(\lambda-1)g^1+\lambda pg_p^1\notag
+\end{align}
+
+2017年のデータを使うとそれぞれ
+
+\begin{itemize}
+\tightlist
+\item
+  \(\frac{dW}{dK}=F(\theta(p))-1=-0.107\)
+\item
+  MCPFについて、\(\lambda\in[1,2]\)とすると、\(\frac{dW}{dp}\in[-237.9, -169.9]\)
+\item
+  申告コストよりも寄付価格を下げた方が厚生増大は大きい。
+
+  \begin{itemize}
+  \tightlist
+  \item
+    申告コストの微小な低下は寄付申告者(+\(\alpha\))の所得にのみ影響し、寄付を増やす効果はあまりない。
+  \item
+    寄付価格の微小な低下は主に寄付申告者の寄付への価格効果をもたらし、寄付による効用と寄付(=公共財)の正の外部性を通じた厚生増大の効果がある。
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
 \hypertarget{primitive-result-marginal-treatment-effect}{%
 \section{(Primitive Result) Marginal Treatment Effect}\label{primitive-result-marginal-treatment-effect}}
 
+\begin{frame}{税インセンティブの効果の異質性を考慮する}
+\protect\hypertarget{ux7a0eux30a4ux30f3ux30bbux30f3ux30c6ux30a3ux30d6ux306eux52b9ux679cux306eux7570ux8ceaux6027ux3092ux8003ux616eux3059ux308b}{}
+\begin{itemize}
+\tightlist
+\item
+  ここまでは税インセンティブに対する効果が全個人で同質であることを想定していた
+\item
+  申告の自己選択に観察できない要素があるときに、申告（税インセンティブ）を受けることで寄付をどの程度増やすかを検証する
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Marginal Treatment Effect (Heckman and Vytlacil, 2007)は自己選択によって生じるすべての税インセンティブの異質性を捉えることができる
+  \end{itemize}
+\item
+  MTE(x, u) = \mu\_1(x) - \mu\_0(x) + E{[}\eta \textbar{} U = u{]}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(\eta\)は申告を受けたときの寄付額の観察できない要因と申告を受けないときの寄付額の観察できない要因の差
+  \item
+    \(u\)は寄付を申告したくない程度を\([0, 1]\)の範囲で表したもの
+  \item
+    \(E[\eta | U = u]\)は\(u\)について線形として仮定する
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{MTEの利点}
+\protect\hypertarget{mteux306eux5229ux70b9}{}
+\begin{enumerate}
+\tightlist
+\item
+  ATE・ATT・ATUを推定することができる
+
+  \begin{itemize}
+  \tightlist
+  \item
+    ATU: 申告コストをゼロにしたとき、これまで申告しなかった人がどれだけ寄付を増やせるか
+  \end{itemize}
+\item
+  申告コストを動かす外生的な要因が観察できるので、構造推定に頼ることなく、以上のパラメータを推定できる
+\item
+  ATE・ATT・ATU以外の政策パラメータを定義して、推定することができる（Policy revalent treatment effect）
+\item
+  MTEの推定から社会厚生への含意が得られる(Chetty, 2009; Ito et al., 2021)
+\end{enumerate}
+\end{frame}
+
 \begin{frame}{線型のMTE関数}
 \protect\hypertarget{ux7ddaux578bux306emteux95a2ux6570}{}
+\(\mu_1(x) - \mu_0(x)\)の平均値を切片とし、\(E[\eta | U = u]\)を示したもの
+
 \begin{center}\includegraphics[width=0.7\linewidth]{C:/Users/katoo/Desktop/NASTAB/paper/slide_files/figure-beamer/unnamed-chunk-22-1} \end{center}
 \end{frame}
 
@@ -791,10 +998,15 @@ ATU & 0.1247 & -0.1466 & -0.8506\\
 \bottomrule
 \end{tabular}
 \end{table}
-\end{frame}
 
-\hypertarget{conclusion}{%
-\section{Conclusion}\label{conclusion}}
+\begin{itemize}
+\tightlist
+\item
+  Estimated Effectは申告によって寄付が何\%増えるかを示している
+\item
+  Implied elasticityはEstimated effectからMean of Logged Priceを割って、弾力性を計算したものを示している
+\end{itemize}
+\end{frame}
 
 \hypertarget{appendix}{%
 \section{Appendix}\label{appendix}}
@@ -1146,6 +1358,9 @@ Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more giv
 \leavevmode\vadjust pre{\hypertarget{ref-Benzarti2020}{}}%
 Benzarti, Y., 2020. How {Taxing Is Tax Filing}? {Using Revealed Preferences} to {Estimate Compliance Costs}. American Economic Journal: Economic Policy 12, 38--57. doi:\href{https://doi.org/10.1257/pol.20180664}{10.1257/pol.20180664}
 
+\leavevmode\vadjust pre{\hypertarget{ref-Chetty2009}{}}%
+Chetty, R., 2009. Sufficient {Statistics} for {Welfare Analysis}: {A Bridge Between Structural} and {Reduced-Form Methods}. Annu. Rev. Econ. 1, 451--488. doi:\href{https://doi.org/10.1146/annurev.economics.050708.142910}{10.1146/annurev.economics.050708.142910}
+
 \leavevmode\vadjust pre{\hypertarget{ref-Landais2016}{}}%
 Fack, G., Landais, C., 2016. The effect of tax enforcement on tax elasticities: {Evidence} from charitable contributions in {France}. Journal of Public Economics 133, 23--40. doi:\href{https://doi.org/10.1016/j.jpubeco.2015.10.004}{10.1016/j.jpubeco.2015.10.004}
 
@@ -1154,6 +1369,12 @@ Gillitzer, C., Skov, P.E., 2018. The use of third-party information reporting fo
 
 \leavevmode\vadjust pre{\hypertarget{ref-Saez2002}{}}%
 Gruber, J., Saez, E., 2002. The elasticity of taxable income: Evidence and implications. Journal of Public Economics 32.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Vytlacil2007}{}}%
+Heckman, J.J., Vytlacil, E.J., 2007. Chapter 71 {Econometric Evaluation} of {Social Programs}, {Part II}: {Using} the {Marginal Treatment Effect} to {Organize Alternative Econometric Estimators} to {Evaluate Social Programs}, and to {Forecast} their {Effects} in {New Environments}, in: Handbook of {Econometrics}. {Elsevier}, pp. 4875--5143. doi:\href{https://doi.org/10.1016/S1573-4412(07)06071-0}{10.1016/S1573-4412(07)06071-0}
+
+\leavevmode\vadjust pre{\hypertarget{ref-Tanaka2021}{}}%
+Ito, K., Ida, T., Tanaka, M., 2021. Selection on {Welfare Gains}: {Experimental Evidence} from {Electricity Plan Choice} (No. w28413). {National Bureau of Economic Research}, {Cambridge, MA}. doi:\href{https://doi.org/10.3386/w28413}{10.3386/w28413}
 
 \leavevmode\vadjust pre{\hypertarget{ref-Randolph1995}{}}%
 Randolph, W.C., 1995. Dynamic {Income}, {Progressive Taxes}, and the {Timing} of {Charitable Contributions}. Journal of Political Economy 103, 709--738. doi:\href{https://doi.org/10.1086/262000}{10.1086/262000}
