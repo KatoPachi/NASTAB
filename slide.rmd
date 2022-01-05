@@ -86,8 +86,9 @@ lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 
 ## 税インセンティブの自己選択の問題
 
-税インセンティブと申告コストに基づいて、納税者は控除を受けるかどうかを意思決定する
+寄付控除を受けるためには確定申告での寄付申告が必要
 
+-税インセンティブと申告コストに基づいて、納税者は控除を受けるかどうかを意思決定する
 - 申告コストが大きいことを指摘している研究がいくつかある
   - アメリカの個人所得税の確定申告: 申告準備（Record keeping）のコスト > 申告自体（Tax filing）のコスト [@Benzarti2020]
   - イギリスの寄付控除の固定費用: 申告された寄付額の10%に相当 [@Scharf2020]
@@ -101,7 +102,7 @@ lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 韓国における2014年の税制改革を用いて、税インセンティブの自己選択を考慮した寄付の価格弾力性を推定する
 
 - 韓国のパネルデータ（National Survey of Tax and Benefit）を使用する
-  - サーベイデータの利点 $\to$ 申告された寄付額は実際の寄付額と異なる測定誤差[@Landais2016; @Skov2018]を回避できる
+  - サーベイデータの利点 $\to$ 申告された寄付額は実際の寄付額と異なるという測定誤差[@Landais2016; @Skov2018]を回避できる
 - 2014年の税制改革（所得控除 $\to$ 税額控除）を税インセンティブの外生変動として利用したDIDで推定する
   - 所得税率に依存したインセンティブ（所得控除）から納税者に一律のインセンティブ（税額控除）に変更
 - 申告コストの外生要因として、給与所得者かどうかを用いる
@@ -109,13 +110,13 @@ lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
 
 ## 本研究の概要(2)
 
-Result
+結果
 
-1. Baseline results show that the giving price elasticity is less than -1.4 in terms of intensive margins and less than -1.7 in terms of extensive margins in Korea.
-2. The estimated giving price elasticity for those who declare charitable giving is around -1.2 -1.6.
-    - These estimates are more elastic than the estimates in the extant research, many of which show around -1.
-3. By reducing application cost, we can increase charitable giving. 
-4. Given our estimates, increasing the subsidy on charitable giving will be desirable in Korea.
+1. 寄付の価格弾力性はintensive-marginについて約-1.5であり、extensive-marginについて約-1.7 ~ -2.8であった
+    - 寄付申告者に限定した推定 $\to$ -1.2
+    - 先行研究と比較して、弾力的な推定値となった
+1. これらの推定値を用いると、寄付の税インセンティブを設けることは社会厚生の観点から望ましいことが分かった
+1. 申告コストを下げるような政策によって、寄付を増やすことができる
 
 # 韓国の寄付控除制度
 
@@ -189,13 +190,114 @@ knitr::spin_child("script/2-stage1.R")
 knitr::spin_child("script/3-elasticity1.R")
 ```
 
+# 社会厚生への含意
+
+## モデルの設定
+
+@Scharf2020 にならい、個人の効用関数を特定化し、以下の最適化問題を考える
+
+\begin{align}
+  \max_{x_i,g_i,R_i}&U(x_i,g_i,G)= x_i - R_iK +\theta u(g_i) + V(G)\notag\\
+  \text{s.t. }&x_i + g_i = R_i(y-T(y, g_i)) + (1-R_i)(y-T(y)),\notag\\
+  &\text{ and }G=g_i+G_{-i}\notag,
+\end{align}
+
+ただし$\theta\in[\underline{\theta},\bar{\theta}$]は寄付選好で密度$f(\cdot)$に従う。 
+
+- $G$は政府供給も含めた社会の寄付総量。
+- $G_{-i}$は社会の寄付総量から$i$の寄付を除いたもの。
+- 簡単化のため、所得税は線形で税率$\tau$とする。
+- 社会の人口は1と基準化
+
+## 最適化
+
+- 最適化問題の結果、寄付者のうち寄付申告をする人としない人の(寄付に関する)間接効用関数はそれぞれ以下のようになる。
+
+\begin{align}
+  \nu(p;\theta)&=\theta_i u(g(p;\theta))-pg(p;\theta)\notag\\
+  \nu(1;\theta)&=\theta_i u(g(1;\theta))-g(1;\theta)\notag.
+\end{align}
+
+- $(1-\tau)y$、$K$、$V(G)$は各人で共通なので、とりあえず捨象している。(申告コスト$K$について$K_H>K_L$というような差があっても以下の議論はほぼ変わらない。)
+
+## 社会厚生関数の設定
+
+- 寄付選好$\theta$と寄付価格$p$の大きさによって社会には以下の3種類の人が存在。
+	  1. 非寄付者: $\theta\le \theta_0$
+		2. 寄付者かつ非寄付申告者: $\theta\in(\theta_0,\theta(p)]$ $\to$ 彼らの寄付総額を$g^0(p)\equiv\int_{\theta_0}^{\theta(p)}g(1;\theta)f(\theta)d\theta$とする。
+    3. 寄付者かつ寄付申告者: $\theta>\theta(p)$ $\to$ 彼らの寄付総額を$g^1(p)\equiv\int_{\theta(q)}^{\bar{\theta}}g(p;\theta)f(\theta)d\theta$とする。
+- 社会厚生は以下のようになる。
+\begin{align}
+  W=V(G)&+\int_{\theta(p)}^{\bar{\theta}}(\nu(p;\theta)-K)f(\theta)d\theta\notag\\
+  &+\int_{\theta_0}^{\theta(p)}\nu(1;\theta)f(\theta)d\theta+\lambda[ty-(1-p)g^1(p)-G_g]\notag
+\end{align}
+
+ただし$\lambda$は公的資金の限界費用(MCPF)を表す。
+- 政府はMCPFと公共財の限界効用が等しくなるように公共財を供給し$\lambda=V'$となる[@Saez2004]。
+
+
+## 寄付価格の社会厚生に対する効果(1)
+
+- 寄付価格$p$を変化させたときの社会厚生$W$の変化を考えると
+
+\begin{align}
+  dW 
+  =(g_p^0+g_p^1)V'dp+\int_{\theta(p)}^{\bar{\theta}}\underbrace{\nu_p(p;\theta)}_{=-g(p;\theta)}f(\theta)d\theta dp+\lambda[g^1-(1-p)g^1_p]dp\notag
+\end{align}
+
+なので、$\lambda=V'$より
+
+\begin{align}
+  \frac{dW}{dp} =\lambda (g_p^0+g_p^1)+(\lambda-1)g^1-\lambda(1-p)g_p^1\notag
+\end{align}
+
+## 寄付価格の社会厚生に対する効果(2)
+		
+- 寄付価格を下げたときに社会厚生が上がる$\frac{dW}{dp}<0$の条件は
+
+\begin{align}
+  \epsilon\equiv -\frac{pg_p^1}{g^1}>\frac{\lambda-1}{\lambda}+\frac{g_p^0}{g^1}\notag.
+\end{align}
+
+  - サブサンプル分析より$\epsilon$は1.304 $\sim$ 1.603
+	- MCPFは$\lambda\in[1,2]$だと仮定し、$\frac{\lambda-1}{\lambda}\in[0,\frac12]$となる。
+	- 2017年データの$g^1$と$g_p^0$の推定値を使うと、$\frac{g_p^0}{g^1}$は0.279$\sim$0.471
+- $\frac{dW}{dp}<0$がいえ、寄付価格低下で社会厚生が上がると示唆。
+
+## 申告コストの社会厚生に対する効果
+
+$W$を$K$で微分すると
+
+\begin{align}
+  \frac{dW}{dK}=&[F(\theta(p))-1]+\lambda(1-p)g(p:\theta(p))\underbrace{f(\theta(p))}_{\simeq0}\frac{\partial \theta(p)}{\partial K}\notag\\
+  =&F(\theta(p))-1<0\notag
+\end{align}
+
+- $F(\theta(p))$は寄付申告しない人の割合を表すことから、$F(\theta(p))-1$は寄付申告者の割合の負値であるといえる。
+- 社会厚生へは寄付申告者の私的財消費が$dK$だけ増える効果が見られる。
+
+## 社会厚生への含意
+
+申告コスト$K$と寄付価格$p$を下げた場合の厚生への効果は
+
+\begin{align}
+  \frac{dW}{dK}=&F(\theta(p))-1<0\notag\\
+  \frac{dW}{dp}=&\lambda g_p^0+(\lambda-1)g^1+\lambda pg_p^1\notag
+\end{align}
+
+2017年のデータを使うとそれぞれ
+
+- $\frac{dW}{dK}=F(\theta(p))-1=-0.107$
+- MCPFについて、$\lambda\in[1,2]$とすると、$\frac{dW}{dp}\in[-237.9, -169.9]$
+- 申告コストよりも寄付価格を下げた方が厚生増大は大きい。
+  - 申告コストの微小な低下は寄付申告者(+$\alpha$)の所得にのみ影響し、寄付を増やす効果はあまりない。
+  - 寄付価格の微小な低下は主に寄付申告者の寄付への価格効果をもたらし、寄付による効用と寄付(=公共財)の正の外部性を通じた厚生増大の効果がある。
+
 # (Primitive Result) Marginal Treatment Effect
 
 ```{r}
 knitr::spin_child("script/4-mte.R")
 ```
-
-# Conclusion
 
 # Appendix
 
