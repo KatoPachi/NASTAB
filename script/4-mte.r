@@ -47,7 +47,7 @@ lapply(Sys.glob(file.path("script/functions", "*.r")), source)
 estdf <- readr::read_csv("data/shaped2_propensity.csv", guess_max = 30000)
 
 #'
-#+ include = FALSE
+#+ eval = FALSE
 # check whether "gurobi" works
 # create optimization problem
 model <- list()
@@ -62,6 +62,8 @@ model$A          <- matrix(c(1, 2, 3, 1, 1, 0), nrow = 2, ncol = 3,
 # solve the optimization problem using Gurobi
 result <- gurobi(model, list())
 
+#'
+#' ## 線型のMTE関数
 #'
 #+
 intargs <- list(
@@ -98,6 +100,8 @@ data.frame(x = u, y = pred) %>%
   ) +
   ggtemp()
 
+#'
+#' ## Population-levelパラメータの推定
 #'
 #+
 att <- intmte$point.estimate
@@ -138,9 +142,9 @@ intpara %>%
       "Implied Elasticity"
     ),
     align = "lccc",
-    digits = 4
+    digits = 4, booktabs = TRUE, linesep = ""
   ) %>%
-  kableExtra::kable_styling()
+  kableExtra::kable_styling(font_size = 7)
 
 #'
 # /*
