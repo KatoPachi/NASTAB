@@ -51,8 +51,6 @@ View(book)
 df <- readr::read_csv("data/shaped2.csv")
 
 #'
-#' ## Probit Estimation of Selection of Applying for Tax Relief
-#'
 #+
 fixest::setFixest_fml(
   ..stage1 = ~ employee + price_ln + linc_ln +
@@ -88,7 +86,7 @@ fixest::setFixest_fml(..mundlak = mundlak)
 df <- df %>% left_join(meandf, by = "panelid")
 
 #'
-#+ stage1
+#+ stage1, results = "hide"
 est_stage1_pool <- df %>%
   dplyr::filter(year <= 2017) %>%
   fixest::feglm(

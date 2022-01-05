@@ -50,76 +50,8 @@ book <- readr::read_csv("data/codebook/shaped2_description.csv"); View(book)
 df <- readr::read_csv("data/shaped2.csv")
 
 #'
-#' ## 2種類の寄付の価格弾力性
 #'
-#' @Scharf2020 に従い、2種類の価格弾力性を推定する
-#'
-#' 1. Intensive-margin tax-price elasticity: 1%の価格上昇で寄付者の寄付額が何%増えるか？
-#' 1. Extensive-margin tax-price elasticity: 1%の価格上昇で寄付確率が何%増えるか？
-#'
-#' ## Intensive-Margin Tax-Price Elasticityの推定方法
-#'
-#' \begin{align}
-#'   \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - s_{it}))
-#'   + \beta X_{it} + \lambda_t + u_{it}, (\#eq:intensive)
-#' \end{align}
-#'
-#' - $X_{it}$は課税前所得($y_{it}$)を含んだ共変量ベクトル
-#' - $\theta_i$は個人固定効果、$\lambda_t$は時間固定効果
-#' - $u_{it}$はidiosyncratic error
-#' - 関心のあるパラメータは$\gamma$で、intensive-margin tax-price elasticityを示す
-#'
-#' ## Extensive-Margin Tax-Price Elasticityの推定方法
-#'
-#' \begin{align}
-#'   D_{it} = \theta_i + \delta (R_{it} \times \ln (1 - s_{it}))
-#'   + \beta X_{it} + \lambda_t + u_{it}, (\#eq:extensive)
-#' \end{align}
-#'
-#' - $D_{it}$は正の寄付額($g_{it} > 0$)が観測されたら1を取るダミー変数
-#' - 関心のあるパラメータは$\delta$
-#'   - 二値のアウトカム変数なので、$\delta$は直接、価格弾力性として解釈できない
-#'   - Extensive-Margin Tax-Price Elasticityは$\hat{\delta} / \bar{D}$で得られる（$\bar{D}$は$D_{it}$の標本平均）
-#'
-#' ## 寄付の相対価格の内生性
-#'
-#' \begin{align}
-#'   1 - s_{it} =
-#'   \begin{cases}
-#'     1 - T'_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
-#'     1 - m \quad\text{if}\quad t \ge 2014
-#'   \end{cases},
-#' \end{align}
-#'
-#' - $T'_t(\cdot)$は$t$年の限界所得税率、$m$は税額控除率($m = 0.15$)
-#' - 所得控除のとき、寄付価格は寄付額($g_{it}$)に依存する
-#' - この価格は*Last*-unit priceと呼ばれる
-#'
-#' 過去の研究にならい、本研究は以下の*first*-unit priceを*last*-unit priceの代わり（もしくはその操作変数）として用いる
-#'
-#' \begin{align}
-#'   1 - s^f_{it} =
-#'   \begin{cases}
-#'     1 - T'_t(y_{it} - 0)  \quad\text{if}\quad t < 2014  \\
-#'     1 - m \quad\text{if}\quad t \ge 2014
-#'   \end{cases},
-#' \end{align}
-#'
-#' ## 寄付申告の内生性
-#'
-#' 給与所得者ダミーをexclusionとして用いる
-#'
-#' - 所得や業種をコントロールすれば、給与所得者であるかどうかは直接寄付額に影響しない
-#' - 給与所得者のほうが非給与所得者より寄付申告コストが安いと考えられる
-#'
-#' @Wooldridge2010a より、以下の二つの方法で推定する
-#'
-#' 1. 給与所得者ダミー($Z_{it}$)とfirst-unit priceの交差項を$R_{it} \times \ln (1 - s^f_{it})$の操作変数として用いる
-#' 1. 寄付申告の傾向スコア$P_{it}$とfirst-unit priceの交差項を操作変数として用いる
-#'     - 傾向スコア$P_{it}$は$R_{it} = 1[\alpha_0 + \alpha_1 Z_{it} + \alpha_2 \ln(1 - s^f_{it}) + \alpha_3 X_{it} + u_{it0} > 0]$をプロビット推定し、その予測確率で得る
-#'     - プロビット推定は係数が時間に対して一定と仮定したPooledモデルと係数が時間に対して異なると仮定したSeparatedモデルで推定
-#'
-#' ## Estimation Results
+#' ## Conventional Method to Estimate Tax-Price Elasticity
 #'
 #+ MainElasticity
 fixest::setFixest_fml(
@@ -174,7 +106,7 @@ impelast_lastmod <- est_lastmod[c(3, 4)] %>%
     "", "",
     "", ""
   )) %>%
-  select(name, value.a, value.x, value.b, value.y) %>%
+  select(name, value.a, value.b, value.x, value.y) %>%
   setNames(c("term", sprintf("(%1d)", 1:6))) %>%
   mutate(term = recode(
     term,
@@ -206,11 +138,11 @@ stage1_lastmod <- est_lastmod[c(2, 4)] %>%
   ))
 
 addtab <- impelast_lastmod %>%
-  bind_rows(stage1_lastmod) %>%
-  bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
-    "Square of age", "X", "X", "X", "X"
-  ))
+  bind_rows(stage1_lastmod) #%>%
+  # bind_rows(tribble(
+  #   ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+  #   "Square of age", "X", "X", "X", "X"
+  # ))
 
 attr(addtab, "position") <- 3:6
 
@@ -222,7 +154,7 @@ est_lastmod %>%
       "fit_lprice_ln:d_relief_donate" = "log(last price)"#,
       # "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2|AIC|BIC|Log|Std",
+    gof_omit = "R2|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
@@ -246,24 +178,9 @@ est_lastmod %>%
   )
 
 #'
-#' ## Message from Table \@ref(tab:MainElasticity)
+#' ## Conventional Method to Estimate Tax-Price Elasticity (2)
 #'
-#' - Column 3 and 4: we estimate the equation \@ref(eq:intensive), using the NaSTaB data consisting of donors only.
-#'   - When we do not take endogenous nature of giving price into account, the intensive-margin price elasticity has upward-bias
-#'   - The intensive-margin price elasticity is about -2% (column 4)
-#' - Column 5 and 6 estimate the equation \@ref(eq:extensive)
-#'   - When we do not take endogenous nature of giving price into account, the extensive-margin price elasticity has downward-bias
-#'   - The estimated coefficient of logged value of last-unit price is -1.5 (column 6).
-#'   - The extensive-margin price elasticity is -5.8.
-#'
-#' <!--
-#' - **加藤コメント1：他の文献との比較は入れておきたいところ**
-#' - **加藤コメント2：バイアスの方向に関する議論はここに入れておきます**
-#' -->
-#'
-#' ## Robustness Analysis
-#'
-#+ WoAnnoucementElasticity, include = FALSE
+#+ WoAnnoucementElasticity
 est_rob_lastmod <- lastmod %>%
   purrr::map(~ fixest::feols(
     xpd(.$mod), data = subset(.$data, year < 2013 | 2014 < year),
@@ -294,7 +211,7 @@ impelast_rob_lastmod <- est_rob_lastmod[c(3, 4)] %>%
     "", "",
     "", ""
   )) %>%
-  select(name, value.a, value.x, value.b, value.y) %>%
+  select(name, value.a, value.b, value.x, value.y) %>%
   setNames(c("term", sprintf("(%1d)", 1:6))) %>%
   mutate(term = recode(
     term,
@@ -327,11 +244,11 @@ stage1_rob_lastmod <- est_rob_lastmod[c(2, 4)] %>%
   ))
 
 addtab <- impelast_rob_lastmod %>%
-  bind_rows(stage1_rob_lastmod) %>%
-  bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
-    "Square of age", "X", "X", "X", "X"
-  ))
+  bind_rows(stage1_rob_lastmod) #%>%
+  # bind_rows(tribble(
+  #   ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+  #   "Square of age", "X", "X", "X", "X"
+  # ))
 
 attr(addtab, "position") <- 3:6
 
@@ -346,7 +263,7 @@ est_rob_lastmod %>%
       "fit_lprice_ln:d_relief_donate" = "log(last price)"#,
       # "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2|AIC|BIC|Log|Std",
+    gof_omit = "R2|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
@@ -370,7 +287,9 @@ est_rob_lastmod %>%
   )
 
 #'
-#+ R1Elasticity, include = FALSE
+#' ## Estimating Price Elasticity Using Compliers
+#'
+#+ R1Elasticity
 r1mod <- list(
   "(1)" = fixest::xpd(donate_ln ~ price_ln + ..cov),
   "(2)" = fixest::xpd(
@@ -397,8 +316,8 @@ addtab <- tribble(
   sprintf("%1.3f", est_r1mod[[4]]$iv_first_stage$lprice_ln$coeftable[1, 1]),
   "", "", "",
   sprintf("[%1.1f]", fitstat(est_r1mod[[3]], "ivwald")[[1]]$stat),
-  sprintf("[%1.1f]", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat),
-  "Square of age", "X", "X", "X", "X"
+  sprintf("[%1.1f]", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat)#,
+  # "Square of age", "X", "X", "X", "X"
 )
 
 attr(addtab, "position") <- c(13, 14)
@@ -420,7 +339,7 @@ est_r1mod %>%
       "d(linc_ln, 1)" = "1-year lag of income",
       "d(linc_ln, -1)" = "1-year lead of income"
     ),
-    gof_omit = "^(?!FE|N|Std.Errors)",
+    gof_omit = "^(?!N)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = addtab
   ) %>%
@@ -437,7 +356,9 @@ est_r1mod %>%
   )
 
 #'
-#+ KdiffElasticity, include = FALSE
+#' ## $k$-th Difference Model
+#'
+#+ KdiffElasticity
 fixest::setFixest_fml(
   ..kdiff1 = ~ linc_ln_d1 + sqage_d1,
   ..kdiff2 = ~ linc_ln_d2 + sqage_d2,
@@ -483,11 +404,11 @@ stage1_kdiffmod <- 1:3 %>%
     "coef" = "First-stage: Instrument", .default = ""
   ))
 
-addtab <- stage1_kdiffmod %>%
-  bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)",
-    "Difference of square age", "X", "X", "X"
-  ))
+addtab <- stage1_kdiffmod #%>%
+  # bind_rows(tribble(
+  #   ~term, ~"(1)", ~"(2)", ~"(3)",
+  #   "Difference of square age", "X", "X", "X"
+  # ))
 
 attr(addtab, "position") <- c(3, 4)
 
@@ -526,20 +447,10 @@ est_kdiffmod %>%
   )
 
 #'
-#' 1. Price elasticity excluding 2013 and 2014 data (Table \@ref(tab:WoAnnoucementElasticity))
-#'     - to eliminate the effect of tax reform announcement.
-#'     - estimated last-unit price elasticity is robust against the announcement effect of 2014 tax reform.
-#' 2. Price elasticity with a sample limited to those who applied for tax relief (Table \@ref(tab:R1Elasticity))
-#'     - the first-unit price elasticity is -1.2, and the last-unit price elasticity is -1.3
-#'     - To directly control the dynamic effects, we add lagged and future changes of these variables
-#'     - When controling this effect, the price elasticity is statistically insignificant.
-#' 3. Price elasticity to deal with endogenous nature of income (Table \@ref(tab:KdiffElasticity))
-#'     - we estimate the $k$-th order difference model.
-#'     - estimated intensive-margin price elasticity is between -1.8 and -4.1, which is statisically significant
 #'
-#' ## Heterogenous Price Elasticity (1)
+#' <!-- ## Heterogenous Price Elasticity (1) -->
 #'
-#+ CovHeteroElasticity, include = FALSE
+#+ CovHeteroElasticity, eval = FALSE
 covdt <- list(
   female = subset(df, sex == 1),
   male = subset(df, sex == 0),
@@ -640,16 +551,9 @@ intcov %>%
   )
 
 #'
-#' We estimate heterogeneity of the last-unit price elasticity in terms of individual characteristics (Table \@ref(tab:CovHeteroElasticity))
+#' <!-- ## Heterogenous Price Elasticity (2) -->
 #'
-#' 1. intensive-margin price elasticity for males is higher than for females, while the extensive-margin price elasticity for males is lower than for females
-#' 1. the higher the education level, the higher the intensive-margin price elasticity, but the lower the extensive-margin price elasticity
-#' 1. individuals in 40s are sensitive to tax incentives in both intensive-margin and extensive-margin.
-#' 1. wage earners are sensitive to tax incentive, while non wage earners are insenstive to tax incentive.
-#'
-#' ## Heterogenous Price Elasticity (2)
-#'
-#+ TypeHeteroElasticity, include = FALSE
+#+ TypeHeteroElasticity, eval = FALSE
 donate_type <- list(
   welfare = "donate_welfare",
   educ = "donate_educ",
@@ -757,11 +661,6 @@ int_type %>%
   )
 
 #'
-#' We estimate the last-unit price elasticity for each organization to which the donation is made
-#' (Table \@ref(tab:TypeHeteroElasticity))
-#'
-#' 1. charitable giving for social welfare organization and religious institution is sensitive to tax incentive in terms of both intensive margin and extensive margin
-#' 1. tax incentive negatively affects decision of donation for educational organization and political parties
 #'
 # /*
 #+
