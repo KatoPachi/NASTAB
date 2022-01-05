@@ -189,6 +189,12 @@ knitr::spin_child("script/2-stage1.R")
 knitr::spin_child("script/3-elasticity1.R")
 ```
 
+# (Primitive Result) Marginal Treatment Effect
+
+```{r}
+knitr::spin_child("script/4-mte.R")
+```
+
 # Conclusion
 
 # Appendix
