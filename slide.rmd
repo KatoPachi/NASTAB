@@ -182,7 +182,11 @@ knitr::spin_child("script/1-summary.R")
 # 寄付の価格弾力性の推定
 
 ```{r}
-knitr::spin_child("script/3-elasticity.R")
+knitr::spin_child("script/2-stage1.R")
+```
+
+```{r}
+knitr::spin_child("script/3-elasticity1.R")
 ```
 
 # Conclusion
@@ -231,29 +235,28 @@ footnote(general_title = "", general = "Notes: Marginal income tax rates applied
 ```{r SummaryReliefbyEarner2, ref.label = "SummaryReliefbyEarner2", fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""}
 ```
 
-## Price Elasticity Excluding Announcement Effect
+## Intensive-Margin Tax-Price Elasticity w/o Announcement Effect
 
-```{r WoAnnoucementElasticity, ref.label = "WoAnnoucementElasticity"}
+```{r WoAnnoucementIntensive}
 ```
 
-## Subsample Analysis for Those Who Applied for Tax Relief
+## Extensive-Margin Tax-Price Elasticity w/o Announcement Effect
 
-```{r R1Elasticity, ref.label= "R1Elasticity"}
+```{r WoAnnouncementExtensive}
 ```
 
-## $k$-th Difference Model
+## Intensive-Margin Tax-Price Elasticity (Last-Unit Price)
 
-```{r KdiffElasticity, ref.label="KdiffElasticity"}
+```{r LastIntensive}
 ```
 
-## Heterogenous Price Elasticity in terms of Covariates
+## Extensive-Margin Tax-Price Elasticity (Last-Unit Price)
 
-```{r CovHeteroElasticity, ref.label = "CovHeteroElasticity"}
+```{r LastExtensive}
 ```
 
-## Heterogenous Price Elasticity in terms of Organization Type
-
-```{r TypeHeteroElasticity, ref.label = "TypeHeteroElasticity"}
+```{r}
+knitr::spin_child("script/4-elasticity2.R")
 ```
 
 # References {-}
