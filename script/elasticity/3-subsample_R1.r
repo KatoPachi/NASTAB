@@ -2,7 +2,7 @@
 #' title: |
 #'   Estimating Conventional Price Elasticity of Charitable Giving
 #' author: Hiroki Kato
-#' bibliography: ../Rmarkdown/ref_main.bib
+#' bibliography: ../../Rmarkdown/reference.bib
 #' output:
 #'   bookdown::html_document2:
 #'     toc: true
@@ -218,7 +218,7 @@ est_kdiffmod %>%
 # /*
 #+
 rmarkdown::render(
-  "script/3-elasticity.r",
-  output_dir = "report/view"
+  "script/elasticity/3-subsample_R1.r",
+  output_dir = "report/view/elasticity"
 )
 # */
