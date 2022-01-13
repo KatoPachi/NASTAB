@@ -1,0 +1,163 @@
+variable,descript
+hhid,世代id
+pid,世帯員id
+year,年度（調査年度の前年）
+donate_religious,"[世帯員]宗教団体に対する寄付（単位:10,000KRW）"
+donate_welfare,"[世帯員]社会福祉団体に対する寄付（単位:10,000KRW）"
+donate_educ,"[世帯員]教育団体に対する寄付（単位:10,000KRW）"
+donate_poliparty,"[世帯員]政治団体に対する寄付（単位:10,000KRW）"
+donate_others,"[世帯員]その他の団体に対する寄付（単位:10,000KRW）"
+donate_religious_action,"[世帯員]宗教団体の貧困救済活動に対する寄付（単位:10,000KRW）"
+donate_culture,"[世帯員]文化団体に対する寄付（単位:10,000KRW）"
+donate_unknown,"[世帯員]支出先不明の寄付（単位:10,000KRW）"
+donate,"[世帯員]年間寄付金支出総額（単位:10,000KRW）"
+d_donate,[世帯員]寄付金支出の有無
+d_donate_religious,[世帯員]宗教団体に対する寄付の有無
+d_donate_welfare,[世帯員]社会福祉団体に対する寄付の有無
+d_donate_educ,[世帯員]教育団体に対する寄付の有無
+d_donate_others,[世帯員]その他の団体に対する寄付の有無
+d_donate_poliparty,[世帯員]政治団体に対する寄付の有無
+d_donate_religious_action,[世帯員]宗教団体の貧困救済活動に対する寄付の有無
+d_donate_culture,[世帯員]文化団体に対する寄付の有無
+d_donate_unknown,[世帯員]支出先不明の寄付の有無
+h_donate,"[世帯]年間寄付金支出総額（単位:10,000KRW）"
+d_h_donate,[世帯]寄付金支出の有無
+tinc,"[世帯員]年間所得総額（単位: 10,000KRW）"
+linc,"[世帯員]年間労働所得（単位: 10,000KRW）"
+first_mtr,[世帯員]年間労働所得ベースの限界所得税率
+subtract_linc,[世帯員]年間労働所得（-寄付額）
+last_mtr,[世帯員]寄付を差し引いた年間労働所得ベースの限界所得税率
+linc_l1,[世帯員]年間労働所得（lag = 1）
+first_mtr_l1,[世帯員]年間労働所得ベースの限界所得税率(lag = 1)
+linc_l2,[世帯員]年間労働所得（lag = 2）
+first_mtr_l2,[世帯員]年間労働所得ベースの限界所得税率(lag = 2)
+linc_l3,[世帯員]年間労働所得（lag = 3）
+first_mtr_l3,[世帯員]年間労働所得ベースの限界所得税率(lag = 3)
+credit_benefit,[世帯員]税制改正の利益(2013年First MTR < 0.15)
+credit_neutral,[世帯員]税制改正の利益（2013年First MTR = 0.15）
+credit_loss,[世帯員]税制改正の利益(2013年First MTR > 0.15)
+wave,サーベイ
+age,[世帯員]  年齢
+educ,[世帯員]最終教育水準(1=中卒以下、2=高卒、3=短大卒以上)
+sex,[世帯員] 性別
+area,[世帯]地域コード
+d_deduct_linc,[世帯員]労働所得控除の有無
+deduct_linc,[世帯員]労働所得控除額
+d_deduct_donate_linc,[世帯員]労働所得に対する寄付金所得控除の有無
+deduct_donate_linc,[世帯員]労働所得に対する寄付金所得控除額
+d_credit_donate_linc,[世帯員]労働所得に対する寄付金税額控除の有無
+credit_donate_linc,[世帯員]労働所得に対する寄付金税額控除額
+trust,[世帯員]政治家への信頼度（2015-2018年調査）
+avg_balance,[世帯員]税負担と福祉水準の程度（2015-2018年調査）
+opt_balance,[世帯員]望ましい税負担と福祉水準の程度（2015-2018年調査）
+opttax_tinc_1,[世帯員]年間所得10mKRWの適切な税率（2018年調査）
+opttax_tinc_3,[世帯員]年間所得30mKRWの適切な税率（2018年調査）
+opttax_tinc_5,[世帯員]年間所得50mKRWの適切な税率（2018年調査）
+opttax_tinc_7,[世帯員]年間所得70mKRWの適切な税率（2018年調査）
+opttax_tinc_10,[世帯員]年間所得100mKRWの適切な税率（2018年調査）
+opttax_tinc_20,[世帯員]年間所得200mKRWの適切な税率（2018年調査）
+opttax_tinc_30,[世帯員]年間所得300mKRWの適切な税率（2018年調査）
+opttax_tinc_50,[世帯員]年間所得500mKRWの適切な税率（2018年調査）
+opttax_tinc_100,[世帯員]年間所得1000mKRWの適切な税率（2018年調査）
+opttax_linc_15,[世帯員]年間労働所得15mKRWの税負担の程度（2016年調査）
+opttax_linc_35,[世帯員]年間労働所得35mKRWの税負担の程度（2016年調査）
+opttax_linc_55,[世帯員]年間労働所得55mKRWの税負担の程度（2016年調査）
+opttax_linc_70,[世帯員]年間労働所得70mKRWの税負担の程度（2016年調査）
+opttax_linc_90,[世帯員]年間労働所得90mKRWの税負担の程度（2016年調査）
+opttax_linc_130,[世帯員]年間労働所得130mKRWの税負担の程度（2016年調査）
+opttax_linc_370,[世帯員]年間労働所得370mKRWの税負担の程度（2016年調査）
+opttax_linc_1800,[世帯員]年間労働所得1800mKRWの税負担の程度（2016年調査）
+addtax,[世帯員]福祉拡充の追加課税への選好（2015-2018年調査）
+taxact_pg,[世帯員]政府公共財の申告行動への影響（2016年調査）
+taxact_trust,[世帯員]政府に対する信頼の申告行動への影響（2016年調査）
+polipref,[世帯員]政治的選好（left or right）（2015-2018年調査）
+workpos,【経活状態】 (現在、調査年度5月1日現在)従事上地位(1=常用職2=臨時日雇い3=自営業4=無給家族従事者)
+indust,[Aa.経済活動状態]  現在の主な雇用  -  事業内容
+d_deduct_donate_tinc,[世帯員]総合所得に対する寄付金所得控除の有無
+d_credit_donate_tinc,[世帯員]総合所得に対する寄付金税額控除の有無
+d_relief_donate_linc,[世帯員]労働所得に対する寄付金控除の有無
+d_relief_donate_tinc,[世帯員]総合所得に対する寄付金控除の有無
+d_relief_donate,[世帯員]労働・総合所得に対する寄付金控除の有無
+welfare,[世帯員]納税レベルに対する福祉水準（2009-2018年調査）
+employee,[世帯員]常用職（給与所得者）ダミー
+univ,[世帯員]大卒ダミー
+highschool,[世帯員]高卒ダミー
+junior,[世帯員]中卒ダミー
+sqage,[世帯員]年齢の二乗/100
+credit_treat,[世帯員]2014年税制改正の利益
+avg_balance_5scale,[世帯員]現在の税負担と福祉水準のバランス(5段階)
+opt_balance_5scale,[世帯員]理想的な税負担と福祉水準のバランス(5段階)
+price,[世帯員]first giving price
+lprice,[世帯員]last giving price
+price_l1_deduct,"[世帯員]first giving price (lag1 income, tax deduction)"
+price_l2_deduct,"[世帯員]first giving price (lag2 income, tax deduction)"
+price_l3_deduct,"[世帯員]first giving price (lag3 income, tax deduction)"
+price_l1,[世帯員]first giving price (lag = 1)
+price_l2,[世帯員]first giving price (lag = 2)
+price_l3,[世帯員]first giving price (lag = 3)
+price_iv1,[世帯員]first price with lag1 inc/lag1 first price
+price_iv2,[世帯員]first price with lag2 inc/lag2 first price
+price_iv3,[世帯員]first price with lag3 inc/lag3 first price
+price_ln,priceの対数値
+lprice_ln,lpriceの対数値
+price_iv1_ln,price_iv1の対数値
+price_iv2_ln,price_iv2の対数値
+price_iv3_ln,price_iv3の対数値
+donate_religious_ln,donate_religiousの対数値
+donate_welfare_ln,donate_welfareの対数値
+donate_educ_ln,donate_educの対数値
+donate_poliparty_ln,donate_polipartyの対数値
+donate_others_ln,donate_othersの対数値
+donate_religious_action_ln,donate_religious_actionの対数値
+donate_culture_ln,donate_cultureの対数値
+donate_unknown_ln,donate_unknownの対数値
+donate_ln,donateの対数値
+linc_ln,lincの対数値
+price_ln_d1,price_ln - price_ln (lag = 1)
+price_ln_d2,price_ln - price_ln (lag = 2)
+price_ln_d3,price_ln - price_ln (lag = 3)
+donate_ln_d1,donate_ln - donate_ln (lag = 1)
+donate_ln_d2,donate_ln - donate_ln (lag = 2)
+donate_ln_d3,donate_ln - donate_ln (lag = 3)
+donate_religious_ln_d1,donate_religious_ln - donate_religious_ln (lag = 1)
+donate_religious_ln_d2,donate_religious_ln - donate_religious_ln (lag = 2)
+donate_religious_ln_d3,donate_religious_ln - donate_religious_ln (lag = 3)
+donate_welfare_ln_d1,donate_welfare_ln - donate_welfare_ln (lag = 1)
+donate_welfare_ln_d2,donate_welfare_ln - donate_welfare_ln (lag = 2)
+donate_welfare_ln_d3,donate_welfare_ln - donate_welfare_ln (lag = 3)
+donate_educ_ln_d1,donate_educ_ln - donate_educ_ln (lag = 1)
+donate_educ_ln_d2,donate_educ_ln - donate_educ_ln (lag = 2)
+donate_educ_ln_d3,donate_educ_ln - donate_educ_ln (lag = 3)
+donate_poliparty_ln_d1,donate_poliparty_ln - donate_poliparty_ln (lag = 1)
+donate_poliparty_ln_d2,donate_poliparty_ln - donate_poliparty_ln (lag = 2)
+donate_poliparty_ln_d3,donate_poliparty_ln - donate_poliparty_ln (lag = 3)
+donate_others_ln_d1,donate_others_ln - donate_others_ln (lag = 1)
+donate_others_ln_d2,donate_others_ln - donate_others_ln (lag = 2)
+donate_others_ln_d3,donate_others_ln - donate_others_ln (lag = 3)
+donate_religious_action_ln_d1,donate_religious_action_ln - donate_religious_action_ln (lag = 1)
+donate_religious_action_ln_d2,donate_religious_action_ln - donate_religious_action_ln (lag = 2)
+donate_religious_action_ln_d3,donate_religious_action_ln - donate_religious_action_ln (lag = 3)
+donate_culture_ln_d1,donate_culture_ln - donate_culture_ln (lag = 1)
+donate_culture_ln_d2,donate_culture_ln - donate_culture_ln (lag = 2)
+donate_culture_ln_d3,donate_culture_ln - donate_culture_ln (lag = 3)
+donate_unknown_ln_d1,donate_unknown_ln - donate_unknown_ln (lag = 1)
+donate_unknown_ln_d2,donate_unknown_ln - donate_unknown_ln (lag = 2)
+donate_unknown_ln_d3,donate_unknown_ln - donate_unknown_ln (lag = 3)
+linc_ln_d1,linc_ln - linc_ln (lag = 1)
+linc_ln_d2,linc_ln - linc_ln (lag = 2)
+linc_ln_d3,linc_ln - linc_ln (lag = 3)
+age_d1,age - age (lag = 1)
+age_d2,age - age (lag = 2)
+age_d3,age - age (lag = 3)
+sqage_d1,sqage - sqage (lag = 1)
+sqage_d2,sqage - sqage (lag = 2)
+sqage_d3,sqage - sqage (lag = 3)
+village_accountant,[地域]村税理士制度に登録している税理士の数
+village_consult,[地域]村税理士制度の相談件数
+pops,[地域]人口
+pub_accountant_firm,[地域]公認会計士事務所の数
+pub_accountant,[地域]公認会計士の人数
+tax_accountant_firm,[地域]税理士事務所の数
+tax_accountant,[地域]税理士の人数
+pub_accountant_per,[地域]公認会計士の人数 / 人口
+tax_accountant_per,[地域]税理士の人数 / 人口
