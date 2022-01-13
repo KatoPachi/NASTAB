@@ -2,7 +2,7 @@
 #' title: |
 #'   Estimating Conventional Price Elasticity of Charitable Giving
 #' author: Hiroki Kato
-#' bibliography: ../Rmarkdown/ref_main.bib
+#' bibliography: ../../Rmarkdown/reference.bib
 #' output:
 #'   bookdown::html_document2:
 #'     toc: true
@@ -51,9 +51,9 @@ df <- readr::read_csv("data/shaped2.csv")
 
 #'
 #'
-#' <!-- ## Heterogenous Price Elasticity (1) -->
+#' ## Heterogenous Price Elasticity (1)
 #'
-#+ CovHeteroElasticity, eval = FALSE
+#+ CovHeteroElasticity
 covdt <- list(
   female = subset(df, sex == 1),
   male = subset(df, sex == 0),
@@ -154,9 +154,9 @@ intcov %>%
   )
 
 #'
-#' <!-- ## Heterogenous Price Elasticity (2) -->
+#' ## Heterogenous Price Elasticity (2)
 #'
-#+ TypeHeteroElasticity, eval = FALSE
+#+ TypeHeteroElasticity
 donate_type <- list(
   welfare = "donate_welfare",
   educ = "donate_educ",
@@ -268,7 +268,7 @@ int_type %>%
 # /*
 #+
 rmarkdown::render(
-  "script/3-elasticity.r",
-  output_dir = "report/view"
+  "script/elasticity/4-heterogeneity.r",
+  output_dir = "report/view/elasticity"
 )
 # */
