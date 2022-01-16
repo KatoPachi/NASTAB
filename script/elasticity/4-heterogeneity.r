@@ -48,6 +48,7 @@ lapply(Sys.glob(file.path("script/functions", "*.r")), source)
 #+ include = FALSE
 book <- readr::read_csv("data/codebook/shaped2_description.csv"); View(book)
 df <- readr::read_csv("data/shaped2.csv")
+estdf <- readr::read_csv("data/shaped2_propensity.csv", guess_max = 30000)
 
 #'
 #'
@@ -264,6 +265,392 @@ int_type %>%
   )
 
 #'
+#+
+fixest::setFixest_fml(
+  ..stage2 = ~ linc_ln + sqage | year + pid + indust + area
+)
+
+intmod <- list(
+  "(1)" = donate_ln ~ d_relief_donate:price_ln + ..stage2,
+  "(2)" = donate_ln ~ psc_pool:price_ln + ..stage2,
+  "(3)" = donate_ln ~ psc_sep:price_ln + ..stage2,
+  "(4)" = donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ employee:price_ln,
+  "(5)" = donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ psc_pool:price_ln,
+  "(6)" = donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ psc_sep:price_ln
+)
+
+est_intmod1 <- intmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.),
+    data = subset(estdf, credit_treat != 3 & d_donate == 1),
+    cluster = ~ pid
+  ))
+
+stage1_intmod1 <- est_intmod1[4:6] %>%
+  purrr::map(function(x) {
+    coef <- x$iv_first_stage[["d_relief_donate:price_ln"]]$coeftable[1, 1]
+    ivwald <- fitstat(x, "ivwald")[[1]]$stat
+
+    tibble(coef = coef, wald = ivwald) %>%
+      pivot_longer(everything()) %>%
+      mutate(value = case_when(
+        name == "coef" ~ sprintf("%1.3f", value),
+        name == "wald" ~ sprintf("[%1.1f]", value)
+      ))
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  bind_cols(tribble(
+    ~value.a, ~value.b, ~value.c,
+    "", "", "",
+    "", "", ""
+  ), .) %>%
+  select(name, value.a, value.b, value.c, value.x, value.y, value) %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  mutate(term = recode(
+    term,
+    "coef" = "First-stage: Instrument", .default = ""
+  ))
+
+addtab <- stage1_intmod1 %>%
+  bind_rows(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
+    "Square of age", "X", "X", "X", "X", "X", "X",
+    "Instrument", "", "", "", "WE x Price",
+    "PS x Price", "PS x Price",
+    "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
+  ))
+
+attr(addtab, "position") <- 7:8
+
+est_intmod1 %>%
+  modelsummary(
+    title = "Intensive-Margin Tax-Price Elasticity among Income <= 4600",
+    coef_map = c(
+      "d_relief_donate:price_ln" =
+        "Applying tax relief x log(first price)",
+      "fit_d_relief_donate:price_ln" =
+        "Applying tax relief x log(first price)",
+      "psc_pool:price_ln" =
+        "PS of applying tax relief x log(first price)",
+      "psc_sep:price_ln" =
+        "PS of applying tax relief x log(first price)",
+      "linc_ln" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " ", "FE" = 3, "FE-2SLS" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "A square bracket is wald statistics of instrument."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#+
+est_intmod2 <- intmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.),
+    data = subset(estdf, credit_treat != 1 & d_donate == 1),
+    cluster = ~ pid
+  ))
+
+stage1_intmod2 <- est_intmod2[4:6] %>%
+  purrr::map(function(x) {
+    coef <- x$iv_first_stage[["d_relief_donate:price_ln"]]$coeftable[1, 1]
+    ivwald <- fitstat(x, "ivwald")[[1]]$stat
+
+    tibble(coef = coef, wald = ivwald) %>%
+      pivot_longer(everything()) %>%
+      mutate(value = case_when(
+        name == "coef" ~ sprintf("%1.3f", value),
+        name == "wald" ~ sprintf("[%1.1f]", value)
+      ))
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  bind_cols(tribble(
+    ~value.a, ~value.b, ~value.c,
+    "", "", "",
+    "", "", ""
+  ), .) %>%
+  select(name, value.a, value.b, value.c, value.x, value.y, value) %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  mutate(term = recode(
+    term,
+    "coef" = "First-stage: Instrument", .default = ""
+  ))
+
+addtab <- stage1_intmod2 %>%
+  bind_rows(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
+    "Square of age", "X", "X", "X", "X", "X", "X",
+    "Instrument", "", "", "", "WE x Price",
+    "PS x Price", "PS x Price",
+    "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
+  ))
+
+attr(addtab, "position") <- 7:8
+
+est_intmod2 %>%
+  modelsummary(
+    title = "Intensive-Margin Tax-Price Elasticity among Income >= 1200",
+    coef_map = c(
+      "d_relief_donate:price_ln" =
+        "Applying tax relief x log(first price)",
+      "fit_d_relief_donate:price_ln" =
+        "Applying tax relief x log(first price)",
+      "psc_pool:price_ln" =
+        "PS of applying tax relief x log(first price)",
+      "psc_sep:price_ln" =
+        "PS of applying tax relief x log(first price)",
+      "linc_ln" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " ", "FE" = 3, "FE-2SLS" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "A square bracket is wald statistics of instrument."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#+
+extmod <- list(
+  "(1)" = d_donate ~ d_relief_donate:price_ln + ..stage2,
+  "(2)" = d_donate ~ psc_pool:price_ln + ..stage2,
+  "(3)" = d_donate ~ psc_sep:price_ln + ..stage2,
+  "(4)" = d_donate ~ ..stage2 | d_relief_donate:price_ln ~ employee:price_ln,
+  "(5)" = d_donate ~ ..stage2 | d_relief_donate:price_ln ~ psc_pool:price_ln,
+  "(6)" = d_donate ~ ..stage2 | d_relief_donate:price_ln ~ psc_sep:price_ln
+)
+
+est_extmod1 <- extmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.),
+    data = subset(estdf, credit_treat != 3),
+    cluster = ~pid
+  ))
+
+stage1_extmod1 <- est_extmod1[4:6] %>%
+  purrr::map(function(x) {
+    coef <- x$iv_first_stage[["d_relief_donate:price_ln"]]$coeftable[1, 1]
+    ivwald <- fitstat(x, "ivwald")[[1]]$stat
+
+    tibble(coef = coef, wald = ivwald) %>%
+      pivot_longer(everything()) %>%
+      mutate(value = case_when(
+        name == "coef" ~ sprintf("%1.3f", value),
+        name == "wald" ~ sprintf("[%1.1f]", value)
+      ))
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  bind_cols(tribble(
+    ~value.a, ~value.b, ~value.c,
+    "", "", "",
+    "", "", ""
+  ), .) %>%
+  select(name, value.a, value.b, value.c, value.x, value.y, value) %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  mutate(term = recode(
+    term,
+    "coef" = "First-stage: Instrument", .default = ""
+  ))
+
+impelast_extmod1 <- est_extmod1 %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    tidy(x) %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        estimate = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        std.error = sprintf("(%1.3f)", std.error / dbar)
+      ) %>%
+      select(estimate, std.error) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  mutate(term = recode(
+    term,
+    "estimate" = "Implied price elasticity", .default = ""
+  ))
+
+addtab <- impelast_extmod1 %>%
+  bind_rows(stage1_extmod1) %>%
+  bind_rows(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
+    "Square of age", "X", "X", "X", "X", "X", "X",
+    "Instrument", "", "", "", "WE x Price",
+    "PS x Price", "PS x Price",
+    "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
+  ))
+
+attr(addtab, "position") <- 7:10
+
+est_extmod1 %>%
+  modelsummary(
+    title = "Extensive-Margin Tax-Price Elasticity among Income <= 4600",
+    coef_map = c(
+      "d_relief_donate:price_ln" =
+        "Applying tax relief x log(first price)",
+      "fit_d_relief_donate:price_ln" =
+        "Applying tax relief x log(first price)",
+      "psc_pool:price_ln" =
+        "PS of applying tax relief x log(first price)",
+      "psc_sep:price_ln" =
+        "PS of applying tax relief x log(first price)",
+      "linc_ln" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " ", "FE" = 3, "FE-2SLS" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "A square bracket is wald statistics of instrument."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#+
+est_extmod2 <- extmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.),
+    data = subset(estdf, credit_treat != 1),
+    cluster = ~pid
+  ))
+
+stage1_extmod2 <- est_extmod2[4:6] %>%
+  purrr::map(function(x) {
+    coef <- x$iv_first_stage[["d_relief_donate:price_ln"]]$coeftable[1, 1]
+    ivwald <- fitstat(x, "ivwald")[[1]]$stat
+
+    tibble(coef = coef, wald = ivwald) %>%
+      pivot_longer(everything()) %>%
+      mutate(value = case_when(
+        name == "coef" ~ sprintf("%1.3f", value),
+        name == "wald" ~ sprintf("[%1.1f]", value)
+      ))
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  bind_cols(tribble(
+    ~value.a, ~value.b, ~value.c,
+    "", "", "",
+    "", "", ""
+  ), .) %>%
+  select(name, value.a, value.b, value.c, value.x, value.y, value) %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  mutate(term = recode(
+    term,
+    "coef" = "First-stage: Instrument", .default = ""
+  ))
+
+impelast_extmod2 <- est_extmod2 %>%
+  purrr::map(function(x) {
+    dbar <- mean(x$fitted.values + x$residuals)
+
+    tidy(x) %>%
+      filter(str_detect(term, "price")) %>%
+      mutate(
+        estimate = case_when(
+          p.value <= .01 ~ sprintf("%1.3f***", estimate / dbar),
+          p.value <= .05 ~ sprintf("%1.3f**", estimate / dbar),
+          p.value <= .1 ~ sprintf("%1.3f*", estimate / dbar),
+          TRUE ~ sprintf("%1.3f", estimate / dbar),
+        ),
+        std.error = sprintf("(%1.3f)", std.error / dbar)
+      ) %>%
+      select(estimate, std.error) %>%
+      pivot_longer(everything())
+  }) %>%
+  reduce(left_join, by = "name") %>%
+  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  mutate(term = recode(
+    term,
+    "estimate" = "Implied price elasticity", .default = ""
+  ))
+
+addtab <- impelast_extmod2 %>%
+  bind_rows(stage1_extmod2) %>%
+  bind_rows(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
+    "Square of age", "X", "X", "X", "X", "X", "X",
+    "Instrument", "", "", "", "WE x Price",
+    "PS x Price", "PS x Price",
+    "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
+  ))
+
+attr(addtab, "position") <- 7:10
+
+est_extmod2 %>%
+  modelsummary(
+    title = "Extensive-Margin Tax-Price Elasticity among Income >= 1200",
+    coef_map = c(
+      "d_relief_donate:price_ln" =
+        "Applying tax relief x log(first price)",
+      "fit_d_relief_donate:price_ln" =
+        "Applying tax relief x log(first price)",
+      "psc_pool:price_ln" =
+        "PS of applying tax relief x log(first price)",
+      "psc_sep:price_ln" =
+        "PS of applying tax relief x log(first price)",
+      "linc_ln" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " ", "FE" = 3, "FE-2SLS" = 3
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level.",
+      "A square bracket is wald statistics of instrument."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+
 #'
 # /*
 #+
