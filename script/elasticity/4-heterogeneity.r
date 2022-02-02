@@ -54,6 +54,9 @@ estdf <- readr::read_csv("data/shaped2_propensity.csv", guess_max = 30000)
 #'
 #' ## Heterogenous Price Elasticity in Covariates
 #'
+#' <!---
+#' //NOTE: 共変量による異質性分析
+#' --->
 #+ CovHeteroElasticity
 covdt <- list(
   female = subset(df, sex == 1),
@@ -157,6 +160,9 @@ intcov %>%
 #'
 #' ## Heterogenous Price Elasticity in Charity Types
 #'
+#' <!---
+#' //NOTE: 寄付の支出先による異質性分析
+#' --->
 #+ TypeHeteroElasticity
 donate_type <- list(
   welfare = "donate_welfare",
@@ -267,6 +273,9 @@ int_type %>%
 #'
 #' ## Heterogeneous Price Elasticity in Income
 #'
+#' <!---
+#' //NOTE: 所得による異質性分析（Intensive）
+#' --->
 #+
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage | year + pid + indust + area
@@ -435,7 +444,9 @@ est_intmod2 %>%
     escape = FALSE
   )
 
-#'
+#' <!---
+#' //NOTE: 所得による異質性分析（Extensive）
+#' --->
 #+
 extmod <- list(
   "(1)" = d_donate ~ d_relief_donate:price_ln + ..stage2,
@@ -656,6 +667,9 @@ est_extmod2 %>%
 #'
 #' - Restriction: Only donors who applied for tax relief
 #'
+#' <!---
+#' //NOTE: 申告者限定の所得による異質性分析（Intensive）
+#' --->
 #+
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage | year + pid + indust + area
@@ -684,7 +698,10 @@ attr(addtab, "position") <- 7:8
 
 est_intmod1 %>%
   modelsummary(
-    title = "Intensive-Margin Tax-Price Elasticity among Income <= 4600",
+    title = paste(
+      "Intensive-Margin Tax-Price Elasticity among Income <= 4600",
+      "(Only Donors Who Did Applied for Tax Relief)"
+    ),
     coef_map = c(
       "price_ln" = "log(first price)",
       "linc_ln" = "log(income)",
@@ -725,7 +742,10 @@ attr(addtab, "position") <- 7:8
 
 est_intmod2 %>%
   modelsummary(
-    title = "Intensive-Margin Tax-Price Elasticity among Income <= 4600",
+    title = paste(
+      "Intensive-Margin Tax-Price Elasticity among Income >= 1200",
+      "(Only Donors Who Did Applied for Tax Relief)"
+    ),
     coef_map = c(
       "price_ln" = "log(first price)",
       "linc_ln" = "log(income)",
@@ -747,10 +767,13 @@ est_intmod2 %>%
     escape = FALSE
   )
 
-#' ## Heterogeneous Price Elasticity in Income (2)
+#' ## Heterogeneous Partial Effect of Price in Income
 #'
-#' - Restriction: Only donors who applied for tax relief
+#' - Restriction: Only donors who did not applied for tax relief
 #'
+#' <!---
+#' //NOTE: 無申告者の所得による異質性分析（Intensive）
+#' --->
 #+
 fixest::setFixest_fml(
   ..stage2 = ~ linc + sqage | year + pid + indust + area
@@ -782,7 +805,10 @@ attr(addtab, "position") <- 7:8
 
 est_intmod1 %>%
   modelsummary(
-    title = "Intensive-Margin of Partial Price Effect among Income <= 4600",
+    title = paste(
+      "Partial Intensive-Margin Effect of Price among Income <= 4600",
+      "(Only Donors Who Did Not Applied for Tax Relief)"
+    ),
     coef_map = c(
       "price" = "first price",
       "linc" = "income",
@@ -826,7 +852,10 @@ attr(addtab, "position") <- 7:8
 
 est_intmod2 %>%
   modelsummary(
-    title = "Intensive-Margin Tax-Price Elasticity among Income <= 4600",
+    title = paste(
+      "Partial Intensive-Margin Effect of Price among Income >= 1200",
+      "(Only Donors Who Did Not Applied for Tax Relief)"
+    ),
     coef_map = c(
       "price" = "first price",
       "linc" = "income",
