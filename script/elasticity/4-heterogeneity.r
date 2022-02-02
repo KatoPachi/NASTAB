@@ -52,7 +52,7 @@ estdf <- readr::read_csv("data/shaped2_propensity.csv", guess_max = 30000)
 
 #'
 #'
-#' ## Heterogenous Price Elasticity (1)
+#' ## Heterogenous Price Elasticity in Covariates
 #'
 #+ CovHeteroElasticity
 covdt <- list(
@@ -155,7 +155,7 @@ intcov %>%
   )
 
 #'
-#' ## Heterogenous Price Elasticity (2)
+#' ## Heterogenous Price Elasticity in Charity Types
 #'
 #+ TypeHeteroElasticity
 donate_type <- list(
@@ -264,6 +264,8 @@ int_type %>%
     escape = FALSE
   )
 
+#'
+#' ## Heterogeneous Price Elasticity in Income
 #'
 #+
 fixest::setFixest_fml(
