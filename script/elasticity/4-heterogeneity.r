@@ -652,6 +652,201 @@ est_extmod2 %>%
     escape = FALSE
   )
 
+#' ## Heterogeneous Price Elasticity in Income (2)
+#'
+#' - Restriction: Only donors who applied for tax relief
+#'
+#+
+fixest::setFixest_fml(
+  ..stage2 = ~ linc_ln + sqage | year + pid + indust + area
+)
+
+intmod <- list(
+  "(1)" = donate_ln ~ price_ln + ..stage2,
+  "(2)" = donate_ln ~ price_ln + gr_pool + ..stage2,
+  "(3)" = donate_ln ~ price_ln + gr_sep + ..stage2
+)
+
+est_intmod1 <- intmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.),
+    data = subset(estdf, credit_treat != 3 & d_relief_donate == 1),
+    cluster = ~pid
+  ))
+
+addtab <- tribble(
+  ~term, ~"(1)", ~"(2)", ~"(3)",
+  "Square of age", "X", "X", "X",
+  "Method of PS", "", "Pool", "Separate"
+)
+
+attr(addtab, "position") <- 7:8
+
+est_intmod1 %>%
+  modelsummary(
+    title = "Intensive-Margin Tax-Price Elasticity among Income <= 4600",
+    coef_map = c(
+      "price_ln" = "log(first price)",
+      "linc_ln" = "log(income)",
+      "gr_pool" = "correction term",
+      "gr_sep" = "correction term"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#+
+est_intmod2 <- intmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.),
+    data = subset(estdf, credit_treat != 1 & d_relief_donate == 1),
+    cluster = ~pid
+  ))
+
+addtab <- tribble(
+  ~term, ~"(1)", ~"(2)", ~"(3)",
+  "Square of age", "X", "X", "X",
+  "Method of PS", "", "Pool", "Separate"
+)
+
+attr(addtab, "position") <- 7:8
+
+est_intmod2 %>%
+  modelsummary(
+    title = "Intensive-Margin Tax-Price Elasticity among Income <= 4600",
+    coef_map = c(
+      "price_ln" = "log(first price)",
+      "linc_ln" = "log(income)",
+      "gr_pool" = "correction term",
+      "gr_sep" = "correction term"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#' ## Heterogeneous Price Elasticity in Income (2)
+#'
+#' - Restriction: Only donors who applied for tax relief
+#'
+#+
+fixest::setFixest_fml(
+  ..stage2 = ~ linc + sqage | year + pid + indust + area
+)
+
+intmod <- list(
+  "(1)" = donate ~ price + ..stage2,
+  "(2)" = donate ~ price + gr_pool + ..stage2,
+  "(3)" = donate ~ price + gr_sep + ..stage2
+)
+
+est_intmod1 <- intmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.),
+    data = subset(
+      estdf,
+      credit_treat != 3 & d_relief_donate == 0 & d_donate == 1
+    ),
+    cluster = ~pid
+  ))
+
+addtab <- tribble(
+  ~term, ~"(1)", ~"(2)", ~"(3)",
+  "Square of age", "X", "X", "X",
+  "Method of PS", "", "Pool", "Separate"
+)
+
+attr(addtab, "position") <- 7:8
+
+est_intmod1 %>%
+  modelsummary(
+    title = "Intensive-Margin of Partial Price Effect among Income <= 4600",
+    coef_map = c(
+      "price" = "first price",
+      "linc" = "income",
+      "gr_pool" = "correction term",
+      "gr_sep" = "correction term"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#'
+#+
+est_intmod2 <- intmod %>%
+  purrr::map(~ fixest::feols(
+    xpd(.),
+    data = subset(
+      estdf,
+      credit_treat != 1 & d_relief_donate == 1 & d_donate == 1
+    ),
+    cluster = ~pid
+  ))
+
+addtab <- tribble(
+  ~term, ~"(1)", ~"(2)", ~"(3)",
+  "Square of age", "X", "X", "X",
+  "Method of PS", "", "Pool", "Separate"
+)
+
+attr(addtab, "position") <- 7:8
+
+est_intmod2 %>%
+  modelsummary(
+    title = "Intensive-Margin Tax-Price Elasticity among Income <= 4600",
+    coef_map = c(
+      "price" = "first price",
+      "linc" = "income",
+      "gr_pool" = "correction term",
+      "gr_sep" = "correction term"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = addtab
+  ) %>%
+  kableExtra::kable_styling() %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at individual level."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 
 #'
 # /*
