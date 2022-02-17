@@ -84,6 +84,8 @@ knitr::spin_child("script/1-summary.R")
 ```{r child = "Rmarkdown/2-estimation.rmd"}
 ```
 
+# Estimation Results {#result}
+
 ```{r}
 knitr::spin_child("script/elasticity/1-main.R")
 ```
