@@ -53,8 +53,6 @@ estdf <- readr::read_csv("data/shaped2_propensity.csv", guess_max = 30000)
 
 #'
 #'
-#' ## 結果: Intensive-Margin Tax-Price Elasticity
-#'
 #+ MainIntensive
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage | year + pid + indust + area
