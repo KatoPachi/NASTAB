@@ -71,6 +71,29 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{5}
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 
 \usepackage{booktabs}
@@ -106,8 +129,8 @@
   \maketitle
 \end{spacing}
 
-\hypertarget{national-survey-of-tax-and-benefit-nastab}{%
-\section{National Survey of Tax and Benefit (NaSTaB)}\label{national-survey-of-tax-and-benefit-nastab}}
+\hypertarget{nastab}{%
+\section{National Survey of Tax and Benefit (NaSTaB)}\label{nastab}}
 
 本研究は2008年からKorea Institute of Taxation and Financeが実施した
 National Survey of Tax and Benefit (NaSTaB)を用いる。
@@ -271,67 +294,55 @@ Korean National Tax Serviceが発行しているNational Tax Statistical Yearboo
   （補論\ref{addtab}の図\ref{fig:SummaryReliefbyEarner2}）。}。
 我々は給与所得者ダミーをレコードキーピングのコストの代理変数として操作変数に用いる。
 
-\hypertarget{ux7a2eux985eux306eux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027}{%
-\subsection{2種類の寄付の価格弾力性}\label{ux7a2eux985eux306eux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027}}
+\hypertarget{estimation}{%
+\section{Empirical Strategy}\label{estimation}}
 
-(\textbf{Scharf2020?}) に従い、2種類の価格弾力性を推定する
+Almunia et al. (2020) に従い、我々は二種類の弾力性を推定する。
+第一に、intensive-margin price elasiticityであり、
+1\%の価格上昇で寄付者の寄付額が何\%増えるかを示している。
+第二に、extensive-margin price elasiticityであり、
+1\%の価格上昇で寄付者比率が何\%増えるかを示している。
+第\ref{nastab}節で説明したように、
+我々は2014年の税制改革による税インセンティブの変化を用いたDIDと
+申告コストによる寄付控除の申請の有無を捉えた操作変数法の二つを組み合わせた識別戦略を用いる。
 
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  Intensive-margin tax-price elasticity: 1\%の価格上昇で寄付者の寄付額が何\%増えるか？
-\item
-  Extensive-margin tax-price elasticity: 1\%の価格上昇で寄付確率が何\%増えるか？
-\end{enumerate}
-
-\hypertarget{intensive-margin-tax-price-elasticityux306eux63a8ux5b9aux65b9ux6cd5}{%
-\subsection{Intensive-Margin Tax-Price Elasticityの推定方法}\label{intensive-margin-tax-price-elasticityux306eux63a8ux5b9aux65b9ux6cd5}}
-
+intensive-margin price elasticityは、
+寄付者に限定して以下のtwo-way fixed effect modelを推定する。
 \begin{align}
   \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - s_{it}))
-  + \beta X_{it} + \lambda_t + u_{it}, \label{eq:intensive}
+    + \beta X_{it} + \lambda_t + u_{it}, \label{eq:intensive}
 \end{align}
+ここで、\(X_{it}\)は課税前所得（\(y_{it}\)）を含んだ共変量ベクトル、
+\(\theta_i\)と\(\lambda_t\)はそれぞれ個人固定効果と時間固定効果である。
+\(u_{it}\)はidiosyncratic errorである。
+アウトカム変数\(\ln g_{it}\)は\(t\)年に寄付した人\(i\)の寄付額の対数値である。
+寄付価格は\(R_{it} \times \ln (1 - s_{it})\)であり、
+ここで、\(R_{it}\)は控除申請のダミー変数、\(s_{it}\)は税インセンティブである\footnote{寄付価格は\(\ln(1 - R_{it}s_{it})\)とも書ける。
+  これは\(R_{it} \times \ln (1 - s_{it})\)と一致する。
+  なぜなら、\(R_{it} = 0\)のとき、\(\ln(1) = 0\)となり、
+  \(R_{it} = 1\)のとき、\(\ln(1 - s_{it})\)となる。}。
+したがって、関心のあるパラメータは\(\gamma\)であり、
+これがintensive-margin price elasticityを示す。
 
-\begin{itemize}
-\tightlist
-\item
-  \(X_{it}\)は課税前所得(\(y_{it}\))を含んだ共変量ベクトル
-\item
-  \(\theta_i\)は個人固定効果、\(\lambda_t\)は時間固定効果
-\item
-  \(u_{it}\)はidiosyncratic error
-\item
-  関心のあるパラメータは\(\gamma\)で、intensive-margin tax-price elasticityを示す
-\end{itemize}
-
-\hypertarget{extensive-margin-tax-price-elasticityux306eux63a8ux5b9aux65b9ux6cd5}{%
-\subsection{Extensive-Margin Tax-Price Elasticityの推定方法}\label{extensive-margin-tax-price-elasticityux306eux63a8ux5b9aux65b9ux6cd5}}
-
+extensive-margin price elasticityの推定式は
+two-way fixed effect付きの線形確率モデルである。
+すなわち、
 \begin{align}
   D_{it} = \theta_i + \delta (R_{it} \times \ln (1 - s_{it}))
-  + \beta X_{it} + \lambda_t + u_{it}, \label{eq:extensive}
+    + \beta X_{it} + \lambda_t + \eta_{it}, \label{eq:extensive}
 \end{align}
+である。
+アウトカム変数\(D_{it}\)は正の寄付額が観測されたら1を取るダミー変数である：\(D_{it} = 1[g_{it} > 0]\)。
+ここで関心のあるパラメータは\(\delta\)である。
+アウトカム変数は二値なので、このパラメータを弾力性として直接解釈できない。
+extensive-margin price elasticityは\(\hat{\delta} / \bar{D}\)で得られる
+（\(\bar{D}\)は\(D_{it}\)の標本平均）。
 
-\begin{itemize}
-\tightlist
-\item
-  \(D_{it}\)は正の寄付額(\(g_{it} > 0\))が観測されたら1を取るダミー変数
-\item
-  関心のあるパラメータは\(\delta\)
-
-  \begin{itemize}
-  \tightlist
-  \item
-    二値のアウトカム変数なので、\(\delta\)は直接、価格弾力性として解釈できない
-  \item
-    Extensive-Margin Tax-Price Elasticityは\(\hat{\delta} / \bar{D}\)で得られる（\(\bar{D}\)は\(D_{it}\)の標本平均）
-  \end{itemize}
-\end{itemize}
-
-\hypertarget{ux5bc4ux4ed8ux306eux76f8ux5bfeux4fa1ux683cux306eux5185ux751fux6027}{%
-\subsection{寄付の相対価格の内生性}\label{ux5bc4ux4ed8ux306eux76f8ux5bfeux4fa1ux683cux306eux5185ux751fux6027}}
-
+この推定式における二つの内生性に対する対処法について議論する。
+第一に、
+2014年の税制改革による税インセンティブの変化を寄付価格の外生的な変動要因として用いるが、
+寄付価格の内生性は完全に排除できない。
+寄付控除を申請した場合の寄付価格を以下のようになる。
 \begin{align}
   1 - s_{it} =
   \begin{cases}
@@ -339,58 +350,84 @@ Korean National Tax Serviceが発行しているNational Tax Statistical Yearboo
     1 - m \quad\text{if}\quad t \ge 2014
   \end{cases},
 \end{align}
+ここで、\(T'_t(\cdot)\)は\(t\)年の限界所得税率、\(m\)は税額控除率(\(m = 0.15\))である。
+寄付価格は2014年の税制改革だけではなく、
+所得控除が適用される期間において、寄付額（\(g_{it}\)）にも依存する。
+これは\emph{last}-unit priceと呼ばれるものであり、この寄付価格は寄付額について内生的である\footnote{寄付額によるインセンティブの操作について、次の二つの可能性が考えられる。
+  第一に、納税者は寄付額を減らすことで、所得税率を高められる（寄付価格を高められる）。
+  第二に、納税者は寄付額を増やすことで、所得税率を下げられる（節税の額を増やせる）。}。
 
-\begin{itemize}
-\tightlist
-\item
-  \(T'_t(\cdot)\)は\(t\)年の限界所得税率、\(m\)は税額控除率(\(m = 0.15\))
-\item
-  所得控除のとき、寄付価格は寄付額(\(g_{it}\))に依存する
-\item
-  この価格は\emph{Last}-unit priceと呼ばれる
-\end{itemize}
-
-過去の研究にならい、本研究は以下の\emph{first}-unit priceを\emph{last}-unit priceの代わり（もしくはその操作変数）として用いる
-
+本研究は、過去の研究にならい、
+last-unit priceの代わり（もしくはその操作変数）として\emph{first}-unit priceを用いる。
+last-unit priceは最終的な寄付額で寄付価格を計算する一方で、
+first-unit priceは寄付額をゼロとして寄付価格を計算する\footnote{first-unit priceは
+  最初の1単位を寄付するかどうかの意思決定時に直面する価格として解釈できる。}。
+すなわち、
 \begin{align}
   1 - s^f_{it} =
   \begin{cases}
     1 - T'_t(y_{it} - 0)  \quad\text{if}\quad t < 2014  \\
     1 - m \quad\text{if}\quad t \ge 2014
-  \end{cases},
+  \end{cases}.
+\end{align}
+ただし、税額控除が適用される期間においては、
+寄付価格が寄付額に依存しないので、last-unit priceとfirst-unit priceは一致する。
+
+第二に、寄付控除申告の自己選択による内生性である。
+申告コストがないとき、節税による便益を得られるので、
+寄付者は全員寄付控除を申請するべきである。
+しかしながら、我々のデータでは、寄付者の割合は24\%であるにも関わらず、
+控除を申告した人の割合は10\%である（表\ref{tab:SummaryCovariate}）。
+また、補論\ref{addtab}の図\ref{fig:SummaryGivingIntensiveDist}に示しているように、
+寄付控除の申告の有無によって、寄付者に限定した寄付額の分布は大きく変化しない。
+これは寄付控除の申告行動において、申告コストは大きな障害となっている可能性が高いことを示唆している。
+
+本研究はレコードキーピングの制度が給与所得者と自営業者で異なることを利用して、
+給与所得者ダミー（\(WE_{it}\)）をレコードキーピングのコストの代理変数として操作変数に用いる{[}\^{}exclusion{]}。
+自営業者は寄付控除を申請するまで寄付の領収書（証明書）を保持しておく必要がある一方で、
+給与所得者は会社を通じてその証明書をいつでも提出できるので、
+給与所得者は自営業者よりも申告コストが低いことが予想される。
+
+Wooldridge (2010) に従い、
+我々は給与所得者ダミーを操作変数とした三つのアプローチを用いる\footnote{以降ではintensive-margin price elasticityの推定式を用いて説明するが、
+  extensive-margin price elasticityの推定についても同じ方法が適用できる。}。
+第一に、給与所得者ダミーとfirst-unit priceの交差項を
+\(R_{it} \times \ln (1 - s^f_{it})\)の操作変数として用いる。
+すなわち、intensive-margin price elasiticityの推定式は
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - s^f_{it}))
+    + \beta X_{it} + \lambda_t + u_{it}, \label{eq:intensive2}
+\end{align}
+であり、
+\(R_{it} \times \ln (1 - s^f_{it})\)の操作変数を\(WE_{it} \times \ln(1 - s^f_{it})\)とする\footnote{last-unit priceを用いて弾力性を推定する場合、
+  \eqref{eq:intensive}もしくは\eqref{eq:extensive}の説明変数
+  \(R_{it} \times \ln (1 - s_{it})\)の操作変数として
+  \(WE_{it} \times \ln(1 - s^f_{it})\)を用いる。}。
+
+残りの二つのアプローチは寄付申告の傾向スコアを用いるものである。
+傾向スコアは以下のモデルをプロビット推定した予測確率で得られる。
+\begin{align}
+  R_{it} = 1[
+    \alpha_0 + \alpha_1 WE_{it} + \alpha_2 \ln(1 - s^f_{it})
+    + \alpha_3 X_{it} + u_{it0} > 0
+  ] \label{eq:selection}
 \end{align}
 
-\hypertarget{ux5bc4ux4ed8ux7533ux544aux306eux5185ux751fux6027}{%
-\subsection{寄付申告の内生性}\label{ux5bc4ux4ed8ux7533ux544aux306eux5185ux751fux6027}}
+我々は全期間のサンプルを用いた推定（pooled model）と
+年で分割したサブサンプルを用いた推定（separeted model）で傾向スコア\(\hat{P}_{it}\)を得た。
+前者のモデルは式\eqref{eq:selection}の係数が時間に対して一定であると仮定している一方で、
+後者のモデルは推定される係数が時間に依存することを許容したモデルである。
 
-給与所得者ダミーをIVとして用いる
-
-\begin{itemize}
-\tightlist
-\item
-  所得や業種をコントロールすれば、給与所得者であるかどうかは直接寄付額に影響しない
-\item
-  給与所得者のほうが非給与所得者より寄付申告コストが安いと考えられる
-\end{itemize}
-
-(\textbf{Wooldridge2010a?}) より、以下の二つの方法で推定する
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  給与所得者ダミー(\(Z_{it}\))とfirst-unit priceの交差項を\(R_{it} \times \ln (1 - s^f_{it})\)の操作変数として用いる
-\item
-  寄付申告の傾向スコア\(P_{it}\)とfirst-unit priceの交差項を操作変数として用いる
-
-  \begin{itemize}
-  \tightlist
-  \item
-    傾向スコア\(P_{it}\)は\(R_{it} = 1[\alpha_0 + \alpha_1 Z_{it} + \alpha_2 \ln(1 - s^f_{it}) + \alpha_3 X_{it} + u_{it0} > 0]\)をプロビット推定し、その予測確率で得る
-  \item
-    プロビット推定は係数が時間に対して一定と仮定したPooledモデルと係数が時間に対して異なると仮定したSeparatedモデルで推定
-  \end{itemize}
-\end{enumerate}
+傾向スコアを用いた第二のアプローチは
+式\eqref{eq:intensive2}の説明変数\(R_{it} \times \ln (1 - s^f_{it})\)の操作変数として
+\(\hat{P}_{it} \times \ln (1 - s^f_{it})\)を用いる。
+第三のアプローチは式@ref(eq:intensive\_f)の説明変数\(R_{it} \times \ln (1 - s^f_{it})\)
+の代わりに\(\hat{P}_{it} \times \ln (1 - s^f_{it})\)を用いる。すなわち、
+我々は以下のモデルを推定する。
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma (\hat{P}_{it} \times \ln (1 - s^f_{it}))
+    + \beta X_{it} + \lambda_t + u_{it}, \label{eq:intensive3}
+\end{align}
 
 \hypertarget{ux7d50ux679c-intensive-margin-tax-price-elasticity}{%
 \subsection{結果: Intensive-Margin Tax-Price Elasticity}\label{ux7d50ux679c-intensive-margin-tax-price-elasticity}}
@@ -486,7 +523,7 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
   \begin{itemize}
   \tightlist
   \item
-    階差モデルやリードラグ変数の使用 (Gruber and Saez, 2002; Randolph, 1995; \textbf{Scharf2020?})
+    階差モデルやリードラグ変数の使用 (Almunia et al., 2020; \textbf{Randolph1995?}; \textbf{Saez2002?})
   \end{itemize}
 \end{enumerate}
 
@@ -658,13 +695,16 @@ FE: year & X & X & X\\
 \end{threeparttable}
 \end{table}
 
-\hypertarget{appendix}{%
-\section{(Appendix)}\label{appendix}}
+\newpage
+
+\hypertarget{appendix-appendix}{%
+\appendix}
+
 
 \hypertarget{addtab}{%
 \section{Additional Tables and Figures}\label{addtab}}
 
-\begin{figure}[t]
+\begin{figure}[H]
 
 {\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingIntensive-1} 
 
@@ -699,5 +739,21 @@ FE: year & X & X & X\\
 
 \caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
 \end{figure}
+
+\newpage
+
+\hypertarget{references}{%
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-Scharf2020}{}}%
+Almunia, M., Guceri, I., Lockwood, B., Scharf, K., 2020. More giving or more givers? {The} effects of tax incentives on charitable donations in the {UK}. Journal of Public Economics 183, 104114. doi:\href{https://doi.org/10.1016/j.jpubeco.2019.104114}{10.1016/j.jpubeco.2019.104114}
+
+\leavevmode\vadjust pre{\hypertarget{ref-Wooldridge2010}{}}%
+Wooldridge, J.M., 2010. Econometric analysis of cross section and panel data, 2nd ed. ed. {MIT Press}, {Cambridge, Mass}.
+
+\end{CSLReferences}
 
 \end{document}
