@@ -47,18 +47,16 @@ lapply(Sys.glob(file.path("script/functions", "*.r")), source)
 df <- readr::read_csv("data/shaped2.csv")
 
 #'
-#' ## National Survey of Tax and Benefit (NaSTaB)
+#' # National Survey of Tax and Benefit (NaSTaB)
 #'
-#' - 2008年からKorea Institute of Taxation and Financeが実施
-#' - NaSTaBは家計の税負担や公的扶助などに関する年次パネルデータ
-#' - 全国から5,634世帯を調査対象とする
-#'   - 5,634人の世帯主と15歳以上で経済活動をしている世帯員が調査に回答する
-#' - 我々の研究では(1)2013年から2018年かつ、(2)23歳以下の回答者を除いたデータを使用する
-#'   - 2012年と2013年の所得税率は変化していないが、2011年以前に所得税率の改正が何度か行われた (Table \@ref(tab:TaxRate))
-#'   - 2014年の制度改革に着目するために、2013年から2018年に限定する
-#'   - 23歳以下の回答者は所得や資産を十分に持っていない可能性が高いので、データから除外する
+#' 本研究は2008年からKorea Institute of Taxation and Financeが実施した
+#' National Survey of Tax and Benefit (NaSTaB)を用いる。
+#' これは家計の税負担や公的扶助などに関する年次パネルデータである。
+#' この調査は全国から5,634世帯を対象とし、
+#' 5,634人の世帯主と15歳以上で経済活動をしている世帯員が調査に回答する。
+#' この調査は前年の所得や寄付額に関する情報を含んでおり、
+#' それらに加えて、教育年数などの個人属性や税制に対する個人の意識に関する情報を含んでいる。
 #'
-#' ## Descriptive Statistics
 #'
 #+ SummaryCovariate
 df %>%
@@ -74,8 +72,8 @@ df %>%
     (`University graduate` = univ) +
     (`High school graduate dummy` = highschool) +
     (`Junior high school graduate dummy` = junior) +
-    (`Wage earner dummy` = employee) +
-    (`#.Tax accountant / population` = tax_accountant_per) ~
+    (`Wage earner dummy` = employee) ~
+    # (`#.Tax accountant / population` = tax_accountant_per) ~
     N +
     (`Mean` = mean) * Arguments(na.rm = TRUE) +
     (`Std.Dev.` = sd) * Arguments(na.rm = TRUE) +
@@ -86,13 +84,21 @@ df %>%
     data = .,
     align = "lcccccc"
   ) %>%
-  kableExtra::kable_styling(font_size = 6) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::pack_rows("Income and giving price", 1, 2) %>%
   kableExtra::pack_rows("Charitable giving", 3, 5) %>%
-  kableExtra::pack_rows("Individual Characteristics", 6, 12)
+  kableExtra::pack_rows("Individual Characteristics", 6, 11)
 
 #'
-#' ## 右歪曲の所得分布と寄付価格の変動
+#' 我々の研究では(1)2013年から2018年かつ、(2)23歳以下の回答者を除いたデータを使用する。
+#' データの期間を制限した理由は、2014年の制度改革に注目するためである。
+#' 所得控除制度が適用されている期間（2014年の制度改革前）では、所得税率の改正が寄付行動に影響を与える。
+#' この制度が適用されている期間において、所得税率の改正は2011年が最後である。
+#' したがって、2011年以前の寄付行動を用いると、2014年の制度改革以外の影響を含んでしまう。
+#' その可能性を取り除くために、我々は2013年から2018年のデータ（2012年から2017年の寄付行動）を用いる。
+#' また、23歳以下の回答者を除いた理由は、所得や資産を十分に持っていない可能性が高いからである。
+#' 表\@ref(tab:SummaryCovariate)に記述統計を示した。
+#'
 #'
 #+ SummaryPrice, fig.cap = "Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.", out.extra = ""
 df %>%
@@ -126,30 +132,33 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' <!---
-#' ## Message from Figure \@ref(fig:SummaryPrice)
+#' NaSTabは前年の労働所得を調査している。
+#' 表\@ref(tab:SummaryCovariate)は、
+#' 我々が用いるサンプルの労働所得の平均額は17.54 million KRWであることを示しており、
+#' Korean National Tax Serviceが発行しているNational Tax Statistical Yearbook 2012-2018
+#' の平均所得32.77 million KRWより低い。
+#' これはNaSTaBが主婦などの労働所得がない人を含んでいるからである。
+#' したがって、所得分布は右歪曲な分布になる（図\@ref(fig:SummaryPrice)）。
+#' 我々は労働所得に基づいて限界税率を計算し、所得控除における寄付価格を計算した。
+#' 図\@ref(fig:SummaryPrice)の黒の実線は2012年から2013年の寄付の相対価格を示している。
 #'
-#' Right-skewed income distribution:
+#' また、図\@ref(fig:SummaryPrice)は価格弾力性を識別するための価格変動も示している。
+#' 先に述べたように、黒の実線は所得控除が適用されている期間（2012年から2013年）の寄付の相対価格を示している。
+#' 対して、黒の破線は税額控除が適用されている期間（2014年以降）の寄付の相対価格を示している。
+#' 2014年の税制改革による税インセンティブの変化に基づいて、我々は三つの所得グループを作ることができる：
+#' (1) 120 million KRWより低い;
+#' (2) 120 million KRWから460 million KRWの間;
+#' (3) 460 million KRWより高い。
+#' 第一のグループに属する人の税インセンティブは税制改革によって拡大した（寄付価格が減少した）。
+#' 第二のグループに属する人の税インセンティブは税制改革によって変化しなかった。
+#' 第三のグループに属する人の税インセンティブは税制改革によって縮小した（寄付価格が増加した）。
+#' このグループによる差分の差分法が我々の第一の識別戦略となる[^pretrend]。
 #'
-#' - NaSTaB contains the annual taxable labor income last year
-#' - Our sample includes subjects with no labor income (e.g. housewives)
-#'   - Table \@ref(tab:SummaryCovariate): the average income is 17.54 million KRW
-#' - National Tax Statistical Yearbook 2012-2018 (Korean National Tax Service): the average annual taxable income is 32.77 million KRW
-#'   - Sample: employees who submitted the tax return
-#'
-#' Price variation for indetification
-#'
-#' - Based on changes in tax incentive due to the 2014 tax reform, we can devide into three income groups:
-#'     1. less than 120 million KRW: expanded tax incentive (decreased giving price)
-#'     1. between 120 million KRW and 460 million KRW: unchanged tax incentive
-#'     1. more than 460 million KRW: decreased tax incentive (increaed giving price)
-#' - This is main source of identification for effect of tax incentive on giving.
-#' --->
-#'
-#' ## 2014年税制改革直後、寄付者比率が減少
+#' [^pretrend]: 2011年以前の寄付行動は所得税率の改正による影響をうけるので、税制改革前の平行トレンドを検証することはできない。
 #'
 #+ SummaryGiving, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.", out.extra = ""
 df %>%
+  dplyr::filter(year <= 2017) %>%
   mutate(
     donate = if_else(d_donate == 1, donate, NA_real_)
   ) %>%
@@ -188,23 +197,16 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
-#' <!---
-#' ## Message from Figure \@ref(fig:SummaryGiving)
+#' 各所得グループの寄付のトレンドを確認する前に、
+#' 全体的な寄付行動の傾向を図\@ref(fig:SummaryGiving)に示した。
+#' 2012年から2017年にかけて、寄付者の割合は約24%である。
+#' 税制改革直後の寄付者の割合は所得控除のもとでの寄付者の割合を下回ったが、
+#' 時間を通じて寄付者が増えている（グレーのバー）。
+#' また、寄付者に限定した平均寄付額（黒の実線）は約1.5 million KRW（平均所得の約7%）
+#' で時間を通じて安定している。
+#' 寄付していない人も含めると、平均寄付額は358,600 KRW（平均所得の約2%）である[^culture]。
 #'
-#' - Proportion of donors across years: 24% (Table \@ref(tab:SummaryCovariate))
-#' - 2014: Proportion of donors is lower than before the tax reform
-#'   - After that, proportion of donors has continued to increase, finally surpassing that before the tax reform
-#'
-#' Notes:
-#'
-#' - average donation conditional on donors has been stable across year
-#'   - 1.5 million KRW (7% of average income)
-#'   - Table \@ref(tab:SummaryCovariate): Unconditional average donation is 358,600 KRW (2% of average income)
-#' --->
-#'
-#' <!--- 加藤コメント：欧米圏の寄付との簡単な比較があると文化差が伝わるかも --->
-#'
-#' ## 税インセンティブは寄付額を増やした
+#'  [^culture]: 欧米圏の寄付との簡単な比較があると文化差が伝わるかも（コメント）
 #'
 #+ SummaryGivingOverall, fig.cap = "Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
 df %>%
@@ -232,7 +234,7 @@ df %>%
   labs(
     x = "Year",
     y = "Diff. of average logged giving",
-    shape = "Income credit_treat (unit:10,000KRW)",
+    shape = "Income Group (unit:10,000KRW)",
     caption = paste(
       "The difference is calculated by",
       "(mean of logged donation in year t) - (mean of logged donation in 2013)."
@@ -241,25 +243,8 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' <!---
-#' ## Message from Figure \@ref(fig:SummaryGivingOverall)
 #'
-#' Price effect = Tax incentive increases charitable giving
-#'
-#' - Donations for income groups with unchanged or increased tax incentives have exceeded those in 2013 since 2015
-#' - Donations for income groups with reduced tax incentives have been lower than before tax reform since 2015
-#'
-#' Other findings:
-#'
-#' 1. Prior to the 2014 tax reform, donations did not change in all groups
-#' 1. Donations for all groups were lower than in 2013
-#'     - Donations for income groups with reduced tax incentive due to the 2014 tax reform was 40% of that in 2013
-#'     - Announcement effect? Learning effect?
-#' --->
-#'
-#' ## 寄付者に限定すると、寄付額に対する価格効果ははっきりとしない
-#'
-#+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
+#+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(credit_treat) & d_donate == 1) %>%
@@ -294,9 +279,7 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' ## 税インセンティブは寄付者を増やした
-#'
-#+ SummaryGivingExtensive, fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
+#+ SummaryGivingExtensive, fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(credit_treat)) %>%
@@ -331,22 +314,29 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' <!---
-#' ## Message from Figure \@ref(fig:SummaryGivingIntensive) and \@ref(fig:SummaryGivingExtensive)
+#' 図\@ref(fig:SummaryGivingOverall)は
+#' 税インセンティブの変化に基づいた所得グループごとの平均寄付額を示している（非寄付者も含めている）。
+#' この図から価格効果を観察できる。言い換えれば、税インセンティブは寄付行動を促進していることが観察される。
+#' 2015年以降、税制改革によって税インセンティブが拡大した（もしくは変化しなかった）人は所得控除時よりも増えているが、
+#' 税インセンティブが縮小した人は所得控除時よりも減少している。
+#' また、寄付者に限定した平均寄付額と寄付者の割合のトレンドを所得グループごとに見ると、
+#' 似たような傾向が観察された
+#' （補論\@ref(addtab)の図\@ref(fig:SummaryGivingIntensive)と図\@ref(fig:SummaryGivingExtensive)）。
+#' ただし、寄付者に限定した平均寄付のトレンドを見ると、
+#' 図\@ref(fig:SummaryGivingOverall)ほどはっきりとした価格効果を観察できない。
 #'
-#' Intensive margin (How much donors give): Price effect can be partially observed
-#'
-#' - The income group that increased the donation most was the group whose tax incentive did not change, but the donation of the income group that decreased the tax incentive did not change significantly.
-#' - Income groups with unchanged tax incentives has increased donations more than income groups with expanded tax incentives (opposite to the price effect).
-#'
-#' Extensive margin (Whethre respondents donate): Price effect can be observed
-#'
-#' - Same trend as Figure \@ref(fig:SummaryGivingOverall)
-#' --->
-#'
-#' <!---
-#' ## Application for Tax Relief Decreased After Tax Reform
-#' --->
+#' また、すべての所得グループの2014年の平均寄付額は2013年のそれを下回っている。
+#' これはいくつかの可能性が考えられる。
+#' 第一に、税制改革のアナウンスメント効果である。
+#' 2014年の税制改革は2013年に告知されているので、
+#' 税インセンティブが縮小する所得グループにおいては、
+#' 2013年の寄付額を増やし、2014年の寄付額を減らすという異時点間の代替効果が予想される。
+#' しかしながら、これは税インセンティブが拡大する所得グループの寄付額が減少した事実を説明できない。
+#' 第二の可能性は、制度の学習効果が考えられる。
+#' 税制改革直後は、税額控除によって自分が寄付によって節税しやすくなったかどうかが分からないので、
+#' 税インセンティブが拡大する所得グループでも寄付額は減少した。
+#' それ以降、税インセンティブが拡大した納税者は自分が寄付によって節税しやすくなることを学習し、
+#' 寄付額を所得控除時よりも増やしたと考えられる。
 #'
 #+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
 df %>%
@@ -383,7 +373,19 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#+ SummaryGivingIntensiveDist, include = FALSE
+#' <!---
+#' ## Message from Figure \@ref(fig:SummaryReliefbyIncome)
+#'
+#' 1. tax incentive negatively correlated with application for tax relief.
+#'     - Since the 2014 tax reform, the share of application for tax relief has not increased in all income groups compared to 2013.
+#'     - the decrease in the application rate is the largest among income groups whose tax incentives decreased due to the 2014 tax reform.
+#' 2. the trend of application for tax relief does not match the trend of share of donors.
+#'     - If there is no application cost, all donors should apply for tax relief
+#'     - Figure \@ref(fig:SummaryGivingExtensive) and \@ref(fig:SummaryReliefbyIncome) imply that there is cost to apply for tax relief.
+#'     - The distribution of donations conditional on donors does not change significantly depending on whether or not they have applied for tax relief, suggesting that the application cost is high (Figure \@ref(fig:SummaryGivingIntensiveDist)).
+#' --->
+#' 
+#+ SummaryGivingIntensiveDist, fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", eval = FALSE
 df %>%
   filter(year <= 2017) %>%
   filter(!is.na(d_relief_donate) & d_donate == 1) %>%
@@ -402,19 +404,18 @@ df %>%
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 #'
-#' <!---
-#' ## Message from Figure \@ref(fig:SummaryReliefbyIncome)
+#' 寄付価格の変動は寄付控除の申告の有無でも生じる。
+#' 寄付控除を申告した場合の寄付の相対価格は図\@ref(fig:SummaryPrice)に示した通りである一方で、
+#' 寄付控除を申告しない場合の寄付の相対価格は1である。
+#' よって、控除の有無によって寄付の相対価格は変化する。
+#' しかしながら、寄付控除の申告は自己選択なので、内生的である。
+#' 後に述べるように、この内生性を解決するために操作変数が必要である。
 #'
-#' 1. tax incentive negatively correlated with application for tax relief.
-#'     - Since the 2014 tax reform, the share of application for tax relief has not increased in all income groups compared to 2013.
-#'     - the decrease in the application rate is the largest among income groups whose tax incentives decreased due to the 2014 tax reform.
-#' 2. the trend of application for tax relief does not match the trend of share of donors.
-#'     - If there is no application cost, all donors should apply for tax relief
-#'     - Figure \@ref(fig:SummaryGivingExtensive) and \@ref(fig:SummaryReliefbyIncome) imply that there is cost to apply for tax relief.
-#'     - The distribution of donations conditional on donors does not change significantly depending on whether or not they have applied for tax relief, suggesting that the application cost is high (Figure \@ref(fig:SummaryGivingIntensiveDist)).
-#' --->
-#'
-#' ## 制度改革に関わらず、給与所得者は寄付申告をしやすい
+#' 寄付控除の申告行動において、申告コストは大きな障害となっている可能性が高い。
+#' 補論\@ref(addtab)の図\@ref(fig:SummaryGivingIntensiveDist)に示しているように、
+#' 寄付控除の申告の有無によって、寄付者に限定した寄付額の分布は大きく変化しない。
+#' これは寄付控除の申告の有無は、控除によって得られる便益の差よりも
+#' 申告するためのコストの差で説明できることを示唆している。
 #'
 #+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""
 df %>%
@@ -441,7 +442,7 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
-#+ SummaryReliefbyEarner2, include = FALSE
+#+ SummaryReliefbyEarner2, fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = FALSE
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(employee) & d_donate == 1) %>%
@@ -466,16 +467,18 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
-#' <!---
-#' ## Message from Figure \@ref(fig:SummaryReliefbyEarner)
+#' 以上を踏まえて、
+#' 我々は申告コストの要素の一つであるレコードキーピングに関する制度背景を第二の識別戦略として用いる。
+#' 先に述べたように、自営業者は寄付控除を申請するまで寄付の領収書（証明書）を保持しておく必要がある一方で、
+#' 給与所得者は会社を通じてその証明書をいつでも提出でき、
+#' その後の申請も会社に手続きを依頼できる。
+#' すなわち、給与所得者は自営業者よりも申告コストが低いことが予想される。
+#' 事実、図\@ref(fig:SummaryReliefbyEarner)
+#' 給与所得者の控除の申請比率は自営業者よりもすべての期間を通じて高いことが分かる[^condfig]。
+#' 我々は給与所得者ダミーをレコードキーピングのコストの代理変数として操作変数に用いる。
 #'
-#' - Employment status is one dimension of variation of applied cost.
-#'   - self-employed workers have to retain the certificate until they submit tax return.
-#'   - wage earners can declare tax relief and submit the certificate through their company at any time.
-#' - the proportion of declaring a tax relief among wage earners is higher than the others
-#'   - Application cost for wage earners is lower than for other than wage earners
-#'   - This trend does not change when we calculate the proportion of application conditional on donors (Figure \@ref(fig:SummaryReliefbyEarner2)).
-#' --->
+#' [^condfig]: 寄付者に限定した控除の申告比率についても、給与所得者の方が自営業者よりも高い
+#' （補論\@ref(addtab)の図\@ref(fig:SummaryReliefbyEarner2)）。
 #'
 # /*
 #+

@@ -107,44 +107,21 @@
 \end{spacing}
 
 \hypertarget{national-survey-of-tax-and-benefit-nastab}{%
-\subsection{National Survey of Tax and Benefit (NaSTaB)}\label{national-survey-of-tax-and-benefit-nastab}}
+\section{National Survey of Tax and Benefit (NaSTaB)}\label{national-survey-of-tax-and-benefit-nastab}}
 
-\begin{itemize}
-\tightlist
-\item
-  2008年からKorea Institute of Taxation and Financeが実施
-\item
-  NaSTaBは家計の税負担や公的扶助などに関する年次パネルデータ
-\item
-  全国から5,634世帯を調査対象とする
-
-  \begin{itemize}
-  \tightlist
-  \item
-    5,634人の世帯主と15歳以上で経済活動をしている世帯員が調査に回答する
-  \end{itemize}
-\item
-  我々の研究では(1)2013年から2018年かつ、(2)23歳以下の回答者を除いたデータを使用する
-
-  \begin{itemize}
-  \tightlist
-  \item
-    2012年と2013年の所得税率は変化していないが、2011年以前に所得税率の改正が何度か行われた (Table \ref{tab:TaxRate})
-  \item
-    2014年の制度改革に着目するために、2013年から2018年に限定する
-  \item
-    23歳以下の回答者は所得や資産を十分に持っていない可能性が高いので、データから除外する
-  \end{itemize}
-\end{itemize}
-
-\hypertarget{descriptive-statistics}{%
-\subsection{Descriptive Statistics}\label{descriptive-statistics}}
+本研究は2008年からKorea Institute of Taxation and Financeが実施した
+National Survey of Tax and Benefit (NaSTaB)を用いる。
+これは家計の税負担や公的扶助などに関する年次パネルデータである。
+この調査は全国から5,634世帯を対象とし、
+5,634人の世帯主と15歳以上で経済活動をしている世帯員が調査に回答する。
+この調査は前年の所得や寄付額に関する情報を含んでおり、
+それらに加えて、教育年数などの個人属性や税制に対する個人の意識に関する情報を含んでいる。
 
 \begin{table}
 
 \caption{\label{tab:SummaryCovariate}Descriptive Statistics}
 \centering
-\fontsize{6}{8}\selectfont
+\fontsize{9}{11}\selectfont
 \begin{tabular}[t]{lcccccc}
 \toprule
   & N & Mean & Std.Dev. & Min & Median & Max\\
@@ -166,13 +143,18 @@
 \hspace{1em}High school graduate dummy & 36198 & \num{0.31} & \num{0.46} & \num{0.00} & \num{0.00} & \num{1.00}\\
 \hspace{1em}Junior high school graduate dummy & 36198 & \num{0.27} & \num{0.44} & \num{0.00} & \num{0.00} & \num{1.00}\\
 \hspace{1em}Wage earner dummy & 27394 & \num{0.56} & \num{0.50} & \num{0.00} & \num{1.00} & \num{1.00}\\
-\hspace{1em}\#.Tax accountant / population & 36199 & \num{1.04} & \num{0.51} & \num{0.32} & \num{0.92} & \num{2.24}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\hypertarget{ux53f3ux6b6aux66f2ux306eux6240ux5f97ux5206ux5e03ux3068ux5bc4ux4ed8ux4fa1ux683cux306eux5909ux52d5}{%
-\subsection{右歪曲の所得分布と寄付価格の変動}\label{ux53f3ux6b6aux66f2ux306eux6240ux5f97ux5206ux5e03ux3068ux5bc4ux4ed8ux4fa1ux683cux306eux5909ux52d5}}
+我々の研究では(1)2013年から2018年かつ、(2)23歳以下の回答者を除いたデータを使用する。
+データの期間を制限した理由は、2014年の制度改革に注目するためである。
+所得控除制度が適用されている期間（2014年の制度改革前）では、所得税率の改正が寄付行動に影響を与える。
+この制度が適用されている期間において、所得税率の改正は2011年が最後である。
+したがって、2011年以前の寄付行動を用いると、2014年の制度改革以外の影響を含んでしまう。
+その可能性を取り除くために、我々は2013年から2018年のデータ（2012年から2017年の寄付行動）を用いる。
+また、23歳以下の回答者を除いた理由は、所得や資産を十分に持っていない可能性が高いからである。
+表\ref{tab:SummaryCovariate}に記述統計を示した。
 
 \begin{figure}[t]
 
@@ -183,8 +165,27 @@
 \caption{Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.}\label{fig:SummaryPrice}
 \end{figure}
 
-\hypertarget{ux5e74ux7a0eux5236ux6539ux9769ux76f4ux5f8cux5bc4ux4ed8ux8005ux6bd4ux7387ux304cux6e1bux5c11}{%
-\subsection{2014年税制改革直後、寄付者比率が減少}\label{ux5e74ux7a0eux5236ux6539ux9769ux76f4ux5f8cux5bc4ux4ed8ux8005ux6bd4ux7387ux304cux6e1bux5c11}}
+NaSTabは前年の労働所得を調査している。
+表\ref{tab:SummaryCovariate}は、
+我々が用いるサンプルの労働所得の平均額は17.54 million KRWであることを示しており、
+Korean National Tax Serviceが発行しているNational Tax Statistical Yearbook 2012-2018
+の平均所得32.77 million KRWより低い。
+これはNaSTaBが主婦などの労働所得がない人を含んでいるからである。
+したがって、所得分布は右歪曲な分布になる（図\ref{fig:SummaryPrice}）。
+我々は労働所得に基づいて限界税率を計算し、所得控除における寄付価格を計算した。
+図\ref{fig:SummaryPrice}の黒の実線は2012年から2013年の寄付の相対価格を示している。
+
+また、図\ref{fig:SummaryPrice}は価格弾力性を識別するための価格変動も示している。
+先に述べたように、黒の実線は所得控除が適用されている期間（2012年から2013年）の寄付の相対価格を示している。
+対して、黒の破線は税額控除が適用されている期間（2014年以降）の寄付の相対価格を示している。
+2014年の税制改革による税インセンティブの変化に基づいて、我々は三つの所得グループを作ることができる：
+(1) 120 million KRWより低い;
+(2) 120 million KRWから460 million KRWの間;
+(3) 460 million KRWより高い。
+第一のグループに属する人の税インセンティブは税制改革によって拡大した（寄付価格が減少した）。
+第二のグループに属する人の税インセンティブは税制改革によって変化しなかった。
+第三のグループに属する人の税インセンティブは税制改革によって縮小した（寄付価格が増加した）。
+このグループによる差分の差分法が我々の第一の識別戦略となる\footnote{2011年以前の寄付行動は所得税率の改正による影響をうけるので、税制改革前の平行トレンドを検証することはできない。}。
 
 \begin{figure}[t]
 
@@ -195,8 +196,14 @@
 \caption{Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.}\label{fig:SummaryGiving}
 \end{figure}
 
-\hypertarget{ux7a0eux30a4ux30f3ux30bbux30f3ux30c6ux30a3ux30d6ux306fux5bc4ux4ed8ux984dux3092ux5897ux3084ux3057ux305f}{%
-\subsection{税インセンティブは寄付額を増やした}\label{ux7a0eux30a4ux30f3ux30bbux30f3ux30c6ux30a3ux30d6ux306fux5bc4ux4ed8ux984dux3092ux5897ux3084ux3057ux305f}}
+各所得グループの寄付のトレンドを確認する前に、
+全体的な寄付行動の傾向を図\ref{fig:SummaryGiving}に示した。
+2012年から2017年にかけて、寄付者の割合は約24\%である。
+税制改革直後の寄付者の割合は所得控除のもとでの寄付者の割合を下回ったが、
+時間を通じて寄付者が増えている（グレーのバー）。
+また、寄付者に限定した平均寄付額（黒の実線）は約1.5 million KRW（平均所得の約7\%）
+で時間を通じて安定している。
+寄付していない人も含めると、平均寄付額は358,600 KRW（平均所得の約2\%）である\footnote{欧米圏の寄付との簡単な比較があると文化差が伝わるかも（コメント）}。
 
 \begin{figure}[t]
 
@@ -207,32 +214,42 @@
 \caption{Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingOverall}
 \end{figure}
 
-\hypertarget{ux5bc4ux4ed8ux8005ux306bux9650ux5b9aux3059ux308bux3068ux5bc4ux4ed8ux984dux306bux5bfeux3059ux308bux4fa1ux683cux52b9ux679cux306fux306fux3063ux304dux308aux3068ux3057ux306aux3044}{%
-\subsection{寄付者に限定すると、寄付額に対する価格効果ははっきりとしない}\label{ux5bc4ux4ed8ux8005ux306bux9650ux5b9aux3059ux308bux3068ux5bc4ux4ed8ux984dux306bux5bfeux3059ux308bux4fa1ux683cux52b9ux679cux306fux306fux3063ux304dux308aux3068ux3057ux306aux3044}}
+図\ref{fig:SummaryGivingOverall}は
+税インセンティブの変化に基づいた所得グループごとの平均寄付額を示している（非寄付者も含めている）。
+この図から価格効果を観察できる。言い換えれば、税インセンティブは寄付行動を促進していることが観察される。
+2015年以降、税制改革によって税インセンティブが拡大した（もしくは変化しなかった）人は所得控除時よりも増えているが、
+税インセンティブが縮小した人は所得控除時よりも減少している。
+また、寄付者に限定した平均寄付額と寄付者の割合のトレンドを所得グループごとに見ると、
+似たような傾向が観察された
+（補論\ref{addtab}の図\ref{fig:SummaryGivingIntensive}と図\ref{fig:SummaryGivingExtensive}）。
+ただし、寄付者に限定した平均寄付のトレンドを見ると、
+図\ref{fig:SummaryGivingOverall}ほどはっきりとした価格効果を観察できない。
 
-\begin{figure}[t]
+また、すべての所得グループの2014年の平均寄付額は2013年のそれを下回っている。
+これはいくつかの可能性が考えられる。
+第一に、税制改革のアナウンスメント効果である。
+2014年の税制改革は2013年に告知されているので、
+税インセンティブが縮小する所得グループにおいては、
+2013年の寄付額を増やし、2014年の寄付額を減らすという異時点間の代替効果が予想される。
+しかしながら、これは税インセンティブが拡大する所得グループの寄付額が減少した事実を説明できない。
+第二の可能性は、制度の学習効果が考えられる。
+税制改革直後は、税額控除によって自分が寄付によって節税しやすくなったかどうかが分からないので、
+税インセンティブが拡大する所得グループでも寄付額は減少した。
+それ以降、税インセンティブが拡大した納税者は自分が寄付によって節税しやすくなることを学習し、
+寄付額を所得控除時よりも増やしたと考えられる。
 
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingIntensive-1} 
+寄付価格の変動は寄付控除の申告の有無でも生じる。
+寄付控除を申告した場合の寄付の相対価格は図\ref{fig:SummaryPrice}に示した通りである一方で、
+寄付控除を申告しない場合の寄付の相対価格は1である。
+よって、控除の有無によって寄付の相対価格は変化する。
+しかしながら、寄付控除の申告は自己選択なので、内生的である。
+後に述べるように、この内生性を解決するために操作変数が必要である。
 
-}
-
-\caption{Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingIntensive}
-\end{figure}
-
-\hypertarget{ux7a0eux30a4ux30f3ux30bbux30f3ux30c6ux30a3ux30d6ux306fux5bc4ux4ed8ux8005ux3092ux5897ux3084ux3057ux305f}{%
-\subsection{税インセンティブは寄付者を増やした}\label{ux7a0eux30a4ux30f3ux30bbux30f3ux30c6ux30a3ux30d6ux306fux5bc4ux4ed8ux8005ux3092ux5897ux3084ux3057ux305f}}
-
-\begin{figure}[t]
-
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingExtensive-1} 
-
-}
-
-\caption{Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingExtensive}
-\end{figure}
-
-\hypertarget{ux5236ux5ea6ux6539ux9769ux306bux95a2ux308fux3089ux305aux7d66ux4e0eux6240ux5f97ux8005ux306fux5bc4ux4ed8ux7533ux544aux3092ux3057ux3084ux3059ux3044}{%
-\subsection{制度改革に関わらず、給与所得者は寄付申告をしやすい}\label{ux5236ux5ea6ux6539ux9769ux306bux95a2ux308fux3089ux305aux7d66ux4e0eux6240ux5f97ux8005ux306fux5bc4ux4ed8ux7533ux544aux3092ux3057ux3084ux3059ux3044}}
+寄付控除の申告行動において、申告コストは大きな障害となっている可能性が高い。
+補論\ref{addtab}の図\ref{fig:SummaryGivingIntensiveDist}に示しているように、
+寄付控除の申告の有無によって、寄付者に限定した寄付額の分布は大きく変化しない。
+これは寄付控除の申告の有無は、控除によって得られる便益の差よりも
+申告するためのコストの差で説明できることを示唆している。
 
 \begin{figure}[t]
 
@@ -242,6 +259,17 @@
 
 \caption{Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner}
 \end{figure}
+
+以上を踏まえて、
+我々は申告コストの要素の一つであるレコードキーピングに関する制度背景を第二の識別戦略として用いる。
+先に述べたように、自営業者は寄付控除を申請するまで寄付の領収書（証明書）を保持しておく必要がある一方で、
+給与所得者は会社を通じてその証明書をいつでも提出でき、
+その後の申請も会社に手続きを依頼できる。
+すなわち、給与所得者は自営業者よりも申告コストが低いことが予想される。
+事実、図\ref{fig:SummaryReliefbyEarner}
+給与所得者の控除の申請比率は自営業者よりもすべての期間を通じて高いことが分かる\footnote{寄付者に限定した控除の申告比率についても、給与所得者の方が自営業者よりも高い
+  （補論\ref{addtab}の図\ref{fig:SummaryReliefbyEarner2}）。}。
+我々は給与所得者ダミーをレコードキーピングのコストの代理変数として操作変数に用いる。
 
 \hypertarget{ux7a2eux985eux306eux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027}{%
 \subsection{2種類の寄付の価格弾力性}\label{ux7a2eux985eux306eux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027}}
@@ -629,5 +657,47 @@ FE: year & X & X & X\\
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
+
+\hypertarget{appendix}{%
+\section{(Appendix)}\label{appendix}}
+
+\hypertarget{addtab}{%
+\section{Additional Tables and Figures}\label{addtab}}
+
+\begin{figure}[t]
+
+{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingIntensive-1} 
+
+}
+
+\caption{Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingIntensive}
+\end{figure}
+
+\begin{figure}[t]
+
+{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingExtensive-1} 
+
+}
+
+\caption{Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingExtensive}
+\end{figure}
+
+\begin{figure}[t]
+
+{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingIntensiveDist-1} 
+
+}
+
+\caption{Estimated Distribution of Charitable Giving among Donors in Each Year}\label{fig:SummaryGivingIntensiveDist}
+\end{figure}
+
+\begin{figure}[t]
+
+{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryReliefbyEarner2-1} 
+
+}
+
+\caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
+\end{figure}
 
 \end{document}
