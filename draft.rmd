@@ -11,8 +11,7 @@ author:
   - name: Youngrok Kim
     inst: Graduate School of Economics, Kobe University, Japan
 date: "`r format(Sys.time(), '%Y/%m/%d')`"
-bibliography_main: [Rmarkdown/ref_main.bib]
-bibliography_appx: [Rmarkdown/ref_appx.bib]
+bibliography: Rmarkdown/NaSTaB.bib
 csl: template/csl/elsevier-harvard.csl
 documentclass: article
 papersize: a4
@@ -30,7 +29,6 @@ output:
     toc: false
     dev: cairo_pdf
     template: template/tex/plain.tex
-    pandoc_args: --lua-filter=luafilters/multiple-bibliographies/multiple-bibliographies.lua
 params:
   preview: false
 ---
@@ -74,8 +72,16 @@ xfun::pkg_attach2(c(
 
 lapply(Sys.glob(file.path("script/functions", "*.r")), source)
 ```
+
+# National Survey of Tax and Benefit (NaSTaB) {#nastab}
+
 ```{r}
 knitr::spin_child("script/1-summary.R")
+```
+
+# Empirical Strategy {#estimation}
+
+```{r child = "Rmarkdown/2-estimation.rmd"}
 ```
 
 ```{r}
@@ -89,6 +95,9 @@ knitr::spin_child("script/elasticity/2-conventional.R")
 ```{r}
 knitr::spin_child("script/elasticity/3-subsample_R1.R")
 ```
+
+
+\newpage
 
 # (APPENDIX) Appendix {-}
 # Additional Tables and Figures {#addtab}
@@ -104,3 +113,7 @@ knitr::spin_child("script/elasticity/3-subsample_R1.R")
 
 ```{r SummaryReliefbyEarner2, ref.label="SummaryReliefbyEarner2", fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""}
 ```
+
+\newpage
+
+# References {-}

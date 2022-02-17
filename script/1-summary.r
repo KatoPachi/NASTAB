@@ -47,8 +47,6 @@ lapply(Sys.glob(file.path("script/functions", "*.r")), source)
 df <- readr::read_csv("data/shaped2.csv")
 
 #'
-#' # National Survey of Tax and Benefit (NaSTaB)
-#'
 #' 本研究は2008年からKorea Institute of Taxation and Financeが実施した
 #' National Survey of Tax and Benefit (NaSTaB)を用いる。
 #' これは家計の税負担や公的扶助などに関する年次パネルデータである。
