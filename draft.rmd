@@ -98,6 +98,7 @@ knitr::spin_child("script/elasticity/2-conventional.R")
 knitr::spin_child("script/elasticity/3-subsample_R1.R")
 ```
 
+## Interpretation of Our Estimates
 
 \newpage
 
@@ -107,13 +108,37 @@ knitr::spin_child("script/elasticity/3-subsample_R1.R")
 ```{r SummaryGivingIntensive, ref.label="SummaryGivingIntensive", fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", fig.pos = "H"}
 ```
 
-```{r SummaryGivingExtensive, ref.label="SummaryGivingExtensive", fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""}
+```{r SummaryGivingExtensive, ref.label="SummaryGivingExtensive", fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", fig.pos = "H"}
 ```
 
-```{r SummaryGivingIntensiveDist, ref.label = "SummaryGivingIntensiveDist", fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = ""}
+```{r SummaryGivingIntensiveDist, ref.label = "SummaryGivingIntensiveDist", fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", fig.pos = "H"}
 ```
 
-```{r SummaryReliefbyEarner2, ref.label="SummaryReliefbyEarner2", fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""}
+```{r SummaryReliefbyEarner2, ref.label="SummaryReliefbyEarner2", fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", fig.pos = "H"}
+```
+
+```{r WoAnnoucementIntensive, ref.label="WoAnnoucementIntensive"}
+```
+
+```{r WoAnnouncementExtensive, ref.label="WoAnnouncementExtensive"}
+```
+
+```{r LastIntensive, ref.label="LastIntensive"}
+```
+
+```{r LastExtensive, ref.label="LastExtensive"}
+```
+
+```{r MainElasticity, ref.label="MainElasticity"}
+```
+
+```{r WoAnnoucementElasticity, ref.label="WoAnnoucementElasticity"}
+```
+
+```{r R1Elasticity, ref.label="R1Elasticity"}
+```
+
+```{r KdiffElasticity, ref.label="KdiffElasticity"}
 ```
 
 \newpage

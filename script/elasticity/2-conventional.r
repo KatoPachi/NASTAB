@@ -51,9 +51,8 @@ df <- readr::read_csv("data/shaped2.csv")
 
 #'
 #'
-#' ## Conventional Method to Estimate Tax-Price Elasticity
 #'
-#+ MainElasticity
+#+ MainElasticity, eval = FALSE
 fixest::setFixest_fml(
   ..cov = ~ linc_ln + sqage | year + pid + indust + area
 )
@@ -138,27 +137,27 @@ stage1_lastmod <- est_lastmod[c(2, 4)] %>%
   ))
 
 addtab <- impelast_lastmod %>%
-  bind_rows(stage1_lastmod) #%>%
-  # bind_rows(tribble(
-  #   ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
-  #   "Square of age", "X", "X", "X", "X"
-  # ))
+  bind_rows(stage1_lastmod) %>%
+  bind_rows(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+    "Square of age", "X", "X", "X", "X"
+  ))
 
-attr(addtab, "position") <- 3:6
+attr(addtab, "position") <- 5:8
 
 est_lastmod %>%
   modelsummary(
     title = "Estimation of Last-Unit Price Elasticities",
     coef_map = c(
       "lprice_ln:d_relief_donate" = "log(last price)",
-      "fit_lprice_ln:d_relief_donate" = "log(last price)"#,
-      # "linc_ln" = "log(income)"
+      "fit_lprice_ln:d_relief_donate" = "log(last price)",
+      "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2|AIC|BIC|Log|Std|FE|R2",
+    gof_omit = "R2|AIC|BIC|Log|Std|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 7) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::add_header_above(c(
     " ", "FE", "FE-2SLS",
     "FE", "FE-2SLS"
@@ -178,9 +177,8 @@ est_lastmod %>%
   )
 
 #'
-#' ## Conventional Method to Estimate Tax-Price Elasticity (2)
 #'
-#+ WoAnnoucementElasticity
+#+ WoAnnoucementElasticity, eval = FALSE
 est_rob_lastmod <- lastmod %>%
   purrr::map(~ fixest::feols(
     xpd(.$mod), data = subset(.$data, year < 2013 | 2014 < year),
@@ -244,13 +242,13 @@ stage1_rob_lastmod <- est_rob_lastmod[c(2, 4)] %>%
   ))
 
 addtab <- impelast_rob_lastmod %>%
-  bind_rows(stage1_rob_lastmod) #%>%
-  # bind_rows(tribble(
-  #   ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
-  #   "Square of age", "X", "X", "X", "X"
-  # ))
+  bind_rows(stage1_rob_lastmod) %>%
+  bind_rows(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)",
+    "Square of age", "X", "X", "X", "X"
+  ))
 
-attr(addtab, "position") <- 3:6
+attr(addtab, "position") <- 5:8
 
 est_rob_lastmod %>%
   modelsummary(
@@ -260,14 +258,14 @@ est_rob_lastmod %>%
     ),
     coef_map = c(
       "lprice_ln:d_relief_donate" = "log(last price)",
-      "fit_lprice_ln:d_relief_donate" = "log(last price)"#,
-      # "linc_ln" = "log(income)"
+      "fit_lprice_ln:d_relief_donate" = "log(last price)",
+      "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2|AIC|BIC|Log|Std|FE|R2",
+    gof_omit = "R2|AIC|BIC|Log|Std|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 7) %>%
+  kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::add_header_above(c(
     " ", "FE", "FE-2SLS",
     "FE", "FE-2SLS"
@@ -287,6 +285,24 @@ est_rob_lastmod %>%
   )
 
 #'
+#' \noindent
+#' *Conventional Estimation Strategy.*
+#' これまでの弾力性を推定した研究がLast-unit priceを用いた弾力性を推定するとき、
+#' 単にfirst-unit priceを操作変数として用いている。
+#' 過去の研究結果との比較をするために、
+#' 我々もこの方法にしたがってLast-unit priceを用いた弾力性を推定した。
+#' 推定結果を補論\@ref(addtab)の表\@ref(tab:MainElasticity)に示した。
+#' その結果、Intensive-margin price elasticityは-1.9と推定されたのに対し、
+#' extensive-margin price elasticityは-6.2と推定された[^announce]。
+#' これは我々の方法で推定した結果
+#' （補論\@ref(addtab)の表\@ref(tab:LastIntensive)と\@ref(tab:LastExtensive)）
+#' よりも弾力的になった。
+#'
+#' [^announce]: 2014年の税制改革のアナウンスメント効果を排除するために、
+#' 2013年と2014年のデータを除いた分析もした。
+#' 推定結果は補論\@ref(addtab)の表\@ref(tab:WoAnnoucementElasticity)に示した。
+#' その結果、どちらの価格弾力性もより弾力的に推定された。
+#' この傾向はこれまでの結果と整合的である。
 #'
 # /*
 #+
