@@ -50,9 +50,8 @@ book <- readr::read_csv("data/codebook/shaped2_description.csv"); View(book)
 df <- readr::read_csv("data/shaped2.csv")
 
 #'
-#' ## Estimating Price Elasticity Using Compliers
 #'
-#+ R1Elasticity
+#+ R1Elasticity, eval = FALSE
 fixest::setFixest_fml(
   ..cov = ~ linc_ln + sqage | year + pid + indust + area
 )
@@ -83,8 +82,8 @@ addtab <- tribble(
   sprintf("%1.3f", est_r1mod[[4]]$iv_first_stage$lprice_ln$coeftable[1, 1]),
   "", "", "",
   sprintf("[%1.1f]", fitstat(est_r1mod[[3]], "ivwald")[[1]]$stat),
-  sprintf("[%1.1f]", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat)#,
-  # "Square of age", "X", "X", "X", "X"
+  sprintf("[%1.1f]", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat),
+  "Square of age", "X", "X", "X", "X"
 )
 
 attr(addtab, "position") <- c(13, 14)
@@ -110,7 +109,7 @@ est_r1mod %>%
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 5) %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   footnote(
     general_title = "",
     general = paste(
@@ -123,9 +122,7 @@ est_r1mod %>%
   )
 
 #'
-#' ## $k$-th Difference Model
-#'
-#+ KdiffElasticity
+#+ KdiffElasticity, eval = FALSE
 fixest::setFixest_fml(
   ..kdiff1 = ~ linc_ln_d1 + sqage_d1,
   ..kdiff2 = ~ linc_ln_d2 + sqage_d2,
@@ -171,13 +168,13 @@ stage1_kdiffmod <- 1:3 %>%
     "coef" = "First-stage: Instrument", .default = ""
   ))
 
-addtab <- stage1_kdiffmod #%>%
-  # bind_rows(tribble(
-  #   ~term, ~"(1)", ~"(2)", ~"(3)",
-  #   "Difference of square age", "X", "X", "X"
-  # ))
+addtab <- stage1_kdiffmod %>%
+  bind_rows(tribble(
+    ~term, ~"(1)", ~"(2)", ~"(3)",
+    "Difference of square age", "X", "X", "X"
+  ))
 
-attr(addtab, "position") <- c(3, 4)
+attr(addtab, "position") <- c(5, 6)
 
 est_kdiffmod %>%
   modelsummary(
@@ -186,11 +183,11 @@ est_kdiffmod %>%
     ),
     coef_map = c(
       "fit_price_ln_d1" = "Difference of logged first price",
-      # "linc_ln_d1" = "Difference of logged income",
+      "linc_ln_d1" = "Difference of logged income",
       "fit_price_ln_d2" = "Difference of logged first price",
-      # "linc_ln_d2" = "Difference of logged income",
-      "fit_price_ln_d3" = "Difference of logged first price"#,
-      # "linc_ln_d3" = "Difference of logged income"
+      "linc_ln_d2" = "Difference of logged income",
+      "fit_price_ln_d3" = "Difference of logged first price",
+      "linc_ln_d3" = "Difference of logged income"
     ),
     gof_omit = "^(?!FE|N|Std.Errors)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
@@ -214,6 +211,25 @@ est_kdiffmod %>%
   )
 
 #'
+#' \noindent
+#' *Use those who applied for tax relief*.
+#' 弾力性を推定した過去の研究は寄付控除を申告した人に限定したデータを用いている。
+#' こうした研究の結果と比較するために、我々も寄付控除を申告した人に限定した分析を行った。
+#' 寄付控除を申告している人は必ず寄付をしているので、
+#' 我々はintensive-margin price elasticityのみを推定できる。
+#' 推定結果を補論\@ref(addtab)の表\@ref(tab:R1Elasticity)に示した。
+#' その結果、first-unit priceを用いたとき、
+#' intensive-margin price elasticityは約-1.2となった。
+#' また、last-unit priceを用いたとき、
+#' 価格弾力性は約-1.3となった[^others]。
+#' これは控除を申請していない人を含めた分析（表\@ref(tab:MainIntensive)）の
+#' 弾力性と非常に近い値となっている。
+#'
+#' [^others]: 価格のダイナミックな効果を捉えるために、
+#' 寄付価格と所得のリード変数とラグ変数を加えると、価格弾力性は統計的に非有意となった。
+#' また、我々は所得に対する寄付価格の内生性を考慮した$k$-th difference modelも推定し、
+#' その結果を補論\@ref(addtab)の表\@ref(tab:KdiffElasticity)に示した。
+#' このモデルの推定結果はintensive-margin price elasticityの絶対値は最大でも5となった。
 #'
 # /*
 #+

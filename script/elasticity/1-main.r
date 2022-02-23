@@ -52,6 +52,7 @@ estdf <- readr::read_csv("data/shaped2_propensity.csv", guess_max = 30000)
 
 
 #'
+#' ## Main Results
 #'
 #+ MainIntensive
 fixest::setFixest_fml(
@@ -102,13 +103,13 @@ stage1_intmod <- est_intmod[4:6] %>%
 addtab <- stage1_intmod %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~ "(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
+    "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- 5:6
+attr(addtab, "position") <- 7:8
 
 est_intmod %>%
   modelsummary(
@@ -121,14 +122,14 @@ est_intmod %>%
       "psc_pool:price_ln" =
         "PS of applying tax relief x log(first price)",
       "psc_sep:price_ln" =
-        "PS of applying tax relief x log(first price)"#,
-      # "linc_ln" = "log(income)"
+        "PS of applying tax relief x log(first price)",
+      "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 7) %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " ", "FE" = 3, "FE-2SLS" = 3
   )) %>%
@@ -144,7 +145,25 @@ est_intmod %>%
   )
 
 #'
-#' ## 結果: Extensive-Margin Tax-Price Elasticity
+#' 表\@ref(tab:MainIntensive)は寄付者に限定した
+#' 寄付の価格弾力性（intensive-margin price elasticity）の推定結果である。
+#' モデル(1)は標準的なtwo-way fixed effect modelであり、
+#' 操作変数による寄付控除の自己選択を制御していない。
+#' このモデルはintensive-margin price elasticityが-0.748であることを示している。
+#' 言い換えれば、税インセンティブによる寄付価格が1%上昇することによって、
+#' 寄付者に限定した寄付額が約0.75\%減少する。
+#' モデル(2)-(6)は操作変数法による寄付控除の自己選択を制御したときの
+#' intensive-margin price elasticityを示している。
+#' その結果、推定方法に関わらず、intensive-margin price elasticityは約-1.5になった。
+#' 言い換えれば、寄付控除の自己選択を制御したとき、
+#' 1%の寄付価格の上昇によって、寄付者に限定した寄付額が1.5\%減少する。
+#' したがって、操作変数法による寄付控除の自己選択を制御したとき、
+#' intensive-margin price elasticityはより弾力的に推定された[^fstage1]。
+#'
+#' [^fstage1]: モデル(4)-(6)に示した個人固定効果と時間固定効果を含めた二段階最小二乗法（FE-2SLS）を用いて、
+#' 我々は操作変数の弱相関の程度を確認できる。その結果、操作変数の種類に関わらず、F値は450以上ある。
+#' したがって、操作変数法によってintensive-margin price elasticityがより弾力的になった結果は
+#' 操作変数の弱相関によるものではない。
 #'
 #+ MainExtensive
 extmod <- list(
@@ -217,13 +236,13 @@ addtab <- impelast_extmod %>%
   bind_rows(stage1_extmod) %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
+    "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- 5:8
+attr(addtab, "position") <- 7:10
 
 est_extmod %>%
   modelsummary(
@@ -236,14 +255,14 @@ est_extmod %>%
       "psc_pool:price_ln" =
         "PS of applying tax relief x log(first price)",
       "psc_sep:price_ln" =
-        "PS of applying tax relief x log(first price)"#,
-      # "linc_ln" = "log(income)"
+        "PS of applying tax relief x log(first price)",
+      "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 7) %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -260,7 +279,31 @@ est_extmod %>%
   )
 
 #'
-#+ WoAnnoucementIntensive, include = FALSE
+#' 表\@ref(tab:MainExtensive)は寄付行動の有無の価格弾力性
+#' （extensive-margin price elasticity）を示している。
+#' モデル(1)は標準的なtwo-way fixed effect modelである。
+#' このモデルの寄付価格の係数は-2.8である。
+#' しかしながら、先述の通り、
+#' 線型確率モデルなので、この係数を直接弾力性として解釈できない。
+#' 弾力性を得るために、この係数を寄付者の比率で割る必要がある。
+#' その結果、操作変数による寄付控除の自己選択を制御しない場合、
+#' extensive-margin price elasticityは約-10.8となった。
+#' 言い換えれば、1%の価格上昇が寄付する確率を約10%減少させる。
+#'
+#' 表\@ref(tab:MainIntensive)と同様に、
+#' 表\@ref(tab:MainExtensive)のモデル(2)-(6)は操作変数法によって寄付控除の自己選択を制御したモデルである。
+#' その結果、推定方法に関わらず、寄付価格の係数は-0.738から-0.452の間に入っている。
+#' これを価格弾力性に変換すると、-1.7から-2.8のレンジで得られた。
+#' 言い換えれば、寄付価格1%の上昇によって、寄付をする確率が約1.7-2.8%減少する。
+#' したがって、操作変数によって寄付控除の自己選択を制御した場合、
+#' extensive-margin price elasticityはより非弾力的に推定された。
+#'
+#' ## Robustness Check
+#'
+#' 結果を解釈する前に、ここまでの推定結果が頑健に観察されることを確認する。
+#' 
+#'
+#+ WoAnnoucementIntensive, eval = FALSE
 rob1_intmod <- intmod %>%
   purrr::map(~ fixest::feols(
     xpd(.),
@@ -296,13 +339,13 @@ stage1_rob1_intmod <- rob1_intmod[4:6] %>%
 addtab <- stage1_intmod %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
+    "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- 5:6
+attr(addtab, "position") <- 7:8
 
 rob1_intmod %>%
   modelsummary(
@@ -318,14 +361,14 @@ rob1_intmod %>%
       "psc_pool:price_ln" =
         "PS of applying tax relief x log(first price)",
       "psc_sep:price_ln" =
-        "PS of applying tax relief x log(first price)"#,
-      # "linc_ln" = "log(income)"
+        "PS of applying tax relief x log(first price)",
+      "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 7) %>%
+  kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -342,7 +385,7 @@ rob1_intmod %>%
   )
 
 #'
-#+ WoAnnouncementExtensive, include = FALSE
+#+ WoAnnouncementExtensive, eval = FALSE
 rob1_extmod <- extmod %>%
   purrr::map(~ fixest::feols(
     xpd(.),
@@ -404,13 +447,13 @@ addtab <- impelast_rob1_extmod %>%
   bind_rows(stage1_rob1_extmod) %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
+    "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- 5:8
+attr(addtab, "position") <- 7:10
 
 rob1_extmod %>%
   modelsummary(
@@ -426,14 +469,14 @@ rob1_extmod %>%
       "psc_pool:price_ln" =
         "PS of applying tax relief x log(first price)",
       "psc_sep:price_ln" =
-        "PS of applying tax relief x log(first price)"#,
-      # "linc_ln" = "log(income)"
+        "PS of applying tax relief x log(first price)",
+      "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 7) %>%
+  kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -450,7 +493,7 @@ rob1_extmod %>%
   )
 
 #'
-#+ LastIntensive, include = FALSE
+#+ LastIntensive, eval = FALSE
 lastintmod <- list(
   "(1)" = donate_ln ~ d_relief_donate:lprice_ln + ..stage2,
   "(2)" = donate_ln ~ psc_pool:lprice_ln + ..stage2,
@@ -495,13 +538,13 @@ stage1_lastintmod <- est_lastintmod[4:6] %>%
 addtab <- stage1_lastintmod %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
+    "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- 5:6
+attr(addtab, "position") <- 7:8
 
 est_lastintmod %>%
   modelsummary(
@@ -514,14 +557,14 @@ est_lastintmod %>%
       "psc_pool:lprice_ln" =
         "PS of applying tax relief x log(last price)",
       "psc_sep:lprice_ln" =
-        "PS of applying tax relief x log(last price)"#,
-      # "linc_ln" = "log(income)"
+        "PS of applying tax relief x log(last price)",
+      "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 7) %>%
+  kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -538,7 +581,7 @@ est_lastintmod %>%
   )
 
 #'
-#+ LastExtensive, include = FALSE
+#+ LastExtensive, eval = FALSE
 lastextmod <- list(
   "(1)" = d_donate ~ d_relief_donate:lprice_ln + ..stage2,
   "(2)" = d_donate ~ psc_pool:lprice_ln + ..stage2,
@@ -609,13 +652,13 @@ addtab <- impelast_lastextmod %>%
   bind_rows(stage1_lastextmod) %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
+    "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- 5:8
+attr(addtab, "position") <- 7:10
 
 est_lastextmod %>%
   modelsummary(
@@ -628,14 +671,14 @@ est_lastextmod %>%
       "psc_pool:lprice_ln" =
         "PS of applying tax relief x log(last price)",
       "psc_sep:lprice_ln" =
-        "PS of applying tax relief x log(last price)"#,
-      # "linc_ln" = "log(income)"
+        "PS of applying tax relief x log(last price)",
+      "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 7) %>%
+  kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -652,25 +695,38 @@ est_lastextmod %>%
   )
 
 #'
-#' ## ロバストネスチェック
+#' \noindent
+#' *Exclude Annoucement Effect*.
+#' 第\@ref(nastab)節の図\@ref(fig:SummaryGivingOverall)で示したように、
+#' 2014年の税制改革による税インセンティブの変化に関わらず、寄付額が減少している。
+#' この一つの可能性として、税制改革が事前告知されたことによる異時点間の代替性が生じているかもしれない。
+#' これを排除して弾力性を推定するために、
+#' 我々は事前のアナウンスメントによる異時点間の代替性が2013年と2014年のみで生じていることを仮定して、
+#' 2013年と2014年のデータを除いて弾力性を推定した。
+#' 推定結果を補論\@ref(addtab)の
+#' 表\@ref(tab:WoAnnoucementIntensive)と\@ref(tab:WoAnnouncementExtensive)に示した。
+#' その結果、推定値は大きく変化しなかった。
+#' また、操作変数による寄付控除の自己選択の制御によって、
+#' intensive-margin price elasticityがより弾力的に推定されるとともに、
+#' extensive-margin price elasticityが非弾力的に推定されることも観察された。
 #'
-#' 1. 2013-2014年データを除外 (Table \@ref(tab:WoAnnoucementIntensive) and \@ref(tab:WoAnnouncementExtensive))
-#'     - 税制改革のアナウンスメント効果を排除
-#' 1. First-unit priceではなく、Last-unit priceで弾力性を推定 (Table \@ref(tab:LastIntensive) and \@ref(tab:LastExtensive))
-#' 1. 給与所得者ダミーと寄付価格の交差項ではなく、first-unit priceを操作変数にする (Table \@ref(tab:MainElasticity)-\@ref(tab:WoAnnoucementElasticity))
-#' 1. 寄付申告者に限定し、所得控除制度による内生性（e.g. 所得の変動）を考慮した分析を実施 (Table \@ref(tab:R1Elasticity) and \@ref(tab:KdiffElasticity))
-#'     - 階差モデルやリードラグ変数の使用 [@Randolph1995; @Saez2002; @Scharf2020]
-#'
-#' ほとんどの分析で、intensive-margin tax-price elasticityは-1.5から-2の間に入り、
-#' extensive-margin tax-price elasticityは-1.7から-5の間に入る
-#'
-#' ## 韓国での寄付の価格弾力性は先行研究より弾力的
-#'
-#' - 申告の自己選択を無視すると、Intensive-margin tax-price elasticityは過小推定
-#'   - 寄付者の寄付額を決める観察できない要素と申告が正の相関をしている
-#'   - そのような要素を寄付額を高めるならば、節税による便益が高くなるので、申告しやすくなる
-#' - 申告の自己選択を無視すると、Extensive-margin tax-price elasticityは過大推定
-#'   - 寄付価格が申告と寄付するかどうかの意思決定の両方に同じ方向の影響を与え、負の相関をより強くした可能性がある
+#' \noindent
+#' *Last-unit price elasticity*.
+#' First-unit priceは寄付していないときに直面する寄付価格である。
+#' 意思決定者が直面する価格はfirst-unit priceではなく、last-unit priceである。
+#' Last-unit priceは意思決定者の寄付額を用いて計算した寄付価格である。
+#' Last-unit priceを用いて、
+#' 我々は価格弾力性の推定し、その結果を補論\@ref(addtab)の
+#' 表\@ref(tab:LastIntensive)と\@ref(tab:LastExtensive)に示した。
+#' Last-unit priceは寄付額に対して内生的であるので、
+#' 我々は表\@ref(tab:MainIntensive)と同じ操作変数法でこれに対応した。
+#' その結果、first-unit priceを用いた価格弾力性と比べて、
+#' intensive-margin price elasticityと
+#' extensive-margin price elasticityはより弾力的に推定された。
+#' とくに、extensive-margin price elasticityは2倍近く弾力的になった。
+#' また、操作変数による寄付控除の自己選択の制御によって、
+#' intensive-margin price elasticityがより弾力的に推定されるとともに、
+#' extensive-margin price elasticityが非弾力的に推定されることも観察された。
 #'
 # /*
 #+

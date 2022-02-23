@@ -121,7 +121,7 @@
   \and
   }
 
-\date{2022/02/17}
+\date{2022/02/24}
 
 
 \begin{document}
@@ -181,7 +181,7 @@ National Survey of Tax and Benefit (NaSTaB)を用いる。
 
 \begin{figure}[t]
 
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPrice-1} 
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryPrice-1} 
 
 }
 
@@ -212,7 +212,7 @@ Korean National Tax Serviceが発行しているNational Tax Statistical Yearboo
 
 \begin{figure}[t]
 
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGiving-1} 
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGiving-1} 
 
 }
 
@@ -230,7 +230,7 @@ Korean National Tax Serviceが発行しているNational Tax Statistical Yearboo
 
 \begin{figure}[t]
 
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingOverall-1} 
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingOverall-1} 
 
 }
 
@@ -276,7 +276,7 @@ Korean National Tax Serviceが発行しているNational Tax Statistical Yearboo
 
 \begin{figure}[t]
 
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryReliefbyEarner-1} 
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryReliefbyEarner-1} 
 
 }
 
@@ -383,7 +383,11 @@ first-unit priceは寄付額をゼロとして寄付価格を計算する\footno
 これは寄付控除の申告行動において、申告コストは大きな障害となっている可能性が高いことを示唆している。
 
 本研究はレコードキーピングの制度が給与所得者と自営業者で異なることを利用して、
-給与所得者ダミー（\(WE_{it}\)）をレコードキーピングのコストの代理変数として操作変数に用いる{[}\^{}exclusion{]}。
+給与所得者ダミー（\(WE_{it}\)）をレコードキーピングのコストの代理変数として操作変数に用いる\footnote{給与所得者ダミーを操作変数として用いるためには、
+  共変量で条件づけたとき、この変数が\(u_{it}\)と\(\eta_{it}\)と独立していることを仮定する必要がある。
+  ただし、給与所得者ダミーと固定効果の相関は許容できる。
+  我々は、所得や業種をコントロールすれば、
+  給与所得者であるかどうかは寄付行動に直接的な影響を持たないと考えている。}。
 自営業者は寄付控除を申請するまで寄付の領収書（証明書）を保持しておく必要がある一方で、
 給与所得者は会社を通じてその証明書をいつでも提出できるので、
 給与所得者は自営業者よりも申告コストが低いことが予想される。
@@ -432,11 +436,14 @@ Wooldridge (2010) に従い、
 \hypertarget{result}{%
 \section{Estimation Results}\label{result}}
 
+\hypertarget{main-results}{%
+\subsection{Main Results}\label{main-results}}
+
 \begin{table}
 
 \caption{\label{tab:MainIntensive}Intensive-Margin Tax-Price Elasticity}
 \centering
-\fontsize{7}{9}\selectfont
+\fontsize{8}{10}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lcccccc}
 \toprule
@@ -448,10 +455,17 @@ Applying tax relief x log(first price) & \num{-0.748}*** &  &  & \num{-1.400}***
  & (\num{0.225}) &  &  & (\num{0.411}) & (\num{0.363}) & (\num{0.375})\\
 PS of applying tax relief x log(first price) &  & \num{-1.544}*** & \num{-1.515}*** &  &  & \\
  &  & (\num{0.388}) & (\num{0.367}) &  &  & \\
+log(income) & \num{1.408} & \num{0.833} & \num{0.824} & \num{0.937} & \num{0.909} & \num{0.830}\\
+ & (\num{1.113}) & (\num{1.121}) & (\num{1.121}) & (\num{1.119}) & (\num{1.098}) & (\num{1.094})\\
 \midrule
 First-stage: Instrument &  &  &  & 0.638 & 1.075 & 0.984\\
- &  &  &  & {}[468.1] & {}[534.6] & {}[662.2]\\
+ &  &  &  & [468.1] & [534.6] & [662.2]\\
 Num.Obs. & \num{7004} & \num{6975} & \num{6975} & \num{6975} & \num{6975} & \num{6975}\\
+FE: year & X & X & X & X & X & X\\
+FE: pid & X & X & X & X & X & X\\
+FE: indust & X & X & X & X & X & X\\
+FE: area & X & X & X & X & X & X\\
+Square of age & X & X & X & X & X & X\\
 Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
@@ -463,14 +477,29 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \end{threeparttable}
 \end{table}
 
-\hypertarget{ux7d50ux679c-extensive-margin-tax-price-elasticity}{%
-\subsection{結果: Extensive-Margin Tax-Price Elasticity}\label{ux7d50ux679c-extensive-margin-tax-price-elasticity}}
+表\ref{tab:MainIntensive}は寄付者に限定した
+寄付の価格弾力性（intensive-margin price elasticity）の推定結果である。
+モデル(1)は標準的なtwo-way fixed effect modelであり、
+操作変数による寄付控除の自己選択を制御していない。
+このモデルはintensive-margin price elasticityが-0.748であることを示している。
+言い換えれば、税インセンティブによる寄付価格が1\%上昇することによって、
+寄付者に限定した寄付額が約0.75\%減少する。
+モデル(2)-(6)は操作変数法による寄付控除の自己選択を制御したときの
+intensive-margin price elasticityを示している。
+その結果、推定方法に関わらず、intensive-margin price elasticityは約-1.5になった。
+言い換えれば、寄付控除の自己選択を制御したとき、
+1\%の寄付価格の上昇によって、寄付者に限定した寄付額が1.5\%減少する。
+したがって、操作変数法による寄付控除の自己選択を制御したとき、
+intensive-margin price elasticityはより弾力的に推定された\footnote{モデル(4)-(6)に示した個人固定効果と時間固定効果を含めた二段階最小二乗法（FE-2SLS）を用いて、
+  我々は操作変数の弱相関の程度を確認できる。その結果、操作変数の種類に関わらず、F値は450以上ある。
+  したがって、操作変数法によってintensive-margin price elasticityがより弾力的になった結果は
+  操作変数の弱相関によるものではない。}。
 
 \begin{table}
 
 \caption{\label{tab:MainExtensive}Extensive-Margin Tax-Price Elasticity}
 \centering
-\fontsize{7}{9}\selectfont
+\fontsize{8}{10}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lcccccc}
 \toprule
@@ -482,12 +511,19 @@ Applying tax relief x log(first price) & \num{-2.800}*** &  &  & \num{-0.464}***
  & (\num{0.074}) &  &  & (\num{0.176}) & (\num{0.120}) & (\num{0.116})\\
 PS of applying tax relief x log(first price) &  & \num{-0.452}*** & \num{-0.566}*** &  &  & \\
  &  & (\num{0.107}) & (\num{0.101}) &  &  & \\
+log(income) & \num{0.975}*** & \num{1.950}*** & \num{1.844}*** & \num{2.121}*** & \num{2.072}*** & \num{1.986}***\\
+ & (\num{0.233}) & (\num{0.279}) & (\num{0.278}) & (\num{0.279}) & (\num{0.261}) & (\num{0.256})\\
 \midrule
 Implied price elasticity & -10.799*** & -1.741*** & -2.181*** & -1.788*** & -2.169*** & -2.841***\\
  & (0.287) & (0.411) & (0.388) & (0.678) & (0.463) & (0.448)\\
 First-stage: Instrument &  &  &  & 0.289 & 0.803 & 0.768\\
- &  &  &  & {}[276.6] & {}[311.7] & {}[361.9]\\
+ &  &  &  & [276.6] & [311.7] & [361.9]\\
 Num.Obs. & \num{27017} & \num{26863} & \num{26863} & \num{26863} & \num{26863} & \num{26863}\\
+FE: year & X & X & X & X & X & X\\
+FE: pid & X & X & X & X & X & X\\
+FE: indust & X & X & X & X & X & X\\
+FE: area & X & X & X & X & X & X\\
+Square of age & X & X & X & X & X & X\\
 Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
@@ -499,70 +535,291 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \end{threeparttable}
 \end{table}
 
-\hypertarget{ux30edux30d0ux30b9ux30c8ux30cdux30b9ux30c1ux30a7ux30c3ux30af}{%
-\subsection{ロバストネスチェック}\label{ux30edux30d0ux30b9ux30c8ux30cdux30b9ux30c1ux30a7ux30c3ux30af}}
+表\ref{tab:MainExtensive}は寄付行動の有無の価格弾力性
+（extensive-margin price elasticity）を示している。
+モデル(1)は標準的なtwo-way fixed effect modelである。
+このモデルの寄付価格の係数は-2.8である。
+しかしながら、先述の通り、
+線型確率モデルなので、この係数を直接弾力性として解釈できない。
+弾力性を得るために、この係数を寄付者の比率で割る必要がある。
+その結果、操作変数による寄付控除の自己選択を制御しない場合、
+extensive-margin price elasticityは約-10.8となった。
+言い換えれば、1\%の価格上昇が寄付する確率を約10\%減少させる。
 
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  2013-2014年データを除外 (Table \ref{tab:WoAnnoucementIntensive} and \ref{tab:WoAnnouncementExtensive})
+表\ref{tab:MainIntensive}と同様に、
+表\ref{tab:MainExtensive}のモデル(2)-(6)は操作変数法によって寄付控除の自己選択を制御したモデルである。
+その結果、推定方法に関わらず、寄付価格の係数は-0.738から-0.452の間に入っている。
+これを価格弾力性に変換すると、-1.7から-2.8のレンジで得られた。
+言い換えれば、寄付価格1\%の上昇によって、寄付をする確率が約1.7-2.8\%減少する。
+したがって、操作変数によって寄付控除の自己選択を制御した場合、
+extensive-margin price elasticityはより非弾力的に推定された。
 
-  \begin{itemize}
-  \tightlist
-  \item
-    税制改革のアナウンスメント効果を排除
-  \end{itemize}
-\item
-  First-unit priceではなく、Last-unit priceで弾力性を推定 (Table \ref{tab:LastIntensive} and \ref{tab:LastExtensive})
-\item
-  給与所得者ダミーと寄付価格の交差項ではなく、first-unit priceを操作変数にする (Table \ref{tab:MainElasticity}-\ref{tab:WoAnnoucementElasticity})
-\item
-  寄付申告者に限定し、所得控除制度による内生性（e.g.~所得の変動）を考慮した分析を実施 (Table \ref{tab:R1Elasticity} and \ref{tab:KdiffElasticity})
+\hypertarget{robustness-check}{%
+\subsection{Robustness Check}\label{robustness-check}}
 
-  \begin{itemize}
-  \tightlist
-  \item
-    階差モデルやリードラグ変数の使用 (Almunia et al., 2020; \textbf{Randolph1995?}; \textbf{Saez2002?})
-  \end{itemize}
-\end{enumerate}
+結果を解釈する前に、ここまでの推定結果が頑健に観察されることを確認する。
 
-ほとんどの分析で、intensive-margin tax-price elasticityは-1.5から-2の間に入り、
-extensive-margin tax-price elasticityは-1.7から-5の間に入る
+\noindent
+\emph{Exclude Annoucement Effect}.
+第\ref{nastab}節の図\ref{fig:SummaryGivingOverall}で示したように、
+2014年の税制改革による税インセンティブの変化に関わらず、寄付額が減少している。
+この一つの可能性として、税制改革が事前告知されたことによる異時点間の代替性が生じているかもしれない。
+これを排除して弾力性を推定するために、
+我々は事前のアナウンスメントによる異時点間の代替性が2013年と2014年のみで生じていることを仮定して、
+2013年と2014年のデータを除いて弾力性を推定した。
+推定結果を補論\ref{addtab}の
+表\ref{tab:WoAnnoucementIntensive}と\ref{tab:WoAnnouncementExtensive}に示した。
+その結果、推定値は大きく変化しなかった。
+また、操作変数による寄付控除の自己選択の制御によって、
+intensive-margin price elasticityがより弾力的に推定されるとともに、
+extensive-margin price elasticityが非弾力的に推定されることも観察された。
 
-\hypertarget{ux97d3ux56fdux3067ux306eux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027ux306fux5148ux884cux7814ux7a76ux3088ux308aux5f3eux529bux7684}{%
-\subsection{韓国での寄付の価格弾力性は先行研究より弾力的}\label{ux97d3ux56fdux3067ux306eux5bc4ux4ed8ux306eux4fa1ux683cux5f3eux529bux6027ux306fux5148ux884cux7814ux7a76ux3088ux308aux5f3eux529bux7684}}
+\noindent
+\emph{Last-unit price elasticity}.
+First-unit priceは寄付していないときに直面する寄付価格である。
+意思決定者が直面する価格はfirst-unit priceではなく、last-unit priceである。
+Last-unit priceは意思決定者の寄付額を用いて計算した寄付価格である。
+Last-unit priceを用いて、
+我々は価格弾力性の推定し、その結果を補論\ref{addtab}の
+表\ref{tab:LastIntensive}と\ref{tab:LastExtensive}に示した。
+Last-unit priceは寄付額に対して内生的であるので、
+我々は表\ref{tab:MainIntensive}と同じ操作変数法でこれに対応した。
+その結果、first-unit priceを用いた価格弾力性と比べて、
+intensive-margin price elasticityと
+extensive-margin price elasticityはより弾力的に推定された。
+とくに、extensive-margin price elasticityは2倍近く弾力的になった。
+また、操作変数による寄付控除の自己選択の制御によって、
+intensive-margin price elasticityがより弾力的に推定されるとともに、
+extensive-margin price elasticityが非弾力的に推定されることも観察された。
 
-\begin{itemize}
-\tightlist
-\item
-  申告の自己選択を無視すると、Intensive-margin tax-price elasticityは過小推定
+\noindent
+\emph{Conventional Estimation Strategy.}
+これまでの弾力性を推定した研究がLast-unit priceを用いた弾力性を推定するとき、
+単にfirst-unit priceを操作変数として用いている。
+過去の研究結果との比較をするために、
+我々もこの方法にしたがってLast-unit priceを用いた弾力性を推定した。
+推定結果を補論\ref{addtab}の表\ref{tab:MainElasticity}に示した。
+その結果、Intensive-margin price elasticityは-1.9と推定されたのに対し、
+extensive-margin price elasticityは-6.2と推定された\footnote{2014年の税制改革のアナウンスメント効果を排除するために、
+  2013年と2014年のデータを除いた分析もした。
+  推定結果は補論\ref{addtab}の表\ref{tab:WoAnnoucementElasticity}に示した。
+  その結果、どちらの価格弾力性もより弾力的に推定された。
+  この傾向はこれまでの結果と整合的である。}。
+これは我々の方法で推定した結果
+（補論\ref{addtab}の表\ref{tab:LastIntensive}と\ref{tab:LastExtensive}）
+よりも弾力的になった。
 
-  \begin{itemize}
-  \tightlist
-  \item
-    寄付者の寄付額を決める観察できない要素と申告が正の相関をしている
-  \item
-    そのような要素を寄付額を高めるならば、節税による便益が高くなるので、申告しやすくなる
-  \end{itemize}
-\item
-  申告の自己選択を無視すると、Extensive-margin tax-price elasticityは過大推定
+\noindent
+\emph{Use those who applied for tax relief}.
+弾力性を推定した過去の研究は寄付控除を申告した人に限定したデータを用いている。
+こうした研究の結果と比較するために、我々も寄付控除を申告した人に限定した分析を行った。
+寄付控除を申告している人は必ず寄付をしているので、
+我々はintensive-margin price elasticityのみを推定できる。
+推定結果を補論\ref{addtab}の表\ref{tab:R1Elasticity}に示した。
+その結果、first-unit priceを用いたとき、
+intensive-margin price elasticityは約-1.2となった。
+また、last-unit priceを用いたとき、
+価格弾力性は約-1.3となった\footnote{価格のダイナミックな効果を捉えるために、
+  寄付価格と所得のリード変数とラグ変数を加えると、価格弾力性は統計的に非有意となった。
+  また、我々は所得に対する寄付価格の内生性を考慮した\(k\)-th difference modelも推定し、
+  その結果を補論\ref{addtab}の表\ref{tab:KdiffElasticity}に示した。
+  このモデルの推定結果はintensive-margin price elasticityの絶対値は最大でも5となった。}。
+これは控除を申請していない人を含めた分析（表\ref{tab:MainIntensive}）の
+弾力性と非常に近い値となっている。
 
-  \begin{itemize}
-  \tightlist
-  \item
-    寄付価格が申告と寄付するかどうかの意思決定の両方に同じ方向の影響を与え、負の相関をより強くした可能性がある
-  \end{itemize}
-\end{itemize}
+\hypertarget{interpretation-of-our-estimates}{%
+\subsection{Interpretation of Our Estimates}\label{interpretation-of-our-estimates}}
 
-\hypertarget{conventional-method-to-estimate-tax-price-elasticity}{%
-\subsection{Conventional Method to Estimate Tax-Price Elasticity}\label{conventional-method-to-estimate-tax-price-elasticity}}
+\newpage
+
+\hypertarget{appendix-appendix}{%
+\appendix}
+
+
+\hypertarget{addtab}{%
+\section{Additional Tables and Figures}\label{addtab}}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingIntensive-1} 
+
+}
+
+\caption{Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingIntensive}
+\end{figure}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingExtensive-1} 
+
+}
+
+\caption{Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingExtensive}
+\end{figure}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingIntensiveDist-1} 
+
+}
+
+\caption{Estimated Distribution of Charitable Giving among Donors in Each Year}\label{fig:SummaryGivingIntensiveDist}
+\end{figure}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{C:/Users/katoo/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryReliefbyEarner2-1} 
+
+}
+
+\caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
+\end{figure}
+
+\begin{table}[!h]
+
+\caption{\label{tab:WoAnnoucementIntensive}Intensive-Margin Tax-Price Elasticity Excluding 2013 and 2014 data}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE} & \multicolumn{3}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+Applying tax relief x log(first price) & \num{-0.765}** &  &  & \num{-1.560}** & \num{-1.505}*** & \num{-1.548}***\\
+ & (\num{0.351}) &  &  & (\num{0.609}) & (\num{0.479}) & (\num{0.490})\\
+PS of applying tax relief x log(first price) &  & \num{-1.783}*** & \num{-1.715}*** &  &  & \\
+ &  & (\num{0.569}) & (\num{0.542}) &  &  & \\
+log(income) & \num{0.041} & \num{-0.990} & \num{-0.955} & \num{-0.567} & \num{-0.541} & \num{-0.561}\\
+ & (\num{1.460}) & (\num{1.477}) & (\num{1.467}) & (\num{1.440}) & (\num{1.427}) & (\num{1.418})\\
+\midrule
+First-stage: Instrument &  &  &  & 0.638 & 1.075 & 0.984\\
+ &  &  &  & [468.1] & [534.6] & [662.2]\\
+Num.Obs. & \num{4863} & \num{4844} & \num{4844} & \num{4844} & \num{4844} & \num{4844}\\
+Square of age & X & X & X & X & X & X\\
+Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
+Method of PS &  & Pool & Separate &  & Pool & Separate\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[!h]
+
+\caption{\label{tab:WoAnnouncementExtensive}Extensive-Margin Tax-Price Elasticity Excluding 2013 and 2014 data}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE} & \multicolumn{3}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+Applying tax relief x log(first price) & \num{-2.970}*** &  &  & \num{-0.247} & \num{-0.607}*** & \num{-0.744}***\\
+ & (\num{0.093}) &  &  & (\num{0.261}) & (\num{0.166}) & (\num{0.161})\\
+PS of applying tax relief x log(first price) &  & \num{-0.503}*** & \num{-0.594}*** &  &  & \\
+ &  & (\num{0.155}) & (\num{0.148}) &  &  & \\
+log(income) & \num{1.134}*** & \num{1.919}*** & \num{1.837}*** & \num{2.260}*** & \num{2.110}*** & \num{2.054}***\\
+ & (\num{0.278}) & (\num{0.328}) & (\num{0.327}) & (\num{0.320}) & (\num{0.293}) & (\num{0.290})\\
+\midrule
+Implied price elasticity & -11.121*** & -1.879*** & -2.221*** & -0.924 & -2.271*** & -2.782***\\
+ & (0.347) & (0.580) & (0.553) & (0.974) & (0.622) & (0.604)\\
+First-stage: Instrument &  &  &  & 0.276 & 0.828 & 0.798\\
+ &  &  &  & [156.2] & [181.1] & [202.3]\\
+Num.Obs. & \num{18207} & \num{18112} & \num{18112} & \num{18112} & \num{18112} & \num{18112}\\
+Square of age & X & X & X & X & X & X\\
+Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
+Method of PS &  & Pool & Separate &  & Pool & Separate\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[!h]
+
+\caption{\label{tab:LastIntensive}Intensive-Margin Tax-Price Elasticity (Last-Unit Price)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE} & \multicolumn{3}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+Applying tax relief x log(last price) & \num{-0.516}** &  &  & \num{-1.603}*** & \num{-1.745}*** & \num{-1.846}***\\
+ & (\num{0.246}) &  &  & (\num{0.550}) & (\num{0.468}) & (\num{0.481})\\
+PS of applying tax relief x log(last price) &  & \num{-1.342}*** & \num{-1.324}*** &  &  & \\
+ &  & (\num{0.442}) & (\num{0.412}) &  &  & \\
+log(income) & \num{1.584} & \num{0.880} & \num{0.865} & \num{0.755} & \num{0.655} & \num{0.583}\\
+ & (\num{1.190}) & (\num{1.191}) & (\num{1.192}) & (\num{1.185}) & (\num{1.154}) & (\num{1.153})\\
+\midrule
+First-stage: Instrument &  &  &  & 0.527 & 0.929 & 0.840\\
+ &  &  &  & [256.7] & [323.7] & [387.4]\\
+Num.Obs. & \num{6414} & \num{6392} & \num{6392} & \num{6392} & \num{6392} & \num{6392}\\
+Square of age & X & X & X & X & X & X\\
+Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
+Method of PS &  & Pool & Separate &  & Pool & Separate\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[!h]
+
+\caption{\label{tab:LastExtensive}Extensive-Margin Tax-Price Elasticity (Last-Unit Price)}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE} & \multicolumn{3}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+Applying tax relief x log(last price) & \num{-2.928}*** &  &  & \num{-1.070}*** & \num{-1.127}*** & \num{-1.234}***\\
+ & (\num{0.073}) &  &  & (\num{0.175}) & (\num{0.121}) & (\num{0.119})\\
+PS of applying tax relief x log(last price) &  & \num{-0.853}*** & \num{-0.896}*** &  &  & \\
+ &  & (\num{0.112}) & (\num{0.105}) &  &  & \\
+log(income) & \num{1.036}*** & \num{1.680}*** & \num{1.633}*** & \num{1.919}*** & \num{1.891}*** & \num{1.840}***\\
+ & (\num{0.228}) & (\num{0.279}) & (\num{0.278}) & (\num{0.263}) & (\num{0.246}) & (\num{0.244})\\
+\midrule
+Implied price elasticity & -12.063*** & -3.506*** & -3.685*** & -4.399*** & -4.634*** & -5.074***\\
+ & (0.302) & (0.460) & (0.432) & (0.718) & (0.497) & (0.491)\\
+First-stage: Instrument &  &  &  & 0.274 & 0.775 & 0.739\\
+ &  &  &  & [260.9] & [301.1] & [347.9]\\
+Num.Obs. & \num{26427} & \num{26280} & \num{26280} & \num{26280} & \num{26280} & \num{26280}\\
+Square of age & X & X & X & X & X & X\\
+Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
+Method of PS &  & Pool & Separate &  & Pool & Separate\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
 
 \begin{table}
 
 \caption{\label{tab:MainElasticity}Estimation of Last-Unit Price Elasticities}
 \centering
-\fontsize{7}{9}\selectfont
+\fontsize{9}{11}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lcccc}
 \toprule
@@ -574,12 +831,19 @@ extensive-margin tax-price elasticityは-1.7から-5の間に入る
 \midrule
 log(last price) & \num{-0.634}*** & \num{-1.907}*** & \num{-2.945}*** & \num{-1.570}***\\
  & (\num{0.231}) & (\num{0.451}) & (\num{0.071}) & (\num{0.127})\\
+log(income) & \num{1.036} & \num{0.467} & \num{1.035}*** & \num{1.711}***\\
+ & (\num{0.730}) & (\num{0.750}) & (\num{0.212}) & (\num{0.271})\\
 \midrule
 Implied price elasticity &  &  & -11.684*** & -6.227***\\
  &  &  & (0.281) & (0.502)\\
 First-stage: log(first price) &  & 0.726 &  & 0.353\\
- &  & {}[442.4] &  & {}[407.8]\\
+ &  & [442.4] &  & [407.8]\\
 Num.Obs. & \num{7234} & \num{7234} & \num{28696} & \num{28696}\\
+FE: year & X & X & X & X\\
+FE: pid & X & X & X & X\\
+FE: indust & X & X & X & X\\
+FE: area & X & X & X & X\\
+Square of age & X & X & X & X\\
 \bottomrule
 \multicolumn{5}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
@@ -589,14 +853,11 @@ Num.Obs. & \num{7234} & \num{7234} & \num{28696} & \num{28696}\\
 \end{threeparttable}
 \end{table}
 
-\hypertarget{conventional-method-to-estimate-tax-price-elasticity-2}{%
-\subsection{Conventional Method to Estimate Tax-Price Elasticity (2)}\label{conventional-method-to-estimate-tax-price-elasticity-2}}
-
 \begin{table}
 
 \caption{\label{tab:WoAnnoucementElasticity}Estimation of Last-Unit Price Elasticities Excluding 2013 and 2014 data}
 \centering
-\fontsize{7}{9}\selectfont
+\fontsize{9}{11}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lcccc}
 \toprule
@@ -608,12 +869,19 @@ Num.Obs. & \num{7234} & \num{7234} & \num{28696} & \num{28696}\\
 \midrule
 log(last price) & \num{-0.679}** & \num{-2.088}*** & \num{-3.097}*** & \num{-1.560}***\\
  & (\num{0.333}) & (\num{0.600}) & (\num{0.086}) & (\num{0.170})\\
+log(income) & \num{0.724} & \num{0.307} & \num{1.043}*** & \num{1.705}***\\
+ & (\num{0.936}) & (\num{1.018}) & (\num{0.246}) & (\num{0.320})\\
 \midrule
 Implied price elasticity &  &  & -11.574*** & -5.830***\\
  &  &  & (0.320) & (0.634)\\
 First-stage: log(first price) &  & 0.796 &  & 0.363\\
- &  & {}[270.6] &  & {}[244.3]\\
+ &  & [270.6] &  & [244.3]\\
 Num.Obs. & \num{5405} & \num{5405} & \num{20198} & \num{20198}\\
+FE: year & X & X & X & X\\
+FE: pid & X & X & X & X\\
+FE: indust & X & X & X & X\\
+FE: area & X & X & X & X\\
+Square of age & X & X & X & X\\
 \bottomrule
 \multicolumn{5}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
@@ -623,14 +891,11 @@ Num.Obs. & \num{5405} & \num{5405} & \num{20198} & \num{20198}\\
 \end{threeparttable}
 \end{table}
 
-\hypertarget{estimating-price-elasticity-using-compliers}{%
-\subsection{Estimating Price Elasticity Using Compliers}\label{estimating-price-elasticity-using-compliers}}
-
 \begin{table}
 
 \caption{\label{tab:R1Elasticity}Estimating Intensive-Margin Price Elasticities for Those Who Applied for Tax Relief}
 \centering
-\fontsize{5}{7}\selectfont
+\fontsize{8}{10}\selectfont
 \begin{threeparttable}
 \begin{tabular}[t]{lcccc}
 \toprule
@@ -650,8 +915,9 @@ log(income) & \num{0.525} & \num{6.126} & \num{0.532} & \num{6.093}\\
  &  & (\num{0.907}) &  & (\num{0.904})\\
 \midrule
 Instrument: log(first price) &  &  & 0.942 & -0.000\\
- &  &  & {}[3083.6] & {}[0.0]\\
+ &  &  & [3083.6] & [0.0]\\
 Num.Obs. & \num{4079} & \num{1029} & \num{3972} & \num{1024}\\
+Square of age & X & X & X & X\\
 \bottomrule
 \multicolumn{5}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
@@ -660,9 +926,6 @@ Num.Obs. & \num{4079} & \num{1029} & \num{3972} & \num{1024}\\
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
-
-\hypertarget{k-th-difference-model}{%
-\subsection{\texorpdfstring{\(k\)-th Difference Model}{k-th Difference Model}}\label{k-th-difference-model}}
 
 \begin{table}
 
@@ -678,14 +941,17 @@ Num.Obs. & \num{4079} & \num{1029} & \num{3972} & \num{1024}\\
 \midrule
 Difference of logged first price & \num{-1.890}* & \num{-2.530}*** & \num{-4.057}***\\
  & (\num{1.107}) & (\num{0.895}) & (\num{0.720})\\
+Difference of logged income & \num{1.033} & \num{6.460}** & \num{5.659}**\\
+ & (\num{2.323}) & (\num{3.039}) & (\num{2.558})\\
 \midrule
 First-stage: Instrument & 0.995 & 0.991 & 0.984\\
- & {}[34401.5] & {}[31041.1] & {}[17987.3]\\
+ & [34401.5] & [31041.1] & [17987.3]\\
 Num.Obs. & \num{4014} & \num{3903} & \num{3765}\\
-Std.Errors & Clustered (pid) & Clustered (pid) & Clustered (pid)\\
+Std.Errors & by: pid & by: pid & by: pid\\
+FE: year & X & X & X\\
 FE: area & X & X & X\\
 FE: indust & X & X & X\\
-FE: year & X & X & X\\
+Difference of square age & X & X & X\\
 \bottomrule
 \multicolumn{4}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
@@ -694,51 +960,6 @@ FE: year & X & X & X\\
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
-
-\newpage
-
-\hypertarget{appendix-appendix}{%
-\appendix}
-
-
-\hypertarget{addtab}{%
-\section{Additional Tables and Figures}\label{addtab}}
-
-\begin{figure}[H]
-
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingIntensive-1} 
-
-}
-
-\caption{Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingIntensive}
-\end{figure}
-
-\begin{figure}[t]
-
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingExtensive-1} 
-
-}
-
-\caption{Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingExtensive}
-\end{figure}
-
-\begin{figure}[t]
-
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryGivingIntensiveDist-1} 
-
-}
-
-\caption{Estimated Distribution of Charitable Giving among Donors in Each Year}\label{fig:SummaryGivingIntensiveDist}
-\end{figure}
-
-\begin{figure}[t]
-
-{\centering \includegraphics{C:/Users/vge00/Desktop/NASTAB/paper/draft_files/figure-latex/SummaryReliefbyEarner2-1} 
-
-}
-
-\caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
-\end{figure}
 
 \newpage
 
