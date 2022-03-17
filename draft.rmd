@@ -98,7 +98,32 @@ knitr::spin_child("script/elasticity/2-conventional.R")
 knitr::spin_child("script/elasticity/3-subsample_R1.R")
 ```
 
-## Interpretation of Our Estimates
+## Interpretation
+
+サンプルを3つのタイプに分割する。
+
+1. Always declarer：給与所得者かどうかによる申告コストの水準に関わらず、寄付控除を申告する人
+  - 2014年の税制改革によって価格のwitin-variationは存在するが、常に寄付をする
+  - したがって、このグループのextensive-marginの価格弾力性は（絶対値の意味で）0
+1. Start declarer：申告コストの水準が自営業者から給与所得者の水準まで下がることで、寄付控除を申告する人
+1. Never declarer：給与所得者かどうかによる申告コストの水準に関わらず、寄付控除を申告しない人
+  - 常に価格が1であるにも関わらず、寄付額や寄付の意思決定が変化する
+  - intensive-margin・extensive-marginの価格弾力性は無限大に発散する
+
+したがって、3タイプの価格弾力性の大きさは絶対値の意味で以下のような関係になっているのではないだろうか？
+
+- Intensive-margin：Always < Start < Never
+  - ただし、これは後藤さんのロジックである「申告で常に得するような人は多少の価格変動に動じない」を借りている
+- Extensive-margin：Always < Start < Never 
+
+Intensive-marginのFEはAlwaysとStartに過重を置いて推定している（というか、Neverタイプが多くない）。
+Extensive-marginのFEはNeverに過重を置いて推定している。
+しかしながら、FE-2SLSはStartの弾力性を捉えているはずなので、
+
+- Intensive-margin：FE < FE-2SLS
+- Extensive-margin：FE-2SLS < FE
+
+となった。
 
 \newpage
 
