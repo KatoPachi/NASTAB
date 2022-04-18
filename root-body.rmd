@@ -1,0 +1,160 @@
+---
+title: |
+  Draft of Data and Estimation Result
+author: 
+  - name: Hiroki Kato
+    inst: Graduate School of Economics, Osaka University, Japan
+    email: vge008kh\@stundent.econ.osaka-u.ac.jp
+  - name: Tsuyoshi Goto
+    inst: Graduate School of Social Sciences, Chiba University, Japan
+    email: t.goto\@chiba-u.jp
+  - name: Youngrok Kim
+    inst: Graduate School of Economics, Kobe University, Japan
+date: "`r format(Sys.time(), '%Y/%m/%d')`"
+bibliography: Rmd/NaSTaB.bib
+csl: template/csl/elsevier-harvard.csl
+documentclass: article
+papersize: a4
+fontsize: 11pt
+geometry: "left=3cm,right=3cm,top=3cm,bottom=3cm"
+graphics: yes
+indent: yes
+linespace: 1.5
+output:
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    number_sections: yes
+    keep_tex: yes
+    fig_caption: yes
+    toc: false
+    dev: cairo_pdf
+    template: template/tex/plain.tex
+params:
+  preview: no
+  appendix: no
+  slide: no
+---
+
+
+```{r knit_command, eval = FALSE, include = FALSE, echo = FALSE}
+# If you want to knit draft, please run following command manually!!
+library(here)
+rmarkdown::render(
+  here("root-body.Rmd"),
+  output_file = "body.pdf",
+  output_dir = here("docs", "paper")
+)
+```
+
+```{r setup, include = FALSE, echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE,
+  fig.width = 10, fig.height = 6,
+  fig.align = "center", fig.pos = "t"
+)
+
+options(
+  knitr.kable.NA = " ",
+  knitr.table.format = "latex"
+)
+
+doctype <- "draft"
+```
+
+
+# National Survey of Tax and Benefit (NaSTaB) {#nastab}
+
+```{r}
+library(here)
+knitr::spin_child(here("R/1-summary.R"))
+```
+
+# Empirical Strategy {#estimation}
+
+```{r child = "Rmd/2-estimation.rmd"}
+```
+
+# Estimation Results {#result}
+
+```{r}
+library(here)
+knitr::spin_child(here("R/3-main-estimation.R"))
+knitr::spin_child(here("R/4-conventional-estimation.R"))
+knitr::spin_child(here("R/5-subsample-R1.R"))
+```
+
+## Interpretation
+
+サンプルを3つのタイプに分割する。
+
+1. Always declarer：給与所得者かどうかによる申告コストの水準に関わらず、寄付控除を申告する人
+  - 2014年の税制改革によって価格のwitin-variationは存在するが、常に寄付をする
+  - したがって、このグループのextensive-marginの価格弾力性は（絶対値の意味で）0
+1. Start declarer：申告コストの水準が自営業者から給与所得者の水準まで下がることで、寄付控除を申告する人
+1. Never declarer：給与所得者かどうかによる申告コストの水準に関わらず、寄付控除を申告しない人
+  - 常に価格が1であるにも関わらず、寄付額や寄付の意思決定が変化する
+  - intensive-margin・extensive-marginの価格弾力性は無限大に発散する
+
+したがって、3タイプの価格弾力性の大きさは絶対値の意味で以下のような関係になっているのではないだろうか？
+
+- Intensive-margin：Always < Start < Never
+  - ただし、これは後藤さんのロジックである「申告で常に得するような人は多少の価格変動に動じない」を借りている
+- Extensive-margin：Always < Start < Never 
+
+Intensive-marginのFEはAlwaysとStartに過重を置いて推定している（というか、Neverタイプが多くない）。
+Extensive-marginのFEはNeverに過重を置いて推定している。
+しかしながら、FE-2SLSはStartの弾力性を捉えているはずなので、
+
+- Intensive-margin：FE < FE-2SLS
+- Extensive-margin：FE-2SLS < FE
+
+となった。
+
+\newpage
+
+# (APPENDIX) Appendix {-}
+# Additional Tables and Figures {#addtab}
+
+```{r SummaryGivingIntensive, ref.label="SummaryGivingIntensive", fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", fig.pos = "H"}
+```
+
+```{r SummaryGivingExtensive, ref.label="SummaryGivingExtensive", fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", fig.pos = "H"}
+```
+
+```{r SummaryGivingIntensiveDist, ref.label = "SummaryGivingIntensiveDist", fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", fig.pos = "H"}
+```
+
+```{r SummaryReliefbyEarner2, ref.label="SummaryReliefbyEarner2", fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", fig.pos = "H"}
+```
+
+```{r WoAnnoucementIntensive, ref.label="WoAnnoucementIntensive"}
+```
+
+```{r WoAnnouncementExtensive, ref.label="WoAnnouncementExtensive"}
+```
+
+```{r LastIntensive, ref.label="LastIntensive"}
+```
+
+```{r LastExtensive, ref.label="LastExtensive"}
+```
+
+```{r MainElasticity, ref.label="MainElasticity"}
+```
+
+```{r WoAnnoucementElasticity, ref.label="WoAnnoucementElasticity"}
+```
+
+```{r R1Elasticity, ref.label="R1Elasticity"}
+```
+
+```{r KdiffElasticity, ref.label="KdiffElasticity"}
+```
+
+\newpage
+
+# References {-}
