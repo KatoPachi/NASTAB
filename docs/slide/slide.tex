@@ -124,6 +124,7 @@
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 
 
+\usepackage{siunitx}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -458,6 +459,207 @@ Self-employed workers:
 \item
   We exploit the variation of giving price brought from the policy change as a main identification source to estimate the giving price elasticity.
 \end{itemize}
+\end{frame}
+
+\hypertarget{nastab}{%
+\section{Data: National Survey of Tax and Benefit (NaSTaB)}\label{nastab}}
+
+\begin{frame}{About NaSTaB}
+\protect\hypertarget{about-nastab}{}
+\begin{itemize}
+\tightlist
+\item
+  NaSTaB is annual panel data conducted by
+  Korea Institute of Taxation and Finance
+\item
+  The survey will be administered to 5,634 households
+  from across the country
+
+  \begin{itemize}
+  \tightlist
+  \item
+    5,634 heads of household and
+    economically active household members aged 15 and older
+    complete the survey
+  \end{itemize}
+\item
+  Our study uses data from (1) 2013 to 2018 and
+\end{itemize}
+
+\begin{enumerate}
+[(1)]
+\setcounter{enumi}{1}
+\tightlist
+\item
+  excluding respondents under the age of 23
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  This is because we focus on the 2014 tax reform
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Descriptive Statistics}
+\protect\hypertarget{descriptive-statistics}{}
+\begin{table}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{lccc}
+\toprule
+  & N & Mean & Std.Dev.\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Income and giving price}}\\
+\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 36189 & \num{1747.26} & \num{2696.77}\\
+\hspace{1em}First giving relative price & 36198 & \num{0.86} & \num{0.04}\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Charitable giving}}\\
+\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 36199 & \num{35.64} & \num{153.20}\\
+\hspace{1em}Dummary of donation > 0 & 36199 & \num{0.24} & \num{0.42}\\
+\hspace{1em}Dummy of declaration of a tax relief & 36199 & \num{0.10} & \num{0.30}\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Individual Characteristics}}\\
+\hspace{1em}Age & 36199 & \num{53.45} & \num{16.22}\\
+\hspace{1em}Female dummy & 36199 & \num{0.43} & \num{0.50}\\
+\hspace{1em}University graduate & 36198 & \num{0.42} & \num{0.49}\\
+\hspace{1em}High school graduate dummy & 36198 & \num{0.31} & \num{0.46}\\
+\hspace{1em}Junior high school graduate dummy & 36198 & \num{0.27} & \num{0.44}\\
+\hspace{1em}Wage earner dummy & 27394 & \num{0.56} & \num{0.50}\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Income Distribution and Giving Price}
+\protect\hypertarget{income-distribution-and-giving-price}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryPrice-1} 
+
+}
+
+\caption{Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.}\label{fig:SummaryPrice}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Identification of Price Elasticity}
+\protect\hypertarget{identification-of-price-elasticity}{}
+We can create three income groups based on
+a change of tax incentive due to 2014 tax reform.
+
+\begin{enumerate}
+\tightlist
+\item
+  \(<\) 120 million KRW
+
+  \begin{itemize}
+  \tightlist
+  \item
+    expand tax incentive (reduce giving price)
+  \end{itemize}
+\item
+  \([\text{120 million KRW}, \text{460 million KRW}]\)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    tax incentive did not change
+  \end{itemize}
+\item
+  \(>\) 460 million KRW
+
+  \begin{itemize}
+  \tightlist
+  \item
+    shrink tax incentive (increase giving price)
+  \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Summary of Giving Behavior}
+\protect\hypertarget{summary-of-giving-behavior}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGiving-1} 
+
+}
+
+\caption{Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.}\label{fig:SummaryGiving}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Summary of Giving Amount by Three Income Groups}
+\protect\hypertarget{summary-of-giving-amount-by-three-income-groups}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGivingOverall-1} 
+
+}
+
+\caption{Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingOverall}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Summary of Giving Amount by Three Income Groups (Conditional on Donors)}
+\protect\hypertarget{summary-of-giving-amount-by-three-income-groups-conditional-on-donors}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGivingIntensive-1} 
+
+}
+
+\caption{Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingIntensive}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Summary of Proportion of Donors by Three Income Groups}
+\protect\hypertarget{summary-of-proportion-of-donors-by-three-income-groups}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGivingExtensive-1} 
+
+}
+
+\caption{Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.}\label{fig:SummaryGivingExtensive}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Distribution of Giving Amount by Application of Tax Relief}
+\protect\hypertarget{distribution-of-giving-amount-by-application-of-tax-relief}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGivingIntensiveDist-1} 
+
+}
+
+\caption{Estimated Distribution of Charitable Giving among Donors in Each Year}\label{fig:SummaryGivingIntensiveDist}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Compliance Rate by Wage Earners or Not}
+\protect\hypertarget{compliance-rate-by-wage-earners-or-not}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryReliefbyEarner-1} 
+
+}
+
+\caption{Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Compliance Rate by Wage Earners or Not (Conditional on Donors)}
+\protect\hypertarget{compliance-rate-by-wage-earners-or-not-conditional-on-donors}{}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryReliefbyEarner2-1} 
+
+}
+
+\caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
+\end{figure}
 \end{frame}
 
 \end{document}
