@@ -99,6 +99,61 @@ let us $q$ to show the amount of tax relief for each declared giving
 The government can change $q$ by the tax reform as the next subsection explains.
 ```
 
+```{asis, echo = output_type() == "slide"}
+## Framework
+
+Consider that a household with pre-tax income $y_i$ has a choice between private consumption $x_i$ and charitable giving $g_i$.
+
+Their budget constraint can be shown as
+\begin{align}
+x_i + g_i = y_i - R_iK_i - R_iT(y_i, g_i) - (1-R_i)T(y_i). (\#eq:budget)
+\end{align}
+
+- $T$ is tax amount which depends on the pre-tax income and charitable giving. Assume $T_y(\cdot)>0$ and $T_{yy}(\cdot)>0$.
+- $R_i$ is the dummy which takes 1 if $i$ declares the tax relief and 0 otherwise.
+- $K_i$ is a fixed compliance cost for the declaration of charitable giving.
+  - In the literature about the giving price elasticity, most of papers implicitly assume $R_i=1$ and $K_i=0$.
+
+## Decision Rule of Tax Relief
+
+\begin{align}
+  R_i = \begin{cases}
+	  1 \text{ if }T(y_i, g_i) + K_i<T(y_i)\\
+	  0 \text{ if }T(y_i, g_i) + K_i\ge T(y_i). (\#eq:R)
+  \end{cases}
+\end{align}
+
+where
+
+\begin{align}
+  T(y_i, g_i) =
+  \begin{cases} 
+	  T(y_i-g_i)&\text{ if tax relief is applied by income deduction.}\\
+	  T(y_i)-mg_i &\text{ if tax relief is applied by tax credit.} (\#eq:relief)
+  \end{cases}
+\end{align}
+
+## Giving Price
+
+Let us differentiate the budget constraint \@ref(eq:budget) by $x_i$ and $g_i$.
+Then, it derives that the giving price (relative to the private consumption) is
+$\frac{dx_i}{dg_i}=1+R_iT_g(y_i,g_i)$, which we denote $p$.
+
+\begin{align}
+	p=
+	\begin{cases} 
+		1-R_iT'(y_i-g_i)&\text{ if tax relief is applied by income deduction.}\\
+		1-R_im&\text{ if tax relief is applied by tax credit.}\label{giving price}
+	\end{cases}
+\end{align}
+Hereafter,
+let us $q$ to show the amount of tax relief for each declared giving
+(i.e. $p=1-R_iq$ and $q=-T_g(y_i, g_i)$).
+The government can change $q$ by the tax reform.
+
+## Marginal Tax Rate
+```
+
 ```{r mtr, include = TRUE}
 tab <- data.frame(
     inc = c(
@@ -191,4 +246,38 @@ as a main identification source to estimate the giving price elasticity.
 - Welfareの分析どうしよう？現状のIntroductionでは書いてない。
 	
 -->
+```
+
+```{asis, echo = output_type() == "slide"}
+## Korean Tax System (1)
+
+- To mitigate the administrative cost, the Korean National Tax Service introduce different taxation methods and different ways of giving declaration for wage earners and self-employed workers.
+- There is a difference of compliance cost of tax relief between self-employed and wage earners
+  - self-employed workers have to understand tax system to precisely populate tax return and retain the certificate until they submit tax return
+  - wage earners need not to understand tax system and can submit the certificate at any time.
+
+## Korean Tax System (2)
+
+Wage earners:
+
+- Wage earners pay income tax by tax withholding and can declare their giving via their company at anytime
+- Instead of them, their company is supposed to close the comprehensive income tax return including giving declaration through year-end settlement
+
+Self-employed workers:
+
+- Self-employed workers have to calculate the amount of income earned during a year and pay income tax through tax return by May of the following year.
+- To receive tax relief on charitable giving, they have to submit the certificate of donations when they submit tax return.
+
+## 2014 Tax Reform (1)
+
+- Before 2014, tax relief on charitable giving is conducted by income deduction in Korea.
+  - tax payer facing the higher marginal income tax rate can enjoy the lower giving price for each 1 KRW of donation
+- In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system, where the tax credit was introduced instead of income deduction.
+  - 15\% of the total amount of charitable giving has been allowed as a tax credit,
+
+## 2014 Tax Reform (2)
+- Compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%,
+get benefit from charitable giving under the income deduction system.
+- However, middle or low income households would enjoy tax relief in tax credit system more than income deduction system.
+- We exploit the variation of giving price brought from the policy change as a main identification source to estimate the giving price elasticity.
 ```
