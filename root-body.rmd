@@ -74,16 +74,16 @@ options(
 ```
 
 
-# National Survey of Tax and Benefit (NaSTaB) {#nastab}
+# Data: National Survey of Tax and Benefit (NaSTaB) {#nastab}
 
-```{r eval = FALSE}
+```{r}
 library(here)
 knitr::spin_child(here("R/1-summary.R"))
 ```
 
 # Empirical Strategy {#estimation}
 
-```{r child = "Rmd/2-estimation.rmd", eval = FALSE}
+```{r child = "Rmd/3-estimation.rmd"}
 ```
 
 # Estimation Results {#result}

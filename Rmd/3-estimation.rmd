@@ -1,5 +1,6 @@
 ---
-title: "Preview: Statistical Model"
+title: Empirical Strategy
+subtitle: Preview
 author: Hiroki Kato
 output:
   html_document:
@@ -7,8 +8,26 @@ output:
     toc_float: true
 params:
   preview: true
+  appendix: true
+  alide: no
 ---
 
+```{r eval = FALSE, include = FALSE, echo = FALSE}
+library(here)
+rmarkdown::render(
+  input = here("Rmd/3-estimation.rmd"),
+  output_format = "all",
+  output_dir = here("docs", "html-preview")
+)
+```
+
+```{r include = FALSE, echo = FALSE}
+library(here)
+if (params$preview) source(here("R", "_html_header.r"))
+source(here("R", "_library.r"))
+```
+
+```{asis, echo = output_type() != "appx"}
 @Scharf2020 に従い、我々は二種類の弾力性を推定する。
 第一に、intensive-margin price elasiticityであり、
 1%の価格上昇で寄付者の寄付額が何%増えるかを示している。
@@ -156,4 +175,4 @@ $\hat{P}_{it} \times \ln (1 - s^f_{it})$を用いる。
   \ln g_{it} = \theta_i + \gamma (\hat{P}_{it} \times \ln (1 - s^f_{it}))
     + \beta X_{it} + \lambda_t + u_{it}, (\#eq:intensive3)
 \end{align}
-
+```
