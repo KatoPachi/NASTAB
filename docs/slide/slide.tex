@@ -483,21 +483,14 @@ Self-employed workers:
     complete the survey
   \end{itemize}
 \item
-  Our study uses data from (1) 2013 to 2018 and
-\end{itemize}
+  Our study uses data from (1) 2013 to 2018 and (2) excluding
+  respondents under the age of 23
 
-\begin{enumerate}
-[(1)]
-\setcounter{enumi}{1}
-\tightlist
-\item
-  excluding respondents under the age of 23
-\end{enumerate}
-
-\begin{itemize}
-\tightlist
-\item
-  This is because we focus on the 2014 tax reform
+  \begin{itemize}
+  \tightlist
+  \item
+    This is because we focus on the 2014 tax reform
+  \end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -660,6 +653,245 @@ a change of tax incentive due to 2014 tax reform.
 
 \caption{Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.}\label{fig:SummaryReliefbyEarner2}
 \end{figure}
+\end{frame}
+
+\hypertarget{estimation}{%
+\section{Empirical Strategy}\label{estimation}}
+
+\begin{frame}{Two Types of Price Elasticity}
+\protect\hypertarget{two-types-of-price-elasticity}{}
+Following Almunia et al.~(2020),
+
+\begin{enumerate}
+\tightlist
+\item
+  Intensive-margin price elasticity: What percentage increase in donor contributions would result from a 1\% price increase?
+\item
+  Extensive-margin price elasticity: What percentage increase in the donor ratio would result from a 1\% price increase?
+\end{enumerate}
+
+We use an identification strategy that combines two methods:
+(1) DID using changes in tax incentives due to the 2014 tax reform and
+(2) IV that captures whether or not a donation deduction is claimed due to filing costs.
+\end{frame}
+
+\begin{frame}{Intensive-Margin Price Elasticity}
+\protect\hypertarget{intensive-margin-price-elasticity}{}
+Two-way FE model:
+
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - q_{it}))
+    + \beta X_{it} + \lambda_t + u_{it}, \label{eq:intensive}
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  \(X_{it}\) is a vector of covariate including pre-tax income \(y_{it}\)
+\item
+  \(\theta_i\) and \(\lambda_t\) are individual and time FE, respectively
+\item
+  \(u_{it}\) is idiosyncratic error
+\item
+  \(\ln g_{it}\) is log-valued of amount of donations
+\item
+  \(R_{it}\) is a dummy of application for tax relief
+\item
+  \(q_{it}\) is tax incentive
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Extensive-Margin Price Elasticity}
+\protect\hypertarget{extensive-margin-price-elasticity}{}
+\begin{align}
+  D_{it} = \theta_i + \delta (R_{it} \times \ln (1 - q_{it}))
+    + \beta X_{it} + \lambda_t + \eta_{it}, \label{eq:extensive}
+\end{align}
+
+\begin{itemize}
+\tightlist
+\item
+  \(D_{it}\) is a dummy indicating a donor
+\item
+  The parameter of interest is \(\delta\). Since the outcome variable is binary, this parameter cannot be directly interpreted as elasticity.
+\item
+  Extensive-margin price elasticity is obtained by \(\hat{\delta} / \bar{D}\). (\(\bar{D}\) is the sample mean of \(D_{it}\))
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Two Endogenous Problem}
+\protect\hypertarget{two-endogenous-problem}{}
+We will discuss how to resolve following two endogenous problems:
+
+\begin{enumerate}
+\tightlist
+\item
+  price depends on giving amount when income deduction is applied
+\item
+  self-selection of application for tax incentive
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Endogenous Applicable Giving Price}
+\protect\hypertarget{endogenous-applicable-giving-price}{}
+\begin{itemize}
+\item
+  We use changes in tax incentives due to the 2014 tax reform as an exogenous variation of price
+\item
+  Endogeneity of prices cannot be completely ruled out because we use data when income deduction was applied.
+\item
+  The donation price when the tax relief is applied would be as follows:
+  \begin{align}
+  1 - q_{it} =
+  \begin{cases}
+    1 - T'_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
+    1 - m \quad\text{if}\quad t \ge 2014
+  \end{cases},
+  \end{align}
+\item
+  Price also depends on the amount of the donation (\(g_{it}\)) during the period when the income deduction is applied.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    This is called \emph{last}-unit price
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Resolve Endogenous Applicable Giving Price}
+\protect\hypertarget{resolve-endogenous-applicable-giving-price}{}
+\begin{itemize}
+\tightlist
+\item
+  Following previous studies, we use \emph{first}-unit price as an alternative to (or as IV for) last-unit price.
+\item
+  First-unit price is giving price with the donation amount as zero.
+  \begin{align}
+  1 - q^f_{it} =
+  \begin{cases}
+    1 - T'_t(y_{it} - 0)  \quad\text{if}\quad t < 2014  \\
+    1 - m \quad\text{if}\quad t \ge 2014
+  \end{cases}.
+  \end{align}
+\item
+  the last-unit price and first-unit price coincide during the period when the tax credit is applied,
+  since the donation price is independent of the donation amount.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Self-Selection of Tax Incentive}
+\protect\hypertarget{self-selection-of-tax-incentive}{}
+\begin{itemize}
+\tightlist
+\item
+  All donors should claim income deduction/tax credit if there is no compliance cost
+  because they can obtain benefit of tax savings
+\item
+  Our data suggests that compliance cost is likely a major obstacle in application for tax relief.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    24\% donor, but 10\% donors claimed income deduction/tax credit
+  \item
+    The distribution of donations conditional on donors does not change significantly depending on
+    whether or not the tax relief is applied.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Resolve Self-Selection of Tax Incentive}
+\protect\hypertarget{resolve-self-selection-of-tax-incentive}{}
+\begin{itemize}
+\tightlist
+\item
+  We exploit the fact tax system differs between wage earners and self-employed workers,
+  and use a wage earner dummy (\(\text{WE}_{it}\)) as a proxy for the compliance cost.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Self-employed workers have to understand tax system to precisely populate tax return and retain the certificate until they submit tax return
+  \item
+    Wage earners need not to understand tax system and can submit the certificate at any time.
+  \end{itemize}
+\item
+  It is necessary to assume that this variable is independent of \(u_{it}\) and \(\eta_{it}\) conditional on covariates.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    the correlation between the salaried worker dummy and fixed effects is acceptable.
+  \end{itemize}
+\item
+  We believe that being a salaried employee or not has no direct effect on donation behavior if we control for income and industry.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Three Estimation Methods to Resolve Two Endogenous Problem (1)}
+\protect\hypertarget{three-estimation-methods-to-resolve-two-endogenous-problem-1}{}
+\begin{enumerate}
+\tightlist
+\item
+  FE-2SLS with \(\text{WE}_{it} \times \ln(1 - q^f_{it})\) as an IV
+\end{enumerate}
+
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - q^f_{it}))
+    + \beta X_{it} + \lambda_t + u_{it}, \label{eq:intensive2}
+\end{align}
+
+where \(\text{WE}_{it} \times \ln(1 - q^f_{it})\) is an insturument of
+\(R_{it} \times \ln (1 - q^f_{it})\)
+\end{frame}
+
+\begin{frame}{Three Estimation Methods to Resolve Two Endogenous Problem (2)}
+\protect\hypertarget{three-estimation-methods-to-resolve-two-endogenous-problem-2}{}
+\begin{itemize}
+\item
+  Remaining two methods are based on propensity socre.
+\item
+  Propensity score is obtained by the predicted probability of probit estimation of the following model:
+  \begin{align}
+  R_{it} = 1[
+    \alpha_0 + \alpha_1 WE_{it} + \alpha_2 \ln(1 - q^f_{it})
+    + \alpha_3 X_{it} + u_{it0} > 0
+  ] \label{eq:selection}
+  \end{align}
+\item
+  The propensity score \(\hat{P}_{it}\) is obtained by estimation using (1) full sample (pooled model)
+  and (2) a subsample divided by years (separated model)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The former assumes coefficients are constant with rispect to year
+  \item
+    The latter allows coefficients to depend on year
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Three Estimation Methods to Resolve Two Endogenous Problem (3)}
+\protect\hypertarget{three-estimation-methods-to-resolve-two-endogenous-problem-3}{}
+Again,
+
+\begin{align*}
+  \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - q^f_{it}))
+    + \beta X_{it} + \lambda_t + u_{it},
+\end{align*}
+
+Remaining two estimation methods:
+
+\begin{enumerate}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  We use \(\hat{P}_{it} \times \ln (1 - q^f_{it})\) as an instrument of \(R_{it} \times \ln (1 - q^f_{it})\)
+\item
+  We use \(\hat{P}_{it} \times \ln (1 - q^f_{it})\) instead of \(R_{it} \times \ln (1 - q^f_{it})\) as the explanatory variable.
+\end{enumerate}
 \end{frame}
 
 \end{document}

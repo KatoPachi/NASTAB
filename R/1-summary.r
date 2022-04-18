@@ -45,8 +45,8 @@ df <- readr::read_csv(here("data/shaped2.csv"))
 #'   - 5,634 heads of household and
 #'   economically active household members aged 15 and older
 #'   complete the survey
-#' - Our study uses data from (1) 2013 to 2018 and
-#' (2) excluding respondents under the age of 23
+#' - Our study uses data from (1) 2013 to 2018 and (2) excluding
+#' respondents under the age of 23
 #'   - This is because we focus on the 2014 tax reform
 #'
 #' ## Descriptive Statistics
