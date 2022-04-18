@@ -32,6 +32,8 @@ params:
   preview: no
   appendix: no
   slide: yes
+header-includes:
+  - \usepackage{siunitx}
 ---
 
 ```{r knit_command, eval = FALSE, include = FALSE, echo = FALSE}
@@ -69,4 +71,11 @@ options(
 # Institutional background and Sources of Endogeneity {#background}
 
 ```{r child = "Rmd/2-background.rmd"}
+```
+
+# Data: National Survey of Tax and Benefit (NaSTaB) {#nastab}
+
+```{r}
+library(here)
+knitr::spin_child(here("R/1-summary.R"))
 ```

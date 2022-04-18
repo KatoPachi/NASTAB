@@ -35,6 +35,23 @@ df <- readr::read_csv(here("data/shaped2.csv"))
 #' それらに加えて、教育年数などの個人属性や税制に対する個人の意識に関する情報を含んでいる。
 #' ```
 #'
+#' ```{asis, echo = output_type() == "slide"}
+#' ## About NaSTaB
+#'
+#' - NaSTaB is annual panel data conducted by
+#' Korea Institute of Taxation and Finance
+#' - The survey will be administered to 5,634 households
+#' from across the country
+#'   - 5,634 heads of household and
+#'   economically active household members aged 15 and older
+#'   complete the survey
+#' - Our study uses data from (1) 2013 to 2018 and
+#' (2) excluding respondents under the age of 23
+#'   - This is because we focus on the 2014 tax reform
+#'
+#' ## Descriptive Statistics
+#' ```
+#'
 #+ SummaryCovariate, eval = output_type() != "appx"
 df %>%
   dplyr::filter(year <= 2017) %>%
@@ -53,13 +70,13 @@ df %>%
     # (`#.Tax accountant / population` = tax_accountant_per) ~
     N +
     (`Mean` = mean) * Arguments(na.rm = TRUE) +
-    (`Std.Dev.` = sd) * Arguments(na.rm = TRUE) +
-    (`Min` = min) * Arguments(na.rm = TRUE) +
-    (`Median` = median) * Arguments(na.rm = TRUE) +
-    (`Max` = max) * Arguments(na.rm = TRUE),
-    title = "Descriptive Statistics",
+    (`Std.Dev.` = sd) * Arguments(na.rm = TRUE), #+
+    # (`Min` = min) * Arguments(na.rm = TRUE) +
+    # (`Median` = median) * Arguments(na.rm = TRUE) +
+    # (`Max` = max) * Arguments(na.rm = TRUE),
+    # title = "Descriptive Statistics",
     data = .,
-    align = "lcccccc"
+    align = "lccc"
   ) %>%
   kableExtra::kable_styling(font_size = 9) %>%
   kableExtra::pack_rows("Income and giving price", 1, 2) %>%
@@ -75,6 +92,10 @@ df %>%
 #' その可能性を取り除くために、我々は2013年から2018年のデータ（2012年から2017年の寄付行動）を用いる。
 #' また、23歳以下の回答者を除いた理由は、所得や資産を十分に持っていない可能性が高いからである。
 #' 表\@ref(tab:SummaryCovariate)に記述統計を示した。
+#' ```
+#'
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Income Distribution and Giving Price
 #' ```
 #'
 #+ SummaryPrice, fig.cap = "Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.", out.extra = "", eval = output_type() != "appx"
@@ -134,6 +155,22 @@ df %>%
 #' [^pretrend]: 2011年以前の寄付行動は所得税率の改正による影響をうけるので、税制改革前の平行トレンドを検証することはできない。
 #' ```
 #'
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Identification of Price Elasticity
+#'
+#' We can create three income groups based on
+#' a change of tax incentive due to 2014 tax reform.
+#'
+#' 1. $<$ 120 million KRW
+#'     - expand tax incentive (reduce giving price)
+#' 1. $[\text{120 million KRW}, \text{460 million KRW}]$
+#'     - tax incentive did not change
+#' 1. $>$ 460 million KRW
+#'     - shrink tax incentive (increase giving price)
+#'
+#' ## Summary of Giving Behavior
+#' ```
+#'
 #+ SummaryGiving, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.", out.extra = "", eval = output_type() != "appx"
 df %>%
   dplyr::filter(year <= 2017) %>%
@@ -189,6 +226,10 @@ df %>%
 #' -->
 #' ```
 #'
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Summary of Giving Amount by Three Income Groups
+#' ```
+#'
 #+ SummaryGivingOverall, fig.cap = "Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "appx"
 df %>%
   dplyr::filter(year <= 2017) %>%
@@ -223,6 +264,9 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Summary of Giving Amount by Three Income Groups (Conditional on Donors)
+#' ```
 #+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
 df %>%
   dplyr::filter(year <= 2017) %>%
@@ -257,6 +301,9 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Summary of Proportion of Donors by Three Income Groups
+#' ```
 #+ SummaryGivingExtensive, fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
 df %>%
   dplyr::filter(year <= 2017) %>%
@@ -351,6 +398,9 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Distribution of Giving Amount by Application of Tax Relief 
+#' ```
 #+ SummaryGivingIntensiveDist, fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", eval = output_type() != "body"
 df %>%
   filter(year <= 2017) %>%
@@ -384,6 +434,10 @@ df %>%
 #' 申告するためのコストの差で説明できることを示唆している。
 #' ```
 #'
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Compliance Rate by Wage Earners or Not
+#' ```
+#'
 #+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = output_type() != "appx"
 df %>%
   dplyr::filter(year <= 2017) %>%
@@ -408,7 +462,9 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13))
 
-#'
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Compliance Rate by Wage Earners or Not (Conditional on Donors)
+#' ```
 #+ SummaryReliefbyEarner2, fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = output_type() != "body"
 df %>%
   dplyr::filter(year <= 2017) %>%
