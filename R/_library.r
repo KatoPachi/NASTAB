@@ -6,4 +6,4 @@ library(kableExtra)
 library(estimatr)
 library(fixest)
 
-lapply(Sys.glob(file.path("R/functions", "*.r")), source)
+lapply(Sys.glob(here("R/functions", "*.r")), source)

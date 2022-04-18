@@ -1,0 +1,487 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  11pt,
+  a4paper,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \ifXeTeX
+    \usepackage{zxjatype} 
+    \usepackage[ipaex]{zxjafont}
+    \setromanfont{Times New Roman}
+  \fi
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Estimating Effect of Tax Incentives on Donations Considering Self-Selection of Tax Incentives in South Korea},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+
+\usepackage{setspace}
+\renewcommand{\baselinestretch}{1.5}
+\usepackage{float}
+
+\usepackage{longtable,booktabs,array}
+\usepackage{threeparttable, threeparttablex, multirow}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\makeatletter
+\def\@fnsymbol#1{\ensuremath{\ifcase#1\or \dagger\or \ddagger\or
+   \mathsection\or \mathparagraph\or \|\or **\or \dagger\dagger
+   \or \ddagger\ddagger \else\@ctrerr\fi}}
+    \makeatother
+\title{Estimating Effect of Tax Incentives on Donations Considering Self-Selection of Tax Incentives in South Korea  }
+\author{
+    Hiroki Kato
+  \thanks{Graduate School of Economics, Osaka University, Japan. E-mail: h-kato@econ.osaka-u.ac.jp  }
+  \and
+    Tsuyoshi Goto
+  \thanks{Graduate School of Social Sciences, Chiba University, Japan. E-mail: t.goto@chiba-u.jp  }
+  \and
+    Youngrok Kim
+  \thanks{Graduate School of Economics, Kobe University, Japan.  }
+  \and
+  }
+
+\date{2022/04/18}
+
+
+\begin{document}
+\begin{spacing}{1}
+  \maketitle
+\end{spacing}
+
+\hypertarget{intro}{%
+\section{Introduction}\label{intro}}
+
+In many countries, governments set a tax relief for charitable giving.
+This is because, if subsidizing charitable giving induces a large increase in donations,
+it is desirable for public good provision.
+As Saez (2004) shows,
+it is known that
+the elasticity of charitable donations
+respect to the giving price relative to the private consumption (giving price, hereafter) is
+a key parameter to evaluate the welfare implication.
+To receive the tax relief, tax payers have to declare their charitable giving to tax agency.
+Then, giving price will be reduced from one to one minus the marginal income tax rate
+(if the tax relief is applied through deduction) or one minus the credit rate (if tax credit).
+
+Starting with Feldstein (1975),
+there are a large empirical literature examining the giving price elasticity.
+Papers in this literature regress the log-valued giving price on
+the log-valued amount of charitable giving
+to derive the giving price elasticity
+using tax filing data
+(e.g.~Randolph, 1995; Auten et al., 2002; Fack and Landais, 2010; Bakija and Heim, 2011; Almunia et al., 2020)
+or panel survey data (e.g.~Rehavi and Shack, 2013; Yoruk, 2013; Zampelli and Yen, 2016; Backus and Grant, 2019).
+Although many of these papers consider the endogeneity issue
+such as the endogenous change of the marginal tax rate by the amount of giving,
+they pay less attention to the problems caused by the fact that
+tax payers have to declare their charitable giving to receive tax relief on charitable giving.
+Therefore, if the estimation ignores the declaration of charitable giving,
+the self selection bias happens to the estimation
+in the sense that the charitable giving is declared by
+only those who can expect benefits from the charitable giving or
+those who have the giving preference.
+To our knowledge,
+no paper in the literature considers the self selection
+about the declaration of charitable giving.\footnote{Although Almunia et al.~(2020) consider
+  the self selection process about the declaration of charitable giving as an exception,
+  their reduced-form estimation about the giving price elasticity
+  does not consider the self selection.
+  They use the giving price elasticities estimated by the reduced-form analysis to
+  structurally estimate a fixed compliance cost for declaration,
+  where they consider the self selection process.}
+
+Considering that the application of tax relieves is based on self declaration,
+the self selection problem is caused by
+the existence of compliance costs to apply measures of tax relives
+because everyone will apply the measures if there is no compliance cost.
+In other words, if there are the compliance costs,
+tax payers apply the measures of tax relives only if
+their benefits from the measures exceed the compliance costs.
+In the literature of tax compliance,
+recent papers insist this point and suggest that
+the measures of tax relives may not work as
+the policy makers expected
+since the application of the measures entails compliance costs.
+They also suggest compliance costs,
+which include record-keeping cost and a fee for accountants,
+are considerably high.\footnote{For the individual income tax,
+  Benzarti (2020) estimates that the cost of the income tax filing is
+  0.6-0.8 percent of adjusted gross income in the U.S..
+  For the corporate income tax,
+  Zwick(2021) finds that only 37 percent of eligible firms claim
+  their refund in their corporate tax returns because of the complexity of tax code.}
+In the context of charitable giving,
+some papers also suggest the existence of compliance costs to declare charitable giving.
+Fack and Landais (2016) study a 1983 reform in France,
+which introduced the requirement to submit the certification,
+and find the significant reduction of
+the declaration of charitable giving after 1983.\footnote{They also show that
+  the estimated price elasticity changed before and after the reform.
+  This is because the declaration of charitable giving dramatically
+  reduced after the reform and they use tax filer data.}
+Gillitzer and Skov (2018) examine a 2008 reform in Demmark,
+which allowed charities to pre-populate the tax record with the donation record
+in order to reduce declaration costs,
+and find a large increase of charitable giving declaration after the reform.
+Almunia et al.~(2020)
+estimate the amount of a fixed compliance cost in the U.K.,
+which is estimated as £47.
+
+Although several papers suggest
+the existence of compliance costs in the tax compliance literature,
+no paper in the literature of giving price elasticity consider the self selection problem.
+Therefore, this paper tries to fill this gap and
+estimates the giving price elasticity
+using the South Korean (Korea, hereafter) survey panel data
+called the National Survey of Tax and Benefit (NaSTaB).
+The usage of this data brings us to three advantages on the estimation.
+Firstly, for the issue of self selection,
+we utilize an instrument variable (IV)
+which represents the compliance cost for charitable giving declaration.
+In the Korean tax system, to receive tax relief,
+wage earners can declare tax relief in their company at any time
+while self-employed workers have to declare tax relief in the tax agency
+at a time of tax return.
+Wage earners do not need understand the tax system nor
+keep the certification of donation until the tax return season
+since their company deals with tax business instead of them
+and they can submit the certification at any time.
+Self-employed workers, on the other hand, have to understand the tax system
+and keep the certification.
+Therefore, there is a difference of the compliance cost
+between wage earners and self-employed workers.
+Whether tax payers are wage earners and self-employed workers is
+determined irrespective to their expected benefit from charitable giving or giving preference,
+while the different compliance costs between them will make
+a difference about the behavior of the declaration.
+Instrumented by the wage earner dummy,
+the declaration of charitable giving will be less affected
+by the benefit from the declaration.
+One of the advantages of our IV is that
+the compliance costs are not considered to have a direct impact on a giving behavior
+although they have a effect on it through the declaration of charitable giving.
+Since the difference in compliance cost has no effect on the giving behavior
+if there is no declaration system of charitable giving,
+tax payers' giving behavior innately have no relation to the compliance cost.
+As for another advantage of our IV,
+the causality from the compliance cost to the charitable giving declaration
+seems credible and their relation is monotone since recent papers
+such as Fack and Landais (2016) and Gillitzer and Skov (2018) imply that the existence of compliance costs significantly reduce the declaration of charitable giving.\footnote{In addition,
+  another advantage of our setting is that
+  we can capture the heterogeneity of compliance costs,
+  while all taxpayers experience the change of compliance costs
+  in the setting of Fack and Landais (2016) and Gillitzer and Skov (2018).
+  (これdiscussionに持ってっても良いかも)}
+
+Secondly, we address the issue of sample selection bias using the panel survey data.
+Considering that the giving price is dependent on the declaration of charitable giving
+we have to distinguish declared and undeclared charitable giving.
+However, tax return data,
+which is used in many papers in the literature of giving price elasticity,
+do not record undeclared charitable giving and giving by tax withholders.
+In addition,
+since those who itemize their giving tends to be wealthier than the average taxpayer,
+the estimates based on tax filer data will represent the behaviors of high-income earners.
+Panel survey data contains information about charitable giving
+irrespective of tax filing or giving declaration.
+The estimation using panel survey data should be free from
+the sample selection bias (Rehavi and Shack, 2013; Backus and Grant, 2019).
+Since NaStaB data is constructed by reflecting the Korean society,
+we could consider the sample of low-income households,
+which are sometimes omitted from the tax filer data.
+This is particularly important for the estimation of the price elasticity
+in terms of the extensive margin
+since the propensity of donation by low-income earners
+tend to be less than high-income earners.
+
+Thirdly, to derive the elasticity,
+this paper exploits the South Korean tax reform in 2014
+as a main identification strategy.
+In the 2014 reform,
+tax credit was introduced as a way for the tax relief on charitable giving,
+though income deduction had been used before.
+The 2014 tax reform started to allow 15\% of the total amount of charitable giving
+as a tax credit for all declaring taxpayers,
+which means that the giving price for 1 KRW donation is 0.85 KRW.\footnote{1 KRW is approximately 0.001 USD. In other words, 1 USD is about 1,000 KRW.}
+Since the giving price was determined according to the marginal tax rate of
+progressive income tax before 2014,
+this tax reform reduced the giving price for low income taxpayers
+while it increased the price for high income tax payers.
+Since the variation of giving price can be considered to be exogenous for taxpayers,
+we exploit this reform and conduct the difference-in-difference (DID) analysis
+for identification.\footnote{To our knowledge,
+  only Hong(2020) considers the policy change(s) in Korea using panel data
+  and derives the estimated giving price elasticity as -1.2.
+  However, he does not use DID nor consider the self selection bias.}
+
+Using the IV representing the compliance cost,
+the estimated giving price elasticities are in the range between XXX and XXX
+in terms of intensive-margins.
+If the IV is not used,
+we find that the estimated intensive-margins giving price elasticity is XXX,
+which is similar value to the estimates in the existing literature.
+Considering that those who can expect benefits from the charitable giving and
+who have the giving preference are less affected by the change of the giving price,
+OLS estimates may overestimate their effects.
+As for the extensive-margins giving price elasticity,
+the estimates with the IV are in the range between XXX and XXX,
+while the estimate without the IV is XXX.
+The extensive margins elasticity shows
+whether tax payers donate or not depending on the giving price.
+Since those who stop donating will not declare their donation and
+their giving price will increase to one,
+if the endogeneity of declaration is not considered,
+the estimates will be elastic and it will be interpreted
+as if the donation is stopped by the increase of the giving price.
+The usage of the IV prevents a possibility of such a reverse causality.
+
+In addition,
+the estimation of the intensive-margins and extensive-margins giving price elasticity considers
+well-known challenges for the estimations in this literature
+such as the endogenous change of the marginal tax rate by the amount of giving,
+simultaneous determination of income and donation and the announcement effect of policy change.
+We examine all of these issues in the robustness check and
+find that the intensive-margin tax-price elasticities are in the range of -2 and -1.5
+and the extensive-margin tax-price elasticities are in the range of -5 and -1.7
+in the almost all cases of the estimations.
+
+This paper consists of six sections.
+Section 2 and 3 respectively explain the institutional background and data.
+Section 4 explains the estimation method.
+Section 5 deals with the analysis of price elasticity.
+Section 6 concludes.
+
+\hypertarget{background}{%
+\subsection{Institutional background and Sources of endogeneity}\label{background}}
+
+In this section,
+we describe the income tax relief for charitable giving in Korea
+and the endogeneity issues arising from the declaration of giving.
+
+\hypertarget{system-of-tax-relief-on-charitable-giving}{%
+\subsection{System of tax relief on charitable giving}\label{system-of-tax-relief-on-charitable-giving}}
+
+To explain how income tax relief on charitable giving is applied and
+how the giving price is determined,
+we introduce a abstract framework in this subsection.
+Thus, let us consider that a household with pre-tax income \(y_i\)
+has a choice between private consumption \(x_i\) and charitable giving \(g_i\).
+Their budget constraint can be shown as
+\begin{align}
+x_i + g_i = y_i − R_iK_i - R_iT(y_i, g_i) - (1-R_i)T(y_i). \label{eq:budget}
+\end{align}
+\(T\) is tax amount which depends on the pre-tax income and charitable giving.
+Since the marginal income tax rate is progressive in Korea,
+we assume \(T(\cdot)\) satisfy \(T_y(\cdot)>0\) and \(T_{yy}(\cdot)>0\) hereafter,
+where the subscript means the partial differentiation.
+\(R_i\) is the dummy which takes 1 if \(i\) declares the tax relief and 0 otherwise.
+\(K_i\) is a fixed compliance cost for the declaration of charitable giving.
+While \(K_i\) includes non-monetary cost such as record-keeping cost and
+monetary cost such as a fee for accounts,
+it is converted to pecuniary terms for simplicity.
+In the literature about the giving price elasticity,
+since most of papers implicitly assume \(R_i=1\) and \(K_i=0\).
+
+Tax payers can reduce their income tax payment by declaring their giving.
+However, the declaration entails the fixed compliance cost \(K_i\).
+Therefore, whether tax payers declare their giving or not is determined according to
+\begin{align}
+  R_i = \begin{cases}
+      1 \text{ if }T(y_i, g_i) + K_i<T(y_i)\\
+      0 \text{ if }T(y_i, g_i) + K_i\ge T(y_i). \label{eq:R}
+  \end{cases}
+\end{align}
+When tax payers do not declare their giving, the amount of income tax will be \(T(y_i)\).
+When tax payers declare their giving, the amount of tax is
+\begin{align}
+  T(y_i, g_i) =
+  \begin{cases} 
+      T(y_i-g_i)&\text{ if tax relief is applied by income deduction.}\\
+      T(y_i)-mg_i &\text{ if tax relief is applied by tax credit.} \label{eq:relief}
+  \end{cases}
+\end{align}
+
+To derive the giving price,
+let us differentiate the budget constraint \eqref{eq:budget} by \(x_i\) and \(g_i\).
+Then, it derives that the giving price
+(relative to the private consumption) is
+\(\frac{dx_i}{dg_i}=1+R_iT_g(y_i,g_i)\),
+which we denote \(p\).
+Therefore, according to \eqref{eq:relief},
+the giving price \(p\) is
+\begin{align}
+    p=
+    \begin{cases} 
+        1-R_iT'(y_i-g_i)&\text{ if tax relief is applied by income deduction.}\\
+        1-R_im&\text{ if tax relief is applied by tax credit.}\label{giving price}
+    \end{cases}
+\end{align}
+Hereafter,
+let us \(q\) to show the amount of tax relief for each declared giving
+(i.e.~\(p=1-R_iq\) and \(q=-T_g(y_i, g_i)\)).
+The government can change \(q\) by the tax reform as the next subsection explains.
+
+\begin{table}
+
+\caption{\label{tab:mtr}Marginal Income Tax Rate}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccccccc}
+\toprule
+Income/Year & 2008 & 2009 & 2010 \textasciitilde{} 2011 & 2012 \textasciitilde{} 2013 & 2014 \textasciitilde{} 2016 & 2017 & 2018\\
+\midrule
+(A) \textasciitilde{} 1200 & 8\% & 6\% & 6\% & 6\% & 6\% & 6\% & 6\%\\
+\cmidrule{1-8}
+(B) 1200 \textasciitilde{} 4600 & 17\% & 16\% & 15\% & 15\% & 15\% & 15\% & 15\%\\
+\cmidrule{1-8}
+(C) 4600 \textasciitilde{} 8800 & 26\% & 25\% & 24\% & 24\% & 24\% & 24\% & 24\%\\
+\cmidrule{1-8}
+(D) 8800 \textasciitilde{} 15000 &  &  &  &  & 35\% &  & 35\%\\
+\cmidrule{1-1}
+\cmidrule{6-6}
+\cmidrule{8-8}
+(E) 15000 \textasciitilde{} 30000 &  &  &  & \multirow{-2}{*}{\centering\arraybackslash 35\%} &  & \multirow{-2}{*}{\centering\arraybackslash 35\%} & 38\%\\
+\cmidrule{1-1}
+\cmidrule{5-5}
+\cmidrule{7-8}
+(F) 30000 \textasciitilde{} 50000 &  &  &  &  &  & 38\% & 40\%\\
+\cmidrule{1-1}
+\cmidrule{7-8}
+(G) 50000 \textasciitilde{} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-4}{*}{\centering\arraybackslash 35\%} & \multirow{-2}{*}{\centering\arraybackslash 38\%} & \multirow{-3}{*}{\centering\arraybackslash 38\%} & 40\% & 42\%\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: Marginal income tax rates applied from 2008 to 2018 are summarized.
+  The income level is shown in terms of 10,000 KRW,
+  which is approximately 10 United States dollars (USD)
+  at an exchange rate of 1,000 KRW to one USD.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\hypertarget{taxreform}{%
+\subsection{Korean tax system and tax reform in 2014}\label{taxreform}}
+
+Korean tax system offers a tax relief for charitable giving in income tax.
+To mitigate the administrative cost,
+the Korean National Tax Service introduce different taxation methods
+and different ways of giving declaration for wage earners and self-employed workers.
+Wage earners pay income tax by tax withholding and
+can declare their giving via their company at anytime
+since, instead of them, their company is supposed to
+close the comprehensive income tax return including giving declaration
+through year-end settlement.
+Self-employed workers have to calculate the amount of income
+earned during a year and pay income tax through tax return by May of the following year.
+To receive tax relief on charitable giving,
+they have to submit the certificate of donations when they submit tax return.
+Therefore, there is a difference of compliance cost of tax relief
+since self-employed workers have to understand tax system to precisely populate tax return
+and retain the certificate until they submit tax return
+although wage earners need not to understand tax system and
+can submit the certificate at any time.
+
+Before 2014, tax relief on charitable giving is conducted by income deduction in Korea.
+Since the marginal income tax rate was progressively determined as Table \ref{tab:mtr},
+tax payer facing the higher marginal income tax rate
+can enjoy the lower giving price for each 1 KRW of donation,
+i.e.~the giving price was regressive before 2014.
+In 2014, aiming at the relaxation of regressivity of giving price,
+the Korean government reformed tax system,
+where the tax credit was introduced instead of income deduction.
+Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit,
+which means that the giving price from 2014 is 0.85 KRW
+for each 1 KRW of donation irrelevant to the income level.
+Therefore, compared to tax credit system,
+the high income household,
+whose (average) income tax rate is more than 15\%,
+get benefit from charitable giving under the income deduction system.
+However, middle or low income households would enjoy tax relief in tax credit system
+more than income deduction system.
+We exploit the variation of giving price brought from the policy change
+as a main identification source to estimate the giving price elasticity.
+
+\hypertarget{nastab}{%
+\section{National Survey of Tax and Benefit (NaSTaB)}\label{nastab}}
+
+\hypertarget{estimation}{%
+\section{Empirical Strategy}\label{estimation}}
+
+\hypertarget{result}{%
+\section{Estimation Results}\label{result}}
+
+\hypertarget{references}{%
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
+
+\end{document}
