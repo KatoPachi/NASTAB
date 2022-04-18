@@ -254,3 +254,52 @@ Section 4 explains the estimation method.
 Section 5 deals with the analysis of price elasticity.
 Section 6 concludes.
 ```
+
+```{asis, echo = output_type() == "slide"}
+## Tax Incentives on Donations
+
+- Governments set a tax relief for charitable giving
+  - if subsidizing charitable giving induces a large increase in donations, it is desirable for public good provision.
+- Key parameter to evaluate social welfare: the price elasticity of charitable donations (Saez, 2004)
+  - giving price: relative price to the private consumption 
+
+## Literatures: Price Elasticity of Giving
+
+- Large empirical literatures examining the giving price elasticity estimate log-log demand function to derive the giving price elasticity
+- Two types of data
+    1. tax filing data: Randolph, 1995; Auten et al., 2002; Fack and Landais, 2010; Bakija and Heim, 2011; Almunia et al., 2020
+    2. panel survey data: Rehavi and Shack, 2013; Yoruk, 2013; Zampelli and Yen, 2016; Backus and Grant, 2019
+- Issue: Although many of these papers consider the endogeneity issue such as the endogenous change of the marginal tax rate by the amount of giving, they pay less attention to the problems caused by the fact that \color{red}{tax payers have to declare their charitable giving to receive tax relief on charitable giving}.
+
+## Literatures: Tax Compliance
+
+- Existence of compliance costs to apply measures of tax relives because everyone will apply the measures if there is no compliance cost.
+  - tax payers apply the measures of tax relives only if their benefits from the measures exceed the compliance costs. 
+- Recent papers insist this point and suggest that the measures of tax relives may not work as the policy makers expected
+- They also suggest compliance costs (e.g. record-keeping cost and a fee for accountants) are considerably high.
+  - individual income tax (Benzarti, 2020); corporate income tax (Zwick, 2021); charitable giving (Fack and Landais, 2016;Gillitzer and Skov, 2018; Almunia et al., 2020) 
+
+## What Our Paper Did
+
+- We bridge price elasticity of giving and self-selection of tax incentive
+  - As long as we know, there is no paper in the literature of giving price elasticity consider the self selection problem
+- We estimate the giving price elasticity using the South Korean (Korea, hereafter) survey panel data called the National Survey of Tax and Benefit (NaSTaB)
+- Why South Korea?
+    1. Compliance costs for wage earners and self-employed workers are different (IV)
+    2. We could consider the sample of low-income households, which are sometimes omitted from the tax filer data. 
+    3. We can exploit the South Korean tax reform in 2014 as a main identification strategy of price change.
+
+## What Our Paper Found
+
+Using the IV representing the compliance cost,
+
+1. Intensive-margin price elasticities are in the range between $XXX$ and $XXX$
+    - FE model w/o IV: $XXX$ (similar value to the estimates in the existing literature)
+2. Extensive-margin price elasticities are in the range between $YYY$ and $YYY$
+    - FE model w/o IV: $YYY$
+
+We examine well-known issues in the robustness check
+
+- intensive-margin tax-price elasticities are in the range of -2 and -1.5
+- extensive-margin tax-price elasticities are in the range of -5 and -1.7
+```
