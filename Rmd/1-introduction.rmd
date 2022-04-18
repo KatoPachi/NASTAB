@@ -287,7 +287,7 @@ Section 6 concludes.
 - Why South Korea?
     1. Compliance costs for wage earners and self-employed workers are different (IV)
     2. We could consider the sample of low-income households, which are sometimes omitted from the tax filer data. 
-    3. We can exploit the South Korean tax reform in 2014 as a main identification strategy of price change.
+    3. We can exploit the South Korean tax reform in 2014 as a main identification strategy of price change (income deduction $\to$ tax credit)
 
 ## What Our Paper Found
 

@@ -68,7 +68,7 @@ options(
 ```{r child = "Rmd/1-introduction.rmd"}
 ```
 
-## Institutional background and Sources of endogeneity {#background}
+## Institutional background and Sources of Endogeneity {#background}
 
 ```{r child = "Rmd/2-background.rmd"}
 ```
