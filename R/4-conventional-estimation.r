@@ -2,7 +2,6 @@
 #' title: |
 #'   Estimating Conventional Price Elasticity of Charitable Giving
 #' author: Hiroki Kato
-#' bibliography: ../../Rmarkdown/reference.bib
 #' output:
 #'   bookdown::html_document2:
 #'     toc: true
@@ -13,45 +12,18 @@
 #' ---
 #'
 #+ include = FALSE, eval = params$preview
-knitr::opts_chunk$set(
-  message = FALSE,
-  warning = FALSE,
-  echo = FALSE,
-  cache = FALSE,
-  include = TRUE,
-  fig.width = 10
-)
-
 library(here)
-knitr::opts_knit$set(
-  root.dir = here::here()
-)
+source(here("R", "_html_header.r"))
 
-options(
-  knitr.kable.NA = " ",
-  knitr.table.format = "html",
-  modelsummary_stars_note = FALSE
-)
-
-
-#'
-#+ include = FALSE, eval = params$preview
-library(xfun)
-xfun::pkg_attach2(c(
-  "tidyverse", "rlist", "modelsummary", "kableExtra",
-  "estimatr", "fixest"
-))
-
-lapply(Sys.glob(file.path("script/functions", "*.r")), source)
-
-#'
 #+ include = FALSE
-book <- readr::read_csv("data/codebook/shaped2_description.csv"); View(book)
-df <- readr::read_csv("data/shaped2.csv")
+source(here("R", "_library.r"))
 
-#'
-#'
-#'
+#+ include = FALSE
+book <- readr::read_csv(here("data/codebook", "shaped2_description.csv"))
+View(book)
+df <- readr::read_csv(here("data/shaped2.csv"))
+estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
+
 #+ MainElasticity, eval = FALSE
 fixest::setFixest_fml(
   ..cov = ~ linc_ln + sqage | year + pid + indust + area
@@ -307,7 +279,7 @@ est_rob_lastmod %>%
 # /*
 #+
 rmarkdown::render(
-  "script/elasticity/2-conventional.r",
-  output_dir = "report/view/elasticity"
+  here("R", "4-conventional-estimation.r"),
+  output_dir = here("docs/html-preview")
 )
 # */
