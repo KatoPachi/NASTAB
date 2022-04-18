@@ -1,10 +1,10 @@
 ---
 title: |
-  Draft of Data and Estimation Result
+  Estimating Effect of Tax Incentives on Donations Considering Self-Selection of Tax Incentives in South Korea
 author: 
   - name: Hiroki Kato
     inst: Graduate School of Economics, Osaka University, Japan
-    email: vge008kh\@stundent.econ.osaka-u.ac.jp
+    email: h-kato\@econ.osaka-u.ac.jp
   - name: Tsuyoshi Goto
     inst: Graduate School of Social Sciences, Chiba University, Japan
     email: t.goto\@chiba-u.jp
@@ -61,33 +61,41 @@ options(
   knitr.kable.NA = " ",
   knitr.table.format = "latex"
 )
+```
 
-doctype <- "draft"
+# Introduction {#intro}
+
+```{r child = "Rmd/1-introduction.rmd"}
+```
+
+## Institutional background and Sources of endogeneity {#background}
+
+```{r child = "Rmd/2-background.rmd"}
 ```
 
 
 # National Survey of Tax and Benefit (NaSTaB) {#nastab}
 
-```{r}
+```{r eval = FALSE}
 library(here)
 knitr::spin_child(here("R/1-summary.R"))
 ```
 
 # Empirical Strategy {#estimation}
 
-```{r child = "Rmd/2-estimation.rmd"}
+```{r child = "Rmd/2-estimation.rmd", eval = FALSE}
 ```
 
 # Estimation Results {#result}
 
-```{r}
+```{r eval = FALSE}
 library(here)
 knitr::spin_child(here("R/3-main-estimation.R"))
 knitr::spin_child(here("R/4-conventional-estimation.R"))
 knitr::spin_child(here("R/5-subsample-R1.R"))
 ```
 
-## Interpretation
+<!-- ## Interpretation
 
 サンプルを3つのタイプに分割する。
 
@@ -112,49 +120,6 @@ Extensive-marginのFEはNeverに過重を置いて推定している。
 - Intensive-margin：FE < FE-2SLS
 - Extensive-margin：FE-2SLS < FE
 
-となった。
-
-\newpage
-
-# (APPENDIX) Appendix {-}
-# Additional Tables and Figures {#addtab}
-
-```{r SummaryGivingIntensive, ref.label="SummaryGivingIntensive", fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", fig.pos = "H"}
-```
-
-```{r SummaryGivingExtensive, ref.label="SummaryGivingExtensive", fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", fig.pos = "H"}
-```
-
-```{r SummaryGivingIntensiveDist, ref.label = "SummaryGivingIntensiveDist", fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", fig.pos = "H"}
-```
-
-```{r SummaryReliefbyEarner2, ref.label="SummaryReliefbyEarner2", fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", fig.pos = "H"}
-```
-
-```{r WoAnnoucementIntensive, ref.label="WoAnnoucementIntensive"}
-```
-
-```{r WoAnnouncementExtensive, ref.label="WoAnnouncementExtensive"}
-```
-
-```{r LastIntensive, ref.label="LastIntensive"}
-```
-
-```{r LastExtensive, ref.label="LastExtensive"}
-```
-
-```{r MainElasticity, ref.label="MainElasticity"}
-```
-
-```{r WoAnnoucementElasticity, ref.label="WoAnnoucementElasticity"}
-```
-
-```{r R1Elasticity, ref.label="R1Elasticity"}
-```
-
-```{r KdiffElasticity, ref.label="KdiffElasticity"}
-```
-
-\newpage
+となった。 -->
 
 # References {-}
