@@ -27,7 +27,7 @@ if (params$preview) source(here("R", "_html_header.r"))
 source(here("R", "_library.r"))
 ```
 
-```{asis, echo = output_type() != "appx"}
+```{asis, echo = output_type() %in% c("body", "preview")}
 @Scharf2020 に従い、我々は二種類の弾力性を推定する。
 第一に、intensive-margin price elasiticityであり、
 1%の価格上昇で寄付者の寄付額が何%増えるかを示している。
@@ -175,4 +175,142 @@ $\hat{P}_{it} \times \ln (1 - s^f_{it})$を用いる。
   \ln g_{it} = \theta_i + \gamma (\hat{P}_{it} \times \ln (1 - s^f_{it}))
     + \beta X_{it} + \lambda_t + u_{it}, (\#eq:intensive3)
 \end{align}
+```
+
+```{asis, echo = output_type() == "slide"}
+## Two Types of Price Elasticity
+
+Following Almunia et al. (2020),
+
+1. Intensive-margin price elasticity: What percentage increase in donor contributions would result from a 1% price increase?
+1. Extensive-margin price elasticity: What percentage increase in the donor ratio would result from a 1% price increase?
+
+We use an identification strategy that combines two methods:
+(1) DID using changes in tax incentives due to the 2014 tax reform and
+(2) IV that captures whether or not a donation deduction is claimed due to filing costs.
+
+## Intensive-Margin Price Elasticity
+
+Two-way FE model:
+
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - q_{it}))
+    + \beta X_{it} + \lambda_t + u_{it}, (\#eq:intensive)
+\end{align}
+
+- $X_{it}$ is a vector of covariate including pre-tax income $y_{it}$
+- $\theta_i$ and $\lambda_t$ are individual and time FE, respectively
+- $u_{it}$ is idiosyncratic error
+- $\ln g_{it}$ is log-valued of amount of donations
+- $R_{it}$ is a dummy of application for tax relief
+- $q_{it}$ is tax incentive
+
+## Extensive-Margin Price Elasticity
+
+\begin{align}
+  D_{it} = \theta_i + \delta (R_{it} \times \ln (1 - q_{it}))
+    + \beta X_{it} + \lambda_t + \eta_{it}, (\#eq:extensive)
+\end{align}
+
+- $D_{it}$ is a dummy indicating a donor
+- The parameter of interest is $\delta$. Since the outcome variable is binary, this parameter cannot be directly interpreted as elasticity.
+- Extensive-margin price elasticity is obtained by $\hat{\delta} / \bar{D}$. ($\bar{D}$ is the sample mean of $D_{it}$)
+
+## Two Endogenous Problem
+
+We will discuss how to resolve following two endogenous problems:
+
+1. price depends on giving amount when income deduction is applied
+1. self-selection of application for tax incentive
+
+## Endogenous Applicable Giving Price
+
+- We use changes in tax incentives due to the 2014 tax reform as an exogenous variation of price
+- Endogeneity of prices cannot be completely ruled out because we use data when income deduction was applied.
+- The donation price when the tax relief is applied would be as follows:
+\begin{align}
+  1 - q_{it} =
+  \begin{cases}
+    1 - T'_t(y_{it} - g_{it})  \quad\text{if}\quad t < 2014  \\
+    1 - m \quad\text{if}\quad t \ge 2014
+  \end{cases},
+\end{align}
+
+- Price also depends on the amount of the donation ($g_{it}$) during the period when the income deduction is applied. 
+  - This is called *last*-unit price
+
+## Resolve Endogenous Applicable Giving Price
+
+- Following previous studies, we use *first*-unit price as an alternative to (or as IV for) last-unit price.
+- First-unit price is giving price with the donation amount as zero.
+\begin{align}
+  1 - q^f_{it} =
+  \begin{cases}
+    1 - T'_t(y_{it} - 0)  \quad\text{if}\quad t < 2014  \\
+    1 - m \quad\text{if}\quad t \ge 2014
+  \end{cases}.
+\end{align}
+- the last-unit price and first-unit price coincide during the period when the tax credit is applied,
+since the donation price is independent of the donation amount.
+
+## Self-Selection of Tax Incentive
+
+- All donors should claim income deduction/tax credit if there is no compliance cost
+because they can obtain benefit of tax savings
+- Our data suggests that compliance cost is likely a major obstacle in application for tax relief.
+  - 24% donor, but 10% donors claimed income deduction/tax credit
+  - The distribution of donations conditional on donors does not change significantly depending on
+  whether or not the tax relief is applied.
+
+## Resolve Self-Selection of Tax Incentive
+
+- We exploit the fact tax system differs between wage earners and self-employed workers,
+and use a wage earner dummy ($\text{WE}_{it}$) as a proxy for the compliance cost.
+  - Self-employed workers have to understand tax system to precisely populate tax return and retain the certificate until they submit tax return
+  - Wage earners need not to understand tax system and can submit the certificate at any time.
+- It is necessary to assume that this variable is independent of $u_{it}$ and $\eta_{it}$ conditional on covariates. 
+  - the correlation between the salaried worker dummy and fixed effects is acceptable.
+- We believe that being a salaried employee or not has no direct effect on donation behavior if we control for income and industry.
+
+## Three Estimation Methods to Resolve Two Endogenous Problem (1)
+
+1. FE-2SLS with $\text{WE}_{it} \times \ln(1 - q^f_{it})$ as an IV
+
+\begin{align}
+  \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - q^f_{it}))
+    + \beta X_{it} + \lambda_t + u_{it}, (\#eq:intensive2)
+\end{align}
+
+where $\text{WE}_{it} \times \ln(1 - q^f_{it})$ is an insturument of
+$R_{it} \times \ln (1 - q^f_{it})$
+
+## Three Estimation Methods to Resolve Two Endogenous Problem (2)
+
+- Remaining two methods are based on propensity socre.
+- Propensity score is obtained by the predicted probability of probit estimation of the following model:
+\begin{align}
+  R_{it} = 1[
+    \alpha_0 + \alpha_1 WE_{it} + \alpha_2 \ln(1 - q^f_{it})
+    + \alpha_3 X_{it} + u_{it0} > 0
+  ] (\#eq:selection)
+\end{align}
+
+- The propensity score $\hat{P}_{it}$ is obtained by estimation using (1) full sample (pooled model)
+and (2) a subsample divided by years (separated model)
+  - The former assumes coefficients are constant with rispect to year
+  - The latter allows coefficients to depend on year
+
+## Three Estimation Methods to Resolve Two Endogenous Problem (3)
+
+Again,
+
+\begin{align*}
+  \ln g_{it} = \theta_i + \gamma (R_{it} \times \ln (1 - q^f_{it}))
+    + \beta X_{it} + \lambda_t + u_{it},
+\end{align*}
+
+Remaining two estimation methods:
+
+2. We use $\hat{P}_{it} \times \ln (1 - q^f_{it})$ as an instrument of $R_{it} \times \ln (1 - q^f_{it})$
+3. We use $\hat{P}_{it} \times \ln (1 - q^f_{it})$ instead of $R_{it} \times \ln (1 - q^f_{it})$ as the explanatory variable.
 ```

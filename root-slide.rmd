@@ -79,3 +79,8 @@ options(
 library(here)
 knitr::spin_child(here("R/1-summary.R"))
 ```
+
+# Empirical Strategy {#estimation}
+
+```{r child = "Rmd/3-estimation.rmd"}
+```
