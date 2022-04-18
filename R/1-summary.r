@@ -1,5 +1,7 @@
 #' ---
-#' title: "Preview: Data"
+#' title: |
+#'   Data: National Survey of Tax and Benefit (NaSTaB)
+#' subtitle: Preview
 #' author: Hiroki Kato
 #' output:
 #'   bookdown::html_document2:
@@ -8,45 +10,22 @@
 #'     number_sections: false
 #' params:
 #'   preview: true
+#'   appendix: true
+#'   slide: true
 #' ---
 #'
 #+ include = FALSE, eval = params$preview
-knitr::opts_chunk$set(
-  message = FALSE,
-  warning = FALSE,
-  echo = FALSE,
-  cache = FALSE,
-  include = TRUE,
-  fig.width = 10
-)
-
 library(here)
-knitr::opts_knit$set(
-  root.dir = here::here()
-)
+source(here("R", "_html_header.r"))
 
-options(
-  knitr.kable.NA = " ",
-  knitr.table.format = "html",
-  modelsummary_stars_note = FALSE
-)
-
+#+ include = FALSE
+source(here("R", "_library.r"))
 
 #'
-#+ include = FALSE, eval = params$preview
-library(xfun)
-xfun::pkg_attach2(c(
-  "tidyverse", "rlist", "modelsummary", "kableExtra",
-  "estimatr", "fixest"
-))
+#+ include = FALSE
+df <- readr::read_csv(here("data/shaped2.csv"))
 
-lapply(Sys.glob(file.path("script/functions", "*.r")), source)
-
-#'
-#+
-df <- readr::read_csv("data/shaped2.csv")
-
-#'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 本研究は2008年からKorea Institute of Taxation and Financeが実施した
 #' National Survey of Tax and Benefit (NaSTaB)を用いる。
 #' これは家計の税負担や公的扶助などに関する年次パネルデータである。
@@ -54,9 +33,9 @@ df <- readr::read_csv("data/shaped2.csv")
 #' 5,634人の世帯主と15歳以上で経済活動をしている世帯員が調査に回答する。
 #' この調査は前年の所得や寄付額に関する情報を含んでおり、
 #' それらに加えて、教育年数などの個人属性や税制に対する個人の意識に関する情報を含んでいる。
+#' ```
 #'
-#'
-#+ SummaryCovariate
+#+ SummaryCovariate, eval = output_type() != "appx"
 df %>%
   dplyr::filter(year <= 2017) %>%
   datasummary(
@@ -87,7 +66,7 @@ df %>%
   kableExtra::pack_rows("Charitable giving", 3, 5) %>%
   kableExtra::pack_rows("Individual Characteristics", 6, 11)
 
-#'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 我々の研究では(1)2013年から2018年かつ、(2)23歳以下の回答者を除いたデータを使用する。
 #' データの期間を制限した理由は、2014年の制度改革に注目するためである。
 #' 所得控除制度が適用されている期間（2014年の制度改革前）では、所得税率の改正が寄付行動に影響を与える。
@@ -96,9 +75,9 @@ df %>%
 #' その可能性を取り除くために、我々は2013年から2018年のデータ（2012年から2017年の寄付行動）を用いる。
 #' また、23歳以下の回答者を除いた理由は、所得や資産を十分に持っていない可能性が高いからである。
 #' 表\@ref(tab:SummaryCovariate)に記述統計を示した。
+#' ```
 #'
-#'
-#+ SummaryPrice, fig.cap = "Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.", out.extra = ""
+#+ SummaryPrice, fig.cap = "Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.", out.extra = "", eval = output_type() != "appx"
 df %>%
   filter(year == 2013) %>%
   dplyr::select(linc, price) %>%
@@ -129,7 +108,7 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-#'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' NaSTabは前年の労働所得を調査している。
 #' 表\@ref(tab:SummaryCovariate)は、
 #' 我々が用いるサンプルの労働所得の平均額は17.54 million KRWであることを示しており、
@@ -153,8 +132,9 @@ df %>%
 #' このグループによる差分の差分法が我々の第一の識別戦略となる[^pretrend]。
 #'
 #' [^pretrend]: 2011年以前の寄付行動は所得税率の改正による影響をうけるので、税制改革前の平行トレンドを検証することはできない。
+#' ```
 #'
-#+ SummaryGiving, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.", out.extra = ""
+#+ SummaryGiving, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.", out.extra = "", eval = output_type() != "appx"
 df %>%
   dplyr::filter(year <= 2017) %>%
   mutate(
@@ -194,7 +174,7 @@ df %>%
   labs(x = "Year", y = "Proportion of Donors") +
   ggtemp(size = list(title = 15, text = 13))
 
-#'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 各所得グループの寄付のトレンドを確認する前に、
 #' 全体的な寄付行動の傾向を図\@ref(fig:SummaryGiving)に示した。
 #' 2012年から2017年にかけて、寄付者の割合は約24%である。
@@ -202,11 +182,14 @@ df %>%
 #' 時間を通じて寄付者が増えている（グレーのバー）。
 #' また、寄付者に限定した平均寄付額（黒の実線）は約1.5 million KRW（平均所得の約7%）
 #' で時間を通じて安定している。
-#' 寄付していない人も含めると、平均寄付額は358,600 KRW（平均所得の約2%）である[^culture]。
+#' 寄付していない人も含めると、平均寄付額は358,600 KRW（平均所得の約2%）である。
 #'
-#'  [^culture]: 欧米圏の寄付との簡単な比較があると文化差が伝わるかも（コメント）
+#'  <!-- //DISCUSS
+#' [^culture]: 欧米圏の寄付との簡単な比較があると文化差が伝わるかも（コメント）
+#' -->
+#' ```
 #'
-#+ SummaryGivingOverall, fig.cap = "Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = ""
+#+ SummaryGivingOverall, fig.cap = "Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "appx"
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(credit_treat)) %>%
@@ -240,9 +223,7 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-#'
-#'
-#+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
+#+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(credit_treat) & d_donate == 1) %>%
@@ -276,8 +257,7 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-#'
-#+ SummaryGivingExtensive, fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
+#+ SummaryGivingExtensive, fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(credit_treat)) %>%
@@ -311,7 +291,7 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-#'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 図\@ref(fig:SummaryGivingOverall)は
 #' 税インセンティブの変化に基づいた所得グループごとの平均寄付額を示している（非寄付者も含めている）。
 #' この図から価格効果を観察できる。言い換えれば、税インセンティブは寄付行動を促進していることが観察される。
@@ -319,7 +299,7 @@ df %>%
 #' 税インセンティブが縮小した人は所得控除時よりも減少している。
 #' また、寄付者に限定した平均寄付額と寄付者の割合のトレンドを所得グループごとに見ると、
 #' 似たような傾向が観察された
-#' （補論\@ref(addtab)の図\@ref(fig:SummaryGivingIntensive)と図\@ref(fig:SummaryGivingExtensive)）。
+#' （補論を参照せよ）。
 #' ただし、寄付者に限定した平均寄付のトレンドを見ると、
 #' 図\@ref(fig:SummaryGivingOverall)ほどはっきりとした価格効果を観察できない。
 #'
@@ -335,6 +315,7 @@ df %>%
 #' 税インセンティブが拡大する所得グループでも寄付額は減少した。
 #' それ以降、税インセンティブが拡大した納税者は自分が寄付によって節税しやすくなることを学習し、
 #' 寄付額を所得控除時よりも増やしたと考えられる。
+#' ```
 #'
 #+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
 df %>%
@@ -370,20 +351,7 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-#'
-#' <!---
-#' ## Message from Figure \@ref(fig:SummaryReliefbyIncome)
-#'
-#' 1. tax incentive negatively correlated with application for tax relief.
-#'     - Since the 2014 tax reform, the share of application for tax relief has not increased in all income groups compared to 2013.
-#'     - the decrease in the application rate is the largest among income groups whose tax incentives decreased due to the 2014 tax reform.
-#' 2. the trend of application for tax relief does not match the trend of share of donors.
-#'     - If there is no application cost, all donors should apply for tax relief
-#'     - Figure \@ref(fig:SummaryGivingExtensive) and \@ref(fig:SummaryReliefbyIncome) imply that there is cost to apply for tax relief.
-#'     - The distribution of donations conditional on donors does not change significantly depending on whether or not they have applied for tax relief, suggesting that the application cost is high (Figure \@ref(fig:SummaryGivingIntensiveDist)).
-#' --->
-#' 
-#+ SummaryGivingIntensiveDist, fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", eval = FALSE
+#+ SummaryGivingIntensiveDist, fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", eval = output_type() != "body"
 df %>%
   filter(year <= 2017) %>%
   filter(!is.na(d_relief_donate) & d_donate == 1) %>%
@@ -401,7 +369,7 @@ df %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-#'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 寄付価格の変動は寄付控除の申告の有無でも生じる。
 #' 寄付控除を申告した場合の寄付の相対価格は図\@ref(fig:SummaryPrice)に示した通りである一方で、
 #' 寄付控除を申告しない場合の寄付の相対価格は1である。
@@ -414,8 +382,9 @@ df %>%
 #' 寄付控除の申告の有無によって、寄付者に限定した寄付額の分布は大きく変化しない。
 #' これは寄付控除の申告の有無は、控除によって得られる便益の差よりも
 #' 申告するためのコストの差で説明できることを示唆している。
+#' ```
 #'
-#+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = ""
+#+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = output_type() != "appx"
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(employee)) %>%
@@ -440,7 +409,7 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
-#+ SummaryReliefbyEarner2, fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = FALSE
+#+ SummaryReliefbyEarner2, fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = output_type() != "body"
 df %>%
   dplyr::filter(year <= 2017) %>%
   dplyr::filter(!is.na(employee) & d_donate == 1) %>%
@@ -465,6 +434,7 @@ df %>%
   ggtemp(size = list(title = 15, text = 13))
 
 #'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 以上を踏まえて、
 #' 我々は申告コストの要素の一つであるレコードキーピングに関する制度背景を第二の識別戦略として用いる。
 #' 先に述べたように、自営業者は寄付控除を申請するまで寄付の領収書（証明書）を保持しておく必要がある一方で、
@@ -477,11 +447,12 @@ df %>%
 #'
 #' [^condfig]: 寄付者に限定した控除の申告比率についても、給与所得者の方が自営業者よりも高い
 #' （補論\@ref(addtab)の図\@ref(fig:SummaryReliefbyEarner2)）。
+#' ```
 #'
 # /*
 #+
 rmarkdown::render(
-  "script/1-summary.r",
-  output_dir = "report/view"
+  here("R", "1-summary.r"),
+  output_dir = here("docs", "html-preview")
 )
 # */
