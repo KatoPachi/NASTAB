@@ -89,10 +89,10 @@ knitr::spin_child(here("R/1-summary.R"))
 
 ```{r}
 library(here)
+knitr::spin_child(here("R/7-abadie.R"))
 knitr::spin_child(here("R/3-main-estimation.R"))
 # knitr::spin_child(here("R/4-conventional-estimation.R"))
 knitr::spin_child(here("R/5-subsample-R1.R"))
-knitr::spin_child(here("R/7-abadie.R"))
 ```
 
 # Appendix

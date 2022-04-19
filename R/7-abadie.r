@@ -27,24 +27,24 @@ df <- readr::read_csv(here("data/shaped2.csv"))
 
 #'
 #' ```{asis, echo = output_type() == "slide"}
-#' ## Interpretation of IV Estimates (1)
+#' ## Expectated Results (1)
 #'
 #' - The larger the donation, the greater the tax savings
 #' - Claim and the error term in the estimated model
 #' should be positively correlated
 #' - Thus, we expect the elasticity estimated from the FE model
 #' to be more elastic than the elasticity estimated from the FE-2SLS model
-#'   - Extensive-margin price elasticity is in line with our conjecture.
-#'   - Intensive-margin price elasticity contradicts our expectation.
+#'   <!-- - Extensive-margin price elasticity is in line with our conjecture. -->
+#'   <!-- - Intensive-margin price elasticity contradicts our expectation.  -->
 #'
-#' ## Interpretation of IV Estimates (2)
+#' ## Expected Results (2)
 #'
 #' If we assume that price elasticity is heterogenous among tax-payers,
 #' FE-2SLS estimates average price elasticity of
 #' those who change their application behavior
 #' depending on the value of IV (LATE).
 #'
-#' ## Interpretation of IV Estimates (3)
+#' ## About LATE
 #'
 #' Let $R_{it}(z)$ be a dummy of application if $Z_{it} = z$.
 #' Then, assuming monotonicity ($R_{it}(1) \ge R_{it}(0)$),
@@ -166,7 +166,7 @@ bind_cols(tab_int_data, c(outcome = "intensive")) %>%
   )
 
 #' ```{asis, echo = output_type() == "slide"}
-#' ## Price Elasticity of Three Types
+#' ## Expected Price Elasticity of Three Types (1)
 #'
 #' - Never declarer
 #'   - Since their giving price is always 1,
@@ -181,17 +181,17 @@ bind_cols(tab_int_data, c(outcome = "intensive")) %>%
 #'   - intensive-margin price elasticity among always declarers
 #'   is slightly less elastic than among start declarers
 #'
-#' ## Price Elasticity of Three Types
+#' ## Expected Price Elasticity of Three Types (2)
 #'
 #' Relationship of price elasticity
 #' (in terms of absolute term) among three types:
 #'
 #' $$ \text{Always} < \text{Start} < \text{Never} $$
 #'
-#' - Intensive-margin price elasticity estimated by FE
+#' - We expect intensive-margin price elasticity estimated by FE
 #' outweigh always declarer and start declarer
 #'   - FE < FE-2SLS (in terms of absolute value)
-#' - Extensive-margin price elasticity estimated by FE
+#' - We expect extensive-margin price elasticity estimated by FE
 #' outweigh start declarer and never declarer
 #'   - FE-2SLS < FE (in terms of absolute value)
 #'
