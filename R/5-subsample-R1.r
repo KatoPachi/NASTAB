@@ -25,8 +25,10 @@ df <- readr::read_csv(here("data/shaped2.csv"))
 estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 
 #'
-#'
-#+ R1Elasticity, eval = FALSE
+#' ```{asis, echo = output_type() == "appx"}
+#' ## Intensive-Margin Price Elasticity: Only Applicants
+#' ```
+#+ intensive-r1, eval = output_type() == "appx"
 fixest::setFixest_fml(
   ..cov = ~ linc_ln + sqage | year + pid + indust + area
 )
@@ -57,8 +59,8 @@ addtab <- tribble(
   sprintf("%1.3f", est_r1mod[[4]]$iv_first_stage$lprice_ln$coeftable[1, 1]),
   "", "", "",
   sprintf("[%1.1f]", fitstat(est_r1mod[[3]], "ivwald")[[1]]$stat),
-  sprintf("[%1.1f]", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat),
-  "Square of age", "X", "X", "X", "X"
+  sprintf("[%1.1f]", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat)
+  # "Square of age", "X", "X", "X", "X"
 )
 
 attr(addtab, "position") <- c(13, 14)
@@ -96,8 +98,10 @@ est_r1mod %>%
     escape = FALSE
   )
 
-#'
-#+ KdiffElasticity, eval = FALSE
+#' ```{asis, echo = output_type() == "appx"}
+#' ## Intensive-Margin Price Elasticity: $k$-th Difference Model with Only Applicants
+#' ```
+#+ kdiff-model, eval = output_type() == "appx"
 fixest::setFixest_fml(
   ..kdiff1 = ~ linc_ln_d1 + sqage_d1,
   ..kdiff2 = ~ linc_ln_d2 + sqage_d2,
@@ -153,9 +157,9 @@ attr(addtab, "position") <- c(5, 6)
 
 est_kdiffmod %>%
   modelsummary(
-    title = paste(
-      "$k$-th Difference Model Using Those Who Applied for Tax Relief"
-    ),
+    # title = paste(
+    #   "$k$-th Difference Model Using Those Who Applied for Tax Relief"
+    # ),
     coef_map = c(
       "fit_price_ln_d1" = "Difference of logged first price",
       "linc_ln_d1" = "Difference of logged income",
@@ -165,8 +169,8 @@ est_kdiffmod %>%
       "linc_ln_d3" = "Difference of logged income"
     ),
     gof_omit = "^(?!FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = addtab
+    stars = c("*" = .1, "**" = .05, "***" = .01)
+    # add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
@@ -186,6 +190,7 @@ est_kdiffmod %>%
   )
 
 #'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' \noindent
 #' *Use those who applied for tax relief*.
 #' 弾力性を推定した過去の研究は寄付控除を申告した人に限定したデータを用いている。
@@ -205,6 +210,20 @@ est_kdiffmod %>%
 #' また、我々は所得に対する寄付価格の内生性を考慮した$k$-th difference modelも推定し、
 #' その結果を補論\@ref(addtab)の表\@ref(tab:KdiffElasticity)に示した。
 #' このモデルの推定結果はintensive-margin price elasticityの絶対値は最大でも5となった。
+#' ```
+#'
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Robustness Check (Cont'd)
+#'
+#' *Use Only Applicants Data*
+#'
+#' - To discuss mechanism,
+#' we estimate price elasticity with only applicants data
+#'   - Since applicants always donate,
+#'   we cannot estimate extensive-margin price elasticity
+#' - Estimated intensive-margin price elasticity
+#' is slightly less elastic than main results.
+#' ```
 #'
 # /*
 #+

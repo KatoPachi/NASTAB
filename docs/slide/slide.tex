@@ -998,6 +998,28 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Robustness Check (Cont'd)}
+\protect\hypertarget{robustness-check-contd}{}
+\emph{Use Only Applicants Data}
+
+\begin{itemize}
+\tightlist
+\item
+  To discuss mechanism,
+  we estimate price elasticity with only applicants data
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Since applicants always donate,
+    we cannot estimate extensive-margin price elasticity
+  \end{itemize}
+\item
+  Estimated intensive-margin price elasticity
+  is slightly less elastic than main results.
+\end{itemize}
+\end{frame}
+
 \hypertarget{appendix}{%
 \section{Appendix}\label{appendix}}
 
@@ -1132,6 +1154,74 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \end{tabular}
 \begin{tablenotes}
 \item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Intensive-Margin Price Elasticity: Only Applicants}
+\protect\hypertarget{intensive-margin-price-elasticity-only-applicants}{}
+\begin{table}
+
+\caption{\label{tab:intensive-r1-87}Estimating Intensive-Margin Price Elasticities for Those Who Applied for Tax Relief}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+  & (1) & (2) & (3) & (4)\\
+\midrule
+log(first price) & \num{-1.203}*** & \num{-0.506} &  & \\
+ & (\num{0.390}) & (\num{0.847}) &  & \\
+log(last price) &  &  & \num{-1.330}*** & \num{-0.254}\\
+ &  &  & (\num{0.452}) & (\num{0.903})\\
+log(income) & \num{0.525} & \num{6.126} & \num{0.532} & \num{6.093}\\
+ & (\num{0.776}) & (\num{5.365}) & (\num{0.785}) & (\num{5.503})\\
+1-year lag of price &  & \num{0.369} &  & \num{0.487}\\
+ &  & (\num{0.884}) &  & (\num{0.911})\\
+1-year lag of income &  & \num{1.040} &  & \num{1.129}\\
+ &  & (\num{4.777}) &  & (\num{5.030})\\
+1-year lead of income &  & \num{-0.821} &  & \num{-0.826}\\
+ &  & (\num{0.907}) &  & (\num{0.904})\\
+\midrule
+Instrument: log(first price) &  &  & 0.942 & -0.000\\
+ &  &  & {}[3083.6] & {}[0.0]\\
+Num.Obs. & \num{4079} & \num{1029} & \num{3972} & \num{1024}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. 1-year lead of price cannot be estimated because of collinearity.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Intensive-Margin Price Elasticity: \(k\)-th Difference Model with Only Applicants}
+\protect\hypertarget{intensive-margin-price-elasticity-k-th-difference-model-with-only-applicants}{}
+\begin{table}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{1-year lag} & \multicolumn{1}{c}{2-year lag} & \multicolumn{1}{c}{3-year lag} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
+  & (1) & (2) & (3)\\
+\midrule
+Difference of logged first price & \num{-1.890}* & \num{-2.530}*** & \num{-4.057}***\\
+ & (\num{1.107}) & (\num{0.895}) & (\num{0.720})\\
+Difference of logged income & \num{1.033} & \num{6.460}** & \num{5.659}**\\
+ & (\num{2.323}) & (\num{3.039}) & (\num{2.558})\\
+\midrule
+Num.Obs. & \num{4014} & \num{3903} & \num{3765}\\
+Std.Errors & Clustered (pid) & Clustered (pid) & Clustered (pid)\\
+FE: area & X & X & X\\
+FE: indust & X & X & X\\
+FE: year & X & X & X\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. Instrument is difference between lagged first price in year $t$ and in year $t - k$ fixing income in year $t - k$.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
