@@ -293,10 +293,10 @@ Section 6 concludes.
 
 Using the IV representing the compliance cost,
 
-1. Intensive-margin price elasticities are in the range between $XXX$ and $XXX$
-    - FE model w/o IV: $XXX$ (similar value to the estimates in the existing literature)
-2. Extensive-margin price elasticities are in the range between $YYY$ and $YYY$
-    - FE model w/o IV: $YYY$
+1. Intensive-margin price elasticities are in the range between $-1.4$ and $-1.5$
+    - FE model w/o IV: $-0.7$ (similar value to the estimates in the existing literature)
+2. Extensive-margin price elasticities are in the range between $-1.7$ and $-2.8$
+    - FE model w/o IV: $-10.8$
 
 We examine well-known issues in the robustness check
 

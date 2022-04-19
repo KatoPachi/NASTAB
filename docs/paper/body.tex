@@ -97,6 +97,19 @@
 
 
 \usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
 \usepackage{siunitx}
 \newcolumntype{d}{S[input-symbols = ()]}
 \ifLuaTeX
@@ -121,7 +134,7 @@
   \and
   }
 
-\date{2022/04/18}
+\date{2022/04/19}
 
 
 \begin{document}
@@ -333,7 +346,7 @@ Section 5 deals with the analysis of price elasticity.
 Section 6 concludes.
 
 \hypertarget{background}{%
-\subsection{Institutional background and Sources of endogeneity}\label{background}}
+\subsection{Institutional background and Sources of Endogeneity}\label{background}}
 
 In this section,
 we describe the income tax relief for charitable giving in Korea
@@ -495,31 +508,29 @@ National Survey of Tax and Benefit (NaSTaB)を用いる。
 それらに加えて、教育年数などの個人属性や税制に対する個人の意識に関する情報を含んでいる。
 
 \begin{table}
-
-\caption{\label{tab:SummaryCovariate}Descriptive Statistics}
 \centering
 \fontsize{9}{11}\selectfont
-\begin{tabular}[t]{lcccccc}
+\begin{tabular}[t]{lccc}
 \toprule
-  & N & Mean & Std.Dev. & Min & Median & Max\\
+  & N & Mean & Std.Dev.\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{7}{l}{\textbf{Income and giving price}}\\
-\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 36189 & \num{1747.26} & \num{2696.77} & \num{0.00} & \num{0.00} & \num{50000.00}\\
-\hspace{1em}First giving relative price & 36198 & \num{0.86} & \num{0.04} & \num{0.62} & \num{0.85} & \num{0.94}\\
+\multicolumn{4}{l}{\textbf{Income and giving price}}\\
+\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 36189 & \num{1747.26} & \num{2696.77}\\
+\hspace{1em}First giving relative price & 36198 & \num{0.86} & \num{0.04}\\
 \addlinespace[0.3em]
-\multicolumn{7}{l}{\textbf{Charitable giving}}\\
-\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 36199 & \num{35.64} & \num{153.20} & \num{0.00} & \num{0.00} & \num{10000.00}\\
-\hspace{1em}Dummary of donation > 0 & 36199 & \num{0.24} & \num{0.42} & \num{0.00} & \num{0.00} & \num{1.00}\\
-\hspace{1em}Dummy of declaration of a tax relief & 36199 & \num{0.10} & \num{0.30} & \num{0.00} & \num{0.00} & \num{1.00}\\
+\multicolumn{4}{l}{\textbf{Charitable giving}}\\
+\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 36199 & \num{35.64} & \num{153.20}\\
+\hspace{1em}Dummary of donation > 0 & 36199 & \num{0.24} & \num{0.42}\\
+\hspace{1em}Dummy of declaration of a tax relief & 36199 & \num{0.10} & \num{0.30}\\
 \addlinespace[0.3em]
-\multicolumn{7}{l}{\textbf{Individual Characteristics}}\\
-\hspace{1em}Age & 36199 & \num{53.45} & \num{16.22} & \num{24.00} & \num{51.00} & \num{103.00}\\
-\hspace{1em}Female dummy & 36199 & \num{0.43} & \num{0.50} & \num{0.00} & \num{0.00} & \num{1.00}\\
-\hspace{1em}University graduate & 36198 & \num{0.42} & \num{0.49} & \num{0.00} & \num{0.00} & \num{1.00}\\
-\hspace{1em}High school graduate dummy & 36198 & \num{0.31} & \num{0.46} & \num{0.00} & \num{0.00} & \num{1.00}\\
-\hspace{1em}Junior high school graduate dummy & 36198 & \num{0.27} & \num{0.44} & \num{0.00} & \num{0.00} & \num{1.00}\\
-\hspace{1em}Wage earner dummy & 27394 & \num{0.56} & \num{0.50} & \num{0.00} & \num{1.00} & \num{1.00}\\
+\multicolumn{4}{l}{\textbf{Individual Characteristics}}\\
+\hspace{1em}Age & 36199 & \num{53.45} & \num{16.22}\\
+\hspace{1em}Female dummy & 36199 & \num{0.43} & \num{0.50}\\
+\hspace{1em}University graduate & 36198 & \num{0.42} & \num{0.49}\\
+\hspace{1em}High school graduate dummy & 36198 & \num{0.31} & \num{0.46}\\
+\hspace{1em}Junior high school graduate dummy & 36198 & \num{0.27} & \num{0.44}\\
+\hspace{1em}Wage earner dummy & 27394 & \num{0.56} & \num{0.50}\\
 \bottomrule
 \end{tabular}
 \end{table}

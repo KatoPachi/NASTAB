@@ -529,7 +529,7 @@ Self-employed workers:
 \protect\hypertarget{income-distribution-and-giving-price}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NASTAB/docs/slide/slide_files/figure-beamer/SummaryPrice-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryPrice-1} 
 
 }
 
@@ -575,7 +575,7 @@ a change of tax incentive due to 2014 tax reform.
 \protect\hypertarget{summary-of-giving-behavior}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NASTAB/docs/slide/slide_files/figure-beamer/SummaryGiving-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGiving-1} 
 
 }
 
@@ -587,7 +587,7 @@ a change of tax incentive due to 2014 tax reform.
 \protect\hypertarget{summary-of-giving-amount-by-three-income-groups}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NASTAB/docs/slide/slide_files/figure-beamer/SummaryGivingOverall-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGivingOverall-1} 
 
 }
 
@@ -599,7 +599,7 @@ a change of tax incentive due to 2014 tax reform.
 \protect\hypertarget{summary-of-giving-amount-by-three-income-groups-conditional-on-donors}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NASTAB/docs/slide/slide_files/figure-beamer/SummaryGivingIntensive-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGivingIntensive-1} 
 
 }
 
@@ -611,7 +611,7 @@ a change of tax incentive due to 2014 tax reform.
 \protect\hypertarget{summary-of-proportion-of-donors-by-three-income-groups}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NASTAB/docs/slide/slide_files/figure-beamer/SummaryGivingExtensive-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGivingExtensive-1} 
 
 }
 
@@ -623,7 +623,7 @@ a change of tax incentive due to 2014 tax reform.
 \protect\hypertarget{distribution-of-giving-amount-by-application-of-tax-relief}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NASTAB/docs/slide/slide_files/figure-beamer/SummaryGivingIntensiveDist-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryGivingIntensiveDist-1} 
 
 }
 
@@ -635,7 +635,7 @@ a change of tax incentive due to 2014 tax reform.
 \protect\hypertarget{compliance-rate-by-wage-earners-or-not}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NASTAB/docs/slide/slide_files/figure-beamer/SummaryReliefbyEarner-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryReliefbyEarner-1} 
 
 }
 
@@ -647,7 +647,7 @@ a change of tax incentive due to 2014 tax reform.
 \protect\hypertarget{compliance-rate-by-wage-earners-or-not-conditional-on-donors}{}
 \begin{figure}[t]
 
-{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NASTAB/docs/slide/slide_files/figure-beamer/SummaryReliefbyEarner2-1} 
+{\centering \includegraphics[width=0.7\linewidth,]{C:/Users/vge00/Desktop/NaSTaB/docs/slide/slide_files/figure-beamer/SummaryReliefbyEarner2-1} 
 
 }
 
@@ -897,6 +897,144 @@ Remaining two estimation methods:
 \hypertarget{result}{%
 \section{Estimation Results}\label{result}}
 
+\begin{frame}{Expectated Results (1)}
+\protect\hypertarget{expectated-results-1}{}
+\begin{itemize}
+\tightlist
+\item
+  The larger the donation, the greater the tax savings
+\item
+  Claim and the error term in the estimated model
+  should be positively correlated
+\item
+  Thus, we expect the elasticity estimated from the FE model
+  to be more elastic than the elasticity estimated from the FE-2SLS model
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Expected Results (2)}
+\protect\hypertarget{expected-results-2}{}
+If we assume that price elasticity is heterogenous among tax-payers,
+FE-2SLS estimates average price elasticity of
+those who change their application behavior
+depending on the value of IV (LATE).
+\end{frame}
+
+\begin{frame}{About LATE}
+\protect\hypertarget{about-late}{}
+Let \(R_{it}(z)\) be a dummy of application if \(Z_{it} = z\).
+Then, assuming monotonicity (\(R_{it}(1) \ge R_{it}(0)\)),
+we classify tax-payers into three groups:
+
+\begin{enumerate}
+\tightlist
+\item
+  Never declarer: \(R_{it}(1) = R_{it}(0) = 0\)
+\item
+  Always declarer: \(R_{it}(1) = R_{it}(0) = 1\)
+\item
+  Start declarer: \(R_{it}(1) =1, R_{it}(0) = 0\)
+\end{enumerate}
+
+Price elasticity estimated by FE-2SLS is
+average price elasticity among start declarers.
+\end{frame}
+
+\begin{frame}{Fraction of Applicants Type: Abadie's Theorem}
+\protect\hypertarget{fraction-of-applicants-type-abadies-theorem}{}
+Abadie (2003) shows
+
+\[ Pr[R_{it}(1) =1, R_{it}(0) = 0] = E(\kappa_{it}) \]
+
+where
+
+\[
+\kappa_{it} = 1
+- \frac{R_{it}(1 - Z_{it})}{1 - P(Z_{it} = 1|X_{it})}
+- \frac{(1 - R_{it})Z_{it}}{P(Z_{it} = 1|X_{it})}
+\]
+\end{frame}
+
+\begin{frame}{Fraction of Applicants Type: Results}
+\protect\hypertarget{fraction-of-applicants-type-results}{}
+\begin{table}
+\centering
+\begin{tabular}[t]{lcc}
+\toprule
+Type of applicant & extensive & intensive\\
+\midrule
+$R_{it}(1) = R_{it}(0) = 0$ & \num{48.15} & \num{31.09}\\
+$R_{it}(1) = R_{it}(0) = 1$ & \num{1.55} & \num{8.74}\\
+$R_{it}(1) =1, R_{it}(0) = 0$ & \num{50.30} & \num{60.17}\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Expected Price Elasticity of Three Types (1)}
+\protect\hypertarget{expected-price-elasticity-of-three-types-1}{}
+\begin{itemize}
+\tightlist
+\item
+  Never declarer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Since their giving price is always 1,
+    intensive- and extensive-margin (within) price elasticity is infinite.
+  \end{itemize}
+\item
+  Always declarer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Since they always donate,
+    extensive-margin (within) price elasticity is zero.
+  \item
+    Intensive-margin elasticity estimated by FE-2SLS
+    is slightly less elastic than estimated by only applicants data.
+  \item
+    Under monotonicity assumption, only applicants data includes
+    always declarer and start declarer.
+  \item
+    intensive-margin price elasticity among always declarers
+    is slightly less elastic than among start declarers
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Expected Price Elasticity of Three Types (2)}
+\protect\hypertarget{expected-price-elasticity-of-three-types-2}{}
+Relationship of price elasticity
+(in terms of absolute term) among three types:
+
+\[ \text{Always} < \text{Start} < \text{Never} \]
+
+\begin{itemize}
+\tightlist
+\item
+  We expect intensive-margin price elasticity estimated by FE
+  outweigh always declarer and start declarer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    FE \textless{} FE-2SLS (in terms of absolute value)
+  \end{itemize}
+\item
+  We expect extensive-margin price elasticity estimated by FE
+  outweigh start declarer and never declarer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    FE-2SLS \textless{} FE (in terms of absolute value)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Main Results: Intensive-Margin Price Elasticity}
 \protect\hypertarget{main-results-intensive-margin-price-elasticity}{}
 \begin{table}
@@ -1017,152 +1155,6 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \item
   Estimated intensive-margin price elasticity
   is slightly less elastic than main results.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Interpretation of IV Estimates (1)}
-\protect\hypertarget{interpretation-of-iv-estimates-1}{}
-\begin{itemize}
-\tightlist
-\item
-  The larger the donation, the greater the tax savings
-\item
-  Claim and the error term in the estimated model
-  should be positively correlated
-\item
-  Thus, we expect the elasticity estimated from the FE model
-  to be more elastic than the elasticity estimated from the FE-2SLS model
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Extensive-margin price elasticity is in line with our conjecture.
-  \item
-    Intensive-margin price elasticity contradicts our expectation.
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Interpretation of IV Estimates (2)}
-\protect\hypertarget{interpretation-of-iv-estimates-2}{}
-If we assume that price elasticity is heterogenous among tax-payers,
-FE-2SLS estimates average price elasticity of
-those who change their application behavior
-depending on the value of IV (LATE).
-\end{frame}
-
-\begin{frame}{Interpretation of IV Estimates (3)}
-\protect\hypertarget{interpretation-of-iv-estimates-3}{}
-Let \(R_{it}(z)\) be a dummy of application if \(Z_{it} = z\).
-Then, assuming monotonicity (\(R_{it}(1) \ge R_{it}(0)\)),
-we classify tax-payers into three groups:
-
-\begin{enumerate}
-\tightlist
-\item
-  Never declarer: \(R_{it}(1) = R_{it}(0) = 0\)
-\item
-  Always declarer: \(R_{it}(1) = R_{it}(0) = 1\)
-\item
-  Start declarer: \(R_{it}(1) =1, R_{it}(0) = 0\)
-\end{enumerate}
-
-Price elasticity estimated by FE-2SLS is
-average price elasticity among start declarers.
-\end{frame}
-
-\begin{frame}{Fraction of Applicants Type: Abadie's Theorem}
-\protect\hypertarget{fraction-of-applicants-type-abadies-theorem}{}
-Abadie (2003) shows
-
-\[ Pr[R_{it}(1) =1, R_{it}(0) = 0] = E(\kappa_{it}) \]
-
-where
-
-\[
-\kappa_{it} = 1
-- \frac{R_{it}(1 - Z_{it})}{1 - P(Z_{it} = 1|X_{it})}
-- \frac{(1 - R_{it})Z_{it}}{P(Z_{it} = 1|X_{it})}
-\]
-\end{frame}
-
-\begin{frame}{Fraction of Applicants Type: Results}
-\protect\hypertarget{fraction-of-applicants-type-results}{}
-\begin{table}
-\centering
-\begin{tabular}[t]{lcc}
-\toprule
-Type of applicant & extensive & intensive\\
-\midrule
-$R_{it}(1) = R_{it}(0) = 0$ & \num{40.34} & \num{21.37}\\
-$R_{it}(1) = R_{it}(0) = 1$ & \num{0.76} & \num{2.85}\\
-$R_{it}(1) =1, R_{it}(0) = 0$ & \num{58.90} & \num{75.78}\\
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Price Elasticity of Three Types}
-\protect\hypertarget{price-elasticity-of-three-types}{}
-\begin{itemize}
-\tightlist
-\item
-  Never declarer
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Since their giving price is always 1,
-    intensive- and extensive-margin (within) price elasticity is infinite.
-  \end{itemize}
-\item
-  Always declarer
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Since they always donate,
-    extensive-margin (within) price elasticity is zero.
-  \item
-    Intensive-margin elasticity estimated by FE-2SLS
-    is slightly less elastic than estimated by only applicants data.
-  \item
-    Under monotonicity assumption, only applicants data includes
-    always declarer and start declarer.
-  \item
-    intensive-margin price elasticity among always declarers
-    is slightly less elastic than among start declarers
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Price Elasticity of Three Types}
-\protect\hypertarget{price-elasticity-of-three-types-1}{}
-Relationship of price elasticity
-(in terms of absolute term) among three types:
-
-\[ \text{Always} < \text{Start} < \text{Never} \]
-
-\begin{itemize}
-\tightlist
-\item
-  Intensive-margin price elasticity estimated by FE
-  outweigh always declarer and start declarer
-
-  \begin{itemize}
-  \tightlist
-  \item
-    FE \textless{} FE-2SLS (in terms of absolute value)
-  \end{itemize}
-\item
-  Extensive-margin price elasticity estimated by FE
-  outweigh start declarer and never declarer
-
-  \begin{itemize}
-  \tightlist
-  \item
-    FE-2SLS \textless{} FE (in terms of absolute value)
-  \end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -1360,10 +1352,10 @@ Difference of logged income & \num{1.033} & \num{6.460}** & \num{5.659}**\\
  & (\num{2.323}) & (\num{3.039}) & (\num{2.558})\\
 \midrule
 Num.Obs. & \num{4014} & \num{3903} & \num{3765}\\
-Std.Errors & Clustered (pid) & Clustered (pid) & Clustered (pid)\\
+Std.Errors & by: pid & by: pid & by: pid\\
+FE: year & X & X & X\\
 FE: area & X & X & X\\
 FE: indust & X & X & X\\
-FE: year & X & X & X\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
