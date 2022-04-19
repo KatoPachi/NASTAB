@@ -13,16 +13,68 @@
 #' ---
 #'
 #+ include = FALSE, eval = params$preview
-source("script/_html_header.r")
-source("script/_libs.r")
+library(here)
+source(here("R", "_html_header.r"))
+
+#+ include = FALSE
+source(here("R", "_library.r"))
 
 #'
 #+ include = FALSE
-book <- readr::read_csv("data/codebook/shaped2_description.csv"); View(book)
-df <- readr::read_csv("data/shaped2.csv")
+book <- readr::read_csv(here("data/codebook", "shaped2_description.csv"))
+View(book)
+df <- readr::read_csv(here("data/shaped2.csv"))
 
 #'
-#+ kappa-intensive
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Interpretation of IV Estimates (1)
+#'
+#' - The larger the donation, the greater the tax savings
+#' - Claim and the error term in the estimated model
+#' should be positively correlated
+#' - Thus, we expect the elasticity estimated from the FE model
+#' to be more elastic than the elasticity estimated from the FE-2SLS model
+#'   - Extensive-margin price elasticity is in line with our conjecture.
+#'   - Intensive-margin price elasticity contradicts our expectation.
+#'
+#' ## Interpretation of IV Estimates (2)
+#'
+#' If we assume that price elasticity is heterogenous among tax-payers,
+#' FE-2SLS estimates average price elasticity of
+#' those who change their application behavior
+#' depending on the value of IV (LATE).
+#'
+#' ## Interpretation of IV Estimates (3)
+#'
+#' Let $R_{it}(z)$ be a dummy of application if $Z_{it} = z$.
+#' Then, assuming monotonicity ($R_{it}(1) \ge R_{it}(0)$),
+#' we classify tax-payers into three groups:
+#'
+#' 1. Never declarer: $R_{it}(1) = R_{it}(0) = 0$
+#' 1. Always declarer: $R_{it}(1) = R_{it}(0) = 1$
+#' 1. Start declarer: $R_{it}(1) =1, R_{it}(0) = 0$
+#'
+#' Price elasticity estimated by FE-2SLS is
+#' average price elasticity among start declarers.
+#'
+#' ## Fraction of Applicants Type: Abadie's Theorem
+#'
+#' Abadie (2003) shows
+#'
+#' $$ Pr[R_{it}(1) =1, R_{it}(0) = 0] = E(\kappa_{it}) $$
+#'
+#' where
+#'
+#' $$
+#' \kappa_{it} = 1
+#' - \frac{R_{it}(1 - Z_{it})}{1 - P(Z_{it} = 1|X_{it})}
+#' - \frac{(1 - R_{it})Z_{it}}{P(Z_{it} = 1|X_{it})}
+#' $$
+#'
+#' ## Fraction of Applicants Type: Results
+#' ```
+#'
+#+ kappa-intensive, include = FALSE
 intdf <- subset(df, d_donate == 1)
 
 # estimate P(Z = 1|X) and P(Z = 1|X, Y)
@@ -59,7 +111,7 @@ tab_int_data <- intdf %>%
   pivot_longer(always:never, names_to = "type", values_to = "prop") %>%
   bind_rows(tibble(type = "start", prop = mean(intdf$kappa, na.rm = TRUE)))
 
-#+ kappa-extensive
+#+ kappa-extensive, include = FALSE
 # estimate P(Z = 1|X) and P(Z = 1|X, Y)
 est_z_mod <- feglm(
   z_mod, data = df,
@@ -109,5 +161,39 @@ bind_cols(tab_int_data, c(outcome = "intensive")) %>%
     (`Type of applicant` = type) ~
       (` ` = mean) * (` ` = prop) * outcome,
     data = .,
-    align = "lcc"
+    align = "lcc",
+    escape = FALSE
   )
+
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Price Elasticity of Three Types
+#'
+#' - Never declarer
+#'   - Since their giving price is always 1,
+#'   intensive- and extensive-margin (within) price elasticity is infinite.
+#' - Always declarer
+#'   - Since they always donate,
+#'   extensive-margin (within) price elasticity is zero.
+#'   - Intensive-margin elasticity estimated by FE-2SLS
+#'   is slightly less elastic than estimated by only applicants data.
+#'   - Under monotonicity assumption, only applicants data includes
+#'   always declarer and start declarer.
+#'   - intensive-margin price elasticity among always declarers
+#'   is slightly less elastic than among start declarers
+#'
+#' ## Price Elasticity of Three Types
+#'
+#' Relationship of price elasticity
+#' (in terms of absolute term) among three types:
+#'
+#' $$ \text{Always} < \text{Start} < \text{Never} $$
+#'
+#' - Intensive-margin price elasticity estimated by FE
+#' outweigh always declarer and start declarer
+#'   - FE < FE-2SLS (in terms of absolute value)
+#' - Extensive-margin price elasticity estimated by FE
+#' outweigh start declarer and never declarer
+#'   - FE-2SLS < FE (in terms of absolute value)
+#'
+#' ```
+#' 

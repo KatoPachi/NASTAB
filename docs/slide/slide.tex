@@ -1020,6 +1020,152 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Interpretation of IV Estimates (1)}
+\protect\hypertarget{interpretation-of-iv-estimates-1}{}
+\begin{itemize}
+\tightlist
+\item
+  The larger the donation, the greater the tax savings
+\item
+  Claim and the error term in the estimated model
+  should be positively correlated
+\item
+  Thus, we expect the elasticity estimated from the FE model
+  to be more elastic than the elasticity estimated from the FE-2SLS model
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Extensive-margin price elasticity is in line with our conjecture.
+  \item
+    Intensive-margin price elasticity contradicts our expectation.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Interpretation of IV Estimates (2)}
+\protect\hypertarget{interpretation-of-iv-estimates-2}{}
+If we assume that price elasticity is heterogenous among tax-payers,
+FE-2SLS estimates average price elasticity of
+those who change their application behavior
+depending on the value of IV (LATE).
+\end{frame}
+
+\begin{frame}{Interpretation of IV Estimates (3)}
+\protect\hypertarget{interpretation-of-iv-estimates-3}{}
+Let \(R_{it}(z)\) be a dummy of application if \(Z_{it} = z\).
+Then, assuming monotonicity (\(R_{it}(1) \ge R_{it}(0)\)),
+we classify tax-payers into three groups:
+
+\begin{enumerate}
+\tightlist
+\item
+  Never declarer: \(R_{it}(1) = R_{it}(0) = 0\)
+\item
+  Always declarer: \(R_{it}(1) = R_{it}(0) = 1\)
+\item
+  Start declarer: \(R_{it}(1) =1, R_{it}(0) = 0\)
+\end{enumerate}
+
+Price elasticity estimated by FE-2SLS is
+average price elasticity among start declarers.
+\end{frame}
+
+\begin{frame}{Fraction of Applicants Type: Abadie's Theorem}
+\protect\hypertarget{fraction-of-applicants-type-abadies-theorem}{}
+Abadie (2003) shows
+
+\[ Pr[R_{it}(1) =1, R_{it}(0) = 0] = E(\kappa_{it}) \]
+
+where
+
+\[
+\kappa_{it} = 1
+- \frac{R_{it}(1 - Z_{it})}{1 - P(Z_{it} = 1|X_{it})}
+- \frac{(1 - R_{it})Z_{it}}{P(Z_{it} = 1|X_{it})}
+\]
+\end{frame}
+
+\begin{frame}{Fraction of Applicants Type: Results}
+\protect\hypertarget{fraction-of-applicants-type-results}{}
+\begin{table}
+\centering
+\begin{tabular}[t]{lcc}
+\toprule
+Type of applicant & extensive & intensive\\
+\midrule
+$R_{it}(1) = R_{it}(0) = 0$ & \num{40.34} & \num{21.37}\\
+$R_{it}(1) = R_{it}(0) = 1$ & \num{0.76} & \num{2.85}\\
+$R_{it}(1) =1, R_{it}(0) = 0$ & \num{58.90} & \num{75.78}\\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Price Elasticity of Three Types}
+\protect\hypertarget{price-elasticity-of-three-types}{}
+\begin{itemize}
+\tightlist
+\item
+  Never declarer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Since their giving price is always 1,
+    intensive- and extensive-margin (within) price elasticity is infinite.
+  \end{itemize}
+\item
+  Always declarer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Since they always donate,
+    extensive-margin (within) price elasticity is zero.
+  \item
+    Intensive-margin elasticity estimated by FE-2SLS
+    is slightly less elastic than estimated by only applicants data.
+  \item
+    Under monotonicity assumption, only applicants data includes
+    always declarer and start declarer.
+  \item
+    intensive-margin price elasticity among always declarers
+    is slightly less elastic than among start declarers
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Price Elasticity of Three Types}
+\protect\hypertarget{price-elasticity-of-three-types-1}{}
+Relationship of price elasticity
+(in terms of absolute term) among three types:
+
+\[ \text{Always} < \text{Start} < \text{Never} \]
+
+\begin{itemize}
+\tightlist
+\item
+  Intensive-margin price elasticity estimated by FE
+  outweigh always declarer and start declarer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    FE \textless{} FE-2SLS (in terms of absolute value)
+  \end{itemize}
+\item
+  Extensive-margin price elasticity estimated by FE
+  outweigh start declarer and never declarer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    FE-2SLS \textless{} FE (in terms of absolute value)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
 \hypertarget{appendix}{%
 \section{Appendix}\label{appendix}}
 
@@ -1163,7 +1309,7 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \protect\hypertarget{intensive-margin-price-elasticity-only-applicants}{}
 \begin{table}
 
-\caption{\label{tab:intensive-r1-87}Estimating Intensive-Margin Price Elasticities for Those Who Applied for Tax Relief}
+\caption{\label{tab:intensive-r1-92}Estimating Intensive-Margin Price Elasticities for Those Who Applied for Tax Relief}
 \centering
 \fontsize{8}{10}\selectfont
 \begin{threeparttable}
