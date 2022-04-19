@@ -257,6 +257,7 @@ est_rob_lastmod %>%
   )
 
 #'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' \noindent
 #' *Conventional Estimation Strategy.*
 #' これまでの弾力性を推定した研究がLast-unit priceを用いた弾力性を推定するとき、
@@ -275,6 +276,7 @@ est_rob_lastmod %>%
 #' 推定結果は補論\@ref(addtab)の表\@ref(tab:WoAnnoucementElasticity)に示した。
 #' その結果、どちらの価格弾力性もより弾力的に推定された。
 #' この傾向はこれまでの結果と整合的である。
+#' ```
 #'
 # /*
 #+
