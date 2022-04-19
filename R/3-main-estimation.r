@@ -25,9 +25,15 @@ df <- readr::read_csv(here("data/shaped2.csv"))
 estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 
 #'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' ## Main Results
+#' ```
 #'
-#+ MainIntensive
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Main Results: Intensive-Margin Price Elasticity
+#' ```
+#'
+#+ intensive, eval = output_type() != "appx"
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage | year + pid + indust + area
 )
@@ -76,7 +82,7 @@ stage1_intmod <- est_intmod[4:6] %>%
 addtab <- stage1_intmod %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~ "(6)",
-    "Square of age", "X", "X", "X", "X", "X", "X",
+    # "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
@@ -86,7 +92,7 @@ attr(addtab, "position") <- 7:8
 
 est_intmod %>%
   modelsummary(
-    title = "Intensive-Margin Tax-Price Elasticity",
+    # title = "Intensive-Margin Tax-Price Elasticity",
     coef_map = c(
       "d_relief_donate:price_ln" =
         "Applying tax relief x log(first price)",
@@ -98,11 +104,12 @@ est_intmod %>%
         "PS of applying tax relief x log(first price)",
       "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2",
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2|FE",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 8) %>%
+  kableExtra::column_spec(1, width = "10em") %>%
   kableExtra::add_header_above(c(
     " ", "FE" = 3, "FE-2SLS" = 3
   )) %>%
@@ -117,7 +124,7 @@ est_intmod %>%
     escape = FALSE
   )
 
-#'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 表\@ref(tab:MainIntensive)は寄付者に限定した
 #' 寄付の価格弾力性（intensive-margin price elasticity）の推定結果である。
 #' モデル(1)は標準的なtwo-way fixed effect modelであり、
@@ -137,8 +144,13 @@ est_intmod %>%
 #' 我々は操作変数の弱相関の程度を確認できる。その結果、操作変数の種類に関わらず、F値は450以上ある。
 #' したがって、操作変数法によってintensive-margin price elasticityがより弾力的になった結果は
 #' 操作変数の弱相関によるものではない。
+#' ```
 #'
-#+ MainExtensive
+#' ```{asis, echo = output_type() == "slide"}
+#' ## Main Results: Extensive-Margin Price Elasticity
+#' ```
+#'
+#+ extensive, eval = output_type() != "appx"
 extmod <- list(
   "(1)" = d_donate ~ d_relief_donate:price_ln + ..stage2,
   "(2)" = d_donate ~ psc_pool:price_ln + ..stage2,
@@ -209,7 +221,7 @@ addtab <- impelast_extmod %>%
   bind_rows(stage1_extmod) %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    "Square of age", "X", "X", "X", "X", "X", "X",
+    # "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
@@ -219,7 +231,7 @@ attr(addtab, "position") <- 7:10
 
 est_extmod %>%
   modelsummary(
-    title = "Extensive-Margin Tax-Price Elasticity",
+    # title = "Extensive-Margin Tax-Price Elasticity",
     coef_map = c(
       "d_relief_donate:price_ln" =
         "Applying tax relief x log(first price)",
@@ -231,11 +243,12 @@ est_extmod %>%
         "PS of applying tax relief x log(first price)",
       "linc_ln" = "log(income)"
     ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2",
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2|FE",
     stars = c("***" = .01, "**" = .05, "*" = .1),
     add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 8) %>%
+  kableExtra::column_spec(1, width = "10em") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -252,6 +265,7 @@ est_extmod %>%
   )
 
 #'
+#' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 表\@ref(tab:MainExtensive)は寄付行動の有無の価格弾力性
 #' （extensive-margin price elasticity）を示している。
 #' モデル(1)は標準的なtwo-way fixed effect modelである。
@@ -270,13 +284,12 @@ est_extmod %>%
 #' 言い換えれば、寄付価格1%の上昇によって、寄付をする確率が約1.7-2.8%減少する。
 #' したがって、操作変数によって寄付控除の自己選択を制御した場合、
 #' extensive-margin price elasticityはより非弾力的に推定された。
+#' ```
 #'
 #' ## Robustness Check
 #'
-#' 結果を解釈する前に、ここまでの推定結果が頑健に観察されることを確認する。
-#' 
 #'
-#+ WoAnnoucementIntensive, eval = FALSE
+#+ wo-annoucement-intensive, eval = output_type() == "appx"
 rob1_intmod <- intmod %>%
   purrr::map(~ fixest::feols(
     xpd(.),
@@ -357,8 +370,7 @@ rob1_intmod %>%
     escape = FALSE
   )
 
-#'
-#+ WoAnnouncementExtensive, eval = FALSE
+#+ wo-annoucement-extensive, eval = output_type() == "appx"
 rob1_extmod <- extmod %>%
   purrr::map(~ fixest::feols(
     xpd(.),
@@ -465,8 +477,7 @@ rob1_extmod %>%
     escape = FALSE
   )
 
-#'
-#+ LastIntensive, eval = FALSE
+#+ last-intensive, eval = output_type() == "appx"
 lastintmod <- list(
   "(1)" = donate_ln ~ d_relief_donate:lprice_ln + ..stage2,
   "(2)" = donate_ln ~ psc_pool:lprice_ln + ..stage2,
@@ -553,8 +564,7 @@ est_lastintmod %>%
     escape = FALSE
   )
 
-#'
-#+ LastExtensive, eval = FALSE
+#+ last-extensive, eval = output_type() == "appx"
 lastextmod <- list(
   "(1)" = d_donate ~ d_relief_donate:lprice_ln + ..stage2,
   "(2)" = d_donate ~ psc_pool:lprice_ln + ..stage2,
@@ -668,6 +678,9 @@ est_lastextmod %>%
   )
 
 #'
+#' ```{asis, echo = output_type() %in% c("paper", "preview")}
+#' 結果を解釈する前に、ここまでの推定結果が頑健に観察されることを確認する。
+#'
 #' \noindent
 #' *Exclude Annoucement Effect*.
 #' 第\@ref(nastab)節の図\@ref(fig:SummaryGivingOverall)で示したように、
@@ -700,6 +713,20 @@ est_lastextmod %>%
 #' また、操作変数による寄付控除の自己選択の制御によって、
 #' intensive-margin price elasticityがより弾力的に推定されるとともに、
 #' extensive-margin price elasticityが非弾力的に推定されることも観察された。
+#' ```
+#'
+#' ```{asis, echo = output_type() == "slide"}
+#' - *Exclude Annoucement Effect*
+#'   - intertemporal substitution due to annoucement of 2014 tax reform
+#'   - We drop observations in 2013 and 2014
+#'   - Estimated elasticity does not change significantly
+#' - *Last-unit Price Elasticity*
+#'   - The acutual price that decision-makers face is *last-unit*
+#'     (especially, intensive-margin decision)
+#'   - We use first-unit price as an instrument of last-unit one
+#'   - Last-unit price elasticity is more elastic
+#'   than first-unit price elasticity
+#' ```
 #'
 # /*
 #+
