@@ -286,9 +286,14 @@ est_extmod %>%
 #' extensive-margin price elasticityはより非弾力的に推定された。
 #' ```
 #'
+#' ```{asis, echo = output_type() != "appx"}
 #' ## Robustness Check
+#' ```
 #'
-#'
+#' ```{asis, echo = output_type() == "appx"}
+#' ## Intensive-Margin Price Elasticity: Exclude Annoucement Effect
+#' ```
+#' 
 #+ wo-annoucement-intensive, eval = output_type() == "appx"
 rob1_intmod <- intmod %>%
   purrr::map(~ fixest::feols(
@@ -325,7 +330,7 @@ stage1_rob1_intmod <- rob1_intmod[4:6] %>%
 addtab <- stage1_intmod %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    "Square of age", "X", "X", "X", "X", "X", "X",
+    # "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
@@ -335,10 +340,10 @@ attr(addtab, "position") <- 7:8
 
 rob1_intmod %>%
   modelsummary(
-    title = paste(
-      "Intensive-Margin Tax-Price Elasticity",
-      "Excluding 2013 and 2014 data"
-    ),
+    # title = paste(
+    #   "Intensive-Margin Tax-Price Elasticity",
+    #   "Excluding 2013 and 2014 data"
+    # ),
     coef_map = c(
       "d_relief_donate:price_ln" =
         "Applying tax relief x log(first price)",
@@ -355,6 +360,7 @@ rob1_intmod %>%
     add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
+  kableExtra::column_spec(1, width = "10em") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -370,6 +376,9 @@ rob1_intmod %>%
     escape = FALSE
   )
 
+#' ```{asis, echo = output_type() == "appx"}
+#' ## Extensive-Margin Price Elasticity: Exclude Announcement Effect
+#' ```
 #+ wo-annoucement-extensive, eval = output_type() == "appx"
 rob1_extmod <- extmod %>%
   purrr::map(~ fixest::feols(
@@ -432,7 +441,7 @@ addtab <- impelast_rob1_extmod %>%
   bind_rows(stage1_rob1_extmod) %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    "Square of age", "X", "X", "X", "X", "X", "X",
+    # "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
@@ -442,10 +451,10 @@ attr(addtab, "position") <- 7:10
 
 rob1_extmod %>%
   modelsummary(
-    title = paste(
-      "Extensive-Margin Tax-Price Elasticity",
-      "Excluding 2013 and 2014 data"
-    ),
+    # title = paste(
+    #   "Extensive-Margin Tax-Price Elasticity",
+    #   "Excluding 2013 and 2014 data"
+    # ),
     coef_map = c(
       "d_relief_donate:price_ln" =
         "Applying tax relief x log(first price)",
@@ -462,6 +471,7 @@ rob1_extmod %>%
     add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
+  kableExtra::column_spec(1, width = "10em") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -477,6 +487,9 @@ rob1_extmod %>%
     escape = FALSE
   )
 
+#' ```{asis, echo = output_type() == "appx"}
+#' ## Intensive-Margin Price Elasticity: Last-Unit Price
+#' ```
 #+ last-intensive, eval = output_type() == "appx"
 lastintmod <- list(
   "(1)" = donate_ln ~ d_relief_donate:lprice_ln + ..stage2,
@@ -522,7 +535,7 @@ stage1_lastintmod <- est_lastintmod[4:6] %>%
 addtab <- stage1_lastintmod %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    "Square of age", "X", "X", "X", "X", "X", "X",
+    # "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
@@ -532,7 +545,7 @@ attr(addtab, "position") <- 7:8
 
 est_lastintmod %>%
   modelsummary(
-    title = "Intensive-Margin Tax-Price Elasticity (Last-Unit Price)",
+    # title = "Intensive-Margin Tax-Price Elasticity (Last-Unit Price)",
     coef_map = c(
       "d_relief_donate:lprice_ln" =
         "Applying tax relief x log(last price)",
@@ -549,6 +562,7 @@ est_lastintmod %>%
     add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
+  kableExtra::column_spec(1, width = "10em") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3
@@ -564,6 +578,9 @@ est_lastintmod %>%
     escape = FALSE
   )
 
+#' ```{asis, echo = output_type() == "appx"}
+#' ## Extensive-Margin Price Elasticity: Last-Unit Price
+#' ```
 #+ last-extensive, eval = output_type() == "appx"
 lastextmod <- list(
   "(1)" = d_donate ~ d_relief_donate:lprice_ln + ..stage2,
@@ -635,7 +652,7 @@ addtab <- impelast_lastextmod %>%
   bind_rows(stage1_lastextmod) %>%
   bind_rows(tribble(
     ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    "Square of age", "X", "X", "X", "X", "X", "X",
+    # "Square of age", "X", "X", "X", "X", "X", "X",
     "Instrument", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
     "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
@@ -645,7 +662,7 @@ attr(addtab, "position") <- 7:10
 
 est_lastextmod %>%
   modelsummary(
-    title = "Extensive-Margin Tax-Price Elasticity (Last-Unit Price)",
+    # title = "Extensive-Margin Tax-Price Elasticity (Last-Unit Price)",
     coef_map = c(
       "d_relief_donate:lprice_ln" =
         "Applying tax relief x log(last price)",
@@ -662,6 +679,7 @@ est_lastextmod %>%
     add_rows = addtab
   ) %>%
   kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
+  kableExtra::column_spec(1, width = "10em") %>%
   kableExtra::add_header_above(c(
     " ",
     "FE" = 3, "FE-2SLS" = 3

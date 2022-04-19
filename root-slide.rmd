@@ -93,3 +93,13 @@ knitr::spin_child(here("R/3-main-estimation.R"))
 # knitr::spin_child(here("R/4-conventional-estimation.R"))
 # knitr::spin_child(here("R/5-subsample-R1.R"))
 ```
+
+# Appendix
+
+```{r}
+options(knitr.duplicate.label = "allow")
+unlockBinding("params", env = .GlobalEnv)
+params$appendix <- TRUE
+library(here)
+knitr::spin_child(here("R/3-main-estimation.R"))
+```
