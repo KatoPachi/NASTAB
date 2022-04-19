@@ -84,3 +84,12 @@ knitr::spin_child(here("R/1-summary.R"))
 
 ```{r child = "Rmd/3-estimation.rmd"}
 ```
+
+# Estimation Results {#result}
+
+```{r}
+library(here)
+knitr::spin_child(here("R/3-main-estimation.R"))
+# knitr::spin_child(here("R/4-conventional-estimation.R"))
+# knitr::spin_child(here("R/5-subsample-R1.R"))
+```

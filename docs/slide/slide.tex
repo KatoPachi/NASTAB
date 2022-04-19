@@ -894,4 +894,108 @@ Remaining two estimation methods:
 \end{enumerate}
 \end{frame}
 
+\hypertarget{result}{%
+\section{Estimation Results}\label{result}}
+
+\begin{frame}{Main Results: Intensive-Margin Price Elasticity}
+\protect\hypertarget{main-results-intensive-margin-price-elasticity}{}
+\begin{table}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{10em}cccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE} & \multicolumn{3}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+Applying tax relief x log(first price) & \num{-0.748}*** &  &  & \num{-1.400}*** & \num{-1.437}*** & \num{-1.540}***\\
+ & (\num{0.225}) &  &  & (\num{0.411}) & (\num{0.363}) & (\num{0.375})\\
+PS of applying tax relief x log(first price) &  & \num{-1.544}*** & \num{-1.515}*** &  &  & \\
+ &  & (\num{0.388}) & (\num{0.367}) &  &  & \\
+log(income) & \num{1.408} & \num{0.833} & \num{0.824} & \num{0.937} & \num{0.909} & \num{0.830}\\
+ & (\num{1.113}) & (\num{1.121}) & (\num{1.121}) & (\num{1.119}) & (\num{1.098}) & (\num{1.094})\\
+\midrule
+First-stage: Instrument &  &  &  & 0.638 & 1.075 & 0.984\\
+ &  &  &  & {}[468.1] & {}[534.6] & {}[662.2]\\
+Num.Obs. & \num{7004} & \num{6975} & \num{6975} & \num{6975} & \num{6975} & \num{6975}\\
+Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
+Method of PS &  & Pool & Separate &  & Pool & Separate\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Main Results: Extensive-Margin Price Elasticity}
+\protect\hypertarget{main-results-extensive-margin-price-elasticity}{}
+\begin{table}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{10em}cccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{FE} & \multicolumn{3}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+Applying tax relief x log(first price) & \num{-2.800}*** &  &  & \num{-0.464}*** & \num{-0.563}*** & \num{-0.738}***\\
+ & (\num{0.074}) &  &  & (\num{0.176}) & (\num{0.120}) & (\num{0.116})\\
+PS of applying tax relief x log(first price) &  & \num{-0.452}*** & \num{-0.566}*** &  &  & \\
+ &  & (\num{0.107}) & (\num{0.101}) &  &  & \\
+log(income) & \num{0.975}*** & \num{1.950}*** & \num{1.844}*** & \num{2.121}*** & \num{2.072}*** & \num{1.986}***\\
+ & (\num{0.233}) & (\num{0.279}) & (\num{0.278}) & (\num{0.279}) & (\num{0.261}) & (\num{0.256})\\
+\midrule
+Implied price elasticity & -10.799*** & -1.741*** & -2.181*** & -1.788*** & -2.169*** & -2.841***\\
+ & (0.287) & (0.411) & (0.388) & (0.678) & (0.463) & (0.448)\\
+First-stage: Instrument &  &  &  & 0.289 & 0.803 & 0.768\\
+ &  &  &  & {}[276.6] & {}[311.7] & {}[361.9]\\
+Num.Obs. & \num{27017} & \num{26863} & \num{26863} & \num{26863} & \num{26863} & \num{26863}\\
+Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
+Method of PS &  & Pool & Separate &  & Pool & Separate\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. A square bracket is wald statistics of instrument.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{frame}
+
+\begin{frame}{Robustness Check}
+\protect\hypertarget{robustness-check}{}
+\begin{itemize}
+\tightlist
+\item
+  \emph{Exclude Annoucement Effect}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    intertemporal substitution due to annoucement of 2014 tax reform
+  \item
+    We drop observations in 2013 and 2014
+  \item
+    Estimated elasticity does not change significantly
+  \end{itemize}
+\item
+  \emph{Last-unit Price Elasticity}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The acutual price that decision-makers face is \emph{last-unit}
+    (especially, intensive-margin decision)
+  \item
+    We use first-unit price as an instrument of last-unit one
+  \item
+    Last-unit price elasticity is more elastic
+    than first-unit price elasticity
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
 \end{document}
