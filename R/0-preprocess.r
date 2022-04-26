@@ -1,11 +1,56 @@
 #'
-#' raw data: data/merge/merge.dta
-#+
+#'
+#+ read-raw
 library(here)
 source(here("R", "_library.r"))
 
 raw <- haven::read_dta(here("data/merge/merge.dta"), encoding = "utf-8") %>%
   as_tibble
+
+#'
+#+ merge-key-variables
+merge_key <- raw %>%
+  dplyr::select(
+    hhid, #世帯ID
+    pid, #個人ID
+    year, #調査年
+    wave #調査wave
+  )
+
+#'
+#+ ses-variables
+ses <- raw %>%
+  dplyr::select(
+    hhid,
+    pid,
+    wave,
+    year,
+    age = p_page, #年齢
+    educ = p_pedu, #学歴
+    sex = p_pgen, #性別
+    area = h_b10, #世帯：地域コード
+    work = p_aa200, #就業状態（1=就職、2=専業主婦、3=無職、4=学生）
+    position = p_aa005, #従事地位（1=常用、2=臨時、3=自営業、4=無給の家族従事者）cond. p_aa200 == 1
+    indust = paa008, #産業コード
+    family_position = p_prel
+  ) %>%
+  dplyr::mutate(
+    family_position = case_when(
+      family_position == 1 ~ 1, #世帯主
+      family_position == 2 ~ 2, #配偶者
+      family_position %in% c(3, 31:37) ~ 3, #世帯主の子供
+      family_position %in% c(4, 41:44) ~ 4, #世帯主の子供の配偶者
+      family_position == 5 ~ 5, #世帯主の親
+      family_position == 6 ~ 6, #配偶者の親
+      family_position %in% c(7, 71:75) ~ 7, #孫とその配偶者
+      family_position == 8 ~ 8, #ひ孫とその配偶者
+      family_position == 9 ~ 9, #世帯主の祖父母
+      family_position == 10 ~ 10, #世帯主の兄弟姉妹
+      family_position == 11 ~ 11, #世帯主の兄弟姉妹の子供とその配偶者
+      family_position == 12 ~ 12, #世帯主の親の兄弟姉妹とその配偶者
+      family_position == 13 ~ 13 #その他
+    )
+  )
 
 #'
 #' 個人属性に関する変数の処理
