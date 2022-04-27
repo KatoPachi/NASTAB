@@ -25,16 +25,36 @@ ses <- raw %>%
     pid,
     wave,
     year,
+    sex = p_pgen, #性別
     age = p_page, #年齢
     educ = p_pedu, #学歴
-    sex = p_pgen, #性別
     area = h_b10, #世帯：地域コード
     work = p_aa200, #就業状態（1=就職、2=専業主婦、3=無職、4=学生）
     position = p_aa005, #従事地位（1=常用、2=臨時、3=自営業、4=無給の家族従事者）cond. p_aa200 == 1
     indust = paa008, #産業コード
-    family_position = p_prel
+    family_position = p_prel, #世帯主との関係コード
+    tinc = pinc_all, #昨年1年間の総合所得
+    linc = inc_bb1 #昨年1年間の労働所得
   ) %>%
   dplyr::mutate(
+    sex = sex - 1,
+    sqage = age^2 / 100,
+    college = case_when(
+      educ == 3 ~ 1,
+      !is.na(educ) ~ 0,
+      TRUE ~ NA_real_
+    ),
+    highschool = case_when(
+      educ == 2 ~ 1,
+      !is.na(educ) ~ 0,
+      TRUE ~ NA_real_
+    ),
+    junior = case_when(
+      educ == 1 ~ 1,
+      !is.na(educ) ~ 0,
+      TRUE ~ NA_real_
+    ),
+    employee = if_else(position == 1, 1, 0),
     family_position = case_when(
       family_position == 1 ~ 1, #世帯主
       family_position == 2 ~ 2, #配偶者
@@ -52,23 +72,28 @@ ses <- raw %>%
     )
   )
 
+ses_label <- list(
+  sqage = "[世帯員] 年齢の二乗",
+  college = "[世帯員] 1 = (最終教育水準 = 短大卒以上)",
+  highschool = "[世帯員] 1 = (最終教育水準 = 高卒)",
+  junior = "[世帯員] 1 = (最終教育水準 = 中卒以下)",
+  employee = "[世帯員] 1 = (従事上地位 = 常用職)"
+)
+
+for (i in names(ses_label)) {
+  attr(ses[[i]], "label") <- ses_label[[i]]
+}
+
 #'
-#' 個人属性に関する変数の処理
-#+
-ses <- raw %>%
+#+ tax-relief-variables
+relief <- raw %>%
   dplyr::select(
-    hhid, pid, year, wave, p_page, p_pedu, p_pgen, p_prel, h_b10,
-    pca201:pca228, pinc_all, inc_bb1,
-    p_aa005, p_aa200, paa008, pda207, pda209
-  ) %>%
-  dplyr::rename(
-    age = p_page, #年齢
-    educ = p_pedu, #学歴
-    sex = p_pgen, #性別
-    area = h_b10, #地域コード
-    position = p_aa005, #従事地位（1=常用、2=臨時、3=自営業、4=無給の家族従事者）
-    working = p_aa200, #就業状態（1=就職、2=専業主婦、3=無職、4=学生）
-    indust = paa008, #産業
+    hhid,
+    pid,
+    year,
+    wave,
+    tinc = pinc_all, #昨年1年間の総合所得
+    linc = inc_bb1, #昨年1年間の労働所得
     d_deduct_linc = pca201, #労働所得控除の有無
     deduct_linc = pca202, #労働所得控除額
     d_deduct_donate_linc = pca225, #労働所得の寄付金所得控除の有無
@@ -76,9 +101,7 @@ ses <- raw %>%
     d_credit_donate_linc = pca227, #労働所得の寄付金税額控除の有無
     credit_donate_linc = pca228, #寄付金税額控除額
     d_deduct_donate_tinc = pda207, #総合所得の寄付金所得控除の有無
-    d_credit_donate_tinc = pda209, #総合所得の寄付金税額控除の有無
-    tinc = pinc_all, #昨年1年間の総合所得
-    linc = inc_bb1, #昨年1年間の労働所得
+    d_credit_donate_tinc = pda209 #総合所得の寄付金税額控除の有無
   ) %>%
   mutate_at(
     vars(
@@ -98,7 +121,6 @@ ses <- raw %>%
       deduct_linc == -9 ~ NA_real_,
       TRUE ~ as.numeric(deduct_linc)
     ),
-
     d_deduct_donate_linc = case_when(
       !is.na(d_deduct_donate_linc) ~ d_deduct_donate_linc,
       linc == 0 ~ 0
@@ -110,7 +132,6 @@ ses <- raw %>%
     d_relief_donate_linc = if_else(
       year >= 2014, d_credit_donate_linc, d_deduct_donate_linc
     ),
-
     d_deduct_donate_tinc = case_when(
       !is.na(d_deduct_donate_tinc) ~ d_deduct_donate_tinc,
       tinc == 0 ~ 0
@@ -122,14 +143,12 @@ ses <- raw %>%
     d_relief_donate_tinc = if_else(
       year >= 2014, d_credit_donate_tinc, d_deduct_donate_tinc
     ),
-
     d_relief_donate = case_when(
       is.na(d_relief_donate_linc) ~ d_relief_donate_tinc,
       is.na(d_relief_donate_tinc) ~ d_relief_donate_linc,
       d_relief_donate_tinc + d_relief_donate_linc == 0 ~ 0,
       d_relief_donate_tinc + d_relief_donate_linc != 0 ~ 1
     ),
-
     deduct_donate_linc = case_when(
       d_deduct_donate_linc == 0 ~ 0,
       deduct_donate_linc == -9 ~ NA_real_,
@@ -139,20 +158,11 @@ ses <- raw %>%
       d_credit_donate_linc == 0 ~ 0,
       credit_donate_linc == -9 ~ NA_real_,
       TRUE ~ as.numeric(credit_donate_linc)
-    ),
+    )
+  ) %>%
+  dplyr::select(-tinc, -linc)
 
-    head = if_else(p_prel == 1, 1, 0),
-    wife = if_else(p_prel == 2, 1, 0),
-    child = if_else(p_prel %in% c(3, 31:37), 1, 0)
-  )
-
-#'
-#' 個人属性の変数ラベルの設定
-#+
-ses_label <- list(
-  tinc = "[世帯員]年間所得総額（単位: 10,000KRW）",
-  linc = "[世帯員]年間労働所得（単位: 10,000KRW）",
-  area = "[世帯]地域コード",
+relief_label <- list(
   d_deduct_linc = "[世帯員]労働所得控除の有無",
   deduct_linc = "[世帯員]労働所得控除額",
   d_deduct_donate_linc = "[世帯員]労働所得に対する寄付金所得控除の有無",
@@ -163,16 +173,11 @@ ses_label <- list(
   d_relief_donate_tinc = "[世帯員]総合所得に対する寄付金控除の有無",
   d_relief_donate = "[世帯員]労働・総合所得に対する寄付金控除の有無",
   deduct_donate_linc = "[世帯員]労働所得に対する寄付金所得控除額",
-  credit_donate_linc = "[世帯員]労働所得に対する寄付金税額控除額",
-  head = "[世帯員]世帯主ダミー",
-  wife = "[世帯員]世帯主の配偶者ダミー",
-  child = "[世帯員]世帯主の子供ダミー",
-  position = "[世帯員]従事地位（1=常用、2=臨時、3=自営業、4=無給の家族従事者）",
-  working = "[世帯員]就業状態（1=就職、2=専業主婦、3=無職、4=学生）"
+  credit_donate_linc = "[世帯員]労働所得に対する寄付金税額控除額"
 )
 
-for (i in names(ses_label)) {
-  attr(ses[[i]], "label") <- ses_label[[i]]
+for (i in names(relief_label)) {
+  attr(relief[[i]], "label") <- relief_label[[i]]
 }
 
 #'
@@ -409,29 +414,6 @@ dt <- dt %>%
   dplyr::mutate(
     employee = if_else(position == 1, 1, 0),
     housewife = if_else(working == 2, 1, 0),
-    sex = sex - 1,
-    univ = case_when(
-      educ == 3 ~ 1,
-      !is.na(educ) ~ 0,
-      TRUE ~ NA_real_
-    ),
-    highschool = case_when(
-      educ == 2 ~ 1,
-      !is.na(educ) ~ 0,
-      TRUE ~ NA_real_
-    ),
-    junior = case_when(
-      educ == 1 ~ 1,
-      !is.na(educ) ~ 0,
-      TRUE ~ NA_real_
-    ),
-    sqage = age^2 / 100,
-    credit_treat = case_when(
-      credit_benefit == 1 ~ 1,
-      credit_neutral == 1 ~ 2,
-      credit_loss == 1 ~ 3,
-      TRUE ~ NA_real_
-    ),
     price = case_when(
       year < 2014 ~ 1 - first_mtr,
       year >= 2014 ~ 1 - 0.15
