@@ -64,7 +64,8 @@ ses_data <- raw %>%
       family_position == 12 ~ 12, #世帯主の親の兄弟姉妹とその配偶者
       family_position == 13 ~ 13 #その他
     ),
-    dependents = if_else(work %in% c(4, 5, 7), 1, 0)
+    dependents = if_else(work %in% c(4, 5, 7), 1, 0),
+    indust = if_else(indust != -9, indust, NA_real_)
   ) %>%
   select(-p_aa200, -p_aa005)
 
