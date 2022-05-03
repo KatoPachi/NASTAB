@@ -1,40 +1,26 @@
 #'
-#'
 #+ read-raw
 library(here)
 source(here("R", "_library.r"))
 
-raw <- haven::read_dta(here("data/merge/merge.dta"), encoding = "utf-8") %>%
-  as_tibble
+raw <- haven::read_dta(here("data/merge/merge.dta"), encoding = "utf-8")
 
 #'
-#+ merge-key-variables
-merge_key <- raw %>%
+#+ ses-variables
+ses_data <- raw %>%
   dplyr::select(
     hhid, #世帯ID
     pid, #個人ID
     year, #調査年
-    wave #調査wave
-  )
-
-#'
-#+ ses-variables
-ses <- raw %>%
-  dplyr::select(
-    hhid,
-    pid,
-    wave,
-    year,
+    wave, #調査wave
     sex = p_pgen, #性別
     age = p_page, #年齢
     educ = p_pedu, #学歴
     area = h_b10, #世帯：地域コード
-    work = p_aa200, #就業状態（1=就職、2=専業主婦、3=無職、4=学生）
-    position = p_aa005, #従事地位（1=常用、2=臨時、3=自営業、4=無給の家族従事者）cond. p_aa200 == 1
+    p_aa200, #就業状態（1=就職、2=専業主婦、3=無職、4=学生）
+    p_aa005, #従事地位（1=常用、2=臨時、3=自営業、4=無給の家族従事者）cond. p_aa200 == 1
     indust = paa008, #産業コード
     family_position = p_prel, #世帯主との関係コード
-    tinc = pinc_all, #昨年1年間の総合所得
-    linc = inc_bb1 #昨年1年間の労働所得
   ) %>%
   dplyr::mutate(
     sex = sex - 1,
@@ -54,7 +40,15 @@ ses <- raw %>%
       !is.na(educ) ~ 0,
       TRUE ~ NA_real_
     ),
-    employee = if_else(position == 1, 1, 0),
+    work = case_when(
+      p_aa005 == 1 ~ 1, #就業（常勤）
+      p_aa005 == 2 ~ 2, #就業（臨時）
+      p_aa005 == 3 ~ 3, #就業 (自営業)
+      p_aa005 == 4 ~ 4, #就業（家族従事者・無給）
+      p_aa200 == 2 ~ 5, #専業主婦
+      p_aa200 == 3 ~ 6, #無職
+      p_aa200 == 4 ~ 7 #学生
+    ),
     family_position = case_when(
       family_position == 1 ~ 1, #世帯主
       family_position == 2 ~ 2, #配偶者
@@ -69,29 +63,30 @@ ses <- raw %>%
       family_position == 11 ~ 11, #世帯主の兄弟姉妹の子供とその配偶者
       family_position == 12 ~ 12, #世帯主の親の兄弟姉妹とその配偶者
       family_position == 13 ~ 13 #その他
-    )
-  )
+    ),
+    dependents = if_else(work %in% c(4, 5, 7), 1, 0)
+  ) %>%
+  select(-p_aa200, -p_aa005)
 
-ses_label <- list(
-  sqage = "[世帯員] 年齢の二乗",
-  college = "[世帯員] 1 = (最終教育水準 = 短大卒以上)",
-  highschool = "[世帯員] 1 = (最終教育水準 = 高卒)",
-  junior = "[世帯員] 1 = (最終教育水準 = 中卒以下)",
-  employee = "[世帯員] 1 = (従事上地位 = 常用職)"
-)
-
-for (i in names(ses_label)) {
-  attr(ses[[i]], "label") <- ses_label[[i]]
-}
+#'
+#+ dependent-data
+hh_data <- ses_data %>%
+  dplyr::select(hhid, year, dependents) %>%
+  group_by(hhid, year) %>%
+  mutate(
+    hh_num = n(),
+    hh_dependents = sum(dependents),
+    have_dependents = if_else(hh_dependents > 0, 1, 0)
+  ) %>%
+  dplyr::select(-dependents)
 
 #'
 #+ tax-relief-variables
-relief <- raw %>%
+relief_data <- raw %>%
   dplyr::select(
     hhid,
     pid,
     year,
-    wave,
     tinc = pinc_all, #昨年1年間の総合所得
     linc = inc_bb1, #昨年1年間の労働所得
     d_deduct_linc = pca201, #労働所得控除の有無
@@ -159,32 +154,13 @@ relief <- raw %>%
       credit_donate_linc == -9 ~ NA_real_,
       TRUE ~ as.numeric(credit_donate_linc)
     )
-  ) %>%
-  dplyr::select(-tinc, -linc)
-
-relief_label <- list(
-  d_deduct_linc = "[世帯員]労働所得控除の有無",
-  deduct_linc = "[世帯員]労働所得控除額",
-  d_deduct_donate_linc = "[世帯員]労働所得に対する寄付金所得控除の有無",
-  d_credit_donate_linc = "[世帯員]労働所得に対する寄付金税額控除の有無",
-  d_relief_donate_linc = "[世帯員]労働所得に対する寄付金控除の有無",
-  d_deduct_donate_tinc = "[世帯員]総合所得に対する寄付金所得控除の有無",
-  d_credit_donate_tinc = "[世帯員]総合所得に対する寄付金税額控除の有無",
-  d_relief_donate_tinc = "[世帯員]総合所得に対する寄付金控除の有無",
-  d_relief_donate = "[世帯員]労働・総合所得に対する寄付金控除の有無",
-  deduct_donate_linc = "[世帯員]労働所得に対する寄付金所得控除額",
-  credit_donate_linc = "[世帯員]労働所得に対する寄付金税額控除額"
-)
-
-for (i in names(relief_label)) {
-  attr(relief[[i]], "label") <- relief_label[[i]]
-}
+  )
 
 #'
 #' 寄付データの作成
 #+
 # 寄付先データ
-donate_purpose <- raw %>%
+donate_purpose_data <- raw %>%
   dplyr::select(
     hhid, pid, year, hcr004, hcr007, hcr010,
     hcr013, hcr016, hcr019
@@ -211,7 +187,7 @@ donate_purpose <- raw %>%
   )
 
 # 寄付支出データ（個人単位）
-donate_amount <- raw %>%
+donate_amount_data <- raw %>%
   dplyr::select(
     hhid, pid, year,
     hcr005, hcr008, hcr011, hcr014, hcr017, hcr020
@@ -220,8 +196,8 @@ donate_amount <- raw %>%
   rename(key = name, amount = value)
 
 # 寄付先データと支出データのマージ（個人単位）
-donate_member <- donate_purpose %>%
-  dplyr::left_join(donate_amount, by = c("hhid", "pid", "year", "key")) %>%
+donate_member_data <- donate_purpose_data %>%
+  dplyr::left_join(donate_amount_data, by = c("hhid", "pid", "year", "key")) %>%
   dplyr::select(-key) %>%
   mutate(amount = case_when(
     is.na(amount) ~ 0,
@@ -245,7 +221,7 @@ donate_member <- donate_purpose %>%
   dplyr::select(hhid, pid, year, donate, d_donate)
 
 # 寄付支出データ（世帯単位）
-donate_household <- raw %>%
+donate_household_data <- raw %>%
   dplyr::select(hhid, pid, year, h_exp_cr, hcr001) %>%
   rename(h_donate = h_exp_cr, d_h_donate = hcr001) %>%
   mutate(
@@ -254,41 +230,19 @@ donate_household <- raw %>%
   )
 
 # 個人単位データと世帯単位データのマージ
-donate <- donate_member %>%
-  dplyr::left_join(donate_household, by = c("hhid", "pid", "year"))
-
-#'
-#' 寄付データのラベルを設定
-#+
-donate_label <- list(
-  # donate_religious = "[世帯員]宗教団体に対する寄付（単位:10,000KRW）",
-  # donate_welfare = "[世帯員]社会福祉団体に対する寄付（単位:10,000KRW）",
-  # donate_educ = "[世帯員]教育団体に対する寄付（単位:10,000KRW）",
-  # donate_poliparty = "[世帯員]政治団体に対する寄付（単位:10,000KRW）",
-  # donate_culture = "[世帯員]文化団体に対する寄付（単位:10,000KRW）",
-  # donate_religious_action = "[世帯員]宗教団体の貧困救済活動に対する寄付（単位:10,000KRW）",
-  # donate_others = "[世帯員]その他の団体に対する寄付（単位:10,000KRW）",
-  # donate_unknown = "[世帯員]支出先不明の寄付（単位:10,000KRW）",
-  donate = "[世帯員]年間寄付金支出総額（単位:10,000KRW）",
-  d_donate = "[世帯員]寄付金支出の有無",
-  h_donate = "[世帯]年間寄付金支出総額（単位:10,000KRW）",
-  d_h_donate = "[世帯]寄付金支出の有無"
-)
-
-for (i in names(donate_label)) {
-  attr(donate[[i]], "label") <- donate_label[[i]]
-}
+donate_data <- donate_member_data %>%
+  dplyr::left_join(donate_household_data, by = c("hhid", "pid", "year"))
 
 #'
 #' 税率に関するデータの作成
 #+
 mtr <- readr::read_csv("data/origin/mtrdt.csv")
 
-inc <- ses %>%
+inc_data <- relief_data %>%
   dplyr::select(hhid, pid, year, tinc, linc)
 
 # first marginal tax rate(寄付額を差し引く前の税率)
-firstdt <- inc %>%
+first_mtr_data <- inc_data %>%
   dplyr::left_join(mtr, by = "year") %>%
   dplyr::filter(!is.na(linc)) %>%
   dplyr::filter(lower_income_10000won <= linc) %>%
@@ -299,8 +253,8 @@ firstdt <- inc %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # last marginal tax rate(寄付額を差し引いた後の税率)
-lastdt <- inc %>%
-  dplyr::left_join(donate, by = c("pid", "year", "hhid")) %>%
+last_mtr_data <- inc_data %>%
+  dplyr::left_join(donate_data, by = c("pid", "year", "hhid")) %>%
   dplyr::left_join(mtr, by = "year") %>%
   dplyr::filter(!is.na(linc) & !is.na(donate)) %>%
   dplyr::mutate(subtract_linc = linc - donate) %>%
@@ -312,7 +266,7 @@ lastdt <- inc %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # 所得のラグ変数を作成
-lagdt <- inc %>%
+lag_inc_data <- inc_data %>%
   dplyr::group_by(pid) %>%
   dplyr::mutate(
     linc_l1 = dplyr::lag(linc, order_by = year),
@@ -322,7 +276,7 @@ lagdt <- inc %>%
   dplyr::ungroup()
 
 # 1期ラグ所得に基づいた税率の計算
-lag1dt <- lagdt %>%
+lag1_mtr_data <- lag_inc_data %>%
   dplyr::select(hhid, pid, year, linc_l1) %>%
   dplyr::left_join(mtr, by = "year") %>%
   dplyr::filter(!is.na(linc_l1)) %>%
@@ -334,7 +288,7 @@ lag1dt <- lagdt %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # 2期ラグ所得に基づいた税率の計算
-lag2dt <- lagdt %>%
+lag2_mtr_data <- lag_inc_data %>%
   dplyr::select(hhid, pid, year, linc_l2) %>%
   dplyr::left_join(mtr, by = "year") %>%
   dplyr::filter(!is.na(linc_l2)) %>%
@@ -346,7 +300,7 @@ lag2dt <- lagdt %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # 3期ラグ所得に基づいた税率の計算
-lag3dt <- lagdt %>%
+lag3_mtr_data <- lag_inc_data %>%
   dplyr::select(hhid, pid, year, linc_l3) %>%
   dplyr::left_join(mtr, by = "year") %>%
   dplyr::filter(!is.na(linc_l3)) %>%
@@ -358,7 +312,7 @@ lag3dt <- lagdt %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # 2014年税制改革によるトリートメントグループの作成
-treatdt <- firstdt %>%
+treat_data <- first_mtr_data %>%
   dplyr::filter(year == 2013) %>%
   dplyr::select(hhid, pid, first_mtr) %>%
   dplyr::mutate(
@@ -369,51 +323,28 @@ treatdt <- firstdt %>%
   dplyr::select(-first_mtr)
 
 # ここまでのデータのマージ
-tax <- inc %>%
-  dplyr::left_join(firstdt, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(lastdt, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(lag1dt, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(lag2dt, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(lag3dt, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(treatdt, by = c("hhid", "pid"))
-
-#'
-#' 税率に関する変数ラベルの設定
-#+
-tax_label <- list(
-  first_mtr = "[世帯員]年間労働所得ベースの限界所得税率",
-  subtract_linc = "[世帯員]年間労働所得（-寄付額）",
-  last_mtr = "[世帯員]寄付を差し引いた年間労働所得ベースの限界所得税率",
-  linc_l1 = "[世帯員]年間労働所得（lag = 1）",
-  linc_l2 = "[世帯員]年間労働所得（lag = 2）",
-  linc_l3 = "[世帯員]年間労働所得（lag = 3）",
-  first_mtr_l1 = "[世帯員]年間労働所得ベースの限界所得税率(lag = 1)",
-  first_mtr_l2 = "[世帯員]年間労働所得ベースの限界所得税率(lag = 2)",
-  first_mtr_l3 = "[世帯員]年間労働所得ベースの限界所得税率(lag = 3)",
-  credit_neutral = "[世帯員]税制改正の利益（2013年First MTR = 0.15）",
-  credit_benefit = "[世帯員]税制改正の利益(2013年First MTR < 0.15)",
-  credit_loss = "[世帯員]税制改正の利益(2013年First MTR > 0.15)"
-)
-
-for (i in names(tax_label)) {
-  attr(tax[[i]], "label") <- tax_label[[i]]
-}
+tax_data <- inc_data %>%
+  dplyr::left_join(first_mtr_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(last_mtr_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(lag1_mtr_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(lag2_mtr_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(lag3_mtr_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(treat_data, by = c("hhid", "pid"))
 
 #'
 #' ここまでのデータのマージと変数の処理
 #+
-dt <- donate %>%
-  dplyr::left_join(tax, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(ses, by = c("hhid", "pid", "year")) %>%
+dt <- donate_data %>%
+  dplyr::left_join(tax_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(ses_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(relief_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(hh_data, by = c("hhid", "year")) %>%
   dplyr::select(-tinc.y, -linc.y) %>%
   dplyr::rename(tinc = tinc.x, linc = linc.x)
 
-attr(dt$year, "label") <- "年度（調査年度の前年）"
-
 dt <- dt %>%
   dplyr::mutate(
-    employee = if_else(position == 1, 1, 0),
-    housewife = if_else(working == 2, 1, 0),
+    employee = if_else(work == 1, 1, 0),
     price = case_when(
       year < 2014 ~ 1 - first_mtr,
       year >= 2014 ~ 1 - 0.15
@@ -498,56 +429,6 @@ dt <- dt %>%
 
 names(dt)
 
-#'
-#' 変数ラベルの設定
-#+
-cov_label <- list(
-  employee = "[世帯員]常用職（給与所得者）ダミー",
-  housewife = "[世帯員]専業主婦ダミー",
-  univ = "[世帯員]大卒ダミー",
-  highschool = "[世帯員]高卒ダミー",
-  junior = "[世帯員]中卒ダミー",
-  sqage = "[世帯員]年齢の二乗/100",
-  credit_treat = "[世帯員]2014年税制改正の利益",
-  price = "[世帯員]first giving price",
-  lprice = "[世帯員]last giving price",
-  price_l1_deduct = "[世帯員]first giving price (lag1 income, tax deduction)",
-  price_l2_deduct = "[世帯員]first giving price (lag2 income, tax deduction)",
-  price_l3_deduct = "[世帯員]first giving price (lag3 income, tax deduction)",
-  price_l1 = "[世帯員]first giving price (lag = 1)",
-  price_l2 = "[世帯員]first giving price (lag = 2)",
-  price_l3 = "[世帯員]first giving price (lag = 3)",
-  price_iv1 = "[世帯員]first price with lag1 inc/lag1 first price",
-  price_iv2 = "[世帯員]first price with lag2 inc/lag2 first price",
-  price_iv3 = "[世帯員]first price with lag3 inc/lag3 first price",
-  price_ln = "priceの対数値",
-  lprice_ln = "lpriceの対数値",
-  price_iv1_ln = "price_iv1の対数値",
-  price_iv2_ln = "price_iv2の対数値",
-  price_iv3_ln = "price_iv3の対数値",
-  donate_ln = "donateの対数値",
-  linc_ln = "lincの対数値",
-  price_ln_d1 = "price_ln - price_ln (lag = 1)",
-  price_ln_d2 = "price_ln - price_ln (lag = 2)",
-  price_ln_d3 = "price_ln - price_ln (lag = 3)",
-  donate_ln_d1 = "donate_ln - donate_ln (lag = 1)",
-  donate_ln_d2 = "donate_ln - donate_ln (lag = 2)",
-  donate_ln_d3 = "donate_ln - donate_ln (lag = 3)",
-  linc_ln_d1 = "linc_ln - linc_ln (lag = 1)",
-  linc_ln_d2 = "linc_ln - linc_ln (lag = 2)",
-  linc_ln_d3 = "linc_ln - linc_ln (lag = 3)",
-  age_d1 = "age - age (lag = 1)",
-  age_d2 = "age - age (lag = 2)",
-  age_d3 = "age - age (lag = 3)",
-  sqage_d1 = "sqage - sqage (lag = 1)",
-  sqage_d2 = "sqage - sqage (lag = 2)",
-  sqage_d3 = "sqage - sqage (lag = 3)"
-)
-
-for (i in names(cov_label)) {
-  attr(dt[[i]], "label") <- cov_label[[i]]
-}
-
 #' 税理士関連データの追加
 #+
 village <- readr::read_csv("data/origin/village_tax_accountant.csv")
@@ -579,24 +460,6 @@ dt <- dt %>%
   dplyr::left_join(account, by = c("year", "area")) %>%
   dplyr::select(-accountant, -consult)
 
-#' 税理士関連変数のラベル設定
-#+
-account_label <- list(
-  village_accountant = "[地域]村税理士制度に登録している税理士の数",
-  village_consult = "[地域]村税理士制度の相談件数",
-  pops = "[地域]人口",
-  pub_accountant_firm = "[地域]公認会計士事務所の数",
-  pub_accountant = "[地域]公認会計士の人数",
-  pub_accountant_per = "[地域]公認会計士の人数 / 人口",
-  tax_accountant_firm = "[地域]税理士事務所の数",
-  tax_accountant = "[地域]税理士の人数",
-  tax_accountant_per = "[地域]税理士の人数 / 人口"
-)
-
-for (i in names(account_label)) {
-  attr(dt[[i]], "label") <- account_label[[i]]
-}
-
 #' 1. データの期間と年齢を制限する
 #' 2. 控除申請と寄付行動でデータを制限する
 #+
@@ -607,19 +470,3 @@ dt <- dt %>%
 #' CSVファイルに書き出す
 #+
 readr::write_csv(dt, file = here("data/shaped2.csv"))
-
-#' 変数の記述に関するcsvデータの作成
-#+
-book <- data.frame(variable = NULL, descript = NULL)
-
-for (i in names(dt)) {
-  book <- bind_rows(book, c(
-    variable = i,
-    descript = attr(dt[[i]], "label")
-  ))
-}
-
-readr::write_csv(
-  book,
-  file = here("data/codebook/shaped2_description.csv")
-)
