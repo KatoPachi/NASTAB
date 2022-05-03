@@ -12,49 +12,23 @@
 #'   preview: true
 #' ---
 #'
-#+ include = FALSE, eval = params$preview
-knitr::opts_chunk$set(
-  message = FALSE,
-  warning = FALSE,
-  echo = FALSE,
-  cache = FALSE,
-  include = TRUE,
-  fig.width = 10
-)
-
+#+ include = FALSE
 library(here)
-knitr::opts_knit$set(
-  root.dir = here::here()
-)
+source(here("R", "_library.r"))
 
-options(
-  knitr.kable.NA = " ",
-  knitr.table.format = "html",
-  modelsummary_stars_note = FALSE
-)
-
+#+ include = FALSE, eval = params$preview
+source(here("R", "_html_header.r"))
 
 #'
-#+ include = FALSE, eval = params$preview
-library(xfun)
-xfun::pkg_attach2(c(
-  "tidyverse", "rlist", "modelsummary", "kableExtra",
-  "estimatr", "fixest"
-))
-
-lapply(Sys.glob(file.path("script/R/functions", "*.r")), source)
-
-#'
-#+ include = FALSE, eval = params$preview
-book <- readr::read_csv("data/codebook/shaped2_description.csv")
-View(book)
-df <- readr::read_csv("data/shaped2.csv")
+#+ include = FALSE
+df <- readr::read_csv("data/shaped2.csv") %>%
+  dplyr::filter(dependents == 0)
 
 #'
 #+
 fixest::setFixest_fml(
   ..stage1 = ~ employee + price_ln + linc_ln +
-    sqage + factor(indust) + factor(area) #+
+    sqage + factor(indust) + factor(area) + have_dependents + hh_num #+
 #    tax_accountant_per + gender + univ + highschool
 )
 
@@ -119,7 +93,9 @@ est_stage1_sep %>%
       "sqage" = "Square of age",
       "gender" = "female",
       "univ" = "University graduate",
-      "highschool" = "Highschool graduate"
+      "highschool" = "Highschool graduate",
+      "hh_num" = "Number of household members",
+      "have_dependents" = "1 = Dependents"
     ),
     gof_omit = "R2|AIC|BIC",
     stars = c("***" = .01, "**" = .05, "*" = .1)
