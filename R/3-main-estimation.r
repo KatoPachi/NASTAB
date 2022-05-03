@@ -13,15 +13,12 @@
 #'
 #+ include = FALSE, eval = params$preview
 library(here)
-source(here("R", "_html_header.r"))
-
-#+ include = FALSE
 source(here("R", "_library.r"))
 
 #+ include = FALSE
-book <- readr::read_csv(here("data/codebook", "shaped2_description.csv"))
-View(book)
-df <- readr::read_csv(here("data/shaped2.csv"))
+source(here("R", "_html_header.r"))
+
+#+ include = FALSE
 estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 
 #'
@@ -35,7 +32,8 @@ estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 #'
 #+ intensive, eval = output_type() != "appx"
 fixest::setFixest_fml(
-  ..stage2 = ~ linc_ln + sqage | year + pid + indust + area
+  ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
+    year + pid + indust + area
 )
 
 intmod <- list(

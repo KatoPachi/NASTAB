@@ -79,7 +79,8 @@ hh_data <- ses_data %>%
     hh_dependents = sum(dependents),
     have_dependents = if_else(hh_dependents > 0, 1, 0)
   ) %>%
-  dplyr::select(-dependents)
+  dplyr::select(-dependents) %>%
+  dplyr::distinct(hhid, year, .keep_all = TRUE)
 
 #'
 #+ tax-relief-variables
