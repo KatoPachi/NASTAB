@@ -23,7 +23,7 @@ source(here("R", "_library.r"))
 
 #'
 #+ include = FALSE
-df <- readr::read_csv(here("data/shaped2.csv"))
+estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 
 #' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 本研究は2008年からKorea Institute of Taxation and Financeが実施した
@@ -53,8 +53,7 @@ df <- readr::read_csv(here("data/shaped2.csv"))
 #' ```
 #'
 #+ SummaryCovariate, eval = output_type() != "appx"
-df %>%
-  dplyr::filter(year <= 2017) %>%
+estdf %>%
   datasummary(
     (`Annual taxable labor income (unit: 10,000KRW)` = linc) +
     (`First giving relative price` = price) +
@@ -63,7 +62,7 @@ df %>%
     (`Dummy of declaration of a tax relief` = d_relief_donate) +
     (`Age` = age) +
     (`Female dummy` = sex) +
-    (`University graduate` = univ) +
+    (`University graduate` = college) +
     (`High school graduate dummy` = highschool) +
     (`Junior high school graduate dummy` = junior) +
     (`Wage earner dummy` = employee) ~
@@ -99,7 +98,7 @@ df %>%
 #' ```
 #'
 #+ SummaryPrice, fig.cap = "Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.", out.extra = "", eval = output_type() != "appx"
-df %>%
+estdf %>%
   filter(year == 2013) %>%
   dplyr::select(linc, price) %>%
   ggplot(aes(x = linc)) +
@@ -172,8 +171,7 @@ df %>%
 #' ```
 #'
 #+ SummaryGiving, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.", out.extra = "", eval = output_type() != "appx"
-df %>%
-  dplyr::filter(year <= 2017) %>%
+estdf %>%
   mutate(
     donate = if_else(d_donate == 1, donate, NA_real_)
   ) %>%
@@ -231,8 +229,7 @@ df %>%
 #' ```
 #'
 #+ SummaryGivingOverall, fig.cap = "Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "appx"
-df %>%
-  dplyr::filter(year <= 2017) %>%
+estdf %>%
   dplyr::filter(!is.na(credit_treat)) %>%
   group_by(year, credit_treat) %>%
   summarize(mu = mean(donate_ln, na.rm = TRUE)) %>%
@@ -268,8 +265,7 @@ df %>%
 #' ## Summary of Giving Amount by Three Income Groups (Conditional on Donors)
 #' ```
 #+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
-df %>%
-  dplyr::filter(year <= 2017) %>%
+estdf %>%
   dplyr::filter(!is.na(credit_treat) & d_donate == 1) %>%
   group_by(year, credit_treat) %>%
   summarize(mu = mean(donate_ln, na.rm = TRUE)) %>%
@@ -305,8 +301,7 @@ df %>%
 #' ## Summary of Proportion of Donors by Three Income Groups
 #' ```
 #+ SummaryGivingExtensive, fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
-df %>%
-  dplyr::filter(year <= 2017) %>%
+estdf %>%
   dplyr::filter(!is.na(credit_treat)) %>%
   group_by(year, credit_treat) %>%
   summarize(mu = mean(d_donate, na.rm = TRUE)) %>%
@@ -365,8 +360,7 @@ df %>%
 #' ```
 #'
 #+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
-df %>%
-  dplyr::filter(year <= 2017) %>%
+estdf %>%
   dplyr::filter(!is.na(credit_treat)) %>%
   group_by(year, credit_treat) %>%
   summarize(mu = mean(d_relief_donate, na.rm = TRUE)) %>%
@@ -402,8 +396,7 @@ df %>%
 #' ## Distribution of Giving Amount by Application of Tax Relief 
 #' ```
 #+ SummaryGivingIntensiveDist, fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", eval = output_type() != "body"
-df %>%
-  filter(year <= 2017) %>%
+estdf %>%
   filter(!is.na(d_relief_donate) & d_donate == 1) %>%
   mutate(d_relief_donate = factor(
     d_relief_donate,
@@ -439,8 +432,7 @@ df %>%
 #' ```
 #'
 #+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = output_type() != "appx"
-df %>%
-  dplyr::filter(year <= 2017) %>%
+estdf %>%
   dplyr::filter(!is.na(employee)) %>%
   mutate(employee = factor(
     employee,
@@ -466,8 +458,7 @@ df %>%
 #' ## Compliance Rate by Wage Earners or Not (Conditional on Donors)
 #' ```
 #+ SummaryReliefbyEarner2, fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = output_type() != "body"
-df %>%
-  dplyr::filter(year <= 2017) %>%
+estdf %>%
   dplyr::filter(!is.na(employee) & d_donate == 1) %>%
   mutate(employee = factor(
     employee,

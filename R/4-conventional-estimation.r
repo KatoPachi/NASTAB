@@ -19,32 +19,30 @@ source(here("R", "_html_header.r"))
 source(here("R", "_library.r"))
 
 #+ include = FALSE
-book <- readr::read_csv(here("data/codebook", "shaped2_description.csv"))
-View(book)
-df <- readr::read_csv(here("data/shaped2.csv"))
 estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 
 #+ MainElasticity, eval = FALSE
 fixest::setFixest_fml(
-  ..cov = ~ linc_ln + sqage | year + pid + indust + area
+  ..cov = ~ linc_ln + sqage + have_dependents + hh_num |
+    year + pid + indust + area
 )
 
 lastmod <- list(
   "(1)" = list(
     mod = donate_ln ~ lprice_ln:d_relief_donate + ..cov,
-    data = subset(df, d_donate == 1)
+    data = subset(estdf, d_donate == 1)
   ),
   "(2)" = list(
     mod = donate_ln ~ ..cov | lprice_ln:d_relief_donate ~ price_ln,
-    data = subset(df, d_donate == 1)
+    data = subset(estdf, d_donate == 1)
   ),
   "(3)" = list(
     mod = d_donate ~ lprice_ln:d_relief_donate + ..cov,
-    data = df
+    data = estdf
   ),
   "(4)" = list(
     mod = d_donate ~ ..cov | lprice_ln:d_relief_donate ~ price_ln,
-    data = df
+    data = estdf
   )
 )
 

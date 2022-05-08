@@ -21,9 +21,7 @@ source(here("R", "_library.r"))
 
 #'
 #+ include = FALSE
-book <- readr::read_csv(here("data/codebook", "shaped2_description.csv"))
-View(book)
-df <- readr::read_csv(here("data/shaped2.csv"))
+estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 
 #'
 #' ```{asis, echo = output_type() == "slide"}
@@ -75,10 +73,13 @@ df <- readr::read_csv(here("data/shaped2.csv"))
 #' ```
 #'
 #+ kappa-intensive, include = FALSE
-intdf <- subset(df, d_donate == 1)
+intdf <- subset(estdf, d_donate == 1)
 
 # estimate P(Z = 1|X) and P(Z = 1|X, Y)
-fixest::setFixest_fml(..cov = ~ linc_ln + sqage | year + pid + indust + area)
+fixest::setFixest_fml(
+  ..cov = ~ linc_ln + sqage + hh_num + have_dependents |
+    year + pid + indust + area
+)
 z_mod <- employee ~ price_ln + ..cov
 est_z_mod <- feglm(
   z_mod, data = intdf,
@@ -114,13 +115,13 @@ tab_int_data <- intdf %>%
 #+ kappa-extensive, include = FALSE
 # estimate P(Z = 1|X) and P(Z = 1|X, Y)
 est_z_mod <- feglm(
-  z_mod, data = df,
+  z_mod, data = estdf,
   family = binomial(link = "probit"),
   fixef.rm = "none"
 )
 
 # add Abadie's kappa
-extdf <- df %>%
+extdf <- estdf %>%
   modelr::add_predictions(est_z_mod) %>%
   mutate(
     kappa = 1 -

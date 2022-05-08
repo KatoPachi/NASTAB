@@ -19,9 +19,6 @@ source(here("R", "_html_header.r"))
 source(here("R", "_library.r"))
 
 #+ include = FALSE
-book <- readr::read_csv(here("data/codebook", "shaped2_description.csv"))
-View(book)
-df <- readr::read_csv(here("data/shaped2.csv"))
 estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 
 #'
@@ -30,7 +27,8 @@ estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 #' ```
 #+ intensive-r1, eval = output_type() == "appx"
 fixest::setFixest_fml(
-  ..cov = ~ linc_ln + sqage | year + pid + indust + area
+  ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
+    year + pid + indust + area
 )
 
 r1mod <- list(
@@ -48,7 +46,7 @@ r1mod <- list(
 
 est_r1mod <- r1mod %>%
   purrr::map(~ fixest::feols(
-    ., data = subset(df, d_relief_donate == 1),
+    ., data = subset(estdf, d_relief_donate == 1),
     panel.id = ~ pid + year, cluster = ~ pid
   ))
 
@@ -123,7 +121,7 @@ kdiffmod <- list(
 
 est_kdiffmod <- kdiffmod %>%
   purrr::map(~fixest::feols(
-    ., data = subset(df, d_relief_donate == 1),
+    ., data = subset(estdf, d_relief_donate == 1),
     cluster = ~pid
   ))
 
