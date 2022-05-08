@@ -77,7 +77,7 @@ options(
 
 ```{r}
 library(here)
-knitr::spin_child(here("R/1-summary.R"))
+knitr::spin_child(here("R/2-summary.R"))
 ```
 
 # Empirical Strategy {#estimation}

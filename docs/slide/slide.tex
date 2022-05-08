@@ -133,7 +133,7 @@
 \author[shortname]{ Hiroki Kato \inst{1} \and  Tsuyoshi Goto \inst{2} \and  Yong-Rok Kim \inst{3} \and }
 \institute[shortinst]{ \inst{1} Osaka University \and  \inst{2} Chiba University \and  \inst{3} Kansai University \and }
 
-\date{2022/04/19}
+\date{2022/05/08}
 
 
 \begin{document}
@@ -244,20 +244,20 @@ Using the IV representing the compliance cost,
 \begin{enumerate}
 \tightlist
 \item
-  Intensive-margin price elasticities are in the range between \(XXX\) and \(XXX\)
+  Intensive-margin price elasticities are in the range between \(-1.4\) and \(-1.5\)
 
   \begin{itemize}
   \tightlist
   \item
-    FE model w/o IV: \(XXX\) (similar value to the estimates in the existing literature)
+    FE model w/o IV: \(-0.7\) (similar value to the estimates in the existing literature)
   \end{itemize}
 \item
-  Extensive-margin price elasticities are in the range between \(YYY\) and \(YYY\)
+  Extensive-margin price elasticities are in the range between \(-1.7\) and \(-2.8\)
 
   \begin{itemize}
   \tightlist
   \item
-    FE model w/o IV: \(YYY\)
+    FE model w/o IV: \(-10.8\)
   \end{itemize}
 \end{enumerate}
 
@@ -505,21 +505,21 @@ Self-employed workers:
 \midrule
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{Income and giving price}}\\
-\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 36189 & \num{1747.26} & \num{2696.77}\\
-\hspace{1em}First giving relative price & 36198 & \num{0.86} & \num{0.04}\\
+\hspace{1em}Annual taxable labor income (unit: 10,000KRW) & 31560 & \num{1999.97} & \num{2798.60}\\
+\hspace{1em}First giving relative price & 31568 & \num{0.86} & \num{0.04}\\
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{Charitable giving}}\\
-\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 36199 & \num{35.64} & \num{153.20}\\
-\hspace{1em}Dummary of donation > 0 & 36199 & \num{0.24} & \num{0.42}\\
-\hspace{1em}Dummy of declaration of a tax relief & 36199 & \num{0.10} & \num{0.30}\\
+\hspace{1em}Annual chariatable giving (unit: 10,000KRW) & 31569 & \num{38.22} & \num{161.11}\\
+\hspace{1em}Dummary of donation > 0 & 31569 & \num{0.24} & \num{0.43}\\
+\hspace{1em}Dummy of declaration of a tax relief & 31569 & \num{0.11} & \num{0.32}\\
 \addlinespace[0.3em]
 \multicolumn{4}{l}{\textbf{Individual Characteristics}}\\
-\hspace{1em}Age & 36199 & \num{53.45} & \num{16.22}\\
-\hspace{1em}Female dummy & 36199 & \num{0.43} & \num{0.50}\\
-\hspace{1em}University graduate & 36198 & \num{0.42} & \num{0.49}\\
-\hspace{1em}High school graduate dummy & 36198 & \num{0.31} & \num{0.46}\\
-\hspace{1em}Junior high school graduate dummy & 36198 & \num{0.27} & \num{0.44}\\
-\hspace{1em}Wage earner dummy & 27394 & \num{0.56} & \num{0.50}\\
+\hspace{1em}Age & 31569 & \num{51.51} & \num{15.75}\\
+\hspace{1em}Female dummy & 31569 & \num{0.35} & \num{0.48}\\
+\hspace{1em}University graduate & 31568 & \num{0.47} & \num{0.50}\\
+\hspace{1em}High school graduate dummy & 31568 & \num{0.32} & \num{0.47}\\
+\hspace{1em}Junior high school graduate dummy & 31568 & \num{0.21} & \num{0.41}\\
+\hspace{1em}Wage earner dummy & 31564 & \num{0.49} & \num{0.50}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -963,9 +963,9 @@ where
 \toprule
 Type of applicant & extensive & intensive\\
 \midrule
-$R_{it}(1) = R_{it}(0) = 0$ & \num{48.15} & \num{31.09}\\
-$R_{it}(1) = R_{it}(0) = 1$ & \num{1.55} & \num{8.74}\\
-$R_{it}(1) =1, R_{it}(0) = 0$ & \num{50.30} & \num{60.17}\\
+$R_{it}(1) = R_{it}(0) = 0$ & \num{50.79} & \num{33.27}\\
+$R_{it}(1) = R_{it}(0) = 1$ & \num{1.53} & \num{8.16}\\
+$R_{it}(1) =1, R_{it}(0) = 0$ & \num{47.67} & \num{58.57}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1047,16 +1047,16 @@ Relationship of price elasticity
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applying tax relief x log(first price) & \num{-0.748}*** &  &  & \num{-1.400}*** & \num{-1.437}*** & \num{-1.540}***\\
- & (\num{0.225}) &  &  & (\num{0.411}) & (\num{0.363}) & (\num{0.375})\\
-PS of applying tax relief x log(first price) &  & \num{-1.544}*** & \num{-1.515}*** &  &  & \\
- &  & (\num{0.388}) & (\num{0.367}) &  &  & \\
-log(income) & \num{1.408} & \num{0.833} & \num{0.824} & \num{0.937} & \num{0.909} & \num{0.830}\\
- & (\num{1.113}) & (\num{1.121}) & (\num{1.121}) & (\num{1.119}) & (\num{1.098}) & (\num{1.094})\\
+Applying tax relief x log(first price) & \num{-0.736}*** &  &  & \num{-1.407}*** & \num{-1.483}*** & \num{-1.521}***\\
+ & (\num{0.226}) &  &  & (\num{0.420}) & (\num{0.366}) & (\num{0.377})\\
+PS of applying tax relief x log(first price) &  & \num{-1.592}*** & \num{-1.486}*** &  &  & \\
+ &  & (\num{0.390}) & (\num{0.367}) &  &  & \\
+log(income) & \num{1.532} & \num{0.867} & \num{0.929} & \num{1.015} & \num{0.957} & \num{0.927}\\
+ & (\num{1.125}) & (\num{1.126}) & (\num{1.128}) & (\num{1.125}) & (\num{1.103}) & (\num{1.102})\\
 \midrule
-First-stage: Instrument &  &  &  & 0.638 & 1.075 & 0.984\\
- &  &  &  & {}[468.1] & {}[534.6] & {}[662.2]\\
-Num.Obs. & \num{7004} & \num{6975} & \num{6975} & \num{6975} & \num{6975} & \num{6975}\\
+First-stage: Instrument &  &  &  & 0.631 & 1.074 & 0.977\\
+ &  &  &  & {}[459.7] & {}[519.5] & {}[666.4]\\
+Num.Obs. & \num{6757} & \num{6757} & \num{6757} & \num{6757} & \num{6757} & \num{6757}\\
 Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
@@ -1080,18 +1080,18 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applying tax relief x log(first price) & \num{-2.800}*** &  &  & \num{-0.464}*** & \num{-0.563}*** & \num{-0.738}***\\
- & (\num{0.074}) &  &  & (\num{0.176}) & (\num{0.120}) & (\num{0.116})\\
-PS of applying tax relief x log(first price) &  & \num{-0.452}*** & \num{-0.566}*** &  &  & \\
- &  & (\num{0.107}) & (\num{0.101}) &  &  & \\
-log(income) & \num{0.975}*** & \num{1.950}*** & \num{1.844}*** & \num{2.121}*** & \num{2.072}*** & \num{1.986}***\\
- & (\num{0.233}) & (\num{0.279}) & (\num{0.278}) & (\num{0.279}) & (\num{0.261}) & (\num{0.256})\\
+Applying tax relief x log(first price) & \num{-2.797}*** &  &  & \num{-0.485}*** & \num{-0.533}*** & \num{-0.731}***\\
+ & (\num{0.074}) &  &  & (\num{0.179}) & (\num{0.122}) & (\num{0.117})\\
+PS of applying tax relief x log(first price) &  & \num{-0.426}*** & \num{-0.560}*** &  &  & \\
+ &  & (\num{0.108}) & (\num{0.101}) &  &  & \\
+log(income) & \num{1.014}*** & \num{2.020}*** & \num{1.898}*** & \num{2.159}*** & \num{2.136}*** & \num{2.038}***\\
+ & (\num{0.233}) & (\num{0.282}) & (\num{0.280}) & (\num{0.282}) & (\num{0.264}) & (\num{0.258})\\
 \midrule
-Implied price elasticity & -10.799*** & -1.741*** & -2.181*** & -1.788*** & -2.169*** & -2.841***\\
- & (0.287) & (0.411) & (0.388) & (0.678) & (0.463) & (0.448)\\
-First-stage: Instrument &  &  &  & 0.289 & 0.803 & 0.768\\
- &  &  &  & {}[276.6] & {}[311.7] & {}[361.9]\\
-Num.Obs. & \num{27017} & \num{26863} & \num{26863} & \num{26863} & \num{26863} & \num{26863}\\
+Implied price elasticity & -10.552*** & -1.608*** & -2.111*** & -1.830*** & -2.010*** & -2.756***\\
+ & (0.281) & (0.406) & (0.381) & (0.675) & (0.459) & (0.441)\\
+First-stage: Instrument &  &  &  & 0.285 & 0.800 & 0.766\\
+ &  &  &  & {}[271.1] & {}[300.7] & {}[364.0]\\
+Num.Obs. & \num{25494} & \num{25492} & \num{25492} & \num{25492} & \num{25492} & \num{25492}\\
 Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
@@ -1173,16 +1173,16 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applying tax relief x log(first price) & \num{-0.765}** &  &  & \num{-1.560}** & \num{-1.505}*** & \num{-1.548}***\\
- & (\num{0.351}) &  &  & (\num{0.609}) & (\num{0.479}) & (\num{0.490})\\
-PS of applying tax relief x log(first price) &  & \num{-1.783}*** & \num{-1.715}*** &  &  & \\
- &  & (\num{0.569}) & (\num{0.542}) &  &  & \\
-log(income) & \num{0.041} & \num{-0.990} & \num{-0.955} & \num{-0.567} & \num{-0.541} & \num{-0.561}\\
- & (\num{1.460}) & (\num{1.477}) & (\num{1.467}) & (\num{1.440}) & (\num{1.427}) & (\num{1.418})\\
+Applying tax relief x log(first price) & \num{-0.765}** &  &  & \num{-1.709}*** & \num{-1.585}*** & \num{-1.528}***\\
+ & (\num{0.353}) &  &  & (\num{0.631}) & (\num{0.487}) & (\num{0.495})\\
+PS of applying tax relief x log(first price) &  & \num{-1.878}*** & \num{-1.681}*** &  &  & \\
+ &  & (\num{0.578}) & (\num{0.545}) &  &  & \\
+log(income) & \num{-0.045} & \num{-0.924} & \num{-0.791} & \num{-0.525} & \num{-0.462} & \num{-0.433}\\
+ & (\num{1.464}) & (\num{1.471}) & (\num{1.468}) & (\num{1.433}) & (\num{1.421}) & (\num{1.419})\\
 \midrule
-First-stage: Instrument &  &  &  & 0.638 & 1.075 & 0.984\\
- &  &  &  & {}[468.1] & {}[534.6] & {}[662.2]\\
-Num.Obs. & \num{4863} & \num{4844} & \num{4844} & \num{4844} & \num{4844} & \num{4844}\\
+First-stage: Instrument &  &  &  & 0.631 & 1.074 & 0.977\\
+ &  &  &  & {}[459.7] & {}[519.5] & {}[666.4]\\
+Num.Obs. & \num{4706} & \num{4706} & \num{4706} & \num{4706} & \num{4706} & \num{4706}\\
 Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
@@ -1206,18 +1206,18 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applying tax relief x log(first price) & \num{-2.970}*** &  &  & \num{-0.247} & \num{-0.607}*** & \num{-0.744}***\\
- & (\num{0.093}) &  &  & (\num{0.261}) & (\num{0.166}) & (\num{0.161})\\
-PS of applying tax relief x log(first price) &  & \num{-0.503}*** & \num{-0.594}*** &  &  & \\
+Applying tax relief x log(first price) & \num{-2.958}*** &  &  & \num{-0.245} & \num{-0.556}*** & \num{-0.732}***\\
+ & (\num{0.093}) &  &  & (\num{0.266}) & (\num{0.169}) & (\num{0.163})\\
+PS of applying tax relief x log(first price) &  & \num{-0.457}*** & \num{-0.581}*** &  &  & \\
  &  & (\num{0.155}) & (\num{0.148}) &  &  & \\
-log(income) & \num{1.134}*** & \num{1.919}*** & \num{1.837}*** & \num{2.260}*** & \num{2.110}*** & \num{2.054}***\\
- & (\num{0.278}) & (\num{0.328}) & (\num{0.327}) & (\num{0.320}) & (\num{0.293}) & (\num{0.290})\\
+log(income) & \num{1.189}*** & \num{2.022}*** & \num{1.911}*** & \num{2.325}*** & \num{2.195}*** & \num{2.121}***\\
+ & (\num{0.279}) & (\num{0.330}) & (\num{0.329}) & (\num{0.324}) & (\num{0.296}) & (\num{0.291})\\
 \midrule
-Implied price elasticity & -11.121*** & -1.879*** & -2.221*** & -0.924 & -2.271*** & -2.782***\\
- & (0.347) & (0.580) & (0.553) & (0.974) & (0.622) & (0.604)\\
-First-stage: Instrument &  &  &  & 0.276 & 0.828 & 0.798\\
- &  &  &  & {}[156.2] & {}[181.1] & {}[202.3]\\
-Num.Obs. & \num{18207} & \num{18112} & \num{18112} & \num{18112} & \num{18112} & \num{18112}\\
+Implied price elasticity & -10.812*** & -1.670*** & -2.123*** & -0.897 & -2.032*** & -2.673***\\
+ & (0.339) & (0.568) & (0.543) & (0.970) & (0.616) & (0.596)\\
+First-stage: Instrument &  &  &  & 0.272 & 0.822 & 0.794\\
+ &  &  &  & {}[151.8] & {}[174.0] & {}[202.0]\\
+Num.Obs. & \num{17199} & \num{17197} & \num{17197} & \num{17197} & \num{17197} & \num{17197}\\
 Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
@@ -1241,16 +1241,16 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applying tax relief x log(last price) & \num{-0.516}** &  &  & \num{-1.603}*** & \num{-1.745}*** & \num{-1.846}***\\
- & (\num{0.246}) &  &  & (\num{0.550}) & (\num{0.468}) & (\num{0.481})\\
-PS of applying tax relief x log(last price) &  & \num{-1.342}*** & \num{-1.324}*** &  &  & \\
- &  & (\num{0.442}) & (\num{0.412}) &  &  & \\
-log(income) & \num{1.584} & \num{0.880} & \num{0.865} & \num{0.755} & \num{0.655} & \num{0.583}\\
- & (\num{1.190}) & (\num{1.191}) & (\num{1.192}) & (\num{1.185}) & (\num{1.154}) & (\num{1.153})\\
+Applying tax relief x log(last price) & \num{-0.507}** &  &  & \num{-1.699}*** & \num{-1.805}*** & \num{-1.815}***\\
+ & (\num{0.247}) &  &  & (\num{0.555}) & (\num{0.467}) & (\num{0.479})\\
+PS of applying tax relief x log(last price) &  & \num{-1.411}*** & \num{-1.308}*** &  &  & \\
+ &  & (\num{0.443}) & (\num{0.411}) &  &  & \\
+log(income) & \num{1.712} & \num{1.005} & \num{1.064} & \num{0.855} & \num{0.779} & \num{0.771}\\
+ & (\num{1.197}) & (\num{1.187}) & (\num{1.190}) & (\num{1.178}) & (\num{1.148}) & (\num{1.150})\\
 \midrule
-First-stage: Instrument &  &  &  & 0.527 & 0.929 & 0.840\\
- &  &  &  & {}[256.7] & {}[323.7] & {}[387.4]\\
-Num.Obs. & \num{6414} & \num{6392} & \num{6392} & \num{6392} & \num{6392} & \num{6392}\\
+First-stage: Instrument &  &  &  & 0.529 & 0.937 & 0.842\\
+ &  &  &  & {}[262.6] & {}[331.8] & {}[404.6]\\
+Num.Obs. & \num{6247} & \num{6247} & \num{6247} & \num{6247} & \num{6247} & \num{6247}\\
 Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
@@ -1274,18 +1274,18 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applying tax relief x log(last price) & \num{-2.928}*** &  &  & \num{-1.070}*** & \num{-1.127}*** & \num{-1.234}***\\
- & (\num{0.073}) &  &  & (\num{0.175}) & (\num{0.121}) & (\num{0.119})\\
-PS of applying tax relief x log(last price) &  & \num{-0.853}*** & \num{-0.896}*** &  &  & \\
+Applying tax relief x log(last price) & \num{-2.917}*** &  &  & \num{-1.046}*** & \num{-1.050}*** & \num{-1.183}***\\
+ & (\num{0.074}) &  &  & (\num{0.179}) & (\num{0.122}) & (\num{0.120})\\
+PS of applying tax relief x log(last price) &  & \num{-0.787}*** & \num{-0.855}*** &  &  & \\
  &  & (\num{0.112}) & (\num{0.105}) &  &  & \\
-log(income) & \num{1.036}*** & \num{1.680}*** & \num{1.633}*** & \num{1.919}*** & \num{1.891}*** & \num{1.840}***\\
- & (\num{0.228}) & (\num{0.279}) & (\num{0.278}) & (\num{0.263}) & (\num{0.246}) & (\num{0.244})\\
+log(income) & \num{1.060}*** & \num{1.774}*** & \num{1.707}*** & \num{1.967}*** & \num{1.965}*** & \num{1.900}***\\
+ & (\num{0.229}) & (\num{0.282}) & (\num{0.280}) & (\num{0.266}) & (\num{0.250}) & (\num{0.247})\\
 \midrule
-Implied price elasticity & -12.063*** & -3.506*** & -3.685*** & -4.399*** & -4.634*** & -5.074***\\
- & (0.302) & (0.460) & (0.432) & (0.718) & (0.497) & (0.491)\\
-First-stage: Instrument &  &  &  & 0.274 & 0.775 & 0.739\\
- &  &  &  & {}[260.9] & {}[301.1] & {}[347.9]\\
-Num.Obs. & \num{26427} & \num{26280} & \num{26280} & \num{26280} & \num{26280} & \num{26280}\\
+Implied price elasticity & -11.667*** & -3.147*** & -3.419*** & -4.182*** & -4.197*** & -4.729***\\
+ & (0.294) & (0.448) & (0.419) & (0.715) & (0.487) & (0.479)\\
+First-stage: Instrument &  &  &  & 0.270 & 0.773 & 0.736\\
+ &  &  &  & {}[255.1] & {}[290.5] & {}[349.1]\\
+Num.Obs. & \num{24984} & \num{24982} & \num{24982} & \num{24982} & \num{24982} & \num{24982}\\
 Instrument &  &  &  & WE x Price & PS x Price & PS x Price\\
 Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \bottomrule
@@ -1309,22 +1309,22 @@ Method of PS &  & Pool & Separate &  & Pool & Separate\\
 \toprule
   & (1) & (2) & (3) & (4)\\
 \midrule
-log(first price) & \num{-1.203}*** & \num{-0.506} &  & \\
- & (\num{0.390}) & (\num{0.847}) &  & \\
-log(last price) &  &  & \num{-1.330}*** & \num{-0.254}\\
- &  &  & (\num{0.452}) & (\num{0.903})\\
-log(income) & \num{0.525} & \num{6.126} & \num{0.532} & \num{6.093}\\
- & (\num{0.776}) & (\num{5.365}) & (\num{0.785}) & (\num{5.503})\\
-1-year lag of price &  & \num{0.369} &  & \num{0.487}\\
- &  & (\num{0.884}) &  & (\num{0.911})\\
-1-year lag of income &  & \num{1.040} &  & \num{1.129}\\
- &  & (\num{4.777}) &  & (\num{5.030})\\
-1-year lead of income &  & \num{-0.821} &  & \num{-0.826}\\
- &  & (\num{0.907}) &  & (\num{0.904})\\
+log(first price) & \num{-1.235}*** & \num{-0.331} &  & \\
+ & (\num{0.394}) & (\num{0.937}) &  & \\
+log(last price) &  &  & \num{-1.356}*** & \num{0.139}\\
+ &  &  & (\num{0.458}) & (\num{0.955})\\
+log(income) & \num{1.492} & \num{-0.180} & \num{1.394} & \num{-0.554}\\
+ & (\num{1.515}) & (\num{5.198}) & (\num{1.531}) & (\num{5.384})\\
+1-year lag of price &  & \num{-0.185} &  & \num{-0.204}\\
+ &  & (\num{0.847}) &  & (\num{0.869})\\
+1-year lag of income &  & \num{6.340} &  & \num{7.042}\\
+ &  & (\num{4.515}) &  & (\num{4.852})\\
+1-year lead of income &  & \num{-2.449} &  & \num{-2.347}\\
+ &  & (\num{3.242}) &  & (\num{3.143})\\
 \midrule
-Instrument: log(first price) &  &  & 0.942 & -0.000\\
- &  &  & {}[3083.6] & {}[0.0]\\
-Num.Obs. & \num{4079} & \num{1029} & \num{3972} & \num{1024}\\
+Instrument: log(first price) &  &  & 0.939 & 0.000\\
+ &  &  & {}[2869.0] & {}[1000000.0]\\
+Num.Obs. & \num{3584} & \num{805} & \num{3479} & \num{800}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
@@ -1346,12 +1346,12 @@ Num.Obs. & \num{4079} & \num{1029} & \num{3972} & \num{1024}\\
 \cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3} \cmidrule(l{3pt}r{3pt}){4-4}
   & (1) & (2) & (3)\\
 \midrule
-Difference of logged first price & \num{-1.890}* & \num{-2.530}*** & \num{-4.057}***\\
- & (\num{1.107}) & (\num{0.895}) & (\num{0.720})\\
-Difference of logged income & \num{1.033} & \num{6.460}** & \num{5.659}**\\
- & (\num{2.323}) & (\num{3.039}) & (\num{2.558})\\
+Difference of logged first price & \num{-1.965}* & \num{-2.569}*** & \num{-4.070}***\\
+ & (\num{1.115}) & (\num{0.908}) & (\num{0.736})\\
+Difference of logged income & \num{2.175} & \num{6.927} & \num{5.607}*\\
+ & (\num{3.776}) & (\num{4.342}) & (\num{3.098})\\
 \midrule
-Num.Obs. & \num{4014} & \num{3903} & \num{3765}\\
+Num.Obs. & \num{3526} & \num{3428} & \num{3303}\\
 Std.Errors & by: pid & by: pid & by: pid\\
 FE: year & X & X & X\\
 FE: area & X & X & X\\
