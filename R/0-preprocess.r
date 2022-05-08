@@ -321,6 +321,12 @@ treat_data <- first_mtr_data %>%
     credit_benefit = if_else(first_mtr < 0.15, 1, 0),
     credit_neutral = if_else(first_mtr == 0.15, 1, 0),
     credit_loss = if_else(first_mtr > 0.15, 1, 0),
+    credit_treat = case_when(
+      credit_benefit == 1 ~ 1,
+      credit_neutral == 1 ~ 2,
+      credit_loss == 1 ~ 3,
+      TRUE ~ NA_real_
+    )
   ) %>%
   dplyr::select(-first_mtr)
 
@@ -392,8 +398,7 @@ dt <- dt %>%
   ) %>%
   dplyr::mutate(
     linc_ln = log(linc + 100000),
-    donate_ln = log(donate),
-    donate_ln = if_else(is.nan(donate_ln), NA_real_, donate_ln)
+    donate_ln = log(donate + 1)
   ) %>%
   dplyr::group_by(pid) %>%
   dplyr::mutate_at(
