@@ -37,12 +37,13 @@ fixest::setFixest_fml(
 )
 
 intmod <- list(
-  "(1)" = donate_ln ~ d_relief_donate:price_ln + ..stage2,
-  "(2)" = donate_ln ~ psc_pool:price_ln + ..stage2,
-  "(3)" = donate_ln ~ psc_sep:price_ln + ..stage2,
-  "(4)" = donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ employee:price_ln,
-  "(5)" = donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ psc_pool:price_ln,
-  "(6)" = donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ psc_sep:price_ln
+  donate_ln ~ price_ln + ..stage2,
+  donate_ln ~ d_relief_donate:price_ln + ..stage2,
+  donate_ln ~ psc_pool:price_ln + ..stage2,
+  donate_ln ~ psc_sep:price_ln + ..stage2,
+  donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ employee:price_ln,
+  donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ psc_pool:price_ln,
+  donate_ln ~ ..stage2 | d_relief_donate:price_ln ~ psc_sep:price_ln
 )
 
 est_intmod <- intmod %>%
@@ -52,7 +53,9 @@ est_intmod <- intmod %>%
     cluster = ~ pid
   ))
 
-stage1_intmod <- est_intmod[4:6] %>%
+names(est_intmod) <- paste0("(", seq_len(length(est_intmod)), ")")
+
+stage1_intmod <- est_intmod[5:7] %>%
   purrr::map(function(x) {
     coef <- x$iv_first_stage[["d_relief_donate:price_ln"]]$coeftable[1, 1]
     ivwald <- fitstat(x, "ivwald")[[1]]$stat
@@ -66,12 +69,12 @@ stage1_intmod <- est_intmod[4:6] %>%
   }) %>%
   reduce(left_join, by = "name") %>%
   bind_cols(tribble(
-    ~value.a, ~value.b, ~value.c,
-    "", "", "",
-    "", "", ""
+    ~value.a, ~value.b, ~value.c, ~value.d,
+    "", "", "", "",
+    "", "", "", ""
   ), .) %>%
-  select(name, value.a, value.b, value.c, value.x, value.y, value) %>%
-  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  select(name, value.a, value.b, value.c, value.d, value.x, value.y, value) %>%
+  setNames(c("term", sprintf("(%1d)", 1:7))) %>%
   mutate(term = recode(
     term,
     "coef" = "First-stage: Instrument", .default = ""
@@ -79,19 +82,22 @@ stage1_intmod <- est_intmod[4:6] %>%
 
 addtab <- stage1_intmod %>%
   bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~ "(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
-    "Instrument", "", "", "", "WE x Price",
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~ "(6)", ~ "(7)",
+    "Square of age", "X", "X", "X", "X", "X", "X", "X",
+    "Number of household members", "X", "X", "X", "X", "X", "X", "X",
+    "Have dependents", "X", "X", "X", "X", "X", "X", "X",
+    "Instrument", "", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
-    "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
+    "Method of PS", "", "", "Pool", "Separate", "", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- 7:8
+attr(addtab, "position") <- 9:10
 
 est_intmod %>%
   modelsummary(
     # title = "Intensive-Margin Tax-Price Elasticity",
     coef_map = c(
+      "price_ln" = "log(first price)",
       "d_relief_donate:price_ln" =
         "Applying tax relief x log(first price)",
       "fit_d_relief_donate:price_ln" =
@@ -109,7 +115,7 @@ est_intmod %>%
   kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::column_spec(1, width = "10em") %>%
   kableExtra::add_header_above(c(
-    " ", "FE" = 3, "FE-2SLS" = 3
+    " ", "FE" = 4, "FE-2SLS" = 3
   )) %>%
   footnote(
     general_title = "",
@@ -150,12 +156,13 @@ est_intmod %>%
 #'
 #+ extensive, eval = output_type() != "appx"
 extmod <- list(
-  "(1)" = d_donate ~ d_relief_donate:price_ln + ..stage2,
-  "(2)" = d_donate ~ psc_pool:price_ln + ..stage2,
-  "(3)" = d_donate ~ psc_sep:price_ln + ..stage2,
-  "(4)" = d_donate ~ ..stage2 | d_relief_donate:price_ln ~ employee:price_ln,
-  "(5)" = d_donate ~ ..stage2 | d_relief_donate:price_ln ~ psc_pool:price_ln,
-  "(6)" = d_donate ~ ..stage2 | d_relief_donate:price_ln ~ psc_sep:price_ln
+  d_donate ~ price_ln + ..stage2,
+  d_donate ~ d_relief_donate:price_ln + ..stage2,
+  d_donate ~ psc_pool:price_ln + ..stage2,
+  d_donate ~ psc_sep:price_ln + ..stage2,
+  d_donate ~ ..stage2 | d_relief_donate:price_ln ~ employee:price_ln,
+  d_donate ~ ..stage2 | d_relief_donate:price_ln ~ psc_pool:price_ln,
+  d_donate ~ ..stage2 | d_relief_donate:price_ln ~ psc_sep:price_ln
 )
 
 est_extmod <- extmod %>%
@@ -165,7 +172,9 @@ est_extmod <- extmod %>%
     cluster = ~pid
   ))
 
-stage1_extmod <- est_extmod[4:6] %>%
+names(est_extmod) <- paste0("(", seq_len(length(est_extmod)), ")")
+
+stage1_extmod <- est_extmod[5:7] %>%
   purrr::map(function(x) {
     coef <- x$iv_first_stage[["d_relief_donate:price_ln"]]$coeftable[1, 1]
     ivwald <- fitstat(x, "ivwald")[[1]]$stat
@@ -179,12 +188,12 @@ stage1_extmod <- est_extmod[4:6] %>%
   }) %>%
   reduce(left_join, by = "name") %>%
   bind_cols(tribble(
-    ~value.a, ~value.b, ~value.c,
-    "", "", "",
-    "", "", ""
+    ~value.a, ~value.b, ~value.c, ~value.d,
+    "", "", "", "",
+    "", "", "", ""
   ), .) %>%
-  select(name, value.a, value.b, value.c, value.x, value.y, value) %>%
-  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  select(name, value.a, value.b, value.c, value.d, value.x, value.y, value) %>%
+  setNames(c("term", sprintf("(%1d)", 1:7))) %>%
   mutate(term = recode(
     term,
     "coef" = "First-stage: Instrument", .default = ""
@@ -209,7 +218,7 @@ impelast_extmod <- est_extmod %>%
       pivot_longer(everything())
   }) %>%
   reduce(left_join, by = "name") %>%
-  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
+  setNames(c("term", sprintf("(%1d)", 1:7))) %>%
   mutate(term = recode(
     term,
     "estimate" = "Implied price elasticity", .default = ""
@@ -218,19 +227,22 @@ impelast_extmod <- est_extmod %>%
 addtab <- impelast_extmod %>%
   bind_rows(stage1_extmod) %>%
   bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
-    "Instrument", "", "", "", "WE x Price",
+    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)", ~"(7)",
+    "Square of age", "X", "X", "X", "X", "X", "X", "X",
+    "Number of household members", "X", "X", "X", "X", "X", "X", "X",
+    "Have dependents", "X", "X", "X", "X", "X", "X", "X",
+    "Instrument", "", "", "", "", "WE x Price",
     "PS x Price", "PS x Price",
-    "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
+    "Method of PS", "", "", "Pool", "Separate", "", "Pool", "Separate"
   ))
 
-attr(addtab, "position") <- 7:10
+attr(addtab, "position") <- 9:12
 
 est_extmod %>%
   modelsummary(
     # title = "Extensive-Margin Tax-Price Elasticity",
     coef_map = c(
+      "price_ln" = "log(first price)",
       "d_relief_donate:price_ln" =
         "Applying tax relief x log(first price)",
       "fit_d_relief_donate:price_ln" =
@@ -249,7 +261,7 @@ est_extmod %>%
   kableExtra::column_spec(1, width = "10em") %>%
   kableExtra::add_header_above(c(
     " ",
-    "FE" = 3, "FE-2SLS" = 3
+    "FE" = 4, "FE-2SLS" = 3
   )) %>%
   footnote(
     general_title = "",
