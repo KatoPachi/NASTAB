@@ -302,7 +302,12 @@ int_anatomy_df <- estdf %>%
   mutate(
     applicable = price_ln,
     effective = d_relief_donate * price_ln
-  )
+  ) %>%
+  mutate(d_relief_donate = factor(
+    d_relief_donate,
+    levels = c(0, 1),
+    labels = c("No", "Yes")
+  ))
 
 est_int_resid1 <- feols(applicable ~ ..stage2, data = int_anatomy_df)
 est_int_resid2 <- feols(effective ~ ..stage2, data = int_anatomy_df)
@@ -311,18 +316,54 @@ int_anatomy_df <- int_anatomy_df %>%
   modelr::add_residuals(est_int_resid1, var = "resid1") %>%
   modelr::add_residuals(est_int_resid2, var = "resid2")
 
-int_anatomy_df %>%
-  mutate(d_relief_donate = factor(
-    d_relief_donate,
-    levels = c(0, 1),
-    labels = c("Not", "Yes")
-  )) %>%
-  ggplot(aes(x = resid1, y = donate_ln, color = d_relief_donate)) +
-    geom_point(size = 3, alpha = 0.5) +
-    geom_smooth(se = FALSE, method = "lm", color = "black") +
-    ggtemp()
+est_anatomy_resid1 <- int_anatomy_df %>%
+  feols(donate_ln ~ resid1, data = ., cluster = ~ pid) %>%
+  tidy() %>%
+  {
+    sprintf("Slope = %1.3f (std.err = %1.3f)", .$estimate[2], .$std.error[2])
+  }
 
-lm(donate_ln ~ resid2, data = int_anatomy_df)
+est_anatomy_resid2 <- int_anatomy_df %>%
+  feols(donate_ln ~ resid2, data = ., cluster = ~pid) %>%
+  tidy() %>%
+  {
+    sprintf("Slope = %1.3f (std.err = %1.3f)", .$estimate[2], .$std.error[2])
+  }
+
+plot_int_resid1 <- int_anatomy_df %>%
+  ggplot(aes(x = resid1, y = donate_ln)) +
+  geom_point(aes(shape = d_relief_donate), size = 3, alpha = 0.5) +
+  geom_smooth(se = FALSE, method = "lm", color = "black") +
+  geom_text(
+    aes(x = -0.2, y = 8, label = est_anatomy_resid1),
+    size = 5
+  ) +
+  scale_shape_manual(values = c(1, 16)) +
+  scale_x_continuous(limits = c(-0.34, 0.24)) +
+  labs(
+    x = "Residuals of log(first price)",
+    y = "log(donate) conditional on givers",
+    shape = "Application of tax relief"
+  ) +
+  ggtemp()
+
+plot_int_resid2 <- int_anatomy_df %>%
+  ggplot(aes(x = resid2, y = donate_ln)) +
+  geom_point(aes(shape = d_relief_donate), size = 3, alpha = 0.5) +
+  geom_smooth(se = FALSE, method = "lm", color = "black") +
+  scale_shape_manual(values = c(1, 16)) +
+  scale_x_continuous(limits = c(-0.34, 0.24)) +
+  labs(
+    x = "Residuals of log(first price)\u00d7application",
+    y = "log(donate) conditional on givers",
+    shape = "Application of tax relief"
+  ) +
+  ggtemp()
+
+list(plot_int_resid1, plot_int_resid2) %>%
+  wrap_plots() +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
 
 #'
 #+ ext-anatomy

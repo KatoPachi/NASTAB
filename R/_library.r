@@ -5,5 +5,6 @@ library(modelsummary)
 library(kableExtra)
 library(estimatr)
 library(fixest)
+library(patchwork)
 
 lapply(Sys.glob(here("R/functions", "*.r")), source)
