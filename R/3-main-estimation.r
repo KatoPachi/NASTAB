@@ -95,7 +95,7 @@ attr(addtab, "position") <- 9:10
 
 est_intmod %>%
   modelsummary(
-    # title = "Intensive-Margin Tax-Price Elasticity",
+    title = "Intensive-Margin Tax-Price Elasticity",
     coef_map = c(
       "price_ln" = "log(first price)",
       "d_relief_donate:price_ln" =
@@ -295,6 +295,61 @@ est_extmod %>%
 #' したがって、操作変数によって寄付控除の自己選択を制御した場合、
 #' extensive-margin price elasticityはより非弾力的に推定された。
 #' ```
+#'
+#+ int-anatomy
+int_anatomy_df <- estdf %>%
+  dplyr::filter(d_donate == 1) %>%
+  mutate(
+    applicable = price_ln,
+    effective = d_relief_donate * price_ln
+  )
+
+est_int_resid1 <- feols(applicable ~ ..stage2, data = int_anatomy_df)
+est_int_resid2 <- feols(effective ~ ..stage2, data = int_anatomy_df)
+
+int_anatomy_df <- int_anatomy_df %>%
+  modelr::add_residuals(est_int_resid1, var = "resid1") %>%
+  modelr::add_residuals(est_int_resid2, var = "resid2")
+
+int_anatomy_df %>%
+  mutate(d_relief_donate = factor(
+    d_relief_donate,
+    levels = c(0, 1),
+    labels = c("Not", "Yes")
+  )) %>%
+  ggplot(aes(x = resid1, y = donate_ln, color = d_relief_donate)) +
+    geom_point(size = 3, alpha = 0.5) +
+    geom_smooth(se = FALSE, method = "lm", color = "black") +
+    ggtemp()
+
+lm(donate_ln ~ resid2, data = int_anatomy_df)
+
+#'
+#+ ext-anatomy
+ext_anatomy_df <- estdf %>%
+  mutate(
+    applicable = price_ln,
+    effective = d_relief_donate * price_ln
+  )
+
+est_ext_resid1 <- feols(applicable ~ ..stage2, data = ext_anatomy_df)
+est_ext_resid2 <- feols(effective ~ ..stage2, data = ext_anatomy_df)
+
+ext_anatomy_df <- ext_anatomy_df %>%
+  modelr::add_residuals(est_ext_resid1, var = "resid1") %>%
+  modelr::add_residuals(est_ext_resid2, var = "resid2")
+
+ext_anatomy_df %>%
+  mutate(d_relief_donate = factor(
+    d_relief_donate,
+    levels = c(0, 1),
+    labels = c("Not", "Yes")
+  )) %>%
+  ggplot(aes(x = resid2, y = d_donate, color = d_relief_donate)) +
+    geom_point(size = 3) +
+    geom_smooth(se = FALSE, method = "lm", color = "black") +
+    ggtemp()
+
 #'
 #' ```{asis, echo = output_type() != "appx"}
 #' ## Robustness Check
