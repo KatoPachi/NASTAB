@@ -31,8 +31,8 @@ rawdt <- readr::read_csv(
 
 use <- rawdt %>%
   mutate(
-    applicable = price_ln,
-    effective = d_relief_donate * price_ln
+    applicable = lprice_ln,
+    effective = d_relief_donate * lprice_ln
   ) %>%
   pivot_longer(
     applicable:effective,
@@ -86,8 +86,8 @@ reg_anatomy_int <- int_use %>%
 
 #+
 x_labs <- c(
-  applicable = "Residuals of log(first price)",
-  effective = "Residuals of log(first price)\u00d7application"
+  applicable = "Residuals of log(last price)",
+  effective = "Residuals of log(last price)\u00d7application"
 )
 
 title <- c(
@@ -156,8 +156,8 @@ plot_int %>%
 #' 価格の残差に関する寄付額の単直線回帰分析はintensive-marginの価格弾力性となる。
 #' 図\@ref(fig:plot-anatomy-intensive)の二つのパネルに示した直線はこの回帰直線である。
 #'
-#' - パネルAより、applicable priceを用いたintensive-marginの価格弾力性はおよそ-0.97である。
-#' - パネルBより、effective priceを用いたintensive-marginの価格弾力性はおよそ-0.74である。
+#' - パネルAより、applicable priceを用いたintensive-marginの価格弾力性はおよそ-0.9である。
+#' - パネルBより、effective priceを用いたintensive-marginの価格弾力性はおよそ-0.5である。
 #' - 二つの価格弾力性の標準誤差を考慮すると、二つの価格弾力性の差は誤差の範囲であると考える。
 #' - 二つの価格弾力性が似たような値を取った原因として、
 #' 控除を申請していない人の平均的な寄付額が、価格に関わらず、
@@ -260,9 +260,9 @@ plot_ext %>%
 #' この回帰直線の傾きをextensive-marginの価格弾力性として解釈できない。
 #'   - 傾きの係数を寄付者割合で割ることによって、extensive-marginの価格弾力性を得る
 #' - パネルAより、applicable priceを用いるとき、extensive-marginの価格弾力性は
-#' およそ-0.8($=-0.192 / 0.24$)である。
+#' およそ-2.1($=-0.497 / 0.24$)である。
 #' - パネルBより、effective priceを用いるとき、extensive-marginの価格弾力性は
-#' およそ-11.7($=-2.797 / 0.24$)である。
+#' およそ-12.2($=-2.917 / 0.24$)である。
 #' - effective priceを用いることによって、extensive-marginの価格弾力性はより弾力的になった。
 #'
 # /*
