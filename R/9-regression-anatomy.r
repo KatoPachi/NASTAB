@@ -46,7 +46,7 @@ reg_price_int <- use %>%
   dplyr::filter(d_donate == 1) %>%
   group_by(price_type) %>%
   do(est = feols(value ~ ..stage2, data = .)) %>%
-  pull(est, name = outcome)
+  pull(est, name = price_type)
 
 int_use <- use %>%
   dplyr::filter(d_donate == 1) %>%
@@ -133,35 +133,88 @@ plot_int %>%
   theme(legend.position = "bottom")
 
 #'
-#+ ext-anatomy
-ext_anatomy_df <- estdf %>%
+#+ anatomy-extensive
+reg_price_ext <- use %>%
+  group_by(price_type) %>%
+  do(est = feols(value ~ ..stage2, data = .)) %>%
+  pull(est, name = price_type)
+
+ext_use <- use %>%
+  modelr::add_residuals(reg_price_ext$applicable, var = "applicable") %>%
+  modelr::add_residuals(reg_price_ext$effective, var = "effective") %>%
   mutate(
-    applicable = price_ln,
-    effective = d_relief_donate * price_ln
+    residual = case_when(
+      price_type == "applicable" ~ applicable,
+      price_type == "effective" ~ effective
+    )
+  ) %>%
+  select(-applicable, -effective)
+
+reg_anatomy_ext <- ext_use %>%
+  group_by(price_type) %>%
+  do(
+    est = feols(d_donate ~ residual, data = ., cluster = ~pid) %>% tidy()
+  ) %>%
+  summarize(
+    price = price_type,
+    label = sprintf(
+      "Slope = %1.3f\n(s.e. = %1.3f)",
+      est$estimate[2], est$std.error[2]
+    )
   )
 
-est_ext_residual <- feols(applicable ~ ..stage2, data = ext_anatomy_df)
-est_ext_resid2 <- feols(effective ~ ..stage2, data = ext_anatomy_df)
+#+ plot-anatomy-extensive
+plot_ext <- names(x_labs) %>%
+  purrr::map(function(x) {
+    ext_use %>%
+      dplyr::filter(price_type == x) %>%
+      dplyr::filter(!is.na(residual) & !is.na(d_donate)) %>%
+      group_by(d_relief_donate) %>%
+      mutate(group = ntile(residual, 15)) %>%
+      group_by(d_relief_donate, group) %>%
+      summarize(
+        min_residual = min(residual),
+        max_residual = max(residual),
+        residual = min_residual + (max_residual - min_residual) / 2,
+        d_donate = mean(d_donate)
+      ) %>%
+      mutate(d_relief_donate = factor(
+        d_relief_donate,
+        levels = c(0, 1),
+        labels = c("No", "Yes")
+      )) %>%
+      ggplot(aes(x = residual, y = d_donate, shape = d_relief_donate)) +
+      geom_point(aes(shape = d_relief_donate), size = 5, color = "grey50") +
+      geom_smooth(
+        method = "lm", data = subset(ext_use, price_type == x),
+        se = FALSE, color = "black", fullrange = TRUE
+      ) +
+      annotate(
+        geom = "text",
+        x = 0.1, y = 0.6,
+        label = subset(reg_anatomy_ext, price == x)$label,
+        size = 5
+      ) +
+      scale_x_continuous(limits = c(-0.3, 0.2)) +
+      scale_y_continuous(limits = c(0, 1)) +
+      labs(
+        title = title[x],
+        x = x_labs[x],
+        y = "log(donate) conditional on givers",
+        shape = "Application of tax relief"
+      ) +
+      ggtemp()
+  })
 
-ext_anatomy_df <- ext_anatomy_df %>%
-  modelr::add_residuals(est_ext_residual, var = "residual") %>%
-  modelr::add_residuals(est_ext_resid2, var = "resid2")
-
-ext_anatomy_df %>%
-  mutate(d_relief_donate = factor(
-    d_relief_donate,
-    levels = c(0, 1),
-    labels = c("Not", "Yes")
-  )) %>%
-  ggplot(aes(x = resid2, y = d_donate, color = d_relief_donate)) +
-    geom_point(size = 3) +
-    geom_smooth(se = FALSE, method = "lm", color = "black") +
-    ggtemp()
+plot_ext %>%
+  wrap_plots() +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
 
 # /*
 #+
 rmarkdown::render(
-  here("R", "3-main-estimation.r"),
+  here("R", "9-regression-anatomy.r"),
   output_dir = here("docs", "html-preview")
 )
 # */
