@@ -45,6 +45,7 @@ flag <- rawdt %>%
 main <- rawdt %>%
   select(
     pid,
+    hhid,
     year,
     linc_ln,
     sqage,
@@ -54,6 +55,7 @@ main <- rawdt %>%
     area,
     price_ln,
     lprice_ln,
+    d_relief_donate,
     employee,
     intensive = donate_ln,
     extensive = d_donate
@@ -73,88 +75,86 @@ fixest::setFixest_fml(
     year + pid + indust + area
 )
 
-lastintmod <- list(
-  "(1)" = donate_ln ~ d_relief_donate:lprice_ln + ..stage2,
-  "(2)" = donate_ln ~ psc_pool:lprice_ln + ..stage2,
-  "(3)" = donate_ln ~ psc_sep:lprice_ln + ..stage2,
-  "(4)" = donate_ln ~ ..stage2 | d_relief_donate:lprice_ln ~ employee:price_ln,
-  "(5)" = donate_ln ~ ..stage2 | d_relief_donate:lprice_ln ~ psc_pool:price_ln,
-  "(6)" = donate_ln ~ ..stage2 | d_relief_donate:lprice_ln ~ psc_sep:price_ln
+models <- list(
+  y ~ ..stage2 | d_relief_donate:lprice_ln ~ price_ln,
+  y ~ ..stage2 | d_relief_donate:lprice_ln ~ employee:price_ln
 )
 
-est_lastintmod <- lastintmod %>%
-  purrr::map(~ fixest::feols(
-    xpd(.),
-    data = subset(estdf, d_donate == 1),
-    cluster = ~pid
+#+
+est_models <- use %>%
+  mutate(outcome = factor(outcome, levels = c("intensive", "extensive"))) %>%
+  group_by(outcome) %>%
+  do(est = lapply(
+    models,
+    function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
   ))
 
-stage1_lastintmod <- est_lastintmod[4:6] %>%
-  purrr::map(function(x) {
-    coef <- x$iv_first_stage[["d_relief_donate:lprice_ln"]]$coeftable[1, 1]
-    ivwald <- fitstat(x, "ivwald")[[1]]$stat
+stats_stage1 <- est_models %>%
+  group_by(outcome) %>%
+  do(tab = data.frame(
+    models = paste0(.$outcome, c(1, 2)),
+    coef = lapply(.$est[[1]], function(x)
+      x$iv_first_stage[["d_relief_donate:lprice_ln"]]$coeftable[1, 1]
+    ) %>% as_vector,
+    f = lapply(.$est[[1]], function(x)
+      fitstat(x, "ivf")[[1]]$stat
+    ) %>% as_vector,
+    wh = lapply(.$est[[1]], function(x)
+      fitstat(x, "wh")$wh$p
+    ) %>% as_vector
+  )) %>%
+  { bind_rows(.$tab) } %>%
+  mutate(
+    coef = sprintf("%1.3f", coef),
+    f = sprintf("[%1.2f]", f),
+    wh = sprintf("%1.3f", wh)
+  ) %>%
+  pivot_longer(coef:wh, names_to = "terms") %>%
+  pivot_wider(names_from = models, values_from = value) %>%
+  mutate(
+    terms = recode(
+      terms,
+      "coef" = "First-stage: Instrument",
+      "f" = "",
+      "wh" = "Wu-Hausman test, p-value"
+    )
+  ) %>%
+  bind_rows(c(
+    terms = "Instrument",
+    intensive1 = "First price",
+    intensive2 = "First price x WE",
+    extensive1 = "First price",
+    extensive2 = "First price x WE"
+  ), .)
 
-    tibble(coef = coef, wald = ivwald) %>%
-      pivot_longer(everything()) %>%
-      mutate(value = case_when(
-        name == "coef" ~ sprintf("%1.3f", value),
-        name == "wald" ~ sprintf("[%1.1f]", value)
-      ))
-  }) %>%
-  reduce(left_join, by = "name") %>%
-  bind_cols(tribble(
-    ~value.a, ~value.b, ~value.c,
-    "", "", "",
-    "", "", ""
-  ), .) %>%
-  select(name, value.a, value.b, value.c, value.x, value.y, value) %>%
-  setNames(c("term", sprintf("(%1d)", 1:6))) %>%
-  mutate(term = recode(
-    term,
-    "coef" = "First-stage: Instrument", .default = ""
-  ))
-
-addtab <- stage1_lastintmod %>%
-  bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)", ~"(4)", ~"(5)", ~"(6)",
-    # "Square of age", "X", "X", "X", "X", "X", "X",
-    "Instrument", "", "", "", "WE x Price",
-    "PS x Price", "PS x Price",
-    "Method of PS", "", "Pool", "Separate", "", "Pool", "Separate"
-  ))
-
-attr(addtab, "position") <- 7:8
-
-est_lastintmod %>%
+est_models %>%
+  pull(est) %>%
+  flatten() %>%
+  setNames(paste0("(", seq(length(models)*2), ")")) %>%
   modelsummary(
-    # title = "Intensive-Margin Tax-Price Elasticity (Last-Unit Price)",
+    title = "Tax-Price Elasticity Estimated by FE-2SLS",
     coef_map = c(
       "d_relief_donate:lprice_ln" =
-        "Applying tax relief x log(last price)",
+        "Effective last price",
       "fit_d_relief_donate:lprice_ln" =
-        "Applying tax relief x log(last price)",
-      "psc_pool:lprice_ln" =
-        "PS of applying tax relief x log(last price)",
-      "psc_sep:lprice_ln" =
-        "PS of applying tax relief x log(last price)",
+        "Effective last price",
       "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = addtab
+    add_rows = stats_stage1
   ) %>%
-  kableExtra::kable_styling(font_size = 8, latex_options = "hold_position") %>%
-  kableExtra::column_spec(1, width = "10em") %>%
+  kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
     " ",
-    "FE" = 3, "FE-2SLS" = 3
+    "Intensive-margin" = 2, "Extensive-margin" = 2
   )) %>%
   footnote(
     general_title = "",
     general = paste(
       "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
-      "Standard errors are clustered at individual level.",
-      "A square bracket is wald statistics of instrument."
+      "Standard errors are clustered at household level.",
+      "A square bracket is F statistics of instrument."
     ),
     threeparttable = TRUE,
     escape = FALSE
