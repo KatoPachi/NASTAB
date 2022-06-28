@@ -302,12 +302,7 @@ int_anatomy_df <- estdf %>%
   mutate(
     applicable = price_ln,
     effective = d_relief_donate * price_ln
-  ) %>%
-  mutate(d_relief_donate = factor(
-    d_relief_donate,
-    levels = c(0, 1),
-    labels = c("No", "Yes")
-  ))
+  )
 
 est_int_resid1 <- feols(applicable ~ ..stage2, data = int_anatomy_df)
 est_int_resid2 <- feols(effective ~ ..stage2, data = int_anatomy_df)
@@ -331,32 +326,64 @@ est_anatomy_resid2 <- int_anatomy_df %>%
   }
 
 plot_int_resid1 <- int_anatomy_df %>%
+  dplyr::filter(!is.na(resid1) & !is.na(donate_ln)) %>%
+  mutate(group = ntile(resid1, 40)) %>%
+  group_by(group) %>%
+  summarize(
+    min_resid1 = min(resid1),
+    max_resid1 = max(resid1),
+    resid1 = min_resid1 + (max_resid1 - min_resid1) / 2,
+    donate_ln = mean(donate_ln),
+    d_relief_donate = mean(d_relief_donate, na.rm = TRUE),
+    n = n()
+  ) %>%
   ggplot(aes(x = resid1, y = donate_ln)) +
-  geom_point(aes(shape = d_relief_donate), size = 3, alpha = 0.5) +
-  geom_smooth(se = FALSE, method = "lm", color = "black") +
-  geom_text(
-    aes(x = -0.2, y = 8, label = est_anatomy_resid1),
+  geom_point(aes(size = d_relief_donate), shape = 1) +
+  geom_smooth(
+    method = "lm", data = int_anatomy_df,
+    se = FALSE, color = "black"
+  ) +
+  annotate(
+    geom = "text",
+    x = -0.12, y = 4.1, label = est_anatomy_resid1,
     size = 5
   ) +
-  scale_shape_manual(values = c(1, 16)) +
-  scale_x_continuous(limits = c(-0.34, 0.24)) +
+  scale_size(range = c(.1, 15)) +
   labs(
     x = "Residuals of log(first price)",
     y = "log(donate) conditional on givers",
-    shape = "Application of tax relief"
+    size = "Application of tax relief"
   ) +
   ggtemp()
-
+  
 plot_int_resid2 <- int_anatomy_df %>%
+  dplyr::filter(!is.na(resid2) & !is.na(donate_ln)) %>%
+  mutate(group = ntile(resid2, 40)) %>%
+  group_by(group) %>%
+  summarize(
+    min_resid2 = min(resid2),
+    max_resid2 = max(resid2),
+    resid2 = min_resid2 + (max_resid2 - min_resid2) / 2,
+    donate_ln = mean(donate_ln),
+    d_relief_donate = mean(d_relief_donate, na.rm = TRUE),
+    n = n()
+  ) %>%
   ggplot(aes(x = resid2, y = donate_ln)) +
-  geom_point(aes(shape = d_relief_donate), size = 3, alpha = 0.5) +
-  geom_smooth(se = FALSE, method = "lm", color = "black") +
-  scale_shape_manual(values = c(1, 16)) +
-  scale_x_continuous(limits = c(-0.34, 0.24)) +
+  geom_point(aes(size = d_relief_donate), shape = 1) +
+  geom_smooth(
+    method = "lm", data = int_anatomy_df,
+    se = FALSE, color = "black"
+  ) +
+  annotate(
+    geom = "text",
+    x = -0.12, y = 4.1, label = est_anatomy_resid2,
+    size = 5
+  ) +
+  scale_size(range = c(3, 15)) +
   labs(
     x = "Residuals of log(first price)\u00d7application",
     y = "log(donate) conditional on givers",
-    shape = "Application of tax relief"
+    size = "Application of tax relief"
   ) +
   ggtemp()
 
