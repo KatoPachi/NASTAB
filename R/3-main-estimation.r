@@ -19,18 +19,55 @@ source(here("R", "_library.r"))
 source(here("R", "_html_header.r"))
 
 #+ include = FALSE
-estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
+rawdt <- readr::read_csv(
+  here("data/shaped2_propensity.csv"),
+  guess_max = 30000
+)
 
-#'
-#' ```{asis, echo = output_type() %in% c("body", "preview")}
-#' ## Main Results
-#' ```
-#'
-#' ```{asis, echo = output_type() == "slide"}
-#' ## Main Results: Intensive-Margin Price Elasticity
-#' ```
-#'
-#+ intensive, eval = output_type() != "appx"
+flag <- rawdt %>%
+  mutate(
+    flag_extensive = 1,
+    flag_intensive = if_else(d_donate == 1, 1, 0)
+  ) %>%
+  select(
+    pid,
+    year,
+    flag_extensive,
+    flag_intensive
+  ) %>%
+  pivot_longer(
+    flag_extensive:flag_intensive,
+    names_to = "outcome",
+    values_to = "flag",
+    names_prefix = "flag_"
+  )
+
+main <- rawdt %>%
+  select(
+    pid,
+    year,
+    linc_ln,
+    sqage,
+    hh_num,
+    have_dependents,
+    indust,
+    area,
+    price_ln,
+    lprice_ln,
+    employee,
+    intensive = donate_ln,
+    extensive = d_donate
+  ) %>%
+  pivot_longer(
+    intensive:extensive,
+    names_to = "outcome",
+    values_to = "y"
+  )
+
+use <- flag %>%
+  dplyr::left_join(main, by = c("pid", "year", "outcome"))
+
+#+
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
