@@ -19,115 +19,130 @@ source(here("R", "_library.r"))
 source(here("R", "_html_header.r"))
 
 #+ include = FALSE
-estdf <- readr::read_csv(
+rawdt <- readr::read_csv(
   here("data/shaped2_propensity.csv"),
   guess_max = 30000
 )
 
+use <- rawdt %>%
+  mutate(
+    applicable = price_ln,
+    effective = d_relief_donate * price_ln,
+    iv = employee * price_ln
+  ) %>%
+  pivot_longer(applicable:iv, names_to = "outcome", values_to = "value")
+
+#+ include = FALSE
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
 )
 
 #+ int-anatomy
-est_anatomy_int <- estdf %>%
+reg_price_int <- use %>%
   dplyr::filter(d_donate == 1) %>%
-  mutate(
-    applicable = price_ln,
-    effective = d_relief_donate * price_ln,
-    iv = employee * price_ln
-  ) %>%
-  pivot_longer(applicable:iv, names_to = "outcome", values_to = "val") %>%
   group_by(outcome) %>%
-  do(est = feols(val ~ ..stage2, data = .)) %>%
+  do(est = feols(value ~ ..stage2, data = .)) %>%
   pull(est, name = outcome)
 
-int_anatomy_df <- estdf %>%
+int_use <- use %>%
   dplyr::filter(d_donate == 1) %>%
-  modelr::add_residuals(est_anatomy_int[[1]], var = "applicable") %>%
-  modelr::add_residuals(est_anatomy_int[[2]], var = "effective") %>%
-  modelr::add_residuals(est_anatomy_int[[3]], var = "iv")
-
-est_anatomy_resid1 <- int_anatomy_df %>%
-  feols(donate_ln ~ resid1, data = ., cluster = ~ pid) %>%
-  tidy() %>%
-  {
-    sprintf("Slope = %1.3f (std.err = %1.3f)", .$estimate[2], .$std.error[2])
-  }
-
-est_anatomy_resid2 <- int_anatomy_df %>%
-  feols(donate_ln ~ resid2, data = ., cluster = ~pid) %>%
-  tidy() %>%
-  {
-    sprintf("Slope = %1.3f (std.err = %1.3f)", .$estimate[2], .$std.error[2])
-  }
-
-plot_int_resid1 <- int_anatomy_df %>%
-  dplyr::filter(!is.na(resid1) & !is.na(donate_ln)) %>%
-  mutate(group = ntile(resid1, 40)) %>%
-  group_by(group) %>%
-  summarize(
-    min_resid1 = min(resid1),
-    max_resid1 = max(resid1),
-    resid1 = min_resid1 + (max_resid1 - min_resid1) / 2,
-    donate_ln = mean(donate_ln),
-    d_relief_donate = mean(d_relief_donate, na.rm = TRUE),
-    n = n()
+  modelr::add_residuals(reg_price_int$applicable, var = "applicable") %>%
+  modelr::add_residuals(reg_price_int$effective, var = "effective") %>%
+  modelr::add_residuals(reg_price_int$iv, var = "iv") %>%
+  mutate(
+    residual = case_when(
+      outcome == "applicable" ~ applicable,
+      outcome == "effective" ~ effective,
+      outcome == "iv" ~ iv
+    )
   ) %>%
-  ggplot(aes(x = resid1, y = donate_ln)) +
-  geom_point(aes(size = d_relief_donate), shape = 1) +
+  select(-applicable, -effective, -iv)
+
+reg_anatomy_int <- int_use %>%
+  group_by(outcome) %>%
+  do(
+    est = feols(donate_ln ~ residual, data = ., cluster = ~ pid) %>% tidy()
+  ) %>%
+  summarize(
+    price = outcome,
+    label = sprintf(
+      "Slope = %1.3f (s.e. = %1.3f)",
+      est$estimate[2], est$std.error[2]
+    )
+  )
+
+#+
+int_use %>%
+  dplyr::filter(outcome == "applicable") %>%
+  dplyr::filter(!is.na(residual) & !is.na(donate_ln)) %>%
+  group_by(d_relief_donate) %>%
+  mutate(group = ntile(residual, 30)) %>%
+  group_by(d_relief_donate, group) %>%
+  summarize(
+    min_residual = min(residual),
+    max_residual = max(residual),
+    residual = min_residual + (max_residual - min_residual) / 2,
+    donate_ln = mean(donate_ln)
+  ) %>%
+  mutate(d_relief_donate = factor(
+    d_relief_donate,
+    levels = c(0, 1),
+    labels = c("No", "Yes")
+  )) %>%
+  ggplot(aes(x = residual, y = donate_ln, shape = d_relief_donate)) +
+  geom_point(aes(shape = d_relief_donate), size = 5, color = "grey50") +
   geom_smooth(
-    method = "lm", data = int_anatomy_df,
+    method = "lm", data = subset(int_use, outcome == "applicable"),
     se = FALSE, color = "black"
   ) +
   annotate(
     geom = "text",
-    x = -0.12, y = 4.1, label = est_anatomy_resid1,
+    x = -0.12, y = 4.1, label = reg_anatomy_int[1, ]$label,
     size = 5
   ) +
-  scale_size(range = c(.1, 15)) +
   labs(
     x = "Residuals of log(first price)",
     y = "log(donate) conditional on givers",
-    size = "Application of tax relief"
+    color = "Application of tax relief"
   ) +
   ggtemp()
-  
-plot_int_resid2 <- int_anatomy_df %>%
-  dplyr::filter(!is.na(resid2) & !is.na(donate_ln)) %>%
-  mutate(group = ntile(resid2, 40)) %>%
-  group_by(group) %>%
+
+#+
+int_use %>%
+  dplyr::filter(outcome == "effective") %>%
+  dplyr::filter(!is.na(residual) & !is.na(donate_ln)) %>%
+  group_by(d_relief_donate) %>%
+  mutate(group = ntile(residual, 30)) %>%
+  group_by(d_relief_donate, group) %>%
   summarize(
-    min_resid2 = min(resid2),
-    max_resid2 = max(resid2),
-    resid2 = min_resid2 + (max_resid2 - min_resid2) / 2,
-    donate_ln = mean(donate_ln),
-    d_relief_donate = mean(d_relief_donate, na.rm = TRUE),
-    n = n()
+    min_residual = min(residual),
+    max_residual = max(residual),
+    residual = min_residual + (max_residual - min_residual) / 2,
+    donate_ln = mean(donate_ln)
   ) %>%
-  ggplot(aes(x = resid2, y = donate_ln)) +
-  geom_point(aes(size = d_relief_donate), shape = 1) +
+  mutate(d_relief_donate = factor(
+    d_relief_donate,
+    levels = c(0, 1),
+    labels = c("No", "Yes")
+  )) %>%
+  ggplot(aes(x = residual, y = donate_ln)) +
+  geom_point(aes(shape = d_relief_donate), size = 5, color = "grey50") +
   geom_smooth(
-    method = "lm", data = int_anatomy_df,
+    method = "lm", data = subset(int_use, outcome == "effective"),
     se = FALSE, color = "black"
   ) +
   annotate(
     geom = "text",
-    x = -0.12, y = 4.1, label = est_anatomy_resid2,
+    x = -0.15, y = 4.4, label = reg_anatomy_int[2, ]$label,
     size = 5
   ) +
-  scale_size(range = c(3, 15)) +
   labs(
     x = "Residuals of log(first price)\u00d7application",
     y = "log(donate) conditional on givers",
     size = "Application of tax relief"
   ) +
   ggtemp()
-
-list(plot_int_resid1, plot_int_resid2) %>%
-  wrap_plots() +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
 
 #'
 #+ ext-anatomy
@@ -137,11 +152,11 @@ ext_anatomy_df <- estdf %>%
     effective = d_relief_donate * price_ln
   )
 
-est_ext_resid1 <- feols(applicable ~ ..stage2, data = ext_anatomy_df)
+est_ext_residual <- feols(applicable ~ ..stage2, data = ext_anatomy_df)
 est_ext_resid2 <- feols(effective ~ ..stage2, data = ext_anatomy_df)
 
 ext_anatomy_df <- ext_anatomy_df %>%
-  modelr::add_residuals(est_ext_resid1, var = "resid1") %>%
+  modelr::add_residuals(est_ext_residual, var = "residual") %>%
   modelr::add_residuals(est_ext_resid2, var = "resid2")
 
 ext_anatomy_df %>%
