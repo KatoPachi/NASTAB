@@ -67,13 +67,44 @@ main <- rawdt %>%
   )
 
 use <- flag %>%
-  dplyr::left_join(main, by = c("pid", "year", "outcome"))
+  dplyr::left_join(main, by = c("pid", "year", "outcome")) %>%
+  mutate(effective = d_relief_donate * lprice_ln)
 
 #+
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
 )
+
+#+ plot-stage1, fig.cap = "Relationship between Applicable First Price and Effective Last Price by Employment Status. Note: The bubble size indicates the percentage of donation deductions claimed. Due to the small sample size, the leftmost bubbles for salaried and self-employed workers are less informative ($N=6$ for wage earner and $N=2$ for self-employed).", out.extra = ""
+use %>%
+  dplyr::filter(
+    !is.na(d_relief_donate) & !is.na(lprice_ln) & !is.na(employee)
+  ) %>%
+  mutate(
+    employee = factor(employee, label = c("Self-employed", "Wage earner"))
+  ) %>%
+  group_by(price_ln, employee) %>%
+  summarize(
+    n = n(),
+    d_relief_donate = mean(d_relief_donate),
+    effective = mean(effective)
+  ) %>%
+  ggplot(aes(x = price_ln, y = effective)) +
+  geom_point(aes(size = d_relief_donate, color = employee), alpha = 0.8) +
+  geom_smooth(method = lm, data = use, color = "black") +
+  scale_color_grey() +
+  scale_size(range = c(5, 20)) +
+  labs(
+    x = "log(first price)",
+    y = "log(last price)\u00d7application",
+    color = ""
+  ) +
+  guides(
+    color = guide_legend(override.aes = list(size = 5)),
+    size = "none"
+  ) +
+  ggtemp()
 
 #+
 fe2sls <- list(
