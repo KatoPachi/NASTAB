@@ -91,8 +91,8 @@ use %>%
     effective = mean(effective)
   ) %>%
   ggplot(aes(x = price_ln, y = effective)) +
+  geom_abline(aes(intercept = 0, slope = 1), linetype = 2) +
   geom_point(aes(size = d_relief_donate, color = employee), alpha = 0.8) +
-  geom_smooth(method = lm, data = use, color = "black") +
   scale_color_grey() +
   scale_size(range = c(5, 20)) +
   labs(
@@ -107,9 +107,43 @@ use %>%
   ggtemp()
 
 #+
+stage1 <- list(
+  effective ~ price_ln + ..stage2,
+  effective ~ price_ln:employee + ..stage2,
+  effective ~ price_ln + price_ln:employee + ..stage2
+)
+
+est_stage1 <- use %>%
+  mutate(outcome = factor(outcome, levels = c("intensive", "extensive"))) %>%
+  group_by(outcome) %>%
+  do(est = lapply(
+    stage1,
+    function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
+  ))
+
+est_stage1 %>%
+  pull(est) %>%
+  flatten() %>%
+  setNames(paste0("(", seq(length(stage1) * 2), ")")) %>%
+  modelsummary(
+    title = "Results of Regression of Effective Last Price",
+    coef_map = c(
+      "price_ln" = "log(first price)",
+      "price_ln:employee" = "log(first_price)\u00d7wage earner"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1)
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    "Sample:" = 1,
+    "Intensive-margin" = 3, "Extensive-margin" = 3
+  ))
+
+#+
 fe2sls <- list(
   y ~ ..stage2 | d_relief_donate:lprice_ln ~ price_ln,
-  y ~ ..stage2 | d_relief_donate:lprice_ln ~ employee:price_ln
+  y ~ ..stage2 | d_relief_donate:lprice_ln ~ employee:price_ln + price_ln
 )
 
 est_models <- use %>%
