@@ -143,7 +143,8 @@ est_stage1 %>%
 #+
 fe2sls <- list(
   y ~ ..stage2 | d_relief_donate:lprice_ln ~ price_ln,
-  y ~ ..stage2 | d_relief_donate:lprice_ln ~ employee:price_ln + price_ln
+  y ~ ..stage2 | d_relief_donate:lprice_ln ~ employee:price_ln,
+  y ~ ..stage2 | d_relief_donate:lprice_ln ~ price_ln + employee:price_ln
 )
 
 est_models <- use %>%
@@ -157,10 +158,7 @@ est_models <- use %>%
 stats_stage1 <- est_models %>%
   group_by(outcome) %>%
   do(tab = data.frame(
-    models = paste0(.$outcome, c(1, 2)),
-    coef = lapply(.$est[[1]], function(x)
-      x$iv_first_stage[["d_relief_donate:lprice_ln"]]$coeftable[1, 1]
-    ) %>% as_vector,
+    models = paste0(.$outcome, c(1, 2, 3)),
     f = lapply(.$est[[1]], function(x)
       fitstat(x, "ivf")[[1]]$stat
     ) %>% as_vector,
@@ -170,26 +168,26 @@ stats_stage1 <- est_models %>%
   )) %>%
   { bind_rows(.$tab) } %>%
   mutate(
-    coef = sprintf("%1.3f", coef),
-    f = sprintf("[%1.2f]", f),
+    f = sprintf("%1.2f", f),
     wh = sprintf("%1.3f", wh)
   ) %>%
-  pivot_longer(coef:wh, names_to = "terms") %>%
+  pivot_longer(f:wh, names_to = "terms") %>%
   pivot_wider(names_from = models, values_from = value) %>%
   mutate(
     terms = recode(
       terms,
-      "coef" = "First-stage: Instrument",
-      "f" = "",
+      "f" = "F-statistics of instruments",
       "wh" = "Wu-Hausman test, p-value"
     )
   ) %>%
   bind_rows(c(
-    terms = "Instrument",
-    intensive1 = "First price",
-    intensive2 = "First price x WE",
-    extensive1 = "First price",
-    extensive2 = "First price x WE"
+    terms = "First-Stage model",
+    intensive1 = "(1)",
+    intensive2 = "(2)",
+    intensive3 = "(3)",
+    extensive1 = "(4)",
+    extensive2 = "(5)",
+    extensive3 = "(6)"
   ), .)
 
 est_models %>%
@@ -212,7 +210,7 @@ est_models %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
     " ",
-    "Intensive-margin" = 2, "Extensive-margin" = 2
+    "Intensive-margin" = 3, "Extensive-margin" = 3
   )) %>%
   footnote(
     general_title = "",
