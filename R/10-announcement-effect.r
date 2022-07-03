@@ -164,3 +164,11 @@ est_models %>%
     threeparttable = TRUE,
     escape = FALSE
   )
+
+# /*
+#+
+rmarkdown::render(
+  here("R", "10-announcement-effect.r"),
+  output_dir = here("docs", "html-preview")
+)
+# */
