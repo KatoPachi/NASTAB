@@ -75,17 +75,17 @@ fixest::setFixest_fml(
     year + pid + indust + area
 )
 
-models <- list(
+#+
+fe2sls <- list(
   y ~ ..stage2 | d_relief_donate:lprice_ln ~ price_ln,
   y ~ ..stage2 | d_relief_donate:lprice_ln ~ employee:price_ln
 )
 
-#+
 est_models <- use %>%
   mutate(outcome = factor(outcome, levels = c("intensive", "extensive"))) %>%
   group_by(outcome) %>%
   do(est = lapply(
-    models,
+    fe2sls,
     function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
   ))
 
@@ -130,7 +130,7 @@ stats_stage1 <- est_models %>%
 est_models %>%
   pull(est) %>%
   flatten() %>%
-  setNames(paste0("(", seq(length(models)*2), ")")) %>%
+  setNames(paste0("(", seq(length(fe2sls)*2), ")")) %>%
   modelsummary(
     title = "Tax-Price Elasticity Estimated by FE-2SLS",
     coef_map = c(
