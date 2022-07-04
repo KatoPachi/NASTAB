@@ -1,7 +1,13 @@
 #' ---
 #' title: |
-#'   Estimating Conventional Price Elasticity of Charitable Giving
-#' author: Hiroki Kato
+#'   Estimating Effect of Tax Incentives on Donations
+#'   Considering Self-Selection of Tax Incentives in South Korea
+#' subtitle: |
+#'   Results of FE-2SLS
+#' author:
+#'   - Hiroki Kato
+#'   - Tsuyoshi Goto
+#'   - Yongrok Kim
 #' output:
 #'   bookdown::html_document2:
 #'     toc: true
@@ -11,7 +17,7 @@
 #'   preview: true
 #' ---
 #'
-#+ include = FALSE, eval = params$preview
+#+ include = FALSE
 library(here)
 source(here("R", "_html_header.r"))
 
@@ -24,11 +30,7 @@ use <- readr::read_csv(
   guess_max = 30000
 )
 
-#'
-#' ```{asis, echo = output_type() == "appx"}
-#' ## Intensive-Margin Price Elasticity: Only Applicants
-#' ```
-#+ intensive-r1, eval = output_type() == "appx"
+#+ intensive-r1
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
@@ -95,10 +97,8 @@ est_r1mod %>%
     escape = FALSE
   )
 
-#' ```{asis, echo = output_type() == "appx"}
-#' ## Intensive-Margin Price Elasticity: $k$-th Difference Model with Only Applicants
-#' ```
-#+ kdiff-model, eval = output_type() == "appx"
+
+#+ kdiff-model
 fixest::setFixest_fml(
   ..kdiff1 = ~ linc_ln_d1 + sqage_d1,
   ..kdiff2 = ~ linc_ln_d2 + sqage_d2,
@@ -181,40 +181,15 @@ est_kdiffmod %>%
   )
 
 #'
-#' ```{asis, echo = output_type() %in% c("body", "preview")}
-#' \noindent
-#' *Use those who applied for tax relief*.
-#' 弾力性を推定した過去の研究は寄付控除を申告した人に限定したデータを用いている。
-#' こうした研究の結果と比較するために、我々も寄付控除を申告した人に限定した分析を行った。
-#' 寄付控除を申告している人は必ず寄付をしているので、
-#' 我々はintensive-margin price elasticityのみを推定できる。
-#' 推定結果を補論\@ref(addtab)の表\@ref(tab:R1Elasticity)に示した。
-#' その結果、first-unit priceを用いたとき、
-#' intensive-margin price elasticityは約-1.2となった。
-#' また、last-unit priceを用いたとき、
-#' 価格弾力性は約-1.3となった[^others]。
-#' これは控除を申請していない人を含めた分析（表\@ref(tab:MainIntensive)）の
-#' 弾力性と非常に近い値となっている。
+#' 次に、寄付控除を申告した人に限定した分析を行った（**フック欲しい**）。
 #'
-#' [^others]: 価格のダイナミックな効果を捉えるために、
-#' 寄付価格と所得のリード変数とラグ変数を加えると、価格弾力性は統計的に非有意となった。
-#' また、我々は所得に対する寄付価格の内生性を考慮した$k$-th difference modelも推定し、
-#' その結果を補論\@ref(addtab)の表\@ref(tab:KdiffElasticity)に示した。
-#' このモデルの推定結果はintensive-margin price elasticityの絶対値は最大でも5となった。
-#' ```
-#'
-#' ```{asis, echo = output_type() == "slide"}
-#' ## Robustness Check (Cont'd)
-#'
-#' *Use Only Applicants Data*
-#'
-#' - To discuss mechanism,
-#' we estimate price elasticity with only applicants data
-#'   - Since applicants always donate,
-#'   we cannot estimate extensive-margin price elasticity
-#' - Estimated intensive-margin price elasticity
-#' is slightly less elastic than main results.
-#' ```
+#' - 寄付控除を申告している人は必ず寄付をしているので、
+#' intensive-margin price elasticityのみを推定する
+#' - その結果、last priceの価格弾力性は-1.3となり、FE-2SLSより非弾力的になった
+#' - 価格のダイナミックな効果を捉えるために、寄付価格と所得のリード変数とラグ変数を加えると、
+#' 価格弾力性は統計的に非有意となった。ただし、サンプルサイズが少ないので、この結果はあまり意味がない。
+#' - また、所得に対する寄付価格の内生性を考慮した$k$階差分モデルを推定した。
+#' その結果、弾力性は-1.9から-4の範囲で得られた。
 #'
 # /*
 #+
