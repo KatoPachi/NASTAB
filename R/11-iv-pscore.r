@@ -96,6 +96,39 @@ est_sep_ps <- use %>%
     function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
   ))
 
+#+ psiv-stage1
+est_sep_ps %>%
+  pull(est) %>%
+  flatten() %>%
+  lapply(function(x) x$iv_first_stage$effective) %>%
+  setNames(paste0("(", seq(length(sep_ps) * 2), ")")) %>%
+  modelsummary(
+    title = "First-Stage Results of FE-2SLS with Propensity Score",
+    coef_map = c(
+      "price_ln" = "Applicable first price",
+      "psc_sep:price_ln" = "Applicable first price\u00d7Propensity score",
+      "price_ln:psc_sep" = "Applicable first price\u00d7Propensity score",
+      "linc_ln" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1)
+  ) %>%
+    kableExtra::kable_styling() %>%
+    kableExtra::add_header_above(c(
+      "Sample:",
+      "Intensive-margin" = 2, "Extensive-margin" = 2
+    )) %>%
+    footnote(
+      general_title = "",
+      general = paste(
+        "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+        "Standard errors are clustered at household level.",
+        "A square bracket is F statistics of instrument."
+      ),
+      threeparttable = TRUE,
+      escape = FALSE
+    )
+
 #+ psiv-stage2
 stats_stage1 <- est_sep_ps %>%
   group_by(outcome) %>%
@@ -137,7 +170,7 @@ est_sep_ps %>%
   flatten() %>%
   setNames(paste0("(", seq(length(sep_ps) * 2), ")")) %>%
   modelsummary(
-    title = "Using Propensity Score of Application",
+    title = "Second-Stage Results of FE-2SLS with Propensity Score",
     coef_map = c(
       "fit_effective" = "Effective last price",
       "linc_ln" = "log(income)"
