@@ -77,7 +77,7 @@ use <- flag %>%
   mutate(effective = d_relief_donate * lprice_ln) %>%
   dplyr::filter(year < 2013 | 2014 < year)
 
-#+
+#+ announcement-effect
 fixest::setFixest_fml(
   ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
@@ -165,6 +165,22 @@ est_models %>%
     escape = FALSE
   )
 
+#'
+#' 結果の頑健性について議論する。
+#' 始めに、2014年の税制改革のアナウンスメント効果と学習効果に対応する
+#'
+#' - 2014年の税制改革は2013年に告知されているので、
+#' インセンティブの縮小を予測した納税者は2013年の寄付を増やし、2014年の寄付を減らすかもしれない。
+#' - また、事前告知によってインセンティブが拡大する所得層の納税者の一部は、
+#' 制度をよく理解していないので、2014年の寄付をためらうかもしれない。
+#' - 価格弾力性の推定において、これらの要素はconfounderとなるので、
+#' 2013年と2014年のデータを排除してFE-2SLSモデルを推定する。
+#' - 表\@ref(tab:announcement-effect)より、
+#' intensive-margin price elasticityは若干弾力的になった、
+#' 一方で、extensive-margin price elasticityは若干非弾力的になった。
+#' - ただし、標準誤差を考慮すると、係数の変化は誤差の範囲だと考えられ、
+#' FE-2SLSの推定結果は制度のアナウンスメント効果や学習効果に対して頑健である。
+#'
 # /*
 #+
 rmarkdown::render(
