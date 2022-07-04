@@ -1,6 +1,7 @@
 ---
 title: |
-  Estimating Effect of Tax Incentives on Donations Considering Self-Selection of Tax Incentives in South Korea
+  Estimating Effect of Tax Incentives on Donations
+  Considering Self-Selection of Tax Incentives in South Korea
 author: 
   - name: Hiroki Kato
     inst: Graduate School of Economics, Osaka University, Japan
@@ -21,14 +22,18 @@ graphics: yes
 indent: yes
 linespace: 1.5
 output:
-  bookdown::pdf_document2:
-    latex_engine: xelatex
-    number_sections: yes
-    keep_tex: yes
-    fig_caption: yes
-    toc: false
-    dev: cairo_pdf
-    template: template/tex/plain.tex
+  # bookdown::pdf_document2:
+  #   latex_engine: xelatex
+  #   number_sections: yes
+  #   keep_tex: yes
+  #   fig_caption: yes
+  #   toc: false
+  #   dev: cairo_pdf
+  #   template: template/tex/plain.tex
+  bookdown::html_document2:
+    toc: true
+    toc_float: true
+    number_sections: false
 params:
   preview: no
   appendix: no
@@ -41,8 +46,8 @@ params:
 library(here)
 rmarkdown::render(
   here("root-body.Rmd"),
-  output_file = "body.pdf",
-  output_dir = here("docs", "paper")
+  output_file = "body",
+  output_dir = here("docs", "html-preview")
 )
 ```
 
@@ -63,36 +68,45 @@ options(
 )
 ```
 
-# Introduction {#intro}
+<!-- # Introduction {#intro} -->
 
-```{r child = "Rmd/1-introduction.rmd"}
+```{r child = "Rmd/1-introduction.rmd", eval= FALSE}
 ```
 
-## Institutional background and Sources of Endogeneity {#background}
+<!-- ## Institutional background and Sources of Endogeneity {#background} -->
 
-```{r child = "Rmd/2-background.rmd"}
+```{r child = "Rmd/2-background.rmd", eval = FALSE}
 ```
 
 
-# Data: National Survey of Tax and Benefit (NaSTaB) {#nastab}
+<!-- # Data: National Survey of Tax and Benefit (NaSTaB) {#nastab} -->
 
-```{r}
+```{r eval = FALSE}
 library(here)
 knitr::spin_child(here("R/1-summary.R"))
 ```
 
-# Empirical Strategy {#estimation}
+<!-- # Empirical Strategy {#estimation} -->
 
-```{r child = "Rmd/3-estimation.rmd"}
+```{r child = "Rmd/3-estimation.rmd", eval = FALSE}
 ```
 
 # Estimation Results {#result}
+## Results of Fixed Effect Model
 
-```{r eval = FALSE}
+```{r}
+library(here)
+knitr::spin_child(here("R/9-regression-anatomy.R"))
+```
+
+## Results of FE-2SLS
+
+```{r}
 library(here)
 knitr::spin_child(here("R/3-main-estimation.R"))
-knitr::spin_child(here("R/4-conventional-estimation.R"))
+knitr::spin_child(here("R/10-announcement-effect.R"))
 knitr::spin_child(here("R/5-subsample-R1.R"))
+knitr::spin_child(here("R/11-iv-pscore.R"))
 ```
 
 <!-- ## Interpretation
