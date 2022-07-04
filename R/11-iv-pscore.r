@@ -195,6 +195,19 @@ est_sep_ps %>%
     escape = FALSE
     )
 
+#'
+#' 寄付控除の申請が自己選択であることを制御するために、給与所得者ダミーを操作変数として用いている。
+#' この代替的な手法として、寄付控除の申請の傾向スコアを給与所得者ダミーの代わりに用いる（**なぜこれする？**）。
+#'
+#' - サンプルを年ごとに分割して、
+#' 給与所得者ダミー・Applicable first price・FE-2SLSで用いた共変量を説明変数としたプロビットモデルを推定した。
+#' - 推定されたモデルから得られる予測値を傾向スコアとする。
+#' - 表\@ref(tab:psiv-stage1)は傾向スコアを操作変数として用いたFE-2SLSの第一段階の推定結果である。
+#' - これまでの結果と整合的であり、寄付控除を申請しやすい人ほど、
+#' applicable first priceとeffective last priceの相関が強くなる。
+#' - 表\@ref(tab:psiv-stage2)は傾向スコアを操作変数として用いたFE-2SLSの第二段階の推定結果である。
+#' - これまでの結果と整合的であり、弾力性の値も大きく変化しない。
+#'
 #+
 pool_ps <- list(
   y ~ ..stage2 | effective ~ psc_pool:price_ln,
@@ -307,3 +320,17 @@ est_pool_ps %>%
     threeparttable = TRUE,
     escape = FALSE
   )
+
+#'
+#' - また、全期間のサンプルで推定したプロビットモデルの傾向スコアを用いても、
+#' 同じ結果が得られる
+#' （第一段階の結果は表\@ref(tab:psiv-pool-stage1)に示し、
+#' 第二段階の結果は表\@ref(tab:psiv-pool-stage2)に示した）
+#'
+# /*
+#+
+rmarkdown::render(
+  here("R", "11-iv-pscore.r"),
+  output_dir = here("docs", "html-preview")
+)
+# */
