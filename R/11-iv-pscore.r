@@ -194,3 +194,116 @@ est_sep_ps %>%
     threeparttable = TRUE,
     escape = FALSE
     )
+
+#+
+pool_ps <- list(
+  y ~ ..stage2 | effective ~ psc_pool:price_ln,
+  y ~ ..stage2 | effective ~ price_ln + psc_pool:price_ln
+)
+
+est_pool_ps <- use %>%
+  mutate(outcome = factor(outcome, levels = c("intensive", "extensive"))) %>%
+  group_by(outcome) %>%
+  do(est = lapply(
+    pool_ps,
+    function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
+  ))
+
+#+ psiv-pool-stage1
+est_pool_ps %>%
+  pull(est) %>%
+  flatten() %>%
+  lapply(function(x) x$iv_first_stage$effective) %>%
+  setNames(paste0("(", seq(length(sep_ps) * 2), ")")) %>%
+  modelsummary(
+    title = "First-Stage Results of FE-2SLS with Propensity Score (Pooled)",
+    coef_map = c(
+      "price_ln" = "Applicable first price",
+      "psc_pool:price_ln" = "Applicable first price\u00d7Propensity score",
+      "price_ln:psc_pool" = "Applicable first price\u00d7Propensity score",
+      "linc_ln" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1)
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    "Sample:",
+    "Intensive-margin" = 2, "Extensive-margin" = 2
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at household level.",
+      "A square bracket is F statistics of instrument."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+#+ psiv-pool-stage2
+stats_stage1 <- est_pool_ps %>%
+  group_by(outcome) %>%
+  do(tab = data.frame(
+    models = paste0(.$outcome, 1:2),
+    f = lapply(.$est[[1]], function(x) {
+      fitstat(x, "ivf")[[1]]$stat
+    }) %>% as_vector(),
+    wh = lapply(.$est[[1]], function(x) {
+      fitstat(x, "wh")$wh$p
+    }) %>% as_vector()
+  )) %>%
+  {
+    bind_rows(.$tab)
+  } %>%
+  mutate(
+    f = sprintf("%1.2f", f),
+    wh = sprintf("%1.3f", wh)
+  ) %>%
+  pivot_longer(f:wh, names_to = "terms") %>%
+  pivot_wider(names_from = models, values_from = value) %>%
+  mutate(
+    terms = recode(
+      terms,
+      "f" = "F-statistics of instruments",
+      "wh" = "Wu-Hausman test, p-value"
+    )
+  ) %>%
+  bind_rows(c(
+    terms = "First-Stage model",
+    intensive1 = "(1)",
+    intensive2 = "(2)",
+    extensive1 = "(3)",
+    extensive2 = "(4)"
+  ), .)
+
+est_pool_ps %>%
+  pull(est) %>%
+  flatten() %>%
+  setNames(paste0("(", seq(length(pool_ps) * 2), ")")) %>%
+  modelsummary(
+    title = "Second-Stage Results of FE-2SLS with Propensity Score (Pooled)",
+    coef_map = c(
+      "fit_effective" = "Effective last price",
+      "linc_ln" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = stats_stage1
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " ",
+    "Intensive-margin" = 2, "Extensive-margin" = 2
+  )) %>%
+  footnote(
+    general_title = "",
+    general = paste(
+      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
+      "Standard errors are clustered at household level.",
+      "A square bracket is F statistics of instrument."
+    ),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
