@@ -19,7 +19,10 @@ source(here("R", "_html_header.r"))
 source(here("R", "_library.r"))
 
 #+ include = FALSE
-estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
+use <- readr::read_csv(
+  here("data/shaped2_propensity.csv"),
+  guess_max = 30000
+)
 
 #'
 #' ```{asis, echo = output_type() == "appx"}
@@ -32,15 +35,15 @@ fixest::setFixest_fml(
 )
 
 r1mod <- list(
-  "(1)" = fixest::xpd(donate_ln ~ price_ln + ..cov),
+  "(1)" = fixest::xpd(donate_ln ~ lprice_ln + ..stage2),
   "(2)" = fixest::xpd(
-    donate_ln ~ price_ln + d(price_ln, 1) + d(price_ln, -1) +
-    d(linc_ln, 1) + d(linc_ln, -1) + ..cov
+    donate_ln ~ lprice_ln + d(lprice_ln, 1) + d(lprice_ln, -1) +
+    d(linc_ln, 1) + d(linc_ln, -1) + ..stage2
   ),
-  "(3)" = fixest::xpd(donate_ln ~ ..cov | lprice_ln ~ price_ln),
+  "(3)" = fixest::xpd(donate_ln ~ ..stage2 | lprice_ln ~ price_ln),
   "(4)" = fixest::xpd(
     donate_ln ~ d(lprice_ln, 1) + d(lprice_ln, -1) +
-    d(linc_ln, 1) + d(linc_ln, -1) + ..cov | lprice_ln ~ price_ln
+    d(linc_ln, 1) + d(linc_ln, -1) + ..stage2 | lprice_ln ~ price_ln
   )
 )
 
@@ -52,16 +55,10 @@ est_r1mod <- r1mod %>%
 
 addtab <- tribble(
   ~term, ~"(1)", ~"(2)", ~"(3)", ~ "(4)",
-  "Instrument: log(first price)", "", "",
-  sprintf("%1.3f", est_r1mod[[3]]$iv_first_stage$lprice_ln$coeftable[1, 1]),
-  sprintf("%1.3f", est_r1mod[[4]]$iv_first_stage$lprice_ln$coeftable[1, 1]),
-  "", "", "",
-  sprintf("[%1.1f]", fitstat(est_r1mod[[3]], "ivwald")[[1]]$stat),
-  sprintf("[%1.1f]", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat)
-  # "Square of age", "X", "X", "X", "X"
+  "F-statistics of instrument", "", "",
+  sprintf("%1.1f", fitstat(est_r1mod[[3]], "ivwald")[[1]]$stat),
+  sprintf("%1.1f", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat)
 )
-
-attr(addtab, "position") <- c(13, 14)
 
 est_r1mod %>%
   modelsummary(
@@ -70,7 +67,7 @@ est_r1mod %>%
       "for Those Who Applied for Tax Relief"
     ),
     coef_map = c(
-      "price_ln" = "log(first price)",
+      "lprice_ln" = "log(last price)",
       "fit_lprice_ln" = "log(last price)",
       "linc_ln" = "log(income)",
       "d(price_ln, 1)" = "1-year lag of price",
@@ -84,7 +81,9 @@ est_r1mod %>%
     stars = c("*" = .1, "**" = .05, "***" = .01),
     add_rows = addtab
   ) %>%
-  kableExtra::kable_styling(font_size = 8) %>%
+  add_header_above(c(
+    "Model:" = 1, "FE" = 2, "FE-2SLS" = 2
+  )) %>%
   footnote(
     general_title = "",
     general = paste(
@@ -122,7 +121,7 @@ kdiffmod <- list(
 est_kdiffmod <- kdiffmod %>%
   purrr::map(~fixest::feols(
     ., data = subset(estdf, d_relief_donate == 1),
-    cluster = ~pid
+    cluster = ~ hhid
   ))
 
 stage1_kdiffmod <- 1:3 %>%
@@ -145,19 +144,13 @@ stage1_kdiffmod <- 1:3 %>%
     "coef" = "First-stage: Instrument", .default = ""
   ))
 
-addtab <- stage1_kdiffmod %>%
-  bind_rows(tribble(
-    ~term, ~"(1)", ~"(2)", ~"(3)",
-    "Difference of square age", "X", "X", "X"
-  ))
-
-attr(addtab, "position") <- c(5, 6)
+attr(stage1_kdiffmod, "position") <- c(5, 6)
 
 est_kdiffmod %>%
   modelsummary(
-    # title = paste(
-    #   "$k$-th Difference Model Using Those Who Applied for Tax Relief"
-    # ),
+    title = paste(
+      "$k$-th Difference Model Using Those Who Applied for Tax Relief"
+    ),
     coef_map = c(
       "fit_price_ln_d1" = "Difference of logged first price",
       "linc_ln_d1" = "Difference of logged income",
@@ -166,11 +159,11 @@ est_kdiffmod %>%
       "fit_price_ln_d3" = "Difference of logged first price",
       "linc_ln_d3" = "Difference of logged income"
     ),
-    gof_omit = "^(?!FE|N|Std.Errors)",
-    stars = c("*" = .1, "**" = .05, "***" = .01)
-    # add_rows = addtab
+    gof_omit = "^(?!N)",
+    stars = c("*" = .1, "**" = .05, "***" = .01),
+    add_rows = stage1_kdiffmod
   ) %>%
-  kableExtra::kable_styling(font_size = 8) %>%
+  # kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " " = 1, "1-year lag" = 1,
     "2-year lag" = 1, "3-year lag" = 1
