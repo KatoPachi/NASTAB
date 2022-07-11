@@ -30,14 +30,35 @@ rawdt <- readr::read_csv(
 )
 
 use <- rawdt %>%
+  select(
+    pid,
+    hhid,
+    year,
+    linc_ln,
+    sqage,
+    hh_num,
+    have_dependents,
+    indust,
+    area,
+    price_ln,
+    lprice_ln,
+    d_relief_donate,
+    employee,
+    outcome_intensive = donate_ln,
+    outcome_extensive = d_donate
+  ) %>%
   mutate(
-    applicable = lprice_ln,
-    effective = d_relief_donate * lprice_ln
+    flag_extensive = 1,
+    flag_intensive = if_else(outcome_extensive == 1, 1, 0)
   ) %>%
   pivot_longer(
-    applicable:effective,
-    names_to = "price_type",
-    values_to = "value"
+    outcome_intensive:flag_intensive,
+    names_to = c(".value", "type"),
+    names_pattern = "(.*)_(.*)"
+  ) %>%
+  mutate(
+    effective = d_relief_donate * lprice_ln,
+    applicable = lprice_ln
   )
 
 #+ include = FALSE
@@ -52,13 +73,66 @@ fixest::setFixest_fml(
 #' - 説明変数に用いる価格は、控除を申請するときに適用される価格（applicable price）
 #' と控除の有無による価格変動を考慮した現実の価格（effective price）の二つを用いる
 #'
-#+ anatomy-intensive
-reg_price_int <- use %>%
-  dplyr::filter(d_donate == 1) %>%
-  group_by(price_type) %>%
-  do(est = feols(value ~ ..stage2, data = .)) %>%
-  pull(est, name = price_type)
+#+ fe-model
+femod <- list(
+  outcome ~ applicable + ..stage2,
+  outcome ~ effective + ..stage2
+)
 
+est_femod <- use %>%
+  mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+  group_by(type) %>%
+  do(est = lapply(
+    femod,
+    function(x) feols(x, data = subset(., flag == 1), cluster = ~ hhid)
+  ))
+
+implied_e <- est_femod %>%
+  dplyr::filter(type == "extensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  lapply(function(x) tribble(
+    ~term, ~a,
+    "Implied price elasticity",
+    sprintf("%1.3f", coef(x)[1] / mean(rawdt$d_donate, na.rm = TRUE)),
+    "",
+    sprintf("(%1.3f)", sqrt(vcov(x)[1, 1]) / mean(rawdt$d_donate, na.rm = TRUE))
+  )) %>%
+  reduce(full_join, by = "term") %>%
+  left_join(
+    tribble(
+      ~term, ~i1, ~i2,
+      "Implied price elasticity", NA_real_, NA_real_,
+      "", NA_real_, NA_real_,
+    ),
+    by = "term"
+  ) %>%
+  select(term, i1, i2, a.x, a.y)
+
+attr(implied_e, "position") <- 7:8
+
+est_femod %>%
+  pull(est) %>%
+  purrr::flatten() %>%
+  setNames(paste0("(", 1:4, ")")) %>%
+  modelsummary(
+    title = "Fixed Effect Model of Price Elasticity",
+    coef_map = c(
+      "applicable" = "log(applicable last price)",
+      "effective" = "log(effective last price)",
+      "linc_ln" = "log(income)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = implied_e
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    "Sample:" = 1,
+    "Intensive-margin" = 2, "Extensive-margin" = 2
+  ))
+
+#+
 int_use <- use %>%
   dplyr::filter(d_donate == 1) %>%
   modelr::add_residuals(reg_price_int$applicable, var = "applicable") %>%
