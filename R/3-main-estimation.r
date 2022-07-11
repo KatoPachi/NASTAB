@@ -30,25 +30,7 @@ rawdt <- readr::read_csv(
   guess_max = 30000
 )
 
-flag <- rawdt %>%
-  mutate(
-    flag_extensive = 1,
-    flag_intensive = if_else(d_donate == 1, 1, 0)
-  ) %>%
-  select(
-    pid,
-    year,
-    flag_extensive,
-    flag_intensive
-  ) %>%
-  pivot_longer(
-    flag_extensive:flag_intensive,
-    names_to = "outcome",
-    values_to = "flag",
-    names_prefix = "flag_"
-  )
-
-main <- rawdt %>%
+use <- rawdt %>%
   select(
     pid,
     hhid,
@@ -63,18 +45,22 @@ main <- rawdt %>%
     lprice_ln,
     d_relief_donate,
     employee,
-    intensive = donate_ln,
-    extensive = d_donate
+    outcome_intensive = donate_ln,
+    outcome_extensive = d_donate
+  ) %>%
+  mutate(
+    flag_extensive = 1,
+    flag_intensive = if_else(outcome_extensive == 1, 1, 0)
   ) %>%
   pivot_longer(
-    intensive:extensive,
-    names_to = "outcome",
-    values_to = "y"
+    outcome_intensive:flag_intensive,
+    names_to = c(".value", "type"),
+    names_pattern = "(.*)_(.*)"
+  ) %>%
+  mutate(
+    effective = d_relief_donate * lprice_ln,
+    applicable = lprice_ln
   )
-
-use <- flag %>%
-  dplyr::left_join(main, by = c("pid", "year", "outcome")) %>%
-  mutate(effective = d_relief_donate * lprice_ln)
 
 #'
 #' ベースラインで示した固定効果モデルには2つの内生性が存在する。
@@ -104,7 +90,7 @@ use %>%
     n = n(),
     d_relief_donate = mean(d_relief_donate),
     effective = mean(effective),
-    applicable = mean(lprice_ln)
+    applicable = mean(applicable)
   ) %>%
   pivot_longer(effective:applicable, names_to = "type") %>%
   mutate(type = factor(
@@ -113,7 +99,7 @@ use %>%
   )) %>%
   ggplot(aes(x = price_ln, y = value)) +
   geom_abline(aes(intercept = 0, slope = 1), linetype = 2) +
-  geom_point(aes(size = d_relief_donate, color = employee), alpha = 0.8) +
+  geom_point(aes(size = n, color = employee), alpha = 0.8) +
   scale_color_grey() +
   scale_size(range = c(5, 20)) +
   facet_wrap(~ type) +
@@ -163,8 +149,8 @@ stage1 <- list(
 )
 
 est_stage1 <- use %>%
-  mutate(outcome = factor(outcome, levels = c("intensive", "extensive"))) %>%
-  group_by(outcome) %>%
+  mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+  group_by(type) %>%
   do(est = lapply(
     stage1,
     function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
@@ -208,23 +194,23 @@ est_stage1 %>%
 #'
 #+ fe2sls
 fe2sls <- list(
-  y ~ ..stage2 | d_relief_donate:lprice_ln ~ price_ln,
-  y ~ ..stage2 | d_relief_donate:lprice_ln ~ employee:price_ln,
-  y ~ ..stage2 | d_relief_donate:lprice_ln ~ price_ln + employee:price_ln
+  outcome ~ ..stage2 | effective ~ price_ln,
+  outcome ~ ..stage2 | effective ~ employee:price_ln,
+  outcome ~ ..stage2 | effective ~ price_ln + employee:price_ln
 )
 
 est_models <- use %>%
-  mutate(outcome = factor(outcome, levels = c("intensive", "extensive"))) %>%
-  group_by(outcome) %>%
+  mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+  group_by(type) %>%
   do(est = lapply(
     fe2sls,
     function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
   ))
 
 stats_stage1 <- est_models %>%
-  group_by(outcome) %>%
+  group_by(type) %>%
   do(tab = data.frame(
-    models = paste0(.$outcome, c(1, 2, 3)),
+    models = paste0(.$type, c(1, 2, 3)),
     f = lapply(.$est[[1]], function(x)
       fitstat(x, "ivf")[[1]]$stat
     ) %>% as_vector,
@@ -263,10 +249,7 @@ est_models %>%
   modelsummary(
     title = "Tax-Price Elasticity Estimated by FE-2SLS",
     coef_map = c(
-      "d_relief_donate:lprice_ln" =
-        "Effective last price",
-      "fit_d_relief_donate:lprice_ln" =
-        "Effective last price",
+      "fit_effective" = "log(Effective last price)",
       "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
