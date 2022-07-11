@@ -1,0 +1,29 @@
+\begin{table}
+
+\caption{Tax-Price Elasticity Estimated by FE-2SLS \label{tab:fe2sls}}
+\centering
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Intensive-margin} & \multicolumn{3}{c}{Extensive-margin} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\midrule
+log(Effective last price) & \num{-1.879}*** & \num{-1.699}** & \num{-1.872}*** & \num{-1.469}*** & \num{-1.046}*** & \num{-1.433}***\\
+ & (\num{0.602}) & (\num{0.730}) & (\num{0.602}) & (\num{0.150}) & (\num{0.207}) & (\num{0.150})\\
+log(income) & \num{0.726} & \num{0.855} & \num{0.731} & \num{1.761}*** & \num{1.967}*** & \num{1.779}***\\
+ & (\num{1.506}) & (\num{1.536}) & (\num{1.506}) & (\num{0.285}) & (\num{0.311}) & (\num{0.286})\\
+\midrule
+Implied price elasticity &  &  &  & -6.071 & -4.322 & -5.921\\
+ &  &  &  & (0.621) & (0.857) & (0.620)\\
+Num.Obs. & \num{6247} & \num{6247} & \num{6247} & \num{24984} & \num{24982} & \num{24982}\\
+Instruments & (A) & (B) & (A)+(B) & (A) & (B) & (A)+(B)\\
+F-statistics of instruments & 1028.00 & 698.82 & 514.26 & 2619.68 & 1396.10 & 1319.61\\
+Wu-Hausman test, p-value & 0.001 & 0.019 & 0.001 & 0.000 & 0.000 & 0.000\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at household level. Instruments are (A) logged value of the applicable first price, and (B) the product of wage earner dummy and logged value of the applicable first price. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

@@ -1,0 +1,31 @@
+\begin{table}
+
+\caption{Estimating Intensive-Margin Price Elasticities for Those Who Applied for Tax Relief \label{teb:intensive-r1}}
+\centering
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{Model:} & \multicolumn{2}{c}{FE} & \multicolumn{2}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+  & (1) & (2) & (3) & (4)\\
+\midrule
+log(last price) & \num{-0.937}** & \num{0.139} & \num{-1.356}*** & \num{0.139}\\
+ & (\num{0.441}) & (\num{0.955}) & (\num{0.458}) & (\num{0.955})\\
+log(income) & \num{1.480} & \num{-0.554} & \num{1.394} & \num{-0.554}\\
+ & (\num{1.542}) & (\num{5.384}) & (\num{1.531}) & (\num{5.384})\\
+1-year lag of price &  & \num{-0.204} &  & \num{-0.204}\\
+ &  & (\num{0.869}) &  & (\num{0.869})\\
+1-year lag of income &  & \num{7.042} &  & \num{7.042}\\
+ &  & (\num{4.852}) &  & (\num{4.852})\\
+1-year lead of income &  & \num{-2.347} &  & \num{-2.347}\\
+ &  & (\num{3.143}) &  & (\num{3.143})\\
+\midrule
+Num.Obs. & \num{3479} & \num{800} & \num{3479} & \num{800}\\
+F-statistics of instrument &  &  & 2869.0 & 0.0\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$. Standard errors are clustered at individual level. 1-year lead of price cannot be estimated because of collinearity.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
