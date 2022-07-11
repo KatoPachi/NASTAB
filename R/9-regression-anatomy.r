@@ -68,11 +68,6 @@ fixest::setFixest_fml(
 )
 
 #'
-#' ベースラインとして、操作変数を用いない固定効果モデルの結果を示す
-#'
-#' - 説明変数に用いる価格は、控除を申請するときに適用される価格（applicable price）
-#' と控除の有無による価格変動を考慮した現実の価格（effective price）の二つを用いる
-#'
 #+ fe-model
 femod <- list(
   outcome ~ applicable + ..stage2,
@@ -132,85 +127,31 @@ est_femod %>%
     "Intensive-margin" = 2, "Extensive-margin" = 2
   ))
 
-#+
-int_use <- use %>%
-  dplyr::filter(d_donate == 1) %>%
-  modelr::add_residuals(reg_price_int$applicable, var = "applicable") %>%
-  modelr::add_residuals(reg_price_int$effective, var = "effective") %>%
-  mutate(
-    residual = case_when(
-      price_type == "applicable" ~ applicable,
-      price_type == "effective" ~ effective
-    )
-  ) %>%
-  select(-applicable, -effective)
-
-reg_anatomy_int <- int_use %>%
-  group_by(price_type) %>%
-  do(
-    est = feols(donate_ln ~ residual, data = ., cluster = ~ pid) %>% tidy()
-  ) %>%
-  summarize(
-    price = price_type,
-    label = sprintf(
-      "Slope = %1.3f\n(s.e. = %1.3f)",
-      est$estimate[2], est$std.error[2]
-    )
-  )
-
-#+
-x_labs <- c(
-  applicable = "Residuals of log(last price)",
-  effective = "Residuals of log(last price)\u00d7application"
-)
-
-title <- c(
-  applicable = "A. Applicable Price",
-  effective = "B. Effective Price"
-)
-
+#' ベースラインとして、操作変数を用いない固定効果モデルの結果を表\@ref(tab:fe-model)示す
 #'
-#' 図\@ref(fig:plot-anatomy-intensive)は寄付者に限定した寄付額と価格の関係を示している。
+#' - 説明変数に用いる価格は、控除を申請するときに適用される価格（applicable price）
+#' と控除の有無による価格変動を考慮した現実の価格（effective price）の二つを用いる
 #'
-#' - 縦軸は寄付者の寄付額であり、横軸は価格の残差である。
-#'   - 価格の残差は、価格以外の共変量と固定効果で価格を回帰するモデルから得ている。
-#' - パネルAとBはそれぞれ、applicable priceとeffective priceを用いている。
-#' - どちらのパネルについても、価格の残差がゼロのあたりにサンプルが集中している。
-#' - どちらのパネルについても、控除申請の有無によって、寄付額に大きな差がない。
+#' 寄付者に限定した寄付の価格弾力性（intensive-margin price elasticity）について
 #'
-#' Regression anatomy theoremより、
-#' 価格の残差に関する寄付額の単直線回帰分析はintensive-marginの価格弾力性となる。
-#' 図\@ref(fig:plot-anatomy-intensive)の二つのパネルに示した直線はこの回帰直線である。
-#'
-#' - パネルAより、applicable priceを用いたintensive-marginの価格弾力性はおよそ-0.9である。
-#' - パネルBより、effective priceを用いたintensive-marginの価格弾力性はおよそ-0.5である。
+#' - applicable priceを用いたintensive-marginの価格弾力性はおよそ-0.9である。
+#' - effective priceを用いたintensive-marginの価格弾力性はおよそ-0.5である。
 #' - 二つの価格弾力性の標準誤差を考慮すると、二つの価格弾力性の差は誤差の範囲であると考える。
 #' - 二つの価格弾力性が似たような値を取った原因として、
 #' 控除を申請していない人の平均的な寄付額が、価格に関わらず、
 #' 控除を申請している人のそれと大きな差がないことにある。
 #'
-#' 図\@ref(fig:plot-anatomy-extensive)は寄付行動と寄付価格の残差の関係を示している。
+#' 寄付行動の価格弾力性（extensive-margin price elasticity）について
 #'
-#' - 縦軸は寄付者の寄付額であり、横軸は価格の残差である。
-#'   - 価格の残差は、価格以外の共変量と固定効果で価格を回帰するモデルから得ている。
-#' - パネルAとBはそれぞれ、applicable priceとeffective priceを用いている。
-#' - どちらのパネルについても、寄付控除を申請した人は全員寄付をしている。
-#' その一方で、控除を申請していない人の寄付者の割合は半数に満たない。
-#' - Effective priceを用いるとき、控除を申請していない人の価格は常に1となるので、
-#' その残差はapplicable priceの残差よりも正の方向に移動している。
-#'
-#' Regression anatomy theoremより、
-#' 価格の残差に関する寄付行動の単直線回帰分析は固定効果モデルの価格の係数となる。
-#' 図\@ref(fig:plot-anatomy-intensive)の二つのパネルに示した直線はこの回帰直線である。
-#'
-#' - アウトカム変数が二値なので、
-#' この回帰直線の傾きをextensive-marginの価格弾力性として解釈できない。
-#'   - 傾きの係数を寄付者割合で割ることによって、extensive-marginの価格弾力性を得る
-#' - パネルAより、applicable priceを用いるとき、extensive-marginの価格弾力性は
+#' - アウトカム変数が二値なので、推定された係数をextensive-marginの価格弾力性として解釈できない。
+#'   - 係数を寄付者割合で割ることによって、extensive-marginの価格弾力性を得る
+#' - applicable priceを用いるとき、extensive-marginの価格弾力性は
 #' およそ-2.1($=-0.497 / 0.24$)である。
-#' - パネルBより、effective priceを用いるとき、extensive-marginの価格弾力性は
+#' - effective priceを用いるとき、extensive-marginの価格弾力性は
 #' およそ-12.2($=-2.917 / 0.24$)である。
 #' - effective priceを用いることによって、extensive-marginの価格弾力性はより弾力的になった。
+#'   - effective priceを用いることで、寄付をしていない人が直面する価格がapplicable priceより高くなるので、
+#'   負の相関がよりクリアになった
 #'
 # /*
 #+
