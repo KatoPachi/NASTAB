@@ -1,28 +1,6 @@
-#' ---
-#' title: |
-#'   Estimating Effect of Tax Incentives on Donations
-#'   Considering Self-Selection of Tax Incentives in South Korea
-#' subtitle: |
-#'   Results of FE-2SLS
-#' author:
-#'   - Hiroki Kato
-#'   - Tsuyoshi Goto
-#'   - Yongrok Kim
-#' output:
-#'   bookdown::html_document2:
-#'     toc: true
-#'     toc_float: true
-#'     number_sections: false
-#' params:
-#'   preview: true
-#' ---
-#'
-#+ include = FALSE, eval = params$preview
+#+ include = FALSE
 library(here)
 source(here("R", "_library.r"))
-
-#+ include = FALSE
-source(here("R", "_html_header.r"))
 
 #+ include = FALSE
 rawdt <- readr::read_csv(
@@ -185,19 +163,25 @@ implied_e <- est_sep_ps %>%
 add_rows <- bind_rows(implied_e, stats_stage1)
 attr(add_rows, "position") <- c(5, 6)
 
-est_sep_ps %>%
+out.file <- file(here("tables", "psiv-stage2.tex"), open = "w")
+
+tab <- est_sep_ps %>%
   pull(est) %>%
   flatten() %>%
   setNames(paste0("(", seq(length(sep_ps) * 2), ")")) %>%
   modelsummary(
-    title = "Second-Stage Results of FE-2SLS with Propensity Score",
+    title = paste(
+      "Second-Stage Results of FE-2SLS with Propensity Score",
+      "\\label{tab:psiv-stage2}"
+    ),
     coef_map = c(
       "fit_effective" = "Effective last price",
       "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = add_rows
+    add_rows = add_rows,
+    output = "latex"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
@@ -220,6 +204,9 @@ est_sep_ps %>%
     threeparttable = TRUE,
     escape = FALSE
     )
+
+writeLines(tab, out.file)
+close(out.file)
 
 #'
 #' 寄付控除の申請が自己選択であることを制御するために、給与所得者ダミーを操作変数として用いている。
@@ -350,19 +337,25 @@ implied_e <- est_pool_ps %>%
 add_rows <- bind_rows(implied_e, stats_stage1)
 attr(add_rows, "position") <- c(5, 6)
 
-est_pool_ps %>%
+out.file <- file(here("tables", "psiv-pool-stage2.tex"), open = "w")
+
+tab <- est_pool_ps %>%
   pull(est) %>%
   flatten() %>%
   setNames(paste0("(", seq(length(pool_ps) * 2), ")")) %>%
   modelsummary(
-    title = "Second-Stage Results of FE-2SLS with Propensity Score (Pooled)",
+    title = paste(
+      "Second-Stage Results of FE-2SLS with Propensity Score (Pooled)",
+      "\\label{tab:psiv-pool-stage2}"
+    ),
     coef_map = c(
       "fit_effective" = "Effective last price",
       "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = add_rows
+    add_rows = add_rows,
+    output = "latex"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
@@ -386,16 +379,11 @@ est_pool_ps %>%
     escape = FALSE
   )
 
+writeLines(tab, out.file)
+close(out.file)
+
 #'
 #' - また、全期間のサンプルで推定したプロビットモデルの傾向スコアを用いても、
 #' 同じ結果が得られる
 #' （第一段階の結果は表\@ref(tab:psiv-pool-stage1)に示し、
 #' 第二段階の結果は表\@ref(tab:psiv-pool-stage2)に示した）
-#'
-# /*
-#+
-rmarkdown::render(
-  here("R", "11-iv-pscore.r"),
-  output_dir = here("docs", "html-preview")
-)
-# */
