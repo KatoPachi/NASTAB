@@ -1,28 +1,6 @@
-#' ---
-#' title: |
-#'   Estimating Effect of Tax Incentives on Donations
-#'   Considering Self-Selection of Tax Incentives in South Korea
-#' subtitle: |
-#'   Results of FE-2SLS
-#' author:
-#'   - Hiroki Kato
-#'   - Tsuyoshi Goto
-#'   - Yongrok Kim
-#' output:
-#'   bookdown::html_document2:
-#'     toc: true
-#'     toc_float: true
-#'     number_sections: false
-#' params:
-#'   preview: true
-#' ---
-#'
-#+ include = FALSE, eval = params$preview
+#+
 library(here)
 source(here("R", "_library.r"))
-
-#+ include = FALSE
-source(here("R", "_html_header.r"))
 
 #+ include = FALSE
 rawdt <- readr::read_csv(
@@ -78,7 +56,7 @@ use <- rawdt %>%
 #' 給与所得者ダミーは寄付控除の申告コストの代理変数となる。
 #'
 #+ plot-stage1, fig.cap = "Relationship between Applicable First Price and Last Price by Employment Status. Note: The bubble size indicates sample size. Due to the small sample size, the leftmost bubbles for salaried and self-employed workers are less informative ($N=6$ for wage earner and $N=2$ for self-employed).", out.extra = ""
-use %>%
+plot_stage1 <- use %>%
   dplyr::filter(
     !is.na(d_relief_donate) & !is.na(lprice_ln) & !is.na(employee)
   ) %>%
@@ -113,6 +91,15 @@ use %>%
     size = "none"
   ) +
   ggtemp()
+
+plot_stage1
+
+ggsave(
+  here("figures", "plot-stage1.pdf"),
+  plot = plot_stage1,
+  width = 10,
+  height = 6
+)
 
 #' 操作変数に関する我々の予測が成立していることをデータから確認する。
 #'
@@ -278,12 +265,14 @@ implied_e <- est_models %>%
 add_rows <- bind_rows(implied_e, stats_stage1)
 attr(add_rows, "position") <- c(5, 6)
 
-est_models %>%
+out.file <- file(here("tables", "fe2sls.tex"), open = "w")
+
+tab <- est_models %>%
   pull(est) %>%
   flatten() %>%
   setNames(paste0("(", seq(length(fe2sls)*2), ")")) %>%
   modelsummary(
-    title = "Tax-Price Elasticity Estimated by FE-2SLS",
+    title = "Tax-Price Elasticity Estimated by FE-2SLS \\label{tab:fe2sls}",
     coef_map = c(
       "fit_effective" = "log(Effective last price)",
       "linc_ln" = "log(income)"
@@ -314,6 +303,9 @@ est_models %>%
     escape = FALSE
   )
 
+writeLines(tab, out.file)
+close(out.file)
+
 #'
 #' 表\@ref(tab:fe2sls)はFE-2SLSの第二段階の推定結果を示している。
 #'
@@ -331,11 +323,3 @@ est_models %>%
 #' Wu-Hausman検定より統計的に有意な差である。
 #' また、F値が1000以上あるので、この結果の差は操作変数の弱相関による問題ではない。
 #'
-#'
-# /*
-#+
-rmarkdown::render(
-  here("R", "3-main-estimation.r"),
-  output_dir = here("docs", "html-preview")
-)
-# */
