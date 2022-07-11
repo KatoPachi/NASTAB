@@ -1,27 +1,6 @@
-#' ---
-#' title: |
-#'   Estimating Effect of Tax Incentives on Donations
-#'   Considering Self-Selection of Tax Incentives in South Korea
-#' subtitle: |
-#'   Results of Fixed Effect Model
-#' author:
-#'   - Hiroki Kato
-#'   - Tsuyoshi Goto
-#'   - Yongrok Kim
-#' output:
-#'   bookdown::html_document2:
-#'     toc: true
-#'     number_sections: false
-#' params:
-#'   preview: true
-#' ---
-#'
-#+ include = FALSE, eval = params$preview
+#+ include = FALSE
 library(here)
 source(here("R", "_library.r"))
-
-#+ include = FALSE
-source(here("R", "_html_header.r"))
 
 #+ include = FALSE
 rawdt <- readr::read_csv(
@@ -106,12 +85,14 @@ implied_e <- est_femod %>%
 
 attr(implied_e, "position") <- 7:8
 
-est_femod %>%
+out.file <- file(here("tables", "fe-model.tex"), open = "w")
+
+tab <- est_femod %>%
   pull(est) %>%
   purrr::flatten() %>%
   setNames(paste0("(", 1:4, ")")) %>%
   modelsummary(
-    title = "Fixed Effect Model of Price Elasticity",
+    title = "Fixed Effect Model of Price Elasticity \\label{tab:fe-model}",
     coef_map = c(
       "applicable" = "log(applicable last price)",
       "effective" = "log(effective last price)",
@@ -119,13 +100,17 @@ est_femod %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = implied_e
+    add_rows = implied_e,
+    output = "latex"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
     "Sample:" = 1,
     "Intensive-margin" = 2, "Extensive-margin" = 2
   ))
+
+writeLines(tab, out.file)
+close(out.file)
 
 #' ベースラインとして、操作変数を用いない固定効果モデルの結果を表\@ref(tab:fe-model)示す
 #'
@@ -153,10 +138,3 @@ est_femod %>%
 #'   - effective priceを用いることで、寄付をしていない人が直面する価格がapplicable priceより高くなるので、
 #'   負の相関がよりクリアになった
 #'
-# /*
-#+
-rmarkdown::render(
-  here("R", "9-regression-anatomy.r"),
-  output_dir = here("docs", "html-preview")
-)
-# */
