@@ -30,25 +30,7 @@ rawdt <- readr::read_csv(
   guess_max = 30000
 )
 
-flag <- rawdt %>%
-  mutate(
-    flag_extensive = 1,
-    flag_intensive = if_else(d_donate == 1, 1, 0)
-  ) %>%
-  select(
-    pid,
-    year,
-    flag_extensive,
-    flag_intensive
-  ) %>%
-  pivot_longer(
-    flag_extensive:flag_intensive,
-    names_to = "outcome",
-    values_to = "flag",
-    names_prefix = "flag_"
-  )
-
-main <- rawdt %>%
+use <- rawdt %>%
   select(
     pid,
     hhid,
@@ -64,18 +46,23 @@ main <- rawdt %>%
     d_relief_donate,
     psc_pool,
     psc_sep,
-    intensive = donate_ln,
-    extensive = d_donate
+    outcome_intensive = donate_ln,
+    outcome_extensive = d_donate
+  ) %>%
+  mutate(
+    flag_extensive = 1,
+    flag_intensive = if_else(outcome_extensive == 1, 1, 0)
   ) %>%
   pivot_longer(
-    intensive:extensive,
-    names_to = "outcome",
-    values_to = "y"
+    outcome_intensive:flag_intensive,
+    names_to = c(".value", "type"),
+    names_pattern = "(.*)_(.*)"
+  ) %>%
+  mutate(
+    effective = d_relief_donate * lprice_ln,
+    applicable = lprice_ln
   )
 
-use <- flag %>%
-  dplyr::left_join(main, by = c("pid", "year", "outcome")) %>%
-  mutate(effective = d_relief_donate * lprice_ln)
 
 #+
 fixest::setFixest_fml(
@@ -84,19 +71,19 @@ fixest::setFixest_fml(
 )
 
 sep_ps <- list(
-  y ~ ..stage2 | effective ~ psc_sep:price_ln,
-  y ~ ..stage2 | effective ~ price_ln + psc_sep:price_ln
+  outcome ~ ..stage2 | effective ~ psc_sep:price_ln,
+  outcome ~ ..stage2 | effective ~ price_ln + psc_sep:price_ln
 )
 
 est_sep_ps <- use %>%
-  mutate(outcome = factor(outcome, levels = c("intensive", "extensive"))) %>%
-  group_by(outcome) %>%
+  mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+  group_by(type) %>%
   do(est = lapply(
     sep_ps,
     function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
   ))
 
-#+ psiv-stage1
+#+ psiv-stage1, eval = FALSE
 est_sep_ps %>%
   pull(est) %>%
   flatten() %>%
@@ -131,9 +118,9 @@ est_sep_ps %>%
 
 #+ psiv-stage2
 stats_stage1 <- est_sep_ps %>%
-  group_by(outcome) %>%
+  group_by(type) %>%
   do(tab = data.frame(
-    models = paste0(.$outcome, 1:2),
+    models = paste0(.$type, 1:2),
     f = lapply(.$est[[1]], function(x) {
       fitstat(x, "ivf")[[1]]$stat
     }) %>% as_vector(),
@@ -159,11 +146,44 @@ stats_stage1 <- est_sep_ps %>%
   ) %>%
   bind_rows(c(
     terms = "First-Stage model",
-    intensive1 = "(1)",
-    intensive2 = "(2)",
-    extensive1 = "(3)",
-    extensive2 = "(4)"
+    intensive1 = "(C)",
+    intensive2 = "(A)+(C)",
+    extensive1 = "(C)",
+    extensive2 = "(A)+(C)"
   ), .)
+
+implied_e <- est_sep_ps %>%
+  dplyr::filter(type == "extensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  lapply(function(x) {
+    tribble(
+      ~terms, ~extensive,
+      "Implied price elasticity",
+      sprintf("%1.3f", coef(x)[1] / mean(rawdt$d_donate, na.rm = TRUE)),
+      "",
+      sprintf(
+        "(%1.3f)", sqrt(vcov(x)[1, 1]) / mean(rawdt$d_donate, na.rm = TRUE)
+      )
+    )
+  }) %>%
+  reduce(full_join, by = "terms", suffix = c("1", "2")) %>%
+  left_join(
+    tribble(
+      ~terms, ~intensive1, ~intensive2,
+      "Implied price elasticity", NA_character_, NA_character_,
+      "", NA_character_, NA_character_
+    ),
+    by = "terms"
+  ) %>%
+  select(
+    terms,
+    intensive1:intensive2,
+    extensive1:extensive2
+  )
+
+add_rows <- bind_rows(implied_e, stats_stage1)
+attr(add_rows, "position") <- c(5, 6)
 
 est_sep_ps %>%
   pull(est) %>%
@@ -177,7 +197,7 @@ est_sep_ps %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = stats_stage1
+    add_rows = add_rows
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
@@ -189,7 +209,13 @@ est_sep_ps %>%
     general = paste(
       "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
       "Standard errors are clustered at household level.",
-      "A square bracket is F statistics of instrument."
+      "Instruments are (A) logged value of the applicable first price, and",
+      "(C) the product of propensity score of application and",
+      "logged value of the applicable first price.",
+      "We control squared age (divided by 100), number of household members,",
+      "a dummy that indicates having dependents, a set of dummies of industry,",
+      "a set of dummies of residential area,",
+      "and individual and time fixed effects."
     ),
     threeparttable = TRUE,
     escape = FALSE
@@ -210,19 +236,19 @@ est_sep_ps %>%
 #'
 #+
 pool_ps <- list(
-  y ~ ..stage2 | effective ~ psc_pool:price_ln,
-  y ~ ..stage2 | effective ~ price_ln + psc_pool:price_ln
+  outcome ~ ..stage2 | effective ~ psc_pool:price_ln,
+  outcome ~ ..stage2 | effective ~ price_ln + psc_pool:price_ln
 )
 
 est_pool_ps <- use %>%
-  mutate(outcome = factor(outcome, levels = c("intensive", "extensive"))) %>%
-  group_by(outcome) %>%
+  mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+  group_by(type) %>%
   do(est = lapply(
     pool_ps,
     function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
   ))
 
-#+ psiv-pool-stage1
+#+ psiv-pool-stage1, eval = FALSE
 est_pool_ps %>%
   pull(est) %>%
   flatten() %>%
@@ -257,9 +283,9 @@ est_pool_ps %>%
 
 #+ psiv-pool-stage2
 stats_stage1 <- est_pool_ps %>%
-  group_by(outcome) %>%
+  group_by(type) %>%
   do(tab = data.frame(
-    models = paste0(.$outcome, 1:2),
+    models = paste0(.$type, 1:2),
     f = lapply(.$est[[1]], function(x) {
       fitstat(x, "ivf")[[1]]$stat
     }) %>% as_vector(),
@@ -285,11 +311,44 @@ stats_stage1 <- est_pool_ps %>%
   ) %>%
   bind_rows(c(
     terms = "First-Stage model",
-    intensive1 = "(1)",
-    intensive2 = "(2)",
-    extensive1 = "(3)",
-    extensive2 = "(4)"
+    intensive1 = "(C)",
+    intensive2 = "(A)+(C)",
+    extensive1 = "(C)",
+    extensive2 = "(A)+(C)"
   ), .)
+
+implied_e <- est_pool_ps %>%
+  dplyr::filter(type == "extensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  lapply(function(x) {
+    tribble(
+      ~terms, ~extensive,
+      "Implied price elasticity",
+      sprintf("%1.3f", coef(x)[1] / mean(rawdt$d_donate, na.rm = TRUE)),
+      "",
+      sprintf(
+        "(%1.3f)", sqrt(vcov(x)[1, 1]) / mean(rawdt$d_donate, na.rm = TRUE)
+      )
+    )
+  }) %>%
+  reduce(full_join, by = "terms", suffix = c("1", "2")) %>%
+  left_join(
+    tribble(
+      ~terms, ~intensive1, ~intensive2,
+      "Implied price elasticity", NA_character_, NA_character_,
+      "", NA_character_, NA_character_
+    ),
+    by = "terms"
+  ) %>%
+  select(
+    terms,
+    intensive1:intensive2,
+    extensive1:extensive2
+  )
+
+add_rows <- bind_rows(implied_e, stats_stage1)
+attr(add_rows, "position") <- c(5, 6)
 
 est_pool_ps %>%
   pull(est) %>%
@@ -303,7 +362,7 @@ est_pool_ps %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = stats_stage1
+    add_rows = add_rows
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
@@ -315,7 +374,13 @@ est_pool_ps %>%
     general = paste(
       "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
       "Standard errors are clustered at household level.",
-      "A square bracket is F statistics of instrument."
+      "Instruments are (A) logged value of the applicable first price, and",
+      "(C) the product of propensity score of application and",
+      "logged value of the applicable first price.",
+      "We control squared age (divided by 100), number of household members,",
+      "a dummy that indicates having dependents, a set of dummies of industry,",
+      "a set of dummies of residential area,",
+      "and individual and time fixed effects."
     ),
     threeparttable = TRUE,
     escape = FALSE
