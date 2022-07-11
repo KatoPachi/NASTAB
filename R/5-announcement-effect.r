@@ -1,28 +1,6 @@
-#' ---
-#' title: |
-#'   Estimating Effect of Tax Incentives on Donations
-#'   Considering Self-Selection of Tax Incentives in South Korea
-#' subtitle: |
-#'   Results of FE-2SLS
-#' author:
-#'   - Hiroki Kato
-#'   - Tsuyoshi Goto
-#'   - Yongrok Kim
-#' output:
-#'   bookdown::html_document2:
-#'     toc: true
-#'     toc_float: true
-#'     number_sections: false
-#' params:
-#'   preview: true
-#' ---
-#'
-#+ include = FALSE, eval = params$preview
+#+ include = FALSE
 library(here)
 source(here("R", "_library.r"))
-
-#+ include = FALSE
-source(here("R", "_html_header.r"))
 
 #+ include = FALSE
 rawdt <- readr::read_csv(
@@ -154,19 +132,25 @@ implied_e <- est_models %>%
 add_rows <- bind_rows(implied_e, stats_stage1)
 attr(add_rows, "position") <- c(5, 6)
 
-est_models %>%
+out.file <- file(here("tables", "announcement-effect.tex"), open = "w")
+
+tab <- est_models %>%
   pull(est) %>%
   flatten() %>%
   setNames(paste0("(", seq(length(fe2sls) * 2), ")")) %>%
   modelsummary(
-    title = "Price Elasticity without Announcement Effect",
+    title = paste(
+      "Price Elasticity without Announcement Effect",
+      "\\label{tab:announcement-effect}"
+    ),
     coef_map = c(
       "fit_effective" = "Effective last price",
       "linc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = add_rows
+    add_rows = add_rows,
+    output = "latex"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
@@ -190,6 +174,9 @@ est_models %>%
     escape = FALSE
   )
 
+writeLines(tab, out.file)
+close(out.file)
+
 #'
 #' 結果の頑健性について議論する。
 #' 始めに、2014年の税制改革のアナウンスメント効果と学習効果に対応する
@@ -206,10 +193,3 @@ est_models %>%
 #' - ただし、標準誤差を考慮すると、係数の変化は誤差の範囲だと考えられ、
 #' FE-2SLSの推定結果は制度のアナウンスメント効果や学習効果に対して頑健である。
 #'
-# /*
-#+
-rmarkdown::render(
-  here("R", "10-announcement-effect.r"),
-  output_dir = here("docs", "html-preview")
-)
-# */
