@@ -1,0 +1,305 @@
+---
+title: Introduction
+subtitle: Preview
+author: Tsuyoshi Goto
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_float: true
+    number_sections: false
+params:
+  preview: true
+  appendix: no
+  slide: no
+---
+
+```{r eval = FALSE, include = FALSE, echo = FALSE}
+library(here)
+rmarkdown::render(
+  input = here("Rmd/1-introduction.rmd"),
+  output_format = "all",
+  output_dir = here("docs", "html-preview")
+)
+```
+
+```{r include = FALSE, echo = FALSE}
+library(here)
+if (params$preview) source(here("R", "_html_header.r"))
+source(here("R", "_library.r"))
+```
+
+```{asis, echo = output_type() != "slide"}
+<!-- ①導入部分：寄付の価格弾力性の研究の意義と寄付価格について -->
+
+In many countries, governments set a tax relief for charitable giving.
+This is because, if subsidizing charitable giving induces a large increase in donations,
+it is desirable for public good provision.
+As Saez (2004) shows,
+it is known that
+the elasticity of charitable donations
+respect to the giving price relative to the private consumption (giving price, hereafter) is
+a key parameter to evaluate the welfare implication.
+To receive the tax relief, tax payers have to declare their charitable giving to tax agency.
+Then, giving price will be reduced from one to one minus the marginal income tax rate
+(if the tax relief is applied through deduction) or one minus the credit rate (if tax credit).
+
+
+<!-- ②寄付の弾力性の研究とその問題点 -->
+
+Starting with Feldstein (1975),
+there are a large empirical literature examining the giving price elasticity.
+Papers in this literature regress the log-valued giving price on
+the log-valued amount of charitable giving
+to derive the giving price elasticity
+using tax filing data
+(e.g. Randolph, 1995; Auten et al., 2002; Fack and Landais, 2010; Bakija and Heim, 2011; Almunia et al., 2020)
+or panel survey data (e.g. Rehavi and Shack, 2013; Yoruk, 2013; Zampelli and Yen, 2016; Backus and Grant, 2019).
+Although many of these papers consider the endogeneity issue
+such as the endogenous change of the marginal tax rate by the amount of giving,
+they pay less attention to the problems caused by the fact that
+tax payers have to declare their charitable giving to receive tax relief on charitable giving.
+Therefore, if the estimation ignores the declaration of charitable giving,
+the self selection bias happens to the estimation
+in the sense that the charitable giving is declared by
+only those who can expect benefits from the charitable giving or
+those who have the giving preference.
+To our knowledge,
+no paper in the literature considers the self selection
+about the declaration of charitable giving.[^structual]
+
+[^structual]: Although Almunia et al. (2020) consider
+the self selection process about the declaration of charitable giving as an exception,
+their reduced-form estimation about the giving price elasticity
+does not consider the self selection.
+They use the giving price elasticities estimated by the reduced-form analysis to
+structurally estimate a fixed compliance cost for declaration,
+where they consider the self selection process.
+
+<!-- ③自己選択の問題についての文脈 -->
+
+Considering that the application of tax relieves is based on self declaration,
+the self selection problem is caused by
+the existence of compliance costs to apply measures of tax relives
+because everyone will apply the measures if there is no compliance cost.
+In other words, if there are the compliance costs,
+tax payers apply the measures of tax relives only if
+their benefits from the measures exceed the compliance costs.
+In the literature of tax compliance,
+recent papers insist this point and suggest that
+the measures of tax relives may not work as
+the policy makers expected
+since the application of the measures entails compliance costs.
+They also suggest compliance costs,
+which include record-keeping cost and a fee for accountants,
+are considerably high.[^literature]
+In the context of charitable giving,
+some papers also suggest the existence of compliance costs to declare charitable giving.
+Fack and Landais (2016) study a 1983 reform in France,
+which introduced the requirement to submit the certification,
+and find the significant reduction of
+the declaration of charitable giving after 1983.[^detail]
+Gillitzer and Skov (2018) examine a 2008 reform in Demmark,
+which allowed charities to pre-populate the tax record with the donation record
+in order to reduce declaration costs,
+and find a large increase of charitable giving declaration after the reform.
+Almunia et al. (2020)
+estimate the amount of a fixed compliance cost in the U.K.,
+which is estimated as £47.
+
+[^literature]: For the individual income tax,
+Benzarti (2020) estimates that the cost of the income tax filing is
+0.6-0.8 percent of adjusted gross income in the U.S..
+For the corporate income tax,
+Zwick(2021) finds that only 37 percent of eligible firms claim
+their refund in their corporate tax returns because of the complexity of tax code.
+
+[^detail]: They also show that
+the estimated price elasticity changed before and after the reform.
+This is because the declaration of charitable giving dramatically
+reduced after the reform and they use tax filer data.
+
+<!-- ④本論文の貢献１：Self-selectionへのIVでの対処(IVの説明含む) -->
+Although several papers suggest
+the existence of compliance costs in the tax compliance literature,
+no paper in the literature of giving price elasticity consider the self selection problem.
+Therefore, this paper tries to fill this gap and
+estimates the giving price elasticity
+using the South Korean (Korea, hereafter) survey panel data
+called the National Survey of Tax and Benefit (NaSTaB).
+The usage of this data brings us to three advantages on the estimation.
+Firstly, for the issue of self selection,
+we utilize an instrument variable (IV)
+which represents the compliance cost for charitable giving declaration.
+In the Korean tax system, to receive tax relief,
+wage earners can declare tax relief in their company at any time
+while self-employed workers have to declare tax relief in the tax agency
+at a time of tax return.
+Wage earners do not need understand the tax system nor
+keep the certification of donation until the tax return season
+since their company deals with tax business instead of them
+and they can submit the certification at any time.
+Self-employed workers, on the other hand, have to understand the tax system
+and keep the certification.
+Therefore, there is a difference of the compliance cost
+between wage earners and self-employed workers.
+Whether tax payers are wage earners and self-employed workers is
+determined irrespective to their expected benefit from charitable giving or giving preference,
+while the different compliance costs between them will make
+a difference about the behavior of the declaration.
+Instrumented by the wage earner dummy,
+the declaration of charitable giving will be less affected
+by the benefit from the declaration.
+One of the advantages of our IV is that
+the compliance costs are not considered to have a direct impact on a giving behavior
+although they have a effect on it through the declaration of charitable giving.
+Since the difference in compliance cost has no effect on the giving behavior
+if there is no declaration system of charitable giving,
+tax payers' giving behavior innately have no relation to the compliance cost.
+As for another advantage of our IV,
+the causality from the compliance cost to the charitable giving declaration
+seems credible and their relation is monotone since recent papers
+such as Fack and Landais (2016) and Gillitzer and Skov (2018) imply that the existence of compliance costs significantly reduce the declaration of charitable giving.[^heterogeneity]
+
+[^heterogeneity]: In addition,
+another advantage of our setting is that
+we can capture the heterogeneity of compliance costs,
+while all taxpayers experience the change of compliance costs
+in the setting of Fack and Landais (2016) and Gillitzer and Skov (2018).
+(これdiscussionに持ってっても良いかも)
+
+<!-- ⑤本論文の貢献2：Sample selection -->
+Secondly, we address the issue of sample selection bias using the panel survey data.
+Considering that the giving price is dependent on the declaration of charitable giving
+we have to distinguish declared and undeclared charitable giving.
+However, tax return data,
+which is used in many papers in the literature of giving price elasticity,
+do not record undeclared charitable giving and giving by tax withholders.
+In addition,
+since those who itemize their giving tends to be wealthier than the average taxpayer,
+the estimates based on tax filer data will represent the behaviors of high-income earners.
+Panel survey data contains information about charitable giving
+irrespective of tax filing or giving declaration.
+The estimation using panel survey data should be free from
+the sample selection bias (Rehavi and Shack, 2013; Backus and Grant, 2019).
+Since NaStaB data is constructed by reflecting the Korean society,
+we could consider the sample of low-income households,
+which are sometimes omitted from the tax filer data.
+This is particularly important for the estimation of the price elasticity
+in terms of the extensive margin
+since the propensity of donation by low-income earners
+tend to be less than high-income earners.
+
+<!-- ⑥本論文の貢献3：DID -->
+Thirdly, to derive the elasticity,
+this paper exploits the South Korean tax reform in 2014
+as a main identification strategy.
+In the 2014 reform,
+tax credit was introduced as a way for the tax relief on charitable giving,
+though income deduction had been used before.
+The 2014 tax reform started to allow 15\% of the total amount of charitable giving
+as a tax credit for all declaring taxpayers,
+which means that the giving price for 1 KRW donation is 0.85 KRW.[^USD]
+Since the giving price was determined according to the marginal tax rate of
+progressive income tax before 2014,
+this tax reform reduced the giving price for low income taxpayers
+while it increased the price for high income tax payers.
+Since the variation of giving price can be considered to be exogenous for taxpayers,
+we exploit this reform and conduct the difference-in-difference (DID) analysis
+for identification.[^Korean_paper]
+
+[^USD]: 1 KRW is approximately 0.001 USD. In other words, 1 USD is about 1,000 KRW.
+
+[^Korean_paper]: To our knowledge,
+only Hong(2020) considers the policy change(s) in Korea using panel data
+and derives the estimated giving price elasticity as -1.2.
+However, he does not use DID nor consider the self selection bias.
+
+<!-- ⑦分析結果の概要と結果の解釈\\ -->
+Using the IV representing the compliance cost,
+the estimated giving price elasticities are in the range between XXX and XXX
+in terms of intensive-margins.
+If the IV is not used,
+we find that the estimated intensive-margins giving price elasticity is XXX,
+which is similar value to the estimates in the existing literature.
+Considering that those who can expect benefits from the charitable giving and
+who have the giving preference are less affected by the change of the giving price,
+OLS estimates may overestimate their effects.
+As for the extensive-margins giving price elasticity,
+the estimates with the IV are in the range between XXX and XXX,
+while the estimate without the IV is XXX.
+The extensive margins elasticity shows
+whether tax payers donate or not depending on the giving price.
+Since those who stop donating will not declare their donation and
+their giving price will increase to one,
+if the endogeneity of declaration is not considered,
+the estimates will be elastic and it will be interpreted
+as if the donation is stopped by the increase of the giving price.
+The usage of the IV prevents a possibility of such a reverse causality.
+
+<!-- ⑧既存研究で考慮されてきた内生性への対処について -->
+In addition,
+the estimation of the intensive-margins and extensive-margins giving price elasticity considers
+well-known challenges for the estimations in this literature
+such as the endogenous change of the marginal tax rate by the amount of giving,
+simultaneous determination of income and donation and the announcement effect of policy change.
+We examine all of these issues in the robustness check and
+find that the intensive-margin tax-price elasticities are in the range of -2 and -1.5
+and the extensive-margin tax-price elasticities are in the range of -5 and -1.7
+in the almost all cases of the estimations.
+
+<!-- ⑨今後の節の紹介 -->
+This paper consists of six sections.
+Section 2 and 3 respectively explain the institutional background and data.
+Section 4 explains the estimation method.
+Section 5 deals with the analysis of price elasticity.
+Section 6 concludes.
+```
+
+```{asis, echo = output_type() == "slide"}
+## Tax Incentives on Donations
+
+- Governments set a tax relief for charitable giving
+  - if subsidizing charitable giving induces a large increase in donations, it is desirable for public good provision.
+- Key parameter to evaluate social welfare: the price elasticity of charitable donations (Saez, 2004)
+  - giving price: relative price to the private consumption 
+
+## Literatures: Price Elasticity of Giving
+
+- Large empirical literatures examining the giving price elasticity estimate log-log demand function to derive the giving price elasticity
+- Two types of data
+    1. tax filing data: Randolph, 1995; Auten et al., 2002; Fack and Landais, 2010; Bakija and Heim, 2011; Almunia et al., 2020
+    2. panel survey data: Rehavi and Shack, 2013; Yoruk, 2013; Zampelli and Yen, 2016; Backus and Grant, 2019
+- Issue: Although many of these papers consider the endogeneity issue such as the endogenous change of the marginal tax rate by the amount of giving, they pay less attention to the problems caused by the fact that \color{red}{tax payers have to declare their charitable giving to receive tax relief on charitable giving}.
+
+## Literatures: Tax Compliance
+
+- Existence of compliance costs to apply measures of tax relives because everyone will apply the measures if there is no compliance cost.
+  - tax payers apply the measures of tax relives only if their benefits from the measures exceed the compliance costs. 
+- Recent papers insist this point and suggest that the measures of tax relives may not work as the policy makers expected
+- They also suggest compliance costs (e.g. record-keeping cost and a fee for accountants) are considerably high.
+  - individual income tax (Benzarti, 2020); corporate income tax (Zwick, 2021); charitable giving (Fack and Landais, 2016;Gillitzer and Skov, 2018; Almunia et al., 2020) 
+
+## What Our Paper Did
+
+- We bridge price elasticity of giving and self-selection of tax incentive
+  - As long as we know, there is no paper in the literature of giving price elasticity consider the self selection problem
+- We estimate the giving price elasticity using the South Korean (Korea, hereafter) survey panel data called the National Survey of Tax and Benefit (NaSTaB)
+- Why South Korea?
+    1. Compliance costs for wage earners and self-employed workers are different (IV)
+    2. We could consider the sample of low-income households, which are sometimes omitted from the tax filer data. 
+    3. We can exploit the South Korean tax reform in 2014 as a main identification strategy of price change (income deduction $\to$ tax credit)
+
+## What Our Paper Found
+
+Using the IV representing the compliance cost,
+
+1. Intensive-margin price elasticities are in the range between $-1.4$ and $-1.5$
+    - FE model w/o IV: $-0.7$ (similar value to the estimates in the existing literature)
+2. Extensive-margin price elasticities are in the range between $-1.7$ and $-2.8$
+    - FE model w/o IV: $-10.8$
+
+We examine well-known issues in the robustness check
+
+- intensive-margin tax-price elasticities are in the range of -2 and -1.5
+- extensive-margin tax-price elasticities are in the range of -5 and -1.7
+```

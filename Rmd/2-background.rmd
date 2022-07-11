@@ -1,0 +1,283 @@
+---
+title: Institutional background and Sources of endogeneity
+subtitle: Preview
+author: Tsuyoshi Goto
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_float: true
+    number_sections: false
+params:
+  preview: true
+  appendix: no
+  slide: no
+---
+
+```{r eval = FALSE, include = FALSE, echo = FALSE}
+library(here)
+rmarkdown::render(
+  input = here("Rmd/2-background.rmd"),
+  output_format = "all",
+  output_dir = here("docs", "html-preview")
+)
+```
+
+```{r include = FALSE, echo = FALSE}
+library(here)
+if (params$preview) source(here("R", "_html_header.r"))
+source(here("R", "_library.r"))
+```
+
+```{asis, echo = output_type() != "slide"}
+In this section,
+we describe the income tax relief for charitable giving in Korea
+and the endogeneity issues arising from the declaration of giving.
+
+## System of tax relief on charitable giving
+
+<!-- ①説明のための枠組みを提示 -->
+To explain how income tax relief on charitable giving is applied and
+how the giving price is determined,
+we introduce a abstract framework in this subsection.
+Thus, let us consider that a household with pre-tax income $y_i$
+has a choice between private consumption $x_i$ and charitable giving $g_i$.
+Their budget constraint can be shown as
+\begin{align}
+x_i + g_i = y_i − R_iK_i - R_iT(y_i, g_i) - (1-R_i)T(y_i). (\#eq:budget)
+\end{align}
+$T$ is tax amount which depends on the pre-tax income and charitable giving.
+Since the marginal income tax rate is progressive in Korea,
+we assume $T(\cdot)$ satisfy $T_y(\cdot)>0$ and $T_{yy}(\cdot)>0$ hereafter,
+where the subscript means the partial differentiation.
+$R_i$ is the dummy which takes 1 if $i$ declares the tax relief and 0 otherwise.
+$K_i$ is a fixed compliance cost for the declaration of charitable giving.
+While $K_i$ includes non-monetary cost such as record-keeping cost and
+monetary cost such as a fee for accounts,
+it is converted to pecuniary terms for simplicity.
+In the literature about the giving price elasticity,
+since most of papers implicitly assume $R_i=1$ and $K_i=0$.
+
+<!-- ②寄付申告による課税額の変化について -->
+Tax payers can reduce their income tax payment by declaring their giving.
+However, the declaration entails the fixed compliance cost $K_i$.
+Therefore, whether tax payers declare their giving or not is determined according to
+\begin{align}
+  R_i = \begin{cases}
+	  1 \text{ if }T(y_i, g_i) + K_i<T(y_i)\\
+	  0 \text{ if }T(y_i, g_i) + K_i\ge T(y_i). (\#eq:R)
+  \end{cases}
+\end{align}
+When tax payers do not declare their giving, the amount of income tax will be $T(y_i)$. 
+When tax payers declare their giving, the amount of tax is
+\begin{align}
+  T(y_i, g_i) =
+  \begin{cases} 
+	  T(y_i-g_i)&\text{ if tax relief is applied by income deduction.}\\
+	  T(y_i)-mg_i &\text{ if tax relief is applied by tax credit.} (\#eq:relief)
+  \end{cases}
+\end{align}
+
+<!-- ③寄付価格の定義と控除制度の違いによる寄付価格の違いについて -->
+To derive the giving price,
+let us differentiate the budget constraint \@ref(eq:budget) by $x_i$ and $g_i$.
+Then, it derives that the giving price
+(relative to the private consumption) is
+$\frac{dx_i}{dg_i}=1+R_iT_g(y_i,g_i)$,
+which we denote $p$.
+Therefore, according to \@ref(eq:relief),
+the giving price $p$ is 
+\begin{align}
+	p=
+	\begin{cases} 
+		1-R_iT'(y_i-g_i)&\text{ if tax relief is applied by income deduction.}\\
+		1-R_im&\text{ if tax relief is applied by tax credit.}\label{giving price}
+	\end{cases}
+\end{align}
+Hereafter,
+let us $q$ to show the amount of tax relief for each declared giving
+(i.e. $p=1-R_iq$ and $q=-T_g(y_i, g_i)$).
+The government can change $q$ by the tax reform as the next subsection explains.
+```
+
+```{asis, echo = output_type() == "slide"}
+## Framework
+
+Consider that a household with pre-tax income $y_i$ has a choice between private consumption $x_i$ and charitable giving $g_i$.
+
+Their budget constraint can be shown as
+\begin{align}
+x_i + g_i = y_i - R_iK_i - R_iT(y_i, g_i) - (1-R_i)T(y_i). (\#eq:budget)
+\end{align}
+
+- $T$ is tax amount which depends on the pre-tax income and charitable giving. Assume $T_y(\cdot)>0$ and $T_{yy}(\cdot)>0$.
+- $R_i$ is the dummy which takes 1 if $i$ declares the tax relief and 0 otherwise.
+- $K_i$ is a fixed compliance cost for the declaration of charitable giving.
+  - In the literature about the giving price elasticity, most of papers implicitly assume $R_i=1$ and $K_i=0$.
+
+## Decision Rule of Tax Relief
+
+\begin{align}
+  R_i = \begin{cases}
+	  1 \text{ if }T(y_i, g_i) + K_i<T(y_i)\\
+	  0 \text{ if }T(y_i, g_i) + K_i\ge T(y_i). (\#eq:R)
+  \end{cases}
+\end{align}
+
+where
+
+\begin{align}
+  T(y_i, g_i) =
+  \begin{cases} 
+	  T(y_i-g_i)&\text{ if tax relief is applied by income deduction.}\\
+	  T(y_i)-mg_i &\text{ if tax relief is applied by tax credit.} (\#eq:relief)
+  \end{cases}
+\end{align}
+
+## Giving Price
+
+Let us differentiate the budget constraint \@ref(eq:budget) by $x_i$ and $g_i$.
+Then, it derives that the giving price (relative to the private consumption) is
+$\frac{dx_i}{dg_i}=1+R_iT_g(y_i,g_i)$, which we denote $p$.
+
+\begin{align}
+	p=
+	\begin{cases} 
+		1-R_iT'(y_i-g_i)&\text{ if tax relief is applied by income deduction.}\\
+		1-R_im&\text{ if tax relief is applied by tax credit.}\label{giving price}
+	\end{cases}
+\end{align}
+Hereafter,
+let us $q$ to show the amount of tax relief for each declared giving
+(i.e. $p=1-R_iq$ and $q=-T_g(y_i, g_i)$).
+The government can change $q$ by the tax reform.
+
+## Marginal Tax Rate
+```
+
+```{r mtr, include = TRUE}
+tab <- data.frame(
+    inc = c(
+        "(A) ~ 1200", "(B) 1200 ~ 4600", "(C) 4600 ~ 8800", "(D) 8800 ~ 15000",
+        "(E) 15000 ~ 30000", "(F) 30000 ~ 50000", "(G) 50000 ~"),
+    Y08 = c("8%", "17%", "26%", rep("35%", 4)),
+    Y09 = c("6%", "16%", "25%", rep("35%", 4)),
+    Y1011 = c("6%", "15%", "24%", rep("35%", 4)),
+    Y1213 = c("6%", "15%", "24%", rep("35%", 2), rep("38%", 2)),
+    Y1416 = c("6%", "15%", "24%", "35%", rep("38%", 3)),
+    Y17 = c("6%", "15%", "24%", rep("35%", 2), "38%", "40%"),
+    Y18 = c("6%", "15%", "24%", "35%", "38%", "40%", "42%")
+)
+
+knitr::kable(
+    tab,
+    caption = "Marginal Income Tax Rate",
+    col.names = c(
+      "Income/Year", "2008", "2009", "2010 ~ 2011",
+      "2012 ~ 2013", "2014 ~ 2016", "2017", "2018"
+    ),
+    row.names = FALSE,
+    align = "lccccccc",
+    booktabs = TRUE, escape = TRUE, linesep = ""
+) %>%
+kable_styling(font_size = 9) %>%
+collapse_rows(columns = 2:8, valign = "middle", latex_hline = "full") %>%
+footnote(general_title = "", general = paste(
+  "Notes: Marginal income tax rates applied from 2008 to 2018 are summarized.
+  The income level is shown in terms of 10,000 KRW,
+  which is approximately 10 United States dollars (USD)
+  at an exchange rate of 1,000 KRW to one USD."
+), threeparttable = TRUE, escape = FALSE)
+```
+
+```{asis, echo = output_type() != "slide"}
+## Korean tax system and tax reform in 2014 {#taxreform}
+
+<!-- ①給与所得者と自営業者での課税制度の違いについて -->
+Korean tax system offers a tax relief for charitable giving in income tax.
+To mitigate the administrative cost,
+the Korean National Tax Service introduce different taxation methods
+and different ways of giving declaration for wage earners and self-employed workers.
+Wage earners pay income tax by tax withholding and
+can declare their giving via their company at anytime
+since, instead of them, their company is supposed to
+close the comprehensive income tax return including giving declaration
+through year-end settlement.
+Self-employed workers have to calculate the amount of income
+earned during a year and pay income tax through tax return by May of the following year.
+To receive tax relief on charitable giving,
+they have to submit the certificate of donations when they submit tax return.
+Therefore, there is a difference of compliance cost of tax relief
+since self-employed workers have to understand tax system to precisely populate tax return
+and retain the certificate until they submit tax return
+although wage earners need not to understand tax system and
+can submit the certificate at any time.
+
+<!-- ②所得控除から税額控除への変更について -->
+Before 2014, tax relief on charitable giving is conducted by income deduction in Korea.
+Since the marginal income tax rate was progressively determined as Table \@ref(tab:mtr),
+tax payer facing the higher marginal income tax rate
+can enjoy the lower giving price for each 1 KRW of donation,
+i.e. the giving price was regressive before 2014.
+In 2014, aiming at the relaxation of regressivity of giving price,
+the Korean government reformed tax system,
+where the tax credit was introduced instead of income deduction.
+Since then, 15\% of the total amount of charitable giving has been allowed as a tax credit,
+which means that the giving price from 2014 is 0.85 KRW
+for each 1 KRW of donation irrelevant to the income level.
+Therefore, compared to tax credit system,
+the high income household,
+whose (average) income tax rate is more than 15\%,
+get benefit from charitable giving under the income deduction system.
+However, middle or low income households would enjoy tax relief in tax credit system
+more than income deduction system.
+We exploit the variation of giving price brought from the policy change
+as a main identification source to estimate the giving price elasticity.
+
+<!-- //DISCUSS 
+問題点
+
+- IVを使った分析結果の解釈がこれでよいのか。(特にIntensive Marginsの結果について、IVのほうが係数の絶対値が大きくなるのはなぜなのか)
+- 既存研究で考慮されてきた内生性の問題についてどのようにかけばよいか
+- First dollar priceについては考慮できている(?)- IVなの？直接入れるの？
+- Incomeと寄付の同時決定の問題については考慮できている(?)
+- Tax filing data特有の問題？よくわからん。\\
+- IntertemporalとConstantの問題-別に考慮する必要ないよね？
+- IVのディティールについてどこで分量を割いて書くのか？後のほうが良い？
+- Welfareの分析どうしよう？現状のIntroductionでは書いてない。
+	
+-->
+```
+
+```{asis, echo = output_type() == "slide"}
+## Korean Tax System (1)
+
+- To mitigate the administrative cost, the Korean National Tax Service introduce different taxation methods and different ways of giving declaration for wage earners and self-employed workers.
+- There is a difference of compliance cost of tax relief between self-employed and wage earners
+  - self-employed workers have to understand tax system to precisely populate tax return and retain the certificate until they submit tax return
+  - wage earners need not to understand tax system and can submit the certificate at any time.
+
+## Korean Tax System (2)
+
+Wage earners:
+
+- Wage earners pay income tax by tax withholding and can declare their giving via their company at anytime
+- Instead of them, their company is supposed to close the comprehensive income tax return including giving declaration through year-end settlement
+
+Self-employed workers:
+
+- Self-employed workers have to calculate the amount of income earned during a year and pay income tax through tax return by May of the following year.
+- To receive tax relief on charitable giving, they have to submit the certificate of donations when they submit tax return.
+
+## 2014 Tax Reform (1)
+
+- Before 2014, tax relief on charitable giving is conducted by income deduction in Korea.
+  - tax payer facing the higher marginal income tax rate can enjoy the lower giving price for each 1 KRW of donation
+- In 2014, aiming at the relaxation of regressivity of giving price, the Korean government reformed tax system, where the tax credit was introduced instead of income deduction.
+  - 15\% of the total amount of charitable giving has been allowed as a tax credit,
+
+## 2014 Tax Reform (2)
+- Compared to tax credit system, the high income household, whose (average) income tax rate is more than 15\%,
+get benefit from charitable giving under the income deduction system.
+- However, middle or low income households would enjoy tax relief in tax credit system more than income deduction system.
+- We exploit the variation of giving price brought from the policy change as a main identification source to estimate the giving price elasticity.
+```
