@@ -1,27 +1,5 @@
-#' ---
-#' title: |
-#'   Estimating Effect of Tax Incentives on Donations
-#'   Considering Self-Selection of Tax Incentives in South Korea
-#' subtitle: |
-#'   Results of FE-2SLS
-#' author:
-#'   - Hiroki Kato
-#'   - Tsuyoshi Goto
-#'   - Yongrok Kim
-#' output:
-#'   bookdown::html_document2:
-#'     toc: true
-#'     toc_float: true
-#'     number_sections: false
-#' params:
-#'   preview: true
-#' ---
-#'
 #+ include = FALSE
 library(here)
-source(here("R", "_html_header.r"))
-
-#+ include = FALSE
 source(here("R", "_library.r"))
 
 #+ include = FALSE
@@ -62,11 +40,14 @@ addtab <- tribble(
   sprintf("%1.1f", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat)
 )
 
-est_r1mod %>%
+out.file <- file(here("tables", "intensive-r1.tex"), open = "w")
+
+tab <- est_r1mod %>%
   modelsummary(
     title = paste(
       "Estimating Intensive-Margin Price Elasticities", 
-      "for Those Who Applied for Tax Relief"
+      "for Those Who Applied for Tax Relief",
+      "\\label{teb:intensive-r1}"
     ),
     coef_map = c(
       "lprice_ln" = "log(last price)",
@@ -81,7 +62,8 @@ est_r1mod %>%
     ),
     gof_omit = "^(?!N)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = addtab
+    add_rows = addtab,
+    output = "latex"
   ) %>%
   add_header_above(c(
     "Model:" = 1, "FE" = 2, "FE-2SLS" = 2
@@ -97,6 +79,8 @@ est_r1mod %>%
     escape = FALSE
   )
 
+writeLines(tab, out.file)
+close(out.file)
 
 #+ kdiff-model
 fixest::setFixest_fml(
@@ -146,10 +130,13 @@ stage1_kdiffmod <- 1:3 %>%
 
 attr(stage1_kdiffmod, "position") <- c(5, 6)
 
-est_kdiffmod %>%
+out.file <- file(here("tables", "kdiff-model.tex"), open = "w")
+
+tab <- est_kdiffmod %>%
   modelsummary(
     title = paste(
-      "$k$-th Difference Model Using Those Who Applied for Tax Relief"
+      "$k$-th Difference Model Using Those Who Applied for Tax Relief",
+      "\\label{tab:kdiff-model}"
     ),
     coef_map = c(
       "fit_price_ln_d1" = "Difference of logged first price",
@@ -161,7 +148,8 @@ est_kdiffmod %>%
     ),
     gof_omit = "^(?!N)",
     stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = stage1_kdiffmod
+    add_rows = stage1_kdiffmod,
+    output = "latex"
   ) %>%
   # kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
@@ -180,6 +168,9 @@ est_kdiffmod %>%
     escape = FALSE
   )
 
+writeLines(tab, out.file)
+close(out.file)
+
 #'
 #' 次に、寄付控除を申告した人に限定した分析を行った（**フック欲しい**）。
 #'
@@ -191,10 +182,3 @@ est_kdiffmod %>%
 #' - また、所得に対する寄付価格の内生性を考慮した$k$階差分モデルを推定した。
 #' その結果、弾力性は-1.9から-4の範囲で得られた。
 #'
-# /*
-#+
-rmarkdown::render(
-  here("R", "5-subsample-R1.r"),
-  output_dir = here("docs/html-preview")
-)
-# */
