@@ -279,7 +279,8 @@ tab <- est_models %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = add_rows
+    add_rows = add_rows,
+    output = "latex"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
