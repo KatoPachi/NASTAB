@@ -231,16 +231,41 @@ stats_stage1 <- est_models %>%
       "f" = "F-statistics of instruments",
       "wh" = "Wu-Hausman test, p-value"
     )
+  )
+
+implied_e <- est_models %>%
+  dplyr::filter(type == "extensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  lapply(function(x) {
+    tribble(
+      ~terms, ~extensive,
+      "Implied price elasticity",
+      sprintf("%1.3f", coef(x)[1] / mean(rawdt$d_donate, na.rm = TRUE)),
+      "",
+      sprintf(
+        "(%1.3f)", sqrt(vcov(x)[1, 1]) / mean(rawdt$d_donate, na.rm = TRUE)
+      )
+    )
+  }) %>%
+  reduce(full_join, by = "terms", suffix = c("1", "2")) %>%
+  left_join(
+    tribble(
+      ~terms, ~intensive1, ~intensive2, ~intensive3,
+      "Implied price elasticity", NA_character_, NA_character_, NA_character_,
+      "", NA_character_, NA_character_, NA_character_
+    ),
+    by = "terms"
   ) %>%
-  bind_rows(c(
-    terms = "First-Stage model",
-    intensive1 = "(1)",
-    intensive2 = "(2)",
-    intensive3 = "(3)",
-    extensive1 = "(4)",
-    extensive2 = "(5)",
-    extensive3 = "(6)"
-  ), .)
+  select(
+    terms,
+    intensive1:intensive3,
+    extensive1:extensive2,
+    extensive3 = extensive
+  )
+
+add_rows <- bind_rows(implied_e, stats_stage1)
+attr(add_rows, "position") <- c(5, 6)
 
 est_models %>%
   pull(est) %>%
@@ -254,7 +279,7 @@ est_models %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = stats_stage1
+    add_rows = add_rows
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
