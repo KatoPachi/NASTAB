@@ -1,24 +1,5 @@
-#' ---
-#' title: |
-#'   Data: National Survey of Tax and Benefit (NaSTaB)
-#' subtitle: Preview
-#' author: Hiroki Kato
-#' output:
-#'   bookdown::html_document2:
-#'     toc: true
-#'     toc_float: true
-#'     number_sections: false
-#' params:
-#'   preview: true
-#'   appendix: true
-#'   slide: true
-#' ---
-#'
 #+ include = FALSE, eval = params$preview
 library(here)
-source(here("R", "_html_header.r"))
-
-#+ include = FALSE
 source(here("R", "_library.r"))
 
 #'
@@ -53,7 +34,9 @@ estdf <- readr::read_csv(here("data/shaped2_propensity.csv"), guess_max = 30000)
 #' ```
 #'
 #+ SummaryCovariate, eval = output_type() != "appx"
-estdf %>%
+out.file <- file(here("tables", "summary-covariate.tex"), open = "w")
+
+tab <- estdf %>%
   datasummary(
     (`Annual taxable labor income (unit: 10,000KRW)` = linc) +
     (`First giving relative price` = price) +
@@ -73,14 +56,18 @@ estdf %>%
     # (`Min` = min) * Arguments(na.rm = TRUE) +
     # (`Median` = median) * Arguments(na.rm = TRUE) +
     # (`Max` = max) * Arguments(na.rm = TRUE),
-    # title = "Descriptive Statistics",
+    title = "Descriptive Statistics of NASTAB \\label{tab:summary-covariate}",
     data = .,
-    align = "lccc"
+    align = "lccc",
+    output = "latex"
   ) %>%
-  kableExtra::kable_styling(font_size = 9) %>%
+  kableExtra::kable_styling() %>%
   kableExtra::pack_rows("Income and giving price", 1, 2) %>%
   kableExtra::pack_rows("Charitable giving", 3, 5) %>%
   kableExtra::pack_rows("Individual Characteristics", 6, 11)
+
+writeLines(tab, out.file)
+close(out.file)
 
 #' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 我々の研究では(1)2013年から2018年かつ、(2)23歳以下の回答者を除いたデータを使用する。
@@ -98,7 +85,7 @@ estdf %>%
 #' ```
 #'
 #+ SummaryPrice, fig.cap = "Income Distribution in 2013 and Relative Giving Price. Notes: The left and right axis measure the relative frequency of respondents (grey bars) and the relative giving price (solid step line and dashed line), respectively. A solid step line and a dashed horizontal line represents the giving price in 2013 and 2014, respectively.", out.extra = "", eval = output_type() != "appx"
-estdf %>%
+plot_price <- estdf %>%
   filter(year == 2013) %>%
   dplyr::select(linc, price) %>%
   ggplot(aes(x = linc)) +
@@ -127,6 +114,15 @@ estdf %>%
     caption = "Dashed line is the giving price after the 2014 tax reform."
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
+
+plot_price
+
+ggsave(
+  here("figures", "summary-price.pdf"),
+  plot = plot_price,
+  width = 10,
+  height = 6
+)
 
 #' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' NaSTabは前年の労働所得を調査している。
@@ -171,7 +167,7 @@ estdf %>%
 #' ```
 #'
 #+ SummaryGiving, fig.cap = "Proportion of Donors and Average Donations among Donors. Notes: The left and right axises measure prooortion of donors (grey bars) and the average amount of donations among donors (solid line), respectively.", out.extra = "", eval = output_type() != "appx"
-estdf %>%
+plot_giving <- estdf %>%
   mutate(
     donate = if_else(d_donate == 1, donate, NA_real_)
   ) %>%
@@ -209,6 +205,15 @@ estdf %>%
   labs(x = "Year", y = "Proportion of Donors") +
   ggtemp(size = list(title = 15, text = 13))
 
+plot_giving
+
+ggsave(
+  here("figures", "summary-giving.pdf"),
+  plot = plot_giving,
+  width = 10,
+  height = 6
+)
+
 #' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 各所得グループの寄付のトレンドを確認する前に、
 #' 全体的な寄付行動の傾向を図\@ref(fig:SummaryGiving)に示した。
@@ -229,7 +234,7 @@ estdf %>%
 #' ```
 #'
 #+ SummaryGivingOverall, fig.cap = "Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "appx"
-estdf %>%
+plot_giving2 <- estdf %>%
   dplyr::filter(!is.na(credit_treat)) %>%
   group_by(year, credit_treat) %>%
   summarize(mu = mean(donate_ln, na.rm = TRUE)) %>%
@@ -261,11 +266,20 @@ estdf %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
+plot_giving2
+
+ggsave(
+  here("figures", "summary-giving-overall.pdf"),
+  plot = plot_giving2,
+  width = 10,
+  height = 6
+)
+
 #' ```{asis, echo = output_type() == "slide"}
 #' ## Summary of Giving Amount by Three Income Groups (Conditional on Donors)
 #' ```
 #+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
-estdf %>%
+plot_giving3 <- estdf %>%
   dplyr::filter(!is.na(credit_treat) & d_donate == 1) %>%
   group_by(year, credit_treat) %>%
   summarize(mu = mean(donate_ln, na.rm = TRUE)) %>%
@@ -297,11 +311,20 @@ estdf %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
+plot_giving3
+
+ggsave(
+  here("figures", "summary-giving-intensive.pdf"),
+  plot = plot_giving3,
+  width = 10,
+  height = 6
+)
+
 #' ```{asis, echo = output_type() == "slide"}
 #' ## Summary of Proportion of Donors by Three Income Groups
 #' ```
 #+ SummaryGivingExtensive, fig.cap = "Proportion of Donors by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
-estdf %>%
+plot_giving4 <- estdf %>%
   dplyr::filter(!is.na(credit_treat)) %>%
   group_by(year, credit_treat) %>%
   summarize(mu = mean(d_donate, na.rm = TRUE)) %>%
@@ -333,6 +356,15 @@ estdf %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
+plot_giving4
+
+ggsave(
+  here("figures", "summary-giving-extensive.pdf"),
+  plot = plot_giving4,
+  width = 10,
+  height = 6
+)
+
 #' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 図\@ref(fig:SummaryGivingOverall)は
 #' 税インセンティブの変化に基づいた所得グループごとの平均寄付額を示している（非寄付者も含めている）。
@@ -360,7 +392,7 @@ estdf %>%
 #' ```
 #'
 #+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
-estdf %>%
+summary_relief <- estdf %>%
   dplyr::filter(!is.na(credit_treat)) %>%
   group_by(year, credit_treat) %>%
   summarize(mu = mean(d_relief_donate, na.rm = TRUE)) %>%
@@ -392,11 +424,20 @@ estdf %>%
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
+summary_relief
+
+ggsave(
+  here("figures", "summary-relief-by-income.pdf"),
+  plot = summary_relief,
+  width = 10,
+  height = 6
+)
+
 #' ```{asis, echo = output_type() == "slide"}
 #' ## Distribution of Giving Amount by Application of Tax Relief 
 #' ```
 #+ SummaryGivingIntensiveDist, fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", eval = output_type() != "body"
-estdf %>%
+plot_dist <- estdf %>%
   filter(!is.na(d_relief_donate) & d_donate == 1) %>%
   mutate(d_relief_donate = factor(
     d_relief_donate,
@@ -411,6 +452,15 @@ estdf %>%
     linetype = ""
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
+
+plot_dist
+
+ggsave(
+  here("figures", "summary-giving-intensive-dist.pdf"),
+  plot = plot_dist,
+  width = 10,
+  height = 6
+)
 
 #' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 寄付価格の変動は寄付控除の申告の有無でも生じる。
@@ -432,7 +482,7 @@ estdf %>%
 #' ```
 #'
 #+ SummaryReliefbyEarner, fig.cap = "Share of Tax Relief by Wage Earners. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = output_type() != "appx"
-estdf %>%
+plot_relief2 <- estdf %>%
   dplyr::filter(!is.na(employee)) %>%
   mutate(employee = factor(
     employee,
@@ -454,11 +504,20 @@ estdf %>%
   ) +
   ggtemp(size = list(title = 15, text = 13))
 
+plot_relief2
+
+ggsave(
+  here("figures", "summary-relief-by-earner.pdf"),
+  plot = plot_relief2,
+  width = 10,
+  height = 6
+)
+
 #' ```{asis, echo = output_type() == "slide"}
 #' ## Compliance Rate by Wage Earners or Not (Conditional on Donors)
 #' ```
 #+ SummaryReliefbyEarner2, fig.cap = "Share of Tax Relief by Wage Earners Conditional on Donors. Notes: A solid line is the share of applying for tax relief among wage eaners. A dashed line is the share of applying for tax relief other than wage earners.", out.extra = "", eval = output_type() != "body"
-estdf %>%
+plot_relief3 <- estdf %>%
   dplyr::filter(!is.na(employee) & d_donate == 1) %>%
   mutate(employee = factor(
     employee,
@@ -480,6 +539,15 @@ estdf %>%
   ) +
   ggtemp(size = list(title = 15, text = 13))
 
+plot_relief3
+
+ggsave(
+  here("figures", "summary-relief-by-earner2.pdf"),
+  plot = plot_relief3,
+  width = 10,
+  height = 6
+)
+
 #'
 #' ```{asis, echo = output_type() %in% c("body", "preview")}
 #' 以上を踏まえて、
@@ -495,11 +563,3 @@ estdf %>%
 #' [^condfig]: 寄付者に限定した控除の申告比率についても、給与所得者の方が自営業者よりも高い
 #' （補論\@ref(addtab)の図\@ref(fig:SummaryReliefbyEarner2)）。
 #' ```
-#'
-# /*
-#+
-rmarkdown::render(
-  here("R", "1-summary.r"),
-  output_dir = here("docs", "html-preview")
-)
-# */
