@@ -76,8 +76,8 @@ implied_e <- est_femod %>%
   left_join(
     tribble(
       ~term, ~i1, ~i2,
-      "Implied price elasticity", NA_real_, NA_real_,
-      "", NA_real_, NA_real_,
+      "Implied price elasticity", "", "",
+      "", "", "",
     ),
     by = "term"
   ) %>%
@@ -85,7 +85,7 @@ implied_e <- est_femod %>%
 
 attr(implied_e, "position") <- 7:8
 
-out.file <- file(here("tables", "fe-model.tex"), open = "w")
+out.file <- file(here("export", "tables", "fe-model.tex"), open = "w")
 
 tab <- est_femod %>%
   pull(est) %>%
