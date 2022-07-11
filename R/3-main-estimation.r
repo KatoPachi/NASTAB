@@ -77,7 +77,7 @@ use <- rawdt %>%
 #' - 給与所得者は、自営業者と比較して、簡単に寄付控除を申告出来るので、
 #' 給与所得者ダミーは寄付控除の申告コストの代理変数となる。
 #'
-#+ plot-stage1, fig.cap = "Relationship between Applicable First Price and Last Price by Employment Status. Note: The bubble size indicates the percentage of donation deductions claimed. Due to the small sample size, the leftmost bubbles for salaried and self-employed workers are less informative ($N=6$ for wage earner and $N=2$ for self-employed).", out.extra = ""
+#+ plot-stage1, fig.cap = "Relationship between Applicable First Price and Last Price by Employment Status. Note: The bubble size indicates sample size. Due to the small sample size, the leftmost bubbles for salaried and self-employed workers are less informative ($N=6$ for wage earner and $N=2$ for self-employed).", out.extra = ""
 use %>%
   dplyr::filter(
     !is.na(d_relief_donate) & !is.na(lprice_ln) & !is.na(employee)
@@ -128,12 +128,11 @@ use %>%
 #' effective last priceは45度線の上側に位置するようになる。
 #' - 左のパネルの結果を考えれば、バブルが45度線の上側に位置している原因は
 #' 寄付控除の行動によるものであると考えられる。
-#' 事実、バブルサイズが小さいほど、バブルは45度線の上側に位置している。
-#' - applicable first priceが高いほど、バブルサイズが小さくなっている。
+#' - applicable first priceが高いほど、バブルはゼロに近づいている
 #' すなわち、相対的な寄付価格が高いと、申告されにくくなる。
 #' - 給与所得者のバブルサイズが自営業主のバブルサイズより大きい。
 #' すなわち、給与所得者は、自営業主と比較して、寄付控除を申請していない。
-#' その結果として、effective last priceが45度線に近づいている。
+#' その結果として、給与所得者のeffective last priceは自営業者のそれよりも45度線に近づいている。
 #'
 #+
 fixest::setFixest_fml(
@@ -141,7 +140,7 @@ fixest::setFixest_fml(
     year + pid + indust + area
 )
 
-#+ stage1
+#+ stage1, eval = FALSE
 stage1 <- list(
   effective ~ price_ln + ..stage2,
   effective ~ price_ln:employee + ..stage2,
@@ -176,6 +175,7 @@ est_stage1 %>%
   ))
 
 #'
+#' <!---
 #' 給与所得者が相対的に控除を申請しやすいのであれば、
 #' 給与所得者に限定したeffective last priceとapplicable first priceの相関は
 #' 自営業主のそれよりも強くなるはずである。
@@ -191,6 +191,8 @@ est_stage1 %>%
 #' また、給与所得者のeffective last priceとapplicable first priceの相関は
 #' 0.369($=0.328 + 0.0041$)である。
 #' 二つの相関の差は我々の予想と整合的であり、統計的に有意である。
+#' --->
+#' 
 #'
 #+ fe2sls
 fe2sls <- list(
@@ -231,7 +233,16 @@ stats_stage1 <- est_models %>%
       "f" = "F-statistics of instruments",
       "wh" = "Wu-Hausman test, p-value"
     )
-  )
+  ) %>%
+  bind_rows(c(
+    terms = "Instruments",
+    intensive1 = "(A)",
+    intensive2 = "(B)",
+    intensive3 = "(A)+(B)",
+    extensive1 = "(A)",
+    extensive2 = "(B)",
+    extensive3 = "(A)+(B)"
+  ), .)
 
 implied_e <- est_models %>%
   dplyr::filter(type == "extensive") %>%
@@ -291,7 +302,13 @@ est_models %>%
     general = paste(
       "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
       "Standard errors are clustered at household level.",
-      "A square bracket is F statistics of instrument."
+      "Instruments are (A) logged value of the applicable first price, and",
+      "(B) the product of wage earner dummy and",
+      "logged value of the applicable first price.",
+      "We control squared age (divided by 100), number of household members,",
+      "a dummy that indicates having dependents, a set of dummies of industry,",
+      "a set of dummies of residential area,",
+      "and individual and time fixed effects."
     ),
     threeparttable = TRUE,
     escape = FALSE
@@ -300,6 +317,8 @@ est_models %>%
 #'
 #' 表\@ref(tab:fe2sls)はFE-2SLSの第二段階の推定結果を示している。
 #'
+#' -  操作変数は(1)first applicable price、(2)first applicable priceと
+#' 給与所得者ダミーの積、(3) (1)と(2)の両方を用いる。
 #' - 寄付者に限定すると、寄付額に対するeffective last priceの価格弾力性は
 #' -1.9から-1.7の範囲で得られた。
 #' これは通常の固定効果モデルの価格弾力性よりも3倍弾力的であり、
