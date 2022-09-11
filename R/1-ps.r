@@ -22,7 +22,8 @@ source(here("R", "_html_header.r"))
 #'
 #+ include = FALSE
 df <- readr::read_csv("data/shaped2.csv") %>%
-  dplyr::filter(dependents == 0)
+  dplyr::filter(dependents == 0) %>%
+  dplyr::filter(linc > donate)
 
 #'
 #+

@@ -3,17 +3,15 @@ library(here)
 source(here("R", "_library.r"))
 
 #+ include = FALSE
-rawdt <- readr::read_csv(
-  here("data/shaped2_propensity.csv"),
-  guess_max = 30000
-)
-
-use <- rawdt %>%
+use <- readr::read_csv(here("data/shaped2.csv")) %>%
+  dplyr::filter(year < 2018) %>%
+  dplyr::filter(dependents == 0) %>%
+  dplyr::filter(tinc > donate) %>%
   select(
     pid,
     hhid,
     year,
-    linc_ln,
+    tinc_ln,
     sqage,
     hh_num,
     have_dependents,
@@ -22,6 +20,8 @@ use <- rawdt %>%
     price_ln,
     lprice_ln,
     d_relief_donate,
+    credit_loss,
+    credit_benefit,
     employee,
     outcome_intensive = donate_ln,
     outcome_extensive = d_donate
@@ -37,7 +37,8 @@ use <- rawdt %>%
   ) %>%
   mutate(
     effective = d_relief_donate * lprice_ln,
-    applicable = lprice_ln
+    applicable = lprice_ln,
+    after = if_else(year >= 2014, 1, 0)
   )
 
 #'
@@ -123,7 +124,7 @@ ggsave(
 #'
 #+
 fixest::setFixest_fml(
-  ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
+  ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
 )
 
@@ -275,12 +276,12 @@ tab <- est_models %>%
     title = "Tax-Price Elasticity Estimated by FE-2SLS \\label{tab:fe2sls}",
     coef_map = c(
       "fit_effective" = "log(Effective last price)",
-      "linc_ln" = "log(income)"
+      "tinc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = add_rows,
-    output = "latex"
+    add_rows = add_rows
+    # output = "latex"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
@@ -324,3 +325,19 @@ close(out.file)
 #' Wu-Hausman検定より統計的に有意な差である。
 #' また、F値が1000以上あるので、この結果の差は操作変数の弱相関による問題ではない。
 #'
+#+
+did <- outcome ~ ..stage2 |
+  effective ~ credit_benefit:after +
+  employee:credit_benefit:after +
+  employee:after
+
+use %>%
+  # dplyr::filter(year != 2014 & year != 2013) %>%
+  group_by(type) %>%
+  nest() %>%
+  mutate(est = map(data, ~ feols(
+    did, data = subset(., flag == 1), cluster = ~hhid
+  ))) %>%
+  pull(est)
+
+with(use, table(price))

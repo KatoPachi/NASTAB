@@ -246,8 +246,8 @@ inc_data <- relief_data %>%
 # first marginal tax rate(寄付額を差し引く前の税率)
 first_mtr_data <- inc_data %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(linc)) %>%
-  dplyr::filter(lower_income_10000won <= linc) %>%
+  dplyr::filter(!is.na(tinc)) %>%
+  dplyr::filter(lower_income_10000won <= tinc) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -258,31 +258,31 @@ first_mtr_data <- inc_data %>%
 last_mtr_data <- inc_data %>%
   dplyr::left_join(donate_data, by = c("pid", "year", "hhid")) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(linc) & !is.na(donate)) %>%
-  dplyr::mutate(subtract_linc = linc - donate) %>%
-  dplyr::filter(lower_income_10000won <= subtract_linc) %>%
+  dplyr::filter(!is.na(tinc) & !is.na(donate)) %>%
+  dplyr::mutate(subtract_tinc = tinc - donate) %>%
+  dplyr::filter(lower_income_10000won <= subtract_tinc) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(last_mtr = max(MTR)) %>%
   dplyr::ungroup() %>%
-  dplyr::select(hhid, pid, year, subtract_linc, last_mtr) %>%
+  dplyr::select(hhid, pid, year, subtract_tinc, last_mtr) %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # 所得のラグ変数を作成
 lag_inc_data <- inc_data %>%
   dplyr::group_by(pid) %>%
   dplyr::mutate(
-    linc_l1 = dplyr::lag(linc, order_by = year),
-    linc_l2 = dplyr::lag(linc, n = 2, order_by = year),
-    linc_l3 = dplyr::lag(linc, n = 3, order_by = year)
+    tinc_l1 = dplyr::lag(tinc, order_by = year),
+    tinc_l2 = dplyr::lag(tinc, n = 2, order_by = year),
+    tinc_l3 = dplyr::lag(tinc, n = 3, order_by = year)
   ) %>%
   dplyr::ungroup()
 
 # 1期ラグ所得に基づいた税率の計算
 lag1_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, linc_l1) %>%
+  dplyr::select(hhid, pid, year, tinc_l1) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(linc_l1)) %>%
-  dplyr::filter(lower_income_10000won <= linc_l1) %>%
+  dplyr::filter(!is.na(tinc_l1)) %>%
+  dplyr::filter(lower_income_10000won <= tinc_l1) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l1 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -291,10 +291,10 @@ lag1_mtr_data <- lag_inc_data %>%
 
 # 2期ラグ所得に基づいた税率の計算
 lag2_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, linc_l2) %>%
+  dplyr::select(hhid, pid, year, tinc_l2) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(linc_l2)) %>%
-  dplyr::filter(lower_income_10000won <= linc_l2) %>%
+  dplyr::filter(!is.na(tinc_l2)) %>%
+  dplyr::filter(lower_income_10000won <= tinc_l2) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l2 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -303,10 +303,10 @@ lag2_mtr_data <- lag_inc_data %>%
 
 # 3期ラグ所得に基づいた税率の計算
 lag3_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, linc_l3) %>%
+  dplyr::select(hhid, pid, year, tinc_l3) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(linc_l3)) %>%
-  dplyr::filter(lower_income_10000won <= linc_l3) %>%
+  dplyr::filter(!is.na(tinc_l3)) %>%
+  dplyr::filter(lower_income_10000won <= tinc_l3) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l3 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -318,6 +318,7 @@ treat_data <- first_mtr_data %>%
   dplyr::filter(year == 2013) %>%
   dplyr::select(hhid, pid, first_mtr) %>%
   dplyr::mutate(
+    first_mtr_13 = first_mtr,
     credit_benefit = if_else(first_mtr < 0.15, 1, 0),
     credit_neutral = if_else(first_mtr == 0.15, 1, 0),
     credit_loss = if_else(first_mtr > 0.15, 1, 0),
@@ -363,7 +364,8 @@ dt <- dt %>%
     ),
     price_l1_deduct = 1 - first_mtr_l1,
     price_l2_deduct = 1 - first_mtr_l2,
-    price_l3_deduct = 1 - first_mtr_l3
+    price_l3_deduct = 1 - first_mtr_l3,
+    price13 = 1 - first_mtr_13
   )
 
 dt <- dt %>%
@@ -398,12 +400,13 @@ dt <- dt %>%
   ) %>%
   dplyr::mutate(
     linc_ln = log(linc + 100000),
+    tinc_ln = log(tinc + 100000),
     donate_ln = log(donate + 1)
   ) %>%
   dplyr::group_by(pid) %>%
   dplyr::mutate_at(
     vars(
-      price_ln, donate_ln, linc_ln,
+      price_ln, donate_ln, linc_ln, tinc_ln,
       age, sqage
     ),
     list(
@@ -425,6 +428,9 @@ dt <- dt %>%
     linc_ln_d1 = linc_ln - linc_ln_l1,
     linc_ln_d2 = linc_ln - linc_ln_l2,
     linc_ln_d3 = linc_ln - linc_ln_l3,
+    tinc_ln_d1 = tinc_ln - tinc_ln_l1,
+    tinc_ln_d2 = tinc_ln - tinc_ln_l2,
+    tinc_ln_d3 = tinc_ln - tinc_ln_l3,
     age_d1 = age - age_l1,
     age_d2 = age - age_l2,
     age_d3 = age - age_l3,

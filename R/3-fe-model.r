@@ -3,17 +3,15 @@ library(here)
 source(here("R", "_library.r"))
 
 #+ include = FALSE
-rawdt <- readr::read_csv(
-  here("data/shaped2_propensity.csv"),
-  guess_max = 30000
-)
-
-use <- rawdt %>%
+use <- readr::read_csv(here("data/shaped2.csv")) %>%
+  dplyr::filter(year < 2018) %>%
+  dplyr::filter(dependents == 0) %>%
+  dplyr::filter(tinc > donate) %>%
   select(
     pid,
     hhid,
     year,
-    linc_ln,
+    tinc_ln,
     sqage,
     hh_num,
     have_dependents,
@@ -42,7 +40,7 @@ use <- rawdt %>%
 
 #+ include = FALSE
 fixest::setFixest_fml(
-  ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
+  ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
 )
 
@@ -96,12 +94,12 @@ tab <- est_femod %>%
     coef_map = c(
       "applicable" = "log(applicable last price)",
       "effective" = "log(effective last price)",
-      "linc_ln" = "log(income)"
+      "tinc_ln" = "log(income)"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = .01, "**" = .05, "*" = .1),
-    add_rows = implied_e,
-    output = "latex"
+    add_rows = implied_e#,
+    # output = "latex"
   ) %>%
   kableExtra::kable_styling() %>%
   kableExtra::add_header_above(c(
