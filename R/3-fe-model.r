@@ -65,16 +65,61 @@ est_femod <- use %>%
     function(x) feols(x, data = subset(., flag == 1), cluster =~hhid)
   ))
 
+#+ elasticity-intensive
+e_employee <- subset(est_femod, type == "intensive")$est[[1]][[4]] %>%
+  tidy() %>%
+  subset(str_detect(term, "employee|applicable")) %>%
+  summarize(
+    estimate = sum(estimate),
+    std.error = sqrt(sum(std.error^2)),
+    p.value = 2 * pt(
+      abs(estimate / std.error),
+      df = attr(vcov(
+        subset(est_femod, type == "intensive")$est[[1]][[4]],
+        attr = TRUE
+      ), "df.t"),
+      lower.tail = FALSE
+    )
+  ) %>%
+  mutate(
+    estimate = estimate,
+    estimate = case_when(
+      p.value < 0.01 ~ sprintf("%1.3f***", estimate),
+      p.value < 0.05 ~ sprintf("%1.3f**", estimate),
+      p.value < 0.1 ~ sprintf("%1.3f*", estimate),
+      TRUE ~ sprintf("%1.3f", estimate)
+    ),
+    std.error = sprintf("(%1.3f)", std.error)
+  ) %>% {
+    tribble(
+      ~term, ~mod,
+      "Wage earner", .$estimate,
+      "Wage earner se", .$std.error
+    )
+  }
+
+e_tab <- e_employee %>%
+  dplyr::left_join(
+    tribble(
+      ~term, ~bk1, ~bk2, ~bk3,
+      "Wage earner", "", "", "",
+      "Wage earner se", "", "", ""
+    ),
+    .,
+    by = "term"
+  ) %>%
+  bind_cols(bk4 = c("", "")) %>%
+  mutate(term = if_else(str_detect(term, "se"), "", term))
+
+attr(e_tab, "position") <- c(23, 24)
+
 #+ fe-model-int
 out.file <- file(here("export", "tables", "fe-model-int.tex"), open = "w")
 
 tab <- subset(est_femod, type == "intensive")$est[[1]] %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
-    title = paste0(
-      "Fixed Effect Model of Price Elasticity (Intensive-Margin)",
-      "\\label{tab:fe-model-int}"
-    ),
+    title = "Regression Results of Two-Way Fixed Effect Model (Intensive-Margin Sample)\\label{tab:fe-model-int}",
     coef_map = c(
       "credit_benefit:after" = "Decrease x Credit period",
       "after:credit_loss" = "Increase x Credit period",
@@ -92,24 +137,20 @@ tab <- subset(est_femod, type == "intensive")$est[[1]] %>%
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = e_tab,
     output = "latex"
   ) %>%
   kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " " = 1, "Log donation" = 5
   )) %>%
+  kableExtra::pack_rows(
+    "F-test", 23, 24,
+    bold = FALSE, italic = TRUE
+  ) %>%
   footnote(
     general_title = "",
-    general = paste(
-      "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01.",
-      "We use standard errors clustered at household level.",
-      "An outcome variable is logged value of amount of charitable giving.",
-      "For estimation, we use those whose amount of donation is positive.",
-      "We control squared age (divided by 100), number of household members,",
-      "a dummy that indicates having dependents, a set of dummies of industry,",
-      "a set of dummies of residential area,",
-      "and individual and time fixed effects."
-    ),
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of amount of charitable giving. For estimation, we use those whose amount of donation is positive. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.",
     threeparttable = TRUE,
     escape = FALSE
   )
@@ -117,7 +158,7 @@ tab <- subset(est_femod, type == "intensive")$est[[1]] %>%
 writeLines(tab, out.file)
 close(out.file)
 
-#+ implied-elasticity
+#+ implied-elasticity-extensive
 mu <- with(subset(use, type == "extensive"), mean(outcome))
 
 impe_overall <- subset(est_femod, type == "extensive")$est[[1]][c(3, 5)] %>%
@@ -222,7 +263,7 @@ tab <- subset(est_femod, type == "extensive")$est[[1]] %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
     title = paste0(
-      "Fixed Effect Model of Price Elasticity (Extensive-Margin)",
+      "Regression Results of Two-Way Fixed Effect Model (Extensive-Margin Sample)",
       "\\label{tab:fe-model-ext}"
     ),
     coef_map = c(
@@ -256,20 +297,7 @@ tab <- subset(est_femod, type == "extensive")$est[[1]] %>%
   ) %>%
   footnote(
     general_title = "",
-    general = paste(
-      "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01.",
-      "We use standard errors clustered at household level.",
-      "An outcome variable is a dummy indicating that",
-      "an amount of charitable giving is positive.",
-      "For estimation, we use those whose amount of donation is",
-      "not only positive but also zero.",
-      "We control squared age (divided by 100), number of household members,",
-      "a dummy that indicates having dependents, a set of dummies of industry,",
-      "a set of dummies of residential area,",
-      "and individual and time fixed effects.",
-      "We calculate implied price elasticities by",
-      "dividing estimated coefficients by proportion of donors in our sample."
-    ),
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating that an amount of charitable giving is positive. For estimation, we use those whose amount of donation is not only positive but also zero. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. We calculate implied price elasticities by dividing estimates by proportion of donors in our sample.",
     threeparttable = TRUE,
     escape = FALSE
   )
@@ -350,7 +378,7 @@ plot_event %>%
   ggplot(aes(x = year, y = estimate)) +
   geom_hline(aes(yintercept = 0), linetype = 2) +
   geom_line(size = 1) +
-  geom_ribbon(aes(ymin = ci.low, ymax = ci.high), width = 0, alpha = 0.1) +
+  geom_ribbon(aes(ymin = ci.low, ymax = ci.high), alpha = 0.1) +
   geom_point(size = 4) +
   facet_wrap(~ type * treat, scale = "free_y") +
   labs(x = "Year", y = "Estimates (95%CI)") +
