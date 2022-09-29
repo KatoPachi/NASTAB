@@ -1,0 +1,45 @@
+
+\begin{landscape}\begin{table}
+
+\caption{Regression Results of First-Stage Model\label{tab:fe2sls-stage1}}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{8}{c}{Log effective last-price} \\
+\cmidrule(l{3pt}r{3pt}){2-9}
+\multicolumn{1}{c}{Sample:} & \multicolumn{4}{c}{Intensive-margin} & \multicolumn{4}{c}{Extensive-margin} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-5} \cmidrule(l{3pt}r{3pt}){6-9}
+  & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8)\\
+\midrule
+Decrease x Credit period & \num{-0.029}*** & \num{-0.029}*** &  &  & \num{-0.008}*** & \num{-0.008}*** &  & \\
+ & (\num{0.006}) & (\num{0.006}) &  &  & (\num{0.001}) & (\num{0.001}) &  & \\
+Increase x Credit period & \num{0.103}*** & \num{0.059}*** &  &  & \num{0.055}*** & \num{0.008}** &  & \\
+ & (\num{0.006}) & (\num{0.022}) &  &  & (\num{0.003}) & (\num{0.004}) &  & \\
+Log applicable price &  &  & \num{0.679}*** & \num{0.390}*** &  &  & \num{0.314}*** & \num{0.067}***\\
+ &  &  & (\num{0.039}) & (\num{0.114}) &  &  & (\num{0.022}) & (\num{0.023})\\
+Wage earner &  & \num{-0.027}*** &  & \num{0.032} &  & \num{-0.008}*** &  & \num{0.062}***\\
+ &  & (\num{0.010}) &  & (\num{0.022}) &  & (\num{0.002}) &  & (\num{0.007})\\
+Wage earner x Decrease &  & \num{0.037}** &  &  &  & \num{0.007}* &  & \\
+ &  & (\num{0.016}) &  &  &  & (\num{0.004}) &  & \\
+Wage earner x Increase &  & \num{-0.082}*** &  &  &  & \num{-0.067}*** &  & \\
+ &  & (\num{0.027}) &  &  &  & (\num{0.009}) &  & \\
+Wage earner x Decrease x Credit period &  & \num{-0.006} &  &  &  & \num{-0.002} &  & \\
+ &  & (\num{0.010}) &  &  &  & (\num{0.002}) &  & \\
+Wage earner x Increase x Credit period &  & \num{0.048}** &  &  &  & \num{0.064}*** &  & \\
+ &  & (\num{0.022}) &  &  &  & (\num{0.005}) &  & \\
+Wage earner x Log applicable price &  &  &  & \num{0.358}*** &  &  &  & \num{0.432}***\\
+ &  &  &  & (\num{0.122}) &  &  &  & (\num{0.040})\\
+Log income & \num{-0.656}*** & \num{-0.653}*** & \num{-0.375}*** & \num{-0.418}*** & \num{-0.208}*** & \num{-0.230}*** & \num{-0.100}** & \num{-0.150}***\\
+ & (\num{0.102}) & (\num{0.113}) & (\num{0.111}) & (\num{0.128}) & (\num{0.041}) & (\num{0.042}) & (\num{0.041}) & (\num{0.040})\\
+\midrule
+Num.Obs. & \num{6094} & \num{6094} & \num{6694} & \num{6694} & \num{22791} & \num{22791} & \num{25343} & \num{25341}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of the effective last price. For estimation, models (1)--(4) use donors only (intensive-margin sample), and models (5)--(8) use not only donors but also non-donors (extensive-margin sample).  We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{landscape}
