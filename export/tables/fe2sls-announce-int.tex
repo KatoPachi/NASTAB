@@ -1,0 +1,29 @@
+\begin{table}
+
+\caption{FE-2SLS Excluding Announcement Effect (Intensive-Margin) \label{tab:fe2sls-announce-int}}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{4}{c}{Log donation} \\
+\cmidrule(l{3pt}r{3pt}){2-5}
+  & (1) & (2) & (3) & (4)\\
+\midrule
+Log effective last-price & \num{-1.756}** & \num{-1.958}** & \num{-1.673}** & \num{-1.709}**\\
+ & (\num{0.802}) & (\num{0.786}) & (\num{0.782}) & (\num{0.788})\\
+Log income & \num{-0.248} & \num{-0.356} & \num{-0.092} & \num{-0.110}\\
+ & (\num{1.203}) & (\num{1.197}) & (\num{1.636}) & (\num{1.635})\\
+\midrule
+First-Stage Model & DID & DDD & Price & Hetero-Price\\
+F-statistics of instruments & 371.12 & 128.72 & 827.71 & 421.64\\
+Wu-Hausman test, p-value & 0.182 & 0.097 & 0.024 & 0.019\\
+Sargan Test, p-value & 0.014 & 0.035 &  & 0.424\\
+Num.Obs. & \num{4102} & \num{4102} & \num{4657} & \num{4657}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. List of abbreviations: DID=standard DID model using the 2014 tax reform (model (1) in Table \ref{tab:fe2sls-stage1}), DDD=DID model plus heterogeneity by wage earner (model (2) in Table \ref{tab:fe2sls-stage1}), Price=applicable first-price (logged value) as an instrument (model (3) in Table \ref{tab:fe2sls-stage1}), and the Hetero-Price=Price model plus heterogeneity by wage earner (model (4) in Table \ref{tab:fe2sls-stage1}). We add the wage earner dummy to a set of covariates of the second stage model. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample), but exclude samples from 2013 and 2014. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

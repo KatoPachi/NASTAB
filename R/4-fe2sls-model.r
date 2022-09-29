@@ -329,3 +329,161 @@ tab <- est_models %>%
 
 writeLines(tab, out.file)
 close(out.file)
+
+#' //NOTE: Exclude announcement effect
+#+
+exclude_announce <- use %>%
+  dplyr::filter(year < 2013 | 2014 < year) %>%
+  mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+  group_by(type) %>%
+  do(est = lapply(
+    fe2sls,
+    function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
+  ))
+
+stats_stage1 <- exclude_announce %>%
+  group_by(type) %>%
+  do(tab = data.frame(
+    models = paste0(.$type, c(1, 2, 3, 4)),
+    f = lapply(.$est[[1]], function(x)
+      fitstat(x, "ivf")[[1]]$stat
+    ) %>% as_vector,
+    wh = lapply(.$est[[1]], function(x)
+      fitstat(x, "wh")$wh$p
+    ) %>% as_vector,
+    sargan = lapply(.$est[[1]], function(x) {
+      test <- fitstat(x, "sargan")$sargan
+      if (sum(is.na(test)) == 0) test$p else NA_real_ 
+    }) %>% as_vector()
+  )) %>%
+  { bind_rows(.$tab) } %>%
+  mutate(
+    f = sprintf("%1.2f", f),
+    wh = sprintf("%1.3f", wh),
+    sargan = if_else(is.na(sargan), "", sprintf("%1.3f", sargan))
+  ) %>%
+  pivot_longer(f:sargan, names_to = "terms") %>%
+  pivot_wider(names_from = models, values_from = value) %>%
+  mutate(
+    terms = recode(
+      terms,
+      "f" = "F-statistics of instruments",
+      "wh" = "Wu-Hausman test, p-value",
+      "sargan" = "Sargan Test, p-value"
+    )
+  ) %>%
+  bind_rows(c(
+    terms = "First-Stage Model",
+    intensive1 = "DID",
+    intensive2 = "DDD",
+    intensive3 = "Price",
+    intensive4 = "Hetero-Price",
+    extensive1 = "DID",
+    extensive2 = "DDD",
+    extensive3 = "Price",
+    extensive4 = "Hetero-Price"
+  ), .)
+
+attr(stats_stage1, "position") <- 5:8
+
+#' //NOTE: Create regression table of second-stage (intensive)
+#+
+out.file <- file(here("export", "tables", "fe2sls-announce-int.tex"), open = "w")
+
+tab <- exclude_announce %>%
+  dplyr::filter(type == "intensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "FE-2SLS Excluding Announcement Effect (Intensive-Margin) \\label{tab:fe2sls-announce-int}",
+    coef_map = c(
+      "fit_effective" = "Log effective last-price",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = stats_stage1 %>%
+      dplyr::select(- starts_with("extensive")),
+    output = "latex"
+  ) %>%
+  kableExtra::kable_styling(font_size = 8) %>%
+  kableExtra::add_header_above(c(
+    " ", "Log donation" = 4
+  )) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. List of abbreviations: DID=standard DID model using the 2014 tax reform (model (1) in Table \\\\ref{tab:fe2sls-stage1}), DDD=DID model plus heterogeneity by wage earner (model (2) in Table \\\\ref{tab:fe2sls-stage1}), Price=applicable first-price (logged value) as an instrument (model (3) in Table \\\\ref{tab:fe2sls-stage1}), and the Hetero-Price=Price model plus heterogeneity by wage earner (model (4) in Table \\\\ref{tab:fe2sls-stage1}). We add the wage earner dummy to a set of covariates of the second stage model. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample), but exclude samples from 2013 and 2014. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+writeLines(tab, out.file)
+close(out.file)
+
+#' //NOTE: Create regression table of second-stage model (extensive)
+#+
+mu <- with(subset(use, type == "extensive"), mean(outcome))
+
+implied_e <- exclude_announce %>%
+  dplyr::filter(type == "extensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  lapply(function(x) {
+    res <- subset(tidy(x), str_detect(term, "effective")) %>%
+      mutate(
+        estimate = estimate / mu,
+        estimate = case_when(
+          p.value < 0.01 ~ sprintf("%1.3f***", estimate),
+          p.value < 0.05 ~ sprintf("%1.3f**", estimate),
+          p.value < 0.1 ~ sprintf("%1.3f*", estimate),
+          TRUE ~ sprintf("%1.3f", estimate)
+        ),
+        std.error = sprintf("(%1.3f)", std.error / mu)
+      )
+
+    tribble(
+      ~terms, ~extensive,
+      "Implied price elasticity", res$estimate,
+      "", res$std.error
+    )
+  }) %>%
+  reduce(full_join, by = "terms", suffix = c("1", "2")) %>%
+  rename(extensive3 = extensive11, extensive4 = extensive22)
+
+add_rows <- bind_rows(
+  implied_e,
+  dplyr::select(stats_stage1, -starts_with("intensive"))
+)
+
+attr(add_rows, "position") <- 5:10
+
+out.file <- file(here("export", "tables", "fe2sls-announce-ext.tex"), open = "w")
+
+tab <- exclude_announce %>%
+  dplyr::filter(type == "extensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "FE-2SLS Excluding Announcement Effect (Extensive-Margin)\\label{tab:fe2sls-announce-ext}",
+    coef_map = c(
+      "fit_effective" = "Log effective last-price",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    add_rows = add_rows,
+    output = "latex"
+  ) %>%
+  kableExtra::kable_styling(font_size = 8) %>%
+  kableExtra::add_header_above(c(" ", "A dummy of donor" = 4)) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. List of abbreviations: DID=standard DID model using the 2014 tax reform (model (5) in Table \\\\ref{tab:fe2sls-stage1}), DDD=DID model plus heterogeneity by wage earner (model (6) in Table \\\\ref{tab:fe2sls-stage1}), Price=applicable first-price (logged value) as an instrument (model (7) in Table \\\\ref{tab:fe2sls-stage1}), and the Hetero-Price=Price model plus heterogeneity by wage earner (model (8) in Table \\\\ref{tab:fe2sls-stage1}). We add the wage earner dummy to a set of covariates of the second stage model. An outcome variable is a dummy indicating donor. For estimation, we use not only donors but also non-donors (extensive-margin sample), but exclude samples from 2013 and 2014. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+writeLines(tab, out.file)
+close(out.file)
