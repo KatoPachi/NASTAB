@@ -153,7 +153,7 @@ tab <- subset(est_femod, type == "intensive")$est[[1]] %>%
   ) %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of amount of charitable giving. For estimation, we use those whose amount of donation is positive. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.",
     threeparttable = TRUE,
     escape = FALSE
   )
@@ -302,7 +302,7 @@ tab <- subset(est_femod, type == "extensive")$est[[1]] %>%
   ) %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating that an amount of charitable giving is positive. For estimation, we use those whose amount of donation is not only positive but also zero. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. We calculate implied price elasticities by dividing estimates by proportion of donors in our sample.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating that donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. We calculate implied price elasticities by dividing estimates by proportion of donors in our sample.",
     threeparttable = TRUE,
     escape = FALSE
   )
@@ -452,7 +452,7 @@ tab <- est_femod %>%
   )) %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating application of tax relief. For estimation, models (1)--(4) use those whose amount of donation is positive (intensive-margin sample), and models (5)--(8) use not only donors but also non-donors (extensive-margin sample).  We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating application of tax relief. For estimation, models (1)--(4) use donors (intensive-margin sample), and models (5)--(8) use not only donors but also non-donors (extensive-margin sample).  We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%

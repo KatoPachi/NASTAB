@@ -1,0 +1,45 @@
+
+\begin{landscape}\begin{table}
+
+\caption{Fixed Effect Model of Application of Tax Relief\label{tab:fe-application}}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{lcccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{8}{c}{Application of tax relief} \\
+\cmidrule(l{3pt}r{3pt}){2-9}
+\multicolumn{1}{c}{Sample:} & \multicolumn{4}{c}{Intensive-margin} & \multicolumn{4}{c}{Extensive-margin} \\
+\cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-5} \cmidrule(l{3pt}r{3pt}){6-9}
+  & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8)\\
+\midrule
+Decrease x Credit period & \num{0.093}** & \num{0.082}* &  &  & \num{0.034}*** & \num{0.030}*** &  & \\
+ & (\num{0.042}) & (\num{0.044}) &  &  & (\num{0.008}) & (\num{0.009}) &  & \\
+Increase x Credit period & \num{0.059}** & \num{-0.019} &  &  & \num{-0.034}*** & \num{0.003} &  & \\
+ & (\num{0.026}) & (\num{0.072}) &  &  & (\num{0.011}) & (\num{0.013}) &  & \\
+Log applicable price &  &  & \num{0.187} & \num{-0.163} &  &  & \num{-0.221}*** & \num{-0.005}\\
+ &  &  & (\num{0.148}) & (\num{0.377}) &  &  & (\num{0.056}) & (\num{0.066})\\
+Wage earner &  & \num{0.165}*** &  & \num{0.245}*** &  & \num{0.044}*** &  & \num{-0.009}\\
+ &  & (\num{0.061}) &  & (\num{0.087}) &  & (\num{0.011}) &  & (\num{0.020})\\
+Wage earner x Decrease &  & \num{-0.245}* &  &  &  & \num{-0.048}* &  & \\
+ &  & (\num{0.131}) &  &  &  & (\num{0.027}) &  & \\
+Wage earner x Increase &  & \num{0.182} &  &  &  & \num{0.137}*** &  & \\
+ &  & (\num{0.118}) &  &  &  & (\num{0.035}) &  & \\
+Wage earner x Decrease x Credit period &  & \num{0.054} &  &  &  & \num{0.018} &  & \\
+ &  & (\num{0.102}) &  &  &  & (\num{0.019}) &  & \\
+Wage earner x Increase x Credit period &  & \num{0.090} &  &  &  & \num{-0.049}*** &  & \\
+ &  & (\num{0.070}) &  &  &  & (\num{0.017}) &  & \\
+Wage earner x Log applicable price &  &  &  & \num{0.451} &  &  &  & \num{-0.375}***\\
+ &  &  &  & (\num{0.401}) &  &  &  & (\num{0.106})\\
+Log income & \num{1.608}*** & \num{1.479}*** & \num{1.704}*** & \num{1.581}*** & \num{0.836}*** & \num{0.847}*** & \num{0.818}*** & \num{0.857}***\\
+ & (\num{0.377}) & (\num{0.402}) & (\num{0.501}) & (\num{0.496}) & (\num{0.135}) & (\num{0.136}) & (\num{0.153}) & (\num{0.156})\\
+\midrule
+Num.Obs. & \num{6094} & \num{6094} & \num{6694} & \num{6694} & \num{22791} & \num{22791} & \num{25343} & \num{25341}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating application of tax relief. For estimation, models (1)--(4) use donors (intensive-margin sample), and models (5)--(8) use not only donors but also non-donors (extensive-margin sample).  We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+\end{landscape}
