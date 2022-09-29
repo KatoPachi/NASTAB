@@ -41,6 +41,7 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     after = if_else(year >= 2014, 1, 0)
   )
 
+#' //NOTE: Estimate price elasticity
 #+ fe-model include = FALSE
 fixest::setFixest_fml(
   ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
@@ -65,6 +66,7 @@ est_femod <- use %>%
     function(x) feols(x, data = subset(., flag == 1), cluster =~hhid)
   ))
 
+#' //NOTE: Calculate wage-earner elasticity (intensive)
 #+ elasticity-intensive
 e_employee <- subset(est_femod, type == "intensive")$est[[1]][[4]] %>%
   tidy() %>%
@@ -113,6 +115,7 @@ e_tab <- e_employee %>%
 
 attr(e_tab, "position") <- c(23, 24)
 
+#' //NOTE: Create regression table of FE model (intensive)
 #+ fe-model-int
 out.file <- file(here("export", "tables", "fe-model-int.tex"), open = "w")
 
@@ -158,6 +161,7 @@ tab <- subset(est_femod, type == "intensive")$est[[1]] %>%
 writeLines(tab, out.file)
 close(out.file)
 
+#' //NOTE: Compute implied elasticity (extensive)
 #+ implied-elasticity-extensive
 mu <- with(subset(use, type == "extensive"), mean(outcome))
 
@@ -256,6 +260,7 @@ impe_tab <- impe_overall[[1]] %>%
 
 attr(impe_tab, "position") <- 23:28
 
+#' //NOTE: Create regression table (extensive)
 #+ fe-mod-ext
 out.file <- file(here("export", "tables", "fe-model-ext.tex"), open = "w")
 
@@ -305,7 +310,7 @@ tab <- subset(est_femod, type == "extensive")$est[[1]] %>%
 writeLines(tab, out.file)
 close(out.file)
 
-#'
+#' //NOTE: Execute event-study
 #+ event-study
 event <- use %>%
   mutate(
@@ -388,3 +393,70 @@ ggsave(
   here("export", "figures", "event-study.pdf"),
   width = 10, height = 8
 )
+
+#' //NOTE: Estimate application model
+#+
+femod <- list(
+  d_relief_donate ~ credit_benefit:after + credit_loss:after + ..stage2,
+  d_relief_donate ~ employee + credit_benefit:after + credit_loss:after +
+    employee:credit_benefit + employee:credit_loss +
+    credit_benefit:employee:after + credit_loss:employee:after + ..stage2,
+  d_relief_donate ~ applicable + ..stage2,
+  d_relief_donate ~ employee + applicable + applicable:employee + ..stage2
+)
+
+est_femod <- use %>%
+  mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+  group_by(type) %>%
+  do(est = lapply(
+    femod,
+    function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
+  ))
+
+#' //NOTE: Create regression table of application model
+#+
+out.file <- file(here("export", "tables", "fe-application.tex"), open = "w")
+
+tab <- est_femod %>%
+  pull(est) %>%
+  flatten() %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "Fixed Effect Model of Application of Tax Relief\\label{tab:fe-application}",
+    coef_map = c(
+      "credit_benefit:after" = "Decrease x Credit period",
+      "after:credit_loss" = "Increase x Credit period",
+      "applicable" = "Log applicable price",
+      "effective" = "Log effective last-price",
+      "employee" = "Wage earner",
+      "employee:credit_benefit" = "Wage earner x Decrease",
+      "employee:credit_loss" = "Wage earner x Increase",
+      "employee:credit_benefit:after" =
+        "Wage earner x Decrease x Credit period",
+      "employee:after:credit_loss" =
+        "Wage earner x Increase x Credit period",
+      "employee:applicable" = "Wage earner x Log applicable price",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    output = "latex"
+  ) %>%
+  kableExtra::kable_styling(font_size = 8) %>%
+  kableExtra::add_header_above(c(
+    "Sample:" = 1,
+    "Intensive-margin" = 4, "Extensive-margin" = 4
+  )) %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Application of tax relief" = 8
+  )) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating application of tax relief. For estimation, models (1)--(4) use those whose amount of donation is positive (intensive-margin sample), and models (5)--(8) use not only donors but also non-donors (extensive-margin sample).  We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.",
+    threeparttable = TRUE,
+    escape = FALSE
+  ) %>%
+  kableExtra::landscape()
+
+writeLines(tab, out.file)
+close(out.file)

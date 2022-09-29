@@ -17,11 +17,11 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     have_dependents,
     indust,
     area,
+    credit_benefit,
+    credit_loss,
     price_ln,
     lprice_ln,
     d_relief_donate,
-    credit_loss,
-    credit_benefit,
     employee,
     outcome_intensive = donate_ln,
     outcome_extensive = d_donate
@@ -37,25 +37,11 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
   ) %>%
   mutate(
     effective = d_relief_donate * lprice_ln,
-    applicable = lprice_ln,
+    applicable = price_ln,
     after = if_else(year >= 2014, 1, 0)
   )
 
-#'
-#' ベースラインで示した固定効果モデルには2つの内生性が存在する。
-#'
-#' 1. 寄付価格が個人の寄付行動によって決まる
-#' 1. 寄付控除の申告が自己選択であること
-#'
-#' これに対処するために、二段階固定効果モデル（FE-2SLS）を推定する。
-#' 操作変数は(1)applicable first-unit priceと(2)給与所得者ダミーである。
-#'
-#' - first-unit priceは寄付額ゼロのときの寄付価格であり、寄付額とは独立に決まる。
-#' また、寄付価格が低いほど、寄付による節税の便益が大きいので、
-#' この変数は申告による便益を捉えている。
-#' - 給与所得者は、自営業者と比較して、簡単に寄付控除を申告出来るので、
-#' 給与所得者ダミーは寄付控除の申告コストの代理変数となる。
-#'
+#' //NOTE: Relationship b/w Applicable and Effective
 #+ plot-stage1, fig.cap = "Relationship between Applicable First Price and Last Price by Employment Status. Note: The bubble size indicates sample size. Due to the small sample size, the leftmost bubbles for salaried and self-employed workers are less informative ($N=6$ for wage earner and $N=2$ for self-employed).", out.extra = ""
 plot_stage1 <- use %>%
   dplyr::filter(
@@ -64,19 +50,19 @@ plot_stage1 <- use %>%
   mutate(
     employee = factor(employee, label = c("Self-employed", "Wage earner"))
   ) %>%
-  group_by(price_ln, employee) %>%
+  group_by(applicable, employee) %>%
   summarize(
     n = n(),
     d_relief_donate = mean(d_relief_donate),
     effective = mean(effective),
-    applicable = mean(applicable)
+    applicable.last = mean(lprice_ln)
   ) %>%
-  pivot_longer(effective:applicable, names_to = "type") %>%
+  pivot_longer(effective:applicable.last, names_to = "type") %>%
   mutate(type = factor(
     type,
     labels = c("Applicable last price", "Effective last price")
   )) %>%
-  ggplot(aes(x = price_ln, y = value)) +
+  ggplot(aes(x = applicable, y = value)) +
   geom_abline(aes(intercept = 0, slope = 1), linetype = 2) +
   geom_point(aes(size = n, color = employee), alpha = 0.8) +
   scale_color_grey() +
@@ -102,37 +88,20 @@ ggsave(
   height = 6
 )
 
-#' 操作変数に関する我々の予測が成立していることをデータから確認する。
-#'
-#' - 図\@ref(fig:plot-stage1)はapplicable first priceとlast priceの関係を
-#' 示している。バブルサイズが大きいほど、寄付控除の申告比率が高い。
-#' - 左のパネルははapplicable first priceとapplicable last priceの関係を示していて、
-#' 二つの価格は寄付控除の申告行動を考慮していない。
-#' 寄付行動による寄付価格の操作が強いほど、バブルは45度線の上側に位置するようになる。
-#' - 多くのバブルは45度線上にあるので、
-#' 寄付行動による寄付価格の操作から生じる内生性は大きな問題ではない。
-#' - 右のパネルはapplicable first priceとapplicable last priceの関係を示している。
-#' 寄付行動による寄付価格の操作や寄付控除の非申請が大きいほど、
-#' effective last priceは45度線の上側に位置するようになる。
-#' - 左のパネルの結果を考えれば、バブルが45度線の上側に位置している原因は
-#' 寄付控除の行動によるものであると考えられる。
-#' - applicable first priceが高いほど、バブルはゼロに近づいている
-#' すなわち、相対的な寄付価格が高いと、申告されにくくなる。
-#' - 給与所得者のバブルサイズが自営業主のバブルサイズより大きい。
-#' すなわち、給与所得者は、自営業主と比較して、寄付控除を申請していない。
-#' その結果として、給与所得者のeffective last priceは自営業者のそれよりも45度線に近づいている。
-#'
-#+
+#' //NOTE: Estimate first-stage models
+#+ reg-stage1, eval = FALSE
 fixest::setFixest_fml(
   ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
 )
 
-#+ stage1, eval = FALSE
 stage1 <- list(
-  effective ~ price_ln + ..stage2,
-  effective ~ price_ln:employee + ..stage2,
-  effective ~ price_ln + price_ln:employee + ..stage2
+  effective ~ credit_benefit:after + credit_loss:after + ..stage2,
+  effective ~ employee + credit_benefit:after + credit_loss:after +
+    employee:credit_benefit + employee:credit_loss +
+    credit_benefit:employee:after + credit_loss:employee:after + ..stage2,
+  effective ~ applicable + ..stage2,
+  effective ~ employee + applicable + applicable:employee + ..stage2
 )
 
 est_stage1 <- use %>%
@@ -143,24 +112,53 @@ est_stage1 <- use %>%
     function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
   ))
 
-est_stage1 %>%
+#' //NOTE: Create regression table of first-stage model
+#+
+out.file <- file(here("export", "tables", "fe2sls-stage1.tex"), open = "w")
+
+tab <- est_stage1 %>%
   pull(est) %>%
   flatten() %>%
   setNames(paste0("(", seq(length(stage1) * 2), ")")) %>%
   modelsummary(
-    title = "Results of Regression of Effective Last Price",
+    title = "Regression Results of First-Stage Model\\label{tab:fe2sls-stage1}",
     coef_map = c(
-      "price_ln" = "log(first price)",
-      "price_ln:employee" = "log(first_price)\u00d7wage earner"
+      "credit_benefit:after" = "Decrease x Credit period",
+      "after:credit_loss" = "Increase x Credit period",
+      "applicable" = "Log applicable price",
+      "effective" = "Log effective last-price",
+      "employee" = "Wage earner",
+      "employee:credit_benefit" = "Wage earner x Decrease",
+      "employee:credit_loss" = "Wage earner x Increase",
+      "employee:credit_benefit:after" =
+        "Wage earner x Decrease x Credit period",
+      "employee:after:credit_loss" =
+        "Wage earner x Increase x Credit period",
+      "employee:applicable" = "Wage earner x Log applicable price",
+      "tinc_ln" = "Log income"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
-    stars = c("***" = .01, "**" = .05, "*" = .1)
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    output = "latex"
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     "Sample:" = 1,
-    "Intensive-margin" = 3, "Extensive-margin" = 3
-  ))
+    "Intensive-margin" = 4, "Extensive-margin" = 4
+  )) %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Log effective last-price" = 8
+  )) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of the effective last price. For estimation, models (1)--(4) use those whose amount of donation is positive (intensive-margin sample), and models (5)--(8) use not only donors but also non-donors (extensive-margin sample).  We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.",
+    threeparttable = TRUE,
+    escape = FALSE
+  ) %>%
+  kableExtra::landscape()
+
+writeLines(tab, out.file)
+close(out.file)
 
 #'
 #' <!---
