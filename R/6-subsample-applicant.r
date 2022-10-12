@@ -1,12 +1,97 @@
-#+ include = FALSE
+#+
 library(here)
 source(here("R", "_library.r"))
 
 #+ include = FALSE
-use <- readr::read_csv(
-  here("data/shaped2_propensity.csv"),
-  guess_max = 30000
+use <- readr::read_csv(here("data/shaped2.csv")) %>%
+  dplyr::filter(year < 2018) %>%
+  dplyr::filter(dependents == 0) %>%
+  dplyr::filter(tinc > donate) %>%
+  select(
+    pid,
+    hhid,
+    year,
+    tinc_ln,
+    sqage,
+    hh_num,
+    have_dependents,
+    indust,
+    area,
+    credit_benefit,
+    credit_loss,
+    price_ln,
+    lprice_ln,
+    d_relief_donate,
+    employee,
+    intensive = donate_ln
+  ) %>%
+  mutate(
+    effective = d_relief_donate * lprice_ln,
+    applicable = price_ln,
+    after = if_else(year >= 2014, 1, 0)
+  )
+
+#' //NOTE: Estimate application model
+#+
+fixest::setFixest_fml(
+  ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
+    year + pid + indust + area
 )
+
+femod <- list(
+  d_relief_donate ~ credit_benefit:after + credit_loss:after + ..stage2,
+  d_relief_donate ~ employee + credit_benefit:after + credit_loss:after +
+    employee:credit_benefit + employee:credit_loss +
+    credit_benefit:employee:after + credit_loss:employee:after + ..stage2,
+  d_relief_donate ~ applicable + ..stage2,
+  d_relief_donate ~ employee + applicable + applicable:employee + ..stage2
+)
+
+est_femod <- femod %>%
+  purrr::map(~ feols(., data = use, cluster = ~hhid))
+
+#' //NOTE: Create regression table of application model
+#+
+out.file <- file(here("export", "tables", "fe-application.tex"), open = "w")
+
+tab <- est_femod %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "Fixed Effect Model of Application of Tax Relief\\label{tab:fe-application}",
+    coef_map = c(
+      "credit_benefit:after" = "Decrease x Credit period",
+      "after:credit_loss" = "Increase x Credit period",
+      "applicable" = "Log applicable price",
+      "effective" = "Log effective last-price",
+      "employee" = "Wage earner",
+      "employee:credit_benefit" = "Wage earner x Decrease",
+      "employee:credit_loss" = "Wage earner x Increase",
+      "employee:credit_benefit:after" =
+        "Wage earner x Decrease x Credit period",
+      "employee:after:credit_loss" =
+        "Wage earner x Increase x Credit period",
+      "employee:applicable" = "Wage earner x Log applicable price",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    output = "latex"
+  ) %>%
+  kableExtra::kable_styling(font_size = 8) %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Application of tax relief" = 4
+  )) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating application of tax relief. For estimation, models (1)--(4) use donors (intensive-margin sample), and models (5)--(8) use not only donors but also non-donors (extensive-margin sample).  We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.",
+    threeparttable = TRUE,
+    escape = FALSE
+  ) %>%
+  kableExtra::landscape()
+
+writeLines(tab, out.file)
+close(out.file)
+
 
 #+ intensive-r1
 fixest::setFixest_fml(
