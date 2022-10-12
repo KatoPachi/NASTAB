@@ -171,14 +171,14 @@ imrdf <- use %>%
 femod <- list(
   intensive ~ applicable + ..stage2,
   intensive ~ ..stage2 | effective ~ applicable,
-  intensive ~ applicable + sex + age + college + highschool + junior +
-    sqage + hh_num + have_dependents + tinc_ln +
+  intensive ~ applicable + sqage + hh_num + have_dependents + tinc_ln +
+    #sex + age + college + highschool + junior +
     employee + factor(indust) + factor(area) + ..mundlak +
-    imr:factor(year),
-  intensive ~ sex + age + college + highschool + junior +
-    sqage + hh_num + have_dependents + tinc_ln +
+    imr:factor(year) | year,
+  intensive ~ sqage + hh_num + have_dependents + tinc_ln +
+    #sex + age + college + highschool + junior +
     employee + factor(indust) + factor(area) + ..mundlak +
-    imr:factor(year) | 0 | effective ~ applicable
+    imr:factor(year) | year | effective ~ applicable
 )
 
 est_femod <- femod %>%
@@ -198,26 +198,27 @@ stat_tab <- tibble(est = est_femod) %>%
     F = if_else(is.na(F), "", sprintf("%1.2f", F))
   ) %>%
   dplyr::select(-est) %>%
-  pivot_wider(names_from = mod, values_from = F)
+  pivot_wider(names_from = mod, values_from = F) %>%
+  bind_cols(tibble(name = "F-statistics of instrument"), .)
+
+attr(stat_tab, "position") <- 7
 
 out.file <- file(here("export", "tables", "fe2sls-applicants.tex"), open = "w")
 
 tab <- est_femod %>%
   modelsummary(
+    title = "Estimation of Tax-Price Elasticity for Applicants\\label{tab:fe2sls-applicants}",
     coef_map = c(
       "applicable" = "Log applicable price",
-      "effective" = "Log effective last-price",
       "fit_effective" = "Log effective last-price",
       "tinc_ln" = "Log income"
     ),
-    add_rows = bind_cols(
-      tibble(term = "F-statistics of instrument"), stat_tab
-    ),
+    add_rows = stat_tab,
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     output = "latex"
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " " = 1, "Fixed-effect model" = 2,
     "Pooled model with sample selection correction" = 2
@@ -227,7 +228,7 @@ tab <- est_femod %>%
   )) %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). Fixed effect models (1)--(2) control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. Models (3)--(4) correct sample selection bias, proposed by \\cite{Semykina2010} which is analogous to the control function approach. Model (2) and (4) are 2SLS where log appricable price is an instrument of log effective last-price.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). Fixed effect models (1)--(2) control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. Models (3)--(4) correct sample selection bias, proposed by \\cite{Semykina2010} which is analogous to the control function approach. These models additionally control the inverse mills ratio (IMR) and interactions of IMR with time dummies, and use within-mean of explanatory variables as individual fixed effects. Model (2) and (4) are 2SLS where log appricable price is an instrument of log effective last-price.",
     threeparttable = TRUE,
     escape = FALSE
   )
@@ -252,6 +253,8 @@ est_bias_test <- bias_test %>%
   )) %>%
   setNames(paste0("(", seq(length(.)), ")"))
 
+#' //NOTE: Create regression table for sample selection bias test
+#+
 wald_bias_test <- est_bias_test %>%
   purrr::map(~ tibble(
     wald = wald(., "imr")$p,
@@ -275,8 +278,6 @@ wald_bias_test <- est_bias_test %>%
     ))
   )
 
-#' //NOTE: Create regression table for sample selection bias test
-#+
 attr(wald_bias_test, "position") <- c(21, 22)
 
 out.file <- file(
@@ -285,6 +286,7 @@ out.file <- file(
 
 tab <- est_bias_test %>%
   modelsummary(
+    title = "Test for Sample Selection Bias of FE model\\label{tab:fe2sls-selection-test}",
     coef_map = c(
       "applicable" = "Log applicable price",
       "effective" = "Log effective last-price",
@@ -303,7 +305,7 @@ tab <- est_bias_test %>%
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     output = "latex"
   ) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " ", "FE" = 2, "FE-2SLS" = 2
   )) %>%
