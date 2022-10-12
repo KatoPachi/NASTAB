@@ -11,12 +11,17 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     pid,
     hhid,
     year,
-    tinc_ln,
+    # sex,
+    # age,
+    # college,
+    # highschool,
+    # junior,
     sqage,
     hh_num,
     have_dependents,
     indust,
     area,
+    tinc_ln,
     credit_benefit,
     credit_loss,
     price_ln,
@@ -92,6 +97,143 @@ tab <- est_femod %>%
 writeLines(tab, out.file)
 close(out.file)
 
+#' //NOTE: Calculate individual characteristics mean
+#' //RUN: Following Mundlak's spirit,
+#' we replace individual fixed effects by within-average of exogenous variables
+#+
+meandf <- use %>%
+  dplyr::select(
+    pid,
+    year,
+    # sex,
+    # age,
+    # college,
+    # highschool,
+    # junior,
+    sqage,
+    hh_num,
+    have_dependents,
+    indust,
+    area,
+    tinc_ln,
+    price_ln,
+    employee
+  ) %>%
+  fastDummies::dummy_cols(
+    select_columns = "indust",
+    remove_selected_columns = TRUE
+  ) %>%
+  fastDummies::dummy_cols(
+    select_columns = "area",
+    remove_selected_columns = TRUE
+  ) %>%
+  select(-indust_NA) %>%
+  group_by(pid) %>%
+  summarize_all(list(mean = ~ sum(., na.rm = TRUE))) %>%
+  select(-year_mean) %>%
+  mutate_at(vars(-pid), list(~ . / length(unique(use$year))))
+
+fixest::setFixest_fml(
+  ..mundlak = as.formula(
+    paste("~", paste(names(meandf)[-1], collapse = " + "))
+  )
+)
+
+#'
+#' //NOTE: Construct inverse mills ratio
+#' //RUN: estimate probit model with sample split by year
+#' //RUN: Using linear predictions, calculate inverse mills ratio
+#+
+imrdf <- use %>%
+  dplyr::left_join(meandf, by = "pid") %>%
+  group_by(year) %>%
+  nest() %>%
+  mutate(est = map(data, ~ feglm(
+    d_relief_donate ~ sqage + hh_num + have_dependents + tinc_ln +
+      #sex + age + college + highschool + junior +
+      price_ln + employee + factor(indust) + factor(area) + ..mundlak,
+    data = .x,
+    family = binomial(link = "probit")
+  ))) %>%
+  mutate(
+    linear = map2(data, est, ~ modelr::add_predictions(.x, .y, type = "link")),
+    linear = map(linear, ~ mutate(.x, imr = dnorm(pred) / pnorm(pred)))
+  ) %>%
+  select(year, linear) %>%
+  unnest(cols = linear) %>%
+  ungroup()
+
+#'
+#' //NOTE: Estimate Second-Stage FE Model
+#' //RUN: Following Semykina and Wooldridge (2010),
+#' estimate pooled model or pooled 2SLS
+#+
+femod <- list(
+  intensive ~ applicable + ..stage2,
+  intensive ~ ..stage2 | effective ~ applicable,
+  intensive ~ applicable + sex + age + college + highschool + junior +
+    sqage + hh_num + have_dependents + tinc_ln +
+    employee + factor(indust) + factor(area) + ..mundlak +
+    imr:factor(year),
+  intensive ~ sex + age + college + highschool + junior +
+    sqage + hh_num + have_dependents + tinc_ln +
+    employee + factor(indust) + factor(area) + ..mundlak +
+    imr:factor(year) | 0 | effective ~ applicable
+)
+
+est_femod <- femod %>%
+  purrr::map(~ feols(
+    .,
+    data = subset(imrdf, d_relief_donate == 1),
+    cluster = ~hhid
+  )) %>%
+  setNames(paste0("(", seq(length(.)), ")"))
+
+#' //NOTE: Create regression table
+#+
+stat_tab <- tibble(est = est_femod) %>%
+  mutate(
+    mod = paste0("mod", seq(length(est))),
+    F = map_dbl(est, ~ as_vector(fitstat(.x, "ivf")[[1]])[1]),
+    F = if_else(is.na(F), "", sprintf("%1.2f", F))
+  ) %>%
+  dplyr::select(-est) %>%
+  pivot_wider(names_from = mod, values_from = F)
+
+out.file <- file(here("export", "tables", "fe2sls-applicants.tex"), open = "w")
+
+tab <- est_femod %>%
+  modelsummary(
+    coef_map = c(
+      "applicable" = "Log applicable price",
+      "effective" = "Log effective last-price",
+      "fit_effective" = "Log effective last-price",
+      "tinc_ln" = "Log income"
+    ),
+    add_rows = bind_cols(
+      tibble(term = "F-statistics of instrument"), stat_tab
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    output = "latex"
+  ) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " " = 1, "Fixed-effect model" = 2,
+    "Pooled model with sample selection correction" = 2
+  )) %>%
+  kableExtra::add_header_above(c(
+    " ", "Log donation" = 4
+  )) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). Fixed effect models (1)--(2) control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. Models (3)--(4) correct sample selection bias, proposed by \\cite{Semykina2010} which is analogous to the control function approach. Model (2) and (4) are 2SLS where log appricable price is an instrument of log effective last-price.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+writeLines(tab, out.file)
+close(out.file)
 
 #+ intensive-r1
 fixest::setFixest_fml(
