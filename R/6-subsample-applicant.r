@@ -39,8 +39,8 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
 #' //NOTE: Estimate application model
 #+
 fixest::setFixest_fml(
-  ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
-    year + pid + indust + area
+  ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents +
+    factor(indust) + factor(area) | year + pid
 )
 
 femod <- list(
@@ -213,7 +213,7 @@ tab <- est_femod %>%
     add_rows = bind_cols(
       tibble(term = "F-statistics of instrument"), stat_tab
     ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     output = "latex"
   ) %>%
@@ -235,73 +235,89 @@ tab <- est_femod %>%
 writeLines(tab, out.file)
 close(out.file)
 
-#+ intensive-r1
-fixest::setFixest_fml(
-  ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
-    year + pid + indust + area
+#' //NOTE: Test for sample selection bias
+#+
+bias_test <- list(
+  intensive ~ imr + applicable + ..stage2,
+  intensive ~ imr:factor(year) + applicable + ..stage2,
+  intensive ~ imr + ..stage2 | effective ~ applicable,
+  intensive ~ imr:factor(year) + ..stage2 | effective ~ applicable
 )
 
-r1mod <- list(
-  "(1)" = fixest::xpd(donate_ln ~ lprice_ln + ..stage2),
-  "(2)" = fixest::xpd(
-    donate_ln ~ lprice_ln + d(lprice_ln, 1) + d(lprice_ln, -1) +
-    d(linc_ln, 1) + d(linc_ln, -1) + ..stage2
-  ),
-  "(3)" = fixest::xpd(donate_ln ~ ..stage2 | lprice_ln ~ price_ln),
-  "(4)" = fixest::xpd(
-    donate_ln ~ d(lprice_ln, 1) + d(lprice_ln, -1) +
-    d(linc_ln, 1) + d(linc_ln, -1) + ..stage2 | lprice_ln ~ price_ln
+est_bias_test <- bias_test %>%
+  purrr::map(~ feols(
+    .,
+    data = subset(imrdf, d_relief_donate == 1),
+    cluster = ~hhid
+  )) %>%
+  setNames(paste0("(", seq(length(.)), ")"))
+
+wald_bias_test <- est_bias_test %>%
+  purrr::map(~ tibble(
+    wald = wald(., "imr")$p,
+    f = as_vector(fitstat(., "ivf")[[1]])[1]
+  )) %>%
+  reduce(bind_rows) %>%
+  mutate(mod = paste0("mod", seq(length(bias_test)))) %>%
+  pivot_longer(wald:f) %>%
+  pivot_wider(names_from = mod, values_from = value) %>%
+  mutate(
+    name = recode(
+      name, "wald" = "p-value", "f" = "F-statistics of instrument"
+    )
+  ) %>%
+  mutate_at(
+    vars(-name),
+    list(~ case_when(
+      name == "p-value" ~ sprintf("%1.3f", .),
+      !is.na(.) ~ sprintf("%1.2f", .),
+      TRUE ~ ""
+    ))
   )
+
+#' //NOTE: Create regression table for sample selection bias test
+#+
+attr(wald_bias_test, "position") <- c(21, 22)
+
+out.file <- file(
+  here("export", "tables", "fe2sls-selection-test.tex"), open = "w"
 )
 
-est_r1mod <- r1mod %>%
-  purrr::map(~ fixest::feols(
-    ., data = subset(estdf, d_relief_donate == 1),
-    panel.id = ~ pid + year, cluster = ~ pid
-  ))
-
-addtab <- tribble(
-  ~term, ~"(1)", ~"(2)", ~"(3)", ~ "(4)",
-  "F-statistics of instrument", "", "",
-  sprintf("%1.1f", fitstat(est_r1mod[[3]], "ivwald")[[1]]$stat),
-  sprintf("%1.1f", fitstat(est_r1mod[[4]], "ivwald")[[1]]$stat)
-)
-
-out.file <- file(here("tables", "intensive-r1.tex"), open = "w")
-
-tab <- est_r1mod %>%
+tab <- est_bias_test %>%
   modelsummary(
-    title = paste(
-      "Estimating Intensive-Margin Price Elasticities", 
-      "for Those Who Applied for Tax Relief",
-      "\\label{teb:intensive-r1}"
-    ),
     coef_map = c(
-      "lprice_ln" = "log(last price)",
-      "fit_lprice_ln" = "log(last price)",
-      "linc_ln" = "log(income)",
-      "d(price_ln, 1)" = "1-year lag of price",
-      "d(price_ln, -1)" = "1-year lead of price",
-      "d(lprice_ln, 1)" = "1-year lag of price",
-      "d(lprice_ln, -1)" = "1-year lead of price",
-      "d(linc_ln, 1)" = "1-year lag of income",
-      "d(linc_ln, -1)" = "1-year lead of income"
+      "applicable" = "Log applicable price",
+      "effective" = "Log effective last-price",
+      "fit_effective" = "Log effective last-price",
+      "tinc_ln" = "Log income",
+      "imr" = "Inverse mills ratio (IMR)",
+      "imr:factor(year)2012" = "IMR x Year = 2012",
+      "imr:factor(year)2013" = "IMR x Year = 2013",
+      "imr:factor(year)2014" = "IMR x Year = 2014",
+      "imr:factor(year)2015" = "IMR x Year = 2015",
+      "imr:factor(year)2016" = "IMR x Year = 2016",
+      "imr:factor(year)2017" = "IMR x Year = 2017"
     ),
-    gof_omit = "^(?!N)",
-    stars = c("*" = .1, "**" = .05, "***" = .01),
-    add_rows = addtab,
+    add_rows = wald_bias_test,
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|R2",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     output = "latex"
   ) %>%
-  add_header_above(c(
-    "Model:" = 1, "FE" = 2, "FE-2SLS" = 2
+  kableExtra::kable_styling() %>%
+  kableExtra::add_header_above(c(
+    " ", "FE" = 2, "FE-2SLS" = 2
   )) %>%
+  kableExtra::add_header_above(c(
+    " ", "Log donation" = 4
+  )) %>%
+  kableExtra::pack_rows(
+    "Wald test for joint null of coefficients related to IMR",
+    21, 21,
+    bold = FALSE, italic = TRUE
+  ) %>%
   footnote(
     general_title = "",
-    general = paste(
-      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
-      "Standard errors are clustered at individual level.",
-      "1-year lead of price cannot be estimated because of collinearity."
-    ),
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, the computed inverse mills ratio (and interactions with year dummies) and individual and time fixed effects. Model (3) and (4) are 2SLS where log appricable price is an instrument of log effective last-price. Following \\cite{Semykina2010}, we test for sample selection bias by a wald test for join null of coefficients on IMR (and interactions with year dummies).",
     threeparttable = TRUE,
     escape = FALSE
   )
@@ -397,15 +413,3 @@ tab <- est_kdiffmod %>%
 
 writeLines(tab, out.file)
 close(out.file)
-
-#'
-#' 次に、寄付控除を申告した人に限定した分析を行った（**フック欲しい**）。
-#'
-#' - 寄付控除を申告している人は必ず寄付をしているので、
-#' intensive-margin price elasticityのみを推定する
-#' - その結果、last priceの価格弾力性は-1.3となり、FE-2SLSより非弾力的になった
-#' - 価格のダイナミックな効果を捉えるために、寄付価格と所得のリード変数とラグ変数を加えると、
-#' 価格弾力性は統計的に非有意となった。ただし、サンプルサイズが少ないので、この結果はあまり意味がない。
-#' - また、所得に対する寄付価格の内生性を考慮した$k$階差分モデルを推定した。
-#' その結果、弾力性は-1.9から-4の範囲で得られた。
-#'
