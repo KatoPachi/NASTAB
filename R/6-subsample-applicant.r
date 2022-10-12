@@ -28,7 +28,22 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     lprice_ln,
     d_relief_donate,
     employee,
-    intensive = donate_ln
+    intensive = donate_ln,
+    donate_ln_d1,
+    donate_ln_d2,
+    donate_ln_d3,
+    linc_ln_d1,
+    linc_ln_d2,
+    linc_ln_d3,
+    sqage_d1,
+    sqage_d2,
+    sqage_d3,
+    price_ln_d1,
+    price_ln_d2,
+    price_ln_d3,
+    price_iv1,
+    price_iv2,
+    price_iv3,
   ) %>%
   mutate(
     effective = d_relief_donate * lprice_ln,
@@ -228,7 +243,7 @@ tab <- est_femod %>%
   )) %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). Fixed effect models (1)--(2) control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. Models (3)--(4) correct sample selection bias, proposed by \\cite{Semykina2010} which is analogous to the control function approach. These models additionally control the inverse mills ratio (IMR) and interactions of IMR with time dummies, and use within-mean of explanatory variables as individual fixed effects. Model (2) and (4) are 2SLS where log appricable price is an instrument of log effective last-price.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). Fixed effect models (1)--(2) control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. Models (3)--(4) correct sample selection bias, proposed by \\\\cite{Semykina2010} which is analogous to the control function approach. These models additionally control the inverse mills ratio (IMR) and interactions of IMR with time dummies, and use within-mean of explanatory variables as individual fixed effects. Model (2) and (4) are 2SLS where log appricable price is an instrument of log effective last-price.",
     threeparttable = TRUE,
     escape = FALSE
   )
@@ -319,7 +334,7 @@ tab <- est_bias_test %>%
   ) %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, the computed inverse mills ratio (and interactions with year dummies) and individual and time fixed effects. Model (3) and (4) are 2SLS where log appricable price is an instrument of log effective last-price. Following \\cite{Semykina2010}, we test for sample selection bias by a wald test for join null of coefficients on IMR (and interactions with year dummies).",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, the computed inverse mills ratio (and interactions with year dummies) and individual and time fixed effects. Model (3) and (4) are 2SLS where log appricable price is an instrument of log effective last-price. Following \\\\cite{Semykina2010}, we test for sample selection bias by a wald test for join null of coefficients on IMR (and interactions with year dummies).",
     threeparttable = TRUE,
     escape = FALSE
   )
@@ -332,7 +347,7 @@ fixest::setFixest_fml(
   ..kdiff1 = ~ linc_ln_d1 + sqage_d1,
   ..kdiff2 = ~ linc_ln_d2 + sqage_d2,
   ..kdiff3 = ~ linc_ln_d3 + sqage_d3,
-  ..kdifffe = ~ year + area + indust
+  ..kdifffe = ~ year + area + indust + pid
 )
 
 kdiffmod <- list(
@@ -349,7 +364,7 @@ kdiffmod <- list(
 
 est_kdiffmod <- kdiffmod %>%
   purrr::map(~fixest::feols(
-    ., data = subset(estdf, d_relief_donate == 1),
+    ., data = subset(use, d_relief_donate == 1),
     cluster = ~ hhid
   ))
 
@@ -375,7 +390,7 @@ stage1_kdiffmod <- 1:3 %>%
 
 attr(stage1_kdiffmod, "position") <- c(5, 6)
 
-out.file <- file(here("tables", "kdiff-model.tex"), open = "w")
+out.file <- file(here("export", "tables", "kdiff-model.tex"), open = "w")
 
 tab <- est_kdiffmod %>%
   modelsummary(
@@ -396,19 +411,14 @@ tab <- est_kdiffmod %>%
     add_rows = stage1_kdiffmod,
     output = "latex"
   ) %>%
-  # kableExtra::kable_styling(font_size = 8) %>%
+  kableExtra::kable_styling(font_size = 8) %>%
   kableExtra::add_header_above(c(
     " " = 1, "1-year lag" = 1,
     "2-year lag" = 1, "3-year lag" = 1
   )) %>%
   footnote(
     general_title = "",
-    general = paste(
-      "Notes: $^{*}$ $p < 0.1$, $^{**}$ $p < 0.05$, $^{***}$ $p < 0.01$.",
-      "Standard errors are clustered at individual level.",
-      "Instrument is difference between lagged first price in year $t$",
-      "and in year $t - k$ fixing income in year $t - k$."
-    ),
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level. We use only applicants of tax deduction (or tax credit). We control difference of squared age (divided by 100), a set of dummies of industry, a set of dummies of resident area, and individual and time fixed effects. Instrument is difference between lagged first price in year $t$, and in year $t - k$ fixing income in year $t - k$.",
     threeparttable = TRUE,
     escape = FALSE
   )
