@@ -36,18 +36,31 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     names_pattern = "(.*)_(.*)"
   ) %>%
   mutate(
+    reverse = (1 - d_relief_donate) * price_ln,
     effective = d_relief_donate * lprice_ln,
     applicable = price_ln,
     after = if_else(year >= 2014, 1, 0)
   )
 
-#' //NOTE: Estimate price elasticity
-#+ fe-model include = FALSE
+#' //NOTE: Estimate compound error
+#+
 fixest::setFixest_fml(
   ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
 )
 
+est_error <- use %>%
+  group_by(type) %>%
+  nest() %>%
+  mutate(
+    data = map(data, ~ subset(., flag == 1)),
+    fit = map(data, ~ feols(reverse ~ applicable + ..stage2, data = .))
+  )
+
+est_error$fit
+
+#' //NOTE: Estimate price elasticity
+#+ fe-model include = FALSE
 femod <- list(
   outcome ~ credit_benefit:after + credit_loss:after + ..stage2,
   outcome ~ employee + credit_benefit:after + credit_loss:after +
