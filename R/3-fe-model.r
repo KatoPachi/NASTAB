@@ -20,6 +20,7 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     credit_benefit,
     credit_loss,
     price_ln,
+    lprice_ln,
     d_relief_donate,
     employee,
     outcome_intensive = donate_ln,
@@ -42,7 +43,7 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
   )
 
 fixest::setFixest_fml(
-  ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
+  ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents + employee |
     year + pid + indust + area
 )
 
@@ -76,8 +77,7 @@ femod <- list(
   outcome ~ applicable + ..stage2,
   outcome ~ effective + ..stage2,
   outcome ~ ..stage2 | effective ~ applicable,
-  outcome ~ ..stage2 | effective ~ applicable + employee,
-  outcome ~ ..stage2 | effective ~ applicable * employee
+  outcome ~ ..stage2 | effective ~ applicable + applicable:employee
 )
 
 est_femod <- use %>%
@@ -89,7 +89,7 @@ est_femod <- use %>%
   ))
 
 #' //NOTE: Create regression table of intensive-margin price elasticity
-#+ fe-model-int
+#+
 ivtable1 <- tibble(
   terms = c(
     "F-statistics of instruments",
@@ -100,7 +100,7 @@ ivtable1 <- tibble(
   model2 = rep(NA_real_, 3)
 )
 
-ivtable <- subset(est_femod, type == "intensive")$est[[1]][3:5] %>%
+ivtable <- subset(est_femod, type == "intensive")$est[[1]][3:4] %>%
   purrr::map(function(x) {
     sargan <- fitstat(x, "sargan")$sargan
     data.frame(stat = c(
@@ -111,14 +111,18 @@ ivtable <- subset(est_femod, type == "intensive")$est[[1]][3:5] %>%
   }) %>%
   reduce(bind_cols) %>%
   bind_cols(ivtable1, .) %>%
-  mutate_at(vars(-terms), list(~ifelse(is.na(.), "", sprintf("%1.3f", .)))) %>%
+  mutate_at(
+    vars(-terms), list(~ifelse(is.na(.), "", sprintf("\\num{%1.3f}", .)))
+  ) %>%
+  mutate_at(
+    vars(-terms), list(~ ifelse(. == "\\num{0.000}", "$<$ \\num{0.001}", .))
+  ) %>%
   bind_rows(c(
     "terms" = "Instruments",
     "model1" = "",
     "model2" = "",
     "stat...4" = "Applicable",
-    "stat...5" = "Applicable + Wage earner",
-    "stat...6" = "Applicable * Wave earner"
+    "stat...5" = "Applicable * Wage earner"
   ), .)
 
 attr(ivtable, "position") <- 7:10
@@ -141,13 +145,13 @@ subset(est_femod, type == "intensive")$est[[1]] %>%
     output = "latex"
   ) %>%
   kable_styling(font_size = 8) %>%
-  add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 3)) %>%
-  add_header_above(c(" " = 1, "Log donation" = 5)) %>%
+  add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 2)) %>%
+  add_header_above(c(" " = 1, "Log donation" = 4)) %>%
   group_rows("1st stage information", 7, 10, bold = FALSE, italic = TRUE) %>%
-  column_spec(2:6, width = "6em") %>%
+  column_spec(2:5, width = "7.5em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use following instrumental variables: $\\\\text{Applicable price}$ in model (3); $\\\\text{Applicable price} + \\\\text{Wage earner}$ in model (4); $\\\\text{Applicable price} + \\\\text{Wage earner} + \\\\text{Applicable price} \\\\times \\\\text{Wage earner}$ in model (5).",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use following instrumental variables: $\\\\text{Applicable price}$ in model (3); $\\\\text{Applicable price} + \\\\text{Applicable price} \\\\times \\\\text{Wage earner}$ in model (4).",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%
@@ -155,153 +159,95 @@ subset(est_femod, type == "intensive")$est[[1]] %>%
 
 close(out.file)
 
-#' //NOTE: Compute implied elasticity (extensive)
-#+ implied-elasticity-extensive
+#' //NOTE: Create regression table of extensive-margin price elasticity
+#+
 mu <- with(subset(use, type == "extensive"), mean(outcome))
 
-impe_overall <- subset(est_femod, type == "extensive")$est[[1]][c(3, 5)] %>%
+implied_e <- subset(est_femod, type == "extensive")$est[[1]] %>%
   purrr::map(function(x) {
     res <- subset(tidy(x), str_detect(term, "effective|applicable")) %>%
       mutate(
         estimate = estimate / mu,
         estimate = case_when(
-          p.value < 0.01 ~ sprintf("%1.3f***", estimate),
-          p.value < 0.05 ~ sprintf("%1.3f**", estimate),
-          p.value < 0.1 ~ sprintf("%1.3f*", estimate),
-          TRUE ~ sprintf("%1.3f", estimate)
+          p.value < 0.01 ~ sprintf("\\num{%1.3f}***", estimate),
+          p.value < 0.05 ~ sprintf("\\num{%1.3f}**", estimate),
+          p.value < 0.1  ~ sprintf("\\num{%1.3f}*", estimate),
+          TRUE           ~ sprintf("\\num{%1.3f}", estimate)
         ),
-        std.error = sprintf("(%1.3f)", std.error / mu)
+        std.error = sprintf("(\\num{%1.3f})", std.error / mu)
       )
 
     tribble(
       ~term, ~mod,
-      "Overall", res$estimate,
-      "Overall se", res$std.error
+      "Estimates", res$estimate,
+      "Estimates se", res$std.error
     )
-  })
+  }) %>%
+  reduce(left_join, by = "term") %>%
+  setNames(c("term", paste0("mod", seq(length(femod)))))
 
-impe_non_employee <- subset(est_femod, type == "extensive")$est[[1]][[4]] %>%
-  tidy() %>%
-  subset(str_detect(term, "applicable")) %>%
-  subset(!str_detect(term, "employee")) %>%
-  mutate(
-    estimate = estimate / mu,
-    estimate = case_when(
-      p.value < 0.01 ~ sprintf("%1.3f***", estimate),
-      p.value < 0.05 ~ sprintf("%1.3f**", estimate),
-      p.value < 0.1 ~ sprintf("%1.3f*", estimate),
-      TRUE ~ sprintf("%1.3f", estimate)
-    ),
-    std.error = sprintf("(%1.3f)", std.error / mu)
-  ) %>% {
-    tribble(
-      ~term, ~mod,
-      "Non wage earner", .$estimate,
-      "Non wage earner se", .$std.error
-    )
-  }
-
-impe_employee <- subset(est_femod, type == "extensive")$est[[1]][[4]] %>%
-  tidy() %>%
-  subset(str_detect(term, "employee|applicable")) %>%
-  summarize(
-    estimate = sum(estimate),
-    std.error = sqrt(sum(std.error^2)),
-    p.value = 2 * (pt(
-      abs(estimate/std.error),
-      df = attr(vcov(
-        subset(est_femod, type == "extensive")$est[[1]][[4]],
-        attr = TRUE
-      ), "df.t"),
-      lower.tail = FALSE
+ivtable <- subset(est_femod, type == "extensive")$est[[1]][3:4] %>%
+  purrr::map(function(x) {
+    sargan <- fitstat(x, "sargan")$sargan
+    data.frame(stat = c(
+      fitstat(x, "ivf")[[1]]$stat,
+      fitstat(x, "wh")$wh$p,
+      ifelse(sum(is.na(sargan)) == 0, sargan$p, NA_real_)
     ))
+  }) %>%
+  reduce(bind_cols) %>%
+  bind_cols(ivtable1, .) %>%
+  mutate_at(
+    vars(-terms), list(~ifelse(is.na(.), "", sprintf("\\num{%1.3f}", .)))
   ) %>%
-  mutate(
-    estimate = estimate / mu,
-    estimate = case_when(
-      p.value < 0.01 ~ sprintf("%1.3f***", estimate),
-      p.value < 0.05 ~ sprintf("%1.3f**", estimate),
-      p.value < 0.1 ~ sprintf("%1.3f*", estimate),
-      TRUE ~ sprintf("%1.3f", estimate)
-    ),
-    std.error = sprintf("(%1.3f)", std.error / mu)
-  ) %>% {
-    tribble(
-      ~term, ~mod,
-      "Wage earner", .$estimate,
-      "Wage earner se", .$std.error
-    )
-  }
-
-impe_tab <- impe_overall[[1]] %>%
-  full_join(bind_rows(impe_employee, impe_non_employee), by = "term") %>%
-  left_join(impe_overall[[2]], by = "term") %>%
-  right_join(
-    tribble(
-      ~term, ~bk1, ~bk2,
-      "Overall", "", "",
-      "Overall se", "", "",
-      "Wage earner", "", "",
-      "Wage earner se", "", "",
-      "Non wage earner", "", "",
-      "Non wage earner se", "", ""
-    ),
-    .,
-    by = "term"
+  mutate_at(
+    vars(-terms), list(~ ifelse(. == "\\num{0.000}", "$<$ \\num{0.001}", .))
   ) %>%
-  mutate(term = if_else(str_detect(term, "se"), "", term)) %>%
-  mutate_at(vars(starts_with("mod")), list(~ifelse(is.na(.), "", .)))
+  bind_rows(c(
+    "terms" = "Instruments",
+    "model1" = "",
+    "model2" = "",
+    "stat...4" = "Applicable",
+    "stat...5" = "Applicable $\\times$ Wage earner"
+  ), .) %>%
+  setNames(c("term", paste0("mod", seq(length(femod)))))
 
-attr(impe_tab, "position") <- 23:28
+add_table <- bind_rows(implied_e, ivtable) %>%
+  mutate(term = dplyr::recode(term, "Estimates se" = "", .default = term))
 
-#' //NOTE: Create regression table (extensive)
-#+ fe-mod-ext
-out.file <- file(here("export", "tables", "fe-model-ext.tex"), open = "w")
+attr(add_table, "position") <- 7:12
 
-tab <- subset(est_femod, type == "extensive")$est[[1]] %>%
+out.file <- file(here("export", "tables", "main-ext.tex"), open = "w")
+
+subset(est_femod, type == "extensive")$est[[1]] %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
-    title = paste0(
-      "Regression Results of Two-Way Fixed Effect Model (Extensive-Margin Sample)",
-      "\\label{tab:fe-model-ext}"
-    ),
+    title = "Estimation Results of Extenstive-Margin Price Elasticities\\label{tab:main-ext}",
     coef_map = c(
-      "credit_benefit:after" = "Decrease x Credit period",
-      "after:credit_loss" = "Increase x Credit period",
-      "applicable" = "Log applicable price",
-      "effective" = "Log effective last-price",
-      "employee" = "Wage earner",
-      "employee:credit_benefit" = "Wage earner x Decrease",
-      "employee:credit_loss" = "Wage earner x Increase",
-      "employee:credit_benefit:after" =
-        "Wage earner x Decrease x Credit period",
-      "employee:after:credit_loss" =
-        "Wage earner x Increase x Credit period",
-      "employee:applicable" = "Wage earner x Log applicable price",
+      "applicable" = "Applicable price",
+      "effective" = "Effective price",
+      "fit_effective" = "Effective price",
       "tinc_ln" = "Log income"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
-    add_rows = impe_tab,
+    add_rows = add_table,
     output = "latex"
   ) %>%
-  kableExtra::kable_styling(font_size = 8) %>%
-  kableExtra::add_header_above(c(
-    " " = 1, "A dummy of donation" = 5
-  )) %>%
-  kableExtra::group_rows(
-    "Implied price elasticity",
-    23, 28,
-    italic = TRUE, bold = FALSE
-  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 2)) %>%
+  add_header_above(c(" " = 1, "A dummy of donor" = 4)) %>%
+  group_rows("Implied price elasticity", 7, 8, italic = TRUE, bold = FALSE) %>%
+  group_rows("1st stage information", 9, 12, italic = TRUE, bold = FALSE) %>%
+  column_spec(2:5, width = "7.5em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating that donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. We calculate implied price elasticities by dividing estimates by proportion of donors in our sample.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating that donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a employee dummy, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use following instrumental variables: $\\\\text{Applicable price}$ in model (3); $\\\\text{Applicable price} + \\\\text{Applicable price} \\\\times \\\\text{Wage earner}$ in model (4). We calculate implied price elasticities by dividing estimates by proportion of donors in our sample.",
     threeparttable = TRUE,
     escape = FALSE
-  )
+  ) %>%
+  writeLines(out.file)
 
-writeLines(tab, out.file)
 close(out.file)
 
 #' //NOTE: Execute event-study
