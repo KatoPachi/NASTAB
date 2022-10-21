@@ -67,6 +67,60 @@ est_error$fit %>%
   kable_styling() %>%
   add_header_above(c("Sample:", "Donors", "Donors and Non-donors"))
 
+#' //NOTE: Estimate 1st stage model
+#+
+stage1 <- list(
+  effective ~ applicable + ..stage2,
+  effective ~ applicable + applicable:employee + ..stage2
+)
+
+est_stage1 <- use %>%
+  mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+  group_by(type) %>%
+  do(est = lapply(
+    stage1,
+    function(x) feols(x, data = subset(., flag == 1), cluster = ~hhid)
+  ))
+
+out.file <- file(here("export", "tables", "main-stage1.tex"), open = "w")
+
+est_stage1 %>%
+  pull(est) %>%
+  flatten() %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "First-Stage Models\\label{tab:main-stage1}",
+    coef_map = c(
+      "applicable" = "Applicable price",
+      "applicable:employee" = "Applicable price $\\times$ Wage earner",
+      "employee" = "Wage earner",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = .01, "**" = .05, "*" = .1),
+    output = "latex",
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(
+    " " = 1,
+    "Donors (Intensive-margin)" = 2,
+    "Donors and Non-donors (Extensive-margin)" = 2
+  )) %>%
+  add_header_above(c(" " = 1, "Effective price" = 4)) %>%
+  group_rows("Excluded instruments", 1, 4, italic = TRUE, bold = FALSE) %>%
+  group_rows("Covariates", 5, 8, italic = TRUE, bold = FALSE) %>%
+  column_spec(2:5, width = "7.5em") %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of the effective price. For estimation, models (1) and (2) use donors only (intensive-margin sample), and models (3) and (4) use not only donors but also non-donors (extensive-margin sample). In addition to logged income and wage earner dummy shown in table, covariates consist of squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. Excluded instruments are $\\\\text{Applicable price}$ and $\\\\text{Applicable price}\\\\times\\\\text{Wage earner}$.",
+    threeparttable = TRUE,
+    escape = FALSE
+  ) %>%
+  writeLines(out.file)
+
+close(out.file)
+
 #' //NOTE: Estimate price elasticity
 #+ fe-model include = FALSE
 femod <- list(
