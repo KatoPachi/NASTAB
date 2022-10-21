@@ -1,0 +1,39 @@
+\begin{table}
+
+\caption{Estimation Results of Extensive-Margin Last-Price Elasticities\label{tab:last-ext}}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{l>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{5}{c}{A dummy of donor} \\
+\cmidrule(l{3pt}r{3pt}){2-6}
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{FE} & \multicolumn{3}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-6}
+  & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+Applicable last-price & \num{-0.101} &  & \num{-0.184}*** &  & \\
+ & (\num{0.065}) &  & (\num{0.065}) &  & \\
+Effective last-price &  & \num{-2.705}*** &  & \num{-0.575}*** & \num{-0.664}***\\
+ &  & (\num{0.087}) &  & (\num{0.193}) & (\num{0.155})\\
+Log income & \num{0.894}*** & \num{0.312} & \num{0.859}*** & \num{0.804}*** & \num{0.783}***\\
+ & (\num{0.207}) & (\num{0.195}) & (\num{0.206}) & (\num{0.202}) & (\num{0.198})\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textit{Implied price elasticity}}\\
+\hspace{1em}Estimates & \num{-0.420} & \num{-11.240}*** & \num{-0.765}*** & \num{-2.390}*** & \num{-2.761}***\\
+\hspace{1em} & (\num{0.270}) & (\num{0.363}) & (\num{0.272}) & (\num{0.802}) & (\num{0.646})\\
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textit{1st stage information}}\\
+\hspace{1em}Instruments &  &  & Applicable & Applicable & Applicable $\times$ Wage earner\\
+\hspace{1em}F-statistics of instruments &  &  & \num{589063.298} & \num{1751.157} & \num{1366.150}\\
+\hspace{1em}Wu-Hausman test, p-value &  &  & $<$ \num{0.001} & $<$ \num{0.001} & $<$ \num{0.001}\\
+\hspace{1em}Sargan Test, p-value &  &  &  &  & \num{0.234}\\
+Num.Obs. & \num{25341} & \num{25341} & \num{25341} & \num{25341} & \num{25341}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy indicating that donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a employee dummy, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use following instrumental variables: $\text{Applicable first-price}$ in model (3) and (4); $\text{Applicable first-price} + \text{Applicable first-price} \times \text{Wage earner}$ in model (5). We calculate implied price elasticities by dividing estimates by proportion of donors in our sample.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

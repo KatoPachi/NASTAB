@@ -1,0 +1,35 @@
+\begin{table}
+
+\caption{Estimation Results of Intensive-Margin Last-Price Elasticities\label{tab:last-int}}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{l>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{5}{c}{Log donation} \\
+\cmidrule(l{3pt}r{3pt}){2-6}
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{FE} & \multicolumn{3}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-6}
+  & (1) & (2) & (3) & (4) & (5)\\
+\midrule
+Applicable last-price & \num{-0.624}* &  & \num{-1.078}*** &  & \\
+ & (\num{0.344}) &  & (\num{0.357}) &  & \\
+Effective last-price &  & \num{-0.589}** &  & \num{-1.517}*** & \num{-1.571}***\\
+ &  & (\num{0.287}) &  & (\num{0.503}) & (\num{0.502})\\
+Log income & \num{0.912} & \num{0.788} & \num{0.736} & \num{0.212} & \num{0.178}\\
+ & (\num{1.135}) & (\num{1.129}) & (\num{1.131}) & (\num{1.151}) & (\num{1.154})\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{6}{l}{\textit{1st stage information}}\\
+\hspace{1em}Instruments &  &  & Applicable & Applicable & Applicable $\times$ Wage earner\\
+\hspace{1em}F-statistics of instruments &  &  & \num{37345.332} & \num{1257.709} & \num{669.355}\\
+\hspace{1em}Wu-Hausman test, p-value &  &  & $<$ \num{0.001} & \num{0.008} & \num{0.004}\\
+\hspace{1em}Sargan Test, p-value &  &  &  &  & \num{0.416}\\
+Num.Obs. & \num{6694} & \num{6694} & \num{6694} & \num{6694} & \num{6694}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use following instrumental variables: $\text{Applicable first-price}$ in model (3) and (4); $\text{Applicable first-price} + \text{Applicable first-price} \times \text{Wage earner}$ in model (5).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

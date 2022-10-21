@@ -1,0 +1,35 @@
+\begin{table}
+
+\caption{Estimation Results of Tax Relief Application Model\label{tab:application}}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{l>{\centering\arraybackslash}p{6em}>{\centering\arraybackslash}p{6em}}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Dummy of application} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{LPM} & \multicolumn{1}{c}{Probit} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3}
+  & (1) & (2)\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textit{Excluded instruments}}\\
+\hspace{1em}Applicable price $\times$ Wage earner & \num{-0.556}*** & \num{0.008}\\
+\hspace{1em} & (\num{0.095}) & (\num{0.777})\\
+\addlinespace[0.3em]
+\multicolumn{3}{l}{\textit{Covariates}}\\
+\hspace{1em}Applicable price & \num{0.038} & \num{-0.404}\\
+\hspace{1em} & (\num{0.060}) & (\num{0.749})\\
+\hspace{1em}Wage earner & \num{0.018} & \num{0.743}***\\
+\hspace{1em} & (\num{0.017}) & (\num{0.149})\\
+\hspace{1em}Log income & \num{1.960}*** & \num{8.339}***\\
+\hspace{1em} & (\num{0.224}) & (\num{1.749})\\
+\midrule
+Num.Obs. & \num{25341} & \num{25341}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy of application of tax relief. For estimation, we use both donors and non-donors (extensive-margin sample). In addition to logged total income and a wage earner dummy, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use $\text{Applicable price}\times\text{Wave earner}$ as an instrument. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
