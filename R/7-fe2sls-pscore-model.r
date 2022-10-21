@@ -3,55 +3,144 @@ library(here)
 source(here("R", "_library.r"))
 
 #+ include = FALSE
-rawdt <- readr::read_csv(
-  here("data/shaped2_propensity.csv"),
-  guess_max = 30000
-)
-
-use <- rawdt %>%
+use <- readr::read_csv(here("data/shaped2.csv")) %>%
+  dplyr::filter(year < 2018) %>%
+  dplyr::filter(dependents == 0) %>%
+  dplyr::filter(tinc > donate) %>%
   select(
     pid,
     hhid,
     year,
-    linc_ln,
+    tinc_ln,
     sqage,
     hh_num,
     have_dependents,
     indust,
     area,
-    price_ln,
-    lprice_ln,
+    applicable = price_ln,
     d_relief_donate,
-    psc_pool,
-    psc_sep,
-    outcome_intensive = donate_ln,
-    outcome_extensive = d_donate
-  ) %>%
-  mutate(
-    flag_extensive = 1,
-    flag_intensive = if_else(outcome_extensive == 1, 1, 0)
-  ) %>%
-  pivot_longer(
-    outcome_intensive:flag_intensive,
-    names_to = c(".value", "type"),
-    names_pattern = "(.*)_(.*)"
-  ) %>%
-  mutate(
-    effective = d_relief_donate * lprice_ln,
-    applicable = lprice_ln
+    employee,
+    intensive = donate_ln,
+    extensive = d_donate
   )
 
+meandf <- use %>%
+  dplyr::select(
+    pid,
+    year,
+    sqage,
+    hh_num,
+    have_dependents,
+    indust,
+    area,
+    tinc_ln,
+    applicable,
+    employee
+  ) %>%
+  mutate(cross = applicable * employee) %>%
+  fastDummies::dummy_cols(
+    select_columns = "indust",
+    remove_selected_columns = TRUE
+  ) %>%
+  fastDummies::dummy_cols(
+    select_columns = "area",
+    remove_selected_columns = TRUE
+  ) %>%
+  select(-indust_NA) %>%
+  group_by(pid) %>%
+  summarize_all(list(mean = ~ sum(., na.rm = TRUE))) %>%
+  select(-year_mean) %>%
+  mutate_at(vars(-pid), list(~ . / length(unique(use$year))))
 
+mundlak_use <- use %>%
+  left_join(meandf, by = "pid")
+
+#' //NOTE: Estimate application models with LPM and Probit
+#' //RUN: We use Chamberlain-Mundlak devide for individual fixed effect
 #+
 fixest::setFixest_fml(
-  ..stage2 = ~ linc_ln + sqage + hh_num + have_dependents |
-    year + pid + indust + area
+  ..mundlak = as.formula(
+    paste("~", paste(names(meandf)[-1], collapse = " + "))
+  ),
+  ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents + employee +
+    factor(indust) + factor(area) + factor(year)
 )
 
-sep_ps <- list(
-  outcome ~ ..stage2 | effective ~ psc_sep:price_ln,
-  outcome ~ ..stage2 | effective ~ price_ln + psc_sep:price_ln
+#+
+psmod <- d_relief_donate ~ applicable + applicable:employee +
+  ..mundlak + ..stage2
+
+est_psmod <- list(
+  feols(psmod, data = mundlak_use, cluster = ~hhid),
+  feglm(
+    psmod, data = mundlak_use,
+    cluster = ~hhid, family = binomial("probit")
+  )
 )
+
+est_psmod %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    coef_map = c(
+      "applicable" = "Applicable price",
+      "applicable:employee" = "Applicable price $\\times$ Wage earner",
+      "employee" = "Wage earner",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1)
+  ) %>%
+  kable_styling() %>%
+  group_rows("Excluded instruments", 1, 4, italic = TRUE, bold = FALSE) %>%
+  group_rows("Covariates", 5, 8, italic = TRUE, bold = FALSE) %>%
+  add_header_above(c(" " = 1, "LPM" = 1, "Probit" = 1)) %>%
+  add_header_above(c(" " = 1, "Dummy of application" = 2))
+
+#+
+cf_use <- mundlak_use %>%
+  modelr::add_residuals(est_psmod[[1]]) %>%
+  modelr::add_predictions(est_psmod[[2]], type = "link") %>%
+  mutate(
+    imr = dnorm(pred) / pnorm(pred),
+    inv_imr = dnorm(-pred) / pnorm(-pred),
+    gr = d_relief_donate * imr - (1 - d_relief_donate) * inv_imr
+  )
+
+cfmod <- list(
+  intensive ~ applicable:d_relief_donate + resid +
+    ..mundlak + ..stage2,
+  intensive ~ applicable:d_relief_donate +
+    resid + resid:d_relief_donate +
+    ..mundlak + ..stage2,
+  intensive ~ applicable:d_relief_donate + gr +
+    ..mundlak + ..stage2,
+  intensive ~ applicable:d_relief_donate +
+    gr + gr:d_relief_donate +
+    ..mundlak + ..stage2
+)
+
+est_cfmod <- cfmod %>%
+  purrr::map(~ feols(
+    ., data = subset(cf_use, extensive == 1), cluster = ~ hhid
+  ))
+
+est_cfmod %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    coef_map = c(
+      "applicable:d_relief_donate" = "Effective price",
+      "tinc_ln" = "Log income",
+      "resid" = "Residuals of Application",
+      "d_relief_donate:resid" =
+        "Residuals of Application $\\times$ Application",
+      "gr" = "Generalized residuals",
+      "d_relief_donate:gr" =
+        "Generalized residuals $\\times$ Application"
+    ),
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1)
+  ) %>%
+  kable_styling() %>%
+  
 
 est_sep_ps <- use %>%
   mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
