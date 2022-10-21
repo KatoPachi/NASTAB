@@ -144,7 +144,7 @@ ivtable <- subset(est_femod, type == "intensive")$est[[1]][3:5] %>%
     "model2" = "",
     "stat...4" = "Applicable",
     "stat...5" = "Applicable",
-    "stat...6" = "Applicable * Wage earner"
+    "stat...6" = "Applicable $\\times$ Wage earner"
   ), .)
 
 attr(ivtable, "position") <- 7:10
