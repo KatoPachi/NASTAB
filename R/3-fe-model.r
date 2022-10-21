@@ -305,7 +305,7 @@ out.file <- file(here("export", "tables", "announcement-int.tex"), open = "w")
 subset(est_announce, type == "intensive")$est[[1]] %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
-    title = "Estimation of Intensive-Margin Price Elasticities Excluding Announcement Effect\\label{tab:announce-int}",
+    title = "Estimation of Intensive-Margin Price Elasticities Excluding Announcement Effect\\label{tab:announcement-int}",
     coef_map = c(
       "applicable" = "Applicable price",
       "effective" = "Effective price",
@@ -398,7 +398,7 @@ out.file <- file(here("export", "tables", "announcement-ext.tex"), open = "w")
 subset(est_announce, type == "extensive")$est[[1]] %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
-    title = "Estimation of Extensive-Margin Price Elasticities Excluding Announcement Effect\\label{tab:announce-ext}",
+    title = "Estimation of Extensive-Margin Price Elasticities Excluding Announcement Effect\\label{tab:announcement-ext}",
     coef_map = c(
       "applicable" = "Applicable price",
       "effective" = "Effective price",
