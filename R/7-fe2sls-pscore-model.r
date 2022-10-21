@@ -82,9 +82,12 @@ est_psmod <- list(
   )
 )
 
+out.file <- file(here("export", "tables", "application.tex"), open = "w")
+
 est_psmod %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
+    title = "Estimation Results of Tax Relief Application Model\\label{tab:application}",
     coef_map = c(
       "applicable:employee" = "Applicable price $\\times$ Wage earner",
       "applicable" = "Applicable price",
@@ -92,13 +95,25 @@ est_psmod %>%
       "tinc_ln" = "Log income"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
-    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1)
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    output = "latex",
+    escape = FALSE
   ) %>%
-  kable_styling() %>%
+  kable_styling(font_size = 8) %>%
   group_rows("Excluded instruments", 1, 2, italic = TRUE, bold = FALSE) %>%
   group_rows("Covariates", 3, 8, italic = TRUE, bold = FALSE) %>%
   add_header_above(c(" " = 1, "LPM" = 1, "Probit" = 1)) %>%
-  add_header_above(c(" " = 1, "Dummy of application" = 2))
+  add_header_above(c(" " = 1, "Dummy of application" = 2)) %>%
+  column_spec(2:3, width = "6em") %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is a dummy of application of tax relief. For estimation, we use both donors and non-donors (extensive-margin sample). In addition to logged total income and a wage earner dummy, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use $\\\\text{Applicable price}\\\\times\\\\text{Wave earner}$ as an instrument. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
+    threeparttable = TRUE,
+    escape = FALSE
+  ) %>%
+  writeLines(out.file)
+
+close(out.file)
 
 #' //NOTE: Estimate CF models
 #+
@@ -172,6 +187,8 @@ add_table <- implied_e %>%
 
 attr(add_table, "position") <- c(9, 10)
 
+out.file <- file(here("export", "tables", "cf.tex"), open = "w")
+
 est_cfmod$est %>%
   flatten() %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
@@ -186,9 +203,11 @@ est_cfmod$est %>%
     ),
     gof_omit = "^(?!R2 Adj.|Num)",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
-    add_rows = add_table
+    add_rows = add_table,
+    output = "latex",
+    escape = FALSE
   ) %>%
-  kable_styling() %>%
+  kable_styling(font_size = 8) %>%
   add_header_above(
     c(" " = 1, "Intensive-margin" = 2, "Extensive-margin" = 2)
   ) %>%
@@ -198,11 +217,13 @@ est_cfmod$est %>%
   column_spec(2:5, width = "7.5em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of amount of charitable giving in models (1) and (2) and a dummy indicating that donor in models (3) and (4). For estimation, we use only donors (intensive-margin sample) in models (1) and (2) and both donors and non-donors (extensive-margin sample) in models (3) and (4). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, an employee dummy, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use $\\\\{Appricable price}\\\\times\\\\{Wave earner}$ as an instrument to obtaine residuals of application. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. We use standard errors clustered at household level. An outcome variable is logged value of amount of charitable giving in models (1) and (2) and a dummy indicating that donor in models (3) and (4). For estimation, we use only donors (intensive-margin sample) in models (1) and (2) and both donors and non-donors (extensive-margin sample) in models (3) and (4). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a wage earner dummy, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use $\\\\text{Applicable price}\\\\times\\\\text{Wave earner}$ as an instrument to obtaine residuals of application. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
     threeparttable = TRUE,
     escape = FALSE
-  )
-  
+  ) %>%
+  writeLines(out.file)
+
+close(out.file)
 
 est_sep_ps <- use %>%
   mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
