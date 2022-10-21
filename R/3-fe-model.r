@@ -20,7 +20,6 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     credit_benefit,
     credit_loss,
     price_ln,
-    lprice_ln,
     d_relief_donate,
     employee,
     outcome_intensive = donate_ln,
@@ -36,28 +35,40 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     names_pattern = "(.*)_(.*)"
   ) %>%
   mutate(
-    reverse = (1 - d_relief_donate) * price_ln,
-    effective = d_relief_donate * lprice_ln,
+    effective_reverse = (1 - d_relief_donate) * price_ln,
+    effective = d_relief_donate * price_ln,
     applicable = price_ln,
     after = if_else(year >= 2014, 1, 0)
   )
 
-#' //NOTE: Estimate compound error
-#+
 fixest::setFixest_fml(
   ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents |
     year + pid + indust + area
 )
 
+#' //NOTE: Estimate compound error
+#+
 est_error <- use %>%
   group_by(type) %>%
   nest() %>%
   mutate(
     data = map(data, ~ subset(., flag == 1)),
-    fit = map(data, ~ feols(reverse ~ applicable + ..stage2, data = .))
+    fit = map(
+      data,
+      ~ feols(effective_reverse ~ applicable + ..stage2, data = .)
+    )
   )
 
-est_error$fit
+est_error$fit %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "Fixed Effect Model of Reverse Effective Price",
+    coef_map = c("applicable" = "Applicable price"),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1)
+  ) %>%
+  kable_styling() %>%
+  add_header_above(c("Sample:", "Donors", "Donors and Non-donors"))
 
 #' //NOTE: Estimate price elasticity
 #+ fe-model include = FALSE
