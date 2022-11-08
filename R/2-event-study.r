@@ -4,7 +4,12 @@ source(here("R", "_library.r"))
 
 #+ include = FALSE
 use <- readr::read_csv(here("data/shaped2.csv")) %>%
-  dplyr::filter(year < 2018) %>%
+  dplyr::filter(2010 <= year & year < 2018) %>%
+  dplyr::filter(tinc < 1100 | 1300 < tinc) %>%
+  dplyr::filter(tinc < 4500 | 4700 < tinc) %>%
+  dplyr::filter(tinc < 8700 | 8900 < tinc) %>%
+  dplyr::filter(tinc < 14000 | 16000 < tinc) %>%
+  dplyr::filter(tinc < 30000) %>%
   dplyr::filter(dependents == 0) %>%
   dplyr::filter(tinc > donate) %>%
   select(
@@ -31,9 +36,6 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
     outcome_intensive:flag_intensive,
     names_to = c(".value", "type"),
     names_pattern = "(.*)_(.*)"
-  ) %>%
-  mutate(
-    after = if_else(year >= 2014, 1, 0)
   )
 
 fixest::setFixest_fml(
@@ -45,7 +47,9 @@ fixest::setFixest_fml(
 #+ event-study
 event <- use %>%
   mutate(
-    year12 = if_else(year == 2013, 1, 0),
+    year10 = if_else(year == 2010, 1, 0),
+    year11 = if_else(year == 2011, 1, 0),
+    year12 = if_else(year == 2012, 1, 0),
     year14 = if_else(year == 2014, 1, 0),
     year15 = if_else(year == 2015, 1, 0),
     year16 = if_else(year == 2016, 1, 0),
@@ -54,7 +58,10 @@ event <- use %>%
   group_by(type) %>%
   nest() %>%
   mutate(fit = map(data, ~ feols(
-    outcome ~ credit_benefit:year12 + credit_loss:year12 +
+    outcome ~
+      credit_benefit:year10 + credit_loss:year10 +
+      credit_benefit:year11 + credit_loss:year11 +
+      credit_benefit:year12 + credit_loss:year12 +
       credit_benefit:year14 + credit_loss:year14 +
       credit_benefit:year15 + credit_loss:year15 +
       credit_benefit:year16 + credit_loss:year16 +
@@ -84,6 +91,8 @@ plot_event <- event %>%
   )) %>%
   mutate(
     year = case_when(
+      str_detect(term, "year10") ~ 2010,
+      str_detect(term, "year11") ~ 2011,
       str_detect(term, "year12") ~ 2012,
       str_detect(term, "year13") ~ 2013,
       str_detect(term, "year14") ~ 2014,

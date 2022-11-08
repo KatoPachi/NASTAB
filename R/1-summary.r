@@ -5,7 +5,13 @@ source(here("R", "_library.r"))
 #'
 #+ include = FALSE
 use <- readr::read_csv(here("data/shaped2.csv")) %>%
-  dplyr::filter(year < 2018) %>%
+  dplyr::filter(2010 <= year & year < 2018) %>%
+  dplyr::filter(tinc < 1100 | 1300 < tinc) %>%
+  dplyr::filter(tinc < 4500 | 4700 < tinc) %>%
+  dplyr::filter(tinc < 8700 | 8900 < tinc) %>%
+  dplyr::filter(tinc < 14000 | 16000 < tinc) %>%
+  dplyr::filter(tinc < 30000) %>%
+  dplyr::filter(bracket13 != "(F) & (G) 30000--" | is.na(bracket13)) %>%
   dplyr::filter(dependents == 0) %>%
   dplyr::filter(tinc > donate)
 
@@ -45,7 +51,7 @@ use %>%
   pack_rows("Demographics", 7, 13, bold = FALSE, italic = TRUE) %>%
   footnote(
     general_title = "",
-    general = "Notes: Our data is unbalanced panel data consisting of 7,922 unique individuals and 6 years period (2013--2017)",
+    general = "Notes: Our data is unbalanced panel data consisting of 8,441 unique individuals and 8 years period (2010--2017)",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%
@@ -130,7 +136,7 @@ plot_giving <- use %>%
     ~ . * 1000,
     name = "Average Amout of Donations among Donors \n (unit: 10,000KRW)"
   )) +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
   labs(x = "Year", y = "Proportion of Donors") +
   ggtemp(size = list(title = 15, text = 13))
 
@@ -144,101 +150,82 @@ ggsave(
 #' //NOTE: Giving by Tax Reform
 #+ SummaryGivingOverall, fig.cap = "Average Logged Giving by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "appx"
 plot_giving2 <- use %>%
-  dplyr::filter(!is.na(credit_treat)) %>%
-  group_by(year, credit_treat) %>%
+  dplyr::filter(!is.na(bracket13)) %>%
+  group_by(year, bracket13) %>%
   summarize(mu = mean(donate, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
-  dplyr::select(credit_treat, base, everything()) %>%
+  dplyr::select(bracket13, base, everything()) %>%
   tidyr::pivot_longer(
-    -(credit_treat:base), values_to = "mu", names_to = "year"
+    -(bracket13:base), values_to = "mu", names_to = "year"
   ) %>%
-  mutate(mu = mu - base, year = as.numeric(year)) %>%
-  mutate(credit_treat = factor(
-    credit_treat,
-    labels = c("< 1200", "[1200, 4600]", "> 4600")
-  )) %>%
-  ggplot(aes(x = year, y = mu, group = credit_treat)) +
+  mutate(mu = mu / base, year = as.numeric(year)) %>%
+  ggplot(aes(x = year, y = mu, group = bracket13)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-  geom_hline(aes(yintercept = 0), linetype = 3) +
-  geom_point(aes(shape = credit_treat), size = 4) +
+  geom_point(aes(shape = bracket13), size = 4) +
   geom_line() +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
+  scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
   labs(
+    title = "Panel A. Amount of Giving",
     x = "Year",
-    y = "Diff. of average giving (unit: 10,000KRW)",
-    shape = "Income Group (unit:10,000KRW)"
+    y = "Normalized average giving",
+    shape = "Income bracket (unit:10,000KRW)"
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-ggsave(
-  here("export", "figures", "giving-tax-reform.pdf"),
-  plot = plot_giving2,
-  width = 10,
-  height = 6
-)
-
-#' //NOTE: Giving by Tax Reform (Intensive and Extensive)
-#+ SummaryGivingIntensive, fig.cap = "Average Logged Giving by Three Income Groups Conditional on Donors. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = output_type() != "body"
 plot_giving3 <- use %>%
-  dplyr::filter(!is.na(credit_treat) & d_donate == 1) %>%
-  group_by(year, credit_treat) %>%
+  dplyr::filter(!is.na(bracket13)) %>%
+  dplyr::filter(d_donate == 1) %>%
+  group_by(year, bracket13) %>%
   summarize(mu = mean(donate, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
-  dplyr::select(credit_treat, base, everything()) %>%
+  dplyr::select(bracket13, base, everything()) %>%
   tidyr::pivot_longer(
-    -(credit_treat:base), values_to = "mu", names_to = "year"
+    -(bracket13:base), values_to = "mu", names_to = "year"
   ) %>%
-  mutate(mu = mu - base, year = as.numeric(year)) %>%
-  mutate(credit_treat = factor(
-    credit_treat,
-    labels = c("< 1200", "[1200, 4600]", "> 4600")
-  )) %>%
-  ggplot(aes(x = year, y = mu, group = credit_treat)) +
+  mutate(mu = mu / base, year = as.numeric(year)) %>%
+  ggplot(aes(x = year, y = mu, group = bracket13)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-  geom_hline(aes(yintercept = 0), linetype = 3) +
-  geom_point(aes(shape = credit_treat), size = 4) +
+  geom_point(aes(shape = bracket13), size = 4) +
   geom_line() +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
+  scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
   labs(
     title = "Panel A. Amount of Giving Conditional on Donors",
     x = "Year",
-    y = "Diff. of average giving (unit: 10,000KRW)",
-    shape = "Income group (unit:10,000KRW)"
+    y = "Normalized average giving",
+    shape = "Income bracket (unit:10,000KRW)"
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 plot_giving4 <- use %>%
-  dplyr::filter(!is.na(credit_treat)) %>%
-  group_by(year, credit_treat) %>%
+  dplyr::filter(!is.na(bracket13)) %>%
+  group_by(year, bracket13) %>%
   summarize(mu = mean(d_donate, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
   mutate(base = `2013`) %>%
-  dplyr::select(credit_treat, base, everything()) %>%
+  dplyr::select(bracket13, base, everything()) %>%
   tidyr::pivot_longer(
-    -(credit_treat:base), values_to = "mu", names_to = "year"
+    -(bracket13:base), values_to = "mu", names_to = "year"
   ) %>%
-  mutate(mu = mu - base, year = as.numeric(year)) %>%
-  mutate(credit_treat = factor(
-    credit_treat,
-    labels = c("< 1200", "[1200, 4600]", "> 4600")
-  )) %>%
-  ggplot(aes(x = year, y = mu, group = credit_treat)) +
+  mutate(mu = mu / base, year = as.numeric(year)) %>%
+  ggplot(aes(x = year, y = mu, group = bracket13)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-  geom_hline(aes(yintercept = 0), linetype = 3) +
-  geom_point(aes(shape = credit_treat), size = 4) +
+  geom_point(aes(shape = bracket13), size = 4) +
   geom_line() +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
+  scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
   labs(
     title = "Panel B. Proportion of Donors",
     x = "Year",
-    y = "Diff. of proportion of donors",
-    shape = "Income group (unit:10,000KRW)"
+    y = "Normalized proportion of donors",
+    shape = "Income bracket (unit:10,000KRW)"
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13))
 
-plot_merge <- plot_giving3 + plot_giving4 +
+plot_merge <- plot_giving2 + plot_giving4 +
   plot_layout(guides = "collect") &
   theme(legend.position = 'bottom')
 
@@ -252,23 +239,19 @@ ggsave(
 #' //NOTE: Tax relief by tax reform
 #+ SummaryReliefbyIncome, fig.cap = "Proportion of Having Applied for Tax Relief by Three Income Groups. Notes: We created three income groups, with the relative price of giving rising (circle), unchanged (triangle), and falling (square) between 2013 and 2014. The group averages are normalized to be zero in 2013.", out.extra = "", eval = FALSE
 plot_relief1 <- use %>%
-  dplyr::filter(!is.na(credit_treat)) %>%
-  group_by(year, credit_treat) %>%
+  dplyr::filter(!is.na(bracket13)) %>%
+  group_by(year, bracket13) %>%
   summarize(mu = mean(d_relief_donate, na.rm = TRUE)) %>%
-  mutate(credit_treat = factor(
-    credit_treat,
-    labels = c("< 1200", "[1200, 4600]", "> 4600")
-  )) %>%
-  ggplot(aes(x = year, y = mu, group = credit_treat)) +
+  ggplot(aes(x = year, y = mu, group = bracket13)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-  geom_point(aes(shape = credit_treat), size = 4) +
+  geom_point(aes(shape = bracket13), size = 4) +
   geom_line() +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
   labs(
-    title = "Panel A. Grouped by Price Change",
+    title = "Panel A. Grouped by Income Bracket",
     x = "Year",
     y = "Proportion of application for tax relief",
-    shape = "Income group (unit:10,000KRW)"
+    shape = "Income bracket (unit:10,000KRW)"
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13)) +
   guides(shape = guide_legend(title.position = "top", title.hjust = 0.5))
@@ -286,7 +269,7 @@ plot_relief2 <- use %>%
   geom_point(aes(shape = employee), color = "black", size = 4) +
   geom_line(aes(linetype = employee)) +
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-  scale_x_continuous(breaks = seq(2012, 2018, 1)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
   scale_y_continuous(limits = c(0, 0.4), breaks = seq(0, 1, 0.1)) +
   labs(
     title = "Panel B. Grouped by Wage Earner or Not",
