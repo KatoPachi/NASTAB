@@ -126,7 +126,7 @@ subset(est_femod, type == "intensive")$est[[1]] %>%
   column_spec(2:5, width = "6.25em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parenthesis. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use logged applicable price as an instrument.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parenthesis. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument.",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%
@@ -213,7 +213,7 @@ subset(est_femod, type == "extensive")$est[[1]] %>%
   column_spec(2:5, width = "6.25em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is a dummy indicating that donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a employee dummy, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. We calculate implied price elasticities by dividing estimates by proportion of donors in our sample.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is a dummy indicating that donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a employee dummy, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument. We calculate implied price elasticities by dividing estimated coeffcient on price by sample proportion of donors.",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%

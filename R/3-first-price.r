@@ -88,7 +88,7 @@ est_stage1 %>%
   column_spec(2:3, width = "18.75em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of the effective price. For estimation, model (1) use donors only (intensive-margin sample), and model (2) use not only donors but also non-donors (extensive-margin sample). In addition to logged income and wage earner dummy shown in table, covariates consist of squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. Excluded instrument is logged value of applicable price.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of the effective price. For estimation, model (1) use donors only (intensive-margin sample), and model (2) use not only donors but also non-donors (extensive-margin sample). In addition to logged income and wage earner dummy shown in table, covariates consist of squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. Excluded instrument is a logged applicable price.",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%
@@ -204,7 +204,7 @@ est_femod %>%
   column_spec(2:7, width = "5em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving for models (1)--(3) and a dummy of donor for models (4)--(6). For estimation, models (1)--(3) use donors only (intensive-margin sample), and models (4)--(6) use not only donors but also non-donors (extensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use logged value of applicable price as an instrument.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving for models (1)--(3) and a dummy of donor for models (4)--(6). For estimation, models (1)--(3) use donors only (intensive-margin sample), and models (4)--(6) use not only donors but also non-donors (extensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument. To obtain the extensive-margin price elasticities in models (4)--(6), we calculate implied price elasticities by divding estimated coeffcient on price by sample proportion of donors.",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%
@@ -315,7 +315,7 @@ est_announce %>%
   column_spec(2:7, width = "5em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving for models (1)--(3) and a dummy of donor for models (4)--(6). For estimation, models (1)--(3) use donors only (intensive-margin sample), and models (4)--(6) use not only donors but also non-donors (extensive-margin sample). To exclude announcement effect, we exclude samples from 2013 and 2014. For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use logged value of applicable price as an instrument.",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving for models (1)--(3) and a dummy of donor for models (4)--(6). For estimation, models (1)--(3) use donors only (intensive-margin sample), and models (4)--(6) use not only donors but also non-donors (extensive-margin sample). To exclude announcement effect, we exclude samples from 2013 and 2014. For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument. To obtain the extensive-margin price elasticities in models (4)--(6), we calculate implied price elasticities by divding estimated coeffcient on price by sample proportion of donors.",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%
