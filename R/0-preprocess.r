@@ -327,6 +327,13 @@ treat_data <- first_mtr_data %>%
       credit_neutral == 1 ~ 2,
       credit_loss == 1 ~ 3,
       TRUE ~ NA_real_
+    ),
+    bracket13 = case_when(
+      first_mtr == 0.06 ~ "(A) --1200",
+      first_mtr == 0.15 ~ "(B) 1200--4600",
+      first_mtr == 0.24 ~ "(C) 4600--8800",
+      first_mtr == 0.35 ~ "(D) & (E) 8800--30000",
+      first_mtr == 0.38 ~ "(F) & (G) 30000--"
     )
   ) %>%
   dplyr::select(-first_mtr)
