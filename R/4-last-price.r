@@ -43,45 +43,36 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
 #' //NOTE: Relationship b/w Applicable and Effective
 #+ plot-stage1, fig.cap = "Relationship between Applicable First Price and Last Price by Employment Status. Note: The bubble size indicates sample size. Due to the small sample size, the leftmost bubbles for salaried and self-employed workers are less informative ($N=6$ for wage earner and $N=2$ for self-employed).", out.extra = ""
 plot_stage1 <- use %>%
+  dplyr::filter(type == "extensive") %>%
   dplyr::filter(
     !is.na(d_relief_donate) & !is.na(lprice_ln) & !is.na(employee)
   ) %>%
   mutate(
-    employee = factor(employee, label = c("Self-employed", "Wage earner"))
+    employee = factor(employee, label = c("Others", "Wage earners"))
   ) %>%
   group_by(applicable, employee) %>%
   summarize(
     n = n(),
-    d_relief_donate = mean(d_relief_donate),
-    effective = mean(effective),
     applicable.last = mean(lprice_ln)
   ) %>%
-  pivot_longer(effective:applicable.last, names_to = "type") %>%
-  mutate(type = factor(
-    type,
-    labels = c("Applicable last price", "Effective last price")
-  )) %>%
-  ggplot(aes(x = applicable, y = value)) +
+  ggplot(aes(x = applicable, y = applicable.last)) +
   geom_abline(aes(intercept = 0, slope = 1), linetype = 2) +
   geom_point(aes(size = n, color = employee), alpha = 0.8) +
   scale_color_grey() +
   scale_size(range = c(5, 20)) +
-  facet_wrap(~ type) +
   labs(
     x = "log(first price)",
-    y = "Sample average",
+    y = "Average of log(last price)",
     color = ""
   ) +
   guides(
     color = guide_legend(override.aes = list(size = 5)),
     size = "none"
   ) +
-  ggtemp()
-
-plot_stage1
+  ggtemp(size = list(title = 15, text = 13, caption = 13))
 
 ggsave(
-  here("export", "figures", "plot-stage1.pdf"),
+  here("export", "figures", "plot-first-last-price.pdf"),
   width = 10,
   height = 5
 )
