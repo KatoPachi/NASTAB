@@ -473,11 +473,11 @@ dt <- dt %>%
   dplyr::left_join(account, by = c("year", "area")) %>%
   dplyr::select(-accountant, -consult)
 
-#' 1. データの期間と年齢を制限する
+#' 1. 年齢を制限する
 #' 2. 控除申請と寄付行動でデータを制限する
 #+
 dt <- dt %>%
-  dplyr::filter(year >= 2012 & age >= 24) %>%
+  dplyr::filter(age >= 24) %>%
   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1))
 
 #' CSVファイルに書き出す
