@@ -164,6 +164,7 @@ plot_giving2 <- use %>%
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   geom_point(aes(shape = bracket13), size = 4) +
   geom_line() +
+  scale_shape_manual(values = c(16, 15, 17, 18)) +
   scale_x_continuous(breaks = seq(2010, 2018, 1)) +
   scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
   labs(
@@ -190,6 +191,7 @@ plot_giving3 <- use %>%
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   geom_point(aes(shape = bracket13), size = 4) +
   geom_line() +
+  scale_shape_manual(values = c(16, 15, 17, 18)) +
   scale_x_continuous(breaks = seq(2010, 2018, 1)) +
   scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
   labs(
@@ -215,6 +217,7 @@ plot_giving4 <- use %>%
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   geom_point(aes(shape = bracket13), size = 4) +
   geom_line() +
+  scale_shape_manual(values = c(16, 15, 17, 18)) +
   scale_x_continuous(breaks = seq(2010, 2018, 1)) +
   scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
   labs(
@@ -227,7 +230,8 @@ plot_giving4 <- use %>%
 
 plot_merge <- plot_giving2 + plot_giving4 +
   plot_layout(guides = "collect") &
-  theme(legend.position = 'bottom')
+  theme(legend.position = 'bottom') &
+  guides(shape = guide_legend(title.position = "top", title.hjust = 0.5))
 
 ggsave(
   here("export", "figures", "intensive-extensive-tax-reform.pdf"),
@@ -246,6 +250,7 @@ plot_relief1 <- use %>%
   geom_vline(aes(xintercept = 2013.5), linetype = 3) +
   geom_point(aes(shape = bracket13), size = 4) +
   geom_line() +
+  scale_shape_manual(values = c(16, 15, 17, 18)) +
   scale_x_continuous(breaks = seq(2010, 2018, 1)) +
   labs(
     title = "Panel A. Grouped by Income Bracket",
@@ -254,7 +259,9 @@ plot_relief1 <- use %>%
     shape = "Income bracket (unit:10,000KRW)"
   ) +
   ggtemp(size = list(title = 15, text = 13, caption = 13)) +
-  guides(shape = guide_legend(title.position = "top", title.hjust = 0.5))
+  guides(shape = guide_legend(
+    title.position = "top", title.hjust = 0.5, nrow = 2
+  ))
 
 plot_relief2 <- use %>%
   dplyr::filter(!is.na(employee)) %>%
