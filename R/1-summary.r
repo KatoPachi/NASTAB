@@ -71,7 +71,7 @@ plot_price <- use %>%
     color = "black"
   ) +
   geom_step(
-    aes(y = price * 0.5, color = "Giving Price in 2012-2013"),
+    aes(y = price * 0.5, color = "Giving Price in 2010-2013"),
     size = 1
   ) +
   geom_hline(
