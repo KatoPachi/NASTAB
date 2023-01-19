@@ -219,3 +219,33 @@ est_cfmod$fit %>%
   writeLines(out.file)
 
 close(out.file)
+
+#'
+#+
+calc_e <- function(u) {
+  coef <- tidy(est_cfmod$fit[[2]]) %>%
+    dplyr::filter(str_detect(term, "applicable:d_relief_donate")) %>%
+    pull(estimate)
+
+  coef[1] + coef[2] * u
+}
+
+pred_elast_data <- cf_use %>%
+  dplyr::filter(type == "intensive" & flag == 1) %>%
+  dplyr::filter(!is.na(resid)) %>%
+  mutate(b = calc_e(resid))
+
+pred_elast_data %>%
+  mutate(d_relief_donate = factor(
+    d_relief_donate, labels = c("Non-claimants", "Claimants")
+  )) %>%
+  ggplot(aes(x = b, fill = d_relief_donate, linetype = d_relief_donate)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("white", "grey50")) +
+  labs(
+    x = "Estimated intensive-margin elasticities",
+    y = "Density",
+    fill = "",
+    linetype = ""
+  ) +
+  ggtemp(size = list(title = 15, text = 13))
