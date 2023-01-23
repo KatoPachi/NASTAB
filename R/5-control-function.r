@@ -46,7 +46,7 @@ meandf <- use %>%
     applicable,
     employee
   ) %>%
-  mutate(cross = applicable * employee) %>%
+  # mutate(cross = applicable * employee) %>%
   fastDummies::dummy_cols(
     select_columns = "indust",
     remove_selected_columns = TRUE
@@ -81,8 +81,7 @@ psmod <- d_relief_donate ~ applicable + employee + ..mundlak + ..stage2
 est_psmod <- lm_robust(
   xpd(psmod),
   data = mundlak_use,
-  cluster = hhid,
-  se_type = "stata"
+  se_type = "HC1"
 )
 
 out.file <- file(here("export", "tables", "application.tex"), open = "w")
@@ -99,7 +98,7 @@ list(est_psmod) %>%
       "hh_num" = "Number of household members",
       "have_dependents" = "Having dependents"
     ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|se_type",
+    gof_omit = "^(?!R2 Adj.|Num)",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     output = "latex",
     escape = FALSE
@@ -133,7 +132,7 @@ cfmod <- list(
   outcome ~ applicable:d_relief_donate + resid +
     ..mundlak + ..stage2,
   outcome ~ applicable:d_relief_donate + resid +
-    resid:applicable:d_relief_donate + ..mundlak + ..stage2
+    resid:d_relief_donate + ..mundlak + ..stage2
 )
 
 est_cfmod <- cf_use %>%
@@ -144,12 +143,12 @@ est_cfmod <- cf_use %>%
     est1 = map(data, ~ lm_robust(
       xpd(cfmod[[1]]),
       data = subset(.x, flag == 1),
-      cluster = hhid, se_type = "stata"
+      se_type = "HC1"
     )),
     est2 = map(data, ~ lm_robust(
       xpd(cfmod[[2]]),
       data = subset(.x, flag == 1),
-      cluster = hhid, se_type = "stata"
+      se_type = "HC1"
     ))
   ) %>%
   pivot_longer(est1:est2, values_to = "fit", names_to = "model")
@@ -193,7 +192,7 @@ est_cfmod$fit %>%
       "applicable:d_relief_donate" = "Effective price",
       "tinc_ln" = "Log income",
       "resid" = "Residuals of Application",
-      "applicable:d_relief_donate:resid" =
+      "d_relief_donate:resid" =
         "Effective price $\\times$ Residuals of Application"
     ),
     gof_omit = "^(?!R2 Adj.|Num)",
@@ -209,7 +208,6 @@ est_cfmod$fit %>%
   group_rows(
     "Implied price elasticity", 9, 10, italic = TRUE, bold = FALSE
   ) %>%
-  column_spec(2:3, width = "10em") %>%
   footnote(
     general_title = "",
     general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving in model (1) and a dummy indicating that donor in model (2). For estimation, model (1) uses only donors (intensive-margin sample) and model (2) use both donors and non-donors (extensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use an wage earner dummy as an instrument to obtain residuals of application. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
@@ -219,33 +217,3 @@ est_cfmod$fit %>%
   writeLines(out.file)
 
 close(out.file)
-
-#'
-#+
-calc_e <- function(u) {
-  coef <- tidy(est_cfmod$fit[[2]]) %>%
-    dplyr::filter(str_detect(term, "applicable:d_relief_donate")) %>%
-    pull(estimate)
-
-  coef[1] + coef[2] * u
-}
-
-pred_elast_data <- cf_use %>%
-  dplyr::filter(type == "intensive" & flag == 1) %>%
-  dplyr::filter(!is.na(resid)) %>%
-  mutate(b = calc_e(resid))
-
-pred_elast_data %>%
-  mutate(d_relief_donate = factor(
-    d_relief_donate, labels = c("Non-claimants", "Claimants")
-  )) %>%
-  ggplot(aes(x = b, fill = d_relief_donate, linetype = d_relief_donate)) +
-  geom_density(alpha = 0.5) +
-  scale_fill_manual(values = c("white", "grey50")) +
-  labs(
-    x = "Estimated intensive-margin elasticities",
-    y = "Density",
-    fill = "",
-    linetype = ""
-  ) +
-  ggtemp(size = list(title = 15, text = 13))
