@@ -181,15 +181,16 @@ est_femod %>%
   modelsummary(
     title = "Estimation Results of Price Elasticities\\label{tab:main}",
     coef_map = c(
-      "applicable" = "Applicable price",
-      "effective" = "Effective price",
-      "fit_effective" = "Effective price",
+      "applicable" = "Applicable price ($\\beta_a$)",
+      "effective" = "Effective price ($\\beta^{FE}_e$)",
+      "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
       "tinc_ln" = "Log income"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     add_rows = addtab,
-    output = "latex"
+    output = "latex",
+    escape = FALSE
   ) %>%
   kable_styling(font_size = 8) %>%
   add_header_above(c(
@@ -292,15 +293,16 @@ est_announce %>%
   modelsummary(
     title = "Estimation of Price Elasticities Excluding Announcement Effect\\label{tab:announcement}",
     coef_map = c(
-      "applicable" = "Applicable price",
-      "effective" = "Effective price",
-      "fit_effective" = "Effective price",
+      "applicable" = "Applicable price ($\\beta_a$)",
+      "effective" = "Effective price ($\\beta^{FE}_e$)",
+      "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
       "tinc_ln" = "Log income"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     output = "latex",
-    add_rows = addtab
+    add_rows = addtab,
+    escape = FALSE
   ) %>%
   kable_styling(font_size = 8) %>%
   add_header_above(c(

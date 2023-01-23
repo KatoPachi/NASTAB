@@ -12,13 +12,12 @@
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applicable price & \num{-1.233}*** &  &  & \num{-0.210}*** &  & \\
+Applicable price ($\beta_a$) & \num{-1.233}*** &  &  & \num{-0.210}*** &  & \\
  & (\num{0.440}) &  &  & (\num{0.076}) &  & \\
-Effective price &  & \num{-0.855}*** & \num{-1.725}*** &  & \num{-2.723}*** & \num{-0.693}***\\
- &  & (\num{0.322}) & (\num{0.623}) &  & (\num{0.089}) & (\num{0.232})\\
-Log income & \num{1.791} & \num{1.921} & \num{1.367} & \num{1.523}*** & \num{0.805}*** & \num{1.479}***\\
- & (\num{1.801}) & (\num{1.796}) & (\num{1.835}) & (\num{0.252}) & (\num{0.234}) & (\num{0.243})\\
-\midrule
+Effective price ($\beta^{FE}_e$) &  & \num{-0.855}*** &  &  & \num{-2.723}*** & \\
+ &  & (\num{0.322}) &  &  & (\num{0.089}) & \\
+Effective price ($\beta^{IV}_e$) &  &  & \num{-1.725}*** &  &  & \num{-0.693}***\\
+ &  &  & (\num{0.623}) &  &  & (\num{0.232})\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textit{Implied price elasticity}}\\
 \hspace{1em}Estimates &  &  &  & \num{-0.883}*** & \num{-11.477}*** & \num{-2.922}***\\
@@ -27,7 +26,11 @@ Log income & \num{1.791} & \num{1.921} & \num{1.367} & \num{1.523}*** & \num{0.8
 \multicolumn{7}{l}{\textit{1st stage information (Excluded instrument: Applicable price)}}\\
 \hspace{1em}F-statistics of instruments &  &  & \num{998.445} &  &  & \num{1240.601}\\
 \hspace{1em}Wu-Hausman test, p-value &  &  & \num{0.023} &  &  & $<$ \num{0.001}\\
+\midrule
+Log income & \num{1.791} & \num{1.921} & \num{1.367} & \num{1.523}*** & \num{0.805}*** & \num{1.479}***\\
+ & (\num{1.801}) & (\num{1.796}) & (\num{1.835}) & (\num{0.252}) & (\num{0.234}) & (\num{0.243})\\
 Num.Obs. & \num{6105} & \num{6105} & \num{6105} & \num{22868} & \num{22868} & \num{22868}\\
+RMSE & \num{0.63} & \num{0.63} & \num{0.63} & \num{0.25} & \num{0.23} & \num{0.24}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
