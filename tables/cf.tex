@@ -4,27 +4,27 @@
 \centering
 \fontsize{8}{10}\selectfont
 \begin{threeparttable}
-\begin{tabular}[t]{l>{\centering\arraybackslash}p{10em}>{\centering\arraybackslash}p{10em}}
+\begin{tabular}[t]{lcccc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Log donation} & \multicolumn{1}{c}{A dummy of donor} \\
-\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3}
-  & (1) & (2)\\
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Log donation} & \multicolumn{2}{c}{A dummy of donor} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+  & (1) & (2) & (3) & (4)\\
 \midrule
-Effective price & \num{-1.596}*** & \num{-0.501}***\\
- & (\num{0.384}) & (\num{0.037})\\
-Log income & \num{1.641} & \num{1.758}***\\
- & (\num{1.234}) & (\num{0.152})\\
-Residuals of Application & \num{-0.555}*** & \num{0.505}***\\
- & (\num{0.201}) & (\num{0.023})\\
-Application $\times$ Residuals of Application & \num{0.396}* & \num{0.336}***\\
- & (\num{0.214}) & (\num{0.024})\\
+Effective price ($\beta_e$) & \num{-1.233}*** & \num{-1.554}*** & \num{-0.243}*** & \num{-0.477}***\\
+ & (\num{0.352}) & (\num{0.381}) & (\num{0.031}) & (\num{0.035})\\
+Log income & \num{2.300}** & \num{1.362} & \num{2.564}*** & \num{1.780}***\\
+ & (\num{1.166}) & (\num{1.250}) & (\num{0.147}) & (\num{0.153})\\
+Residuals of Application ($\psi_1$) & \num{-0.196}*** & \num{-0.690}*** & \num{0.791}*** & \num{0.492}***\\
+ & (\num{0.075}) & (\num{0.213}) & (\num{0.006}) & (\num{0.024})\\
+Effective price $\times$ Residuals of Application ($\psi_2$) &  & \num{0.576}** &  & \num{0.359}***\\
+ &  & (\num{0.228}) &  & (\num{0.025})\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{3}{l}{\textit{Implied price elasticity}}\\
-\hspace{1em}Estimates &  & \num{-2.110}***\\
-\hspace{1em} &  & (\num{0.157})\\
-Num.Obs. & \num{7993} & \num{30487}\\
-R2 Adj. & \num{0.091} & \num{0.495}\\
+\multicolumn{5}{l}{\textit{Implied price elasticity}}\\
+\hspace{1em}Estimate &  &  & \num{-1.025}*** & \num{-2.009}***\\
+\hspace{1em} &  &  & (\num{0.131}) & (\num{0.149})\\
+Num.Obs. & \num{7993} & \num{7993} & \num{30487} & \num{30487}\\
+R2 Adj. & \num{0.090} & \num{0.091} & \num{0.493} & \num{0.495}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
