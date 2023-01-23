@@ -189,11 +189,11 @@ est_cfmod$fit %>%
   modelsummary(
     title = "Estimation Results of Control Function Model\\label{tab:cf}",
     coef_map = c(
-      "applicable:d_relief_donate" = "Effective price",
+      "applicable:d_relief_donate" = "Effective price ($\\beta_e$)",
       "tinc_ln" = "Log income",
-      "resid" = "Residuals of Application",
+      "resid" = "Residuals of Application ($\\psi_1$)",
       "d_relief_donate:resid" =
-        "Effective price $\\times$ Residuals of Application"
+        "Effective price $\\times$ Residuals of Application ($\\psi_2$)"
     ),
     gof_omit = "^(?!R2 Adj.|Num)",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
