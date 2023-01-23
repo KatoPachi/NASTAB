@@ -110,7 +110,7 @@ list(est_psmod) %>%
   column_spec(2, width = "12em") %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is a dummy of application of tax relief. For estimation, we use both donors and non-donors (extensive-margin sample). Additionally, we control a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use a wage earner dummy as an instrument. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instrument (Chamberlain-Mundlak device).",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Robust standard errors are in parentheses. An outcome variable is a dummy of application of tax relief. For estimation, we use both donors and non-donors (extensive-margin sample). Additionally, we control a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use a wage earner dummy as an instrument. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instrument (Chamberlain-Mundlak device).",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%
@@ -210,7 +210,7 @@ est_cfmod$fit %>%
   ) %>%
   footnote(
     general_title = "",
-    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving in model (1) and a dummy indicating that donor in model (2). For estimation, model (1) uses only donors (intensive-margin sample) and model (2) use both donors and non-donors (extensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use an wage earner dummy as an instrument to obtain residuals of application. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Robust standard errors are in parentheses. An outcome variable is logged value of amount of charitable giving in model (1) and a dummy indicating that donor in model (2). For estimation, model (1) uses only donors (intensive-margin sample) and model (2) use both donors and non-donors (extensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use an wage earner dummy as an instrument to obtain residuals of application. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
     threeparttable = TRUE,
     escape = FALSE
   ) %>%
