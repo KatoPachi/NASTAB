@@ -170,7 +170,7 @@ addtab <- ivtable %>%
   mutate_at(vars(model1, model2, model3), list(~ifelse(is.na(.), "", .))) %>%
   mutate(terms = dplyr::recode(terms, "Estimates se" = "", .default = terms))
 
-attr(addtab, "position") <- 7:10
+attr(addtab, "position") <- 9:12
 
 out.file <- file(here("export", "tables", "main.tex"), open = "w")
 
@@ -197,10 +197,10 @@ est_femod %>%
     " " = 1, "FE" = 2, "FE-2SLS" = 1, "FE" = 2, "FE-2SLS" = 1
   )) %>%
   add_header_above(c(" " = 1, "Log donation" = 3, "Dummy of donor" = 3)) %>%
-  group_rows("Implied price elasticity", 7, 8, italic = TRUE, bold = FALSE) %>%
+  group_rows("Implied price elasticity", 9, 10, italic = TRUE, bold = FALSE) %>%
   group_rows(
     "1st stage information (Excluded instrument: Applicable price)",
-    9, 10, bold = FALSE, italic = TRUE
+    11, 12, bold = FALSE, italic = TRUE
   ) %>%
   column_spec(2:7, width = "5em") %>%
   footnote(
@@ -282,7 +282,7 @@ addtab <- ivtable %>%
   mutate_at(vars(model1, model2, model3), list(~ ifelse(is.na(.), "", .))) %>%
   mutate(terms = dplyr::recode(terms, "Estimates se" = "", .default = terms))
 
-attr(addtab, "position") <- 7:10
+attr(addtab, "position") <- 9:12
 
 out.file <- file(here("export", "tables", "announcement.tex"), open = "w")
 
@@ -309,10 +309,10 @@ est_announce %>%
     " " = 1, "FE" = 2, "FE-2SLS" = 1, "FE" = 2, "FE-2SLS" = 1
   )) %>%
   add_header_above(c(" " = 1, "Log donation" = 3, "Dummy of donor" = 3)) %>%
-  group_rows("Implied price elasticity", 7, 8, italic = TRUE, bold = FALSE) %>%
+  group_rows("Implied price elasticity", 9, 10, italic = TRUE, bold = FALSE) %>%
   group_rows(
     "1st stage information (Excluded instrument: Applicable price)",
-    9, 10, bold = FALSE, italic = TRUE
+    11, 12, bold = FALSE, italic = TRUE
   ) %>%
   column_spec(2:7, width = "5em") %>%
   footnote(
