@@ -218,3 +218,61 @@ est_cfmod %>%
   writeLines(out.file)
 
 close(out.file)
+
+#' //NOTE: 2SLS-decomposition theorem and individual elasticity
+#+
+intensive_personal_e <- est_cfmod %>%
+  dplyr::filter(type == 'intensive' & model == 'est2') %>%
+  unnest(cols = data) %>%
+  select(
+    type,
+    pid,
+    hhid,
+    year,
+    flag,
+    resid,
+    fit,
+    d_relief_donate,
+    applicable,
+    tinc_ln,
+    sqage,
+    hh_num,
+    have_dependents,
+    indust,
+    area
+  ) %>%
+  dplyr::filter(!is.na(resid) & flag == 1) %>%
+  mutate(
+    avg_e = map_dbl(fit, ~ coef(.)["applicable:d_relief_donate"]),
+    dev_e = map_dbl(fit, ~ coef(.)['applicable:d_relief_donate:resid']),
+    ind_e = avg_e + dev_e * resid,
+    effective = applicable * d_relief_donate
+  ) %>%
+  dplyr::select(-fit, -flag)
+
+summary(intensive_personal_e$ind_e)
+summary(intensive_personal_e[intensive_personal_e$d_relief_donate == 1, ]$ind_e)
+summary(intensive_personal_e[intensive_personal_e$d_relief_donate == 0, ]$ind_e)
+
+
+auxiliary <- feols(
+  xpd(effective ~ ..stage2),
+  data = intensive_personal_e,
+  cluster = ~hhid
+)
+
+n1 <- nrow(subset(intensive_personal_e, d_relief_donate == 1))
+
+intensive_personal_e_2 <- intensive_personal_e %>%
+  modelr::add_residuals(auxiliary, var = 'resid_effective') %>%
+  mutate(w_denom = (effective / n1) * resid_effective)
+
+sum_w_denom <- sum(intensive_personal_e_2$w_denom)
+
+intensive_personal_e_2 %>%
+  mutate(
+    w = resid_effective / sum_w_denom,
+    w = effective * w / n1
+  ) %>%
+  dplyr::filter(d_relief_donate == 1) %>%
+  summarize(sum_e = sum(w * ind_e))
