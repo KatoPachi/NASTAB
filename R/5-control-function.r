@@ -132,7 +132,7 @@ cfmod <- list(
   outcome ~ applicable:d_relief_donate + resid +
     ..mundlak + ..stage2,
   outcome ~ applicable:d_relief_donate + resid +
-    resid:d_relief_donate + ..mundlak + ..stage2
+    resid:applicable:d_relief_donate + ..mundlak + ..stage2
 )
 
 est_cfmod <- cf_use %>%
@@ -158,6 +158,7 @@ est_cfmod <- cf_use %>%
 mu <- with(subset(cf_use, type == "extensive"), mean(outcome))
 
 implied_e <- est_cfmod %>%
+  dplyr::filter(model == 'est1') %>%
   mutate(
     tidy = map(fit, tidy),
     tidy = map(tidy, ~subset(., str_detect(term, "applicable"))),
@@ -174,9 +175,9 @@ implied_e <- est_cfmod %>%
     )
   ) %>% {
     tribble(
-      ~term, ~int_mod1, ~int_mod2, ~ext_mod1, ~ext_mod2,
-      "Estimate", "", "", .$estimate[3], .$estimate[4],
-      "", "", "", .$std.err[3], .$std.err[4]
+      ~term, ~int_mod1, ~ext_mod1,
+      "Estimate", "", .$estimate[2],
+      "", "", .$std.err[2]
     )
   }
 
@@ -184,26 +185,26 @@ attr(implied_e, "position") <- c(9, 10)
 
 out.file <- file(here("export", "tables", "cf.tex"), open = "w")
 
-est_cfmod$fit %>%
+est_cfmod %>%
+  dplyr::filter(model == 'est1') %>%
+  .$fit %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
     title = "Estimation Results of Control Function Model\\label{tab:cf}",
     coef_map = c(
       "applicable:d_relief_donate" = "Effective price ($\\beta_e$)",
       "tinc_ln" = "Log income",
-      "resid" = "Residuals of Application ($\\psi_1$)",
-      "d_relief_donate:resid" =
-        "Application $\\times$ Residuals of Application ($\\psi_2$)"
+      "resid" = "Residuals of Application ($\\psi_1$)"
     ),
     gof_omit = "^(?!R2 Adj.|Num)",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     add_rows = implied_e,
-    output = "latex",
+    # output = "latex",
     escape = FALSE
   ) %>%
   kable_styling(font_size = 8) %>%
   add_header_above(
-    c(" " = 1, "Log donation" = 2, "A dummy of donor" = 2)
+    c(" " = 1, "Log donation" = 1, "A dummy of donor" = 1)
   ) %>%
   group_rows(
     "Implied price elasticity", 9, 10, italic = TRUE, bold = FALSE
@@ -213,7 +214,7 @@ est_cfmod$fit %>%
     general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Robust standard errors are in parentheses. An outcome variable is logged value of amount of charitable giving in model (1) and a dummy indicating that donor in model (2). For estimation, model (1) uses only donors (intensive-margin sample) and model (2) use both donors and non-donors (extensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use an wage earner dummy as an instrument to obtain residuals of application. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
     threeparttable = TRUE,
     escape = FALSE
-  ) %>%
+  ) #%>%
   writeLines(out.file)
 
 close(out.file)
