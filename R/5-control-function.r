@@ -193,7 +193,7 @@ est_cfmod$fit %>%
       "tinc_ln" = "Log income",
       "resid" = "Residuals of Application ($\\psi_1$)",
       "d_relief_donate:resid" =
-        "Effective price $\\times$ Residuals of Application ($\\psi_2$)"
+        "Application $\\times$ Residuals of Application ($\\psi_2$)"
     ),
     gof_omit = "^(?!R2 Adj.|Num)",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
