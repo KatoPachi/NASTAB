@@ -296,6 +296,7 @@ est_cfmod %>%
   dplyr::filter(type == 'intensive' & model == 'est2') %>%
   .$fit %>%
   modelsummary(
+    title = 'Random Coefficient Model for Intensive-Margin Price Elasticities\\label{tab:random-coefficient}',
     coef_map = c(
       "applicable:d_relief_donate" = "Effective price ($\\beta_e$)",
       "tinc_ln" = "Log income",
@@ -309,7 +310,7 @@ est_cfmod %>%
     output = "latex",
     escape = FALSE
   ) %>%
-  kable_styling() %>%
+  kable_styling(font_size = 8) %>%
   add_header_above(
     c(" " = 1, "Log donation" = 1)
   ) %>%
