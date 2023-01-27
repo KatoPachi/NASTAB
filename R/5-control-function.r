@@ -181,7 +181,7 @@ implied_e <- est_cfmod %>%
     )
   }
 
-attr(implied_e, "position") <- c(9, 10)
+attr(implied_e, "position") <- c(7, 8)
 
 out.file <- file(here("export", "tables", "cf.tex"), open = "w")
 
@@ -199,7 +199,7 @@ est_cfmod %>%
     gof_omit = "^(?!R2 Adj.|Num)",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     add_rows = implied_e,
-    # output = "latex",
+    output = "latex",
     escape = FALSE
   ) %>%
   kable_styling(font_size = 8) %>%
@@ -214,7 +214,7 @@ est_cfmod %>%
     general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Robust standard errors are in parentheses. An outcome variable is logged value of amount of charitable giving in model (1) and a dummy indicating that donor in model (2). For estimation, model (1) uses only donors (intensive-margin sample) and model (2) use both donors and non-donors (extensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use an wage earner dummy as an instrument to obtain residuals of application. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
     threeparttable = TRUE,
     escape = FALSE
-  ) #%>%
+  ) %>%
   writeLines(out.file)
 
 close(out.file)
@@ -238,6 +238,7 @@ intensive_personal_e <- est_cfmod %>%
     sqage,
     hh_num,
     have_dependents,
+    employee,
     indust,
     area
   ) %>%
@@ -250,15 +251,11 @@ intensive_personal_e <- est_cfmod %>%
   ) %>%
   dplyr::select(-fit, -flag)
 
-summary(intensive_personal_e$ind_e)
-summary(intensive_personal_e[intensive_personal_e$d_relief_donate == 1, ]$ind_e)
-summary(intensive_personal_e[intensive_personal_e$d_relief_donate == 0, ]$ind_e)
-
-
 auxiliary <- feols(
-  xpd(effective ~ ..stage2),
+  effective ~ tinc_ln + sqage + hh_num + have_dependents + employee |
+    year + pid + indust + area,
   data = intensive_personal_e,
-  cluster = ~hhid
+  cluster = ~ hhid
 )
 
 n1 <- nrow(subset(intensive_personal_e, d_relief_donate == 1))
@@ -269,10 +266,83 @@ intensive_personal_e_2 <- intensive_personal_e %>%
 
 sum_w_denom <- sum(intensive_personal_e_2$w_denom)
 
-intensive_personal_e_2 %>%
+final_intensive_personal <- intensive_personal_e_2 %>%
   mutate(
     w = resid_effective / sum_w_denom,
     w = effective * w / n1
   ) %>%
-  dplyr::filter(d_relief_donate == 1) %>%
-  summarize(sum_e = sum(w * ind_e))
+  select(-resid_effective, -w_denom)
+
+#' //NOTE: CF with random coefficient (intensive)
+#+
+mean <- with(final_intensive_personal, mean(ind_e))
+mean1 <- with(subset(final_intensive_personal, d_relief_donate == 1), mean(ind_e))
+mean0 <- with(subset(final_intensive_personal, d_relief_donate == 0), mean(ind_e))
+weight_sum <- with(final_intensive_personal, sum(w * ind_e))
+
+agg_e <- tibble::tribble(
+  ~term, ~est,
+  'Sample average', mean,
+  'Sample average among claimants', mean1,
+  'Sample average among non-claimants', mean0,
+  "Weighted sum (Chaisemartin and D'haultf\\oe uille, 2020)", weight_sum 
+)
+
+attr(agg_e, 'position') <- seq(9, length.out = nrow(agg_e))
+
+out.file <- file(here("export", "tables", "random-coefficient.tex"), open = "w")
+
+est_cfmod %>%
+  dplyr::filter(type == 'intensive' & model == 'est2') %>%
+  .$fit %>%
+  modelsummary(
+    coef_map = c(
+      "applicable:d_relief_donate" = "Effective price ($\\beta_e$)",
+      "tinc_ln" = "Log income",
+      "resid" = "Residuals of Application ($\\psi_1$)",
+      "applicable:d_relief_donate:resid" =
+        'Effective price $\\times$ Residuals of Application ($\\psi_2$)'
+    ),
+    gof_omit = "^(?!R2 Adj.|Num)",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = agg_e,
+    output = "latex",
+    escape = FALSE
+  ) %>%
+  kable_styling() %>%
+  add_header_above(
+    c(" " = 1, "Log donation" = 1)
+  ) %>%
+  group_rows(
+    "Aggregated price elasticity", 9, 9 + nrow(agg_e) - 1,
+    italic = TRUE, bold = FALSE
+  ) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Robust standard errors are in parentheses. An outcome variable is logged value of amount of charitable giving in model (1). For estimation, model (1) uses only donors (intensive-margin sample). We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry, a set of dummies of residential area, and time fixed effects. We use an wage earner dummy as an instrument to obtain residuals of application. Instead individual fixed effects, we control a vector of individual-level sample mean of all exogenous variables including instruments (Chamberlain-Mundlak device).",
+    threeparttable = TRUE,
+    escape = FALSE
+  ) %>%
+  writeLines(out.file)
+
+close(out.file)
+
+#' //NOTE: Density of elasticity
+#+
+dist_ind_e <- final_intensive_personal %>%
+  mutate(d_relief_donate = factor(
+    d_relief_donate,
+    labels = c("Non-claimants", "Claimants")
+  )) %>%
+  ggplot(aes(x = ind_e, fill = d_relief_donate)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("white", "grey50")) +
+  labs(x = 'Intensive-margin price elasticities', y = 'Density', fill = '') +
+  ggtemp()
+
+ggsave(
+  here("export", "figures", "individual-elasticities.pdf"),
+  plot = dist_ind_e,
+  width = 10,
+  height = 6
+)
