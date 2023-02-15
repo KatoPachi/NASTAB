@@ -12,6 +12,7 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
   dplyr::filter(tinc < 30000) %>%
   dplyr::filter(dependents == 0) %>%
   dplyr::filter(tinc > donate) %>%
+  dplyr::filter(d_relief_donate == 0 | donate <= religious_ub) %>%
   select(
     pid,
     hhid,
@@ -114,7 +115,8 @@ subset(est_femod, type == "intensive")$est[[1]] %>%
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     add_rows = ivtable,
-    output = "latex"
+    output = "latex",
+    escape = FALSE
   ) %>%
   kable_styling(font_size = 8) %>%
   add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 2)) %>%
@@ -200,7 +202,8 @@ subset(est_femod, type == "extensive")$est[[1]] %>%
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
     add_rows = add_table,
-    output = "latex"
+    output = "latex",
+    escape = FALSE
   ) %>%
   kable_styling(font_size = 8) %>%
   add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 2)) %>%

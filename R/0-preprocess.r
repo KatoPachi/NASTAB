@@ -155,6 +155,17 @@ relief_data <- raw %>%
       d_credit_donate_linc == 0 ~ 0,
       credit_donate_linc == -9 ~ NA_real_,
       TRUE ~ as.numeric(credit_donate_linc)
+    ),
+    ub = case_when(
+      year == 2010 ~ tinc * 0.15,
+      year == 2011 ~ tinc * 0.20,
+      year == 2012 ~ tinc * 0.30,
+      year == 2013 ~ tinc * 0.30,
+      year >= 2014 ~ 3000
+    ),
+    religious_ub = case_when(
+      year < 2014 ~ tinc * 0.1,
+      year >= 2014 ~ 3000
     )
   )
 
@@ -216,11 +227,12 @@ donate_member_data <- donate_purpose_data %>%
   ) %>%
   dplyr::select(-donate_NA) %>%
   mutate(
-    donate = donate_religious + donate_welfare + donate_educ + donate_others +
-      donate_religious_action + donate_culture + donate_unknown,
+    donate = donate_religious + donate_religious_action +
+      donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
+    religious_donate = donate_religious + donate_religious_action,
     d_donate = if_else(donate > 0, 1, 0)
   ) %>%
-  dplyr::select(hhid, pid, year, donate, d_donate)
+  dplyr::select(hhid, pid, year, donate, religious_donate, d_donate)
 
 # 寄付支出データ（世帯単位）
 donate_household_data <- raw %>%

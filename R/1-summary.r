@@ -13,7 +13,8 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
   dplyr::filter(tinc < 30000) %>%
   dplyr::filter(bracket13 != "(F) & (G) 30000--" | is.na(bracket13)) %>%
   dplyr::filter(dependents == 0) %>%
-  dplyr::filter(tinc > donate)
+  dplyr::filter(tinc > donate) %>%
+  dplyr::filter(d_relief_donate == 0 | donate <= religious_ub)
 
 #' //NOTE: Summary statistics
 #+ SummaryCovariate, eval = output_type() != "appx"
@@ -33,7 +34,7 @@ use %>%
     (`Dummy of having dependents` = have_dependents) +
     (`Female dummy` = sex) +
     (`Academic history: University` = college) +
-    (`Academic histroy: High school` = highschool) ~
+    (`Academic history: High school` = highschool) ~
     N +
     (`Mean` = Mean) +
     (`Std.Dev.` = SD), #+
@@ -43,7 +44,8 @@ use %>%
     title = "Descriptive Statistics\\label{tab:summary-covariate}",
     data = .,
     align = "lccc",
-    output = "latex"
+    output = "latex",
+    escape = FALSE
   ) %>%
   kable_styling(font_size = 8) %>%
   pack_rows("Income and giving price", 1, 3, bold = FALSE, italic = TRUE) %>%
@@ -166,7 +168,7 @@ plot_giving2 <- use %>%
   geom_line() +
   scale_shape_manual(values = c(16, 15, 17, 18)) +
   scale_x_continuous(breaks = seq(2010, 2018, 1)) +
-  scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
+  scale_y_continuous(breaks = seq(0, 3, by = 0.5), limits = c(0, 2.6)) +
   labs(
     title = "Panel A. Amount of Giving",
     x = "Year",
@@ -219,7 +221,7 @@ plot_giving4 <- use %>%
   geom_line() +
   scale_shape_manual(values = c(16, 15, 17, 18)) +
   scale_x_continuous(breaks = seq(2010, 2018, 1)) +
-  scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
+  scale_y_continuous(breaks = seq(0, 3, by = 0.5), limits = c(0, 2.6)) +
   labs(
     title = "Panel B. Proportion of Donors",
     x = "Year",

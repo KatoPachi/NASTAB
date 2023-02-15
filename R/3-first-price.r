@@ -12,6 +12,7 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
   dplyr::filter(tinc < 30000) %>%
   dplyr::filter(dependents == 0) %>%
   dplyr::filter(tinc > donate) %>%
+  dplyr::filter(d_relief_donate == 0 | donate <= religious_ub) %>%
   select(
     pid,
     hhid,
