@@ -186,33 +186,6 @@ plot_giving2 <- use %>%
   ) +
   ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
 
-plot_giving3 <- use %>%
-  dplyr::filter(!is.na(bracket13)) %>%
-  dplyr::filter(d_donate == 1) %>%
-  group_by(year, bracket13) %>%
-  summarize(mu = mean(donate, na.rm = TRUE)) %>%
-  tidyr::pivot_wider(names_from = "year", values_from = "mu") %>%
-  mutate(base = `2013`) %>%
-  dplyr::select(bracket13, base, everything()) %>%
-  tidyr::pivot_longer(
-    -(bracket13:base), values_to = "mu", names_to = "year"
-  ) %>%
-  mutate(mu = mu / base, year = as.numeric(year)) %>%
-  ggplot(aes(x = year, y = mu, group = bracket13)) +
-  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-  geom_point(aes(shape = bracket13), size = 4) +
-  geom_line() +
-  scale_shape_manual(values = c(16, 15, 17, 18)) +
-  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
-  scale_y_continuous(breaks = seq(0, 2, by = 0.5), limits = c(0, 2)) +
-  labs(
-    title = "Panel A. Amount of Giving Conditional on Donors",
-    x = "Year",
-    y = "Normalized average giving",
-    shape = "Income bracket (unit:10,000KRW)"
-  ) +
-  ggtemp(size = list(axis_title = 15, asix_text = 13, title = 13))
-
 plot_giving4 <- use %>%
   dplyr::filter(!is.na(bracket13)) %>%
   group_by(year, bracket13) %>%
@@ -360,35 +333,6 @@ plot_relief_merge2 <- plot_relief3 + plot_relief4
 ggsave(
   here("export", "figures", "summary-tax-relief-cond-donors.pdf"),
   plot = plot_relief_merge2,
-  width = 10,
-  height = 6
-)
-
-#' ```{asis, echo = output_type() == "slide"}
-#' ## Distribution of Giving Amount by Application of Tax Relief 
-#' ```
-#+ SummaryGivingIntensiveDist, fig.cap = "Estimated Distribution of Charitable Giving among Donors in Each Year", out.extra = "", eval = output_type() != "body"
-plot_dist <- use %>%
-  filter(!is.na(d_relief_donate) & d_donate == 1) %>%
-  mutate(d_relief_donate = factor(
-    d_relief_donate,
-    levels = 1:0,
-    labels = c("Applied for tax relief", "Did not apply for tax relief")
-  )) %>%
-  ggplot(aes(x = donate_ln)) +
-  geom_density(aes(linetype = d_relief_donate)) +
-  facet_wrap(~ year) +
-  labs(
-    x = "Charitable Giving (Logged Value)",
-    linetype = ""
-  ) +
-  ggtemp(size = list(title = 15, text = 13, caption = 13))
-
-plot_dist
-
-ggsave(
-  here("export", "figures", "giving-dist-by-apply.pdf"),
-  plot = plot_dist,
   width = 10,
   height = 6
 )
