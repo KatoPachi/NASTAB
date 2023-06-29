@@ -214,6 +214,78 @@ est_femod %>%
 
 close(out.file)
 
+#' //NOTE: two-period estimation
+#' income deduction: 2010-2013
+#' tax credit: 2014-2017
+#+
+comb <- expand.grid(
+  year1 = 2010:2013,
+  year2 = 2014:2017
+)
+
+two_period_est <- seq_len(nrow(comb)) %>%
+  map(function(i) {
+    use %>%
+      dplyr::filter(year %in% c(comb[i, 1], comb[i, 2])) %>%
+      mutate(type = factor(type, levels = c("intensive", "extensive"))) %>%
+      group_by(type) %>%
+      nest() %>%
+      mutate(
+        year1 = comb[i, 1],
+        year2 = comb[i, 2],
+        est = map(data, ~feols(femod[[3]], data = subset(., flag == 1), cluster =~hhid)),
+        tidy = map(est, tidy),
+        estimate = map_dbl(tidy, ~ .[.$term == "fit_effective",]$estimate),
+        p = map_dbl(tidy, ~.[.$term == "fit_effective",]$p.value),
+        avg = map_dbl(data, ~with(subset(., flag == 1), mean(outcome))),
+        implied = estimate / avg
+      ) %>%
+      select(year1, year2, type, estimate, p, avg, implied)
+  }) %>%
+  reduce(bind_rows)
+
+true_intensive <- subset(est_femod, type == "intensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  map(tidy) %>%
+  {
+    subset(.[[3]], term == "fit_effective")$estimate
+  }
+
+subset(two_period_est, type == "intensive") %>% View()
+
+two_period_intensive <- subset(two_period_est, type == "intensive") %>%
+  ggplot(aes(x = estimate)) +
+    geom_vline(aes(xintercept = true_intensive), linetype = 2) +
+    geom_histogram(binwidth = 0.5, color = "black", fill = "grey50", alpha = 0.5) +
+    labs(x = "Estimate", y = "Count", title = "A. Intensive-margin price elasticity") +
+    ggtemp(size = list(axis_title = 15, axis_text = 13, title = 10))
+
+true_extensive <- subset(est_femod, type == "extensive") %>%
+  pull(est) %>%
+  flatten() %>%
+  map(tidy) %>%
+  {
+    subset(.[[3]], term == "fit_effective")$estimate / mu
+  }
+
+two_period_extensive <- subset(two_period_est, type == "extensive") %>%
+  ggplot(aes(x = implied)) +
+    geom_vline(aes(xintercept = true_extensive), linetype = 2) +
+    geom_histogram(binwidth = 0.5, color = "black", fill = "grey50", alpha = 0.5) +
+    scale_x_continuous(breaks = seq(-6, 2, by = 1)) +
+    labs(x = "Estimate", y = "Count", title = "B. Extensive-margin implied price elasticity") +
+    ggtemp(size = list(axis_title = 15, axis_text = 13, title = 10))
+
+two_period_plot <- two_period_intensive + two_period_extensive
+
+ggsave(
+  here("export", "figures", "two-period-estimation.pdf"),
+  plot = two_period_plot,
+  width = 10,
+  height = 6
+)
+
 #' //NOTE: Estimate price elasticity excluding announcement effect
 #+
 est_announce <- use %>%

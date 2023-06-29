@@ -6,8 +6,9 @@
 ggtemp <- function(flip = FALSE,
                    family = NULL,
                    size = list(
-                     title = 13,
-                     text = 9,
+                     axis_title = 13,
+                     axis_text = 9,
+                     title = 20,
                      caption = 11
                    ),
                    legend_key_size = 1) {
@@ -17,9 +18,9 @@ ggtemp <- function(flip = FALSE,
       panel.grid.minor.x = element_blank(),
       panel.grid.minor.y = element_blank(),
       axis.text = element_text(
-        color = "black", size = size$text, family = family
+        color = "black", size = size$axis_text, family = family
       ),
-      axis.title = element_text(size = size$title, family = family),
+      axis.title = element_text(size = size$axis_title, family = family),
       axis.ticks.length = unit(0.25, "cm"),
       axis.ticks.x = element_line(),
       axis.ticks.y = element_line(),
@@ -28,7 +29,8 @@ ggtemp <- function(flip = FALSE,
       legend.key.size = unit(legend_key_size, "cm"),
       legend.title = ggplot2::element_text(size = size$title),
       legend.position = "bottom",
-      plot.caption = ggplot2::element_text(size = size$caption)
+      plot.caption = ggplot2::element_text(size = size$caption),
+      plot.title = element_text(size = size$title)
     )
 
   if (flip) {
