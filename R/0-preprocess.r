@@ -161,12 +161,15 @@ relief_data <- raw %>%
       year == 2011 ~ tinc * 0.20,
       year == 2012 ~ tinc * 0.30,
       year == 2013 ~ tinc * 0.30,
-      year >= 2014 ~ 3000
+      year >= 2014 ~ 3000,
+      year >= 2016 ~ 2000
     ),
     religious_ub = case_when(
       year < 2014 ~ tinc * 0.1,
-      year >= 2014 ~ 3000
-    )
+      year >= 2014 ~ 3000,
+      year >= 2016 ~ 2000
+    ),
+    incentive_limit = religious_ub
   )
 
 #'
