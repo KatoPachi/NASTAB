@@ -4,7 +4,7 @@ source(here("R", "_library.r"))
 
 #'
 #+ include = FALSE
-use <- readr::read_csv(here("data/shaped2.csv")) %>%
+dta <- readr::read_csv(here("data/shaped2.csv")) %>%
   dplyr::filter(2010 <= year & year < 2018) %>%
   dplyr::filter(tinc < 1100 | 1300 < tinc) %>%
   dplyr::filter(tinc < 4500 | 4700 < tinc) %>%
@@ -12,9 +12,18 @@ use <- readr::read_csv(here("data/shaped2.csv")) %>%
   dplyr::filter(tinc < 14000 | 16000 < tinc) %>%
   dplyr::filter(tinc < 30000) %>%
   dplyr::filter(bracket13 != "(F) & (G) 30000--" | is.na(bracket13)) %>%
-  dplyr::filter(dependents == 0) %>%
+  dplyr::filter(dependents == 0)
+
+#' //NOTE: Exceed upper bound
+#+
+dta %>%
+  mutate(over_bound = donate > incentive_limit) %>%
+  group_by(year) %>%
+  summarize(mean(over_bound), mean(incentive_limit))
+
+use <- dta %>%
   dplyr::filter(tinc > donate) %>%
-  dplyr::filter(d_relief_donate == 0 | donate <= religious_ub)
+  dplyr::filter(d_relief_donate == 0 | incentive_limit >= donate)
 
 #' //NOTE: Summary statistics
 #+ SummaryCovariate, eval = output_type() != "appx"
@@ -78,7 +87,7 @@ plot_price <- use %>%
   ) +
   geom_hline(
     aes(yintercept = (1 - 0.15) * 0.5),
-    color = "black", linetype = 2, size = 1
+    color = "black", linetype = 2, linewidth = 1
   ) +
   scale_color_manual(NULL, values = "black") +
   scale_fill_manual(NULL, values = "grey80") +
@@ -91,7 +100,7 @@ plot_price <- use %>%
     x = "Annual total income (10,000KRW)",
     y = "Relative frequency"
   ) +
-  ggtemp(size = list(title = 15, text = 13, caption = 13))
+  ggtemp(size = list(axis_title = 15, axis_text = 13, caption = 13))
 
 plot_price
 
@@ -140,7 +149,7 @@ plot_giving <- use %>%
   )) +
   scale_x_continuous(breaks = seq(2010, 2018, 1)) +
   labs(x = "Year", y = "Proportion of Donors") +
-  ggtemp(size = list(title = 15, text = 13))
+  ggtemp(size = list(axis_title = 15, axis_text = 13))
 
 ggsave(
   here("export", "figures", "giving-time-series.pdf"),
@@ -175,7 +184,7 @@ plot_giving2 <- use %>%
     y = "Normalized average giving",
     shape = "Income bracket (unit:10,000KRW)"
   ) +
-  ggtemp(size = list(title = 15, text = 13, caption = 13))
+  ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
 
 plot_giving3 <- use %>%
   dplyr::filter(!is.na(bracket13)) %>%
@@ -202,7 +211,7 @@ plot_giving3 <- use %>%
     y = "Normalized average giving",
     shape = "Income bracket (unit:10,000KRW)"
   ) +
-  ggtemp(size = list(title = 15, text = 13, caption = 13))
+  ggtemp(size = list(axis_title = 15, asix_text = 13, title = 13))
 
 plot_giving4 <- use %>%
   dplyr::filter(!is.na(bracket13)) %>%
@@ -228,7 +237,7 @@ plot_giving4 <- use %>%
     y = "Normalized proportion of donors",
     shape = "Income bracket (unit:10,000KRW)"
   ) +
-  ggtemp(size = list(title = 15, text = 13, caption = 13))
+  ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
 
 plot_merge <- plot_giving2 + plot_giving4 +
   plot_layout(guides = "collect") &
@@ -260,7 +269,7 @@ plot_relief1 <- use %>%
     y = "Proportion of application for tax relief",
     shape = "Income bracket (unit:10,000KRW)"
   ) +
-  ggtemp(size = list(title = 15, text = 13, caption = 13)) +
+  ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13)) +
   guides(shape = guide_legend(
     title.position = "top", title.hjust = 0.5, nrow = 2
   ))
@@ -287,13 +296,70 @@ plot_relief2 <- use %>%
     shape = "",
     linetype = ""
   ) +
-  ggtemp(size = list(title = 15, text = 13))
+  ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
 
 plot_relief_merge <- plot_relief1 + plot_relief2
 
 ggsave(
   here("export", "figures", "summary-tax-relief.pdf"),
   plot = plot_relief_merge,
+  width = 10,
+  height = 6
+)
+
+plot_relief3 <- use %>%
+  dplyr::filter(d_donate == 1) %>%
+  dplyr::filter(!is.na(bracket13)) %>%
+  group_by(year, bracket13) %>%
+  summarize(mu = mean(d_relief_donate, na.rm = TRUE)) %>%
+  ggplot(aes(x = year, y = mu, group = bracket13)) +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  geom_point(aes(shape = bracket13), size = 4) +
+  geom_line() +
+  scale_shape_manual(values = c(16, 15, 17, 18)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
+  labs(
+    title = "Panel A. Grouped by Income Bracket",
+    x = "Year",
+    y = "Proportion of application for tax relief",
+    shape = "Income bracket (unit:10,000KRW)"
+  ) +
+  ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13)) +
+  guides(shape = guide_legend(
+    title.position = "top", title.hjust = 0.5, nrow = 2
+  ))
+
+plot_relief4 <- use %>%
+  dplyr::filter(d_donate == 1) %>%
+  dplyr::filter(!is.na(employee)) %>%
+  mutate(employee = factor(
+    employee,
+    levels = c(1, 0), labels = c("Wage earners", "Others")
+  )) %>%
+  group_by(year, employee) %>%
+  summarize_at(vars(d_relief_donate), list(~ mean(., na.rm = TRUE))) %>%
+  mutate(employee = factor(employee)) %>%
+  ggplot(aes(x = year, y = d_relief_donate, group = employee)) +
+  geom_point(aes(shape = employee), color = "black", size = 4) +
+  geom_line(aes(linetype = employee)) +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2)) +
+  labs(
+    title = "Panel B. Grouped by Wage Earner or Not",
+    x = "Year",
+    y = "Proportion of application for tax relief",
+    shape = "",
+    linetype = ""
+  ) +
+  ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
+
+plot_relief_merge2 <- plot_relief3 + plot_relief4
+
+ggsave(
+  here("export", "figures", "summary-tax-relief-cond-donors.pdf"),
+  plot = plot_relief_merge2,
   width = 10,
   height = 6
 )
