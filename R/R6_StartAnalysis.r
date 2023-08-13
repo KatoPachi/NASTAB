@@ -3,6 +3,7 @@ library(R6)
 library(tidyverse)
 source(here("R/R6_SummaryData.r"))
 source(here("R/R6_FirstPrice.r"))
+source(here("R/R6_LastPrice.r"))
 
 StartAnalysis <- R6::R6Class("StartAnalysis", list(
   data = NULL,
@@ -40,6 +41,7 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
         linc,
         price,
         price_ln,
+        lprice_ln,
         d_relief_donate,
         age,
         sqage,
@@ -57,5 +59,6 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
       )
   },
   summary = function() SummaryData$new(self$data),
-  first_price = function() FirstPrice$new(self$data)
+  first_price = function() FirstPrice$new(self$data),
+  last_price = function() LastPrice$new(self$data)
 ))
