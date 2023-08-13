@@ -5,6 +5,9 @@ source(here("R/R6_StartAnalysis.r"))
 # Create R6 class for analysis
 use <- StartAnalysis$new(here("data/shaped2.csv"))
 
+# Output options
+options(modelsummary_stars_note = FALSE)
+
 # //NOTE: Table 2: Descriptive Statistics
 data_summary <- use$summary()
 data_summary$stats()
@@ -30,3 +33,10 @@ est_fp$stage1()
 
 # //NOTE: Table A2: Estimation of Price Elasticities Excluding Announcement Effect
 est_fp$exclude_announcement()
+
+# //NOTE: Table A3: Estimation Results of Intensive-Margin Last-Price Elasticities
+est_lp <- use$last_price()$fit()
+est_lp$intensive()
+
+# //NOTE: Table A4: Estimation Results of Extensive-Margin Last-Price Elasticities
+est_lp$extensive()

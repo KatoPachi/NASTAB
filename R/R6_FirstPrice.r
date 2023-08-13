@@ -149,7 +149,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
             "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
             "tinc_ln" = "Log income"
           ),
-          gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
+          gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
           add_rows = addtab,
           output = "latex",
