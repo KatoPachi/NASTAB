@@ -1,5 +1,68 @@
+---
+title: |
+  Additional Analysis
+output:
+  beamer_presentation:
+    latex_engine: xelatex
+    keep_tex: no
+    toc: no
+    dev: cairo_pdf
+classoption: aspectratio=169
+header-includes:
+  - \usepackage{booktabs, threeparttable}
+  - \usepackage{siunitx}
+---
 
-```{r funcs}
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE,
+  fig.pos = "t",
+  fig.width = 10,
+  fig.height = 6
+)
+
+options(
+  modelsummary_stars_note = FALSE,
+  modelsummary_factory_default = "latex"
+)
+```
+
+```{r funcs, include=FALSE}
 library(here)
 source(here("R/R6_StartAnalysis.r"))
+```
+
+```{r set-class, include=FALSE}
+use <- StartAnalysis$new(here("data/shaped2.csv"))
+```
+
+# Estimate Elasticities among Claimants
+## Results
+
+```{r estimate-claimant, include=FALSE}
+fp <- use$first_price()
+fp_claimant <- subset(fp$data, d_relief_donate == 1 & type == "intensive")
+fit <- feols(outcome ~ applicable + ..stage2, data = fp_claimant, vcov = ~hhid)
+```
+
+```{r regtab-claimant}
+list("(1)" = fit) %>%
+  modelsummary(
+    title = "Intensive-Margin Price Elasticity among Claimants",
+    coef_map = c(
+      "applicable" = "Applicable price ($\\beta_a$)",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(" " = 1, "FE" = 1)) %>%
+  add_header_above(c(" " = 1, "Log donation" = 1)) %>%
+  column_spec(2, width = "5em")
 ```
