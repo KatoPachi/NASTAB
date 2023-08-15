@@ -119,3 +119,59 @@ fit_lp_mod %>%
   ) %>%
   column_spec(2:3, width = "6.25em")
 ```
+
+# Two Period Estimation
+
+## Use 2012 and 2015 data: First-Stage
+
+```{r two-year-fp-model, include=FALSE}
+fp_2year <- fp$clone()
+fp_2year$data <- subset(fp_2year$data, year == 2012 | year == 2015)
+```
+
+```{r stage1-two-year-fp-model}
+fp_2year$stage1()
+```
+
+## Use 2012 and 2015 data: Second-Stage
+
+```{r stage2-two-year-fp-model}
+fp_2year$stage2()
+```
+
+## Bracket-Shifting
+
+```{r shift-summary, include = TRUE}
+take_lag <- use$data %>%
+  group_by(pid) %>%
+  arrange(year) %>%
+  mutate(lag_price = if_else(
+    year - lag(year) > 1,
+    NA_real_,
+    price - lag(price)
+  ))
+
+take_lag %>%
+  group_by(year) %>%
+  summarise(
+    mu = mean(lag_price, na.rm = TRUE),
+    var = var(lag_price, na.rm = TRUE),
+    shift = sum(lag_price != 0, na.rm = TRUE)
+  )
+
+use2 <- use$clone()
+use2$data <- subset(take_lag, !(year %in% 2011:2013 & lag_price != 0))
+```
+
+## Remove Bracket-Shifting Sample in 2011--2013
+
+```{r}
+use2_fp <- use2$first_price()
+use2_fp$stage1()
+```
+
+## Remove Bracket-Shifting Sample in 2011--2013
+
+```{r}
+use2_fp$stage2()
+```
