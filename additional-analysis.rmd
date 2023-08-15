@@ -41,15 +41,16 @@ use <- StartAnalysis$new(here("data/shaped2.csv"))
 ```
 
 # Estimate Elasticities among Claimants
-## Results
 
-```{r estimate-claimant, include=FALSE}
+## Results: First-Price Elasticity
+
+```{r estimate-fp-claimant, include=FALSE}
 fp <- use$first_price()
 fp_claimant <- subset(fp$data, d_relief_donate == 1 & type == "intensive")
 fit <- feols(outcome ~ applicable + ..stage2, data = fp_claimant, vcov = ~hhid)
 ```
 
-```{r regtab-claimant}
+```{r regtab-fp-claimant}
 list("(1)" = fit) %>%
   modelsummary(
     title = "Intensive-Margin Price Elasticity among Claimants",
@@ -65,4 +66,56 @@ list("(1)" = fit) %>%
   add_header_above(c(" " = 1, "FE" = 1)) %>%
   add_header_above(c(" " = 1, "Log donation" = 1)) %>%
   column_spec(2, width = "5em")
+```
+
+## Results: Last-Price Elasticity
+
+```{r estimate-lp-claimant, include=FALSE}
+lp <- use$last_price()
+lp_claimant <- subset(lp$data, d_relief_donate == 1 & type == "intensive")
+
+lp_mod <- list(
+  "(1)" = outcome ~ applicable_last + ..stage2,
+  "(2)" = outcome ~ ..stage2 | applicable_last ~ applicable
+)
+
+fit_lp_mod <- lp_mod %>%
+  map(~feols(., data = lp_claimant, vcov = ~ hhid))
+
+stat_stage1 <- c(get_fitstat(fit_lp_mod[[2]], "ivf", "stat"), get_fitstat(fit_lp_mod[[2]], "wh", "p"))
+stat_stage1 <- sprintf("\\num{%1.3f}", stat_stage1)
+stat_stage1 <- ifelse(stat_stage1 == "\\num{0.000}", "$<$ \\num{0.001}", stat_stage1)
+
+addtab <- tibble(
+  term = c("F-statistics of instrument", "Wu-Hausman test, p-value"),
+  mod1 = c("", ""),
+  mod2 = stat_stage1
+)
+
+attr(addtab, "position") <- 5:6
+```
+
+```{r regtab-lp-claimant}
+fit_lp_mod %>%
+  modelsummary(
+    title = "Intensive-Margin Last-Price Elasticity among Claimants",
+    coef_map = c(
+      "applicable_last" = "Applicable last-price",
+      "fit_applicable_last" = "Applicable last-price",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
+  add_header_above(c(" " = 1, "Log donation" = 2)) %>%
+  group_rows(
+    "1st stage information (Excluded instrument: Applicable price)",
+    5, 6,
+    bold = FALSE, italic = TRUE
+  ) %>%
+  column_spec(2:3, width = "6.25em")
 ```
