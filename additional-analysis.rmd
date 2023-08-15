@@ -1,0 +1,5 @@
+
+```{r funcs}
+library(here)
+source(here("R/R6_StartAnalysis.r"))
+```
