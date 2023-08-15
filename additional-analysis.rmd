@@ -165,13 +165,27 @@ use2$data <- subset(take_lag, !(year %in% 2011:2013 & lag_price != 0))
 
 ## Remove Bracket-Shifting Sample in 2011--2013
 
-```{r}
+```{r include = TRUE}
 use2_fp <- use2$first_price()
 use2_fp$stage1()
 ```
 
 ## Remove Bracket-Shifting Sample in 2011--2013
 
-```{r}
+```{r include=TRUE}
 use2_fp$stage2()
+```
+
+# Appendix
+
+## Full-sample analysis: Stage 1
+
+```{r include=TRUE}
+use$first_price()$stage1()
+```
+
+## Full-sample analysis: Stage 2
+
+```{r include=TRUE}
+use$first_price()$stage2()
 ```
