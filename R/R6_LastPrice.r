@@ -65,7 +65,7 @@ LastPrice <- R6::R6Class("LastPrice",
           output = "latex",
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = 6) %>%
         add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 2)) %>%
         add_header_above(c(" " = 1, "Log donation" = 4)) %>%
         group_rows(
@@ -103,7 +103,7 @@ LastPrice <- R6::R6Class("LastPrice",
           output = "latex",
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = 6) %>%
         add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 2)) %>%
         add_header_above(c(" " = 1, "A dummy of donor" = 4)) %>%
         group_rows("Implied price elasticity", 7, 8, italic = TRUE, bold = FALSE) %>%

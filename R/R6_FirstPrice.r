@@ -56,7 +56,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
           output = "latex",
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = 6) %>%
         add_header_above(c(
           " " = 1,
           "Donors (Intensive-margin)" = 1,
@@ -155,7 +155,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
           output = "latex",
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = 6) %>%
         add_header_above(c(
           " " = 1, "FE" = 2, "FE-2SLS" = 1, "FE" = 2, "FE-2SLS" = 1
         )) %>%
