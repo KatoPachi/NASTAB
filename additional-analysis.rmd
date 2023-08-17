@@ -224,7 +224,6 @@ Take an one-year lag of applicable price
 
 ```{r include=TRUE}
 use2$data %>%
-  # dplyr::filter(year < 2014) %>%
   group_by(year) %>%
   summarise(
     mu = mean(lag_price, na.rm = TRUE),
@@ -244,6 +243,80 @@ use2_fp$stage1()
 
 ```{r include=TRUE}
 use2_fp$stage2()
+```
+
+# Heterogeneous Elasticities
+
+```{r}
+use2$data <- use2$data %>%
+  mutate(inc_group = if_else(tinc < 2200, "Low", "High")) %>%
+  ungroup()
+
+dta <- use2$first_price()$data
+```
+
+## Intensive-Margin Price Elasticities
+
+```{r}
+mod <- outcome ~ ..stage2 | effective ~ applicable
+
+fit <- dta %>%
+  group_by(type, inc_group) %>%
+  nest() %>%
+  mutate(
+    mu = map_dbl(data, ~ with(., mean(outcome, na.rm = TRUE))),
+    fit = map(data, ~ feols(mod, data = ., vcov = ~ hhid))
+  ) %>%
+  arrange(desc(type), desc(inc_group)) %>%
+  select(-data)
+
+addtab <- fit %>%
+  mutate(
+    imp = map2(fit, mu, ~ implied_e(.x, .y)),
+    ivf = map_dbl(fit, ~ get_fitstat(., "ivf", "stat")),
+    wh = map_dbl(fit, ~ get_fitstat(., "wh", "p"))
+  ) %>%
+  select(-mu, -fit) %>%
+  unnest(imp) %>%
+  mutate_at(vars(estimate, estimate_se), list(~ ifelse(type == "extensive", ., ""))) %>%
+  mutate_at(vars(ivf, wh), list(~ ifelse(is.na(.), "", sprintf("\\num{%1.3f}", .)))) %>%
+  mutate_at(vars(ivf, wh), list(~ ifelse(. == "\\num{0.000}", "$<$ \\num{0.001}", .))) %>%
+  mutate(id = paste0(type, "_", inc_group)) %>%
+  ungroup() %>%
+  select(-type, -inc_group) %>%
+  pivot_longer(-id) %>%
+  pivot_wider(names_from = id, values_from = value) %>%
+  mutate(name = recode(
+    name,
+    "estimate" = "Estimate",
+    "estimate_se" = "",
+    "ivf" = "F-statistics of instrument",
+    "wh" = "Wu-Hausman test, p-value"
+  ))
+
+attr(addtab, "position") <- 5:8
+
+fit %>%
+  pull(fit) %>%
+  modelsummary(
+    title = "Heterogeneity of Price Elasticity",
+    coef_map = c(
+      "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(
+    "Below/above median income" = 1,
+    "Below" = 1, "Above" = 1,
+    "Below" = 1, "Above" = 1
+  )) %>%
+  add_header_above(c(" " = 1, "Log donation" = 2, "1 = Donor" = 2)) %>%
+  add_header_above(c(" " = 1, "FE-2SLS" = 4))
 ```
 
 # Appendix
