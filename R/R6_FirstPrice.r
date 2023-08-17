@@ -11,6 +11,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
     data = NULL,
     initialize = function(data) {
       self$data <- data %>%
+        relocate(donate_ln, d_donate, .after = last_col()) %>%
         rename(
           outcome_intensive = donate_ln,
           outcome_extensive = d_donate,
