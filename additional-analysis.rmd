@@ -120,7 +120,7 @@ fit_lp_mod %>%
   column_spec(2:3, width = "6.25em")
 ```
 
-# Two Period Estimation
+# Two Period Estimation: Removing Bracket-Shifting Effect
 
 ## Use 2012 and 2015 data: First-Stage
 
@@ -139,9 +139,11 @@ fp_2year$stage1()
 fp_2year$stage2()
 ```
 
-## Bracket-Shifting
+## One-Year Bracket-Shifting
 
-```{r shift-summary, include = TRUE}
+Take an one-year lag of applicable price
+
+```{r include = TRUE}
 take_lag <- use$data %>%
   group_by(pid) %>%
   arrange(year) %>%
@@ -152,15 +154,83 @@ take_lag <- use$data %>%
   ))
 
 take_lag %>%
+  dplyr::filter(year < 2014) %>%
   group_by(year) %>%
   summarise(
     mu = mean(lag_price, na.rm = TRUE),
     var = var(lag_price, na.rm = TRUE),
     shift = sum(lag_price != 0, na.rm = TRUE)
   )
+```
+
+## Two-Year Bracket Shifting
+
+Take a two-year lag of applicable price
+
+```{r include = TRUE}
+take_lag2 <- take_lag %>%
+  mutate(lag2_price = if_else(
+    year - lag(year) > 2,
+    NA_real_,
+    price - lag(price, n = 2)
+  ))
+
+take_lag2 %>%
+  dplyr::filter(year < 2014) %>%
+  group_by(year) %>%
+  summarise(
+    mu = mean(lag2_price, na.rm = TRUE),
+    var = var(lag2_price, na.rm = TRUE),
+    shift = sum(lag2_price != 0, na.rm = TRUE)
+  )
+```
+
+## Three-Year Bracket Shifting
+
+```{r include = TRUE}
+take_lag3 <- take_lag2 %>%
+  mutate(lag3_price = if_else(
+    year - lag(year) > 3,
+    NA_real_,
+    price - lag(price, n = 3)
+  ))
+
+take_lag3 %>%
+  dplyr::filter(year < 2014) %>%
+  group_by(year) %>%
+  summarise(
+    mu = mean(lag3_price, na.rm = TRUE),
+    var = var(lag3_price, na.rm = TRUE),
+    shift = sum(lag3_price != 0, na.rm = TRUE)
+  )
+```
+
+## How to Remove Bracket-Shifting
+
+```{r}
+shift1_id <- unique(subset(take_lag3, year %in% 2011:2013 & lag_price != 0)$pid)
+shift2_id <- unique(subset(take_lag3, year %in% 2012:2013 & lag2_price != 0)$pid)
+shift3_id <- unique(subset(take_lag3, year %in% 2013:2013 & lag3_price != 0)$pid)
+
+shift_id <- unique(c(shift1_id, shift2_id, shift3_id))
 
 use2 <- use$clone()
-use2$data <- subset(take_lag, !(year %in% 2011:2013 & lag_price != 0))
+use2$data <- subset(take_lag, !(pid %in% shift_id))
+```
+
+We remove tax-payers whose income bracket has been shifted in 2011--2013 (`r length(shift_id)` people)
+
+Take an one-year lag of applicable price
+
+```{r include=TRUE}
+use2$data %>%
+  # dplyr::filter(year < 2014) %>%
+  group_by(year) %>%
+  summarise(
+    mu = mean(lag_price, na.rm = TRUE),
+    var = var(lag_price, na.rm = TRUE),
+    shift = sum(lag_price != 0, na.rm = TRUE)
+  )
 ```
 
 ## Remove Bracket-Shifting Sample in 2011--2013
