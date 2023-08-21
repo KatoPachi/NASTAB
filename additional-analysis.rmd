@@ -249,26 +249,72 @@ use2_fp$stage2()
 # Heterogeneous Elasticities
 
 ```{r}
-use2$data <- use2$data %>%
-  mutate(inc_group = if_else(tinc < 2200, "Low", "High")) %>%
-  ungroup()
+low_inc_dta <- use2$first_price()$data %>%
+  ungroup() %>%
+  dplyr::filter(tinc <= 4600) %>%
+  mutate(group = "low")
 
-dta <- use2$first_price()$data
+high_inc_dta <- use2$first_price()$data %>%
+  ungroup() %>%
+  dplyr::filter(tinc >= 1200) %>%
+  mutate(group = "high")
 ```
 
-## Intensive-Margin Price Elasticities
+## First-Stage Results
+
+```{r}
+mod <- effective ~ applicable + ..stage2
+
+fit <- bind_rows(low_inc_dta, high_inc_dta) %>%
+  group_by(type, group) %>%
+  nest() %>%
+  mutate(
+    fit = map(data, ~ feols(mod, data = ., vcov = ~ hhid))
+  ) %>%
+  arrange(desc(type), desc(group)) %>%
+  select(-data)
+
+fit %>%
+  pull(fit) %>%
+  modelsummary(
+    title = "Heterogeneity of Price Elasticity: First-Stage Result",
+    coef_map = c(
+      "applicable" = "Applicable price",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 6) %>%
+  add_header_above(c(
+    "Total income" = 1,
+    "$\\\\le 4,600$" = 1, "$1,200 \\\\le$" = 1,
+    "$\\\\le 4,600$" = 1, "$1,200 \\\\le$" = 1
+  ), escape = FALSE) %>%
+  add_header_above(c(
+    " " = 1,
+    "Donors (Intensive-margin)" = 2,
+    "Donors and Non-donors (Extensive-margin)" = 2
+  )) %>%
+  add_header_above(c(" " = 1, "Effective price" = 4)) %>%
+  group_rows("Excluded instruments", 1, 2, italic = TRUE, bold = FALSE) %>%
+  group_rows("Covariates", 3, 4, italic = TRUE, bold = FALSE)
+```
+
+## Second-Stage Results
 
 ```{r}
 mod <- outcome ~ ..stage2 | effective ~ applicable
 
-fit <- dta %>%
-  group_by(type, inc_group) %>%
+fit <- bind_rows(low_inc_dta, high_inc_dta) %>%
+  group_by(type, group) %>%
   nest() %>%
   mutate(
     mu = map_dbl(data, ~ with(., mean(outcome, na.rm = TRUE))),
     fit = map(data, ~ feols(mod, data = ., vcov = ~ hhid))
   ) %>%
-  arrange(desc(type), desc(inc_group)) %>%
+  arrange(desc(type), desc(group)) %>%
   select(-data)
 
 addtab <- fit %>%
@@ -282,9 +328,9 @@ addtab <- fit %>%
   mutate_at(vars(estimate, estimate_se), list(~ ifelse(type == "extensive", ., ""))) %>%
   mutate_at(vars(ivf, wh), list(~ ifelse(is.na(.), "", sprintf("\\num{%1.3f}", .)))) %>%
   mutate_at(vars(ivf, wh), list(~ ifelse(. == "\\num{0.000}", "$<$ \\num{0.001}", .))) %>%
-  mutate(id = paste0(type, "_", inc_group)) %>%
+  mutate(id = paste0(type, "_", group)) %>%
   ungroup() %>%
-  select(-type, -inc_group) %>%
+  select(-type, -group) %>%
   pivot_longer(-id) %>%
   pivot_wider(names_from = id, values_from = value) %>%
   mutate(name = recode(
@@ -312,10 +358,10 @@ fit %>%
   ) %>%
   kable_styling(font_size = 8) %>%
   add_header_above(c(
-    "Below/above median income" = 1,
-    "Below" = 1, "Above" = 1,
-    "Below" = 1, "Above" = 1
-  )) %>%
+    "Total income" = 1,
+    "$\\\\le 4,600$" = 1, "$1,200 \\\\le$" = 1,
+    "$\\\\le 4,600$" = 1, "$1,200 \\\\le$" = 1
+  ), escape = FALSE) %>%
   add_header_above(c(" " = 1, "Log donation" = 2, "1 = Donor" = 2)) %>%
   add_header_above(c(" " = 1, "FE-2SLS" = 4))
 ```
@@ -336,7 +382,7 @@ mod_list <- list(
 fit <- mod_list %>%
   map(~ feols(., data = lp_ext_dt, vcov =~hhid))
 
-implied_e <- fit %>%
+implied_e_tab <- fit %>%
   map(function(x) implied_e(x, mu) %>% pivot_longer(everything())) %>%
   reduce(left_join, by = "name") %>% 
   mutate(name = dplyr::recode(name, "estimate" = "Estimate", "estimate_se" = ""))
@@ -351,7 +397,7 @@ stat_stage1_tab <- tibble(
   value.y = stat_stage1
 )
 
-addtab <- bind_rows(implied_e, stat_stage1_tab)
+addtab <- bind_rows(implied_e_tab, stat_stage1_tab)
 attr(addtab, "position") <- 5:8
 
 fit %>%
@@ -380,12 +426,12 @@ fit %>%
 
 ## Full-sample analysis: Stage 1
 
-```{r eval=FALSE}
+```{r include=TRUE}
 fp$stage1()
 ```
 
 ## Full-sample analysis: Stage 2
 
-```{r eval=FALSE}
+```{r include=TRUE}
 fp$stage2()
 ```
