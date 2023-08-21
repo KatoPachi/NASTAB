@@ -374,12 +374,12 @@ fit %>%
 lp_ext_dt <- subset(lp$data, type == "extensive")
 mu <- with(lp_ext_dt, mean(d_relief_donate, na.rm = TRUE))
 
-mod_list <- list(
+mod_claim_list <- list(
   "(1)" = d_relief_donate ~ applicable + ..stage2,
   "(2)" = d_relief_donate ~ ..stage2 | applicable_last ~ applicable
 )
 
-fit <- mod_list %>%
+fit <- mod_claim_list %>%
   map(~ feols(., data = lp_ext_dt, vcov =~hhid))
 
 implied_e_tab <- fit %>%
@@ -398,13 +398,14 @@ stat_stage1_tab <- tibble(
 )
 
 addtab <- bind_rows(implied_e_tab, stat_stage1_tab)
-attr(addtab, "position") <- 5:8
+attr(addtab, "position") <- 7:10
 
 fit %>%
   modelsummary(
     coef_map = c(
       "applicable" = "Applicable first-price",
-      "fit_applicable_last" = "Applicable last-price"
+      "fit_applicable_last" = "Applicable last-price",
+      "tinc_ln" = "Log income"
     ),
     gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
     stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -414,12 +415,57 @@ fit %>%
   kable_styling(font_size = 8) %>%
   add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
   add_header_above(c(" " = 1, "1 = Claiming" = 2)) %>%
-  group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
+  group_rows("Implied price elasticity", 7, 8, italic = TRUE, bold = FALSE) %>%
   group_rows(
     "1st stage information (Excluded instrument: Applicable first-price)",
-    7, 8,
+    9, 10,
     italic = TRUE, bold = FALSE
   )
+```
+
+## Heterogeneity: Price Elasticity of Claiming
+
+```{r}
+fit <- bind_rows(low_inc_dta, high_inc_dta) %>%
+  dplyr::filter(type == "extensive") %>%
+  group_by(group) %>%
+  nest() %>%
+  mutate(
+    mu = map_dbl(data, ~ with(., mean(d_relief_donate, na.rm = TRUE))),
+    fit = map(data, ~ feols(mod_claim_list[[1]], data = ., vcov = ~hhid))
+  )
+
+addtab <- fit %>%
+  mutate(imp = map2(fit, mu, ~ implied_e(.x, .y))) %>%
+  select(-mu, -fit, -data) %>%
+  unnest(imp) %>%
+  ungroup() %>%
+  pivot_longer(-group) %>%
+  pivot_wider(names_from = group, values_from = value) %>%
+  mutate(name = recode(
+    name,
+    "estimate" = "Estimate",
+    "estimate_se" = ""
+  ))
+
+attr(addtab, "position") <- 5:6
+
+fit %>%
+  pull(fit) %>%
+  modelsummary(
+    coef_map = c(
+      "applicable" = "Applicable first-price",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c("Total income" = 1, "$\\\\le 4,600$" = 1, "$1,200 \\\\le$" = 1), escape = FALSE) %>%
+  add_header_above(c(" " = 1, "1 = Claiming" = 2)) %>%
+  group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE)
 ```
 
 # Appendix
