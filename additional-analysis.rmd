@@ -1,0 +1,391 @@
+---
+title: |
+  Additional Analysis
+date: "Last updated on `r format(Sys.Date(), '%Y/%m/%d')`"
+output:
+  beamer_presentation:
+    latex_engine: xelatex
+    keep_tex: no
+    toc: no
+    dev: cairo_pdf
+classoption: aspectratio=169
+header-includes:
+  - \usepackage{booktabs, threeparttable}
+  - \usepackage{siunitx}
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE,
+  fig.pos = "t",
+  fig.width = 10,
+  fig.height = 6
+)
+
+options(
+  modelsummary_stars_note = FALSE,
+  modelsummary_factory_default = "latex"
+)
+```
+
+```{r funcs, include=FALSE}
+library(here)
+source(here("R/R6_StartAnalysis.r"))
+```
+
+```{r set-class, include=FALSE}
+use <- StartAnalysis$new(here("data/shaped2.csv"))
+```
+
+# Estimate Elasticities among Claimants
+
+## Results: First-Price Elasticity
+
+```{r estimate-fp-claimant, include=FALSE}
+fp <- use$first_price()
+fp_claimant <- subset(fp$data, d_relief_donate == 1 & type == "intensive")
+fit <- feols(outcome ~ applicable + ..stage2, data = fp_claimant, vcov = ~hhid)
+```
+
+```{r regtab-fp-claimant}
+list("(1)" = fit) %>%
+  modelsummary(
+    title = "Intensive-Margin Price Elasticity among Claimants",
+    coef_map = c(
+      "applicable" = "Applicable price ($\\beta_a$)",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(" " = 1, "FE" = 1)) %>%
+  add_header_above(c(" " = 1, "Log donation" = 1)) %>%
+  column_spec(2, width = "5em")
+```
+
+## Results: Last-Price Elasticity
+
+```{r estimate-lp-claimant, include=FALSE}
+lp <- use$last_price()
+lp_claimant <- subset(lp$data, d_relief_donate == 1 & type == "intensive")
+
+lp_mod <- list(
+  "(1)" = outcome ~ applicable_last + ..stage2,
+  "(2)" = outcome ~ ..stage2 | applicable_last ~ applicable
+)
+
+fit_lp_mod <- lp_mod %>%
+  map(~feols(., data = lp_claimant, vcov = ~ hhid))
+
+stat_stage1 <- c(get_fitstat(fit_lp_mod[[2]], "ivf", "stat"), get_fitstat(fit_lp_mod[[2]], "wh", "p"))
+stat_stage1 <- sprintf("\\num{%1.3f}", stat_stage1)
+stat_stage1 <- ifelse(stat_stage1 == "\\num{0.000}", "$<$ \\num{0.001}", stat_stage1)
+
+addtab <- tibble(
+  term = c("F-statistics of instrument", "Wu-Hausman test, p-value"),
+  mod1 = c("", ""),
+  mod2 = stat_stage1
+)
+
+attr(addtab, "position") <- 5:6
+```
+
+```{r regtab-lp-claimant}
+fit_lp_mod %>%
+  modelsummary(
+    title = "Intensive-Margin Last-Price Elasticity among Claimants",
+    coef_map = c(
+      "applicable_last" = "Applicable last-price",
+      "fit_applicable_last" = "Applicable last-price",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
+  add_header_above(c(" " = 1, "Log donation" = 2)) %>%
+  group_rows(
+    "1st stage information (Excluded instrument: Applicable price)",
+    5, 6,
+    bold = FALSE, italic = TRUE
+  ) %>%
+  column_spec(2:3, width = "6.25em")
+```
+
+# Two Period Estimation: Removing Bracket-Shifting Effect
+
+## Use 2012 and 2015 data: First-Stage
+
+```{r two-year-fp-model, include=FALSE}
+fp_2year <- fp$clone()
+fp_2year$data <- subset(fp_2year$data, year == 2012 | year == 2015)
+```
+
+```{r stage1-two-year-fp-model}
+fp_2year$stage1()
+```
+
+## Use 2012 and 2015 data: Second-Stage
+
+```{r stage2-two-year-fp-model}
+fp_2year$stage2()
+```
+
+## One-Year Bracket-Shifting
+
+Take an one-year lag of applicable price
+
+```{r include = TRUE}
+take_lag <- use$data %>%
+  group_by(pid) %>%
+  arrange(year) %>%
+  mutate(lag_price = if_else(
+    year - lag(year) > 1,
+    NA_real_,
+    price - lag(price)
+  ))
+
+take_lag %>%
+  dplyr::filter(year < 2014) %>%
+  group_by(year) %>%
+  summarise(
+    mu = mean(lag_price, na.rm = TRUE),
+    var = var(lag_price, na.rm = TRUE),
+    shift = sum(lag_price != 0, na.rm = TRUE)
+  )
+```
+
+## Two-Year Bracket Shifting
+
+Take a two-year lag of applicable price
+
+```{r include = TRUE}
+take_lag2 <- take_lag %>%
+  mutate(lag2_price = if_else(
+    year - lag(year) > 2,
+    NA_real_,
+    price - lag(price, n = 2)
+  ))
+
+take_lag2 %>%
+  dplyr::filter(year < 2014) %>%
+  group_by(year) %>%
+  summarise(
+    mu = mean(lag2_price, na.rm = TRUE),
+    var = var(lag2_price, na.rm = TRUE),
+    shift = sum(lag2_price != 0, na.rm = TRUE)
+  )
+```
+
+## Three-Year Bracket Shifting
+
+```{r include = TRUE}
+take_lag3 <- take_lag2 %>%
+  mutate(lag3_price = if_else(
+    year - lag(year) > 3,
+    NA_real_,
+    price - lag(price, n = 3)
+  ))
+
+take_lag3 %>%
+  dplyr::filter(year < 2014) %>%
+  group_by(year) %>%
+  summarise(
+    mu = mean(lag3_price, na.rm = TRUE),
+    var = var(lag3_price, na.rm = TRUE),
+    shift = sum(lag3_price != 0, na.rm = TRUE)
+  )
+```
+
+## How to Remove Bracket-Shifting
+
+```{r}
+shift1_id <- unique(subset(take_lag3, year %in% 2011:2013 & lag_price != 0)$pid)
+shift2_id <- unique(subset(take_lag3, year %in% 2012:2013 & lag2_price != 0)$pid)
+shift3_id <- unique(subset(take_lag3, year %in% 2013:2013 & lag3_price != 0)$pid)
+
+shift_id <- unique(c(shift1_id, shift2_id, shift3_id))
+
+use2 <- use$clone()
+use2$data <- subset(take_lag, !(pid %in% shift_id))
+```
+
+We remove tax-payers whose income bracket has been shifted in 2011--2013 (`r length(shift_id)` people)
+
+Take an one-year lag of applicable price
+
+```{r include=TRUE}
+use2$data %>%
+  group_by(year) %>%
+  summarise(
+    mu = mean(lag_price, na.rm = TRUE),
+    var = var(lag_price, na.rm = TRUE),
+    shift = sum(lag_price != 0, na.rm = TRUE)
+  )
+```
+
+## Remove Bracket-Shifting Sample in 2011--2013
+
+```{r include = TRUE}
+use2_fp <- use2$first_price()
+use2_fp$stage1()
+```
+
+## Remove Bracket-Shifting Sample in 2011--2013
+
+```{r include=TRUE}
+use2_fp$stage2()
+```
+
+# Heterogeneous Elasticities
+
+```{r}
+use2$data <- use2$data %>%
+  mutate(inc_group = if_else(tinc < 2200, "Low", "High")) %>%
+  ungroup()
+
+dta <- use2$first_price()$data
+```
+
+## Intensive-Margin Price Elasticities
+
+```{r}
+mod <- outcome ~ ..stage2 | effective ~ applicable
+
+fit <- dta %>%
+  group_by(type, inc_group) %>%
+  nest() %>%
+  mutate(
+    mu = map_dbl(data, ~ with(., mean(outcome, na.rm = TRUE))),
+    fit = map(data, ~ feols(mod, data = ., vcov = ~ hhid))
+  ) %>%
+  arrange(desc(type), desc(inc_group)) %>%
+  select(-data)
+
+addtab <- fit %>%
+  mutate(
+    imp = map2(fit, mu, ~ implied_e(.x, .y)),
+    ivf = map_dbl(fit, ~ get_fitstat(., "ivf", "stat")),
+    wh = map_dbl(fit, ~ get_fitstat(., "wh", "p"))
+  ) %>%
+  select(-mu, -fit) %>%
+  unnest(imp) %>%
+  mutate_at(vars(estimate, estimate_se), list(~ ifelse(type == "extensive", ., ""))) %>%
+  mutate_at(vars(ivf, wh), list(~ ifelse(is.na(.), "", sprintf("\\num{%1.3f}", .)))) %>%
+  mutate_at(vars(ivf, wh), list(~ ifelse(. == "\\num{0.000}", "$<$ \\num{0.001}", .))) %>%
+  mutate(id = paste0(type, "_", inc_group)) %>%
+  ungroup() %>%
+  select(-type, -inc_group) %>%
+  pivot_longer(-id) %>%
+  pivot_wider(names_from = id, values_from = value) %>%
+  mutate(name = recode(
+    name,
+    "estimate" = "Estimate",
+    "estimate_se" = "",
+    "ivf" = "F-statistics of instrument",
+    "wh" = "Wu-Hausman test, p-value"
+  ))
+
+attr(addtab, "position") <- 5:8
+
+fit %>%
+  pull(fit) %>%
+  modelsummary(
+    title = "Heterogeneity of Price Elasticity",
+    coef_map = c(
+      "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
+      "tinc_ln" = "Log income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(
+    "Below/above median income" = 1,
+    "Below" = 1, "Above" = 1,
+    "Below" = 1, "Above" = 1
+  )) %>%
+  add_header_above(c(" " = 1, "Log donation" = 2, "1 = Donor" = 2)) %>%
+  add_header_above(c(" " = 1, "FE-2SLS" = 4))
+```
+
+# Price Elasticity of Claiming
+
+## Price Elasticity of Claiming
+
+```{r}
+lp_ext_dt <- subset(lp$data, type == "extensive")
+mu <- with(lp_ext_dt, mean(d_relief_donate, na.rm = TRUE))
+
+mod_list <- list(
+  "(1)" = d_relief_donate ~ applicable + ..stage2,
+  "(2)" = d_relief_donate ~ ..stage2 | applicable_last ~ applicable
+)
+
+fit <- mod_list %>%
+  map(~ feols(., data = lp_ext_dt, vcov =~hhid))
+
+implied_e <- fit %>%
+  map(function(x) implied_e(x, mu) %>% pivot_longer(everything())) %>%
+  reduce(left_join, by = "name") %>% 
+  mutate(name = dplyr::recode(name, "estimate" = "Estimate", "estimate_se" = ""))
+
+stat_stage1 <- c(get_fitstat(fit[[2]], "ivf", "stat"), get_fitstat(fit[[2]], "wh", "p"))
+stat_stage1 <- sprintf("\\num{%1.3f}", stat_stage1)
+stat_stage1 <- ifelse(stat_stage1 == "\\num{0.000}", "$<$ \\num{0.001}", stat_stage1)
+
+stat_stage1_tab <- tibble(
+  name = c("F-statistics of instrument", "Wu-Hausman test, p-value"),
+  value.x = c("", ""),
+  value.y = stat_stage1
+)
+
+addtab <- bind_rows(implied_e, stat_stage1_tab)
+attr(addtab, "position") <- 5:8
+
+fit %>%
+  modelsummary(
+    coef_map = c(
+      "applicable" = "Applicable first-price",
+      "fit_applicable_last" = "Applicable last-price"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
+  add_header_above(c(" " = 1, "1 = Claiming" = 2)) %>%
+  group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
+  group_rows(
+    "1st stage information (Excluded instrument: Applicable first-price)",
+    7, 8,
+    italic = TRUE, bold = FALSE
+  )
+```
+
+# Appendix
+
+## Full-sample analysis: Stage 1
+
+```{r eval=FALSE}
+fp$stage1()
+```
+
+## Full-sample analysis: Stage 2
+
+```{r eval=FALSE}
+fp$stage2()
+```
