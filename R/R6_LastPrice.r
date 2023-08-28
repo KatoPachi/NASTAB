@@ -63,7 +63,6 @@ LastPrice <- R6::R6Class("LastPrice",
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
           add_rows = est$stats %>% select(name, starts_with("intensive")),
-          output = "latex",
           escape = FALSE
         ) %>%
         kable_styling(font_size = 8) %>%
@@ -101,7 +100,6 @@ LastPrice <- R6::R6Class("LastPrice",
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
           add_rows = est$stats %>% select(name, starts_with("extensive")),
-          output = "latex",
           escape = FALSE
         ) %>%
         kable_styling(font_size = 8) %>%

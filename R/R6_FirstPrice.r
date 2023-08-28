@@ -54,7 +54,6 @@ FirstPrice <- R6::R6Class("FirstPrice",
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
           stars = c("***" = .01, "**" = .05, "*" = .1),
-          output = "latex",
           escape = FALSE
         ) %>%
         kable_styling(font_size = 8) %>%

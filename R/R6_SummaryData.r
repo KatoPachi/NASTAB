@@ -32,7 +32,6 @@ SummaryData <- R6::R6Class("SummaryData", list(
         title = "Descriptive Statistics\\label{tab:summary-covariate}",
         data = .,
         align = "lccc",
-        output = "latex",
         escape = FALSE
       ) %>%
       kable_styling(font_size = 8) %>%
