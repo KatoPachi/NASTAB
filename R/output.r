@@ -59,6 +59,11 @@ lp2_fit$intensive()
 # Appendix ? (Estimation Results of Extensive-Margin Last-Price Elasticities Removing Bracket Shifters)
 lp2_fit$extensive()
 
+# Appendix ? (First-Price Elasticities Using 2012 and 2015 Data)
+use3 <- use$clone()
+use3$limit_2_year()
+use3$first_price()$stage2()
+
 # //NOTE Discussion
 # Appendix ? (Intensive-Margin First-Price Elasticities among Claimants)
 est_fp$claimant_only()
