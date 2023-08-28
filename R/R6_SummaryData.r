@@ -121,9 +121,9 @@ SummaryData <- R6::R6Class("SummaryData", list(
       scale_x_continuous(breaks = seq(2010, 2018, 1)) +
       scale_y_continuous(breaks = seq(0, 3, by = 0.5), limits = c(0, 1.6)) +
       labs(
-        title = "Panel A. Amount of Giving",
+        title = "Panel B. Proportion of Donors",
         x = "Year",
-        y = "Normalized average giving",
+        y = "Normalized proportion of donors",
         shape = "Income bracket (unit:10,000KRW)"
       ) +
       ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
@@ -138,7 +138,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
     eval_tf <- eval_tidy(expr_subset, self$data)
     dta <- self$data[eval_tf, , drop = FALSE]
 
-    plot1 <- dta %>%
+    dta %>%
       dplyr::filter(!is.na(bracket13)) %>%
       group_by(year, bracket13) %>%
       summarize(mu = mean(d_relief_donate, na.rm = TRUE)) %>%
@@ -149,39 +149,11 @@ SummaryData <- R6::R6Class("SummaryData", list(
       scale_shape_manual(values = c(16, 15, 17, 18)) +
       scale_x_continuous(breaks = seq(2010, 2018, 1)) +
       labs(
-        title = "Panel A. Grouped by Income Bracket",
         x = "Year",
         y = "Proportion of application for tax relief",
         shape = "Income bracket (unit:10,000KRW)"
       ) +
       ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13)) +
-      guides(shape = guide_legend(
-        title.position = "top", title.hjust = 0.5, nrow = 2
-      ))
-
-    plot2 <- dta %>%
-      dplyr::filter(!is.na(employee)) %>%
-      mutate(employee = factor(
-        employee,
-        levels = c(1, 0), labels = c("Wage earners", "Others")
-      )) %>%
-      group_by(year, employee) %>%
-      summarize_at(vars(d_relief_donate), list(~ mean(., na.rm = TRUE))) %>%
-      mutate(employee = factor(employee)) %>%
-      ggplot(aes(x = year, y = d_relief_donate, group = employee)) +
-      geom_point(aes(shape = employee), color = "black", size = 4) +
-      geom_line(aes(linetype = employee)) +
-      geom_vline(aes(xintercept = 2013.5), linetype = 3) +
-      scale_x_continuous(breaks = seq(2010, 2018, 1)) +
-      labs(
-        title = "Panel B. Grouped by Wage Earner or Not",
-        x = "Year",
-        y = "Proportion of application for tax relief",
-        shape = "",
-        linetype = ""
-      ) +
-      ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
-
-    plot1 + plot2
+      guides(shape = guide_legend(title.position = "top", title.hjust = 0.5))
   }
 ))
