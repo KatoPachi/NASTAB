@@ -170,6 +170,60 @@ LastPrice <- R6::R6Class("LastPrice",
           threeparttable = TRUE,
           escape = FALSE
         )
+    },
+    claim_elasticity = function(note = "") {
+      dta <- subset(self$data, type == "extensive")
+      mu <- with(dta, mean(d_relief_donate, na.rm = TRUE))
+      
+      fit <- private$fe2sls_mod[c(1, 3)] %>%
+        map(~feols(., data = dta, vcov = ~ hhid))
+      
+      imp_e_tab <- fit %>%
+        map(function(x) implied_e(x, mu) %>% pivot_longer(everything())) %>%
+        reduce(left_join, by = "name") %>%
+        mutate(name = dplyr::recode(name, "estimate" = "Estimate", "estimate_se" = ""))
+      
+      stat_stage1 <- c(get_fitstat(fit[[2]], "ivf", "stat"), get_fitstat(fit[[2]], "wh", "p"))
+      stat_stage1 <- sprintf("\\num{%1.3f}", stat_stage1)
+      stat_stage1 <- ifelse(stat_stage1 == "\\num{0.000}", "$<$ \\num{0.001}", stat_stage1)
+
+      stat_stage1_tab <- tibble(
+        name = c("F-statistics of instrument", "Wu-Hausman test, p-value"),
+        value.x = c("", ""),
+        value.y = stat_stage1
+      )
+
+      addtab <- bind_rows(imp_e_tab, stat_stage1_tab)
+      attr(addtab, "position") <- 5:8
+
+      fit %>%
+        modelsummary(
+          title = "Last-Price Elasticity of Claiming",
+          coef_map = c(
+            "applicable_last" = "Applicable price",
+            "fit_applicable_last" = "Applicable price",
+            "tinc_ln" = "Log income"
+          ),
+          gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+          stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+          add_rows = addtab,
+          escape = FALSE
+        ) %>%
+        kable_styling(font_size = 8) %>%
+        add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
+        add_header_above(c(" " = 1, "1 = Claiming" = 2)) %>%
+        group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
+        group_rows(
+          "1st stage information (Excluded instrument: Applicable first-price)",
+          7, 8,
+          italic = TRUE, bold = FALSE
+        ) %>%
+        footnote(
+          general_title = "",
+          general = note,
+          threeparttable = TRUE,
+          escape = FALSE
+        )
     }
   ),
   private = list(

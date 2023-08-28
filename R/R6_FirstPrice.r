@@ -112,6 +112,40 @@ FirstPrice <- R6::R6Class("FirstPrice",
           threeparttable = TRUE,
           escape = FALSE
         )
+    },
+    claim_elasticity = function(note = "") {
+      dta <- subset(self$data, type == "extensive")
+      mu <- with(dta, mean(d_relief_donate, na.rm = TRUE))
+      fit <- feols(d_relief_donate ~ applicable + ..stage2, data = dta, vcov = ~ hhid)
+
+      addtab <- implied_e(fit, mu) %>%
+        pivot_longer(everything()) %>%
+        mutate(name = dplyr::recode(name, "estimate" = "Estimate", "estimate_se" = ""))
+      
+      attr(addtab, "position") <- 5:6
+
+      list("(1)" = fit) %>%
+        modelsummary(
+          title = "First-Price Elasticity of Claiming",
+          coef_map = c(
+            "applicable" = "Applicable price",
+            "tinc_ln" = "Log income"
+          ),
+          gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+          stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+          add_rows = addtab,
+          escape = FALSE
+        ) %>%
+        kable_styling(font_size = 8) %>%
+        add_header_above(c(" " = 1, "FE" = 1)) %>%
+        add_header_above(c(" " = 1, "1 = Claiming" = 1)) %>%
+        group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
+        footnote(
+          general_title = "",
+          general = note,
+          threeparttable = TRUE,
+          escape = FALSE
+        )
     }
   ),
   private = list(
