@@ -86,6 +86,32 @@ FirstPrice <- R6::R6Class("FirstPrice",
         dta,
         "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving for models (1)--(3) and a dummy of donor for models (4)--(6). For estimation, models (1)--(3) use donors only (intensive-margin sample), and models (4)--(6) use not only donors but also non-donors (extensive-margin sample). To exclude announcement effect, we exclude samples from 2013 and 2014. For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument. To obtain the extensive-margin price elasticities in models (4)--(6), we calculate implied price elasticities by divding estimated coeffcient on price by sample proportion of donors."
       )
+    },
+    claimant_only = function(note = "") {
+      dta <- subset(self$data, d_relief_donate == 1 & type == "intensive")
+      fit <- feols(private$fe2sls_mod[[1]], data = dta, vcov = ~ hhid)
+
+      list("(1)" = fit) %>%
+        modelsummary(
+          title = "Intensive-Margin Price Elasticity among Claimants",
+          coef_map = c(
+            "applicable" = "Applicable price ($\\beta_a$)",
+            "tinc_ln" = "Log income"
+          ),
+          gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+          stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+          escape = FALSE
+        ) %>%
+        kable_styling(font_size = 8) %>%
+        add_header_above(c(" " = 1, "FE" = 1)) %>%
+        add_header_above(c(" " = 1, "Log donation" = 1)) %>%
+        column_spec(2, width = "5em") %>%
+        footnote(
+          general_title = "",
+          general = note,
+          threeparttable = TRUE,
+          escape = FALSE
+        )
     }
   ),
   private = list(
