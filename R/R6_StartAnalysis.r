@@ -98,5 +98,9 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
 
     self$data <- subset(self$data, !(pid %in% shifter))
     invisible(self$data)
+  },
+  limit_2_year = function() {
+    self$data <- subset(self$data, year == 2012 | year == 2015)
+    invisible(self$data)
   }
 ))
