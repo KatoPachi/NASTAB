@@ -36,7 +36,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
           factor(indust) + factor(area) | pid + year
       )
     },
-    stage1 = function(title = "", label = "" notes = "", font_size = 8) {
+    stage1 = function(title = "", label = "", notes = "", font_size = 8) {
       est <- self$data %>%
         group_by(type) %>%
         nest() %>%
