@@ -30,7 +30,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         knitr::kable(
           caption = title,
           label = label,
-          col.names = c("Income bracket", "N", rep(c("2013 average", "Change (%)"), 3)),
+          col.names = c("2013 Income bracket", "N", rep(c("2013 average", "Change (%)"), 3)),
           digits = 2,
           booktabs = TRUE,
           linesep = "",
@@ -69,7 +69,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
           caption = title,
           label = label,
           col.names = c(
-            "Income bracket", "N",
+            "2013 Income bracket", "N",
             "2013", "2014", "2013", "2014", "Change (%)",
             rep(c("2013 average", "Change (%)"), 2)
           ),
