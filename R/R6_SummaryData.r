@@ -10,7 +10,9 @@ source(here("R/misc.r"))
 SummaryData <- R6::R6Class("SummaryData", list(
   data = NULL,
   initialize = function(data) self$data <- data,
-  stats = function() {
+  stats = function(title = "", label = "", notes = "", font_size = 8) {
+    if (label != "") label <- paste0("\\label{tab:", label, "}")
+
     self$data %>%
       datasummary(
         (`Annual labor income (unit: 10,000KRW)` = linc) +
@@ -29,7 +31,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
           N +
           (`Mean` = Mean) +
           (`Std.Dev.` = SD),
-        title = "Descriptive Statistics\\label{tab:summary-covariate}",
+        title = paste0(title, label),
         data = .,
         align = "lccc",
         escape = FALSE
@@ -40,7 +42,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       pack_rows("Demographics", 7, 13, bold = FALSE, italic = TRUE) %>%
       footnote(
         general_title = "",
-        general = "Notes: Our data is unbalanced panel data consisting of 8,441 unique individuals and 8 years period (2010--2017)",
+        general = notes,
         threeparttable = TRUE,
         escape = FALSE
       )

@@ -44,15 +44,17 @@ LastPrice <- R6::R6Class("LastPrice",
       self$result <- private$component_regtab(self$data)
       invisible(self)
     },
-    intensive = function() {
+    intensive = function(title = "", label = "", notes = "", font_size = 8) {
       est <- self$result
+
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
 
       est$fit %>%
         dplyr::filter(type == "intensive") %>%
         pull(fit) %>%
         setNames(paste0("(", seq(length(.)), ")")) %>%
         modelsummary(
-          title = "Estimation Results of Intensive-Margin Last-Price Elasticities\\label{tab:last-int}",
+          title = paste0(title, label),
           coef_map = c(
             "applicable_last" = "Applicable last-price",
             "fit_applicable_last" = "Applicable last-price",
@@ -65,7 +67,7 @@ LastPrice <- R6::R6Class("LastPrice",
           add_rows = est$stats %>% select(name, starts_with("intensive")),
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 2)) %>%
         add_header_above(c(" " = 1, "Log donation" = 4)) %>%
         group_rows(
@@ -76,20 +78,22 @@ LastPrice <- R6::R6Class("LastPrice",
         column_spec(2:5, width = "6.25em") %>%
         footnote(
           general_title = "",
-          general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parenthesis. An outcome variable is logged value of amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument.",
+          general = notes,
           threeparttable = TRUE,
           escape = FALSE
         )
     },
-    extensive = function() {
+    extensive = function(title = "", label = "", notes = "", font_size = 8) {
       est <- self$result
+
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
 
       est$fit %>%
         dplyr::filter(type == "extensive") %>%
         pull(fit) %>%
         setNames(paste0("(", seq(length(.)), ")")) %>%
         modelsummary(
-          title = "Estimation Results of Extensive-Margin Last-Price Elasticities\\label{tab:last-ext}",
+          title = paste0(title, label),
           coef_map = c(
             "applicable_last" = "Applicable last-price",
             "fit_applicable_last" = "Applicable last-price",
@@ -102,7 +106,7 @@ LastPrice <- R6::R6Class("LastPrice",
           add_rows = est$stats %>% select(name, starts_with("extensive")),
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 2, "FE-2SLS" = 2)) %>%
         add_header_above(c(" " = 1, "A dummy of donor" = 4)) %>%
         group_rows("Implied price elasticity", 7, 8, italic = TRUE, bold = FALSE) %>%
@@ -114,12 +118,12 @@ LastPrice <- R6::R6Class("LastPrice",
         column_spec(2:5, width = "6.25em") %>%
         footnote(
           general_title = "",
-          general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is a dummy indicating that donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a employee dummy, a set of dummies of industry, a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument. We calculate implied price elasticities by dividing estimated coeffcient on price by sample proportion of donors.",
+          general = notes,
           threeparttable = TRUE,
           escape = FALSE
         )
     },
-    claimant_only = function(note = "") {
+    claimant_only = function(title = "", label = "", notes = "", font_size = 8) {
       dta <- subset(self$data, d_relief_donate == 1 & type == "intensive")
       
       fit <- private$fe2sls_mod[c(1, 3)] %>%
@@ -140,9 +144,11 @@ LastPrice <- R6::R6Class("LastPrice",
 
       attr(addtab, "position") <- 5:6
 
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+
       fit %>%
         modelsummary(
-          title = "Intensive-Margin Last-Price Elasticity among Claimants",
+          title = paste0(title, label),
           coef_map = c(
             "applicable_last" = "Applicable last-price",
             "fit_applicable_last" = "Applicable last-price",
@@ -153,7 +159,7 @@ LastPrice <- R6::R6Class("LastPrice",
           add_rows = addtab,
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
         add_header_above(c(" " = 1, "Log donation" = 2)) %>%
         group_rows(
@@ -164,12 +170,12 @@ LastPrice <- R6::R6Class("LastPrice",
         column_spec(2:3, width = "6.25em") %>%
         footnote(
           general_title = "",
-          general = note,
+          general = notes,
           threeparttable = TRUE,
           escape = FALSE
         )
     },
-    claim_elasticity = function(note = "") {
+    claim_elasticity = function(title = "", label = "", notes = "", font_size = 8) {
       dta <- subset(self$data, type == "extensive")
       mu <- with(dta, mean(d_relief_donate, na.rm = TRUE))
       
@@ -194,9 +200,11 @@ LastPrice <- R6::R6Class("LastPrice",
       addtab <- bind_rows(imp_e_tab, stat_stage1_tab)
       attr(addtab, "position") <- 5:8
 
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+
       fit %>%
         modelsummary(
-          title = "Last-Price Elasticity of Claiming",
+          title = paste0(title, label),
           coef_map = c(
             "applicable_last" = "Applicable price",
             "fit_applicable_last" = "Applicable price",
@@ -207,7 +215,7 @@ LastPrice <- R6::R6Class("LastPrice",
           add_rows = addtab,
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
         add_header_above(c(" " = 1, "1 = Claiming" = 2)) %>%
         group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
@@ -218,7 +226,7 @@ LastPrice <- R6::R6Class("LastPrice",
         ) %>%
         footnote(
           general_title = "",
-          general = note,
+          general = notes,
           threeparttable = TRUE,
           escape = FALSE
         )

@@ -36,18 +36,20 @@ FirstPrice <- R6::R6Class("FirstPrice",
           factor(indust) + factor(area) | pid + year
       )
     },
-    stage1 = function() {
+    stage1 = function(title = "", label = "" notes = "", font_size = 8) {
       est <- self$data %>%
         group_by(type) %>%
         nest() %>%
         mutate(fit = map(data, ~ feols(private$stage1_mod, data = ., cluster = ~hhid))) %>%
         arrange(desc(type))
+      
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
 
       est %>%
         pull(fit) %>%
         setNames(paste0("(", seq(length(.)), ")")) %>%
         modelsummary(
-          title = "First-Stage Models\\label{tab:main-stage1}",
+          title = paste0(title, label),
           coef_map = c(
             "applicable" = "Applicable price",
             "tinc_ln" = "Log income"
@@ -56,7 +58,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
           stars = c("***" = .01, "**" = .05, "*" = .1),
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = font_size) %>%
         add_header_above(c(
           " " = 1,
           "Donors (Intensive-margin)" = 1,
@@ -68,7 +70,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
         column_spec(2:3, width = "18.75em") %>%
         footnote(
           general_title = "",
-          general = "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of the effective price. For estimation, model (1) use donors only (intensive-margin sample), and model (2) use not only donors but also non-donors (extensive-margin sample). In addition to logged income and wage earner dummy shown in table, covariates consist of squared age (divided by 100), number of household members, a dummy that indicates having dependents, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. Excluded instrument is a logged applicable price.",
+          general = notes,
           threeparttable = TRUE,
           escape = FALSE
         )
@@ -86,13 +88,15 @@ FirstPrice <- R6::R6Class("FirstPrice",
         "Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving for models (1)--(3) and a dummy of donor for models (4)--(6). For estimation, models (1)--(3) use donors only (intensive-margin sample), and models (4)--(6) use not only donors but also non-donors (extensive-margin sample). To exclude announcement effect, we exclude samples from 2013 and 2014. For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument. To obtain the extensive-margin price elasticities in models (4)--(6), we calculate implied price elasticities by divding estimated coeffcient on price by sample proportion of donors."
       )
     },
-    claimant_only = function(note = "") {
+    claimant_only = function(title = "", label = "", notes = "", font_size = 8) {
       dta <- subset(self$data, d_relief_donate == 1 & type == "intensive")
       fit <- feols(private$fe2sls_mod[[1]], data = dta, vcov = ~ hhid)
 
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+
       list("(1)" = fit) %>%
         modelsummary(
-          title = "Intensive-Margin Price Elasticity among Claimants",
+          title = paste0(title, label),
           coef_map = c(
             "applicable" = "Applicable price ($\\beta_a$)",
             "tinc_ln" = "Log income"
@@ -101,18 +105,18 @@ FirstPrice <- R6::R6Class("FirstPrice",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 1)) %>%
         add_header_above(c(" " = 1, "Log donation" = 1)) %>%
         column_spec(2, width = "5em") %>%
         footnote(
           general_title = "",
-          general = note,
+          general = notes,
           threeparttable = TRUE,
           escape = FALSE
         )
     },
-    claim_elasticity = function(note = "") {
+    claim_elasticity = function(title = "", label = "", notes = "", font_size = 8) {
       dta <- subset(self$data, type == "extensive")
       mu <- with(dta, mean(d_relief_donate, na.rm = TRUE))
       fit <- feols(d_relief_donate ~ applicable + ..stage2, data = dta, vcov = ~ hhid)
@@ -123,9 +127,11 @@ FirstPrice <- R6::R6Class("FirstPrice",
       
       attr(addtab, "position") <- 5:6
 
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+
       list("(1)" = fit) %>%
         modelsummary(
-          title = "First-Price Elasticity of Claiming",
+          title = paste0(title, label),
           coef_map = c(
             "applicable" = "Applicable price",
             "tinc_ln" = "Log income"
@@ -135,13 +141,13 @@ FirstPrice <- R6::R6Class("FirstPrice",
           add_rows = addtab,
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 1)) %>%
         add_header_above(c(" " = 1, "1 = Claiming" = 1)) %>%
         group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
         footnote(
           general_title = "",
-          general = note,
+          general = notes,
           threeparttable = TRUE,
           escape = FALSE
         )
@@ -154,7 +160,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
       outcome ~ effective + ..stage2,
       outcome ~ ..stage2 | effective ~ applicable
     ),
-    main_reg = function(data, note) {
+    main_reg = function(data, title = "", label = "", notes = "", font_size = 8) {
       fit <- data %>%
         group_by(type) %>%
         nest() %>%
@@ -198,11 +204,13 @@ FirstPrice <- R6::R6Class("FirstPrice",
 
       attr(addtab, "position") <- 9:12
 
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+
       fit %>%
         pull(fit) %>%
         setNames(paste0("(", seq(length(.)), ")")) %>%
         modelsummary(
-          title = "Estimation Results of Price Elasticities\\label{tab:main}",
+          title = paste0(title, label),
           coef_map = c(
             "applicable" = "Applicable price ($\\beta_a$)",
             "effective" = "Effective price ($\\beta^{FE}_e$)",
@@ -214,7 +222,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
           add_rows = addtab,
           escape = FALSE
         ) %>%
-        kable_styling(font_size = 8) %>%
+        kable_styling(font_size = font_size) %>%
         add_header_above(c(
           " " = 1, "FE" = 2, "FE-2SLS" = 1, "FE" = 2, "FE-2SLS" = 1
         )) %>%
@@ -228,7 +236,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
         column_spec(2:7, width = "5em") %>%
         footnote(
           general_title = "",
-          general = note,
+          general = notes,
           threeparttable = TRUE,
           escape = FALSE
         )
