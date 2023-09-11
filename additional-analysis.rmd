@@ -468,6 +468,59 @@ fit %>%
   group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE)
 ```
 
+```{r}
+use$data %>%
+  dplyr::filter(year == 2013) %>%
+  with(prop.table(table(bracket13))) %>%
+  as.data.frame() %>%
+  tibble() %>%
+  mutate(
+    pre_price = case_when(
+      bracket13 == "(A) --1200" ~ 0.94,
+      bracket13 == "(B) 1200--4600" ~ 0.85,
+      bracket13 == "(C) 4600--8800" ~ 0.76,
+      bracket13 == "(D) & (E) 8800--30000" ~ 0.65
+    ),
+    change_price = 100 * (0.85 - pre_price) / pre_price,
+    change_donation = -1.082 * change_price,
+    change_donor = -0.791 * change_price
+  )
+```
+
+```{r}
+dt <- use$data %>%
+  group_by(pid) %>%
+  arrange(year) %>%
+  mutate(lead_claim = if_else(year - lead(year) > 1, NA_real_, lead(d_relief_donate))) %>%
+  ungroup()
+
+b <- dt %>%
+  dplyr::filter(year == 2013) %>%
+  with(table(d_relief_donate, lead_claim, bracket13)) %>%
+  as.data.frame() %>%
+  mutate(
+    Freq = Freq / sum(Freq),
+    pre_price = case_when(
+      d_relief_donate == 0 ~ 1,
+      bracket13 == "(A) --1200" ~ 0.94,
+      bracket13 == "(B) 1200--4600" ~ 0.85,
+      bracket13 == "(C) 4600--8800" ~ 0.76,
+      bracket13 == "(D) & (E) 8800--30000" ~ 0.65
+    ),
+    post_price = case_when(
+      lead_claim == 0 ~ 1,
+      lead_claim == 1 ~ 0.85
+    ),
+    change_price = 100 * (post_price - pre_price) / pre_price,
+    change_donation = -1.56 * change_price,
+    change_donor = -2.647 * change_price
+  )
+
+View(b)
+
+sum(b$Freq * b$change_donor)
+```
+
 # Appendix
 
 ## Full-sample analysis: Stage 1
