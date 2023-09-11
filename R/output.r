@@ -7,6 +7,8 @@ use <- StartAnalysis$new(here("data/shaped2.csv"))
 
 # Output options
 options(
+  knitr.table.format = "latex",
+  knitr.kable.NA = "",
   modelsummary_stars_note = FALSE,
   modelsummary_factory_default = "latex"
 )
@@ -169,6 +171,21 @@ tab <- est_fp$claim_elasticity(
   title = "First-Price Elasticity of Claiming",
   label = "claim-elasticity",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at household level are in parentheses. An outcome variable is a dummy of claimant. We control squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects.  To obtain the price elasticity, we calculate implied price elasticities by dividing estimated coefficient on price by sample proportion of claimants."
+)
+writeLines(tab, out.file)
+close(out.file)
+
+# Table ? (Policy Effect of 2014 Tax Reform)
+policy <- use$policy_effect()
+
+out.file <- file(here("export", "tables", "policy-effect.tex"), open = "w")
+tab <- policy$effective(
+  intensive_elasticity = -1.56,
+  extensive_elasticity = -2.647,
+  font_size = 7,
+  title = "Policy Effect of 2014 Tax Reform",
+  label = "policy-effect",
+  notes = "Notes: We use those whose claiming status is observed for 2013 and 2014. Column (1) shows the sample size by income bracket for 2013. Columns (2) and (3) are the claiming rates for each year. Columns (4) and (5) are the average effective price for each year. Column (6) reports the percentage change in the effective price. Column (8) shows the percentage change in donor contributions, which is the product of the value in column (6) and the estimated intensive margin effective price elasticity ($-1.56$). Column (10) shows the percentage change in the donor rate, which is the product of the value in column (6) and the estimated extensive-margin effective price elasticities ($-2.647$). Columns (7) and (9) show the average donor contribution and the donor ratio in 2013, respectively. Columns (2)--(10) divide the sample by income bracket, claiming status in 2013, and claiming status in 2014, calculate the corresponding indicator in each subset, and then calculate the average of each indicator weighted by the subset sample size in each income bracket. The bottom row shows the average weighted by the bracket sample size."
 )
 writeLines(tab, out.file)
 close(out.file)
