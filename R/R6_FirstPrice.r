@@ -108,7 +108,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
         kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 1)) %>%
         add_header_above(c(" " = 1, "Log donation" = 1)) %>%
-        column_spec(2, width = "5em") %>%
+        column_spec(1, width = "25em") %>%
+        column_spec(2, width = "15em") %>%
         footnote(
           general_title = "",
           general = notes,
@@ -145,6 +146,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
         add_header_above(c(" " = 1, "FE" = 1)) %>%
         add_header_above(c(" " = 1, "1 = Claiming" = 1)) %>%
         group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
+        column_spec(1, width = "25em") %>%
+        column_spec(2, width = "15em") %>%
         footnote(
           general_title = "",
           general = notes,
