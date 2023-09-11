@@ -41,7 +41,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         column_spec(3:8, width = "4em") %>%
         add_header_above(c(
           " " = 2,
-          "Price" = 2,
+          "Applicable price" = 2,
           "Intensive-margin" = 2,
           "Extensive-margin" = 2
         )) %>%
@@ -83,7 +83,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         add_header_above(c(
           " " = 2,
           "Claiming (%)" = 2,
-          "Price" = 3,
+          "Effective price" = 3,
           "Intensive-margin" = 2,
           "Extensive-margin" = 2
         )) %>%
