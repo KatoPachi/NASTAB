@@ -30,7 +30,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         knitr::kable(
           caption = title,
           label = label,
-          col.names = c("2013 Income bracket", "N", rep(c("2013 average", "Change (%)"), 3)),
+          col.names = c("", paste0("(", seq_len(ncol(stats)-1), ")")),
           digits = 2,
           booktabs = TRUE,
           linesep = "",
@@ -39,6 +39,16 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         kable_styling(font_size = font_size) %>%
         column_spec(1, width = "10em") %>%
         column_spec(3:8, width = "4em") %>%
+        add_header_above(c(
+          "2013 Income bracket" = 1,
+          "N" = 1,
+          "2013 average" = 1,
+          "Change (%)" = 1,
+          "2013 average" = 1,
+          "Change (%)" = 1,
+          "2013 average" = 1,
+          "Change (%)" = 1
+        )) %>%
         add_header_above(c(
           " " = 2,
           "Applicable price" = 2,
@@ -68,11 +78,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         knitr::kable(
           caption = title,
           label = label,
-          col.names = c(
-            "2013 Income bracket", "N",
-            "2013", "2014", "2013", "2014", "Change (%)",
-            rep(c("2013 average", "Change (%)"), 2)
-          ),
+          col.names = c("", paste0("(", seq_len(ncol(stats)-1), ")")),
           digits = 3,
           booktabs = TRUE,
           linesep = "",
@@ -80,6 +86,19 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         ) %>%
         kable_styling(font_size = font_size) %>%
         column_spec(1, width = "10em") %>%
+        add_header_above(c(
+          "2013 Income bracket" = 1,
+          "N" = 1,
+          "2013" = 1,
+          "2014" = 1,
+          "2013" = 1,
+          "2014" = 1,
+          "Change (%)" = 1,
+          "2013 average" = 1,
+          "Change (%)" = 1,
+          "2013 average" = 1,
+          "Change (%)" = 1
+        )) %>%
         add_header_above(c(
           " " = 2,
           "Claiming (%)" = 2,
