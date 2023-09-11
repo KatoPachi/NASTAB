@@ -1,6 +1,6 @@
 \begin{table}
 
-\caption{Estimation Results of Price Elasticities\label{tab:main}}
+\caption{Estimation Results of First-Price Elasticities\label{tab:main}}
 \centering
 \fontsize{8}{10}\selectfont
 \begin{threeparttable}
@@ -12,29 +12,28 @@
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applicable price ($\beta_a$) & \num{-1.072}*** &  &  & \num{-0.182}*** &  & \\
- & (\num{0.330}) &  &  & (\num{0.058}) &  & \\
-Effective price ($\beta^{FE}_e$) &  & \num{-0.640}** &  &  & \num{-2.728}*** & \\
- &  & (\num{0.254}) &  &  & (\num{0.073}) & \\
-Effective price ($\beta^{IV}_e$) &  &  & \num{-1.559}*** &  &  & \num{-0.615}***\\
- &  &  & (\num{0.487}) &  &  & (\num{0.182})\\
-Log income & \num{1.624} & \num{1.846} & \num{1.274} & \num{1.454}*** & \num{0.674}*** & \num{1.411}***\\
- & (\num{1.333}) & (\num{1.321}) & (\num{1.333}) & (\num{0.208}) & (\num{0.189}) & (\num{0.201})\\
+Applicable price ($\beta_a$) & \num{-1.082}*** &  &  & \num{-0.184}*** &  & \\
+ & (\num{0.332}) &  &  & (\num{0.058}) &  & \\
+Effective price ($\beta^{FE}_e$) &  & \num{-0.641}** &  &  & \num{-2.729}*** & \\
+ &  & (\num{0.255}) &  &  & (\num{0.073}) & \\
+Effective price ($\beta^{IV}_e$) &  &  & \num{-1.560}*** &  &  & \num{-0.617}***\\
+ &  &  & (\num{0.486}) &  &  & (\num{0.182})\\
+Log income & \num{1.629} & \num{1.862} & \num{1.277} & \num{1.464}*** & \num{0.675}*** & \num{1.420}***\\
+ & (\num{1.347}) & (\num{1.334}) & (\num{1.348}) & (\num{0.209}) & (\num{0.190}) & (\num{0.202})\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textit{Implied price elasticity}}\\
-\hspace{1em}Estimates &  &  &  & \num{-0.783}*** & \num{-11.707}*** & \num{-2.639}***\\
-\hspace{1em} &  &  &  & (\num{0.248}) & (\num{0.314}) & (\num{0.783})\\
+\hspace{1em}Estimate &  &  &  & \num{-0.791}*** & \num{-11.717}*** & \num{-2.647}***\\
+\hspace{1em} &  &  &  & (\num{0.250}) & (\num{0.314}) & (\num{0.782})\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textit{1st stage information (Excluded instrument: Applicable price)}}\\
-\hspace{1em}F-statistics of instruments &  &  & \num{1379.445} &  &  & \num{1796.440}\\
+\hspace{1em}F-statistics of instrument &  &  & \num{1401.509} &  &  & \num{1812.348}\\
 \hspace{1em}Wu-Hausman test, p-value &  &  & \num{0.004} &  &  & $<$ \num{0.001}\\
-Num.Obs. & \num{7786} & \num{7786} & \num{7786} & \num{30280} & \num{30280} & \num{30280}\\
-RMSE & \num{0.66} & \num{0.66} & \num{0.66} & \num{0.26} & \num{0.23} & \num{0.25}\\
+Num.Obs. & \num{7776} & \num{7776} & \num{7776} & \num{30252} & \num{30252} & \num{30252}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
-\item Notes: * p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of amount of charitable giving for models (1)--(3) and a dummy of donor for models (4)--(6). For estimation, models (1)--(3) use donors only (intensive-margin sample), and models (4)--(6) use not only donors but also non-donors (extensive-margin sample). For outcome equation, we control squared age (divided by 100), number of household members, a dummy that indicates having dependents, employee dummy, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. For FE-2SLS, we use a logged applicable price as an instrument. To obtain the extensive-margin price elasticities in models (4)--(6), we calculate implied price elasticities by divding estimated coeffcient on price by sample proportion of donors.
+\item Notes: p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors clustered at household level are in parentheses. An outcome variable is logged value of the effective price. For estimation, models (1)—(3) use donors only (intensive-margin sample), and models (4) — (6) use not only donors but also non-donors (extensive-margin sample). In addition to logged income, covariates consist of squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indictates wage earner, a set of dummies of industry a set of dummies of residential area, and individual and time fixed effects. Excluded instrument is a logged applicable price. Excluded instrument is a logged applicable price in models (3) and (6).
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
