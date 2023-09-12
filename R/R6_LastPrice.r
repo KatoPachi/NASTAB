@@ -217,7 +217,7 @@ LastPrice <- R6::R6Class("LastPrice",
         ) %>%
         kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
-        add_header_above(c(" " = 1, "1 = Claiming" = 2)) %>%
+        add_header_above(c(" " = 1, "1 = Declaration" = 2)) %>%
         group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
         group_rows(
           "1st stage information (Excluded instrument: Applicable first-price)",

@@ -21,7 +21,6 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
                           font_size = 8)
     {
       stats <- private$calc_applicable(
-        self$data,
         intensive_elasticity,
         extensive_elasticity
       )
@@ -69,7 +68,6 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
                           notes = "",
                           font_size = 8) {
       stats <- private$calc_effective(
-        self$data,
         intensive_elasticity,
         extensive_elasticity
       )
@@ -101,7 +99,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         )) %>%
         add_header_above(c(
           " " = 2,
-          "Claiming (%)" = 2,
+          "Declaration (%)" = 2,
           "Effective price" = 3,
           "Intensive-margin" = 2,
           "Extensive-margin" = 2
@@ -115,7 +113,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
     }
   ),
   private = list(
-    calc_applicable = function(data, intensive_elasticity, extensive_elasticity) {
+    calc_applicable = function(intensive_elasticity, extensive_elasticity) {
       stats <- self$data %>%
         group_by(bracket13) %>%
         nest() %>%
@@ -148,8 +146,8 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
 
       bind_rows(stats, wtg_avg)
     },
-    calc_effective = function(data, intensive_elasticity, extensive_elasticity) {
-      stats <- dt %>%
+    calc_effective = function(intensive_elasticity, extensive_elasticity) {
+      stats <- self$data %>%
         dplyr::filter(year == 2013) %>%
         dplyr::filter(!is.na(d_relief_donate) & !is.na(lead_claim)) %>%
         group_by(bracket13, d_relief_donate, lead_claim) %>%

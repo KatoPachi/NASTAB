@@ -19,8 +19,8 @@ SummaryData <- R6::R6Class("SummaryData", list(
           (`Annual total income (unit: 10,000KRW)` = tinc) +
           (`Appricale price` = price) +
           (`Annual chariatable giving (unit: 10,000KRW)` = donate) +
-          (`Dummary of donation > 0` = d_donate) +
-          (`Dummy of declaration of a tax relief` = d_relief_donate) +
+          (`Dummary of donation $>$ 0` = d_donate) +
+          (`Dummy of declaration of giving` = d_relief_donate) +
           (`Age` = age) +
           (`Wage earner dummy` = employee) +
           (`Number of household members` = hh_num) +
@@ -152,7 +152,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       scale_x_continuous(breaks = seq(2010, 2018, 1)) +
       labs(
         x = "Year",
-        y = "Proportion of application for tax relief",
+        y = "Proportion of claimants",
         shape = "Income bracket (unit:10,000KRW)"
       ) +
       ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13)) +
