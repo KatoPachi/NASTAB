@@ -58,7 +58,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
         color = "black"
       ) +
       geom_step(
-        aes(y = price * 0.5, color = "Giving Price in 2010-2013"),
+        aes(y = price * 0.5, color = "Prices of Giving in 2010-2013"),
         linewidth = 1
       ) +
       geom_hline(
@@ -69,7 +69,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       scale_fill_manual(NULL, values = "grey80") +
       scale_y_continuous(
         breaks = seq(0, 0.5, 0.125),
-        sec.axis = sec_axis(~ . / 0.5, name = "Giving Price")
+        sec.axis = sec_axis(~ . / 0.5, name = "Prices of Giving")
       ) +
       scale_x_continuous(breaks = c(1200, 4600, 8800, 30000)) +
       labs(
