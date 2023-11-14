@@ -11,7 +11,12 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
   incentive_limit_summary = NULL,
   initialize = function(path) {
     dta <- read_csv(path) %>%
-      dplyr::filter(age >= 24) %>%
+      group_by(hhid, year) %>%
+      mutate(hhid_max_tinc = max(tinc)) %>%
+      ungroup() %>%
+      mutate(hhid_max_tinc = if_else(tinc == hhid_max_tinc, 1, 0))
+
+    dta <- dta %>%
       dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
       dplyr::filter(2010 <= year & year < 2018) %>%
       dplyr::filter(tinc < 1100 | 1300 < tinc) %>%
@@ -20,7 +25,8 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
       dplyr::filter(tinc < 14000 | 16000 < tinc) %>%
       dplyr::filter(tinc < 30000) %>%
       dplyr::filter(bracket13 != "(F) & (G) 30000--" | is.na(bracket13)) %>%
-      dplyr::filter(dependents == 0)
+      dplyr::filter(family_position == 1 & work %in% c(1, 3)) %>%
+      dplyr::filter(hhid_max_tinc == 1)
     
     incentive_limit_summary <- dta %>%
       mutate(over_bound = donate > incentive_limit) %>%
@@ -39,6 +45,7 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
         bracket13,
         tinc,
         tinc_ln,
+        hhid_max_tinc,
         linc,
         price,
         price_ln,
@@ -48,6 +55,8 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
         sqage,
         hh_num,
         have_dependents,
+        family_position,
+        work,
         sex,
         college,
         highschool,
