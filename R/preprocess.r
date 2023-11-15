@@ -1,7 +1,8 @@
 #'
 #+ read-raw
 library(here)
-source(here("R", "_library.r"))
+library(tidyverse)
+library(haven)
 
 raw <- haven::read_dta(here("data/merge/merge.dta"), encoding = "utf-8")
 
@@ -89,73 +90,54 @@ relief_data <- raw %>%
     hhid,
     pid,
     year,
+    certificate = psa13, # 証明書の提示有無：1.勤労所得を提出 2.総合所得を提出 3.両方を提出 4. 未提出
     tinc = pinc_all, #昨年1年間の総合所得
     linc = inc_bb1, #昨年1年間の労働所得
-    d_deduct_linc = pca201, #労働所得控除の有無
-    deduct_linc = pca202, #労働所得控除額
-    d_deduct_donate_linc = pca225, #労働所得の寄付金所得控除の有無
-    deduct_donate_linc = pca226, #寄付金所得控除額
-    d_credit_donate_linc = pca227, #労働所得の寄付金税額控除の有無
-    credit_donate_linc = pca228, #寄付金税額控除額
-    d_deduct_donate_tinc = pda207, #総合所得の寄付金所得控除の有無
-    d_credit_donate_tinc = pda209 #総合所得の寄付金税額控除の有無
+    d_deduct_linc = pca201, #労働所得に対する控除（年末調整）の有無
+    d_deduct_tinc = pda201, #総合所得に対する控除（確定申告）の有無
+    d_deduct_donate_linc = pca225, #寄付金による所得控除の有無（年末調整）
+    d_credit_donate_linc = pca227, #寄付金による税額控除の有無（年末調整）
+    d_credit_donate_linc = pca227, #寄付金による税額控除の有無（年末調整）
+    d_deduct_donate_tinc = pda207, #寄付金による所得控除の有無（確定申告? 総合所得）
+    d_credit_donate_tinc = pda209, # 寄付金による税額控除の有無（確定申告? 総合所得）
+    deduct_linc = pca202, #労働所得に対する控除額
+    deduct_tinc = pda202, #総合所得に対する控除額
+    deduct_donate_linc = pca226, #寄付金による所得控除額（年末調整）
+    credit_donate_linc = pca228, #寄付金による税額控除額（年末調整）
+    deduct_donate_tinc = pda208, #寄付金による所得控除額（確定申告? 総合所得）
+    credit_donate_tinc = pda210 # 寄付金による税額控除額（確定申告? 総合所得）
   ) %>%
   mutate_at(
-    vars(
-      d_deduct_linc,
-      d_deduct_donate_linc, d_credit_donate_linc,
-      d_deduct_donate_tinc, d_credit_donate_tinc,
-    ),
-    list(~ case_when(
-      as.numeric(.) == 2 ~ 0,
-      as.numeric(.) == -9 ~ NA_real_,
-      TRUE ~ as.numeric(.)
-    ))
+    vars(d_deduct_linc:credit_donate_tinc),
+    list(~ ifelse(as.numeric(.) == -9, NA_real_, as.numeric(.)))
+  ) %>%
+  mutate_at(
+    vars(d_deduct_linc:d_credit_donate_tinc),
+    list(~ ifelse(. == 2, 0, .))
   ) %>%
   mutate(
-    deduct_linc = case_when(
-      d_deduct_linc == 0 ~ 0,
-      deduct_linc == -9 ~ NA_real_,
-      TRUE ~ as.numeric(deduct_linc)
-    ),
-    d_deduct_donate_linc = case_when(
-      !is.na(d_deduct_donate_linc) ~ d_deduct_donate_linc,
-      linc == 0 ~ 0
-    ),
-    d_credit_donate_linc = case_when(
-      !is.na(d_credit_donate_linc) ~ d_credit_donate_linc,
-      linc == 0 ~ 0
-    ),
-    d_relief_donate_linc = if_else(
-      year >= 2014, d_credit_donate_linc, d_deduct_donate_linc
-    ),
-    d_deduct_donate_tinc = case_when(
-      !is.na(d_deduct_donate_tinc) ~ d_deduct_donate_tinc,
-      tinc == 0 ~ 0
-    ),
-    d_credit_donate_tinc = case_when(
-      !is.na(d_credit_donate_tinc) ~ d_credit_donate_tinc,
-      tinc == 0 ~ 0
-    ),
-    d_relief_donate_tinc = if_else(
-      year >= 2014, d_credit_donate_tinc, d_deduct_donate_tinc
-    ),
+    deduct_linc = if_else(d_deduct_linc == 0, 0, deduct_linc),
+    deduct_tinc = if_else(d_deduct_tinc == 0, 0, deduct_tinc),
+    deduct_donate_linc = if_else(d_deduct_donate_linc == 0, 0, deduct_donate_linc),
+    credit_donate_linc = if_else(d_credit_donate_linc == 0, 0, credit_donate_linc),
+    deduct_donate_tinc = if_else(d_deduct_donate_tinc == 0, 0, deduct_donate_tinc),
+    credit_donate_tinc = if_else(d_credit_donate_tinc == 0, 0, credit_donate_tinc)
+  ) %>%
+  mutate(
+    d_relief_donate_linc = if_else(year >= 2014, d_credit_donate_linc, d_deduct_donate_linc),
+    d_relief_donate_tinc = if_else(year >= 2014, d_credit_donate_tinc, d_deduct_donate_tinc),
     d_relief_donate = case_when(
       is.na(d_relief_donate_linc) ~ d_relief_donate_tinc,
       is.na(d_relief_donate_tinc) ~ d_relief_donate_linc,
       d_relief_donate_tinc + d_relief_donate_linc == 0 ~ 0,
       d_relief_donate_tinc + d_relief_donate_linc != 0 ~ 1
     ),
-    deduct_donate_linc = case_when(
-      d_deduct_donate_linc == 0 ~ 0,
-      deduct_donate_linc == -9 ~ NA_real_,
-      TRUE ~ as.numeric(deduct_donate_linc)
-    ),
-    credit_donate_linc = case_when(
-      d_credit_donate_linc == 0 ~ 0,
-      credit_donate_linc == -9 ~ NA_real_,
-      TRUE ~ as.numeric(credit_donate_linc)
-    ),
+    relief_donate_linc = if_else(year >= 2014, credit_donate_linc, deduct_donate_linc),
+    relief_donate_tinc = if_else(year >= 2014, credit_donate_tinc, deduct_donate_tinc)
+  ) %>%
+  mutate(
+    taxable_linc = linc - deduct_linc + relief_donate_linc,
+    taxable_tinc = tinc - deduct_tinc + relief_donate_tinc,
     ub = case_when(
       year == 2010 ~ tinc * 0.15,
       year == 2011 ~ tinc * 0.20,
@@ -256,25 +238,25 @@ donate_data <- donate_member_data %>%
 mtr <- readr::read_csv("data/origin/mtrdt.csv")
 
 inc_data <- relief_data %>%
-  dplyr::select(hhid, pid, year, tinc, linc)
+  dplyr::select(hhid, pid, year, taxable_tinc, taxable_linc)
 
 # first marginal tax rate(寄付額を差し引く前の税率)
 first_mtr_data <- inc_data %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(tinc)) %>%
-  dplyr::filter(lower_income_10000won <= tinc) %>%
+  dplyr::filter(!is.na(taxable_tinc)) %>%
+  dplyr::filter(lower_income_10000won <= taxable_tinc) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr = max(MTR)) %>%
   dplyr::ungroup() %>%
-  dplyr::select(-lower_income_10000won, -MTR, -tinc, -linc) %>%
+  dplyr::select(-lower_income_10000won, -MTR, -taxable_tinc, -taxable_linc) %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # last marginal tax rate(寄付額を差し引いた後の税率)
 last_mtr_data <- inc_data %>%
   dplyr::left_join(donate_data, by = c("pid", "year", "hhid")) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(tinc) & !is.na(donate)) %>%
-  dplyr::mutate(subtract_tinc = tinc - donate) %>%
+  dplyr::filter(!is.na(taxable_tinc) & !is.na(donate)) %>%
+  dplyr::mutate(subtract_tinc = taxable_tinc - donate) %>%
   dplyr::filter(lower_income_10000won <= subtract_tinc) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(last_mtr = max(MTR)) %>%
@@ -286,18 +268,18 @@ last_mtr_data <- inc_data %>%
 lag_inc_data <- inc_data %>%
   dplyr::group_by(pid) %>%
   dplyr::mutate(
-    tinc_l1 = dplyr::lag(tinc, order_by = year),
-    tinc_l2 = dplyr::lag(tinc, n = 2, order_by = year),
-    tinc_l3 = dplyr::lag(tinc, n = 3, order_by = year)
+    taxable_tinc_l1 = dplyr::lag(taxable_tinc, order_by = year),
+    taxable_tinc_l2 = dplyr::lag(taxable_tinc, n = 2, order_by = year),
+    taxable_tinc_l3 = dplyr::lag(taxable_tinc, n = 3, order_by = year)
   ) %>%
   dplyr::ungroup()
 
 # 1期ラグ所得に基づいた税率の計算
 lag1_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, tinc_l1) %>%
+  dplyr::select(hhid, pid, year, taxable_tinc_l1) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(tinc_l1)) %>%
-  dplyr::filter(lower_income_10000won <= tinc_l1) %>%
+  dplyr::filter(!is.na(taxable_tinc_l1)) %>%
+  dplyr::filter(lower_income_10000won <= taxable_tinc_l1) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l1 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -306,10 +288,10 @@ lag1_mtr_data <- lag_inc_data %>%
 
 # 2期ラグ所得に基づいた税率の計算
 lag2_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, tinc_l2) %>%
+  dplyr::select(hhid, pid, year, taxable_tinc_l2) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(tinc_l2)) %>%
-  dplyr::filter(lower_income_10000won <= tinc_l2) %>%
+  dplyr::filter(!is.na(taxable_tinc_l2)) %>%
+  dplyr::filter(lower_income_10000won <= taxable_tinc_l2) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l2 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -318,10 +300,10 @@ lag2_mtr_data <- lag_inc_data %>%
 
 # 3期ラグ所得に基づいた税率の計算
 lag3_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, tinc_l3) %>%
+  dplyr::select(hhid, pid, year, taxable_tinc_l3) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(tinc_l3)) %>%
-  dplyr::filter(lower_income_10000won <= tinc_l3) %>%
+  dplyr::filter(!is.na(taxable_tinc_l3)) %>%
+  dplyr::filter(lower_income_10000won <= taxable_tinc_l3) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l3 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -370,8 +352,8 @@ dt <- donate_data %>%
   dplyr::left_join(ses_data, by = c("hhid", "pid", "year")) %>%
   dplyr::left_join(relief_data, by = c("hhid", "pid", "year")) %>%
   dplyr::left_join(hh_data, by = c("hhid", "year")) %>%
-  dplyr::select(-tinc.y, -linc.y) %>%
-  dplyr::rename(tinc = tinc.x, linc = linc.x)
+  dplyr::select(-taxable_tinc.y, -taxable_linc.y) %>%
+  dplyr::rename(taxable_tinc = taxable_tinc.x, taxable_linc = taxable_linc.x)
 
 dt <- dt %>%
   dplyr::mutate(
@@ -421,8 +403,10 @@ dt <- dt %>%
     list(ln = ~ log(.))
   ) %>%
   dplyr::mutate(
-    linc_ln = log(linc + 100000),
-    tinc_ln = log(tinc + 100000),
+    linc_ln = log(linc + 10000),
+    taxable_linc_ln = log(taxable_linc + 10000),
+    tinc_ln = log(tinc + 10000),
+    taxable_tinc_ln = log(taxable_linc + 10000),
     donate_ln = log(donate + 1)
   ) %>%
   dplyr::group_by(pid) %>%
