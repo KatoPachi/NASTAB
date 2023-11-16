@@ -139,15 +139,15 @@ relief_data <- raw %>%
     taxable_linc = linc - deduct_linc + relief_donate_linc,
     taxable_tinc = tinc - deduct_tinc + relief_donate_tinc,
     ub = case_when(
-      year == 2010 ~ tinc * 0.15,
-      year == 2011 ~ tinc * 0.20,
-      year == 2012 ~ tinc * 0.30,
-      year == 2013 ~ tinc * 0.30,
+      year == 2010 ~ taxable_tinc * 0.15,
+      year == 2011 ~ taxable_tinc * 0.20,
+      year == 2012 ~ taxable_tinc * 0.30,
+      year == 2013 ~ taxable_tinc * 0.30,
       year >= 2014 ~ 3000,
       year >= 2016 ~ 2000
     ),
     religious_ub = case_when(
-      year < 2014 ~ tinc * 0.1,
+      year < 2014 ~ taxable_tinc * 0.1,
       year >= 2014 ~ 3000,
       year >= 2016 ~ 2000
     ),
@@ -173,7 +173,7 @@ donate_purpose_data <- raw %>%
     ),
     purpose = dplyr::recode(
       purpose,
-      "1" = "poliparty",
+      "1" = "political",
       "2" = "educ",
       "3" = "welfare",
       "4" = "culture",
@@ -212,12 +212,13 @@ donate_member_data <- donate_purpose_data %>%
   ) %>%
   dplyr::select(-donate_NA) %>%
   mutate(
-    donate = donate_religious + donate_religious_action +
+    donate = donate_political +
       donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
     religious_donate = donate_religious + donate_religious_action,
+    political_donate = donate_political,
     d_donate = if_else(donate > 0, 1, 0)
   ) %>%
-  dplyr::select(hhid, pid, year, donate, religious_donate, d_donate)
+  dplyr::select(hhid, pid, year, donate, political_donate, religious_donate, d_donate)
 
 # 寄付支出データ（世帯単位）
 donate_household_data <- raw %>%
@@ -238,25 +239,25 @@ donate_data <- donate_member_data %>%
 mtr <- readr::read_csv("data/origin/mtrdt.csv")
 
 inc_data <- relief_data %>%
-  dplyr::select(hhid, pid, year, taxable_tinc, taxable_linc)
+  dplyr::select(hhid, pid, year, taxable_linc, taxable_linc)
 
 # first marginal tax rate(寄付額を差し引く前の税率)
 first_mtr_data <- inc_data %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_tinc)) %>%
-  dplyr::filter(lower_income_10000won <= taxable_tinc) %>%
+  dplyr::filter(!is.na(taxable_linc)) %>%
+  dplyr::filter(lower_income_10000won <= taxable_linc) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr = max(MTR)) %>%
   dplyr::ungroup() %>%
-  dplyr::select(-lower_income_10000won, -MTR, -taxable_tinc, -taxable_linc) %>%
+  dplyr::select(-lower_income_10000won, -MTR, -taxable_linc, -taxable_linc) %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # last marginal tax rate(寄付額を差し引いた後の税率)
 last_mtr_data <- inc_data %>%
   dplyr::left_join(donate_data, by = c("pid", "year", "hhid")) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_tinc) & !is.na(donate)) %>%
-  dplyr::mutate(subtract_tinc = taxable_tinc - donate) %>%
+  dplyr::filter(!is.na(taxable_linc) & !is.na(donate)) %>%
+  dplyr::mutate(subtract_tinc = taxable_linc - donate) %>%
   dplyr::filter(lower_income_10000won <= subtract_tinc) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(last_mtr = max(MTR)) %>%
@@ -268,18 +269,18 @@ last_mtr_data <- inc_data %>%
 lag_inc_data <- inc_data %>%
   dplyr::group_by(pid) %>%
   dplyr::mutate(
-    taxable_tinc_l1 = dplyr::lag(taxable_tinc, order_by = year),
-    taxable_tinc_l2 = dplyr::lag(taxable_tinc, n = 2, order_by = year),
-    taxable_tinc_l3 = dplyr::lag(taxable_tinc, n = 3, order_by = year)
+    taxable_linc_l1 = dplyr::lag(taxable_linc, order_by = year),
+    taxable_linc_l2 = dplyr::lag(taxable_linc, n = 2, order_by = year),
+    taxable_linc_l3 = dplyr::lag(taxable_linc, n = 3, order_by = year)
   ) %>%
   dplyr::ungroup()
 
 # 1期ラグ所得に基づいた税率の計算
 lag1_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, taxable_tinc_l1) %>%
+  dplyr::select(hhid, pid, year, taxable_linc_l1) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_tinc_l1)) %>%
-  dplyr::filter(lower_income_10000won <= taxable_tinc_l1) %>%
+  dplyr::filter(!is.na(taxable_linc_l1)) %>%
+  dplyr::filter(lower_income_10000won <= taxable_linc_l1) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l1 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -288,10 +289,10 @@ lag1_mtr_data <- lag_inc_data %>%
 
 # 2期ラグ所得に基づいた税率の計算
 lag2_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, taxable_tinc_l2) %>%
+  dplyr::select(hhid, pid, year, taxable_linc_l2) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_tinc_l2)) %>%
-  dplyr::filter(lower_income_10000won <= taxable_tinc_l2) %>%
+  dplyr::filter(!is.na(taxable_linc_l2)) %>%
+  dplyr::filter(lower_income_10000won <= taxable_linc_l2) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l2 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -300,10 +301,10 @@ lag2_mtr_data <- lag_inc_data %>%
 
 # 3期ラグ所得に基づいた税率の計算
 lag3_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, taxable_tinc_l3) %>%
+  dplyr::select(hhid, pid, year, taxable_linc_l3) %>%
   dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_tinc_l3)) %>%
-  dplyr::filter(lower_income_10000won <= taxable_tinc_l3) %>%
+  dplyr::filter(!is.na(taxable_linc_l3)) %>%
+  dplyr::filter(lower_income_10000won <= taxable_linc_l3) %>%
   dplyr::group_by(pid, year) %>%
   dplyr::mutate(first_mtr_l3 = max(MTR)) %>%
   dplyr::ungroup() %>%
@@ -352,8 +353,8 @@ dt <- donate_data %>%
   dplyr::left_join(ses_data, by = c("hhid", "pid", "year")) %>%
   dplyr::left_join(relief_data, by = c("hhid", "pid", "year")) %>%
   dplyr::left_join(hh_data, by = c("hhid", "year")) %>%
-  dplyr::select(-taxable_tinc.y, -taxable_linc.y) %>%
-  dplyr::rename(taxable_tinc = taxable_tinc.x, taxable_linc = taxable_linc.x)
+  dplyr::select(-taxable_linc.y) %>%
+  dplyr::rename(taxable_linc = taxable_linc.x)
 
 dt <- dt %>%
   dplyr::mutate(
