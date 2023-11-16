@@ -104,7 +104,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       geom_line() +
       scale_shape_manual(values = c(16, 15, 17, 18)) +
       scale_x_continuous(breaks = seq(2010, 2018, 1)) +
-      scale_y_continuous(breaks = seq(0, 3, by = 0.5), limits = c(0, 2.6)) +
+      scale_y_continuous(breaks = seq(0, 3, by = 0.5), limits = c(0, 3)) +
       labs(
         title = "Panel A. Amount of Giving",
         x = "Year",
