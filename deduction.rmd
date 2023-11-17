@@ -1,0 +1,145 @@
+---
+title: |
+  Deduction data
+date: "Last updated on `r format(Sys.Date(), '%Y/%m/%d')`"
+output:
+  beamer_presentation:
+    latex_engine: xelatex
+    keep_tex: no
+    toc: no
+    dev: cairo_pdf
+classoption: aspectratio=169
+header-includes:
+  - \usepackage{booktabs, threeparttable}
+  - \usepackage{siunitx}
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  cache = FALSE,
+  include = TRUE,
+  fig.pos = "t",
+  fig.width = 10,
+  fig.height = 6
+)
+
+options(
+  knitr.kable.NA = "",
+  modelsummary_stars_note = FALSE,
+  modelsummary_factory_default = "latex"
+)
+
+library(here)
+source(here("R/R6_StartAnalysis.r"))
+
+count_nobs <- function(data) {
+  n <- nrow(data)
+  sprintf("$N = %1d$", n)
+}
+```
+
+# Define Study Sample
+
+## Raw Data and Sample Year
+
+```{r echo=TRUE}
+raw <- read_csv(here("data/shaped2.csv"))
+```
+
+Observations of raw data: `r count_nobs(raw)`
+
+We define study sample, following conditions.
+
+```{r echo=TRUE}
+use1 <- subset(raw, 2010 <= year & year < 2018)
+```
+
+**Condition 1**: Observations in 2010--2017 (`r count_nobs(use1)`)
+
+## Condition: Household Members
+
+```{r}
+use1 <- use1 %>%
+  group_by(hhid, year) %>%
+  mutate(hh_max_inc = max(linc, na.rm = TRUE)) %>%
+  ungroup()
+```
+
+```{r echo=TRUE}
+use2 <- subset(use1, !is.infinite(hh_max_inc))
+```
+
+**Condition 2**: No information on labor income of all household members (`r count_nobs(use2)`)
+
+```{r echo=TRUE}
+use3 <- subset(use2, family_position == 1 & work %in% c(1, 3))
+```
+
+**Condition 3**: Household headers who are full-time wage earner or self-employed (`r count_nobs(use3)`)
+
+## Condition: Age
+
+```{r echo = TRUE}
+summary(use3$age)
+```
+
+```{r echo=TRUE}
+use4 <- subset(use3, 24 <= age)
+```
+
+**Condition 4**: Those who are 24 years old or more (`r count_nobs(use4)`)
+
+## Sample Characteristics: Income (1)
+
+```{r echo=TRUE}
+summary(use4$linc)
+```
+
+```{r echo=TRUE}
+summary(use4$tinc)
+```
+
+## Sample Characteristics: Income (2)
+
+```{r echo=TRUE}
+with(use4, table(linc == hh_max_inc, useNA = "always"))
+```
+
+```{r echo=TRUE}
+with(use4, table(linc == tinc, useNA = "always"))
+```
+
+## Condition: Income
+
+```{r echo=TRUE}
+use5 <- subset(use4, linc == hh_max_inc)
+```
+
+**Condition 5**: Those who are the highest earners (`r count_nobs(use5)`)
+
+```{r echo=TRUE}
+use6 <- subset(use5, linc < 30000)
+```
+
+**Condition 6**: Labor income is less than 300 million KRW (`r count_nobs(use6)`)
+
+## Revisit: Sample Characteristics
+
+```{r echo=TRUE}
+summary(use6$linc)
+```
+
+```{r echo=TRUE}
+summary(use6$tinc)
+```
+
+```{r echo=TRUE}
+with(use6, table(linc == tinc, useNA = "always"))
+```
+
+```{r}
+with(use6, table(a = !is.na(deduct_linc), b = !is.na(relief_donate_linc)))
+```
