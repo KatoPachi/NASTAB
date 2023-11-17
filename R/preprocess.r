@@ -82,6 +82,88 @@ hh_data <- ses %>%
 ses <- ses %>%
   dplyr::left_join(hh_data, by = c("hhid", "year"))
 
+# //NOTE 寄付データの作成
+# 寄付先データ
+donate_purpose_data <- raw %>%
+  dplyr::select(
+    hhid, pid, year, hcr004, hcr007, hcr010,
+    hcr013, hcr016, hcr019
+  ) %>%
+  tidyr::pivot_longer(hcr004:hcr019, names_prefix = "hcr") %>%
+  rename(key = name, purpose = value) %>%
+  mutate(
+    purpose = as.numeric(purpose),
+    key = dplyr::recode(
+      key,
+      "004" = "005", "007" = "008", "010" = "011",
+      "013" = "014", "016" = "017", "019" = "020"
+    ),
+    purpose = dplyr::recode(
+      purpose,
+      "1" = "political",
+      "2" = "educ",
+      "3" = "welfare",
+      "4" = "culture",
+      "5" = "religious",
+      "6" = "religious_action",
+      "7" = "others",
+      "-9" = "unknown"
+    )
+  )
+
+# 寄付支出データ（個人単位）
+donate_amount_data <- raw %>%
+  dplyr::select(
+    hhid, pid, year,
+    hcr005, hcr008, hcr011, hcr014, hcr017, hcr020
+  ) %>%
+  tidyr::pivot_longer(hcr005:hcr020, names_prefix = "hcr") %>%
+  rename(key = name, amount = value)
+
+# 寄付先データと支出データのマージ（個人単位）
+donate_member_data <- donate_purpose_data %>%
+  dplyr::left_join(donate_amount_data, by = c("hhid", "pid", "year", "key")) %>%
+  dplyr::select(-key) %>%
+  mutate(amount = case_when(
+    is.na(amount) ~ 0,
+    amount == -9 ~ NA_real_,
+    TRUE ~ amount
+  )) %>%
+  dplyr::filter(!is.na(amount)) %>%
+  dplyr::group_by(hhid, pid, year, purpose) %>%
+  dplyr::summarise(amount = sum(amount, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>%
+  tidyr::pivot_wider(
+    names_from = purpose, values_from = amount,
+    values_fill = 0, names_prefix = "donate_"
+  ) %>%
+  dplyr::select(-donate_NA) %>%
+  mutate(
+    donate = donate_political +
+      donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
+    religious_donate = donate_religious + donate_religious_action,
+    political_donate = donate_political,
+    d_donate = if_else(donate > 0, 1, 0)
+  ) %>%
+  dplyr::select(hhid, pid, year, donate, political_donate, religious_donate, d_donate)
+
+# 寄付支出データ（世帯単位）
+donate_household_data <- raw %>%
+  dplyr::select(hhid, pid, year, h_exp_cr, hcr001) %>%
+  rename(h_donate = h_exp_cr, d_h_donate = hcr001) %>%
+  mutate(
+    d_h_donate = as.numeric(d_h_donate),
+    d_h_donate = if_else(d_h_donate == 2, 0, d_h_donate)
+  )
+
+# 個人単位データと世帯単位データのマージ
+donate_data <- donate_member_data %>%
+  dplyr::left_join(donate_household_data, by = c("hhid", "pid", "year"))
+
+# ここまでのデータをマージする
+dt <- ses %>%
+  dplyr::left_join(donate_data, by = c("hhid", "pid", "year"))
+
 # //NOTE Income data
 inc <- raw %>%
   dplyr::select(
@@ -101,6 +183,7 @@ inc <- raw %>%
   )
 
 # //NOTE Tax benefit data
+# //TODO Add additional deduction items
 benefit <- raw %>%
   dplyr::select(
     hhid,
@@ -168,88 +251,9 @@ benefit <- raw %>%
     incentive_limit = religious_ub
   )
 
-#'
-#' 寄付データの作成
-#+
-# 寄付先データ
-donate_purpose_data <- raw %>%
-  dplyr::select(
-    hhid, pid, year, hcr004, hcr007, hcr010,
-    hcr013, hcr016, hcr019
-  ) %>%
-  tidyr::pivot_longer(hcr004:hcr019, names_prefix = "hcr") %>%
-  rename(key = name, purpose = value) %>%
-  mutate(
-    purpose = as.numeric(purpose),
-    key = dplyr::recode(
-      key, "004" = "005", "007" = "008", "010" = "011",
-      "013" = "014", "016" = "017", "019" = "020"
-    ),
-    purpose = dplyr::recode(
-      purpose,
-      "1" = "political",
-      "2" = "educ",
-      "3" = "welfare",
-      "4" = "culture",
-      "5" = "religious",
-      "6" = "religious_action",
-      "7" = "others",
-      "-9" = "unknown"
-    )
-  )
+# //TODO Calculate taxable income
 
-# 寄付支出データ（個人単位）
-donate_amount_data <- raw %>%
-  dplyr::select(
-    hhid, pid, year,
-    hcr005, hcr008, hcr011, hcr014, hcr017, hcr020
-  ) %>%
-  tidyr::pivot_longer(hcr005:hcr020, names_prefix = "hcr") %>%
-  rename(key = name, amount = value)
-
-# 寄付先データと支出データのマージ（個人単位）
-donate_member_data <- donate_purpose_data %>%
-  dplyr::left_join(donate_amount_data, by = c("hhid", "pid", "year", "key")) %>%
-  dplyr::select(-key) %>%
-  mutate(amount = case_when(
-    is.na(amount) ~ 0,
-    amount == -9 ~ NA_real_,
-    TRUE ~ amount
-  )) %>%
-  dplyr::filter(!is.na(amount)) %>%
-  dplyr::group_by(hhid, pid, year, purpose) %>%
-  dplyr::summarise(amount = sum(amount, na.rm = TRUE)) %>%
-  dplyr::ungroup() %>%
-  tidyr::pivot_wider(
-    names_from = purpose, values_from = amount,
-    values_fill = 0, names_prefix = "donate_"
-  ) %>%
-  dplyr::select(-donate_NA) %>%
-  mutate(
-    donate = donate_political +
-      donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
-    religious_donate = donate_religious + donate_religious_action,
-    political_donate = donate_political,
-    d_donate = if_else(donate > 0, 1, 0)
-  ) %>%
-  dplyr::select(hhid, pid, year, donate, political_donate, religious_donate, d_donate)
-
-# 寄付支出データ（世帯単位）
-donate_household_data <- raw %>%
-  dplyr::select(hhid, pid, year, h_exp_cr, hcr001) %>%
-  rename(h_donate = h_exp_cr, d_h_donate = hcr001) %>%
-  mutate(
-    d_h_donate = as.numeric(d_h_donate),
-    d_h_donate = if_else(d_h_donate == 2, 0, d_h_donate)
-  )
-
-# 個人単位データと世帯単位データのマージ
-donate_data <- donate_member_data %>%
-  dplyr::left_join(donate_household_data, by = c("hhid", "pid", "year"))
-
-#'
-#' 税率に関するデータの作成
-#+
+# //TODO Calculate tax-price
 mtr <- readr::read_csv("data/origin/mtrdt.csv")
 
 inc_data <- relief_data %>%
@@ -277,52 +281,6 @@ last_mtr_data <- inc_data %>%
   dplyr::mutate(last_mtr = max(MTR)) %>%
   dplyr::ungroup() %>%
   dplyr::select(hhid, pid, year, subtract_tinc, last_mtr) %>%
-  dplyr::distinct(.keep_all = TRUE)
-
-# 所得のラグ変数を作成
-lag_inc_data <- inc_data %>%
-  dplyr::group_by(pid) %>%
-  dplyr::mutate(
-    taxable_linc_l1 = dplyr::lag(taxable_linc, order_by = year),
-    taxable_linc_l2 = dplyr::lag(taxable_linc, n = 2, order_by = year),
-    taxable_linc_l3 = dplyr::lag(taxable_linc, n = 3, order_by = year)
-  ) %>%
-  dplyr::ungroup()
-
-# 1期ラグ所得に基づいた税率の計算
-lag1_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, taxable_linc_l1) %>%
-  dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_linc_l1)) %>%
-  dplyr::filter(lower_income_10000won <= taxable_linc_l1) %>%
-  dplyr::group_by(pid, year) %>%
-  dplyr::mutate(first_mtr_l1 = max(MTR)) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(-lower_income_10000won, -MTR) %>%
-  dplyr::distinct(.keep_all = TRUE)
-
-# 2期ラグ所得に基づいた税率の計算
-lag2_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, taxable_linc_l2) %>%
-  dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_linc_l2)) %>%
-  dplyr::filter(lower_income_10000won <= taxable_linc_l2) %>%
-  dplyr::group_by(pid, year) %>%
-  dplyr::mutate(first_mtr_l2 = max(MTR)) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(-lower_income_10000won, -MTR) %>%
-  dplyr::distinct(.keep_all = TRUE)
-
-# 3期ラグ所得に基づいた税率の計算
-lag3_mtr_data <- lag_inc_data %>%
-  dplyr::select(hhid, pid, year, taxable_linc_l3) %>%
-  dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_linc_l3)) %>%
-  dplyr::filter(lower_income_10000won <= taxable_linc_l3) %>%
-  dplyr::group_by(pid, year) %>%
-  dplyr::mutate(first_mtr_l3 = max(MTR)) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(-lower_income_10000won, -MTR) %>%
   dplyr::distinct(.keep_all = TRUE)
 
 # 2014年税制改革によるトリートメントグループの作成
@@ -353,23 +311,9 @@ treat_data <- first_mtr_data %>%
 # ここまでのデータのマージ
 tax_data <- inc_data %>%
   dplyr::left_join(first_mtr_data, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(last_mtr_data, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(lag1_mtr_data, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(lag2_mtr_data, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(lag3_mtr_data, by = c("hhid", "pid", "year")) %>%
   dplyr::left_join(treat_data, by = c("hhid", "pid"))
 
-#'
-#' ここまでのデータのマージと変数の処理
-#+
-dt <- donate_data %>%
-  dplyr::left_join(tax_data, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(ses_data, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(relief_data, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(hh_data, by = c("hhid", "year")) %>%
-  dplyr::select(-taxable_linc.y) %>%
-  dplyr::rename(taxable_linc = taxable_linc.x)
-
+# //NOTE Make some variables
 dt <- dt %>%
   dplyr::mutate(
     employee = if_else(work == 1, 1, 0),
@@ -380,41 +324,10 @@ dt <- dt %>%
     lprice = case_when(
       year < 2014 ~ 1 - last_mtr,
       year >= 2014 ~ 1 - 0.15
-    ),
-    price_l1_deduct = 1 - first_mtr_l1,
-    price_l2_deduct = 1 - first_mtr_l2,
-    price_l3_deduct = 1 - first_mtr_l3,
-    price13 = 1 - first_mtr_13
-  )
-
-dt <- dt %>%
-  dplyr::group_by(pid) %>%
-  dplyr::mutate(
-    price_l1 = dplyr::lag(price, order_by = year),
-    price_l2 = dplyr::lag(price, n = 2, order_by = year),
-    price_l3 = dplyr::lag(price, n = 3, order_by = year)
-  ) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate(
-    price_iv1 = case_when(
-      year > 2013 ~ (1 - 0.15) / price_l1,
-      year <= 2013 ~ price_l1_deduct / price_l1
-    ),
-    price_iv2 = case_when(
-      year > 2013 ~ (1 - 0.15) / price_l2,
-      year <= 2013 ~ price_l2_deduct / price_l2
-    ),
-    price_iv3 = case_when(
-      year > 2013 ~ (1 - 0.15) / price_l3,
-      year <= 2013 ~ price_l3_deduct / price_l3
     )
-  )
-
-names(dt)
-
-dt <- dt %>%
+  ) %>%
   dplyr::mutate_at(
-    vars(price, lprice, price_iv1, price_iv2, price_iv3),
+    vars(price, lprice),
     list(ln = ~ log(.))
   ) %>%
   dplyr::mutate(
@@ -423,84 +336,7 @@ dt <- dt %>%
     tinc_ln = log(tinc + 10000),
     taxable_tinc_ln = log(taxable_linc + 10000),
     donate_ln = log(donate + 1)
-  ) %>%
-  dplyr::group_by(pid) %>%
-  dplyr::mutate_at(
-    vars(
-      price_ln, donate_ln, linc_ln, tinc_ln,
-      age, sqage
-    ),
-    list(
-      l1 = ~dplyr::lag(., order_by = year),
-      l2 = ~dplyr::lag(., n = 2, order_by = year),
-      l3 = ~dplyr::lag(., n = 3, order_by = year)
-    )
-  ) %>%
-  dplyr::ungroup()
+  )
 
-dt <- dt %>%
-  dplyr::mutate(
-    price_ln_d1 = price_ln - price_ln_l1,
-    price_ln_d2 = price_ln - price_ln_l2,
-    price_ln_d3 = price_ln - price_ln_l3,
-    donate_ln_d1 = donate_ln - donate_ln_l1,
-    donate_ln_d2 = donate_ln - donate_ln_l2,
-    donate_ln_d3 = donate_ln - donate_ln_l3,
-    linc_ln_d1 = linc_ln - linc_ln_l1,
-    linc_ln_d2 = linc_ln - linc_ln_l2,
-    linc_ln_d3 = linc_ln - linc_ln_l3,
-    tinc_ln_d1 = tinc_ln - tinc_ln_l1,
-    tinc_ln_d2 = tinc_ln - tinc_ln_l2,
-    tinc_ln_d3 = tinc_ln - tinc_ln_l3,
-    age_d1 = age - age_l1,
-    age_d2 = age - age_l2,
-    age_d3 = age - age_l3,
-    sqage_d1 = sqage - sqage_l1,
-    sqage_d2 = sqage - sqage_l2,
-    sqage_d3 = sqage - sqage_l3
-  ) %>%
-  dplyr::select(- (price_ln_l1:sqage_l3))
-
-names(dt)
-
-#' 税理士関連データの追加
-#+
-# village <- readr::read_csv("data/origin/village_tax_accountant.csv")
-
-# account <- haven::read_dta("data/origin/accountant.dta") %>%
-#   as_tibble() %>%
-#   dplyr::select(
-#     h_b10, year, "人口", "公認会計", "公認会計_従事者", "税理", "税理_従事者"
-#   ) %>%
-#   dplyr::rename(
-#     area = h_b10,
-#     pops = "人口",
-#     pub_accountant_firm = "公認会計",
-#     pub_accountant = "公認会計_従事者",
-#     tax_accountant_firm = "税理",
-#     tax_accountant = "税理_従事者"
-#   ) %>%
-#   dplyr::mutate(
-#     pub_accountant_per = pub_accountant / pops,
-#     tax_accountant_per = tax_accountant / pops
-#   )
-
-# dt <- dt %>%
-#   dplyr::left_join(village, by = c("year", "area")) %>%
-#   dplyr::mutate(
-#     village_accountant = if_else(year <= 2015, 0, accountant),
-#     village_consult = if_else(year <= 2015, 0, consult)
-#   ) %>%
-#   dplyr::left_join(account, by = c("year", "area")) %>%
-#   dplyr::select(-accountant, -consult)
-
-#' 1. 年齢を制限する
-#' 2. 控除申請と寄付行動でデータを制限する
-#+
-# dt <- dt %>%
-#   dplyr::filter(age >= 24) %>%
-#   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1))
-
-#' CSVファイルに書き出す
-#+
+# //NOTE Write csv file
 readr::write_csv(dt, file = here("data/shaped2.csv"))
