@@ -1,14 +1,12 @@
-#'
-#+ read-raw
+# //NOTE Read raw data
 library(here)
 library(tidyverse)
 library(haven)
 
 raw <- haven::read_dta(here("data/merge/merge.dta"), encoding = "utf-8")
 
-#'
-#+ ses-variables
-ses_data <- raw %>%
+# //NOTE Socio-economic variables
+ses <- raw %>%
   dplyr::select(
     hhid, #世帯ID
     pid, #個人ID
@@ -70,9 +68,7 @@ ses_data <- raw %>%
   ) %>%
   select(-p_aa200, -p_aa005)
 
-#'
-#+ dependent-data
-hh_data <- ses_data %>%
+hh_data <- ses %>%
   dplyr::select(hhid, year, dependents) %>%
   group_by(hhid, year) %>%
   mutate(
@@ -83,9 +79,11 @@ hh_data <- ses_data %>%
   dplyr::select(-dependents) %>%
   dplyr::distinct(hhid, year, .keep_all = TRUE)
 
-#'
-#+ tax-relief-variables
-relief_data <- raw %>%
+ses <- ses %>%
+  dplyr::left_join(hh_data, by = c("hhid", "year"))
+
+# //NOTE Income data
+inc <- raw %>%
   dplyr::select(
     hhid,
     pid,
@@ -93,6 +91,22 @@ relief_data <- raw %>%
     certificate = psa13, # 証明書の提示有無：1.勤労所得を提出 2.総合所得を提出 3.両方を提出 4. 未提出
     tinc = pinc_all, #昨年1年間の総合所得
     linc = inc_bb1, #昨年1年間の労働所得
+    binc = inc_bb2, #昨年1年間の純事業所得
+    rinc = inc_bb3, #昨年1年間の不動産賃貸所得
+    dinc = inc_bb4, #昨年1年間の利子・配当・譲渡所得
+    oinc = inc_bb5, #昨年1年間のその他所得
+  ) %>%
+  mutate(
+    detect_tinc = linc + binc + rinc + dinc + oinc
+  )
+
+# //NOTE Tax benefit data
+benefit <- raw %>%
+  dplyr::select(
+    hhid,
+    pid,
+    year,
+    certificate = psa13, # 証明書の提示有無：1.勤労所得を提出 2.総合所得を提出 3.両方を提出 4. 未提出
     d_deduct_linc = pca201, #労働所得に対する控除（年末調整）の有無
     d_deduct_tinc = pda201, #総合所得に対する控除（確定申告）の有無
     d_deduct_donate_linc = pca225, #寄付金による所得控除の有無（年末調整）
@@ -451,41 +465,41 @@ names(dt)
 
 #' 税理士関連データの追加
 #+
-village <- readr::read_csv("data/origin/village_tax_accountant.csv")
+# village <- readr::read_csv("data/origin/village_tax_accountant.csv")
 
-account <- haven::read_dta("data/origin/accountant.dta") %>%
-  as_tibble() %>%
-  dplyr::select(
-    h_b10, year, "人口", "公認会計", "公認会計_従事者", "税理", "税理_従事者"
-  ) %>%
-  dplyr::rename(
-    area = h_b10,
-    pops = "人口",
-    pub_accountant_firm = "公認会計",
-    pub_accountant = "公認会計_従事者",
-    tax_accountant_firm = "税理",
-    tax_accountant = "税理_従事者"
-  ) %>%
-  dplyr::mutate(
-    pub_accountant_per = pub_accountant / pops,
-    tax_accountant_per = tax_accountant / pops
-  )
+# account <- haven::read_dta("data/origin/accountant.dta") %>%
+#   as_tibble() %>%
+#   dplyr::select(
+#     h_b10, year, "人口", "公認会計", "公認会計_従事者", "税理", "税理_従事者"
+#   ) %>%
+#   dplyr::rename(
+#     area = h_b10,
+#     pops = "人口",
+#     pub_accountant_firm = "公認会計",
+#     pub_accountant = "公認会計_従事者",
+#     tax_accountant_firm = "税理",
+#     tax_accountant = "税理_従事者"
+#   ) %>%
+#   dplyr::mutate(
+#     pub_accountant_per = pub_accountant / pops,
+#     tax_accountant_per = tax_accountant / pops
+#   )
 
-dt <- dt %>%
-  dplyr::left_join(village, by = c("year", "area")) %>%
-  dplyr::mutate(
-    village_accountant = if_else(year <= 2015, 0, accountant),
-    village_consult = if_else(year <= 2015, 0, consult)
-  ) %>%
-  dplyr::left_join(account, by = c("year", "area")) %>%
-  dplyr::select(-accountant, -consult)
+# dt <- dt %>%
+#   dplyr::left_join(village, by = c("year", "area")) %>%
+#   dplyr::mutate(
+#     village_accountant = if_else(year <= 2015, 0, accountant),
+#     village_consult = if_else(year <= 2015, 0, consult)
+#   ) %>%
+#   dplyr::left_join(account, by = c("year", "area")) %>%
+#   dplyr::select(-accountant, -consult)
 
 #' 1. 年齢を制限する
 #' 2. 控除申請と寄付行動でデータを制限する
 #+
-dt <- dt %>%
-  dplyr::filter(age >= 24) %>%
-  dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1))
+# dt <- dt %>%
+#   dplyr::filter(age >= 24) %>%
+#   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1))
 
 #' CSVファイルに書き出す
 #+
