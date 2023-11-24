@@ -239,7 +239,7 @@ check_dependent <- function(position, tinc, linc, age) {
 # //DISCUSS condition (1): 24 <= age
 # //DISCUSS condition (2): household heads who are self-employed or full-time wage earners
 # //DISCUSS condition (3): 2010 <= year < 2018
-# //DISCUSS condition (4): non-negative taxable income
+# //DISCUSS condition (4): unobserved taxable income
 hh_dependent <- dt %>%
   mutate(
     dependent = check_dependent(family_position, tinc, linc, age),
@@ -258,11 +258,12 @@ dt2 <- dt %>%
   mutate(
     salary_deduct = employment_income_deduction(linc, year),
     taxable_tinc = tinc - salary_deduct - 150 * (dependent + 1) - 100 * over70,
+    taxable_tinc = if_else(taxable_tinc < 0, 0, taxable_tinc),
     linc_ln = log(linc + 10000),
     tinc_ln = log(tinc + 10000),
     taxable_tinc_ln = log(taxable_tinc + 10000)
   ) %>%
-  dplyr::filter(0 <= taxable_tinc)
+  dplyr::filter(!is.na(taxable_tinc))
 
 # //NOTE 限界所得税率と寄付価格の計算
 mtr <- function(inc, year) {
