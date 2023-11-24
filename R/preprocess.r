@@ -239,6 +239,7 @@ check_dependent <- function(position, tinc, linc, age) {
 # //DISCUSS condition (1): 24 <= age
 # //DISCUSS condition (2): household heads who are self-employed or full-time wage earners
 # //DISCUSS condition (3): 2010 <= year < 2018
+# //DISCUSS condition (4): non-negative taxable income
 hh_dependent <- dt %>%
   mutate(
     dependent = check_dependent(family_position, tinc, linc, age),
@@ -260,7 +261,8 @@ dt2 <- dt %>%
     linc_ln = log(linc + 10000),
     tinc_ln = log(tinc + 10000),
     taxable_tinc_ln = log(taxable_tinc + 10000)
-  )
+  ) %>%
+  dplyr::filter(0 <= taxable_tinc)
 
 # //NOTE 限界所得税率と寄付価格の計算
 mtr <- function(inc, year) {
@@ -373,9 +375,9 @@ dt4 <- dt3 %>%
   dplyr::left_join(benefit, by = c("hhid", "pid", "year"))
 
 # //NOTE サブセット条件の追加
-# //DISCUSS condition (3): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)
-# //DISCUSS condition (4): no experience bracket (F) & (G)
-# //DISCUSS condition (5): amount of donation is lower than incentive upper-bound
+# //DISCUSS condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)
+# //DISCUSS condition (6): no experience bracket (F) & (G)
+# //DISCUSS condition (7): amount of donation is lower than incentive upper-bound
 dt5 <- dt4 %>%
   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
   dplyr::filter(experience_FG == 0) %>%
