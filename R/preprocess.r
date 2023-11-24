@@ -48,6 +48,7 @@ ses <- raw %>%
       p_aa200 == 3 ~ 6, #無職
       p_aa200 == 4 ~ 7 #学生
     ),
+    employee = if_else(work == 1, 1, 0),
     family_position = case_when(
       family_position == 1 ~ 1, #世帯主
       family_position == 2 ~ 2, #配偶者
@@ -134,11 +135,12 @@ donate_member_data <- donate_purpose_data %>%
   dplyr::select(-donate_NA) %>%
   mutate(
     donate = donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
+    donate_ln = log(donate),
     d_donate = if_else(donate > 0, 1, 0),
     religious_donate = donate_religious + donate_religious_action,
     political_donate = donate_political,
   ) %>%
-  dplyr::select(hhid, pid, year, donate, d_donate, political_donate, religious_donate)
+  dplyr::select(hhid, pid, year, donate, donate_ln, d_donate, political_donate, religious_donate)
 
 # 寄付支出データ（世帯単位）
 donate_household_data <- raw %>%
@@ -253,7 +255,10 @@ dt2 <- dt %>%
   dplyr::filter(2010 <= year & year < 2018) %>%
   mutate(
     salary_deduct = employment_income_deduction(linc, year),
-    taxable_tinc = tinc - salary_deduct - 150 * (dependent + 1) - 100 * over70
+    taxable_tinc = tinc - salary_deduct - 150 * (dependent + 1) - 100 * over70,
+    linc_ln = log(linc + 10000),
+    tinc_ln = log(tinc + 10000),
+    taxable_tinc_ln = log(taxable_tinc + 10000)
   )
 
 # //NOTE 限界所得税率と寄付価格の計算
@@ -293,6 +298,8 @@ dt3 <- dt2 %>%
       year < 2014 ~ 1 - last_mtr,
       year >= 2014 ~ 1 - 0.15
     ),
+    price_ln = log(price),
+    lprice_ln = log(lprice),
     ub = case_when(
       year == 2010 ~ taxable_tinc * 0.15,
       year == 2011 ~ taxable_tinc * 0.20,
@@ -364,22 +371,5 @@ benefit <- raw %>%
 dt4 <- dt3 %>%
   dplyr::left_join(benefit, by = c("hhid", "pid", "year"))
 
-# //NOTE Make some variables
-dt <- dt %>%
-  dplyr::mutate(
-    employee = if_else(work == 1, 1, 0),
-  ) %>%
-  dplyr::mutate_at(
-    vars(price, lprice),
-    list(ln = ~ log(.))
-  ) %>%
-  dplyr::mutate(
-    linc_ln = log(linc + 10000),
-    taxable_linc_ln = log(taxable_linc + 10000),
-    tinc_ln = log(tinc + 10000),
-    taxable_tinc_ln = log(taxable_linc + 10000),
-    donate_ln = log(donate + 1)
-  )
-
 # //NOTE Write csv file
-readr::write_csv(dt, file = here("data/shaped2.csv"))
+readr::write_csv(dt4, file = here("data/shaped2.csv"))
