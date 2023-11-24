@@ -292,20 +292,31 @@ dt3 <- dt2 %>%
     lprice = case_when(
       year < 2014 ~ 1 - last_mtr,
       year >= 2014 ~ 1 - 0.15
+    ),
+    ub = case_when(
+      year == 2010 ~ taxable_tinc * 0.15,
+      year == 2011 ~ taxable_tinc * 0.20,
+      year == 2012 ~ taxable_tinc * 0.30,
+      year == 2013 ~ taxable_tinc * 0.30,
+      year >= 2014 ~ 3000,
+      year >= 2016 ~ 2000
+    ),
+    religious_ub = case_when(
+      year < 2014 ~ taxable_tinc * 0.1,
+      year >= 2014 ~ 3000,
+      year >= 2016 ~ 2000
     )
   ) %>%
   group_by(pid) %>%
   mutate(experience_FG = if_else(sum(experience_FG) > 0, 1, 0)) %>%
   ungroup()
 
-# //NOTE Tax benefit data
-# //TODO Add additional deduction items
+# //NOTE 寄付控除・その他所得控除データ
 benefit <- raw %>%
   dplyr::select(
     hhid,
     pid,
     year,
-    certificate = psa13, # 証明書の提示有無：1.勤労所得を提出 2.総合所得を提出 3.両方を提出 4. 未提出
     d_deduct_linc = pca201, #労働所得に対する控除（年末調整）の有無
     d_deduct_tinc = pda201, #総合所得に対する控除（確定申告）の有無
     d_deduct_donate_linc = pca225, #寄付金による所得控除の有無（年末調整）
@@ -347,38 +358,16 @@ benefit <- raw %>%
     ),
     relief_donate_linc = if_else(year >= 2014, credit_donate_linc, deduct_donate_linc),
     relief_donate_tinc = if_else(year >= 2014, credit_donate_tinc, deduct_donate_tinc)
-  ) %>%
-  mutate(
-    taxable_linc = linc - deduct_linc + relief_donate_linc,
-    taxable_tinc = tinc - deduct_tinc + relief_donate_tinc,
-    ub = case_when(
-      year == 2010 ~ taxable_tinc * 0.15,
-      year == 2011 ~ taxable_tinc * 0.20,
-      year == 2012 ~ taxable_tinc * 0.30,
-      year == 2013 ~ taxable_tinc * 0.30,
-      year >= 2014 ~ 3000,
-      year >= 2016 ~ 2000
-    ),
-    religious_ub = case_when(
-      year < 2014 ~ taxable_tinc * 0.1,
-      year >= 2014 ~ 3000,
-      year >= 2016 ~ 2000
-    ),
-    incentive_limit = religious_ub
   )
+
+# //NOTE ここまでのデータをマージ
+dt4 <- dt3 %>%
+  dplyr::left_join(benefit, by = c("hhid", "pid", "year"))
 
 # //NOTE Make some variables
 dt <- dt %>%
   dplyr::mutate(
     employee = if_else(work == 1, 1, 0),
-    price = case_when(
-      year < 2014 ~ 1 - first_mtr,
-      year >= 2014 ~ 1 - 0.15
-    ),
-    lprice = case_when(
-      year < 2014 ~ 1 - last_mtr,
-      year >= 2014 ~ 1 - 0.15
-    )
   ) %>%
   dplyr::mutate_at(
     vars(price, lprice),
