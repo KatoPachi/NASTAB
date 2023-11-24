@@ -153,30 +153,31 @@ donate_household_data <- raw %>%
 donate_data <- donate_member_data %>%
   dplyr::left_join(donate_household_data, by = c("hhid", "pid", "year"))
 
-# ここまでのデータをマージする
-dt <- ses %>%
-  dplyr::left_join(donate_data, by = c("hhid", "pid", "year"))
-
-# //NOTE Income data
+# //NOTE 所得データの作成
 inc <- raw %>%
   dplyr::select(
     hhid,
     pid,
     year,
     certificate = psa13, # 証明書の提示有無：1.勤労所得を提出 2.総合所得を提出 3.両方を提出 4. 未提出
-    tinc = pinc_all, #昨年1年間の総合所得
-    linc = inc_bb1, #昨年1年間の労働所得
-    binc = inc_bb2, #昨年1年間の純事業所得
-    rinc = inc_bb3, #昨年1年間の不動産賃貸所得
-    dinc = inc_bb4, #昨年1年間の利子・配当・譲渡所得
-    oinc = inc_bb5, #昨年1年間のその他所得
+    tinc = pinc_all, # 昨年1年間の総合所得
+    linc = inc_bb1, # 昨年1年間の労働所得
+    binc = inc_bb2, # 昨年1年間の純事業所得
+    rinc = inc_bb3, # 昨年1年間の不動産賃貸所得
+    dinc = inc_bb4, # 昨年1年間の利子・配当・譲渡所得
+    oinc = inc_bb5, # 昨年1年間のその他所得
   ) %>%
   mutate(
     certificate = as.numeric(certificate)
   )
 
-# //NOTE Calculate taxable income
-# employment income deduction
+# //NOTE ここまでのデータをマージ
+dt <- ses %>%
+  dplyr::left_join(donate_data, by = c("hhid", "pid", "year")) %>%
+  dplyr::left_join(inc, by = c("hhid", "pid", "year"))
+
+# //NOTE 課税所得の計算
+# FUNCTIONS
 employment_income_deduction <- function(linc, year) {
   type1 <- c(2009, 2012, 2013)
   type2 <- c(2010, 2011)
@@ -202,15 +203,56 @@ employment_income_deduction <- function(linc, year) {
   )
 }
 
-inc <- inc %>%
-  mutate(salary_deduct = employment_income_deduction(linc, year))
+check_dependent <- function(position, tinc, linc, age) {
+  child <- c(3, 4, 7, 8)
+  parent <- c(5, 6, 9)
 
-dt <- dt %>%
-  dplyr::left_join(inc, by = c("pid", "hhid", "year"))
+  case_when(
+    position == 1 ~ 0,
+    position == 2 & tinc == linc & linc <= 500 ~ 1,
+    position == 2 & tinc == linc ~ 0,
+    position == 2 & tinc <= 100 ~ 1,
+    position == 2 ~ 0,
+    position %in% child & 20 < age ~ 0,
+    position %in% child & tinc == linc & linc <= 500 ~ 1,
+    position %in% child & tinc == linc ~ 0,
+    position %in% child & tinc <= 100 ~ 1,
+    position %in% child ~ 0,
+    position %in% parent & age < 60 ~ 0,
+    position %in% parent & tinc == linc & linc <= 500 ~ 1,
+    position %in% parent & tinc == linc ~ 0,
+    position %in% parent & tinc <= 100 ~ 1,
+    position %in% parent ~ 0,
+    position == 10 & (20 < age | age < 60) ~ 0,
+    position == 10 & tinc == linc & linc <= 500 ~ 1,
+    position == 10 & tinc == linc ~ 0,
+    position == 10 & tinc <= 100 ~ 1,
+    position == 10 ~ 0,
+    position >= 11 ~ 0
+  )
+}
 
-test <- dt %>%
-  mutate(taxable_tinc = tinc - salary_deduct) %>%
-  dplyr::filter(!is.na(taxable_tinc))
+# 変数作成とサブセット化
+# condition (1): age >= 24
+# condition (2): household heads who are self-employed or full-time wage earners
+hh_dependent <- dt %>%
+  mutate(
+    dependent = check_dependent(family_position, tinc, linc, age),
+    over70 = if_else(age >= 70, 1, 0)
+  ) %>%
+  select(hhid, year, dependent, over70) %>%
+  group_by(hhid, year) %>%
+  summarize_at(vars(dependent, over70), list(~sum(.))) %>%
+  ungroup()
+
+dt2 <- dt %>%
+  dplyr::left_join(hh_dependent, by = c("hhid", "year")) %>%
+  dplyr::filter(age >= 24) %>%
+  dplyr::filter(family_position == 1 & work %in% c(1, 3)) %>%
+  mutate(
+    salary_deduct = employment_income_deduction(linc, year),
+    taxable_tinc = tinc - salary_deduct - 150 * (dependent + 1) - 100 * over70
+  )
 
 # //NOTE Tax benefit data
 # //TODO Add additional deduction items
