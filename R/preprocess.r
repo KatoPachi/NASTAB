@@ -64,7 +64,8 @@ ses <- raw %>%
       family_position == 12 ~ 12, #世帯主の親の兄弟姉妹とその配偶者
       family_position == 13 ~ 13 #その他
     ),
-    indust = if_else(indust != -9, indust, NA_real_)
+    indust = if_else(indust != -9, indust, NA_real_),
+    indust = if_else(is.na(indust), 22, indust)
   ) %>%
   select(-p_aa200, -p_aa005, -educ)
 
@@ -371,5 +372,14 @@ benefit <- raw %>%
 dt4 <- dt3 %>%
   dplyr::left_join(benefit, by = c("hhid", "pid", "year"))
 
+# //NOTE サブセット条件の追加
+# //DISCUSS condition (3): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)
+# //DISCUSS condition (4): no experience bracket (F) & (G)
+# //DISCUSS condition (5): amount of donation is lower than incentive upper-bound
+dt5 <- dt4 %>%
+  dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
+  dplyr::filter(experience_FG == 0) %>%
+  dplyr::filter(ub > donate)
+
 # //NOTE Write csv file
-readr::write_csv(dt4, file = here("data/shaped2.csv"))
+readr::write_csv(dt5, file = here("data/shaped2.csv"))
