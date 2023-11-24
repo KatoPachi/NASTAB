@@ -233,8 +233,9 @@ check_dependent <- function(position, tinc, linc, age) {
 }
 
 # 変数作成とサブセット化
-# condition (1): age >= 24
-# condition (2): household heads who are self-employed or full-time wage earners
+# //DISCUSS condition (1): 24 <= age
+# //DISCUSS condition (2): household heads who are self-employed or full-time wage earners
+# //DISCUSS condition (3): 2010 <= year < 2018
 hh_dependent <- dt %>%
   mutate(
     dependent = check_dependent(family_position, tinc, linc, age),
@@ -247,12 +248,55 @@ hh_dependent <- dt %>%
 
 dt2 <- dt %>%
   dplyr::left_join(hh_dependent, by = c("hhid", "year")) %>%
-  dplyr::filter(age >= 24) %>%
+  dplyr::filter(24 <= age) %>%
   dplyr::filter(family_position == 1 & work %in% c(1, 3)) %>%
+  dplyr::filter(2010 <= year & year < 2018) %>%
   mutate(
     salary_deduct = employment_income_deduction(linc, year),
     taxable_tinc = tinc - salary_deduct - 150 * (dependent + 1) - 100 * over70
   )
+
+# //NOTE 限界所得税率と寄付価格の計算
+mtr <- function(inc, year) {
+  case_when(
+    inc < 1200 ~ 0.06,
+    inc < 4600 ~ 0.15,
+    inc < 8800 ~ 0.24,
+    inc < 15000 ~ 0.35,
+    inc < 30000 & year < 2014 ~ 0.35,
+    inc < 30000 ~ 0.38,
+    inc < 50000 & year < 2012 ~ 0.35,
+    inc < 50000 ~ 0.38,
+    !is.na(inc) & year < 2012 ~ 0.35,
+    !is.na(inc) & year < 2017 ~ 0.38,
+    !is.na(inc) ~ 0.4,
+  )
+}
+
+dt3 <- dt2 %>%
+  mutate(
+    first_mtr = mtr(taxable_tinc, year),
+    last_mtr = mtr(taxable_tinc - donate, year),
+    bracket = case_when(
+      taxable_tinc < 1200 ~ "(A) [0, 1200)",
+      taxable_tinc < 4600 ~ "(B) [1200, 4600)",
+      taxable_tinc < 8800 ~ "(C) [4600, 8800)",
+      taxable_tinc < 30000 ~ "(D) & (E) [8800, 30000)",
+      !is.na(taxable_tinc) ~ "(F) & (G) [30000, +infty)"
+    ),
+    experience_FG = if_else(bracket == "(F) & (G) [30000, +infty)", 1, 0),
+    price = case_when(
+      year < 2014 ~ 1 - first_mtr,
+      year >= 2014 ~ 1 - 0.15
+    ),
+    lprice = case_when(
+      year < 2014 ~ 1 - last_mtr,
+      year >= 2014 ~ 1 - 0.15
+    )
+  ) %>%
+  group_by(pid) %>%
+  mutate(experience_FG = if_else(sum(experience_FG) > 0, 1, 0)) %>%
+  ungroup()
 
 # //NOTE Tax benefit data
 # //TODO Add additional deduction items
@@ -322,68 +366,6 @@ benefit <- raw %>%
     ),
     incentive_limit = religious_ub
   )
-
-# //TODO Calculate taxable income
-
-# //TODO Calculate tax-price
-mtr <- readr::read_csv("data/origin/mtrdt.csv")
-
-inc_data <- relief_data %>%
-  dplyr::select(hhid, pid, year, taxable_linc, taxable_linc)
-
-# first marginal tax rate(寄付額を差し引く前の税率)
-first_mtr_data <- inc_data %>%
-  dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_linc)) %>%
-  dplyr::filter(lower_income_10000won <= taxable_linc) %>%
-  dplyr::group_by(pid, year) %>%
-  dplyr::mutate(first_mtr = max(MTR)) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(-lower_income_10000won, -MTR, -taxable_linc, -taxable_linc) %>%
-  dplyr::distinct(.keep_all = TRUE)
-
-# last marginal tax rate(寄付額を差し引いた後の税率)
-last_mtr_data <- inc_data %>%
-  dplyr::left_join(donate_data, by = c("pid", "year", "hhid")) %>%
-  dplyr::left_join(mtr, by = "year") %>%
-  dplyr::filter(!is.na(taxable_linc) & !is.na(donate)) %>%
-  dplyr::mutate(subtract_tinc = taxable_linc - donate) %>%
-  dplyr::filter(lower_income_10000won <= subtract_tinc) %>%
-  dplyr::group_by(pid, year) %>%
-  dplyr::mutate(last_mtr = max(MTR)) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(hhid, pid, year, subtract_tinc, last_mtr) %>%
-  dplyr::distinct(.keep_all = TRUE)
-
-# 2014年税制改革によるトリートメントグループの作成
-treat_data <- first_mtr_data %>%
-  dplyr::filter(year == 2013) %>%
-  dplyr::select(hhid, pid, first_mtr) %>%
-  dplyr::mutate(
-    first_mtr_13 = first_mtr,
-    credit_benefit = if_else(first_mtr < 0.15, 1, 0),
-    credit_neutral = if_else(first_mtr == 0.15, 1, 0),
-    credit_loss = if_else(first_mtr > 0.15, 1, 0),
-    credit_treat = case_when(
-      credit_benefit == 1 ~ 1,
-      credit_neutral == 1 ~ 2,
-      credit_loss == 1 ~ 3,
-      TRUE ~ NA_real_
-    ),
-    bracket13 = case_when(
-      first_mtr == 0.06 ~ "(A) --1200",
-      first_mtr == 0.15 ~ "(B) 1200--4600",
-      first_mtr == 0.24 ~ "(C) 4600--8800",
-      first_mtr == 0.35 ~ "(D) & (E) 8800--30000",
-      first_mtr == 0.38 ~ "(F) & (G) 30000--"
-    )
-  ) %>%
-  dplyr::select(-first_mtr)
-
-# ここまでのデータのマージ
-tax_data <- inc_data %>%
-  dplyr::left_join(first_mtr_data, by = c("hhid", "pid", "year")) %>%
-  dplyr::left_join(treat_data, by = c("hhid", "pid"))
 
 # //NOTE Make some variables
 dt <- dt %>%
