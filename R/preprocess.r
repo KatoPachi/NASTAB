@@ -172,8 +172,45 @@ inc <- raw %>%
     oinc = inc_bb5, #昨年1年間のその他所得
   ) %>%
   mutate(
-    detect_tinc = linc + binc + rinc + dinc + oinc
+    certificate = as.numeric(certificate)
   )
+
+# //NOTE Calculate taxable income
+# employment income deduction
+employment_income_deduction <- function(linc, year) {
+  type1 <- c(2009, 2012, 2013)
+  type2 <- c(2010, 2011)
+  type3 <- 2014:2017
+
+  case_when(
+    year %in% c(type1, type2) & linc < 500 ~ 0.8 * linc,
+    year %in% c(type1, type2) & linc < 1500 ~ 400 + 0.5 * (linc - 500),
+    year %in% c(type1, type2) & linc < 3000 ~ 900 + 0.15 * (linc - 1500),
+    year %in% c(type1, type2) & linc < 4500 ~ 1125 + 0.1 * (linc - 3000),
+    year %in% type1 ~ 1275 + 0.05 * (linc - 4500),
+
+    year %in% type2 & linc < 8000 ~ 1275 + 0.05 * (linc - 4500),
+    year %in% type2 & linc < 10000 ~ 1450 + 0.03 * (linc - 8000),
+    year %in% type2 ~ 1510 + 0.01 * (linc - 10000),
+
+    year %in% type3 & linc < 500 ~ 0.7 * linc,
+    year %in% type3 & linc < 1500 ~ 350 + 0.4 * (linc - 500),
+    year %in% type3 & linc < 4500 ~ 750 + 0.15 * (linc - 1500),
+    year %in% type3 & linc < 10000 ~ 1200 + 0.05 * (linc - 4500),
+    year %in% type3 ~ 1475 + 0.02 * (linc - 10000),
+    TRUE ~ NA_real_
+  )
+}
+
+inc <- inc %>%
+  mutate(salary_deduct = employment_income_deduction(linc, year))
+
+dt <- dt %>%
+  dplyr::left_join(inc, by = c("pid", "hhid", "year"))
+
+test <- dt %>%
+  mutate(taxable_tinc = tinc - salary_deduct) %>%
+  dplyr::filter(!is.na(taxable_tinc))
 
 # //NOTE Tax benefit data
 # //TODO Add additional deduction items
