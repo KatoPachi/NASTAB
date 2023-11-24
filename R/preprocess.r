@@ -12,9 +12,9 @@ ses <- raw %>%
     pid, #個人ID
     year, #調査年
     wave, #調査wave
-    sex = p_pgen, #性別
+    female = p_pgen, #性別
     age = p_page, #年齢
-    educ = p_pedu, #学歴
+    educ = p_pedu, #学歴(1=中卒以下、2=高卒、3=短大卒以上)
     area = h_b10, #世帯：地域コード
     p_aa200, #就業状態（1=就職、2=専業主婦、3=無職、4=学生）
     p_aa005, #従事地位（1=常用、2=臨時、3=自営業、4=無給の家族従事者）cond. p_aa200 == 1
@@ -22,7 +22,7 @@ ses <- raw %>%
     family_position = p_prel, #世帯主との関係コード
   ) %>%
   dplyr::mutate(
-    sex = sex - 1,
+    female = female - 1,
     sqage = age^2 / 100,
     college = case_when(
       educ == 3 ~ 1,
@@ -63,20 +63,14 @@ ses <- raw %>%
       family_position == 12 ~ 12, #世帯主の親の兄弟姉妹とその配偶者
       family_position == 13 ~ 13 #その他
     ),
-    dependents = if_else(work %in% c(4, 5, 7), 1, 0),
     indust = if_else(indust != -9, indust, NA_real_)
   ) %>%
-  select(-p_aa200, -p_aa005)
+  select(-p_aa200, -p_aa005, -educ)
 
 hh_data <- ses %>%
-  dplyr::select(hhid, year, dependents) %>%
+  dplyr::select(hhid, year) %>%
   group_by(hhid, year) %>%
-  mutate(
-    hh_num = n(),
-    hh_dependents = sum(dependents),
-    have_dependents = if_else(hh_dependents > 0, 1, 0)
-  ) %>%
-  dplyr::select(-dependents) %>%
+  mutate(hh_num = n()) %>%
   dplyr::distinct(hhid, year, .keep_all = TRUE)
 
 ses <- ses %>%
@@ -139,13 +133,12 @@ donate_member_data <- donate_purpose_data %>%
   ) %>%
   dplyr::select(-donate_NA) %>%
   mutate(
-    donate = donate_political +
-      donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
+    donate = donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
+    d_donate = if_else(donate > 0, 1, 0),
     religious_donate = donate_religious + donate_religious_action,
     political_donate = donate_political,
-    d_donate = if_else(donate > 0, 1, 0)
   ) %>%
-  dplyr::select(hhid, pid, year, donate, political_donate, religious_donate, d_donate)
+  dplyr::select(hhid, pid, year, donate, d_donate, political_donate, religious_donate)
 
 # 寄付支出データ（世帯単位）
 donate_household_data <- raw %>%
