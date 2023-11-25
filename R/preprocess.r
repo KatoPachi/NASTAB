@@ -240,29 +240,43 @@ check_dependent <- function(position, tinc, linc, age) {
 # //DISCUSS condition (2): household heads who are self-employed or full-time wage earners
 # //DISCUSS condition (3): 2010 <= year < 2018
 # //DISCUSS condition (4): unobserved taxable income
-hh_dependent <- dt %>%
+dt2 <- dt %>%
   mutate(
     dependent = check_dependent(family_position, tinc, linc, age),
+    payer = 1 - dependent,
     over70 = if_else(age >= 70, 1, 0)
-  ) %>%
-  select(hhid, year, dependent, over70) %>%
+  )
+
+hh_dependent <- dt2 %>%
+  select(hhid, year, dependent, payer, over70) %>%
   group_by(hhid, year) %>%
-  summarize_at(vars(dependent, over70), list(~sum(.))) %>%
+  summarize_at(vars(dependent, payer, over70), list(num =~sum(.))) %>%
   ungroup()
 
-dt2 <- dt %>%
+dt3 <- dt2 %>%
   dplyr::left_join(hh_dependent, by = c("hhid", "year")) %>%
-  dplyr::filter(24 <= age) %>%
-  dplyr::filter(family_position == 1 & work %in% c(1, 3)) %>%
-  dplyr::filter(2010 <= year & year < 2018) %>%
   mutate(
     salary_deduct = employment_income_deduction(linc, year),
-    taxable_tinc = tinc - salary_deduct - 150 * (dependent + 1) - 100 * over70,
-    taxable_tinc = if_else(taxable_tinc < 0, 0, taxable_tinc),
+    taxable_tinc = tinc - salary_deduct - 150 * (dependent_num + 1) - 100 * over70_num,
     linc_ln = log(linc + 10000),
     tinc_ln = log(tinc + 10000),
     taxable_tinc_ln = log(taxable_tinc + 10000)
-  ) %>%
+  )
+
+hh_max_inc <- dt3 %>%
+  dplyr::filter(payer == 1 & !is.na(taxable_tinc)) %>%
+  select(pid, hhid, year, taxable_tinc) %>%
+  group_by(hhid, year) %>%
+  mutate(hh_max_inc = max(taxable_tinc)) %>%
+  ungroup() %>%
+  mutate(hh_max_inc = if_else(taxable_tinc == hh_max_inc, 1, 0)) %>%
+  select(-taxable_tinc)
+
+dt4 <- dt3 %>%
+  dplyr::left_join(hh_max_inc, by = c("pid", "hhid", "year")) %>%
+  dplyr::filter(24 <= age) %>%
+  dplyr::filter(family_position == 1 & work %in% c(1, 3)) %>%
+  dplyr::filter(2010 <= year & year < 2018) %>%
   dplyr::filter(!is.na(taxable_tinc))
 
 # //NOTE 限界所得税率と寄付価格の計算
@@ -282,7 +296,7 @@ mtr <- function(inc, year) {
   )
 }
 
-dt3 <- dt2 %>%
+dt5 <- dt4 %>%
   mutate(
     first_mtr = mtr(taxable_tinc, year),
     last_mtr = mtr(taxable_tinc - donate, year),
@@ -321,6 +335,14 @@ dt3 <- dt2 %>%
   group_by(pid) %>%
   mutate(experience_FG = if_else(sum(experience_FG) > 0, 1, 0)) %>%
   ungroup()
+
+
+bracket13 <- dt5 %>%
+  dplyr::filter(year == 2013) %>%
+  select(pid, hhid, bracket13 = bracket)
+
+dt6 <- dt5 %>%
+  dplyr::left_join(bracket13, by = c("hhid", "pid"))
 
 # //NOTE 寄付控除・その他所得控除データ
 benefit <- raw %>%
@@ -372,17 +394,17 @@ benefit <- raw %>%
   )
 
 # //NOTE ここまでのデータをマージ
-dt4 <- dt3 %>%
+dt7 <- dt6 %>%
   dplyr::left_join(benefit, by = c("hhid", "pid", "year"))
 
 # //NOTE サブセット条件の追加
 # //DISCUSS condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)
 # //DISCUSS condition (6): no experience bracket (F) & (G)
 # //DISCUSS condition (7): amount of donation is lower than incentive upper-bound
-dt5 <- dt4 %>%
+dt8 <- dt7 %>%
   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
   dplyr::filter(experience_FG == 0) %>%
   dplyr::filter(ub > donate)
 
 # //NOTE Write csv file
-readr::write_csv(dt5, file = here("data/shaped2.csv"))
+readr::write_csv(dt8, file = here("data/shaped2.csv"))
