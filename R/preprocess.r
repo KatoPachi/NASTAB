@@ -236,10 +236,10 @@ check_dependent <- function(position, tinc, linc, age) {
 }
 
 # 変数作成とサブセット化
-# //DISCUSS condition (1): 24 <= age
-# //DISCUSS condition (2): household heads who are self-employed or full-time wage earners
-# //DISCUSS condition (3): 2010 <= year < 2018
-# //DISCUSS condition (4): unobserved taxable income
+# //DISCUSS condition (1): 24 <= age (N = 118,665)
+# //DISCUSS condition (2): household heads who are self-employed or full-time wage earners (N = 39,265)
+# //DISCUSS condition (3): 2010 <= year < 2018 (N = 25,581)
+# //DISCUSS condition (4): positive taxable income (N = 25,051)
 dt2 <- dt %>%
   mutate(
     dependent = check_dependent(family_position, tinc, linc, age),
@@ -277,7 +277,7 @@ dt4 <- dt3 %>%
   dplyr::filter(24 <= age) %>%
   dplyr::filter(family_position == 1 & work %in% c(1, 3)) %>%
   dplyr::filter(2010 <= year & year < 2018) %>%
-  dplyr::filter(!is.na(taxable_tinc))
+  dplyr::filter(0 < taxable_tinc)
 
 # //NOTE 限界所得税率と寄付価格の計算
 mtr <- function(inc, year) {
@@ -335,7 +335,6 @@ dt5 <- dt4 %>%
   group_by(pid) %>%
   mutate(experience_FG = if_else(sum(experience_FG) > 0, 1, 0)) %>%
   ungroup()
-
 
 bracket13 <- dt5 %>%
   dplyr::filter(year == 2013) %>%
@@ -398,13 +397,15 @@ dt7 <- dt6 %>%
   dplyr::left_join(benefit, by = c("hhid", "pid", "year"))
 
 # //NOTE サブセット条件の追加
-# //DISCUSS condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)
-# //DISCUSS condition (6): no experience bracket (F) & (G)
-# //DISCUSS condition (7): amount of donation is lower than incentive upper-bound
+# //DISCUSS condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1) (N = 15,432)
+# //DISCUSS condition (6): no experience bracket (F) & (G) (N = 15,268)
+# //DISCUSS condition (7): amount of donation is lower than incentive upper-bound (N = 15,259)
+# //DISCUSS condition (8): amount of donation is less than total income (N = 15,259)
 dt8 <- dt7 %>%
   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
   dplyr::filter(experience_FG == 0) %>%
-  dplyr::filter(ub > donate)
+  dplyr::filter(ub > donate) %>%
+  dplyr::filter(tinc > donate)
 
 # //NOTE Write csv file
 readr::write_csv(dt8, file = here("data/shaped2.csv"))
