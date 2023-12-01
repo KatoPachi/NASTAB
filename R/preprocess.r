@@ -135,7 +135,8 @@ donate_member_data <- donate_purpose_data %>%
   ) %>%
   dplyr::select(-donate_NA) %>%
   mutate(
-    donate = donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
+    donate = donate_religious + donate_religious_action +
+      donate_welfare + donate_educ + donate_others + donate_culture + donate_unknown,
     donate_ln = log(donate),
     d_donate = if_else(donate > 0, 1, 0),
     religious_donate = donate_religious + donate_religious_action,
@@ -237,9 +238,9 @@ check_dependent <- function(position, tinc, linc, age) {
 
 # 変数作成とサブセット化
 # //DISCUSS condition (1): 24 <= age (N = 118,665)
-# //DISCUSS condition (2): household heads who are self-employed or full-time wage earners (N = 39,265)
-# //DISCUSS condition (3): 2010 <= year < 2018 (N = 25,581)
-# //DISCUSS condition (4): positive taxable income (N = 25,051)
+# //DISCUSS condition (2): household heads who are self-employed or full-time wage earners (N = 113,204)
+# //DISCUSS condition (3): 2010 <= year < 2018 (N = 74,688)
+# //DISCUSS condition (4): positive taxable income (N = 49,354)
 dt2 <- dt %>%
   mutate(
     dependent = check_dependent(family_position, tinc, linc, age),
@@ -275,7 +276,7 @@ hh_max_inc <- dt3 %>%
 dt4 <- dt3 %>%
   dplyr::left_join(hh_max_inc, by = c("pid", "hhid", "year")) %>%
   dplyr::filter(24 <= age) %>%
-  dplyr::filter(family_position == 1 & work %in% c(1, 3)) %>%
+  dplyr::filter(payer == 1) %>%
   dplyr::filter(2010 <= year & year < 2018) %>%
   dplyr::filter(0 < taxable_tinc)
 
@@ -397,15 +398,13 @@ dt7 <- dt6 %>%
   dplyr::left_join(benefit, by = c("hhid", "pid", "year"))
 
 # //NOTE サブセット条件の追加
-# //DISCUSS condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1) (N = 15,432)
-# //DISCUSS condition (6): no experience bracket (F) & (G) (N = 15,268)
-# //DISCUSS condition (7): amount of donation is lower than incentive upper-bound (N = 15,259)
-# //DISCUSS condition (8): amount of donation is less than total income (N = 15,259)
+# //DISCUSS condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1) (N = 27,062)
+# //DISCUSS condition (6): no experience bracket (F) & (G) (N = 26,848)
+# //DISCUSS condition (7): amount of donation is lower than incentive upper-bound (N = 25,088)
 dt8 <- dt7 %>%
   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
   dplyr::filter(experience_FG == 0) %>%
-  dplyr::filter(ub > donate) %>%
-  dplyr::filter(tinc > donate)
+  dplyr::filter(taxable_tinc * 0.1 > donate)
 
 # //NOTE Write csv file
 readr::write_csv(dt8, file = here("data/shaped2.csv"))
