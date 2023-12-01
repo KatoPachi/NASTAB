@@ -32,7 +32,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
         dplyr::filter(flag == 1)
 
       setFixest_fml(
-        ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents + employee +
+        ..stage2 = ~ taxable_tinc_ln + sqage + hh_num + dependent_num +
+          hh_max_inc + I(family_position == 1) + employee +
           factor(indust) + factor(area) | pid + year
       )
     },
@@ -52,7 +53,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
           title = paste0(title, label),
           coef_map = c(
             "applicable" = "Applicable price",
-            "tinc_ln" = "Log income"
+            "taxable_tinc_ln" = "Log taxable income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2",
           stars = c("***" = .01, "**" = .05, "*" = .1),
@@ -212,7 +213,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
             "applicable" = "Applicable price ($\\beta_a$)",
             "effective" = "Effective price ($\\beta^{FE}_e$)",
             "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
-            "tinc_ln" = "Log income"
+            "taxable_tinc_ln" = "Log taxable income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),

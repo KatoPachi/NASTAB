@@ -15,8 +15,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
 
     self$data %>%
       datasummary(
-        (`Annual labor income (unit: 10,000KRW)` = linc) +
-          (`Annual total income (unit: 10,000KRW)` = tinc) +
+        (`Annual taxable income (unit: 10,000KRW)` = taxable_tinc) +
           (`Appricale price` = price) +
           (`Annual chariatable giving (unit: 10,000KRW)` = donate) +
           (`Dummary of donation $>$ 0` = d_donate) +
@@ -24,8 +23,9 @@ SummaryData <- R6::R6Class("SummaryData", list(
           (`Age` = age) +
           (`Wage earner dummy` = employee) +
           (`Number of household members` = hh_num) +
-          (`Dummy of having dependents` = have_dependents) +
-          (`Female dummy` = sex) +
+          (`Number of dependents in household` = dependent_num) +
+          (`Number of taxpayers in household` = payer_num) +
+          (`Female dummy` = female) +
           (`Academic history: University` = college) +
           (`Academic history: High school` = highschool) ~
           N +
@@ -36,10 +36,10 @@ SummaryData <- R6::R6Class("SummaryData", list(
         align = "lccc",
         escape = FALSE
       ) %>%
-      kable_styling(font_size = 8) %>%
-      pack_rows("Income and giving price", 1, 3, bold = FALSE, italic = TRUE) %>%
-      pack_rows("Charitable giving", 4, 6, bold = FALSE, italic = TRUE) %>%
-      pack_rows("Demographics", 7, 13, bold = FALSE, italic = TRUE) %>%
+      kable_styling(font_size = font_size) %>%
+      pack_rows("Income and giving price", 1, 2, bold = FALSE, italic = TRUE) %>%
+      pack_rows("Charitable giving", 3, 5, bold = FALSE, italic = TRUE) %>%
+      pack_rows("Demographics", 6, 13, bold = FALSE, italic = TRUE) %>%
       footnote(
         general_title = "",
         general = notes,
@@ -50,8 +50,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
   income_dist = function() {
     self$data %>%
       filter(year == 2013) %>%
-      dplyr::select(tinc, price) %>%
-      ggplot(aes(x = tinc)) +
+      ggplot(aes(x = taxable_tinc)) +
       geom_hline(aes(yintercept = 0)) +
       geom_histogram(
         aes(y = after_stat(count) / sum(after_stat(count)), fill = "Relative frequency"),
@@ -73,7 +72,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       ) +
       scale_x_continuous(breaks = c(1200, 4600, 8800, 30000)) +
       labs(
-        x = "Annual total income (10,000KRW)",
+        x = "Annual taxable income (10,000KRW)",
         y = "Relative frequency"
       ) +
       ggtemp(size = list(axis_title = 15, axis_text = 13, caption = 13))
@@ -81,6 +80,11 @@ SummaryData <- R6::R6Class("SummaryData", list(
   ts_giving = function() {
     plot_data <- self$data %>%
       dplyr::filter(!is.na(bracket13)) %>%
+      mutate(bracket13 = if_else(
+        str_detect(bracket13, "C|D|E"),
+        "(C), (D) and (E) [4600, 30000)",
+        bracket13
+      )) %>%
       group_by(year, bracket13) %>%
       summarize(
         amount = mean(donate, na.rm = TRUE),
@@ -92,7 +96,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       select(vars, bracket13, base, everything()) %>%
       pivot_longer(-(vars:base), names_to = "year", values_to = "mu") %>%
       mutate(
-        mu = mu / base,
+        mu = mu - base,
         year = as.numeric(year)
       )
 
@@ -104,7 +108,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       geom_line() +
       scale_shape_manual(values = c(16, 15, 17, 18)) +
       scale_x_continuous(breaks = seq(2010, 2018, 1)) +
-      scale_y_continuous(breaks = seq(0, 3, by = 0.5), limits = c(0, 3)) +
+      scale_y_continuous(breaks = seq(-30, 10, by = 10), limits = c(-30, 10)) +
       labs(
         title = "Panel A. Amount of Giving",
         x = "Year",
@@ -121,7 +125,11 @@ SummaryData <- R6::R6Class("SummaryData", list(
       geom_line() +
       scale_shape_manual(values = c(16, 15, 17, 18)) +
       scale_x_continuous(breaks = seq(2010, 2018, 1)) +
-      scale_y_continuous(breaks = seq(0, 3, by = 0.5), limits = c(0, 1.6)) +
+      scale_y_continuous(
+        breaks = seq(-0.3, 0.1, by = 0.1),
+        labels = c(-0.3, -0.2, -0.1, 0, 0.1),
+        limits = c(-0.3, 0.1)
+      ) +
       labs(
         title = "Panel B. Proportion of Donors",
         x = "Year",
@@ -142,6 +150,11 @@ SummaryData <- R6::R6Class("SummaryData", list(
 
     dta %>%
       dplyr::filter(!is.na(bracket13)) %>%
+      mutate(bracket13 = if_else(
+        str_detect(bracket13, "C|D|E"),
+        "(C), (D) and (E) [4600, 30000)",
+        bracket13
+      )) %>%
       group_by(year, bracket13) %>%
       summarize(mu = mean(d_relief_donate, na.rm = TRUE)) %>%
       ggplot(aes(x = year, y = mu, group = bracket13)) +
