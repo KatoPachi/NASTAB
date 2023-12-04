@@ -77,3 +77,167 @@ use2$data <- subset(
 use2_summary <- use2$summary()
 use2_summary$stats(title = "Summary of New Study Sample")
 ```
+
+# Current Study Sample
+
+## Applicable and Effective Price Elasticities
+
+```{r}
+use_first <- use$first_price()
+use_first$stage2(
+  title = "Current Study Sample",
+  font_size = 6
+)
+```
+
+## Elasticities on Declared Donations
+
+```{r}
+use_first$claimant_only(title = "Current Study Sample")
+```
+
+## Elasticities of Declaration
+
+```{r}
+use_first$claim_elasticity(title = "Current Study Sample")
+```
+
+## Policy Effect
+
+```{r}
+use_policy <- use$policy_effect()
+use_policy$effective(
+  -1.641, -1.945,
+  title = "Current Study Sample",
+  font_size = 5
+)
+```
+
+# New Study Sample
+
+## Applicable and Effective Price Elasticities
+
+```{r}
+use2_first <- use2$first_price()
+use2_first$stage2(
+  title = "Main Estimaton of New Study Sample",
+  font_size = 6
+)
+```
+
+## Elasticities of Declared Donations
+
+```{r}
+use2_first$claimant_only(title = "New Study Sample")
+```
+
+## Elasticities of Declaration
+
+```{r}
+use2_first$claim_elasticity(title = "New Study Sample")
+```
+
+## Policy Effect
+
+```{r}
+use2_policy <- use2$policy_effect()
+use2_policy$effective(
+  -1.442, -1.238,
+  title = "New Study Sample",
+  font_size = 5
+)
+```
+
+# Current Study Sample (Excluding religious donation)
+
+## Summary Statistics of Donation
+
+```{r echo=TRUE}
+use3 <- use$clone(deep = TRUE)
+use3$data$donate <- with(use3$data, donate - religious_donate)
+use3$data$donate_ln <- with(use3$data, log(donate))
+use3$data$d_donate <- with(use3$data, ifelse(donate > 0, 1, 0))
+summary(use3$data$donate)
+```
+
+## Applicable and Effective Price Elasticities
+
+```{r}
+use3_first <- use3$first_price()
+use3_first$stage2(
+  title = "Current study sample excluding religious donation",
+  font_size = 6
+)
+```
+
+## Elasticities of Declared Donations
+
+```{r}
+use3_first$claimant_only(title = "Current study sample excluding religious donation")
+```
+
+## Elasticities of Declaration
+
+```{r}
+use3_first$claim_elasticity(title = "Current study sample excluding religious donation")
+```
+
+## Policy Effect
+
+```{r}
+use3_policy <- use3$policy_effect()
+use3_policy$effective(
+  -1.748, 1.494,
+  title = "Current study sample excluding religious donation",
+  font_size = 5
+)
+```
+
+# New Study Sample (Excluding religious donation)
+
+## Summary Statistics of Donation
+
+```{r echo=TRUE}
+use4 <- use2$clone(deep = TRUE)
+use4$data$donate <- with(use4$data, donate - religious_donate)
+use4$data$donate_ln <- with(use4$data, log(donate))
+use4$data$d_donate <- with(use4$data, ifelse(donate > 0, 1, 0))
+summary(use4$data$donate)
+```
+
+## Applicable and Effective Price Elasticities
+
+```{r}
+use4_first <- use4$first_price()
+use4_first$stage2(
+  title = "New study sample excluding religious donation",
+  font_size = 6
+)
+```
+
+## Elasticities of Declared Donations
+
+```{r}
+use4_first$claimant_only(
+  title = "New study sample excluding religious donation"
+)
+```
+
+## Elasticities of Declaration
+
+```{r}
+use4_first$claim_elasticity(
+  title = "New study sample excluding religious donation"
+)
+```
+
+## Policy Effect
+
+```{r}
+use4_policy <- use4$policy_effect()
+use4_policy$effective(
+  -1.809, 1.370,
+  title = "New study sample excluding religious donation",
+  font_size = 5
+)
+```
