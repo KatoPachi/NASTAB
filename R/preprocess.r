@@ -5,6 +5,11 @@ library(haven)
 
 raw <- haven::read_dta(here("data/merge/merge.dta"), encoding = "utf-8")
 
+raw$wcnum #18歳未満の人数
+raw$wcnum_1 #0~6歳未満の世帯員数
+raw$wcnum_2 #6~18歳未満の世帯員数
+raw$wfnum #世帯員数
+
 # //NOTE Socio-economic variables
 ses <- raw %>%
   dplyr::select(
@@ -20,9 +25,13 @@ ses <- raw %>%
     p_aa005, #従事地位（1=常用、2=臨時、3=自営業、4=無給の家族従事者）cond. p_aa200 == 1
     indust = paa008, #産業コード
     family_position = p_prel, #世帯主との関係コード
+    hhnum = wfnum, #世帯員数
+    hhnum_child6 = wcnum_1, #0~6歳未満の世帯員数
+    hhnum_child18 = wcnum_2 #6~18歳未満の世帯員数
   ) %>%
   dplyr::mutate(
     female = female - 1,
+    hhnum_child = hhnum_child6 + hhnum_child18,
     sqage = age^2 / 100,
     college = case_when(
       educ == 3 ~ 1,
@@ -72,7 +81,7 @@ ses <- raw %>%
 hh_data <- ses %>%
   dplyr::select(hhid, year) %>%
   group_by(hhid, year) %>%
-  mutate(hh_num = n()) %>%
+  mutate(hhnum_survey = n()) %>%
   dplyr::distinct(hhid, year, .keep_all = TRUE)
 
 ses <- ses %>%
@@ -217,10 +226,10 @@ check_dependent <- function(position, tinc, linc, age) {
     position == 2 & tinc == linc ~ 0,
     position == 2 & tinc <= 100 ~ 1,
     position == 2 ~ 0,
-    position %in% child & 20 < age ~ 0,
-    position %in% child & tinc == linc & linc <= 500 ~ 1,
-    position %in% child & tinc == linc ~ 0,
-    position %in% child & tinc <= 100 ~ 1,
+    # position %in% child & 20 < age ~ 0,
+    # position %in% child & tinc == linc & linc <= 500 ~ 1,
+    # position %in% child & tinc == linc ~ 0,
+    # position %in% child & tinc <= 100 ~ 1,
     position %in% child ~ 0,
     position %in% parent & age < 60 ~ 0,
     position %in% parent & tinc == linc & linc <= 500 ~ 1,
@@ -258,7 +267,9 @@ dt3 <- dt2 %>%
   dplyr::left_join(hh_dependent, by = c("hhid", "year")) %>%
   mutate(
     salary_deduct = employment_income_deduction(linc, year),
-    taxable_tinc = tinc - salary_deduct - 150 * (dependent_num + 1) - 100 * over70_num,
+    taxable_tinc = tinc - salary_deduct -
+      150 * (hhnum_child6 + hhnum_child18 + dependent_num + 1) -
+      100 * over70_num,
     linc_ln = log(linc + 10000),
     tinc_ln = log(tinc + 10000),
     taxable_tinc_ln = log(taxable_tinc + 10000)
