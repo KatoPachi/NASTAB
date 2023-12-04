@@ -22,7 +22,8 @@ SummaryData <- R6::R6Class("SummaryData", list(
           (`Dummy of declaration of giving` = d_relief_donate) +
           (`Age` = age) +
           (`Wage earner dummy` = employee) +
-          (`Number of household members` = hh_num) +
+          (`Number of household members` = hhnum) +
+          (`Number of children` = hhnum_child) +
           (`Number of dependents in household` = dependent_num) +
           (`Number of taxpayers in household` = payer_num) +
           (`Female dummy` = female) +
@@ -39,7 +40,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       kable_styling(font_size = font_size) %>%
       pack_rows("Income and giving price", 1, 2, bold = FALSE, italic = TRUE) %>%
       pack_rows("Charitable giving", 3, 5, bold = FALSE, italic = TRUE) %>%
-      pack_rows("Demographics", 6, 13, bold = FALSE, italic = TRUE) %>%
+      pack_rows("Demographics", 6, 14, bold = FALSE, italic = TRUE) %>%
       footnote(
         general_title = "",
         general = notes,
