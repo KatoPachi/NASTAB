@@ -36,7 +36,28 @@ library(here)
 source(here("R/R6_StartAnalysis.r"))
 ```
 
-## Study Sample
+## About September Data Analysis
+
+- Donations include religious-related giving (not policital giving)
+- MTR is calculated by pre-tax total income (`tinc`)
+- Incentive limit is based on religious-related giving
+  - 10% of total income if $t < 2014$
+  - 30 million KRW if $2014 \le t < 2016$
+  - 20 million KRW if $2016 \le t$
+
+## About September Data Analysis
+
+- Study Sample
+    1. $\text{Age}\ge 24$
+    2. Observed between 2010 and 2018
+    3. Exclude observations with no donation and declaration
+    4. Exclude pre-tax income around thresholds (2 million KRW)
+    5. Exclude pre-tax income is in bracket (F) or (G)
+    6. Exclude unpaid family workers, housewives, and students
+    7. donation less than total income or incentive limit
+
+
+## New Study Sample A
 
 ```{r echo=TRUE}
 use <- StartAnalysis$new(here("data/shaped2.csv"))
@@ -55,10 +76,10 @@ use <- StartAnalysis$new(here("data/shaped2.csv"))
 
 ```{r}
 use_summary <- use$summary()
-use_summary$stats(title = "Summary of Current Study Sample")
+use_summary$stats(title = "Summary of New Study Sample A", font_size = 6)
 ```
 
-## Additional Condition
+## Additional Sample Restriction
 
 ```{r echo=TRUE}
 use2 <- use$clone(deep = TRUE)
@@ -75,17 +96,16 @@ use2$data <- subset(
 
 ```{r}
 use2_summary <- use2$summary()
-use2_summary$stats(title = "Summary of New Study Sample")
+use2_summary$stats(title = "Summary of New Study Sample B", font_size = 6)
 ```
 
-# Current Study Sample
-
+# Analysis Using New Study Sample A
 ## Applicable and Effective Price Elasticities
 
 ```{r}
 use_first <- use$first_price()
 use_first$stage2(
-  title = "Current Study Sample",
+  title = "Main Results of New Study Sample A",
   font_size = 6
 )
 ```
@@ -93,13 +113,17 @@ use_first$stage2(
 ## Elasticities on Declared Donations
 
 ```{r}
-use_first$claimant_only(title = "Current Study Sample")
+use_first$claimant_only(
+  title = "Elasticities on Declared Donations (New Study Sample A)"
+)
 ```
 
 ## Elasticities of Declaration
 
 ```{r}
-use_first$claim_elasticity(title = "Current Study Sample")
+use_first$claim_elasticity(
+  title = "Elasticities of Declaration (New Study Sample A)"
+)
 ```
 
 ## Policy Effect
@@ -108,33 +132,36 @@ use_first$claim_elasticity(title = "Current Study Sample")
 use_policy <- use$policy_effect()
 use_policy$effective(
   -1.641, -1.945,
-  title = "Current Study Sample",
+  title = "Policy Effect (New Study Sample A)",
   font_size = 5
 )
 ```
 
-# New Study Sample
-
+# Analysis Using New Study Sample B
 ## Applicable and Effective Price Elasticities
 
 ```{r}
 use2_first <- use2$first_price()
 use2_first$stage2(
-  title = "Main Estimaton of New Study Sample",
+  title = "Main Results of New Study Sample B",
   font_size = 6
 )
 ```
 
-## Elasticities of Declared Donations
+## Elasticities on Declared Donations
 
 ```{r}
-use2_first$claimant_only(title = "New Study Sample")
+use2_first$claimant_only(
+  title = "Elasticities on Declared Donations (New Study Sample B)"
+)
 ```
 
 ## Elasticities of Declaration
 
 ```{r}
-use2_first$claim_elasticity(title = "New Study Sample")
+use2_first$claim_elasticity(
+  title = "Elasticities of Declaration (New Study Sample B)"
+)
 ```
 
 ## Policy Effect
@@ -143,14 +170,13 @@ use2_first$claim_elasticity(title = "New Study Sample")
 use2_policy <- use2$policy_effect()
 use2_policy$effective(
   -1.442, -1.238,
-  title = "New Study Sample",
+  title = "Policy Effect (New Study Sample B)",
   font_size = 5
 )
 ```
 
-# Current Study Sample (Excluding religious donation)
-
-## Summary Statistics of Donation
+# Excluding religious donation
+## Summary Statistics of Donation (New Study Sample A)
 
 ```{r echo=TRUE}
 use3 <- use$clone(deep = TRUE)
@@ -160,42 +186,44 @@ use3$data$d_donate <- with(use3$data, ifelse(donate > 0, 1, 0))
 summary(use3$data$donate)
 ```
 
-## Applicable and Effective Price Elasticities
+## Results of New Study Sample A (1)
 
 ```{r}
 use3_first <- use3$first_price()
 use3_first$stage2(
-  title = "Current study sample excluding religious donation",
+  title = "Main Results of New Study Sample A",
   font_size = 6
 )
 ```
 
-## Elasticities of Declared Donations
+## Results of New Study Sample A (2)
 
 ```{r}
-use3_first$claimant_only(title = "Current study sample excluding religious donation")
+use3_first$claimant_only(
+  title = "Elasticities on Declared Donation (New Study Sample A)"
+)
 ```
 
-## Elasticities of Declaration
+## Results of New Study Sample A (3)
 
 ```{r}
-use3_first$claim_elasticity(title = "Current study sample excluding religious donation")
+use3_first$claim_elasticity(
+  title = "Elasticities of Declaration (New Study Sample A)"
+)
 ```
 
-## Policy Effect
+## Results of New Study Sample A (4)
 
 ```{r}
 use3_policy <- use3$policy_effect()
 use3_policy$effective(
   -1.748, 1.494,
-  title = "Current study sample excluding religious donation",
+  title = "Policy Effect (New Study Sample A)",
   font_size = 5
 )
 ```
 
-# New Study Sample (Excluding religious donation)
-
-## Summary Statistics of Donation
+## Summary Statistics of Donation (New Study Sample B)
 
 ```{r echo=TRUE}
 use4 <- use2$clone(deep = TRUE)
@@ -205,39 +233,39 @@ use4$data$d_donate <- with(use4$data, ifelse(donate > 0, 1, 0))
 summary(use4$data$donate)
 ```
 
-## Applicable and Effective Price Elasticities
+## Results of New Study Sample B (1)
 
 ```{r}
 use4_first <- use4$first_price()
 use4_first$stage2(
-  title = "New study sample excluding religious donation",
+  title = "Main Results of New Study Sample B",
   font_size = 6
 )
 ```
 
-## Elasticities of Declared Donations
+## Results of New Study Sample B (2)
 
 ```{r}
 use4_first$claimant_only(
-  title = "New study sample excluding religious donation"
+  title = "Elasticities on Declared Donations (New Study Sample B)"
 )
 ```
 
-## Elasticities of Declaration
+## Results of New Study Sample B (3)
 
 ```{r}
 use4_first$claim_elasticity(
-  title = "New study sample excluding religious donation"
+  title = "Elasticities of Declaration (New Study Sample B)"
 )
 ```
 
-## Policy Effect
+## Results of New Study Sample B (4)
 
 ```{r}
 use4_policy <- use4$policy_effect()
 use4_policy$effective(
   -1.809, 1.370,
-  title = "New study sample excluding religious donation",
+  title = "Policy Effect (New Study Sample B)",
   font_size = 5
 )
 ```
