@@ -5,11 +5,6 @@ library(haven)
 
 raw <- haven::read_dta(here("data/merge/merge.dta"), encoding = "utf-8")
 
-raw$wcnum #18歳未満の人数
-raw$wcnum_1 #0~6歳未満の世帯員数
-raw$wcnum_2 #6~18歳未満の世帯員数
-raw$wfnum #世帯員数
-
 # * Socio-economic variables
 ses <- raw %>%
   dplyr::select(
@@ -247,35 +242,26 @@ check_dependent <- function(position, tinc, linc, age) {
 
 # 変数作成とサブセット化
 # !condition (1): 24 <= age (N = 118,665)
-# !condition (2): household heads who are self-employed or full-time wage earners (N = 113,204)
+# !condition (2): taxpayers (N = 113,204)
 # !condition (3): 2010 <= year < 2018 (N = 74,688)
-# !condition (4): positive taxable income (N = 49,354)
+# !condition (4): positive taxable income (N = 49,595)
 dt2 <- dt %>%
   mutate(
+    salary_deduct = employment_income_deduction(linc, year),
+    taxable_tinc = tinc - salary_deduct,
     dependent = check_dependent(family_position, tinc, linc, age),
     payer = 1 - dependent,
-    over70 = if_else(age >= 70, 1, 0)
+    over70 = if_else(age >= 70, 1, 0),
+    dependent_over70 = dependent * over70
   )
 
 hh_dependent <- dt2 %>%
-  select(hhid, year, dependent, payer, over70) %>%
+  select(hhid, year, dependent, payer, dependent_over70) %>%
   group_by(hhid, year) %>%
-  summarize_at(vars(dependent, payer, over70), list(num =~sum(.))) %>%
+  summarize_at(vars(dependent, payer, dependent_over70), list(num =~sum(.))) %>%
   ungroup()
 
-dt3 <- dt2 %>%
-  dplyr::left_join(hh_dependent, by = c("hhid", "year")) %>%
-  mutate(
-    salary_deduct = employment_income_deduction(linc, year),
-    taxable_tinc = tinc - salary_deduct -
-      150 * (hhnum_child6 + hhnum_child18 + dependent_num + 1) -
-      100 * over70_num,
-    linc_ln = log(linc + 10000),
-    tinc_ln = log(tinc + 10000),
-    taxable_tinc_ln = log(taxable_tinc + 10000)
-  )
-
-hh_max_inc <- dt3 %>%
+hh_max_inc <- dt2 %>%
   dplyr::filter(payer == 1 & !is.na(taxable_tinc)) %>%
   select(pid, hhid, year, taxable_tinc) %>%
   group_by(hhid, year) %>%
@@ -284,12 +270,42 @@ hh_max_inc <- dt3 %>%
   mutate(hh_max_inc = if_else(taxable_tinc == hh_max_inc, 1, 0)) %>%
   select(-taxable_tinc)
 
-dt4 <- dt3 %>%
+dt3 <- dt2 %>%
+  dplyr::left_join(hh_dependent, by = c("hhid", "year")) %>%
   dplyr::left_join(hh_max_inc, by = c("pid", "hhid", "year")) %>%
+  mutate(
+    taxable_tinc = taxable_tinc - 150 - over70 * 100 -
+      150 * hh_max_inc * (hhnum_child6 + hhnum_child18 + dependent_num) -
+      100 * hh_max_inc * dependent_over70_num,
+    linc_ln = log(linc + 10000),
+    tinc_ln = log(tinc + 10000),
+    taxable_tinc_ln = log(taxable_tinc + 10000)
+  )
+
+# * Using hh_max_inc to calculate taxable total income
+# * No use:
+# > with(dt3, summary(taxable_tinc))
+#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
+# -1250     126    1025    1803    2550  314185   99811
+# * Use:
+# > with(dt3, summary(taxable_tinc))
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
+#    -800     309    1215    1991    2725  314185  103909
+
+dt4 <- dt3 %>%
   dplyr::filter(24 <= age) %>%
   dplyr::filter(payer == 1) %>%
   dplyr::filter(2010 <= year & year < 2018) %>%
   dplyr::filter(0 < taxable_tinc)
+
+# * If we don't use hh_max_inc to calculate taxable total income,
+# > with(dt4, summary(taxable_tinc))
+#     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+#      0.5    670.0   1578.8   2395.0   3162.3 314185.0
+# * If we use hh_max_inc to calculate taxable total income,
+# > with(dt4, summary(taxable_tinc))
+#     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+#      0.5    643.5   1550.0   2352.6   3130.4 314185.0
 
 # * 限界所得税率と寄付価格の計算
 mtr <- function(inc, year) {
@@ -409,9 +425,9 @@ dt7 <- dt6 %>%
   dplyr::left_join(benefit, by = c("hhid", "pid", "year"))
 
 # * サブセット条件の追加
-# !condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1) (N = 27,062)
-# !condition (6): no experience bracket (F) & (G) (N = 26,848)
-# !condition (7): amount of donation is lower than incentive upper-bound (N = 25,088)
+# !condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1) (N = 26,918)
+# !condition (6): no experience bracket (F) & (G) (N = 26,705)
+# !condition (7): amount of donation is lower than incentive upper-bound (N = 24,923)
 dt8 <- dt7 %>%
   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
   dplyr::filter(experience_FG == 0) %>%
