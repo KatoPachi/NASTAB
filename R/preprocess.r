@@ -231,7 +231,7 @@ check_dependent <- function(position, tinc, linc, age) {
     position %in% parent & tinc == linc ~ 0,
     position %in% parent & tinc <= 100 ~ 1,
     position %in% parent ~ 0,
-    position == 10 & (20 < age | age < 60) ~ 0,
+    position == 10 & 20 < age & age < 60 ~ 0,
     position == 10 & tinc == linc & linc <= 500 ~ 1,
     position == 10 & tinc == linc ~ 0,
     position == 10 & tinc <= 100 ~ 1,
