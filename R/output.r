@@ -21,7 +21,7 @@ out.file <- file(here("export", "tables", "summary-stats.tex"), open = "w")
 tab <- data_summary$stats(
   title = "Descriptive Statistics",
   label = "summary-covariate",
-  notes = "Notes: Our data is unbalanced panel data consisting of 8,441 unique individuals and 8 years period (2010--2017)"
+  notes = "Notes: Our data is unbalanced panel data consisting of 8,441 unique individuals and 8 years period (2010--2017). The number of dependents in household do not include the number of children."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -180,8 +180,8 @@ policy <- use$policy_effect()
 
 out.file <- file(here("export", "tables", "policy-effect.tex"), open = "w")
 tab <- policy$effective(
-  intensive_elasticity = -1.56,
-  extensive_elasticity = -2.647,
+  intensive_elasticity = -1.527,
+  extensive_elasticity = -1.903,
   font_size = 7,
   title = "Policy Effect of 2014 Tax Reform",
   label = "policy-effect",
