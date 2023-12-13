@@ -36,7 +36,8 @@ LastPrice <- R6::R6Class("LastPrice",
         dplyr::filter(flag == 1)
 
       setFixest_fml(
-        ..stage2 = ~ tinc_ln + sqage + hh_num + have_dependents + employee +
+        ..stage2 = ~ taxable_tinc_ln + sqage + hhnum + hhnum_child + dependent_num +
+          hh_max_inc + I(family_position == 1) + employee +
           factor(indust) + factor(area) | pid + year
       )
     },
