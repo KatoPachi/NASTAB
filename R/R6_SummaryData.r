@@ -30,11 +30,14 @@ SummaryData <- R6::R6Class("SummaryData", list(
           (`Academic history: University` = college) +
           (`Academic history: High school` = highschool) ~
           N +
-          (`Mean` = Mean) +
-          (`Std.Dev.` = SD),
+          Mean +
+          (`Std.Dev.` = SD) +
+          Min +
+          Median +
+          Max,
         title = paste0(title, label),
         data = .,
-        align = "lccc",
+        align = "lcccccc",
         escape = FALSE
       ) %>%
       kable_styling(font_size = font_size) %>%
