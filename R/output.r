@@ -3,7 +3,7 @@ library(here)
 source(here("R/R6_StartAnalysis.r"))
 
 # Create R6 class for analysis
-use <- StartAnalysis$new(here("data/shaped2.csv"))
+use <- StartAnalysis$new(here("data/shaped2.csv"), threshold_cut = 50)
 
 # Output options
 options(
@@ -70,7 +70,7 @@ out.file <- file(here("export", "tables", "main-stage1.tex"), open = "w")
 tab <- est_fp$stage1(
   title = "First-Stage Models",
   label = "main-stage1",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at household level are in parentheses. The outcome variable is the logged value of the effective price. For estimation, Model (1) uses donors only (intensive-margin sample), and Model (2) uses not only donors but also non-donors (extensive-margin sample). In addition to logged income shown in table, covariates consist of squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is the logged applicable price."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at household level are in parentheses. The outcome variable is the logged value of the effective price. For estimation, Model (1) uses donors only (intensive-margin sample), and Model (2) uses not only donors but also non-donors (extensive-margin sample). In addition to logged income shown in table, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is the logged applicable price."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -80,7 +80,7 @@ out.file <- file(here("export", "tables", "main.tex"), open = "w")
 tab <- est_fp$stage2(
   title = "Estimation Results of First-Price Elasticities",
   label = "main",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. An outcome variable is the logged value of the effective price. For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). In addition to logged income, covariates consist of squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price. The excluded instrument is a logged applicable price in Models (3) and (6)."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. An outcome variable is the logged value of the effective price. For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price. The excluded instrument is a logged applicable price in Models (3) and (6)."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -91,7 +91,7 @@ out.file <- file(here("export", "tables", "announcement.tex"), open = "w")
 tab <- est_fp$exclude_announcement(
   title = "First-Price Elasticities Excluding Announcement Effect",
   label = "announcement",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). To exclude the announcement effect, we exclude observations from 2013 and 2014. For the outcome equation, we control for squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). To exclude the announcement effect, we exclude observations from 2013 and 2014. For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -105,7 +105,7 @@ out.file <- file(here("export", "tables", "last-int.tex"), open = "w")
 tab <- est_lp$intensive(
   title = "Last-Price Elasticities for Intensive-Margin",
   label = "last-int",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -115,7 +115,7 @@ out.file <- file(here("export", "tables", "last-ext.tex"), open = "w")
 tab <- est_lp$extensive(
   title = "Last-Price Elasticities for Extensive-Margin",
   label = "last-ext",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is a dummy indicating a donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument. We calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is a dummy indicating a donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument. We calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -129,7 +129,7 @@ out.file <- file(here("export", "tables", "remove-bracket-shift.tex"), open = "w
 tab <- use2$first_price()$stage2(
   title = "First-Price Elasticities Removing Price Variation in Income Deduction Period",
   label = "remove-bracket-shift",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). We exclude those whose prices changed during the income deduction period. For the outcome equation, we control for squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). We exclude those whose prices changed during the income deduction period. For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -149,7 +149,7 @@ out.file <- file(here("export", "tables", "two-period.tex"), open = "w")
 tab <- use3$first_price()$stage2(
   title = "First-Price Elasticities Using 2012 and 2015 Data",
   label = "two-period",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). We use only data from 2012 and 2015. For the outcome equation, we control for squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). We use only data from 2012 and 2015. For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -160,7 +160,7 @@ out.file <- file(here("export", "tables", "claimant-only.tex"), open = "w")
 tab <- est_fp$claimant_only(
   title = "Intensive-Margin First-Price Elasticities for Claimants",
   label = "claimant-only",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use claimants only. We control for squared age (divided by 100), the number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use claimants only. We control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -170,7 +170,7 @@ out.file <- file(here("export", "tables", "claim-elasticity.tex"), open = "w")
 tab <- est_fp$claim_elasticity(
   title = "First-Price Elasticity of Declaration",
   label = "claim-elasticity",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is a declaration dummy. We control for squared age (divided by 100), the number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. To obtain the price elasticity, we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of claimants."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is a declaration dummy. We control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. To obtain the price elasticity, we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of claimants."
 )
 writeLines(tab, out.file)
 close(out.file)
@@ -180,8 +180,8 @@ policy <- use$policy_effect()
 
 out.file <- file(here("export", "tables", "policy-effect.tex"), open = "w")
 tab <- policy$effective(
-  intensive_elasticity = -1.527,
-  extensive_elasticity = -1.903,
+  intensive_elasticity = -1.505,
+  extensive_elasticity = -2.020,
   font_size = 7,
   title = "Policy Effect of 2014 Tax Reform",
   label = "policy-effect",
