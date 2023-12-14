@@ -8,7 +8,18 @@ source(here("R/R6_PolicyEffect.r"))
 
 StartAnalysis <- R6::R6Class("StartAnalysis", list(
   data = NULL,
-  initialize = function(path) self$data <- read_csv(path),
+  initialize = function(path, threshold_cut = 100) {
+    dta <- read_csv(path)
+    x <- threshold_cut
+
+    dta <- dta %>%
+      dplyr::filter(taxable_tinc < 1200 - x | 1200 + x < taxable_tinc) %>%
+      dplyr::filter(taxable_tinc < 4600 - x | 4600 + x < taxable_tinc) %>%
+      dplyr::filter(taxable_tinc < 8800 - x | 8800 + x < taxable_tinc) %>%
+      dplyr::filter(taxable_tinc < 15000 - x | 15000 + x < taxable_tinc)
+
+    self$data <- dta
+  },
   summary = function() SummaryData$new(self$data),
   first_price = function() FirstPrice$new(self$data),
   last_price = function() LastPrice$new(self$data),

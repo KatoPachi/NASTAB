@@ -47,6 +47,9 @@ LastPrice <- R6::R6Class("LastPrice",
     },
     intensive = function(title = "", label = "", notes = "", font_size = 8) {
       est <- self$result
+      tab <- est$stats %>%
+        select(name, starts_with("intensive"))
+      tab <- tab[3:4,]
 
       if (label != "") label <- paste0("\\label{tab:", label, "}")
 
@@ -61,11 +64,11 @@ LastPrice <- R6::R6Class("LastPrice",
             "fit_applicable_last" = "Applicable last-price",
             "effective_last" = "Effective last-price",
             "fit_effective_last" = "Effective last-price",
-            "tinc_ln" = "Log income"
+            "taxable_tinc_ln" = "Log taxable income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
-          add_rows = est$stats %>% select(name, starts_with("intensive")),
+          add_rows = tab,
           escape = FALSE
         ) %>%
         kable_styling(font_size = font_size) %>%
@@ -100,7 +103,7 @@ LastPrice <- R6::R6Class("LastPrice",
             "fit_applicable_last" = "Applicable last-price",
             "effective_last" = "Effective last-price",
             "fit_effective_last" = "Effective last-price",
-            "tinc_ln" = "Log income"
+            "taxable_tinc_ln" = "Log taxable income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -153,7 +156,7 @@ LastPrice <- R6::R6Class("LastPrice",
           coef_map = c(
             "applicable_last" = "Applicable last-price",
             "fit_applicable_last" = "Applicable last-price",
-            "tinc_ln" = "Log income"
+            "taxable_tinc_ln" = "Log taxable income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -209,7 +212,7 @@ LastPrice <- R6::R6Class("LastPrice",
           coef_map = c(
             "applicable_last" = "Applicable price",
             "fit_applicable_last" = "Applicable price",
-            "tinc_ln" = "Log income"
+            "taxable_tinc_ln" = "Log taxable income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
