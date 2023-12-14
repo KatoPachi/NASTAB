@@ -12,24 +12,22 @@
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
   & (1) & (2) & (3) & (4)\\
 \midrule
-Applicable last-price & \num{-0.676} &  & \num{-1.080}** & \\
- & (\num{0.421}) &  & (\num{0.445}) & \\
-Effective last-price &  & \num{-0.725}** &  & \num{-1.647}**\\
- &  & (\num{0.323}) &  & (\num{0.688})\\
+Applicable last-price & \num{-0.764}* &  & \num{-1.048}** & \\
+ & (\num{0.427}) &  & (\num{0.444}) & \\
+Effective last-price &  & \num{-0.802}** &  & \num{-1.590}**\\
+ &  & (\num{0.332}) &  & (\num{0.681})\\
+Log taxable income & \num{0.585} & \num{0.562} & \num{0.550} & \num{0.445}\\
+ & (\num{0.362}) & (\num{0.357}) & (\num{0.363}) & (\num{0.372})\\
 \midrule
-Estimate &  &  &  \vphantom{2} & \\
 \addlinespace[0.3em]
 \multicolumn{5}{l}{\textit{1st stage information (Excluded instrument: Applicable price)}}\\
-\hspace{1em} &  &  &  \vphantom{1} & \\
-\hspace{1em} &  &  &  & \\
- &  &  &  & \\
-F-statistics of instrument &  &  & \num{45100.345} & \num{857.603}\\
-Wu-Hausman test, p-value &  &  & $<$ \num{0.001} & \num{0.057}\\
-Num.Obs. & \num{6080} & \num{6080} & \num{6080} & \num{6080}\\
+\hspace{1em}F-statistics of instrument &  &  & \num{62053.654} & \num{847.618}\\
+\hspace{1em}Wu-Hausman test, p-value &  &  & \num{0.001} & \num{0.105}\\
+Num.Obs. & \num{5885} & \num{5885} & \num{5885} & \num{5885}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
-\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, a dummy that indicates having dependents, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument.
+\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
