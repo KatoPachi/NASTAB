@@ -642,6 +642,22 @@ merge_stats %>%
   ))
 ```
 
+# Event Study
+
+```{r}
+estudy_dt <- fp$data %>%
+  filter(type == "extensive") %>%
+  mutate(
+    low_bracket = if_else(str_detect(bracket13, "A"), 1, 0),
+    high_bracket = if_else(str_detect(bracket13, "C|D|E"), 1, 0),
+    year = factor(year, levels = c(2013, 2010:2012, 2014:2017))
+  )
+
+est_panelA <- feols(donate ~ low_bracket * year + high_bracket * year, data = estudy_dt)
+broom::tidy(est_panelA) %>%
+  filter(str_detect(term, ":high_bracket") | str_detect(term, "low_bracket:"))
+```
+
 # Appendix
 
 ## Full-sample analysis: Stage 1
