@@ -21,3 +21,6 @@ slides_cache/
 
 # worktree
 git-worktree/
+
+# output PDF files
+OnlineAppendix.pdf

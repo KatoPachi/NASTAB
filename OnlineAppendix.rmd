@@ -1,0 +1,18 @@
+---
+title: |
+  Online Appendix
+  "Tax-Price Elasticities of Charitable Giving and Selection of Declaration:
+  Panel Study of South Korea"
+author:
+  - Hiroki Kato
+  - Tsuyoshi Goto
+  - Youngrok Kim
+output:
+  bookdown::pdf_document2:
+    latex_engine: pdflatex
+    keep_tex: false
+    toc: false
+base-strech: 1.5
+fontsize: 12pt
+---
+
