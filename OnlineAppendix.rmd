@@ -16,3 +16,157 @@ base-strech: 1.5
 fontsize: 12pt
 ---
 
+```{r include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  error = FALSE,
+  message = FALSE,
+  dev = "pdf",
+  fig.pos = "t",
+  fig.width = 10,
+  fig.height = 5,
+  out.extra = ""
+)
+
+options(
+  knitr.table.format = "latex",
+  knitr.kable.NA = "",
+  modelsummary_stars_note = FALSE,
+  modelsummary_factory_default = "latex"
+)
+```
+
+\listoffigures
+\listoftables
+
+```{r library, include=FALSE}
+library(here)
+source(here("R/R6_StartAnalysis.r"))
+```
+
+```{r data, include=FALSE}
+use <- StartAnalysis$new(here("data/shaped2.csv"), threshold_cut = 50)
+use$data <- subset(use$data, employee == 1)
+```
+
+```{r summary-class, include=FALSE}
+data_summary <- use$summary()
+```
+
+```{r table2}
+data_summary$stats(
+  title = "Descriptive Statistics (Wage Earner Only)",
+  label = "summary-covariate",
+  notes = "Notes: Our data is unbalanced panel data consisting of 8,441 unique individuals and 8 years period (2010--2017). The number of dependents in household do not include the number of children."
+)
+```
+
+```{r figure1, fig.cap="Income Distribution in 2013 and Relative Giving Price (Wage Earner Only)"}
+data_summary$income_dist()
+```
+
+```{r figure2, fig.cap = "Average Givine Amount and Proportion of Donors (Wage Earner Only)"}
+data_summary$ts_giving()
+```
+
+```{r figure3, fig.cap = "Proportion Having Applied for Tax Incentives (Wage Earner Only)"}
+data_summary$ts_claim()
+```
+
+```{r figureA1, fig.cap = "Proportion Having Applied for Tax Incentives (Wage Earner Only)"}
+data_summary$ts_claim(d_donate == 1)
+```
+
+```{r first-price-class, include=FALSE}
+est_fp <- use$first_price()
+```
+
+```{r tableA1}
+est_fp$stage1(
+  title = "First-Stage Models (Wage Earner Only)",
+  label = "main-stage1",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at household level are in parentheses. We only use wage earners. The outcome variable is the logged value of the effective price. For estimation, Model (1) uses donors only (intensive-margin sample), and Model (2) uses not only donors but also non-donors (extensive-margin sample). In addition to logged income shown in table, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is the logged applicable price."
+)
+```
+
+```{r table3}
+est_fp$stage2(
+  title = "Estimation Results of First-Price Elasticities (Wage Earner Only)",
+  label = "main",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of the effective price. For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price. The excluded instrument is a logged applicable price in Models (3) and (6)."
+)
+```
+
+```{r last-price-class, include=FALSE}
+lp <- use$last_price()
+est_lp <- lp$fit()
+```
+
+```{r tableD1}
+est_lp$intensive(
+  title = "Last-Price Elasticities for Intensive-Margin (Wage Earner Only)",
+  label = "last-int",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. We use only wage earners. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument."
+)
+```
+
+```{r tableD2}
+est_lp$extensive(
+  title = "Last-Price Elasticities for Extensive-Margin (Wage Earner Only)",
+  label = "last-ext",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a dummy indicating a donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument. We calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
+)
+```
+
+```{r remove-shift, include=FALSE}
+use2 <- use$clone()
+use2$remove_bracket_shift()
+```
+
+```{r tableD3}
+use2$first_price()$stage2(
+  title = "First-Price Elasticities Removing Price Variation in Income Deduction Period (Wage Earner Only)",
+  label = "remove-bracket-shift",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). We exclude those whose prices changed during the income deduction period. For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
+)
+```
+
+```{r tableD4}
+est_fp$exclude_announcement(
+  title = "First-Price Elasticities Excluding Announcement Effect (Wage Earner Only)",
+  label = "announcement",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). To exclude the announcement effect, we exclude observations from 2013 and 2014. For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
+)
+```
+
+```{r tableD5}
+est_fp$claimant_only(
+  title = "Intensive-Margin First-Price Elasticities for Claimants (Wage Earner Only)",
+  label = "claimant-only",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use claimants only. We control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects."
+)
+```
+
+```{r tableD6}
+est_fp$claim_elasticity(
+  title = "First-Price Elasticity of Declaration (Wage Earner Only)",
+  label = "claim-elasticity",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a declaration dummy. We control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. To obtain the price elasticity, we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of claimants."
+)
+```
+
+```{r policy-effect-class, include=FALSE}
+policy <- use$policy_effect()
+```
+
+```{r table4}
+policy$effective(
+  intensive_elasticity = -1.403,
+  extensive_elasticity = -2.175,
+  font_size = 7,
+  title = "Policy Effect of 2014 Tax Reform (Wage Earner Only)",
+  label = "policy-effect",
+  notes = "Notes: We use wage earners whose declaration status is observed for 2013 and 2014. Column (1) shows the sample size by income bracket for 2013. Columns (2) and (3) are the declaration rates for each year. Columns (4) and (5) are the average effective price for each year. Column (6) reports the percentage change in the effective price. Column (8) shows the percentage change in donor contributions, which is the product of the value in Column (6) and the estimated intensive-margin effective price elasticity ($-1.4$). Column (10) shows the percentage change in the donor rate, which is the product of the value in Column (6) and the estimated extensive-margin effective price elasticities ($-2.2$). Columns (7) and (9) show the average donor contribution and the donor ratio in 2013, respectively. Columns (2)--(10) divide the sample by income bracket, claiming status in 2013, and claiming status in 2014, calculate the corresponding indicator in each subset, and then calculate the average of each indicator weighted by the subset sample size in each income bracket. The bottom row shows the average weighted by the bracket sample size."
+)
+```
