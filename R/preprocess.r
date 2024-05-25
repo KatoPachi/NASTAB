@@ -426,12 +426,10 @@ dt7 <- dt6 %>%
 
 # * サブセット条件の追加
 # !condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1) (N = 26,918)
-# !condition (6): no experience bracket (F) & (G) (N = 26,705)
-# !condition (7): amount of donation is lower than incentive upper-bound (N = 24,923)
+# condition (6): no experience bracket (F) & (G) (N = 26,705)
+# condition (7): amount of donation is lower than incentive upper-bound (N = 24,923)
 dt8 <- dt7 %>%
-  dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
-  dplyr::filter(experience_FG == 0) %>%
-  dplyr::filter(taxable_tinc * 0.1 > donate)
+  dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1))
 
 # * Write csv file
 readr::write_csv(dt8, file = here("data/shaped2.csv"))

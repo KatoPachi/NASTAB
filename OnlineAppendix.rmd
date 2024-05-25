@@ -47,7 +47,9 @@ source(here("R/R6_StartAnalysis.r"))
 
 ```{r data, include=FALSE}
 use <- StartAnalysis$new(here("data/shaped2.csv"), threshold_cut = 50)
-use$data <- subset(use$data, employee == 1)
+use$only_employee()
+use$remove_highest_bracket()
+use$set_donate_bound()
 ```
 
 ```{r summary-class, include=FALSE}

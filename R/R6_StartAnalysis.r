@@ -65,5 +65,17 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
   limit_2_year = function() {
     self$data <- subset(self$data, year == 2012 | year == 2015)
     invisible(self$data)
+  },
+  only_employee = function() {
+    self$data <- subset(self$data, employee == 1)
+    invisible(self$data)
+  },
+  remove_highest_bracket = function() {
+    self$data <- subset(self$data, experience_FG == 0)
+    invisible(self$data)
+  },
+  set_donate_bound = function() {
+    self$data <- subset(self$data, taxable_tinc * 0.1 > donate)
+    invisible(self$data)
   }
 ))
