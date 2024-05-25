@@ -12,6 +12,7 @@ output:
     latex_engine: pdflatex
     keep_tex: false
     toc: false
+    extra_dependencies: ["here"]
 base-strech: 1.5
 fontsize: 12pt
 ---
@@ -23,7 +24,7 @@ knitr::opts_chunk$set(
   error = FALSE,
   message = FALSE,
   dev = "pdf",
-  fig.pos = "t",
+  fig.pos = "H",
   fig.width = 10,
   fig.height = 5,
   out.extra = ""
@@ -48,8 +49,13 @@ source(here("R/R6_StartAnalysis.r"))
 ```{r data, include=FALSE}
 use <- StartAnalysis$new(here("data/shaped2.csv"), threshold_cut = 50)
 use$only_employee()
-use$remove_highest_bracket()
 use$set_donate_bound()
+
+# for table D3 and Event study
+use2 <- use$clone()
+use2$remove_bracket_shift()
+
+use$remove_highest_bracket()
 ```
 
 ```{r summary-class, include=FALSE}
@@ -121,11 +127,6 @@ est_lp$extensive(
 )
 ```
 
-```{r remove-shift, include=FALSE}
-use2 <- use$clone()
-use2$remove_bracket_shift()
-```
-
 ```{r tableD3}
 use2$first_price()$stage2(
   title = "First-Price Elasticities Removing Price Variation in Income Deduction Period (Wage Earner Only)",
@@ -171,4 +172,148 @@ policy$effective(
   label = "policy-effect",
   notes = "Notes: We use wage earners whose declaration status is observed for 2013 and 2014. Column (1) shows the sample size by income bracket for 2013. Columns (2) and (3) are the declaration rates for each year. Columns (4) and (5) are the average effective price for each year. Column (6) reports the percentage change in the effective price. Column (8) shows the percentage change in donor contributions, which is the product of the value in Column (6) and the estimated intensive-margin effective price elasticity ($-1.4$). Column (10) shows the percentage change in the donor rate, which is the product of the value in Column (6) and the estimated extensive-margin effective price elasticities ($-2.2$). Columns (7) and (9) show the average donor contribution and the donor ratio in 2013, respectively. Columns (2)--(10) divide the sample by income bracket, claiming status in 2013, and claiming status in 2014, calculate the corresponding indicator in each subset, and then calculate the average of each indicator weighted by the subset sample size in each income bracket. The bottom row shows the average weighted by the bracket sample size."
 )
+```
+
+\clearpage
+
+```{r event-study, fig.cap = "Event-study Analysis (Wage Earners)"}
+setFixest_fml(
+  ..stage2 = ~ taxable_tinc_ln + sqage + hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) + factor(indust) + factor(area) |
+    pid
+)
+
+data1 <- est_fp$data %>%
+  filter(type == "extensive") %>%
+  mutate(
+    low_bracket = if_else(str_detect(bracket13, "A"), 1, 0),
+    high_bracket = if_else(str_detect(bracket13, "C|D|E"), 1, 0),
+    year = factor(year, levels = c(2013, 2010:2012, 2014:2017))
+  )
+
+mods <- list(
+  donate ~ low_bracket * year + high_bracket * year + ..stage2,
+  outcome ~ low_bracket * year + high_bracket * year + ..stage2
+)
+
+est_mods <- mods %>%
+  map(~ feols(., data = data1, vcov = ~ hhid)) %>%
+  map(broom::tidy) %>%
+  map(~ subset(., str_detect(term, "bracket"))) %>%
+  map(~ mutate(., high = str_detect(term, "high"))) %>%
+  map(~ mutate(., year = str_extract(term, "(?<=year)[:digit:]+"))) %>%
+  map(~ mutate(., year = as.numeric(year))) %>%
+  map(~ bind_rows(., tibble(
+    estimate = rep(0,2),
+    std.error = rep(0, 2),
+    high = c(TRUE, FALSE),
+    year = rep(2013, 2)
+  ))) %>%
+  map(~ mutate(., ci_lb = estimate - 1.96 * std.error)) %>%
+  map(~ mutate(., ci_ub = estimate + 1.96 * std.error))
+
+panel <- 1:2 %>%
+  map(function(i) {
+    est_mods[[i]] %>%
+      ggplot(aes(
+        x = year,
+        y = estimate,
+        color = high,
+        shape = high,
+        fill = high,
+        linetype = high
+      )) +
+      geom_point(size = 4) +
+      geom_line() +
+      geom_ribbon(aes(ymin = ci_lb, ymax = ci_ub), alpha = 0.2) +
+      scale_fill_manual(values = c("grey20", "grey50")) +
+      scale_color_manual(values = c("grey20", "grey50")) +
+      scale_x_continuous(breaks = seq(2010, 2017, 1)) +
+      labs(
+        title = ifelse(
+          i == 1,
+          "Panel A. Amount of Giving",
+          "Panel B. Proportion of Donors"
+        ),
+        x = "Year",
+        y = "Estimate (95%CI)",
+        color = "Higher bracket?",
+        shape = "Higher bracket?",
+        fill = "Higher bracket?",
+        linetype = "Higher bracket?"
+      ) +
+      ggtemp(size = list(axis_title = 15, axis_text = 13, caption = 13))
+  })
+
+wrap_plots(panel) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+```
+
+```{r event-study-2, fig.cap = "Event-study Analysis (Wage Earners without Bracket Shift)"}
+data2 <- use2$first_price()$data %>%
+  filter(type == "extensive") %>%
+  mutate(
+    low_bracket = if_else(str_detect(bracket13, "A"), 1, 0),
+    high_bracket = if_else(str_detect(bracket13, "C|D|E|F|G"), 1, 0),
+    year = factor(year, levels = c(2013, 2010:2012, 2014:2017))
+  )
+
+mods <- list(
+  donate ~ low_bracket * year + high_bracket * year + ..stage2,
+  outcome ~ low_bracket * year + high_bracket * year + ..stage2
+)
+
+est_mods <- mods %>%
+  map(~ feols(., data = data2, vcov = ~ hhid)) %>%
+  map(broom::tidy) %>%
+  map(~ subset(., str_detect(term, "bracket"))) %>%
+  map(~ mutate(., high = str_detect(term, "high"))) %>%
+  map(~ mutate(., year = str_extract(term, "(?<=year)[:digit:]+"))) %>%
+  map(~ mutate(., year = as.numeric(year))) %>%
+  map(~ bind_rows(., tibble(
+    estimate = rep(0,2),
+    std.error = rep(0, 2),
+    high = c(TRUE, FALSE),
+    year = rep(2013, 2)
+  ))) %>%
+  map(~ mutate(., ci_lb = estimate - 1.96 * std.error)) %>%
+  map(~ mutate(., ci_ub = estimate + 1.96 * std.error))
+
+panel <- 1:2 %>%
+  map(function(i) {
+    est_mods[[i]] %>%
+      ggplot(aes(
+        x = year,
+        y = estimate,
+        color = high,
+        shape = high,
+        fill = high,
+        linetype = high
+      )) +
+      geom_point(size = 4) +
+      geom_line() +
+      geom_ribbon(aes(ymin = ci_lb, ymax = ci_ub), alpha = 0.2) +
+      scale_fill_manual(values = c("grey20", "grey50")) +
+      scale_color_manual(values = c("grey20", "grey50")) +
+      scale_x_continuous(breaks = seq(2010, 2017, 1)) +
+      labs(
+        title = ifelse(
+          i == 1,
+          "Panel A. Amount of Giving",
+          "Panel B. Proportion of Donors"
+        ),
+        x = "Year",
+        y = "Estimate (95%CI)",
+        color = "Higher bracket?",
+        shape = "Higher bracket?",
+        fill = "Higher bracket?",
+        linetype = "Higher bracket?"
+      ) +
+      ggtemp(size = list(axis_title = 15, axis_text = 13, caption = 13))
+  })
+
+wrap_plots(panel) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
 ```
