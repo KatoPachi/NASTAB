@@ -40,6 +40,7 @@ options(
 
 \listoffigures
 \listoftables
+\clearpage
 
 ```{r library, include=FALSE}
 library(here)
@@ -395,6 +396,51 @@ est_mods %>%
     general_title = "",
     general = str_glue("
       Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of donation. Note that the outcome variable is $-1$ if amount of donation is zero. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price.
+    "),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+```{r poisson}
+id <- data3$pid
+Y <- data3$donate
+unique_id <- unique(id)
+drop <- vector("logical", length(unique_id))
+for (i in 1:length(unique_id)) {
+  sumY <- sum(Y[id %in% unique_id[i]])
+  if (sumY == 0) drop[i] <- TRUE
+}
+keep_id <- unique_id[!drop]
+
+data4 <- subset(data3, pid %in% keep_id)
+
+poisson1 <- feNmlm(donate ~ applicable + ..stage2_e, data = data4, vcov = ~hhid)
+
+stage1 <- feols(effective ~ applicable + ..stage2_e, data = data4, vcov = ~hhid, demeaned = TRUE)
+data4$resid <- stage1$y_demeaned - stage1$X_demeaned %*% coef(stage1)
+
+poisson2 <- feNmlm(donate ~ effective + resid + ..stage2_e, data = data4, vcov = ~hhid)
+
+list(poisson1, poisson2) %>%
+  modelsummary(
+    title = "Poisson Regressions of Overall First-Price Elasticities (Wage Earners Only)",
+    coef_map = c(
+      "applicable" = "Applicable price ($\\beta_a$)",
+      "effective" = "Effective price ($\\beta^{IV}_e$)",
+      "resid" = "First-stage residuals (Control function)",
+      "taxable_tinc_ln" = "Log taxable income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(" " = 1, "Donation" = 2)) %>%
+  footnote(
+    general_title = "",
+    general = str_glue("
+      Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. An outcome variable is the amount of donation. We only use wage earners. Since the tax-payer $i$ whose the amount of donation is zero for all times does not contribute to the estimation, we omit them. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects.
     "),
     threeparttable = TRUE,
     escape = FALSE
