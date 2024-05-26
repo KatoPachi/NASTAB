@@ -317,3 +317,86 @@ wrap_plots(panel) +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 ```
+
+```{r overall-elasticity}
+data3 <- est_fp$data %>%
+  dplyr::filter(type == "extensive") %>%
+  mutate(
+    donate_1w = donate * 10000,
+    donate_10w = donate_1w / 10,
+    donate_1kw = donate_1w /1000,
+  ) %>%
+  mutate_at(
+    vars(donate_1w, donate_10w, donate_1kw),
+    list(ln=~ifelse(. == 0, -1, log(.)))
+  )
+
+setFixest_fml(
+  ..stage2_e = ~ taxable_tinc_ln + sqage + hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) + factor(indust) + factor(area) |
+    pid + year
+)
+
+mods <- list(
+  donate_1w_ln ~ applicable + ..stage2_e,
+  # donate_1w ~ effective + ..stage2_e,
+  donate_1w_ln ~ ..stage2_e | effective ~ applicable,
+  donate_10w_ln ~ applicable + ..stage2_e,
+  # donate_1w ~ effective + ..stage2_e,
+  donate_10w_ln ~ ..stage2_e | effective ~ applicable,
+  donate_1kw_ln ~ applicable + ..stage2_e,
+  # donate_1kw ~ effective + ..stage2_e,
+  donate_1kw_ln ~ ..stage2_e | effective ~ applicable
+)
+
+est_mods <- mods %>%
+  map(~ feols(., data = data3, vcov = ~ hhid))
+
+ivf <- sapply(est_mods, function(x) get_fitstat(x, "ivf", "stat")) %>%
+  sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x)))
+
+whp <- sapply(est_mods, function(x) get_fitstat(x, "wh", "p")) %>%
+  sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x))) %>%
+  sapply(function(x) ifelse(x == "\\num{0.000}", "$<$ \\num{0.001}", x))
+
+stat <- data.frame(rbind(ivf, whp))
+stat <- cbind(
+  term = c("F-stats of instrument", "Wu-Hausman test, p-value"),
+  stat
+)
+
+est_mods %>%
+  modelsummary(
+    title = "New Estimation Results of Overall First-Price Elasticities (Wage Earners Only)",
+    coef_map = c(
+      "applicable" = "Applicable price ($\\beta_a$)",
+      "effective" = "Effective price ($\\beta^{FE}_e$)",
+      "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
+      "taxable_tinc_ln" = "Log taxable income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = stat,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 8) %>%
+  add_header_above(c(
+    " " = 1,
+    "Log donation (unit: 1KRW)" = 2,
+    "Log donation (unit: 10KRW)" = 2,
+    "Log donation (unit: 1,000KRW)" = 2
+  )) %>%
+  group_rows(
+    "1st stage information (Excluded instrument: Applicatble price)",
+    8, 9,
+    bold = FALSE, italic = TRUE
+  ) %>%
+  footnote(
+    general_title = "",
+    general = str_glue("
+      Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of donation. Note that the outcome variable is $-1$ if amount of donation is zero. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price.
+    "),
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
