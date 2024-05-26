@@ -38,6 +38,8 @@ options(
 )
 ```
 
+# Tables and Figures
+
 \listoffigures
 \listoftables
 \clearpage
@@ -446,3 +448,18 @@ list(poisson1, poisson2) %>%
     escape = FALSE
   )
 ```
+
+\clearpage
+# Generalization of Relationship between Two Price Elasticities
+
+Let $p_E = 1 - D q$ be an effective price, where $D$ is an indicator of reporting and $q$ is tax incentive. This price determines the amount of donation: $g(p_e)$. We omit income for simplicity. Let $p_A = 1 - q$ be an applicable price. Thus, the effective price is a function of the applicable price: $p_E(p_A)$. Then, the applicable price elasticity is
+\begin{equation}
+\begin{split}
+  e^A
+  &= \frac{\partial g(p_E)}{\partial p_A} \frac{p_A}{g(p_E)} \\
+  &= \left(\frac{\partial g(p_E)}{\partial p_E}\frac{p_E}{g(p_E)} \right)
+  \left(\frac{\partial p_E}{\partial p_A}\frac{p_A}{p_E} \right) \\
+  &= e^E \times e^P,
+\end{split}
+\end{equation}
+where $e^E$ is the effective price elasticity and $e^P$ implies that 1 percent increase in the applicable price leads to $e^P$ percent increase in the effective price. If we can estimate two parameters, then we can also recover the remaining parameter.
