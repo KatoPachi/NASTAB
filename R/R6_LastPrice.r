@@ -36,7 +36,7 @@ LastPrice <- R6::R6Class("LastPrice",
         dplyr::filter(flag == 1)
 
       setFixest_fml(
-        ..stage2 = ~ taxable_tinc_ln + sqage + hhnum + hhnum_child + dependent_num +
+        ..stage2 = ~ after_tax_tinc_ln + sqage + hhnum + hhnum_child + dependent_num +
           hh_max_inc + I(family_position == 1) + employee +
           factor(indust) + factor(area) | pid + year
       )
@@ -64,7 +64,7 @@ LastPrice <- R6::R6Class("LastPrice",
             "fit_applicable_last" = "Applicable last-price",
             "effective_last" = "Effective last-price",
             "fit_effective_last" = "Effective last-price",
-            "taxable_tinc_ln" = "Log taxable income"
+            "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -103,7 +103,7 @@ LastPrice <- R6::R6Class("LastPrice",
             "fit_applicable_last" = "Applicable last-price",
             "effective_last" = "Effective last-price",
             "fit_effective_last" = "Effective last-price",
-            "taxable_tinc_ln" = "Log taxable income"
+            "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -156,7 +156,7 @@ LastPrice <- R6::R6Class("LastPrice",
           coef_map = c(
             "applicable_last" = "Applicable last-price",
             "fit_applicable_last" = "Applicable last-price",
-            "taxable_tinc_ln" = "Log taxable income"
+            "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -212,7 +212,7 @@ LastPrice <- R6::R6Class("LastPrice",
           coef_map = c(
             "applicable_last" = "Applicable price",
             "fit_applicable_last" = "Applicable price",
-            "taxable_tinc_ln" = "Log taxable income"
+            "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),

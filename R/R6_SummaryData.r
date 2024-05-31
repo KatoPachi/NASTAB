@@ -15,7 +15,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
 
     self$data %>%
       datasummary(
-        (`Annual taxable income (unit: 10,000KRW)` = taxable_tinc) +
+        (`Annual after-tax income (unit: 10,000KRW)` = after_tax_tinc) +
           (`Appricale price` = price) +
           (`Annual chariatable giving (unit: 10,000KRW)` = donate) +
           (`Dummary of donation $>$ 0` = d_donate) +

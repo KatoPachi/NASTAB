@@ -27,7 +27,7 @@ ses <- raw %>%
   dplyr::mutate(
     female = female - 1,
     hhnum_child = hhnum_child6 + hhnum_child18,
-    sqage = age^2 / 100,
+    sqage = age^2 / 10000,
     college = case_when(
       educ == 3 ~ 1,
       !is.na(educ) ~ 0,
@@ -276,10 +276,7 @@ dt3 <- dt2 %>%
   mutate(
     taxable_tinc = taxable_tinc - 150 - over70 * 100 -
       150 * hh_max_inc * (hhnum_child6 + hhnum_child18 + dependent_num) -
-      100 * hh_max_inc * dependent_over70_num,
-    linc_ln = log(linc + 10000),
-    tinc_ln = log(tinc + 10000),
-    taxable_tinc_ln = log(taxable_tinc + 10000)
+      100 * hh_max_inc * dependent_over70_num
   )
 
 # * Using hh_max_inc to calculate taxable total income
@@ -296,7 +293,12 @@ dt4 <- dt3 %>%
   dplyr::filter(24 <= age) %>%
   dplyr::filter(payer == 1) %>%
   dplyr::filter(2010 <= year & year < 2018) %>%
-  dplyr::filter(0 < taxable_tinc)
+  dplyr::filter(0 < taxable_tinc) %>%
+  mutate(
+    linc_ln = log(linc),
+    tinc_ln = log(tinc),
+    taxable_tinc_ln = log(taxable_tinc)
+  )
 
 # * If we don't use hh_max_inc to calculate taxable total income,
 # > with(dt4, summary(taxable_tinc))
@@ -327,6 +329,8 @@ mtr <- function(inc, year) {
 dt5 <- dt4 %>%
   mutate(
     first_mtr = mtr(taxable_tinc, year),
+    after_tax_tinc = taxable_tinc * (1 - first_mtr),
+    after_tax_tinc_ln = log(after_tax_tinc),
     last_mtr = mtr(taxable_tinc - donate, year),
     bracket = case_when(
       taxable_tinc < 1200 ~ "(A) [0, 1200)",
