@@ -8,7 +8,7 @@ source(here("R/R6_PolicyEffect.r"))
 
 StartAnalysis <- R6::R6Class("StartAnalysis", list(
   data = NULL,
-  initialize = function(path, threshold_cut = 100) {
+  initialize = function(path, threshold_cut = 100, add_base_inc = 0) {
     dta <- read_csv(path)
     x <- threshold_cut
 
@@ -17,6 +17,15 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
       dplyr::filter(taxable_tinc < 4600 - x | 4600 + x < taxable_tinc) %>%
       dplyr::filter(taxable_tinc < 8800 - x | 8800 + x < taxable_tinc) %>%
       dplyr::filter(taxable_tinc < 15000 - x | 15000 + x < taxable_tinc)
+
+    if (add_base_inc > 0) {
+      dta <- dta %>%
+        mutate(
+          linc_ln = log(linc + add_base_inc),
+          tinc_ln = log(tinc + add_base_inc),
+          taxable_tinc_ln = log(taxable_tinc + add_base_inc)
+        )
+    }
 
     self$data <- dta
   },
