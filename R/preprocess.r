@@ -433,7 +433,11 @@ dt7 <- dt6 %>%
 # condition (6): no experience bracket (F) & (G) (N = 26,705)
 # condition (7): amount of donation is lower than incentive upper-bound (N = 24,923)
 dt8 <- dt7 %>%
-  dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1))
+  dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
+  mutate(
+    limit_incentive = taxable_tinc * 0.1,
+    over_limit_incentive = if_else(donate >= limit_incentive, 1, 0)
+  )
 
 # * Write csv file
 readr::write_csv(dt8, file = here("data/shaped2.csv"))

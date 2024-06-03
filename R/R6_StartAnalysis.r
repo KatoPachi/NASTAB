@@ -75,7 +75,7 @@ StartAnalysis <- R6::R6Class("StartAnalysis", list(
     invisible(self$data)
   },
   set_donate_bound = function() {
-    self$data <- subset(self$data, taxable_tinc * 0.1 > donate)
+    self$data <- subset(self$data, over_limit_incentive == 0)
     invisible(self$data)
   }
 ))
