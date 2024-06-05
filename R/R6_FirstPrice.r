@@ -102,14 +102,16 @@ FirstPrice <- R6::R6Class("FirstPrice",
         )
     },
     claim_elasticity = function(title = "", label = "", notes = "", font_size = 8) {
-      dta <- subset(self$data, type == "extensive")
-      mu <- with(dta, mean(d_relief_donate, na.rm = TRUE))
-      fit <- feols(d_relief_donate ~ applicable + ..stage2, data = dta, vcov = ~ hhid)
+      mu <- with(self$data, mean(d_relief_donate, na.rm = TRUE))
+      fit <- feols(
+        d_relief_donate ~ applicable + ..stage2,
+        data = self$data, vcov = ~ hhid
+      )
 
       addtab <- implied_e(fit, mu) %>%
         pivot_longer(everything()) %>%
         mutate(name = dplyr::recode(name, "estimate" = "Estimate", "estimate_se" = ""))
-      
+
       attr(addtab, "position") <- 5:6
 
       if (label != "") label <- paste0("\\label{tab:", label, "}")

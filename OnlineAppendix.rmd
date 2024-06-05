@@ -156,9 +156,9 @@ est_fp$claimant_only(
 
 ```{r tableD6}
 est_fp$claim_elasticity(
-  title = "First-Price Elasticity of Declaration (Wage Earner Only)",
+  title = "First-Price Elasticity of Declaration",
   label = "claim-elasticity",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a declaration dummy. We control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. To obtain the price elasticity, we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of claimants."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a dummy of report. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. To obtain the price elasticity, we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of claimants."
 )
 ```
 
