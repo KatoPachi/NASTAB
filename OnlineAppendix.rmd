@@ -111,22 +111,21 @@ est_fp$stage2(
 
 ```{r last-price-class, include=FALSE}
 lp <- use$last_price()
-est_lp <- lp$fit()
 ```
 
 ```{r tableD1}
-est_lp$intensive(
-  title = "Last-Price Elasticities for Intensive-Margin (Wage Earner Only)",
+lp$overall(
+  title = "Last-Price Elasticities for Overall Donations",
   label = "last-int",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. We use only wage earners. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. We use only wage earners. The outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument."
 )
 ```
 
 ```{r tableD2}
-est_lp$extensive(
-  title = "Last-Price Elasticities for Extensive-Margin (Wage Earner Only)",
+lp$extensive(
+  title = "Last-Price Elasticities for Extensive-Margin",
   label = "last-ext",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a dummy indicating a donor. For estimation, we use not only donors but also non-donors (extensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument. We calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a dummy indicating a donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument. We calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
 ```
 

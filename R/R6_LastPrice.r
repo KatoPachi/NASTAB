@@ -12,50 +12,54 @@ LastPrice <- R6::R6Class("LastPrice",
     result = list(),
     data = NULL,
     initialize = function(data) {
+      ymin <- with(subset(data, donate > 0), min(donate))
+      ymin_claim <- with(
+        subset(data, d_relief_donate * donate > 0),
+        min(d_relief_donate * donate)
+      )
+
       self$data <- data %>%
-        relocate(donate_ln, d_donate, .after = last_col()) %>%
-        rename(
-          outcome_intensive = donate_ln,
-          outcome_extensive = d_donate,
+        mutate(
+          norm_donate = donate / ymin,
+          donate_ln = if_else(d_donate == 0, -1, log(norm_donate)),
+          claim_donate = d_relief_donate * donate,
+          d_claim_donate = if_else(claim_donate > 0, 1, 0),
+          norm_claim_donate = claim_donate / ymin_claim,
+          claim_donate_ln = if_else(d_claim_donate == 0, -1, log(norm_claim_donate)),
           applicable = price_ln,
-          applicable_last = lprice_ln
-        ) %>%
-        mutate(
-          flag_extensive = 1,
-          flag_intensive = if_else(outcome_extensive == 1, 1, 0)
-        ) %>%
-        pivot_longer(
-          outcome_intensive:flag_intensive,
-          names_to = c(".value", "type"),
-          names_pattern = "(.*)_(.*)"
-        ) %>%
-        mutate(
+          applicable_last = lprice_ln,
           effective = d_relief_donate * applicable,
           effective_last = d_relief_donate * applicable_last
-        ) %>%
-        dplyr::filter(flag == 1)
+        )
 
       setFixest_fml(
         ..stage2 = ~ after_tax_tinc_ln + sqage + hhnum + hhnum_child + dependent_num +
-          hh_max_inc + I(family_position == 1) + employee +
+          hh_max_inc + I(family_position == 1) +
           factor(indust) + factor(area) | pid + year
       )
     },
-    fit = function() {
-      self$result <- private$component_regtab(self$data)
-      invisible(self)
-    },
-    intensive = function(title = "", label = "", notes = "", font_size = 8) {
-      est <- self$result
-      tab <- est$stats %>%
-        select(name, starts_with("intensive"))
-      tab <- tab[3:4,]
+    overall = function(title = "", label = "", notes = "", font_size = 8) {
+      mods <- list(
+        donate_ln ~ applicable_last + ..stage2,
+        donate_ln ~ effective_last + ..stage2,
+        donate_ln ~ ..stage2 | applicable_last ~ applicable,
+        donate_ln ~ ..stage2 | effective_last ~ applicable
+      )
+
+      fit_mods <- mods %>%
+        map(~ feols(., data = self$data, vcov = ~ hhid))
+
+      ivf <- fit_mods %>%
+        lapply(function(x) get_fitstat(x, "ivf", "stat")) %>%
+        lapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x))) %>%
+        reduce(cbind)
+
+      addtab <- data.frame(cbind(term = c("F-statistics of instrument"), ivf))
+      attr(addtab, "position") <- 7
 
       if (label != "") label <- paste0("\\label{tab:", label, "}")
 
-      est$fit %>%
-        dplyr::filter(type == "intensive") %>%
-        pull(fit) %>%
+      fit_mods %>%
         setNames(paste0("(", seq(length(.)), ")")) %>%
         modelsummary(
           title = paste0(title, label),
@@ -68,7 +72,7 @@ LastPrice <- R6::R6Class("LastPrice",
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
-          add_rows = tab,
+          add_rows = addtab,
           escape = FALSE
         ) %>%
         kable_styling(font_size = font_size) %>%
@@ -76,7 +80,7 @@ LastPrice <- R6::R6Class("LastPrice",
         add_header_above(c(" " = 1, "Log donation" = 4)) %>%
         group_rows(
           "1st stage information (Excluded instrument: Applicable price)",
-          7, 8,
+          7, 7,
           bold = FALSE, italic = TRUE
         ) %>%
         column_spec(2:5, width = "6.25em") %>%
@@ -88,13 +92,34 @@ LastPrice <- R6::R6Class("LastPrice",
         )
     },
     extensive = function(title = "", label = "", notes = "", font_size = 8) {
-      est <- self$result
+      mods <- list(
+        d_donate ~ applicable_last + ..stage2,
+        d_donate ~ effective_last + ..stage2,
+        d_donate ~ ..stage2 | applicable_last ~ applicable,
+        d_donate ~ ..stage2 | effective_last ~ applicable
+      )
+
+      fit_mods <- mods %>%
+        map(~ feols(., data = self$data, vcov = ~hhid))
+
+      ivf <- fit_mods %>%
+        sapply(function(x) get_fitstat(x, "ivf", "stat")) %>%
+        sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x)))
+
+      mu <- mean(self$data$d_donate, na.rm = TRUE)
+
+      imp <- fit_mods %>%
+        purrr::map(~ implied_e(., mu)) %>%
+        purrr::map(~ pivot_longer(., everything())[, 2]) %>%
+        reduce(cbind)
+
+      stats <- data.frame(rbind(imp, ivf))
+      addtab <- cbind(term = c("Estimate", "", "F-statistics of instrument"), stats)
+      attr(addtab, "position") <- 7:9
 
       if (label != "") label <- paste0("\\label{tab:", label, "}")
 
-      est$fit %>%
-        dplyr::filter(type == "extensive") %>%
-        pull(fit) %>%
+      fit_mods %>%
         setNames(paste0("(", seq(length(.)), ")")) %>%
         modelsummary(
           title = paste0(title, label),
@@ -107,7 +132,7 @@ LastPrice <- R6::R6Class("LastPrice",
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
-          add_rows = est$stats %>% select(name, starts_with("extensive")),
+          add_rows = addtab,
           escape = FALSE
         ) %>%
         kable_styling(font_size = font_size) %>%
@@ -116,7 +141,7 @@ LastPrice <- R6::R6Class("LastPrice",
         group_rows("Implied price elasticity", 7, 8, italic = TRUE, bold = FALSE) %>%
         group_rows(
           "1st stage information (Excluded instrument: Applicable price)",
-          9, 10,
+          9, 9,
           italic = TRUE, bold = FALSE
         ) %>%
         column_spec(2:5, width = "6.25em") %>%
@@ -242,56 +267,6 @@ LastPrice <- R6::R6Class("LastPrice",
       outcome ~ effective_last + ..stage2,
       outcome ~ ..stage2 | applicable_last ~ applicable,
       outcome ~ ..stage2 | effective_last ~ applicable
-    ),
-    component_regtab = function(data) {
-      fit <- data %>%
-        group_by(type) %>%
-        nest() %>%
-        mutate(
-          mu = map_dbl(data, ~ with(., mean(outcome, na.rm = TRUE))),
-          fit_mod1 = map(data, ~ feols(private$fe2sls_mod[[1]], data = ., vcov = ~hhid)),
-          fit_mod2 = map(data, ~ feols(private$fe2sls_mod[[2]], data = ., vcov = ~hhid)),
-          fit_mod3 = map(data, ~ feols(private$fe2sls_mod[[3]], data = ., vcov = ~hhid)),
-          fit_mod4 = map(data, ~ feols(private$fe2sls_mod[[4]], data = ., vcov = ~hhid))
-        ) %>%
-        select(-data) %>%
-        arrange(desc(type)) %>%
-        pivot_longer(
-          fit_mod1:fit_mod4,
-          names_to = c(".value", "model"),
-          names_pattern = "(.*)_(.*)"
-        )
-
-      addtab <- fit %>%
-        mutate(
-          imp = map2(fit, mu, ~ implied_e(.x, .y)),
-          ivf = map_dbl(fit, ~ get_fitstat(., "ivf", "stat")),
-          wh = map_dbl(fit, ~ get_fitstat(., "wh", "p"))
-        ) %>%
-        select(-mu, -fit) %>%
-        unnest(imp) %>%
-        mutate_at(vars(estimate, estimate_se), list(~ ifelse(type == "extensive", ., ""))) %>%
-        mutate_at(vars(ivf, wh), list(~ ifelse(is.na(.), "", sprintf("\\num{%1.3f}", .)))) %>%
-        mutate_at(vars(ivf, wh), list(~ ifelse(. == "\\num{0.000}", "$<$ \\num{0.001}", .))) %>%
-        mutate(id = paste0(type, "_", model)) %>%
-        ungroup() %>%
-        select(-type, -model) %>%
-        pivot_longer(-id) %>%
-        pivot_wider(names_from = id, values_from = value) %>%
-        mutate(name = recode(
-          name,
-          "estimate" = "Estimate",
-          "estimate_se" = "",
-          "ivf" = "F-statistics of instrument",
-          "wh" = "Wu-Hausman test, p-value"
-        ))
-
-      attr(addtab, "position") <- 7:10
-
-      list(
-        fit = fit,
-        stats = addtab
-      )
-    }
+    )
   )
 )
