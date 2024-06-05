@@ -14,8 +14,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
 
       self$data <- data %>%
         mutate(
-          donate = donate / ymin,
-          donate_ln = if_else(d_donate == 0, -1, log(donate)),
+          norm_donate = donate / ymin,
+          donate_ln = if_else(d_donate == 0, -1, log(norm_donate)),
           applicable = price_ln,
           effective = d_relief_donate * applicable
         )
