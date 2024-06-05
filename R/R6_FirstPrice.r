@@ -11,11 +11,19 @@ FirstPrice <- R6::R6Class("FirstPrice",
     data = NULL,
     initialize = function(data) {
       ymin <- with(subset(data, donate > 0), min(donate))
+      ymin_claim <- with(
+        subset(data, d_relief_donate * donate > 0),
+        min(d_relief_donate * donate)
+      )
 
       self$data <- data %>%
         mutate(
           norm_donate = donate / ymin,
           donate_ln = if_else(d_donate == 0, -1, log(norm_donate)),
+          claim_donate = d_relief_donate * donate,
+          d_claim_donate = if_else(claim_donate > 0, 1, 0),
+          norm_claim_donate = claim_donate / ymin_claim,
+          claim_donate_ln = if_else(d_claim_donate == 0, -1, log(norm_claim_donate)),
           applicable = price_ln,
           effective = d_relief_donate * applicable
         )
@@ -63,8 +71,10 @@ FirstPrice <- R6::R6Class("FirstPrice",
       private$main_reg(dta, title, label, notes, font_size)
     },
     claimant_only = function(title = "", label = "", notes = "", font_size = 8) {
-      dta <- subset(self$data, d_relief_donate == 1 & type == "intensive")
-      fit <- feols(private$fe2sls_mod[[1]], data = dta, vcov = ~ hhid)
+      fit <- feols(
+        claim_donate_ln ~ applicable + ..stage2,
+        data = self$data, vcov = ~ hhid
+      )
 
       if (label != "") label <- paste0("\\label{tab:", label, "}")
 

@@ -148,9 +148,9 @@ est_fp$exclude_announcement(
 
 ```{r tableD5}
 est_fp$claimant_only(
-  title = "Intensive-Margin First-Price Elasticities for Claimants (Wage Earner Only)",
+  title = "First-Price Elasticities of Reported Donations",
   label = "claimant-only",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use claimants only. We control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects."
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. the logged value of reported donation. The reported donation is defined by the product of an indicator of report and an amount of donation. We first normalize an amount of reported donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects."
 )
 ```
 
