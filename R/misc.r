@@ -1,8 +1,8 @@
-# list of packages used in this source file
+# * list of packages used in this source file
 library(tidyverse)
 library(fixest)
 
-# //NOTE: Calculate implied price elasticity and create output format (extensive-margin)
+# * Calculate implied price elasticity and create output format (extensive-margin)
 implied_e <- function(fit, mu, digits = 3) {
   tbl <- broom::tidy(fit)
   elasticity <- subset(tbl, str_detect(term, "effective|applicable"))
@@ -24,7 +24,7 @@ implied_e <- function(fit, mu, digits = 3) {
   tibble(estimate = b_show, estimate_se = se_show)
 }
 
-# //NOTE: Get test statistics for fixest
+# * Get test statistics from fixest
 get_fitstat <- function(model, type, stat = NULL) {
   test <- unlist(fitstat(model, type, simplify = TRUE))
   if (is.null(stat)) {
@@ -34,7 +34,7 @@ get_fitstat <- function(model, type, stat = NULL) {
   }
 }
 
-# //NOTE: template for ggplot2
+# * template of ggplot2
 ggtemp <- function( flip = FALSE,
                     family = NULL,
                     size = list(
