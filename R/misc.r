@@ -96,7 +96,8 @@ log_inc <- function(data, add_base_inc = 0) {
     mutate(
       linc_ln = log(linc + y),
       tinc_ln = log(tinc + y),
-      taxable_tinc_ln = log(taxable_tinc + y)
+      taxable_tinc_ln = log(taxable_tinc + y),
+      after_tax_tinc_ln = log(after_tax_tinc + y)
     )
 
   return(dt)
