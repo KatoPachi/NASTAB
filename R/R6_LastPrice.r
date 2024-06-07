@@ -64,10 +64,10 @@ LastPrice <- R6::R6Class("LastPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable_last" = "Applicable last-price",
-            "fit_applicable_last" = "Applicable last-price",
-            "effective_last" = "Effective last-price",
-            "fit_effective_last" = "Effective last-price",
+            "applicable_last" = "Simulated last-price",
+            "fit_applicable_last" = "Simulated last-price",
+            "effective_last" = "Actual last-price",
+            "fit_effective_last" = "Actual last-price",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -124,10 +124,10 @@ LastPrice <- R6::R6Class("LastPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable_last" = "Applicable last-price",
-            "fit_applicable_last" = "Applicable last-price",
-            "effective_last" = "Effective last-price",
-            "fit_effective_last" = "Effective last-price",
+            "applicable_last" = "Simulated last-price",
+            "fit_applicable_last" = "Simulated last-price",
+            "effective_last" = "Actual last-price",
+            "fit_effective_last" = "Actual last-price",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -178,8 +178,8 @@ LastPrice <- R6::R6Class("LastPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable_last" = "Applicable last-price",
-            "fit_applicable_last" = "Applicable last-price",
+            "applicable_last" = "Simulated last-price",
+            "fit_applicable_last" = "Simulated last-price",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -191,7 +191,7 @@ LastPrice <- R6::R6Class("LastPrice",
         add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
         add_header_above(c(" " = 1, "Log donation" = 2)) %>%
         group_rows(
-          "1st stage information (Excluded instrument: Applicable price)",
+          "1st stage information (Excluded instrument: Simulated first-price)",
           5, 6,
           bold = FALSE, italic = TRUE
         ) %>%
@@ -237,8 +237,8 @@ LastPrice <- R6::R6Class("LastPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable_last" = "Applicable price",
-            "fit_applicable_last" = "Applicable price",
+            "applicable_last" = "Applicable last-price",
+            "fit_applicable_last" = "Applicable last-price",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -251,7 +251,7 @@ LastPrice <- R6::R6Class("LastPrice",
         add_header_above(c(" " = 1, "1 = Report" = 2)) %>%
         group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
         group_rows(
-          "1st stage information (Excluded instrument: Applicable first-price)",
+          "1st stage information (Excluded instrument: Simulated first-price)",
           7, 8,
           italic = TRUE, bold = FALSE
         ) %>%
@@ -296,8 +296,8 @@ LastPrice <- R6::R6Class("LastPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "fit_applicable_last" = "Applicable last-price",
-            "fit_effective_last" = "Effective last-price",
+            "fit_applicable_last" = "Simulated last-price",
+            "fit_effective_last" = "Actual last-price",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -308,7 +308,7 @@ LastPrice <- R6::R6Class("LastPrice",
         kable_styling(font_size = font_size) %>%
         add_header_above(header, escape = FALSE) %>%
         group_rows(
-          "1st stage information (Excluded instrument: Applicable first-price)",
+          "1st stage information (Excluded instrument: Simulated first-price)",
           7, 7,
           bold = FALSE, italic = TRUE
         ) %>%

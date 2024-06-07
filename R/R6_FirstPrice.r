@@ -47,7 +47,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Applicable price",
+            "applicable" = "Simulated price",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -55,7 +55,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
           escape = FALSE
         ) %>%
         kable_styling(font_size = font_size) %>%
-        add_header_above(c(" " = 1, "Effective price" = 1)) %>%
+        add_header_above(c(" " = 1, "Actual price" = 1)) %>%
         group_rows("Excluded instruments", 1, 2, italic = TRUE, bold = FALSE) %>%
         group_rows("Covariates", 3, 4, italic = TRUE, bold = FALSE) %>%
         column_spec(2, width = "18.75em") %>%
@@ -106,9 +106,9 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Applicable price ($\\beta_a$)",
-            "effective" = "Effective price ($\\beta^{FE}_e$)",
-            "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
+            "applicable" = "Simulated price ($\\beta_a$)",
+            "effective" = "Actual price ($\\beta^{FE}_e$)",
+            "fit_effective" = "Actual price ($\\beta^{IV}_e$)",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -123,7 +123,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
         add_header_above(c(" " = 1, "Log donation" = 3, "Dummy of donor" = 3)) %>%
         group_rows("Implied price elasticity", 9, 10, italic = TRUE, bold = FALSE) %>%
         group_rows(
-          "1st stage information (Excluded instrument: Applicable price)",
+          "1st stage information (Excluded instrument: Simulated price)",
           11, 11,
           bold = FALSE, italic = TRUE
         ) %>%
@@ -147,7 +147,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Applicable price ($\\beta_a$)",
+            "applicable" = "Simulated price ($\\beta_a$)",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -185,7 +185,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Applicable price",
+            "applicable" = "Simulated price",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -240,8 +240,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Applicable price ($\\beta_a$)",
-            "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
+            "applicable" = "Simulated price ($\\beta_a$)",
+            "fit_effective" = "Actual price ($\\beta^{IV}_e$)",
             "after_tax_tinc_ln" = "Log after-tax income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
@@ -252,7 +252,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
         kable_styling(font_size = font_size) %>%
         add_header_above(header, escape = FALSE) %>%
         group_rows(
-          "1st stage information (Excluded instrument: Applicable price)",
+          "1st stage information (Excluded instrument: Simulated price)",
           7, 7,
           bold = FALSE, italic = TRUE
         ) %>%

@@ -44,7 +44,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         )) %>%
         add_header_above(c(
           " " = 2,
-          "Applicable price" = 2,
+          "Simulated price" = 2,
           "Donations (unit: 10,000KRW)" = 2
         )) %>%
         footnote(
@@ -87,7 +87,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         add_header_above(c(
           " " = 2,
           "Declaration (%)" = 2,
-          "Effective price" = 3,
+          "Actual price" = 3,
           "Donations (unit: 10,000KRW)" = 2
         )) %>%
         footnote(
