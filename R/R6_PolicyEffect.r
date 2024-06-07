@@ -13,17 +13,13 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         ungroup() %>%
         dplyr::filter(year == 2013)
     },
-    applicable = function(intensive_elasticity,
-                          extensive_elasticity,
+    applicable = function(e,
                           title = "",
                           label = "",
                           notes = "",
                           font_size = 8)
     {
-      stats <- private$calc_applicable(
-        intensive_elasticity,
-        extensive_elasticity
-      )
+      stats <- private$calc_applicable(e)
 
       stats %>%
         knitr::kable(
@@ -33,16 +29,14 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
           digits = 2,
           booktabs = TRUE,
           linesep = "",
-          align = "lccccccc"
+          align = "lccccc"
         ) %>%
         kable_styling(font_size = font_size) %>%
         column_spec(1, width = "10em") %>%
-        column_spec(3:8, width = "4em") %>%
+        column_spec(3:6, width = "4em") %>%
         add_header_above(c(
           "2013 Income bracket" = 1,
           "N" = 1,
-          "2013 average" = 1,
-          "Change (%)" = 1,
           "2013 average" = 1,
           "Change (%)" = 1,
           "2013 average" = 1,
@@ -51,8 +45,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         add_header_above(c(
           " " = 2,
           "Applicable price" = 2,
-          "Intensive-margin" = 2,
-          "Extensive-margin" = 2
+          "Donations (unit: 10,000KRW)" = 2
         )) %>%
         footnote(
           general_title = "",
@@ -61,17 +54,13 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
           escape = FALSE
         )
     },
-    effective = function( intensive_elasticity,
-                          extensive_elasticity,
+    effective = function( e,
                           title = "",
                           label = "",
                           notes = "",
                           font_size = 8) {
-      stats <- private$calc_effective(
-        intensive_elasticity,
-        extensive_elasticity
-      )
-      
+      stats <- private$calc_effective(e)
+
       stats %>%
         knitr::kable(
           caption = title,
@@ -80,7 +69,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
           digits = 3,
           booktabs = TRUE,
           linesep = "",
-          align = "lcccccccccc"
+          align = "lcccccccc"
         ) %>%
         kable_styling(font_size = font_size) %>%
         column_spec(1, width = "10em") %>%
@@ -93,16 +82,13 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
           "2014" = 1,
           "Change (%)" = 1,
           "2013 average" = 1,
-          "Change (%)" = 1,
-          "2013 average" = 1,
           "Change (%)" = 1
         )) %>%
         add_header_above(c(
           " " = 2,
           "Declaration (%)" = 2,
           "Effective price" = 3,
-          "Intensive-margin" = 2,
-          "Extensive-margin" = 2
+          "Donations (unit: 10,000KRW)" = 2
         )) %>%
         footnote(
           general_title = "",
@@ -113,25 +99,23 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
     }
   ),
   private = list(
-    calc_applicable = function(intensive_elasticity, extensive_elasticity) {
+    calc_applicable = function(e) {
       stats <- self$data %>%
         group_by(bracket13) %>%
         nest() %>%
         mutate(
           N = map_dbl(data, ~ nrow(.)),
           donation = map_dbl(data, ~ mean(.$donate, na.rm = TRUE)),
-          donor = map_dbl(data, ~ mean(.$d_donate, na.rm = TRUE)),
           price = map_dbl(data, ~ mean(.$price, na.rm = TRUE))
         ) %>%
         select(-data) %>%
         mutate(
           change_price = 100 * (0.85 - price) / price,
-          change_donation = intensive_elasticity * change_price,
-          change_donor = extensive_elasticity * change_price
+          change_donation = e * change_price
         ) %>%
         ungroup() %>%
         arrange(bracket13) %>%
-        select(bracket13, N, price, change_price, donation, change_donation, donor, change_donor)
+        select(bracket13, N, price, change_price, donation, change_donation)
 
       wtg_avg <- stats %>%
         {
@@ -139,14 +123,13 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
           tibble(
             bracket13 = "Weighted average",
             change_price = sum(weight * .$change_price),
-            change_donation = sum(weight * .$change_donation),
-            change_donor = sum(weight * .$change_donor)
+            change_donation = sum(weight * .$change_donation)
           )
         }
 
       bind_rows(stats, wtg_avg)
     },
-    calc_effective = function(intensive_elasticity, extensive_elasticity) {
+    calc_effective = function(e) {
       stats <- self$data %>%
         dplyr::filter(year == 2013) %>%
         dplyr::filter(!is.na(d_relief_donate) & !is.na(lead_claim)) %>%
@@ -155,13 +138,11 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
         mutate(
           N = map_dbl(data, ~ nrow(.)),
           donation = map_dbl(data, ~ mean(.$donate, na.rm = TRUE)),
-          donor = map_dbl(data, ~ mean(.$d_donate, na.rm = TRUE)),
           price = map_dbl(data, ~ mean(.$price, na.rm = TRUE)),
           price = if_else(d_relief_donate == 1, price, 1),
           post_price = if_else(lead_claim == 1, 0.85, 1),
           change_price = 100 * (post_price - price) / price,
-          change_donation = intensive_elasticity * change_price,
-          change_donor = extensive_elasticity * change_price
+          change_donation = e * change_price
         ) %>%
         select(-data) %>%
         ungroup() %>%
@@ -178,9 +159,7 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
           post_price = weighted.mean(post_price, weight),
           change_price = weighted.mean(change_price, weight),
           donation = weighted.mean(donation, weight),
-          change_donation = weighted.mean(change_donation, weight),
-          donor = weighted.mean(donor, weight),
-          change_donor = weighted.mean(change_donor, weight)
+          change_donation = weighted.mean(change_donation, weight)
         ) %>%
         ungroup()
 
@@ -189,12 +168,8 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
           weight <- .$N / sum(.$N)
           tibble(
             bracket13 = "Weighted average",
-            # price = sum(weight * .$price),
             change_price = sum(weight * .$change_price),
-            # donation = sum(weight * .$donation),
-            change_donation = sum(weight * .$change_donation),
-            # donor = sum(weight * .$donor),
-            change_donor = sum(weight * .$change_donor)
+            change_donation = sum(weight * .$change_donation)
           )
         }
 

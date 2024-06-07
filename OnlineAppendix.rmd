@@ -177,17 +177,15 @@ fp_main$claim_elasticity(
 ```
 
 ```{r policy-effect-class, include=FALSE}
-policy <- use$policy_effect()
+policy <- main$policy_effect()
 ```
 
 ```{r table4}
 policy$effective(
-  intensive_elasticity = -1.403,
-  extensive_elasticity = -2.175,
-  font_size = 7,
-  title = "Policy Effect of 2014 Tax Reform (Wage Earner Only)",
+  e = -4.188,
+  title = "Policy Effect of 2014 Tax Reform",
   label = "policy-effect",
-  notes = "Notes: We use wage earners whose declaration status is observed for 2013 and 2014. Column (1) shows the sample size by income bracket for 2013. Columns (2) and (3) are the declaration rates for each year. Columns (4) and (5) are the average effective price for each year. Column (6) reports the percentage change in the effective price. Column (8) shows the percentage change in donor contributions, which is the product of the value in Column (6) and the estimated intensive-margin effective price elasticity ($-1.4$). Column (10) shows the percentage change in the donor rate, which is the product of the value in Column (6) and the estimated extensive-margin effective price elasticities ($-2.2$). Columns (7) and (9) show the average donor contribution and the donor ratio in 2013, respectively. Columns (2)--(10) divide the sample by income bracket, claiming status in 2013, and claiming status in 2014, calculate the corresponding indicator in each subset, and then calculate the average of each indicator weighted by the subset sample size in each income bracket. The bottom row shows the average weighted by the bracket sample size."
+  notes = "Notes: We use wage earners whose status of report is observed for 2013 and 2014. Column (1) shows the sample size by income bracket for 2013. Columns (2) and (3) are the report rates for each year. Columns (4) and (5) are the average effective price for each year. Column (6) reports the percentage change in the effective price. Columns (7) shows the average contribution in 2013. Column (8) shows the percentage change in contributions, which is the product of the value in Column (6) and the overall effective price elasticity ($-4.188$). Columns (2)--(8) divide the sample by income bracket, reporting status in 2013, and reporting status in 2014, calculate the corresponding indicator in each subset, and then calculate the average of each indicator weighted by the subset sample size in each income bracket. The bottom row shows the average weighted by the bracket sample size."
 )
 ```
 
