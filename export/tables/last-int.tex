@@ -1,6 +1,6 @@
 \begin{table}
 
-\caption{Last-Price Elasticities for Intensive-Margin\label{tab:last-int}}
+\caption{(\#tab:tableD1)Last-Price Elasticities for Overall Donations\label{tab:last-int}}
 \centering
 \fontsize{8}{10}\selectfont
 \begin{threeparttable}
@@ -12,22 +12,21 @@
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
   & (1) & (2) & (3) & (4)\\
 \midrule
-Applicable last-price & \num{-0.764}* &  & \num{-1.048}** & \\
- & (\num{0.427}) &  & (\num{0.444}) & \\
-Effective last-price &  & \num{-0.802}** &  & \num{-1.590}**\\
- &  & (\num{0.332}) &  & (\num{0.681})\\
-Log taxable income & \num{0.585} & \num{0.562} & \num{0.550} & \num{0.445}\\
- & (\num{0.362}) & (\num{0.357}) & (\num{0.363}) & (\num{0.372})\\
+Applicable last-price & \num{-1.301}** &  & \num{-1.676}*** & \\
+ & (\num{0.566}) &  & (\num{0.585}) & \\
+Effective last-price &  & \num{-20.800}*** &  & \num{-5.089}***\\
+ &  & (\num{0.627}) &  & (\num{1.621})\\
+Log after-tax income & \num{5.312}*** & \num{2.188}*** & \num{5.246}*** & \num{4.722}***\\
+ & (\num{0.528}) & (\num{0.422}) & (\num{0.528}) & (\num{0.539})\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{5}{l}{\textit{1st stage information (Excluded instrument: Applicable price)}}\\
-\hspace{1em}F-statistics of instrument &  &  & \num{62053.654} & \num{847.618}\\
-\hspace{1em}Wu-Hausman test, p-value &  &  & \num{0.001} & \num{0.105}\\
-Num.Obs. & \num{5885} & \num{5885} & \num{5885} & \num{5885}\\
+\hspace{1em}F-statistics of instrument &  &  & \num{735704.285} & \num{984.329}\\
+Num.Obs. & \num{17014} & \num{17014} & \num{17014} & \num{17014}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
-\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. The outcome variable is the logged value of the amount of charitable giving. For estimation, we use donors only (intensive-margin sample). For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument.
+\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. We use only wage earners. The outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \log(y)$ for $y > 0$ and $m(0) = -1$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}

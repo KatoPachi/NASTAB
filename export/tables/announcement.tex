@@ -1,6 +1,6 @@
 \begin{table}
 
-\caption{First-Price Elasticities Excluding Announcement Effect\label{tab:announcement}}
+\caption{(\#tab:tableD4)First-Price Elasticities Excluding Announcement Effect\label{tab:announcement}}
 \centering
 \fontsize{8}{10}\selectfont
 \begin{threeparttable}
@@ -12,28 +12,27 @@
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applicable price ($\beta_a$) & \num{-1.156}* &  &  & \num{-0.162}* &  & \\
- & (\num{0.633}) &  &  & (\num{0.089}) &  & \\
-Effective price ($\beta^{FE}_e$) &  & \num{-0.994}** &  &  & \num{-3.397}*** & \\
- &  & (\num{0.466}) &  &  & (\num{0.112}) & \\
-Effective price ($\beta^{IV}_e$) &  &  & \num{-1.676}* &  &  & \num{-0.721}**\\
- &  &  & (\num{0.928}) &  &  & (\num{0.366})\\
-Log taxable income & \num{0.527} & \num{0.508} & \num{0.406} & \num{0.351}*** & \num{0.152}*** & \num{0.328}***\\
- & (\num{0.491}) & (\num{0.488}) & (\num{0.506}) & (\num{0.048}) & (\num{0.040}) & (\num{0.049})\\
+Applicable price ($\beta_a$) & \num{-1.914}** &  &  & \num{-0.259}** &  & \\
+ & (\num{0.821}) &  &  & (\num{0.121}) &  & \\
+Effective price ($\beta^{FE}_e$) &  & \num{-21.079}*** &  &  & \num{-3.498}*** & \\
+ &  & (\num{0.723}) &  &  & (\num{0.118}) & \\
+Effective price ($\beta^{IV}_e$) &  &  & \num{-5.755}*** &  &  & \num{-0.779}**\\
+ &  &  & (\num{2.204}) &  &  & (\num{0.325})\\
+Log after-tax income & \num{5.537}*** & \num{2.359}*** & \num{4.897}*** & \num{0.833}*** & \num{0.296}*** & \num{0.746}***\\
+ & (\num{0.654}) & (\num{0.524}) & (\num{0.686}) & (\num{0.097}) & (\num{0.079}) & (\num{0.102})\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textit{Implied price elasticity}}\\
-\hspace{1em}Estimate &  &  &  & \num{-0.647}* & \num{-13.542}*** & \num{-2.875}**\\
-\hspace{1em} &  &  &  & (\num{0.356}) & (\num{0.447}) & (\num{1.457})\\
+\hspace{1em}Estimate &  &  &  & \num{-0.889}** & \num{-11.996}*** & \num{-2.673}**\\
+\hspace{1em} &  &  &  & (\num{0.414}) & (\num{0.404}) & (\num{1.115})\\
 \addlinespace[0.3em]
 \multicolumn{7}{l}{\textit{1st stage information (Excluded instrument: Applicable price)}}\\
-\hspace{1em}F-statistics of instrument &  &  & \num{641.839} &  &  & \num{592.336}\\
-\hspace{1em}Wu-Hausman test, p-value &  &  & \num{0.231} &  &  & $<$ \num{0.001}\\
-Num.Obs. & \num{4446} & \num{4446} & \num{4446} & \num{17722} & \num{17722} & \num{17722}\\
+\hspace{1em}F-statistics of instrument &  &  & \num{656.959} &  &  & \num{656.959}\\
+Num.Obs. & \num{12674} & \num{12674} & \num{12674} & \num{12674} & \num{12674} & \num{12674}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
-\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. The outcome variable is the logged value of the amount of charitable giving in Models (1)--(3) and a donor dummy in Models (4)--(6). For estimation, Models (1)--(3) use donors only (intensive-margin sample), and Models (4)--(6) use not only donors but also non-donors (extensive-margin sample). To exclude the announcement effect, we exclude observations from 2013 and 2014. For the outcome equation, we control for squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable price as an instrument. To obtain the extensive-margin price elasticities in Models (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors.
+\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. To exclude the announcement effect, we exclude observations from 2013 and 2014. In column (1)--(3), an outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \log(y)$ for $y > 0$ and $m(0) = -1$. In column (4)--(6), an outcome variable is an indicator of donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price in columns (3) and (6). To obtain the extensive-margin price elasticities in columns (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}

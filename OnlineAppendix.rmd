@@ -1,6 +1,6 @@
 ---
 title: |
-  Online Appendix
+  List of Empirical Results:
   "Tax-Price Elasticities of Charitable Giving and Selection of Declaration:
   Panel Study of South Korea"
 author:
@@ -38,12 +38,6 @@ options(
 )
 ```
 
-# Tables and Figures
-
-\listoffigures
-\listoftables
-\clearpage
-
 ```{r library, include=FALSE}
 library(here)
 source(here("R/R6_StartAnalysis.r"))
@@ -52,7 +46,7 @@ source(here("R/R6_StartAnalysis.r"))
 ```{r data, include=FALSE}
 rawdt <- read_csv(here("data/shaped2.csv")) %>%
   employee() %>%
-  donut_hole() %>%
+  donut_hole(cut = 50) %>%
   log_inc()
 
 dt <- rawdt %>%
@@ -60,76 +54,168 @@ dt <- rawdt %>%
   set_donate_bound()
 ```
 
+\clearpage
+# Data
+\clearpage
+
 ```{r summary-class, include=FALSE}
 main <- StartAnalysis$new(dt)
 data_summary <- main$summary()
 ```
 
 ```{r table2}
-data_summary$stats(
-  title = "Descriptive Statistics (Wage Earner Only)",
+# [Paper] Table 2
+tab <- data_summary$stats(
+  title = "Descriptive Statistics",
   label = "summary-covariate",
-  notes = "Notes: Our data is unbalanced panel data consisting of 8,441 unique individuals and 8 years period (2010--2017). The number of dependents in household do not include the number of children."
+  notes = "Notes: Our data is unbalanced panel data consisting of 4,422 unique individuals and 8 years period (2010--2017). The number of dependents in household do not include the number of children."
+)
+
+tab
+
+out.file <- file(here("export", "tables", "summary-stats.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
+```
+
+```{r figure1, fig.cap="Income Distribution in 2013 and Relative Giving Price"}
+# [Paper] Figure 1
+data_summary$income_dist()
+
+ggsave(
+  here("export", "figures", "price-income-dist.pdf"),
+  width = 10,
+  height = 6
 )
 ```
 
-```{r figure1, fig.cap="Income Distribution in 2013 and Relative Giving Price (Wage Earner Only)"}
-data_summary$income_dist()
-```
-
-```{r figure2, fig.cap = "Average Givine Amount and Proportion of Donors (Wage Earner Only)"}
+```{r figure2, fig.cap = "Average Givine Amount and Proportion of Donors"}
+# [Paper] Figure 2
 data_summary$ts_giving()
+
+ggsave(
+  here("export", "figures", "intensive-extensive-tax-reform.pdf"),
+  width = 10,
+  height = 6
+)
 ```
 
-```{r figure3, fig.cap = "Proportion Having Applied for Tax Incentives (Wage Earner Only)"}
+```{r event-study, fig.cap = "Event-study Analysis (Wage Earners)"}
+# [Supplementary Material A] Figure A1
+data_summary$event_study(include_pid = TRUE)
+
+ggsave(
+  here("export", "figures", "event-study.pdf"),
+  width = 10,
+  height = 6
+)
+```
+
+```{r figure3, fig.cap = "Proportion Having Applied for Tax Incentives"}
+# [Paper] Figure 3
 data_summary$ts_claim()
+
+ggsave(
+  here("export", "figures", "summary-tax-relief.pdf"),
+  width = 10,
+  height = 6
+)
 ```
 
-```{r figureA1, fig.cap = "Proportion Having Applied for Tax Incentives (Wage Earner Only)"}
+```{r figureA1, fig.cap = "Proportion Having Applied for Tax Incentives"}
+# [Supplementary Material A] Figure A2
 data_summary$ts_claim(d_donate == 1)
+
+ggsave(
+  here("export", "figures", "summary-tax-relief-cond-donors.pdf"),
+  width = 10,
+  height = 6
+)
 ```
+
+\clearpage
+# Results
+## Estimation Results
+\clearpage
 
 ```{r first-price-class, include=FALSE}
 fp_main <- main$first_price()
 ```
 
 ```{r tableA1}
-fp_main$stage1(
+# [Supplementary Material A] Table A1
+tab <- fp_main$stage1(
   title = "First-Stage Models",
   label = "main-stage1",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at household level are in parentheses. We only use wage earners. The outcome variable is the logged value of the effective price. In addition to logged income shown in table, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is the logged applicable price."
 )
+
+tab
+
+out.file <- file(here("export", "tables", "main-stage1.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
 ```{r table3}
-fp_main$stage2(
+# [Paper] Table 3
+tab <- fp_main$stage2(
   title = "Estimation Results of First-Price Elasticities",
   label = "main",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. In column (1)--(3), an outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In column (4)--(6), an outcome variable is an indicator of donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price in columns (3) and (6). To obtain the extensive-margin price elasticities in columns (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
+
+tab
+
+out.file <- file(here("export", "tables", "main.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
+
+\clearpage
+## Robustness
+### Last-Price Elasticities
+\clearpage
 
 ```{r last-price-class, include=FALSE}
 lp <- main$last_price()
 ```
 
 ```{r tableD1}
-lp$overall(
+# [Supplementary Material D] Table D1
+tab <- lp$overall(
   title = "Last-Price Elasticities for Overall Donations",
   label = "last-int",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parenthesis. We use only wage earners. The outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument."
 )
+
+tab
+
+out.file <- file(here("export", "tables", "last-int.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
 ```{r tableD2}
-lp$extensive(
+# [Supplementary Material D] Table D2
+tab <- lp$extensive(
   title = "Last-Price Elasticities for Extensive-Margin",
   label = "last-ext",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a dummy indicating a donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. For FE-2SLS, we use the logged applicable first price as an instrument. We calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
+
+tab
+
+out.file <- file(here("export", "tables", "last-ext.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
-```{r remove-bracket-shift}
+\clearpage
+### Remove Price Variation in Income Deduction Period
+\clearpage
+
+```{r remove-bracket-shift, include=FALSE}
 dt2 <- rawdt %>%
   remove_bracket_shift() %>%
   set_donate_bound()
@@ -138,14 +224,25 @@ fp_robust1 <- StartAnalysis$new(dt2)$first_price()
 ```
 
 ```{r tableD3}
-fp_robust1$stage2(
+# [Supplementary Material D] Table D3
+tab <- fp_robust1$stage2(
   title = "First-Price Elasticities Removing Price Variation in Income Deduction Period",
   label = "remove-bracket-shift",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. We exclude those whose prices changed during the income deduction period. In column (1)--(3), an outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In column (4)--(6), an outcome variable is an indicator of donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price in columns (3) and (6). To obtain the extensive-margin price elasticities in columns (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
+
+tab
+
+out.file <- file(here("export", "tables", "remove-bracket-shift.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
-```{r exclude-announcement-effect}
+\clearpage
+### Excluding Announcement Effect
+\clearpage
+
+```{r exclude-announcement-effect, include=FALSE}
 dt3 <- dt %>%
   remove_around_reform()
 
@@ -153,55 +250,96 @@ fp_robust2 <- StartAnalysis$new(dt3)$first_price()
 ```
 
 ```{r tableD4}
-fp_robust2$stage2(
+# [Supplementary Material D] Table D4
+tab <- fp_robust2$stage2(
   title = "First-Price Elasticities Excluding Announcement Effect",
   label = "announcement",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. To exclude the announcement effect, we exclude observations from 2013 and 2014. In column (1)--(3), an outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In column (4)--(6), an outcome variable is an indicator of donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price in columns (3) and (6). To obtain the extensive-margin price elasticities in columns (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
+
+tab
+
+out.file <- file(here("export", "tables", "announcement.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
+\clearpage
+### Changing Extensive-margin Value
+\clearpage
+
+```{r tableD7}
+# [Supplementary Material D] Table D5
+tab <- fp_main$ext_margin_value(
+  c(0, 0.5, 3),
+  title = "Robust Analysis of Overall First-Price Elasticities",
+  label = "ext-margin-value",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data ($0.2$KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -x$ for some choice of $x$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price."
+)
+
+tab
+
+out.file <- file(here("export", "tables", "ext-margin-value.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
+```
+
+\clearpage
+## Comparison with Price Elasticities of Reported Giving
+\clearpage
+
 ```{r tableD5}
-fp_main$claimant_only(
+# [Supplementary Material D] Table D6
+tab <- fp_main$claimant_only(
   title = "First-Price Elasticities of Reported Donations",
   label = "claimant-only",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. the logged value of reported donation. The reported donation is defined by the product of an indicator of report and an amount of donation. We first normalize an amount of reported donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects."
 )
+
+tab
+
+out.file <- file(here("export", "tables", "claimant-only.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
 ```{r tableD6}
-fp_main$claim_elasticity(
+# [Supplementary Material D] Table D7
+tab <- fp_main$claim_elasticity(
   title = "First-Price Elasticity of Declaration",
   label = "claim-elasticity",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a dummy of report. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. To obtain the price elasticity, we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of claimants."
 )
+
+tab
+
+out.file <- file(here("export", "tables", "claim-elasticity.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
+
+\clearpage
+## Policy Implications
+\clearpage
 
 ```{r policy-effect-class, include=FALSE}
 policy <- main$policy_effect()
 ```
 
 ```{r table4}
-policy$effective(
+# [Paper] Table 4
+tab <- policy$effective(
   e = -4.188,
   title = "Policy Effect of 2014 Tax Reform",
   label = "policy-effect",
   notes = "Notes: We use wage earners whose status of report is observed for 2013 and 2014. Column (1) shows the sample size by income bracket for 2013. Columns (2) and (3) are the report rates for each year. Columns (4) and (5) are the average effective price for each year. Column (6) reports the percentage change in the effective price. Columns (7) shows the average contribution in 2013. Column (8) shows the percentage change in contributions, which is the product of the value in Column (6) and the overall effective price elasticity ($-4.188$). Columns (2)--(8) divide the sample by income bracket, reporting status in 2013, and reporting status in 2014, calculate the corresponding indicator in each subset, and then calculate the average of each indicator weighted by the subset sample size in each income bracket. The bottom row shows the average weighted by the bracket sample size."
 )
-```
 
-\clearpage
+tab
 
-```{r event-study, fig.cap = "Event-study Analysis (Wage Earners)"}
-data_summary$event_study(include_pid = TRUE)
-```
-
-```{r overall-elasticity3}
-fp_main$ext_margin_value(
-  c(0, 0.5, 3),
-  title = "Robust Analysis of Overall First-Price Elasticities",
-  label = "ext-margin-value",
-  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data ($0.2$KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -x$ for some choice of $x$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price."
-)
+out.file <- file(here("export", "tables", "policy-effect.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
 \clearpage
