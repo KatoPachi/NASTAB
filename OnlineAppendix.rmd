@@ -196,75 +196,12 @@ data_summary$event_study(include_pid = TRUE)
 ```
 
 ```{r overall-elasticity3}
-data3_2 <- data3_1 %>%
-  mutate(
-    donate_ln_x0 = if_else(donate == 0, 0, log(donate)),
-    donate_ln_x0.5 = if_else(donate == 0, -0.5, log(donate)),
-    donate_ln_x3 = if_else(donate == 0, -3, log(donate)),
-  )
-
-mods <- list(
-  donate_ln_x0 ~ applicable + ..stage2_e,
-  donate_ln_x0 ~ ..stage2_e | effective ~ applicable,
-  donate_ln_x0.5 ~ applicable + ..stage2_e,
-  donate_ln_x0.5 ~ ..stage2_e | effective ~ applicable,
-  donate_ln_x3 ~ applicable + ..stage2_e,
-  donate_ln_x3 ~ ..stage2_e | effective ~ applicable
+fp_main$ext_margin_value(
+  c(0, 0.5, 3),
+  title = "Robust Analysis of Overall First-Price Elasticities",
+  label = "ext-margin-value",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data ($0.2$KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -x$ for some choice of $x$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price."
 )
-
-est_mods <- mods %>%
-  map(~ feols(., data = data3_2, vcov = ~ hhid))
-
-ivf <- sapply(est_mods, function(x) get_fitstat(x, "ivf", "stat")) %>%
-  sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x)))
-
-whp <- sapply(est_mods, function(x) get_fitstat(x, "wh", "p")) %>%
-  sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x))) %>%
-  sapply(function(x) ifelse(x == "\\num{0.000}", "$<$ \\num{0.001}", x))
-
-stat <- data.frame(rbind(ivf, whp))
-stat <- cbind(
-  term = c("F-stats of instrument", "Wu-Hausman test, p-value"),
-  stat
-)
-
-est_mods %>%
-  modelsummary(
-    title = "Robust Analysis of Overall First-Price Elasticities (Wage Earners Only)",
-    coef_map = c(
-      "applicable" = "Applicable price ($\\beta_a$)",
-      "effective" = "Effective price ($\\beta^{FE}_e$)",
-      "fit_effective" = "Effective price ($\\beta^{IV}_e$)",
-      "after_tax_tinc_ln" = "Log after-tax income"
-    ),
-    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
-    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
-    add_rows = stat,
-    escape = FALSE
-  ) %>%
-  kable_styling(font_size = 8) %>%
-  add_header_above(
-    c(
-      "Extensive-margin value ($x$)" = 1,
-      "$x = 0$" = 2,
-      "$x = 0.5$" = 2,
-      "$x = 3$" = 2
-    ),
-    escape = FALSE
-  ) %>%
-  group_rows(
-    "1st stage information (Excluded instrument: Applicatble price)",
-    8, 9,
-    bold = FALSE, italic = TRUE
-  ) %>%
-  footnote(
-    general_title = "",
-    general = str_glue("
-      Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data ($0.2$KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -x$ for some choice of $x$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price.
-    "),
-    threeparttable = TRUE,
-    escape = FALSE
-  )
 ```
 
 \clearpage
