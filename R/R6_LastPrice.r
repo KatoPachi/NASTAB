@@ -153,29 +153,28 @@ LastPrice <- R6::R6Class("LastPrice",
         )
     },
     claimant_only = function(title = "", label = "", notes = "", font_size = 8) {
-      dta <- subset(self$data, d_relief_donate == 1 & type == "intensive")
-      
-      fit <- private$fe2sls_mod[c(1, 3)] %>%
-        map(~feols(., data = dta, vcov = ~ hhid))
-      
-      stat_stage1 <- c(
-        get_fitstat(fit[[2]], "ivf", "stat"),
-        get_fitstat(fit[[2]], "wh", "p")
+      mods <- list(
+        claim_donate_ln ~ applicable_last + ..stage2,
+        claim_donate_ln ~ ..stage2 | applicable_last ~ applicable
       )
-      stat_stage1 <- sprintf("\\num{%1.3f}", stat_stage1)
-      stat_stage1 <- ifelse(stat_stage1 == "\\num{0.000}", "$<$ \\num{0.001}", stat_stage1)
+
+      fit_mods <- mods %>%
+        map(~feols(., data = self$data, vcov = ~ hhid))
+
+      stats <- get_fitstat(fit_mods[[2]], "ivf", "stat")
+      stats <- sprintf("\\num{%1.3f}", stats)
 
       addtab <- tibble(
-        term = c("F-statistics of instrument", "Wu-Hausman test, p-value"),
-        mod1 = c("", ""),
-        mod2 = stat_stage1
+        term = "F-statistics of instrument",
+        mod1 = "",
+        mod2 = stats
       )
 
-      attr(addtab, "position") <- 5:6
+      attr(addtab, "position") <- 5
 
       if (label != "") label <- paste0("\\label{tab:", label, "}")
 
-      fit %>%
+      fit_mods %>%
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
@@ -205,33 +204,36 @@ LastPrice <- R6::R6Class("LastPrice",
         )
     },
     claim_elasticity = function(title = "", label = "", notes = "", font_size = 8) {
-      dta <- subset(self$data, type == "extensive")
-      mu <- with(dta, mean(d_relief_donate, na.rm = TRUE))
-      
-      fit <- private$fe2sls_mod[c(1, 3)] %>%
-        map(~feols(., data = dta, vcov = ~ hhid))
-      
-      imp_e_tab <- fit %>%
+      mu <- with(self$data, mean(d_relief_donate, na.rm = TRUE))
+
+      mods <- list(
+        d_relief_donate ~ applicable_last + ..stage2,
+        d_relief_donate ~ ..stage2 | applicable_last ~ applicable
+      )
+
+      fit_mods <- mods %>%
+        map(~feols(., data = self$data, vcov = ~ hhid))
+
+      imp_e_tab <- fit_mods %>%
         map(function(x) implied_e(x, mu) %>% pivot_longer(everything())) %>%
         reduce(left_join, by = "name") %>%
         mutate(name = dplyr::recode(name, "estimate" = "Estimate", "estimate_se" = ""))
-      
-      stat_stage1 <- c(get_fitstat(fit[[2]], "ivf", "stat"), get_fitstat(fit[[2]], "wh", "p"))
-      stat_stage1 <- sprintf("\\num{%1.3f}", stat_stage1)
-      stat_stage1 <- ifelse(stat_stage1 == "\\num{0.000}", "$<$ \\num{0.001}", stat_stage1)
+
+      stats <- get_fitstat(fit_mods[[2]], "ivf", "stat")
+      stats <- sprintf("\\num{%1.3f}", stats)
 
       stat_stage1_tab <- tibble(
-        name = c("F-statistics of instrument", "Wu-Hausman test, p-value"),
-        value.x = c("", ""),
-        value.y = stat_stage1
+        name = "F-statistics of instrument",
+        value.x = "",
+        value.y = stats
       )
 
       addtab <- bind_rows(imp_e_tab, stat_stage1_tab)
-      attr(addtab, "position") <- 5:8
+      attr(addtab, "position") <- 5:7
 
       if (label != "") label <- paste0("\\label{tab:", label, "}")
 
-      fit %>%
+      fit_mods %>%
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
@@ -246,7 +248,7 @@ LastPrice <- R6::R6Class("LastPrice",
         ) %>%
         kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
-        add_header_above(c(" " = 1, "1 = Declaration" = 2)) %>%
+        add_header_above(c(" " = 1, "1 = Report" = 2)) %>%
         group_rows("Implied price elasticity", 5, 6, italic = TRUE, bold = FALSE) %>%
         group_rows(
           "1st stage information (Excluded instrument: Applicable first-price)",
