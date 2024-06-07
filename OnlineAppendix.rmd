@@ -50,19 +50,19 @@ source(here("R/R6_StartAnalysis.r"))
 ```
 
 ```{r data, include=FALSE}
-use <- StartAnalysis$new(here("data/shaped2.csv"), threshold_cut = 50)
-use$only_employee()
-use$set_donate_bound()
+rawdt <- read_csv(here("data/shaped2.csv")) %>%
+  employee() %>%
+  donut_hole() %>%
+  log_inc()
 
-# for table D3 and Event study
-use2 <- use$clone()
-use2$remove_bracket_shift()
-
-use$remove_highest_bracket()
+dt <- rawdt %>%
+  remove_highest_bracket() %>%
+  set_donate_bound()
 ```
 
 ```{r summary-class, include=FALSE}
-data_summary <- use$summary()
+main <- StartAnalysis$new(dt)
+data_summary <- main$summary()
 ```
 
 ```{r table2}
@@ -90,11 +90,11 @@ data_summary$ts_claim(d_donate == 1)
 ```
 
 ```{r first-price-class, include=FALSE}
-est_fp <- use$first_price()
+fp_main <- main$first_price()
 ```
 
 ```{r tableA1}
-est_fp$stage1(
+fp_main$stage1(
   title = "First-Stage Models",
   label = "main-stage1",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at household level are in parentheses. We only use wage earners. The outcome variable is the logged value of the effective price. In addition to logged income shown in table, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is the logged applicable price."
@@ -102,7 +102,7 @@ est_fp$stage1(
 ```
 
 ```{r table3}
-est_fp$stage2(
+fp_main$stage2(
   title = "Estimation Results of First-Price Elasticities",
   label = "main",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. In column (1)--(3), an outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In column (4)--(6), an outcome variable is an indicator of donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price in columns (3) and (6). To obtain the extensive-margin price elasticities in columns (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
@@ -110,7 +110,7 @@ est_fp$stage2(
 ```
 
 ```{r last-price-class, include=FALSE}
-lp <- use$last_price()
+lp <- main$last_price()
 ```
 
 ```{r tableD1}
@@ -129,16 +129,31 @@ lp$extensive(
 )
 ```
 
+```{r remove-bracket-shift}
+dt2 <- rawdt %>%
+  remove_bracket_shift() %>%
+  set_donate_bound()
+
+fp_robust1 <- StartAnalysis$new(dt2)$first_price()
+```
+
 ```{r tableD3}
-use2$first_price()$stage2(
+fp_robust1$stage2(
   title = "First-Price Elasticities Removing Price Variation in Income Deduction Period",
   label = "remove-bracket-shift",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. We exclude those whose prices changed during the income deduction period. In column (1)--(3), an outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In column (4)--(6), an outcome variable is an indicator of donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price in columns (3) and (6). To obtain the extensive-margin price elasticities in columns (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
 )
 ```
 
+```{r exclude-announcement-effect}
+dt3 <- dt %>%
+  remove_around_reform()
+
+fp_robust2 <- StartAnalysis$new(dt3)$first_price()
+```
+
 ```{r tableD4}
-est_fp$exclude_announcement(
+fp_robust2$stage2(
   title = "First-Price Elasticities Excluding Announcement Effect",
   label = "announcement",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. To exclude the announcement effect, we exclude observations from 2013 and 2014. In column (1)--(3), an outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In column (4)--(6), an outcome variable is an indicator of donor. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price in columns (3) and (6). To obtain the extensive-margin price elasticities in columns (4)--(6), we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of donors."
@@ -146,7 +161,7 @@ est_fp$exclude_announcement(
 ```
 
 ```{r tableD5}
-est_fp$claimant_only(
+fp_main$claimant_only(
   title = "First-Price Elasticities of Reported Donations",
   label = "claimant-only",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. the logged value of reported donation. The reported donation is defined by the product of an indicator of report and an amount of donation. We first normalize an amount of reported donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -1$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects."
@@ -154,7 +169,7 @@ est_fp$claimant_only(
 ```
 
 ```{r tableD6}
-est_fp$claim_elasticity(
+fp_main$claim_elasticity(
   title = "First-Price Elasticity of Declaration",
   label = "claim-elasticity",
   notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. The outcome variable is a dummy of report. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. To obtain the price elasticity, we calculate implied price elasticities by dividing the estimated coefficient on price by the sample proportion of claimants."

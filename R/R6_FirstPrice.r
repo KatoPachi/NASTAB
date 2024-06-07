@@ -66,10 +66,6 @@ FirstPrice <- R6::R6Class("FirstPrice",
     stage2 = function(title = "", label = "", notes = "", font_size = 8) {
       private$main_reg(self$data, title, label, notes, font_size)
     },
-    exclude_announcement = function(title = "", label = "", notes = "", font_size = 8) {
-      dta <- subset(self$data, year < 2013 | 2014 < year)
-      private$main_reg(dta, title, label, notes, font_size)
-    },
     claimant_only = function(title = "", label = "", notes = "", font_size = 8) {
       fit <- feols(
         claim_donate_ln ~ applicable + ..stage2,
