@@ -174,5 +174,92 @@ SummaryData <- R6::R6Class("SummaryData", list(
       ) +
       ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13)) +
       guides(shape = guide_legend(title.position = "top", title.hjust = 0.5))
+  },
+  event_study = function(include_pid = TRUE) {
+    setFixest_fml(
+      ..stage2 = ~ after_tax_tinc_ln + sqage +
+        hhnum + hhnum_child + dependent_num +
+        hh_max_inc + I(family_position == 1) +
+        factor(indust) + factor(area)
+    )
+
+    dt <- self$data %>%
+      mutate(
+        low_bracket = if_else(str_detect(bracket13, "A"), 1, 0),
+        high_bracket = if_else(str_detect(bracket13, "C|D|E|F|G"), 1, 0),
+        year = factor(year, levels = c(2013, 2010:2012, 2014:2017))
+      )
+
+    if (sum(dt$experience_FG) == 0) {
+      bracket_label <- "(C), (D) and (E)"
+    } else {
+      bracket_label <- "(C), (D), (E), (F) and (G)"
+    }
+
+    if (include_pid) {
+      mods <- list(
+        donate ~ low_bracket * year + high_bracket * year + ..stage2 | pid,
+        d_donate ~ low_bracket * year + high_bracket * year + ..stage2 | pid
+      )
+    } else {
+      mods <- list(
+        donate ~ low_bracket * year + high_bracket * year + ..stage2,
+        d_donate ~ low_bracket * year + high_bracket * year + ..stage2
+      )
+    }
+
+    est_mods <- mods %>%
+      map(~ feols(., data = dt, vcov = ~hhid)) %>%
+      map(broom::tidy) %>%
+      map(~ subset(., str_detect(term, "bracket"))) %>%
+      map(~ mutate(., high = str_detect(term, "high"))) %>%
+      map(~ mutate(., year = str_extract(term, "(?<=year)[:digit:]+"))) %>%
+      map(~ mutate(., year = as.numeric(year))) %>%
+      map(~ bind_rows(., tibble(
+        estimate = rep(0, 2),
+        std.error = rep(0, 2),
+        high = c(TRUE, FALSE),
+        year = rep(2013, 2)
+      ))) %>%
+      map(~ mutate(., high = factor(high, labels = c("(A)", bracket_label)))) %>%
+      map(~ mutate(., ci_lb = estimate - 1.96 * std.error)) %>%
+      map(~ mutate(., ci_ub = estimate + 1.96 * std.error))
+
+    panel <- 1:2 %>%
+      map(function(i) {
+        est_mods[[i]] %>%
+          ggplot(aes(
+            x = year,
+            y = estimate,
+            color = high,
+            shape = high,
+            fill = high,
+            linetype = high
+          )) +
+          geom_point(size = 4) +
+          geom_line() +
+          geom_ribbon(aes(ymin = ci_lb, ymax = ci_ub), alpha = 0.2) +
+          scale_fill_manual(values = c("grey20", "grey50")) +
+          scale_color_manual(values = c("grey20", "grey50")) +
+          scale_x_continuous(breaks = seq(2010, 2017, 1)) +
+          labs(
+            title = ifelse(
+              i == 1,
+              "Panel A. Amount of Giving",
+              "Panel B. Proportion of Donors"
+            ),
+            x = "Year",
+            y = "Estimate (95%CI)",
+            color = "Income bracket",
+            shape = "Income bracket",
+            fill = "Income bracket",
+            linetype = "Income bracket"
+          ) +
+          ggtemp(size = list(axis_title = 15, axis_text = 13, caption = 13))
+      })
+
+    wrap_plots(panel) +
+      plot_layout(guides = "collect") &
+      theme(legend.position = "bottom")
   }
 ))
