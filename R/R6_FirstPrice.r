@@ -252,7 +252,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
         kable_styling(font_size = font_size) %>%
         add_header_above(header, escape = FALSE) %>%
         group_rows(
-          "1st stage information (Excluded instrument: Applicatble price)",
+          "1st stage information (Excluded instrument: Applicable price)",
           7, 7,
           bold = FALSE, italic = TRUE
         ) %>%

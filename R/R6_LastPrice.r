@@ -261,14 +261,63 @@ LastPrice <- R6::R6Class("LastPrice",
           threeparttable = TRUE,
           escape = FALSE
         )
+    },
+    ext_margin_value = function(value, title = "", label = "", notes = "", font_size = 8) {
+      mods <- list(
+        donate_ln ~ ..stage2 | applicable_last ~ applicable,
+        donate_ln ~ ..stage2 | effective_last ~ applicable
+      )
+
+      fit_mods <- vector("list", length(value))
+      for (i in 1:length(value)) {
+        x <- value[i]
+        dt <- self$data %>%
+          mutate(
+            donate_ln = if_else(d_donate == 0, -x, log(norm_donate))
+          )
+
+        fit_mods[[i]] <- mods %>%
+          map(~ feols(., data = dt, vcov = ~hhid))
+      }
+      fit_mods <- purrr::flatten(fit_mods)
+
+      ivf <- lapply(fit_mods, function(x) get_fitstat(x, "ivf", "stat")) %>%
+        lapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x))) %>%
+        reduce(cbind)
+
+      addtab <- data.frame(cbind(term = c("F-statistics of instrument"), ivf))
+      attr(addtab, "position") <- 7
+
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+      header <- c(1, rep(2, length(value)))
+      names(header) <- c("Extensive-margin value ($x$)", paste0("$x = ", value, "$"))
+
+      fit_mods %>%
+        modelsummary(
+          title = paste0(title, label),
+          coef_map = c(
+            "fit_applicable_last" = "Applicable last-price",
+            "fit_effective_last" = "Effective last-price",
+            "after_tax_tinc_ln" = "Log after-tax income"
+          ),
+          gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+          stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+          add_rows = addtab,
+          escape = FALSE
+        ) %>%
+        kable_styling(font_size = font_size) %>%
+        add_header_above(header, escape = FALSE) %>%
+        group_rows(
+          "1st stage information (Excluded instrument: Applicable first-price)",
+          7, 7,
+          bold = FALSE, italic = TRUE
+        ) %>%
+        footnote(
+          general_title = "",
+          general = notes,
+          threeparttable = TRUE,
+          escape = FALSE
+        )
     }
-  ),
-  private = list(
-    fe2sls_mod = list(
-      outcome ~ applicable_last + ..stage2,
-      outcome ~ effective_last + ..stage2,
-      outcome ~ ..stage2 | applicable_last ~ applicable,
-      outcome ~ ..stage2 | effective_last ~ applicable
-    )
   )
 )
