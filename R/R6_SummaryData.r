@@ -57,7 +57,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       ggplot(aes(x = taxable_tinc)) +
       geom_hline(aes(yintercept = 0)) +
       geom_histogram(
-        aes(y = after_stat(count) / sum(after_stat(count)), fill = "Relative frequency"),
+        aes(y = after_stat(count) / sum(after_stat(count)), fill = "Relative frequency of observations"),
         color = "black"
       ) +
       geom_step(
@@ -77,7 +77,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       scale_x_continuous(breaks = c(1200, 4600, 8800, 30000)) +
       labs(
         x = "Annual taxable income (10,000KRW)",
-        y = "Relative frequency"
+        y = "Relative frequency of observations"
       ) +
       ggtemp(size = list(axis_title = 15, axis_text = 13, caption = 13))
   },
@@ -92,7 +92,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
       group_by(year, bracket13) %>%
       summarize(
         amount = mean(donate, na.rm = TRUE),
-        donor = mean(d_donate, na.rm = TRUE)
+        donor = mean(d_donate * 100, na.rm = TRUE)
       ) %>%
       pivot_longer(amount:donor, names_to = "vars", values_to = "mu") %>%
       pivot_wider(names_from = "year", values_from = "mu") %>%
@@ -112,12 +112,12 @@ SummaryData <- R6::R6Class("SummaryData", list(
       geom_line() +
       scale_shape_manual(values = c(16, 15, 17, 18)) +
       scale_x_continuous(breaks = seq(2010, 2018, 1)) +
-      scale_y_continuous(breaks = seq(-30, 10, by = 10), limits = c(-30, 10)) +
+      scale_y_continuous(breaks = seq(-30, 20, by = 10), limits = c(-30, 20)) +
       labs(
         title = "Panel A. Amount of Giving",
         x = "Year",
-        y = "Normalized average giving",
-        shape = "Income bracket (unit:10,000KRW)"
+        y = "Normalized average giving\n(unit: 10,000KRW)",
+        shape = "Income bracket (unit: 10,000KRW)"
       ) +
       ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
 
@@ -130,15 +130,15 @@ SummaryData <- R6::R6Class("SummaryData", list(
       scale_shape_manual(values = c(16, 15, 17, 18)) +
       scale_x_continuous(breaks = seq(2010, 2018, 1)) +
       scale_y_continuous(
-        breaks = seq(-0.3, 0.1, by = 0.1),
-        labels = c(-0.3, -0.2, -0.1, 0, 0.1),
-        limits = c(-0.3, 0.1)
+        breaks = seq(-30, 10, by = 10),
+        labels = c(-30, -20, -10, 0, 10),
+        limits = c(-30, 10)
       ) +
       labs(
         title = "Panel B. Proportion of Donors",
         x = "Year",
-        y = "Normalized proportion of donors",
-        shape = "Income bracket (unit:10,000KRW)"
+        y = "Normalized proportion of donors\n(unit: percentage point)",
+        shape = "Income bracket (unit: 10,000KRW)"
       ) +
       ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
 
@@ -177,7 +177,7 @@ SummaryData <- R6::R6Class("SummaryData", list(
   },
   event_study = function(include_pid = TRUE) {
     setFixest_fml(
-      ..stage2 = ~ after_tax_tinc_ln + sqage +
+      ..event_study = ~ after_tax_tinc_ln + sqage +
         hhnum + hhnum_child + dependent_num +
         hh_max_inc + I(family_position == 1) +
         factor(indust) + factor(area)
@@ -198,13 +198,13 @@ SummaryData <- R6::R6Class("SummaryData", list(
 
     if (include_pid) {
       mods <- list(
-        donate ~ low_bracket * year + high_bracket * year + ..stage2 | pid,
-        d_donate ~ low_bracket * year + high_bracket * year + ..stage2 | pid
+        donate ~ low_bracket * year + high_bracket * year + ..event_study | pid,
+        d_donate ~ low_bracket * year + high_bracket * year + ..event_study | pid
       )
     } else {
       mods <- list(
-        donate ~ low_bracket * year + high_bracket * year + ..stage2,
-        d_donate ~ low_bracket * year + high_bracket * year + ..stage2
+        donate ~ low_bracket * year + high_bracket * year + ..event_study,
+        d_donate ~ low_bracket * year + high_bracket * year + ..event_study
       )
     }
 
