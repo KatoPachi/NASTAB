@@ -10,21 +10,21 @@
 \cmidrule(l{3pt}r{3pt}){1-1} \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
   & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
-Applicable price ($\beta_a$) & \num{-1.193}** &  & \num{-1.266}** &  & \num{-1.634}** & \\
+Simulated price ($\beta_a$) & \num{-1.193}** &  & \num{-1.266}** &  & \num{-1.634}** & \\
  & (\num{0.515}) &  & (\num{0.557}) &  & (\num{0.769}) & \\
-Effective price ($\beta^{IV}_e$) &  & \num{-3.447}** &  & \num{-3.660}** &  & \num{-4.724}**\\
+Actual price ($\beta^{IV}_e$) &  & \num{-3.447}** &  & \num{-3.660}** &  & \num{-4.724}**\\
  &  & (\num{1.379}) &  & (\num{1.490}) &  & (\num{2.064})\\
 Log after-tax income & \num{0.408}*** & \num{0.389}*** & \num{0.446}*** & \num{0.427}*** & \num{0.638}*** & \num{0.613}***\\
  & (\num{0.043}) & (\num{0.042}) & (\num{0.046}) & (\num{0.046}) & (\num{0.066}) & (\num{0.066})\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{7}{l}{\textit{1st stage information (Excluded instrument: Applicable price)}}\\
+\multicolumn{7}{l}{\textit{1st stage information (Excluded instrument: Simulated price)}}\\
 \hspace{1em}F-statistics of instrument &  & \num{1025.831} &  & \num{1025.831} &  & \num{1025.831}\\
 Num.Obs. & \num{17014} & \num{17014} & \num{17014} & \num{17014} & \num{17014} & \num{17014}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
-\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data ($0.2$KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \log(y)$ for $y > 0$ and $m(0) = -x$ for some choice of $x$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged applicable price.
+\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. An outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data ($0.2$KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \log(y)$ for $y > 0$ and $m(0) = -x$ for some choice of $x$. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}

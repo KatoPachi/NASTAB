@@ -6,13 +6,13 @@
 \begin{threeparttable}
 \begin{tabular}[t]{l>{\centering\arraybackslash}p{18.75em}}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Effective price} \\
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Actual price} \\
 \cmidrule(l{3pt}r{3pt}){2-2}
   & (1)\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{2}{l}{\textit{Excluded instruments}}\\
-\hspace{1em}Applicable price & \num{0.346}***\\
+\hspace{1em}Simulated price & \num{0.346}***\\
 \hspace{1em} & (\num{0.028})\\
 \addlinespace[0.3em]
 \multicolumn{2}{l}{\textit{Covariates}}\\
@@ -23,7 +23,7 @@ Num.Obs. & \num{17014}\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
-\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at household level are in parentheses. We only use wage earners. The outcome variable is the logged value of the effective price. In addition to logged income shown in table, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is the logged applicable price.
+\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at household level are in parentheses. We only use wage earners. The outcome variable is the logged value of the actual price. In addition to logged income shown in table, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a dummy that indicates a wage earner, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is the logged value of simulated price.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
