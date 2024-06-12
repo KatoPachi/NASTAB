@@ -48,7 +48,7 @@ FirstPrice <- R6::R6Class("FirstPrice",
           title = paste0(title, label),
           coef_map = c(
             "applicable" = "Simulated price",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = .01, "**" = .05, "*" = .1),
@@ -106,10 +106,10 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Simulated price ($\\beta_a$)",
-            "effective" = "Actual price ($\\beta^{FE}_e$)",
-            "fit_effective" = "Actual price ($\\beta^{IV}_e$)",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "applicable" = "Simulated price ($\\beta_S$)",
+            "effective" = "Actual price ($\\beta^{FE}_A$)",
+            "fit_effective" = "Actual price ($\\beta^{IV}_A$)",
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -147,8 +147,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Simulated price ($\\beta_a$)",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "applicable" = "Simulated price ($\\beta_S$)",
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -185,8 +185,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Simulated price",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "applicable" = "Simulated price ($\\beta_S$)",
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -240,9 +240,9 @@ FirstPrice <- R6::R6Class("FirstPrice",
         modelsummary(
           title = paste0(title, label),
           coef_map = c(
-            "applicable" = "Simulated price ($\\beta_a$)",
-            "fit_effective" = "Actual price ($\\beta^{IV}_e$)",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "applicable" = "Simulated price ($\\beta_S$)",
+            "fit_effective" = "Actual price ($\\beta^{IV}_A$)",
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),

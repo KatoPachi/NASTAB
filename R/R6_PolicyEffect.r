@@ -21,10 +21,11 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
     {
       stats <- private$calc_applicable(e)
 
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+
       stats %>%
         knitr::kable(
-          caption = title,
-          label = label,
+          caption = paste0(title, label),
           col.names = c("", paste0("(", seq_len(ncol(stats)-1), ")")),
           digits = 2,
           booktabs = TRUE,
@@ -61,10 +62,11 @@ PolicyEffect <- R6::R6Class("PolicyEffect",
                           font_size = 8) {
       stats <- private$calc_effective(e)
 
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+
       stats %>%
         knitr::kable(
-          caption = title,
-          label = label,
+          caption = paste0(title, label),
           col.names = c("", paste0("(", seq_len(ncol(stats)-1), ")")),
           digits = 3,
           booktabs = TRUE,

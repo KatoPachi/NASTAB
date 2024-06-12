@@ -68,7 +68,7 @@ LastPrice <- R6::R6Class("LastPrice",
             "fit_applicable_last" = "Simulated last-price",
             "effective_last" = "Actual last-price",
             "fit_effective_last" = "Actual last-price",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -128,7 +128,7 @@ LastPrice <- R6::R6Class("LastPrice",
             "fit_applicable_last" = "Simulated last-price",
             "effective_last" = "Actual last-price",
             "fit_effective_last" = "Actual last-price",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -180,7 +180,7 @@ LastPrice <- R6::R6Class("LastPrice",
           coef_map = c(
             "applicable_last" = "Simulated last-price",
             "fit_applicable_last" = "Simulated last-price",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -239,7 +239,7 @@ LastPrice <- R6::R6Class("LastPrice",
           coef_map = c(
             "applicable_last" = "Applicable last-price",
             "fit_applicable_last" = "Applicable last-price",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
@@ -298,7 +298,7 @@ LastPrice <- R6::R6Class("LastPrice",
           coef_map = c(
             "fit_applicable_last" = "Simulated last-price",
             "fit_effective_last" = "Actual last-price",
-            "after_tax_tinc_ln" = "Log after-tax income"
+            "after_tax_tinc_ln" = "Log disposal income"
           ),
           gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
           stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
