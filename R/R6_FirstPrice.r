@@ -188,7 +188,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
         kable_styling(font_size = font_size) %>%
         add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
         add_header_above(c(" " = 1, "Log donation" = 2)) %>%
-        column_spec(1:3, width = "20em") %>%
+        column_spec(1, width = "20em") %>%
+        column_spec(2:3, width = "10em") %>%
         footnote(
           general_title = "",
           general = notes,
