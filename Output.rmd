@@ -50,7 +50,7 @@ rawdt <- read_csv(here("data/shaped2.csv")) %>%
   log_inc()
 
 dt <- rawdt %>%
-  # remove_highest_bracket() %>%
+  remove_highest_bracket() %>%
   set_donate_bound()
 ```
 
@@ -176,6 +176,10 @@ tab <- fp_main$sufficient_stats(
 )
 
 tab
+
+out.file <- file(here("export", "tables", "sufficient-stats.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
 \clearpage
@@ -290,7 +294,8 @@ close(out.file)
 \clearpage
 
 ```{r remove-upper-bound-class, include=FALSE}
-fp_robust3 <- StartAnalysis$new(rawdt)$first_price()
+dt3 <- rawdt %>% remove_highest_bracket()
+fp_robust3 <- StartAnalysis$new(dt3)$first_price()
 ```
 
 ```{r remove-upper-bound}
