@@ -81,6 +81,12 @@ FirstPrice <- R6::R6Class("FirstPrice",
 
       dmu <- mean(self$data$d_donate, na.rm = TRUE)
 
+      b <- fit_mods[c(4, 6)] %>%
+        map(broom::tidy) %>%
+        map_dbl(~ subset(., str_detect(term, "effective|applicable"))$estimate)
+
+      private$ext_elasticities <- b / dmu
+
       imp <- fit_mods %>%
         purrr::map(~ implied_e(., dmu)) %>%
         purrr::map(~ pivot_longer(., everything())[, 2]) %>%
@@ -128,6 +134,61 @@ FirstPrice <- R6::R6Class("FirstPrice",
           bold = FALSE, italic = TRUE
         ) %>%
         column_spec(2:7, width = "5em") %>%
+        footnote(
+          general_title = "",
+          general = notes,
+          threeparttable = TRUE,
+          escape = FALSE
+        )
+    },
+    sufficient_stats = function(title = "",
+                                label = "",
+                                notes = "",
+                                font_size = 8) {
+      if (is.null(private$ext_elasticities)) stop("Before using this method, you must run the 'stage2' method!")
+      ext_values <- private$ext_elasticities
+
+      dt <- self$data %>%
+        mutate(
+          donate_ln_itt = if_else(d_donate == 0, ext_values[1], log(norm_donate)),
+          donate_ln_iv = if_else(d_donate == 0, ext_values[2], log(norm_donate))
+        )
+
+      mods <- list(
+        donate_ln_itt ~ applicable + ..stage2,
+        donate_ln_iv ~ ..stage2 | effective ~ applicable
+      )
+
+      fit_mods <- mods %>%
+        map(~ feols(., data = dt, vcov = ~ hhid))
+
+      addtab <- tibble(
+        term = "Extensive-margin values ($x$)",
+        itt = sprintf("\\num{%1.3f}", ext_values[1]),
+        iv = sprintf("\\num{%1.3f}", ext_values[2])
+      )
+
+      attr(addtab, "position") <- 5
+
+      if (label != "") label <- paste0("\\label{tab:", label, "}")
+
+      fit_mods %>%
+        setNames(paste0("(", seq(length(.)), ")")) %>%
+        modelsummary(
+          title = paste0(title, label),
+          coef_map = c(
+            "applicable" = "Simulated price ($\\beta_a$)",
+            "fit_effective" = "Actual price ($\\beta^{IV}_e$)"
+          ),
+          gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+          stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+          add_rows = addtab,
+          escape = FALSE
+        ) %>%
+        kable_styling(font_size = font_size) %>%
+        add_header_above(c(" " = 1, "FE" = 1, "FE-2SLS" = 1)) %>%
+        add_header_above(c(" " = 1, "Log donation" = 2)) %>%
+        column_spec(1:3, width = "20em") %>%
         footnote(
           general_title = "",
           general = notes,
@@ -263,5 +324,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
           escape = FALSE
         )
     }
+  ),
+  private = list(
+    ext_elasticities = NULL
   )
 )

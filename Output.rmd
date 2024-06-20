@@ -169,6 +169,15 @@ writeLines(tab, out.file)
 close(out.file)
 ```
 
+```{r sufficient-stats}
+tab <- fp_main$sufficient_stats(
+  title = "Overall Price Elasticities Using Extensive-Margin Elasticities",
+  notes = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. In column (1)--(3), an outcome variable is the logged value of donation. We first normalize an amount of donation so that 1 corresponds to the value of the minimum nonzero donation in the data (2,000KRW). Then, we then transform an amount of donation to $m(g)$, where $m(y) = \\\\log(y)$ for $y > 0$ and $m(0) = -x$, where $x$ is extensive-margin elasticities. Covariates consist of logged disposal income, squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price in column (2)."
+)
+
+tab
+```
+
 \clearpage
 ## Robustness
 ### Last-Price Elasticities
