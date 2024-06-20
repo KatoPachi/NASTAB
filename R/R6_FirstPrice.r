@@ -164,8 +164,8 @@ FirstPrice <- R6::R6Class("FirstPrice",
 
       addtab <- tibble(
         term = "Extensive-margin values ($x$)",
-        itt = sprintf("\\num{%1.3f}", ext_values[1]),
-        iv = sprintf("\\num{%1.3f}", ext_values[2])
+        itt = sprintf("\\num{%1.3f}", -ext_values[1]),
+        iv = sprintf("\\num{%1.3f}", -ext_values[2])
       )
 
       attr(addtab, "position") <- 5
