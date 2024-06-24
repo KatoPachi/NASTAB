@@ -88,6 +88,12 @@ remove_around_reform <- function(data) {
   return(dt)
 }
 
+# * Subsample: Drop those who require year-end settlement
+remove_exempt <- function(data) {
+  dt <- subset(data, !(no_withholding == 1 & tinc == linc))
+  return(dt)
+}
+
 # * Variable: Logged income
 log_inc <- function(data, add_base_inc = 0) {
   y <- add_base_inc
