@@ -264,6 +264,63 @@ pension_deduction <- function(linc, year) {
   )
 }
 
+no_withholding_inc <- function(num_child, num_dependent, year) {
+  case_when(
+    year == 2010 & num_dependent + 1 == 1 ~ 1056,
+    year == 2010 & num_dependent + 1 == 2 ~ 1404,
+    year == 2010 & num_dependent + 1 == 3 & num_child < 2 ~ 1884,
+    year == 2010 & num_dependent + 1 == 4 & num_child < 2 ~ 2076,
+    year == 2010 & num_dependent + 1 == 5 & num_child < 2 ~ 2280,
+    year == 2010 & num_dependent + 1 == 6 & num_child < 2 ~ 2472,
+    year == 2010 & num_dependent + 1 == 7 & num_child < 2 ~ 2676,
+    year == 2010 & num_dependent + 1 == 8 & num_child < 2 ~ 2868,
+    year == 2010 & num_dependent + 1 == 9 & num_child < 2 ~ 3072,
+    year == 2010 & num_dependent + 1 == 3 & num_child >= 2 ~ 1994,
+    year == 2010 & num_dependent + 1 == 4 & num_child >= 2 ~ 2148,
+    year == 2010 & num_dependent + 1 == 5 & num_child >= 2 ~ 2340,
+    year == 2010 & num_dependent + 1 == 6 & num_child >= 2 ~ 2544,
+    year == 2010 & num_dependent + 1 == 7 & num_child >= 2 ~ 2736,
+    year == 2010 & num_dependent + 1 == 8 & num_child >= 2 ~ 2940,
+    year == 2010 & num_dependent + 1 == 9 & num_child >= 2 ~ 3132,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 1 ~ 1056,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 2 ~ 1404,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 3 ~ 1884,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 4 ~ 2076,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 5 ~ 2280,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 6 ~ 2472,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 7 ~ 2676,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 8 ~ 2868,
+    year <= 2012 & num_dependent + 1 + pmax(1, num_child) - 1 == 9 ~ 3072,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 1 ~ 1338,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 2 ~ 1608,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 3 ~ 2064,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 4 ~ 2268,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 5 ~ 2472,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 6 ~ 2676,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 7 ~ 2880,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 8 ~ 3084,
+    year == 2013 & num_dependent + 1 + pmax(1, num_child) - 1 == 9 ~ 3276,
+    year == 2014 & num_dependent + 1 + num_child == 1 ~ 1368,
+    year == 2014 & num_dependent + 1 + num_child == 2 ~ 1608,
+    year == 2014 & num_dependent + 1 + num_child == 3 ~ 2064,
+    year == 2014 & num_dependent + 1 + num_child == 4 ~ 2268,
+    year == 2014 & num_dependent + 1 + num_child == 5 ~ 2472,
+    year == 2014 & num_dependent + 1 + num_child == 6 ~ 2676,
+    year == 2014 & num_dependent + 1 + num_child == 7 ~ 2880,
+    year == 2014 & num_dependent + 1 + num_child == 8 ~ 3084,
+    year == 2014 & num_dependent + 1 + num_child == 9 ~ 3276,
+    year >= 2015 & num_dependent + 1 + num_child == 1 ~ 1272,
+    year >= 2015 & num_dependent + 1 + num_child == 2 ~ 1608,
+    year >= 2015 & num_dependent + 1 + num_child == 3 ~ 2064,
+    year >= 2015 & num_dependent + 1 + num_child == 4 ~ 2268,
+    year >= 2015 & num_dependent + 1 + num_child == 5 ~ 2472,
+    year >= 2015 & num_dependent + 1 + num_child == 6 ~ 2676,
+    year >= 2015 & num_dependent + 1 + num_child == 7 ~ 2880,
+    year >= 2015 & num_dependent + 1 + num_child == 8 ~ 3084,
+    year >= 2015 & num_dependent + 1 + num_child == 9 ~ 3276
+  )
+}
+
 # 変数作成とサブセット化
 # !condition (1): 24 <= age (N = 118,665)
 # !condition (2): taxpayers (N = 113,204)
@@ -301,7 +358,9 @@ dt3 <- dt2 %>%
   mutate(
     taxable_tinc = taxable_tinc - 150 - over70 * 100 -
       150 * hh_max_inc * (hhnum_child6 + hhnum_child18 + dependent_num) -
-      100 * hh_max_inc * dependent_over70_num
+      100 * hh_max_inc * dependent_over70_num,
+    no_withholding_inc = no_withholding_inc(hhnum_child, dependent_num + hhnum_child, year),
+    no_withholding = if_else(linc < no_withholding_inc, 1, 0)
   )
 
 # * Using hh_max_inc to calculate taxable total income
