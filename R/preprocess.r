@@ -240,6 +240,30 @@ check_dependent <- function(position, tinc, linc, age) {
   )
 }
 
+pension_deduction <- function(linc, year) {
+  # interval <- case_when(
+  #   year == 2010 ~ c(220 * 12 / 10, 3600 * 12 / 10),
+  #   year == 2011 ~ c(230 * 12 / 10, 3680 * 12 / 10),
+  #   year == 2012 ~ c(230 * 12 / 10, 3750 * 12 / 10),
+  #   year == 2013 ~ c(240 * 12 / 10, 3890 * 12 / 10),
+  #   year >= 2014 ~ c(250 * 12 / 10, 3980 * 12 / 10)
+  # )
+  case_when(
+    year <= 2009 ~ NA_real_,
+    year == 2010 & linc < 22 * 12 ~ 0.045 * 22 * 12,
+    year == 2010 & linc > 360 * 12 ~ 0.045 * 360 * 12,
+    year == 2011 & linc < 23 * 12 ~ 0.045 * 23 * 12,
+    year == 2011 & linc > 368 * 12 ~ 0.045 * 368 * 12,
+    year == 2012 & linc < 23 * 12 ~ 0.045 * 23 * 12,
+    year == 2012 & linc > 375 * 12 ~ 0.045 * 375 * 12,
+    year == 2013 & linc < 24 * 12 ~ 0.045 * 24 * 12,
+    year == 2013 & linc > 389 * 12 ~ 0.045 * 389 * 12,
+    year >= 2014 & linc < 25 * 12 ~ 0.045 * 25 * 12,
+    year >= 2014 & linc > 398 * 12 ~ 0.045 * 398 * 12,
+    TRUE ~ linc * 0.045
+  )
+}
+
 # 変数作成とサブセット化
 # !condition (1): 24 <= age (N = 118,665)
 # !condition (2): taxpayers (N = 113,204)
@@ -248,7 +272,8 @@ check_dependent <- function(position, tinc, linc, age) {
 dt2 <- dt %>%
   mutate(
     salary_deduct = employment_income_deduction(linc, year),
-    taxable_tinc = tinc - salary_deduct,
+    pension_deduct = pension_deduction(linc, year),
+    taxable_tinc = tinc - salary_deduct - pension_deduct,
     dependent = check_dependent(family_position, tinc, linc, age),
     payer = 1 - dependent,
     over70 = if_else(age >= 70, 1, 0),
