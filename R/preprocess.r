@@ -443,10 +443,12 @@ dt5 <- dt4 %>%
       year < 2014 ~ 1 - first_mtr,
       year >= 2014 ~ 1 - 0.15
     ),
+    price = if_else(no_withholding == 1 & tinc == linc, 1, price),
     lprice = case_when(
       year < 2014 ~ 1 - last_mtr,
       year >= 2014 ~ 1 - 0.15
     ),
+    lprice = if_else(no_withholding == 1 & tinc == linc, 1, lprice),
     price_ln = log(price),
     lprice_ln = log(lprice),
     ub = case_when(
