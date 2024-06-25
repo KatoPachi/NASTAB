@@ -410,10 +410,25 @@ mtr <- function(inc, year) {
   )
 }
 
+tax_amount <- function(inc, year) {
+  case_when(
+    inc < 1200 ~ inc * 0.06,
+    inc < 4600 ~ 72 + (inc - 1200) * 0.15,
+    inc < 8800 ~ 582 + (inc - 4600) * 0.24,
+    year <= 2011 ~ 1590 + (inc - 8800) * 0.35,
+    year <= 2013 & inc < 30000 ~ 1590 + (inc - 8800) * 0.35,
+    year <= 2013 ~ 9010 + (inc - 30000) * 0.38,
+    year <= 2017 & inc < 15000 ~ 1590 + (inc - 8800) * 0.35,
+    year <= 2016 ~ 3760 + (inc - 15000) * 0.38,
+    year == 2017 & inc < 50000 ~ 3760 + (inc - 15000) * 0.38,
+    year == 2017 ~ 17060 + (inc - 50000) * 0.4
+  )
+}
+
 dt5 <- dt4 %>%
   mutate(
     first_mtr = mtr(taxable_tinc, year),
-    after_tax_tinc = taxable_tinc * (1 - first_mtr),
+    after_tax_tinc = taxable_tinc - tax_amount(taxable_tinc, year),
     after_tax_tinc_ln = log(after_tax_tinc),
     last_mtr = mtr(taxable_tinc - donate, year),
     bracket = case_when(
