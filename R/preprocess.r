@@ -317,20 +317,17 @@ no_withholding_inc <- function(num_child, num_dependent, year) {
     year >= 2015 & num_dependent + 1 + num_child == 6 ~ 2676,
     year >= 2015 & num_dependent + 1 + num_child == 7 ~ 2880,
     year >= 2015 & num_dependent + 1 + num_child == 8 ~ 3084,
-    year >= 2015 & num_dependent + 1 + num_child == 9 ~ 3276
+    year >= 2015 & num_dependent + 1 + num_child == 9 ~ 3276,
+    year >= 2015 & num_dependent + 1 + num_child == 10 ~ 3468,
   )
 }
 
-# 変数作成とサブセット化
-# !condition (1): 24 <= age (N = 118,665)
-# !condition (2): taxpayers (N = 113,204)
-# !condition (3): 2010 <= year < 2018 (N = 74,688)
-# !condition (4): positive taxable income (N = 49,595)
+# * 変数作成とサブセット化
 dt2 <- dt %>%
   mutate(
     salary_deduct = employment_income_deduction(linc, year),
-    pension_deduct = pension_deduction(linc, year),
-    taxable_tinc = tinc - salary_deduct,
+    pension_deduct = if_else(linc > 0, pension_deduction(linc, year), 0),
+    taxable_tinc = tinc - salary_deduct - pension_deduct,
     dependent = check_dependent(family_position, tinc, linc, age),
     payer = 1 - dependent,
     over70 = if_else(age >= 70, 1, 0),
@@ -372,7 +369,12 @@ dt3 <- dt2 %>%
 # > with(dt3, summary(taxable_tinc))
 #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
 #    -800     309    1215    1991    2725  314185  103909
-
+# > nrow(dt3)
+# 167912
+# !condition (1): 24 <= age (N = 118,665)
+# !condition (2): taxpayers (N = 113,201)
+# !condition (3): 2010 <= year < 2018 (N = 74,687)
+# !condition (4): positive taxable income (N = 49,595) -> N = 49,435 if pension_deduct includes
 dt4 <- dt3 %>%
   dplyr::filter(24 <= age) %>%
   dplyr::filter(payer == 1) %>%
@@ -443,12 +445,12 @@ dt5 <- dt4 %>%
       year < 2014 ~ 1 - first_mtr,
       year >= 2014 ~ 1 - 0.15
     ),
-    price = if_else(no_withholding == 1 & tinc == linc, 1, price),
+    price = if_else((no_withholding == 1 & tinc == linc) | taxable_tinc <= 0, 1, price),
     lprice = case_when(
       year < 2014 ~ 1 - last_mtr,
       year >= 2014 ~ 1 - 0.15
     ),
-    lprice = if_else(no_withholding == 1 & tinc == linc, 1, lprice),
+    lprice = if_else((no_withholding == 1 & tinc == linc) | taxable_tinc <= 0, 1, lprice),
     price_ln = log(price),
     lprice_ln = log(lprice),
     ub = case_when(
@@ -531,14 +533,25 @@ dt7 <- dt6 %>%
 
 # * サブセット条件の追加
 # !condition (5): d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1) (N = 26,918)
-# condition (6): no experience bracket (F) & (G) (N = 26,705)
-# condition (7): amount of donation is lower than incentive upper-bound (N = 24,923)
+# ! -> N = 26,842 if pension_deduct includes
 dt8 <- dt7 %>%
   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
   mutate(
     limit_incentive = taxable_tinc * 0.1,
     over_limit_incentive = if_else(donate >= limit_incentive, 1, 0)
   )
+
+# * Full sample size in main analysis
+# !condition (6): Only wage-earners (N = 19,295) -> N = 19,230
+# !condition (7): Income far away each threshold (N = 18,341) -> N = 18,682
+# !condition (8): no experience bracket (F) & (G) (N = 18,231) -> N = 18,573
+# !condition (9): amount of donation is lower than incentive upper-bound (N = 17,014) -> N = 17,294
+# maindt <- dt8 %>%
+#   employee() %>%
+#   donut_hole(cut = 50) %>%
+#   log_inc() %>%
+#   remove_highest_bracket() %>%
+#   set_donate_bound()
 
 # * Write csv file
 readr::write_csv(dt8, file = here("data/shaped2.csv"))
