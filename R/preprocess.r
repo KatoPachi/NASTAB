@@ -356,8 +356,9 @@ dt3 <- dt2 %>%
     taxable_tinc = taxable_tinc - 150 - over70 * 100 -
       150 * hh_max_inc * (hhnum_child6 + hhnum_child18 + dependent_num) -
       100 * hh_max_inc * dependent_over70_num,
-    no_withholding_inc = no_withholding_inc(hhnum_child, dependent_num + hhnum_child, year),
-    no_withholding = if_else(linc < no_withholding_inc, 1, 0)
+    no_withholding_inc = no_withholding_inc(hhnum_child, dependent_num + hhnum_child, year), #del
+    no_withholding = if_else(linc < no_withholding_inc, 1, 0), #del
+    exempt = if_else(no_withholding == 1 & tinc == linc, 1, 0) #del
   )
 
 # * Using hh_max_inc to calculate taxable total income
@@ -445,12 +446,10 @@ dt5 <- dt4 %>%
       year < 2014 ~ 1 - first_mtr,
       year >= 2014 ~ 1 - 0.15
     ),
-    price = if_else((no_withholding == 1 & tinc == linc) | taxable_tinc <= 0, 1, price),
     lprice = case_when(
       year < 2014 ~ 1 - last_mtr,
       year >= 2014 ~ 1 - 0.15
     ),
-    lprice = if_else((no_withholding == 1 & tinc == linc) | taxable_tinc <= 0, 1, lprice),
     price_ln = log(price),
     lprice_ln = log(lprice),
     ub = case_when(
@@ -538,7 +537,7 @@ dt8 <- dt7 %>%
   dplyr::filter(d_relief_donate == 0 | (d_relief_donate == 1 & d_donate == 1)) %>%
   mutate(
     limit_incentive = taxable_tinc * 0.1,
-    over_limit_incentive = if_else(donate >= limit_incentive, 1, 0)
+    over_limit_incentive = if_else(donate > limit_incentive, 1, 0)
   )
 
 # * Full sample size in main analysis
