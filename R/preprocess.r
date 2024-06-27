@@ -327,7 +327,7 @@ dt2 <- dt %>%
   mutate(
     salary_deduct = employment_income_deduction(linc, year),
     pension_deduct = if_else(linc > 0, pension_deduction(linc, year), 0),
-    taxable_tinc = tinc - salary_deduct - pension_deduct,
+    taxable_tinc = tinc - salary_deduct,
     dependent = check_dependent(family_position, tinc, linc, age),
     payer = 1 - dependent,
     over70 = if_else(age >= 70, 1, 0),
