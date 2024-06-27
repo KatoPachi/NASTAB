@@ -26,48 +26,37 @@ employee <- function(data) {
 
 # * Subsample: remove highest bracket (bracket F & G)
 remove_highest_bracket <- function(data) {
-  dt <- subset(data, experience_FG == 0)
+  dt <- data %>%
+  group_by(pid) %>%
+  mutate(sum_experience_FG = sum(experience_FG)) %>%
+  ungroup() %>%
+  dplyr::filter(sum_experience_FG == 0)
+
   return(dt)
 }
 
 # * Subsample: remove bracket shifter
 remove_bracket_shift <- function(data) {
-  take_lag <- data %>%
+  dt <- data %>%
     group_by(pid) %>%
     arrange(year) %>%
-    mutate(
-      lag1_price = if_else(year - lag(year) > 1, NA_real_, price - lag(price)),
-      lag2_price = if_else(year - lag(year) > 2, NA_real_, price - lag(price, 2)),
-      lag3_price = if_else(year - lag(year) > 3, NA_real_, price - lag(price, 3))
-    )
+    mutate(bracket_shift = bracket != lag(bracket)) %>%
+    ungroup()
 
-  shifter1 <- subset(take_lag, year %in% 2011:2013 & lag1_price != 0)$pid
-  tbl_shifter1 <- table(table(shifter1))
+  ident_shift <- dt %>%
+    dplyr::filter(year %in% 2010:2014) %>%
+    group_by(pid) %>%
+    mutate(sum_bracket_shift = sum(bracket_shift, na.rm = TRUE)) %>%
+    ungroup() %>%
+    dplyr::filter(sum_bracket_shift > 0)
 
-  cat("Summary of Bracket-shift in 2010--2013\n")
-  cat("- One-year bracket shift:", length(shifter1), "obs\n")
-  cat("  - one time:", tbl_shifter1[1], "people\n")
-  cat("  - two times:", tbl_shifter1[2], "people\n")
-  cat("  - three times:", tbl_shifter1[3], "people\n")
+  id_removed <- unique(ident_shift$pid)
 
-  shifter2 <- subset(take_lag, year %in% 2011:2013 & lag2_price != 0)$pid
-  tbl_shifter2 <- table(table(shifter2))
+  cat("In total, there are", length(id_removed), "unique shifters.\n")
 
-  cat("- Two-year bracket shift:", length(shifter2), "obs\n")
-  cat("  - one time:", tbl_shifter2[1], "people\n")
-  cat("  - two times:", tbl_shifter2[2], "people\n")
+  dt2 <- subset(dt, !(pid %in% id_removed))
 
-  shifter3 <- subset(take_lag, year %in% 2011:2013 & lag3_price != 0)$pid
-
-  cat("- Three-year bracket shift:", length(shifter3), "obs\n")
-  cat("  - one time:", length(shifter3), "people\n")
-
-  shifter <- unique(c(shifter1, shifter2, shifter3))
-
-  cat("In total, there are", length(shifter), "unique shifters.\n")
-
-  dt <- subset(data, !(pid %in% shifter))
-  return(dt)
+  return(dt2)
 }
 
 # * Subsample: Set upper bound of donation

@@ -465,10 +465,7 @@ dt5 <- dt4 %>%
       year >= 2014 ~ 3000,
       year >= 2016 ~ 2000
     )
-  ) %>%
-  group_by(pid) %>%
-  mutate(experience_FG = if_else(sum(experience_FG) > 0, 1, 0)) %>%
-  ungroup()
+  )
 
 bracket13 <- dt5 %>%
   dplyr::filter(year == 2013) %>%
