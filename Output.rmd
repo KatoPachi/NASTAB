@@ -135,6 +135,12 @@ ggsave(
 \clearpage
 # Results
 ## Estimation Results
+
+Notes
+
+- Now, we define log disposal income as `after_tax_tinc = taxable_tinc - tax_amount(taxable_tinc, year)`
+- If `after_tax_tinc = taxable_tinc * (1 - first_mtr)`, extensive-margin elasticity is statistically significant at 10% level
+
 \clearpage
 
 ```{r first-price-class, include=FALSE}
