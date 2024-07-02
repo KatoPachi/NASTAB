@@ -360,7 +360,7 @@ policy <- main$policy_effect()
 ```{r policy-effect}
 # [Paper] Table 4
 tab <- policy$effective(
-  e = -3.473,
+  e = -3.395,
   title = "Policy Effect of 2014 Tax Reform",
   notes = "Notes: We use wage earners whose status of report is observed for 2013 and 2014. Column (1) shows the sample size by income bracket for 2013. Columns (2) and (3) are the report rates for each year. Columns (4) and (5) are the average actual price for each year. Column (6) reports the percentage change in the actual price. Columns (7) shows the average contribution in 2013. Column (8) shows the percentage change in contributions, which is the product of the value in Column (6) and the overall actual price elasticity ($-3.473$). Columns (2)--(8) divide the sample by income bracket, reporting status in 2013, and reporting status in 2014, calculate the corresponding indicator in each subset, and then calculate the average of each indicator weighted by the subset sample size in each income bracket. The bottom row shows the average weighted by the bracket sample size."
 )
