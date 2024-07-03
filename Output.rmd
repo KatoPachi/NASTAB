@@ -365,18 +365,3 @@ out.file <- file(here("export", "tables", "policy-effect.tex"), open = "w")
 writeLines(tab, out.file)
 close(out.file)
 ```
-
-\clearpage
-# Generalization of Relationship between Two Price Elasticities
-
-Let $p_E = 1 - D q$ be an actual price, where $D$ is an indicator of reporting and $q$ is tax incentive. This price determines the amount of donation: $g(p_e)$. We omit income for simplicity. Let $p_A = 1 - q$ be an simulated price. Thus, the actual price is a function of the simulated price: $p_E(p_A)$. Then, the simulated price elasticity is
-\begin{equation}
-\begin{split}
-  e^A
-  &= \frac{\partial g(p_E)}{\partial p_A} \frac{p_A}{g(p_E)} \\
-  &= \left(\frac{\partial g(p_E)}{\partial p_E}\frac{p_E}{g(p_E)} \right)
-  \left(\frac{\partial p_E}{\partial p_A}\frac{p_A}{p_E} \right) \\
-  &= e^E \times e^P,
-\end{split}
-\end{equation}
-where $e^E$ is the actual price elasticity and $e^P$ implies that 1 percent increase in the simulated price leads to $e^P$ percent increase in the actual price. If we can estimate two parameters, then we can also recover the remaining parameter.
