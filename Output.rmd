@@ -124,7 +124,7 @@ plot_data %>%
   labs(
     title = "Panel A. Amount of Giving",
     x = "Year",
-    y = "Normalized average giving\n(unit: 10,000KRW)",
+    y = "Average giving(unit: 10,000KRW)",
     shape = "Income bracket (unit: 10,000KRW)"
   ) +
   ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
@@ -233,7 +233,7 @@ pattern_summary <- lead_dt %>%
 
 pattern_summary %>%
   knitr::kable(
-    col.names = c("2013", "2015", "N", "2013", "2015"),
+    col.names = c("2013", "2014", "N", "2013", "2014"),
     digits = 3,
     align = "ccccc"
   ) %>%
