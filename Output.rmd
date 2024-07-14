@@ -200,6 +200,47 @@ plot_data %>%
   guides(shape = guide_legend(title.position = "top", title.hjust = 0.5))
 ```
 
+```{r donor-ts-pattern}
+lead_dt <- main$data %>%
+  dplyr::filter(year >= 2013) %>%
+  group_by(pid) %>%
+  arrange(year) %>%
+  mutate(
+    l_claim = if_else(year - lead(year) > 1, NA_real_, lead(d_relief_donate)),
+    l_d_donate = if_else(year - lead(year) > 1, NA_real_, lead(d_donate))
+  ) %>%
+  ungroup()
+
+pattern_summary <- lead_dt %>%
+  dplyr::filter(year == 2013) %>%
+  dplyr::filter(
+    !is.na(d_relief_donate) & !is.na(l_claim) &
+    !is.na(d_donate) & !is.na(l_d_donate)
+  ) %>%
+  dplyr::filter(str_detect(bracket13, "A")) %>%
+  group_by(d_donate, l_d_donate) %>%
+  summarize(
+    n = n(),
+    mu_claim0 = mean(d_relief_donate),
+    mu_claim1 = mean(l_claim)
+  )
+
+pattern_summary %>%
+  knitr::kable(
+    col.names = c("2013", "2015", "N", "2013", "2015"),
+    digits = 3,
+    align = "ccccc"
+  ) %>%
+  kableExtra::kable_styling() %>%
+  add_header_above(c("Donate or not" = 2, " " = 1, "Mean Report" = 2)) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: We use wage earners whose donation status and reporting status are observed in both 2013 and 2015 in income bracket (A), where taxable income is between 0 and 12 million KRW.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
 \clearpage
 # Results
 ## Estimation Results
