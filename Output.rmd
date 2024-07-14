@@ -128,6 +128,12 @@ plot_data %>%
     shape = "Income bracket (unit: 10,000KRW)"
   ) +
   ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
+
+ggsave(
+  here("not-for-pub", "figures", "level-intensive-extensive-tax-reform.pdf"),
+  width = 10,
+  height = 6
+)
 ```
 
 ```{r figureA1, fig.cap = "Event-study Analysis (Wage Earners)"}
