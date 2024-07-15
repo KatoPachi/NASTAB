@@ -42,9 +42,9 @@ SummaryData <- R6::R6Class("SummaryData", list(
         escape = FALSE
       ) %>%
       kable_styling(font_size = font_size) %>%
-      pack_rows("Income and giving price", 1, 2, bold = FALSE, italic = TRUE) %>%
-      pack_rows("Charitable giving", 3, 5, bold = FALSE, italic = TRUE) %>%
-      pack_rows("Demographics", 6, 14, bold = FALSE, italic = TRUE) %>%
+      pack_rows("Income and giving price", 1, 3, bold = FALSE, italic = TRUE) %>%
+      pack_rows("Charitable giving", 4, 6, bold = FALSE, italic = TRUE) %>%
+      pack_rows("Demographics", 7, 15, bold = FALSE, italic = TRUE) %>%
       footnote(
         general_title = "",
         general = notes,
