@@ -427,6 +427,49 @@ close(out.file)
 ```
 
 \clearpage
+### Poisson Regression
+\clearpage
+
+```{r poisson}
+poisson <- list(
+  donate ~ applicable + after_tax_tinc_ln + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(indust) + factor(area) | pid + year,
+  I(1 - d_relief_donate * (1 - price)) ~ applicable + after_tax_tinc_ln + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(indust) + factor(area) | pid + year
+)
+
+est_poisson <- poisson %>%
+  map(~ feglm(., data = fp_main$data, cluster = ~ hhid, family = "poisson"))
+
+est_poisson %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "Poisson Regression",
+    coef_map = c(
+      "applicable" = "Simulated price",
+      "after_tax_tinc_ln" = "Log disposal income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 9) %>%
+  add_header_above(c(" " = 1, "Donation" = 1, "Actual Price" = 1)) %>%
+  column_spec(1, width = "20em") %>%
+  column_spec(2:3, width = "10em") %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. In column (1), we removed 2,573 individuals (8,372 observations) because we observed only 0 outcomes.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+\clearpage
 ## Comparison with Price Elasticities of Reported Giving
 \clearpage
 
