@@ -54,6 +54,16 @@ dt <- rawdt %>%
   set_donate_bound()
 ```
 
+```{r write-dta, include=FALSE, eval=FALSE}
+library(readstata13)
+save.dta13(
+  rawdt,
+  file = here("stata/rawdata.dta"),
+  version = 16,
+  convert.factors = FALSE
+)
+```
+
 \clearpage
 # Data
 \clearpage
