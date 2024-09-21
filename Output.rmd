@@ -67,7 +67,7 @@ data_summary <- main$summary()
 # [Paper] Table 2
 tab <- data_summary$stats(
   title = "Descriptive Statistics",
-  notes = "Notes: Our data is unbalanced panel data consisting of 4,422 unique individuals and 8 years period (2010--2017). The number of dependents in household do not include the number of children."
+  notes = "Notes: Our data is unbalanced panel data consisting of 4,464 unique individuals and 8 years period (2010--2017). The number of dependents in household do not include the number of children."
 )
 
 tab
@@ -226,6 +226,7 @@ close(out.file)
 ```{r remove-bracket-shift-data, include=FALSE}
 dt2 <- rawdt %>%
   remove_bracket_shift() %>%
+  remove_highest_bracket() %>%
   set_donate_bound()
 
 fp_robust1 <- StartAnalysis$new(dt2)$first_price()
