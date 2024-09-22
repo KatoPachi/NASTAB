@@ -437,6 +437,12 @@ close(out.file)
 ```
 
 \clearpage
+### Tobit Regression
+\clearpage
+
+\input{Stata/tobit.tex}
+
+\clearpage
 ### Poisson Regression
 \clearpage
 
