@@ -64,5 +64,18 @@ reghdfe effective applicable after_tax_tinc_ln sqage hhnum hhnum_child ///
 
 estimates store fe
 
+//　Variable label
+label variable applicable "Simulated price"
+label variable after_tax_tinc_ln "Log after-tax income"
 
-
+// Output
+esttab * using tobit.tex, ///
+  se r2 star(* 0.1 ** 0.05 *** 0.01) b(3) ///
+  keep(applicable after_tax_tinc_ln) ///
+  booktabs ///
+  alignment(lcc) ///
+  title(Tobit Regression) ///
+  mtitles("Tobit" "FE") ///
+  label ///
+  addnote("Standard errors are clustered at household level. Column (1) represents right-censoring tobit regression. Censoring point is 10 percent of taxable income (standarized so that the smallest positive value is one). An outcome variable is the transformed logged value of donation, which is defined as $\log(\tilde{g})$ for $g > 0$ and $-1$ for $g=0$, where $\tilde{g}=g/\min_{g>0}[g]$. The value of the minimum nonzero donation, $\min_{g>0}[g]$, in our data is 2,000KRW. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and time fixed effects. Instead of individual fixed effect, we used demeaned variables subtracted from each individual's mean except the set of industry dummies and the set of residential area dummies. For reference, we showed the first-stage model in main FE-2SLS model in column (2).") ///
+  replace
