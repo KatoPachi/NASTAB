@@ -486,6 +486,86 @@ est_poisson %>%
 ```
 
 \clearpage
+### Price Elasticity of Expenditure Donation Rates
+
+- Amount of giving: $g(y, p)$, where $p = 1 - Rq$ and $y$ is after-tax income
+- Expenditure Donation Rate: $e(y, p) = g(y, p) / y$
+
+\begin{align}
+\begin{split}
+  &\frac{\partial e(y, p)}{\partial p} \frac{p}{e(y, p)} \\
+  =& \left(\frac{1}{y} \frac{\partial g(y, p)}{\partial p} \right)
+  \left( p \frac{y}{g(y, p)} \right) \\
+  =& \frac{\partial g(y, p)}{\partial p} \frac{p}{g(y, p)} \\
+  =& e_A
+\end{split}
+\end{align}
+
+\clearpage
+
+```{r expenditure-rates}
+dt <- fp_main$data
+dt$donate_share <- dt$donate / dt$after_tax_tinc
+min_donate_share <- with(subset(dt, donate_share > 0), min(donate_share))
+dt$donate_share <- dt$donate_share / min_donate_share
+dt$donate_share_ln <- ifelse(dt$donate_share == 0, -1, log(dt$donate_share))
+
+mods <- list(
+  donate_share_ln ~ applicable + ..stage2,
+  donate_share_ln ~ effective + ..stage2,
+  donate_share_ln ~ ..stage2 | effective ~ applicable
+)
+
+est_mods <- mods %>%
+  map(~feols(., data = dt, vcov = ~ hhid))
+
+ivf <- est_mods %>%
+  sapply(function(x) get_fitstat(x, "ivf", "stat")) %>%
+  sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x)))
+
+addtab <- data.frame(rbind(ivf))
+addtab <- cbind(
+  term = c("F-statistics of instrument"),
+  addtab
+)
+
+attr(addtab, "position") <- 9
+
+est_mods %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "Elasticity of Expenditure Ratio",
+    coef_map = c(
+      "applicable" = "Simulated price ($\\beta_S$)",
+      "effective" = "Actual price ($\\beta^{FE}_A$)",
+      "fit_effective" = "Actual price ($\\beta^{IV}_A$)",
+      "after_tax_tinc_ln" = "Log disposal income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 9) %>%
+  add_header_above(c(
+    " " = 1, "FE" = 2, "FE-2SLS" = 1
+  )) %>%
+  add_header_above(c(" " = 1, "Log expenditure donation ratio" = 3)) %>%
+  group_rows(
+    "1st stage information (Excluded instrument: Simulated price)",
+    9, 9,
+    bold = FALSE, italic = TRUE
+  ) %>%
+  column_spec(2:4, width = "5em") %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. In column (1)--(3), an outcome variable is the transformed logged value of expenditure raio of donation, which is defined as $\\\\log(\\\\tilde{e})$ for $e > 0$ and $-1$ for $e=0$, where $\\\\tilde{e}=e/\\\\min_{e>0}[e]$. The value of the minimum nonzero rate, $\\\\min_{e>0}[e]$, in our data is $0.005$%. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price in columns (3) and (6).",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+\clearpage
 ## Comparison with Price Elasticities of Reported Giving
 \clearpage
 
