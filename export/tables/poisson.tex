@@ -1,0 +1,25 @@
+\begin{table}
+
+\caption{(\#tab:poisson)Poisson Regression}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{20em}>{\centering\arraybackslash}p{10em}>{\centering\arraybackslash}p{10em}}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{1}{c}{Donation} & \multicolumn{1}{c}{Actual Price} \\
+\cmidrule(l{3pt}r{3pt}){2-2} \cmidrule(l{3pt}r{3pt}){3-3}
+  & (1) & (2)\\
+\midrule
+Simulated price & \num{-0.294} & \num{0.303}***\\
+ & (\num{0.488}) & (\num{0.027})\\
+Log disposal income & \num{1.149}*** & \num{-0.005}***\\
+ & (\num{0.099}) & (\num{0.001})\\
+\midrule
+Num.Obs. & \num{8675} & \num{17047}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. In column (1), we removed 2,573 individuals (8,372 observations) because we observed only 0 outcomes.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

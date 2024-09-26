@@ -54,6 +54,16 @@ dt <- rawdt %>%
   set_donate_bound()
 ```
 
+```{r write-dta, include=FALSE, eval=FALSE}
+library(readstata13)
+save.dta13(
+  rawdt,
+  file = here("stata/rawdata.dta"),
+  version = 16,
+  convert.factors = FALSE
+)
+```
+
 \clearpage
 # Data
 \clearpage
@@ -99,6 +109,43 @@ ggsave(
 )
 ```
 
+```{r level-giving}
+plot_data <- data_summary$data %>%
+  dplyr::filter(!is.na(bracket13)) %>%
+  mutate(bracket13 = if_else(
+    str_detect(bracket13, "C|D|E"),
+    "(C), (D) and (E) [4600, 30000)",
+    bracket13
+  )) %>%
+  group_by(year, bracket13) %>%
+  summarize(
+    amount = mean(donate, na.rm = TRUE),
+    donor = mean(d_donate * 100, na.rm = TRUE)
+  )
+
+plot_data %>%
+  ggplot(aes(x = year, y = amount, group = bracket13)) +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  geom_point(aes(shape = bracket13), size = 4) +
+  geom_line() +
+  scale_shape_manual(values = c(16, 15, 17, 18)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
+  # scale_y_continuous(breaks = seq(-30, 20, by = 10), limits = c(-30, 20)) +
+  labs(
+    title = "Panel A. Amount of Giving",
+    x = "Year",
+    y = "Average giving(unit: 10,000KRW)",
+    shape = "Income bracket (unit: 10,000KRW)"
+  ) +
+  ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13))
+
+ggsave(
+  here("not-for-pub", "figures", "level-intensive-extensive-tax-reform.pdf"),
+  width = 10,
+  height = 6
+)
+```
+
 ```{r figureA1, fig.cap = "Event-study Analysis (Wage Earners)"}
 # [Supplementary Material A] Figure A1
 data_summary$event_study(include_pid = TRUE)
@@ -130,6 +177,84 @@ ggsave(
   width = 10,
   height = 6
 )
+```
+
+```{r normalize-ts-claim}
+plot_data <- data_summary$data %>%
+  # dplyr::filter(d_donate == 1) %>%
+  dplyr::filter(!is.na(bracket13)) %>%
+  mutate(bracket13 = if_else(
+    str_detect(bracket13, "C|D|E"),
+    "(C), (D) and (E) [4600, 30000)",
+    bracket13
+  )) %>%
+  group_by(year, bracket13) %>%
+  summarize(mu = mean(d_relief_donate * 100, na.rm = TRUE)) %>%
+  pivot_wider(names_from = year, values_from = mu) %>%
+  mutate(base = `2013`) %>%
+  select(bracket13, base, everything()) %>%
+  pivot_longer(-(bracket13:base), names_to = "year", values_to = "mu") %>%
+  mutate(
+    mu = mu - base,
+    year = as.numeric(year)
+  )
+
+plot_data %>%
+  ggplot(aes(x = year, y = mu, group = bracket13)) +
+  geom_vline(aes(xintercept = 2013.5), linetype = 3) +
+  geom_point(aes(shape = bracket13), size = 4) +
+  geom_line() +
+  scale_shape_manual(values = c(16, 15, 17, 18)) +
+  scale_x_continuous(breaks = seq(2010, 2018, 1)) +
+  scale_y_continuous(limits = c(-30, 10), breaks = seq(-30, 10, by = 10)) +
+  labs(
+    x = "Year",
+    y = "Normalized Proportion of claimants\n(unit: percent change)",
+    shape = "Income bracket (unit:10,000KRW)"
+  ) +
+  ggtemp(size = list(axis_title = 15, axis_text = 13, title = 13)) +
+  guides(shape = guide_legend(title.position = "top", title.hjust = 0.5))
+```
+
+```{r donor-ts-pattern}
+lead_dt <- main$data %>%
+  dplyr::filter(year >= 2013) %>%
+  group_by(pid) %>%
+  arrange(year) %>%
+  mutate(
+    l_claim = if_else(year - lead(year) > 1, NA_real_, lead(d_relief_donate)),
+    l_d_donate = if_else(year - lead(year) > 1, NA_real_, lead(d_donate))
+  ) %>%
+  ungroup()
+
+pattern_summary <- lead_dt %>%
+  dplyr::filter(year == 2013) %>%
+  dplyr::filter(
+    !is.na(d_relief_donate) & !is.na(l_claim) &
+    !is.na(d_donate) & !is.na(l_d_donate)
+  ) %>%
+  dplyr::filter(str_detect(bracket13, "A")) %>%
+  group_by(d_donate, l_d_donate) %>%
+  summarize(
+    n = n(),
+    mu_claim0 = mean(d_relief_donate),
+    mu_claim1 = mean(l_claim)
+  )
+
+pattern_summary %>%
+  knitr::kable(
+    col.names = c("2013", "2014", "N", "2013", "2014"),
+    digits = 3,
+    align = "ccccc"
+  ) %>%
+  kableExtra::kable_styling() %>%
+  add_header_above(c("Donate or not" = 2, " " = 1, "Mean Report" = 2)) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: We use wage earners whose donation status and reporting status are observed in both 2013 and 2015 in income bracket (A), where taxable income is between 0 and 12 million KRW.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 ```
 
 \clearpage
@@ -308,6 +433,133 @@ tab <- fp_robust3$stage2(
 tab
 
 out.file <- file(here("export", "tables", "remove-upper-bound.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
+```
+
+\clearpage
+### Tobit Regression
+\clearpage
+
+\input{export/tables/tobit.tex}
+
+\clearpage
+### Poisson Regression
+\clearpage
+
+```{r poisson}
+poisson <- list(
+  donate ~ applicable + after_tax_tinc_ln + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(indust) + factor(area) | pid + year,
+  I(1 - d_relief_donate * (1 - price)) ~ applicable + after_tax_tinc_ln + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(indust) + factor(area) | pid + year
+)
+
+est_poisson <- poisson %>%
+  map(~ feglm(., data = fp_main$data, cluster = ~ hhid, family = "poisson"))
+
+tab <- est_poisson %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "Poisson Regression",
+    coef_map = c(
+      "applicable" = "Simulated price",
+      "after_tax_tinc_ln" = "Log disposal income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 9) %>%
+  add_header_above(c(" " = 1, "Donation" = 1, "Actual Price" = 1)) %>%
+  column_spec(1, width = "20em") %>%
+  column_spec(2:3, width = "10em") %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We use only wage earners. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. In column (1), we removed 2,573 individuals (8,372 observations) because we observed only 0 outcomes.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+tab
+
+out.file <- file(here("export", "tables", "poisson.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
+```
+
+\clearpage
+### Price Elasticity of Expenditure Donation Rates
+\clearpage
+
+```{r expenditure-rates}
+dt <- fp_main$data
+dt$donate_share <- dt$donate / dt$after_tax_tinc
+min_donate_share <- with(subset(dt, donate_share > 0), min(donate_share))
+dt$donate_share <- dt$donate_share / min_donate_share
+dt$donate_share_ln <- ifelse(dt$donate_share == 0, -1, log(dt$donate_share))
+
+mods <- list(
+  donate_share_ln ~ applicable + ..stage2,
+  donate_share_ln ~ effective + ..stage2,
+  donate_share_ln ~ ..stage2 | effective ~ applicable
+)
+
+est_mods <- mods %>%
+  map(~feols(., data = dt, vcov = ~ hhid))
+
+ivf <- est_mods %>%
+  sapply(function(x) get_fitstat(x, "ivf", "stat")) %>%
+  sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x)))
+
+addtab <- data.frame(rbind(ivf))
+addtab <- cbind(
+  term = c("F-statistics of instrument"),
+  addtab
+)
+
+attr(addtab, "position") <- 9
+
+tab <- est_mods %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "Elasticity of Expenditure Ratio of Donation",
+    coef_map = c(
+      "applicable" = "Simulated price ($\\beta_S$)",
+      "effective" = "Actual price ($\\beta^{FE}_A$)",
+      "fit_effective" = "Actual price ($\\beta^{IV}_A$)",
+      "after_tax_tinc_ln" = "Log disposal income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 9) %>%
+  add_header_above(c(
+    " " = 1, "FE" = 2, "FE-2SLS" = 1
+  )) %>%
+  add_header_above(c(" " = 1, "Log expenditure ratio of donation" = 3)) %>%
+  group_rows(
+    "1st stage information (Excluded instrument: Simulated price)",
+    9, 9,
+    bold = FALSE, italic = TRUE
+  ) %>%
+  column_spec(2:4, width = "5em") %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. In column (1)--(3), an outcome variable is the transformed logged value of expenditure raio of donation, which is defined as $\\\\log(\\\\tilde{e})$ for $e > 0$ and $-1$ for $e=0$, where $\\\\tilde{e}=e/\\\\min_{e>0}[e]$. The value of the minimum nonzero rate, $\\\\min_{e>0}[e]$, in our data is $0.005$%. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price in columns (3) and (6).",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+
+tab
+
+out.file <- file(here("export", "tables", "expenditure-ratio.tex"), open = "w")
 writeLines(tab, out.file)
 close(out.file)
 ```
