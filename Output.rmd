@@ -461,7 +461,7 @@ poisson <- list(
 est_poisson <- poisson %>%
   map(~ feglm(., data = fp_main$data, cluster = ~ hhid, family = "poisson"))
 
-est_poisson %>%
+tab <- est_poisson %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
     title = "Poisson Regression",
@@ -483,24 +483,16 @@ est_poisson %>%
     threeparttable = TRUE,
     escape = FALSE
   )
+
+tab
+
+out.file <- file(here("export", "tables", "poisson.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
 \clearpage
 ### Price Elasticity of Expenditure Donation Rates
-
-- Amount of giving: $g(y, p)$, where $p = 1 - Rq$ and $y$ is after-tax income
-- Expenditure Donation Rate: $e(y, p) = g(y, p) / y$
-
-\begin{align}
-\begin{split}
-  &\frac{\partial e(y, p)}{\partial p} \frac{p}{e(y, p)} \\
-  =& \left(\frac{1}{y} \frac{\partial g(y, p)}{\partial p} \right)
-  \left( p \frac{y}{g(y, p)} \right) \\
-  =& \frac{\partial g(y, p)}{\partial p} \frac{p}{g(y, p)} \\
-  =& e_A
-\end{split}
-\end{align}
-
 \clearpage
 
 ```{r expenditure-rates}
@@ -531,10 +523,10 @@ addtab <- cbind(
 
 attr(addtab, "position") <- 9
 
-est_mods %>%
+tab <- est_mods %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
-    title = "Elasticity of Expenditure Ratio",
+    title = "Elasticity of Expenditure Ratio of Donation",
     coef_map = c(
       "applicable" = "Simulated price ($\\beta_S$)",
       "effective" = "Actual price ($\\beta^{FE}_A$)",
@@ -550,7 +542,7 @@ est_mods %>%
   add_header_above(c(
     " " = 1, "FE" = 2, "FE-2SLS" = 1
   )) %>%
-  add_header_above(c(" " = 1, "Log expenditure donation ratio" = 3)) %>%
+  add_header_above(c(" " = 1, "Log expenditure ratio of donation" = 3)) %>%
   group_rows(
     "1st stage information (Excluded instrument: Simulated price)",
     9, 9,
@@ -563,6 +555,12 @@ est_mods %>%
     threeparttable = TRUE,
     escape = FALSE
   )
+
+tab
+
+out.file <- file(here("export", "tables", "expenditure-ratio.tex"), open = "w")
+writeLines(tab, out.file)
+close(out.file)
 ```
 
 \clearpage

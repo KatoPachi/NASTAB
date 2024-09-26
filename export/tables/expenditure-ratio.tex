@@ -1,0 +1,34 @@
+\begin{table}
+
+\caption{(\#tab:expenditure-rates)Elasticity of Expenditure Ratio of Donation}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{threeparttable}
+\begin{tabular}[t]{l>{\centering\arraybackslash}p{5em}>{\centering\arraybackslash}p{5em}>{\centering\arraybackslash}p{5em}}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Log expenditure ratio of donation} \\
+\cmidrule(l{3pt}r{3pt}){2-4}
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{FE} & \multicolumn{1}{c}{FE-2SLS} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-4}
+  & (1) & (2) & (3)\\
+\midrule
+Simulated price ($\beta_S$) & \num{-1.083}* &  & \\
+ & (\num{0.592}) &  & \\
+Actual price ($\beta^{FE}_A$) &  & \num{-20.891}*** & \\
+ &  & (\num{0.659}) & \\
+Actual price ($\beta^{IV}_A$) &  &  & \num{-3.109}*\\
+ &  &  & (\num{1.606})\\
+Log disposal income & \num{0.454}*** & \num{0.137}*** & \num{0.437}***\\
+ & (\num{0.052}) & (\num{0.037}) & (\num{0.053})\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textit{1st stage information (Excluded instrument: Simulated price)}}\\
+\hspace{1em}F-statistics of instrument &  &  & \num{1029.071}\\
+Num.Obs. & \num{17047} & \num{17047} & \num{17047}\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\item Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. In column (1)--(3), an outcome variable is the transformed logged value of expenditure raio of donation, which is defined as $\log(\tilde{e})$ for $e > 0$ and $-1$ for $e=0$, where $\tilde{e}=e/\min_{e>0}[e]$. The value of the minimum nonzero rate, $\min_{e>0}[e]$, in our data is $0.005$%. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price in columns (3) and (6).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
