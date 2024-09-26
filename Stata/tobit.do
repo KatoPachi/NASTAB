@@ -93,8 +93,9 @@ label variable demean_after_tax_tinc_ln "(Demeaned) log after-tax income"
 
 // Output
 esttab tobit trunc using "$path/export/tables/tobit.tex", ///
-  se r2 star(* 0.1 ** 0.05 *** 0.01) b(3) ///
+  se star(* 0.1 ** 0.05 *** 0.01) b(3) ///
   keep(demean_applicable demean_after_tax_tinc_ln) ///
+  scalars("ll Log Lik.") ///
   booktabs ///
   alignment(lcc) ///
   title(Tobit Regression) ///
