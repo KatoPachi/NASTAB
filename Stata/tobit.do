@@ -1,4 +1,5 @@
-cd "C:/Users/vge00/Desktop/NASTAB/analysis/Stata"
+global path "C:/Users/vge00/Desktop/NASTAB/analysis"
+cd "$path/Stata"
 use rawdata.dta, clear
 
 // Remove highest brackets F & G
@@ -30,6 +31,7 @@ gen effective = d_relief_donate * applicable
 // Demeand variables
 egen mean_donate_ln = mean(donate_ln), by (pid)
 egen mean_applicable = mean(applicable), by (pid)
+egen mean_effective = mean(effective), by (pid)
 egen mean_after_tax_tinc_ln = mean(after_tax_tinc_ln), by (pid)
 egen mean_sqage = mean(sqage), by (pid)
 egen mean_hhnum = mean(hhnum), by (pid)
@@ -40,6 +42,7 @@ egen mean_header = mean(header), by (pid)
 
 gen demean_donate_ln = donate_ln - mean_donate_ln
 gen demean_applicable = applicable - mean_applicable
+gen demean_effective = effective - mean_effective
 gen demean_after_tax_tinc_ln = after_tax_tinc_ln - mean_after_tax_tinc_ln
 gen demean_sqage = sqage - mean_sqage
 gen demean_hhnum = hhnum - mean_hhnum
@@ -57,12 +60,30 @@ tobit demean_donate_ln demean_applicable demean_after_tax_tinc_ln ///
 
 estimates store tobit
 
-// Fixed effect model (1st stage)
-reghdfe effective applicable after_tax_tinc_ln sqage hhnum hhnum_child ///
-  dependent_num hh_max_inc header i.indust i.area, ///
-  absorb(pid year) vce(cluster hhid) keepsing
+// Tobit-IV regression
+// * `ivtobit` requires constant limit
+// ivtobit demean_donate_ln demean_after_tax_tinc_ln ///
+//   demean_sqage demean_hhnum demean_hhnum_child ///
+//   demean_dependent_num demean_hh_max_inc demean_header ///
+//   i.indust i.area i.year ///
+//   (demean_effective = demean_applicable), ///
+//   ul(amount_limit_incentive) vce(cluster hhid)
 
-estimates store fe
+// Truncated regression
+truncreg demean_donate_ln demean_applicable demean_after_tax_tinc_ln ///
+  demean_sqage demean_hhnum demean_hhnum_child ///
+  demean_dependent_num demean_hh_max_inc demean_header ///
+  i.indust i.area i.year, ///
+  ul(amount_limit_incentive) vce(cluster hhid)
+
+estimates store trunc 
+  
+// Fixed effect model (1st stage)
+// reghdfe effective applicable after_tax_tinc_ln sqage hhnum hhnum_child ///
+//   dependent_num hh_max_inc header i.indust i.area, ///
+//   absorb(pid year) vce(cluster hhid) keepsing
+//
+// estimates store fe
 
 //　Variable label
 label variable applicable "Simulated price"
@@ -71,15 +92,15 @@ label variable after_tax_tinc_ln "Log after-tax income"
 label variable demean_after_tax_tinc_ln "(Demeaned) log after-tax income"
 
 // Output
-esttab tobit fe using tobit.tex, ///
+esttab tobit trunc using "$path/export/tables/tobit.tex", ///
   se r2 star(* 0.1 ** 0.05 *** 0.01) b(3) ///
-  keep(demean_applicable applicable demean_after_tax_tinc_ln after_tax_tinc_ln) ///
+  keep(demean_applicable demean_after_tax_tinc_ln) ///
   booktabs ///
   alignment(lcc) ///
   title(Tobit Regression) ///
-  mtitles("Tobit" "FE") ///
+  mtitles("Tobit" "Truncated") ///
   label ///
   nogaps ///
   nonote ///
-  addnote("\parbox{15cm}{* p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level in parenethses. Column (1) represents right-censoring tobit regression. Censoring point is 10 percent of taxable income (standarized so that the smallest positive value is one). An outcome variable is the transformed logged value of donation, which is defined as $\log(\tilde{g})$ for $g > 0$ and $-1$ for $g=0$, where $\tilde{g}=g/\min_{g>0}[g]$. The value of the minimum nonzero donation, $\min_{g>0}[g]$, in our data is 2,000KRW. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and time fixed effects. Instead of individual fixed effect, we used demeaned variables subtracted from each individual's mean except the set of industry dummies and the set of residential area dummies. For reference, we showed the first-stage model in main FE-2SLS model in column (2).}") ///
+  addnote("\parbox{15cm}{* p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level in parenethses. Censoring point and truncation point are 10 percent of taxable income (standarized so that the smallest positive value is one). An outcome variable is the transformed logged value of donation, which is defined as $\log(\tilde{g})$ for $g > 0$ and $-1$ for $g=0$, where $\tilde{g}=g/\min_{g>0}[g]$. The value of the minimum nonzero donation, $\min_{g>0}[g]$, in our data is 2,000KRW. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and time fixed effects. Instead of individual fixed effect, we used demeaned variables subtracted from each individual's mean except the set of industry dummies and the set of residential area dummies.}") ///
   replace

@@ -1,0 +1,20 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Tobit Regression}
+\begin{tabular}{l*{2}{lcc}}
+\toprule
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}\\
+                    &\multicolumn{1}{c}{Tobit}&\multicolumn{1}{c}{Truncated}\\
+\midrule
+main                &                     &                     \\
+(Demeaned) simulated price&      -1.321\sym{***}&      -1.287\sym{**} \\
+                    &     (0.504)         &     (0.505)         \\
+(Demeaned) log after-tax income&       0.502\sym{***}&       0.508\sym{***}\\
+                    &     (0.043)         &     (0.044)         \\
+\midrule
+Observations        &       17047         &       17044         \\
+\(R^{2}\)           &                     &                     \\
+\bottomrule
+\multicolumn{3}{l}{\footnotesize \parbox{15cm}{* p < 0.1, ** p < 0.05, *** p < 0.01. Standard errors are clustered at household level in parenethses. Censoring point and truncation point are 10 percent of taxable income (standarized so that the smallest positive value is one). An outcome variable is the transformed logged value of donation, which is defined as $\log(\tilde{g})$ for  > 0$ and $-1$ for =0$, where $\tilde{g}=g/\min\_{g>0}[g]$. The value of the minimum nonzero donation, $\min\_{g>0}[g]$, in our data is 2,000KRW. In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and time fixed effects. Instead of individual fixed effect, we used demeaned variables subtracted from each individual's mean except the set of industry dummies and the set of residential area dummies.}}\\
+\end{tabular}
+\end{table}
