@@ -738,7 +738,7 @@ est_mods %>%
   ) %>%
   footnote(
     general_title = "",
-    general = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners whose income bracket was (A), (B), and (C). We exclude those whose prices changed during the income deduction period. In column (1)--(2), an outcome variable is logged value of after-tax income. In column (3)--(4), an outcome variable is logged value of pretax income. Covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price in column (2).",
+    general = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. We exclude those whose prices changed during the income deduction period. In column (1)--(2), an outcome variable is logged value of after-tax income. In column (3)--(4), an outcome variable is logged value of pretax income. Covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price in column (2).",
     threeparttable = TRUE,
     escape = FALSE
   )
