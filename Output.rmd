@@ -704,8 +704,6 @@ addtab <- cbind(
 
 attr(addtab, "position") <- 11
 
-summary(est_mods[[1]])
-
 est_mods %>%
   modelsummary(
     title = "Price Elasticity of Income",
