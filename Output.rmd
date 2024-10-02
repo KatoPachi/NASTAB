@@ -531,7 +531,7 @@ attr(addtab, "position") <- 9:11
 tab <- est_mods %>%
   setNames(paste0("(", seq(length(.)), ")")) %>%
   modelsummary(
-    title = "\\label{tab:expenditure-ratio}Elasticity of Expenditure Ratio of Donation",
+    title = "Elasticity of Expenditure Ratio of Donation",
     coef_map = c(
       "applicable" = "Simulated price ($\\beta_S$)",
       "effective" = "Actual price ($\\beta^{FE}_A$)",
@@ -571,6 +571,179 @@ tab
 out.file <- file(here("export", "tables", "expenditure-ratio.tex"), open = "w")
 writeLines(tab, out.file)
 close(out.file)
+```
+
+```{r expenditure-ratio-2}
+dt <- fp_main$data
+dt$donate_share <- dt$donate / dt$tinc
+
+mods <- list(
+  donate_share ~ applicable + tinc_ln + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(indust) + factor(area) | pid + year,
+  donate_share ~ effective + tinc_ln + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(indust) + factor(area) | pid + year,
+  donate_share ~ tinc_ln + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(indust) + factor(area) | pid + year |
+    effective ~ applicable
+)
+
+est_mods <- mods %>%
+  map(~feols(., data = dt, vcov = ~ hhid))
+
+share_mu <- with(dt, mean(donate_share))
+
+imp <- est_mods %>%
+  map(~ implied_e(., share_mu)) %>%
+  map(~ pivot_longer(., everything())[, 2]) %>%
+  reduce(cbind)
+
+ivf <- est_mods %>%
+  sapply(function(x) get_fitstat(x, "ivf", "stat")) %>%
+  sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x)))
+
+addtab <- data.frame(rbind(imp, ivf))
+addtab <- cbind(
+  term = c("Estimate", "", "F-statistics of instrument"),
+  addtab
+)
+
+attr(addtab, "position") <- 9:11
+
+est_mods %>%
+  setNames(paste0("(", seq(length(.)), ")")) %>%
+  modelsummary(
+    title = "Elasticity of Expenditure Ratio of Donation",
+    coef_map = c(
+      "applicable" = "Simulated price ($\\beta_S$)",
+      "effective" = "Actual price ($\\beta^{FE}_A$)",
+      "fit_effective" = "Actual price ($\\beta^{IV}_A$)",
+      "tinc_ln" = "Log pretax income"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 9) %>%
+  add_header_above(c(
+    " " = 1, "FE" = 2, "FE-2SLS" = 1
+  )) %>%
+  add_header_above(c(" " = 1, "Donation expenditure ratio" = 3)) %>%
+  group_rows(
+    "Implied price elasticity",
+    9, 10,
+    italic = TRUE, bold = FALSE
+  ) %>%
+  group_rows(
+    "1st stage information (Excluded instrument: Simulated price)",
+    11, 11,
+    bold = FALSE, italic = TRUE
+  ) %>%
+  column_spec(2:4, width = "5em") %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners. In column (1)--(3), an outcome variable is donation expenditure ratio, $E = g/y$, where $g$ is donation amount and $y$ is pretax income. The price elasticity can be obtained by $\\\\hat{\\\\beta}/E$, where $\\\\hat{\\\\beta}$ is estimate. Thus, we calculated the implied price elasticities as $\\\\hat{\\\\beta}/\\\\bar{E}$, where $\\\\bar{E}$ is sample average of $E$ ($0.004$ in our data). In addition to logged income, covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price in columns (3) and (6).",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+\clearpage
+### Price Elasticity of Income
+\clearpage
+
+```{r elasticity-of-income}
+mods <- list(
+  after_tax_tinc_ln ~ applicable + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(bracket) + factor(indust) + factor(area) |
+    pid + year,
+  after_tax_tinc_ln ~ sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(bracket) + factor(indust) + factor(area) |
+    pid + year |
+    effective ~ applicable,
+  tinc_ln ~ applicable + sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(bracket) + factor(indust) + factor(area) |
+    pid + year,
+  tinc_ln ~ sqage +
+    hhnum + hhnum_child + dependent_num +
+    hh_max_inc + I(family_position == 1) +
+    factor(bracket) + factor(indust) + factor(area) |
+    pid + year |
+    effective ~ applicable
+)
+
+est_mods <- mods %>%
+  map(~ feols(
+    .,
+    data = fp_robust1$data,
+    vcov = ~ hhid,
+    panel.id = ~ pid + year
+  ))
+
+ivf <- est_mods %>%
+  sapply(function(x) get_fitstat(x, "ivf", "stat")) %>%
+  sapply(function(x) ifelse(is.na(x), "", sprintf("\\num{%1.3f}", x)))
+
+addtab <- data.frame(rbind(ivf))
+addtab <- cbind(
+  term = c("F-statistics of instrument"),
+  addtab
+)
+
+attr(addtab, "position") <- 11
+
+summary(est_mods[[1]])
+
+est_mods %>%
+  modelsummary(
+    title = "Price Elasticity of Income",
+    coef_map = c(
+      "applicable" = "Simulated price (log)",
+      "fit_effective" = "Actual price (log)",
+      "factor(bracket)(B) [1200, 4600)" = "1 = Bracket (B)",
+      "factor(bracket)(C) [4600, 8800)" = "1 = Bracket (C)",
+      "factor(bracket)(D) & (E) [8800, 30000)" = "1 = Bracket (D) and (E)"
+    ),
+    gof_omit = "R2 Pseudo|R2 Within|AIC|BIC|Log|Std|FE|R2|RMSE",
+    stars = c("***" = 0.01, "**" = 0.05, "*" = 0.1),
+    add_rows = addtab,
+    escape = FALSE
+  ) %>%
+  kable_styling(font_size = 9) %>%
+  add_header_above(c(
+    " " = 1, "FE" = 1, "FE-2SLS" = 1, "FE" = 1, "FE-2SLS" = 1
+  )) %>%
+  add_header_above(c(
+    " " = 1, "ln(after-tax income)" = 2, "ln(pretax income)" = 2
+  )) %>%
+  group_rows(
+    "Income bracket dummies (Reference: Bracket A)",
+    5, 10,
+    bold = FALSE, italic = TRUE
+  ) %>%
+  group_rows(
+    "1st stage information (Excluded instrument: Simulated price)",
+    11, 11,
+    bold = FALSE, italic = TRUE
+  ) %>%
+  footnote(
+    general_title = "",
+    general = "Notes: * $p < 0.1$, ** $p < 0.05$, *** $p < 0.01$. Standard errors clustered at the household level are in parentheses. We only use wage earners whose income bracket was (A), (B), and (C). We exclude those whose prices changed during the income deduction period. In column (1)--(2), an outcome variable is logged value of after-tax income. In column (3)--(4), an outcome variable is logged value of pretax income. Covariates consist of squared age (divided by 100), number of household members, number of children, number of dependents, a dummy that indicates the highest income in a household, a dummy that indicates that a taxpayer is household head, a set of industry dummies, a set of residential area dummies, and individual and time fixed effects. The excluded instrument is a logged value of simulated price in column (2).",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
 ```
 
 \clearpage
