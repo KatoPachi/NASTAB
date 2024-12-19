@@ -24,3 +24,6 @@ git-worktree/
 
 # output PDF files
 Output.pdf
+
+# data folder
+data/
